@@ -1,0 +1,76 @@
+.slide-game {
+  text-align: center;
+  padding: 24px;
+  color: white;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  margin: 24px auto;
+  max-width: 600px;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.6s ease;
+  padding: 8px 0;
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-item {
+  scroll-snap-align: center;
+  min-width: 70px;
+  height: 100px;
+  background: #222;
+  color: white;
+  font-weight: bold;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2px solid transparent;
+  transition: border 0.2s ease;
+}
+
+.carousel-item.selected {
+  border-color: #00ff88;
+  background: #333;
+}
+
+.selector-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: white;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.result-text {
+  font-size: 20px;
+  margin-top: 16px;
+}
+
+.slide-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.token-display {
+  padding: 4px 12px;
+  background: #222;
+  border-radius: 6px;
+}

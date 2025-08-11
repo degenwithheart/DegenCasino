@@ -1,0 +1,10 @@
+# Ignore environment file
+.env
+ExampleGames/
+**/ExampleGames/
+.DS_Store
+**/.DS_Store
+.vercel
+.vite
+dist
+node_modules

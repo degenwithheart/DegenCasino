@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>DegenHeart.casino - Solana On-chain Web3 casino🔥</title>
+    
+    <!-- Google Fonts for casino style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    
+    <!-- Favicon and app icons -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/icon-512.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="/manifest.webmanifest">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="DegenHeart.casino - Solana On-chain Web3 casino🔥" />
+    <meta property="og:description" content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
+    <meta property="og:image" content="/casino.png" />
+    <meta property="og:url" content="https://degenheart.casino" />
+    <meta property="og:site_name" content="DegenHeart.casino" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="DegenHeart.casino Logo" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DegenHeart.casino - Solana On-chain Web3 casino🔥" />
+    <meta name="twitter:description" content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
+    <meta name="twitter:image" content="/casino.png" />
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+      // Polyfill for Buffer before modules load
+      window.global = window;
+      if (typeof Buffer === 'undefined') {
+        window.Buffer = {};
+      }
+      if (typeof process === 'undefined') {
+        window.process = {
+          env: { DEBUG: undefined },
+          version: '',
+          nextTick: function(fn) { setTimeout(fn, 0); },
+          browser: true
+        };
+      }
+    </script>
+    <script type="module" src="./src/index.tsx"></script>
+  </body>
+</html>
