@@ -96,7 +96,38 @@ export const ScreenWrapper = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 25%, #4f46e5 50%, #6366f1 75%, #8b5cf6 100%);
+  border-radius: 24px;
+  border: 3px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(79, 70, 229, 0.2);
+
+  &::before {
+    content: '🚀';
+    position: absolute;
+    top: 8%;
+    left: 8%;
+    font-size: 120px;
+    opacity: 0.07;
+    transform: rotate(-10deg);
+    pointer-events: none;
+    color: #4f46e5;
+  }
+
+  &::after {
+    content: '⭐';
+    position: absolute;
+    bottom: 10%;
+    right: 10%;
+    font-size: 100px;
+    opacity: 0.08;
+    transform: rotate(15deg);
+    pointer-events: none;
+    color: #6366f1;
+  }
 `
 
 export const MultiplierText = styled.div`

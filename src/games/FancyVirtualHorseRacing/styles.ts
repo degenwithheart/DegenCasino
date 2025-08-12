@@ -95,7 +95,48 @@ export const ScreenWrapper = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 25%, #7c3aed 50%, #a855f7 75%, #e879f9 100%);
+  border-radius: 24px;
+  border: 3px solid rgba(124, 58, 237, 0.3);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(124, 58, 237, 0.2);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8%;
+    left: 10%;
+    font-size: 120px;
+    opacity: 0.08;
+    transform: rotate(-15deg);
+    pointer-events: none;
+    color: #7c3aed;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle' font-size='60'%3E🐎%3C/text%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 120px;
+    height: 120px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 15%;
+    right: 8%;
+    font-size: 100px;
+    opacity: 0.06;
+    transform: rotate(20deg);
+    pointer-events: none;
+    color: #a855f7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle' font-size='60'%3E🏁%3C/text%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100px;
+    height: 100px;
+  }
 `
 
 export const MultiplierText = styled.div`

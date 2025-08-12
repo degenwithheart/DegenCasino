@@ -190,12 +190,60 @@ export default function Flip() {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'linear-gradient(135deg, #92400e 0%, #d97706 25%, #f59e0b 50%, #fbbf24 75%, #fde047 100%)',
+            borderRadius: '24px',
+            border: '3px solid rgba(245, 158, 11, 0.3)',
+            boxShadow: `
+              0 25px 50px rgba(0, 0, 0, 0.5),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(245, 158, 11, 0.2)
+            `,
             position: 'relative',
             overflow: 'hidden'
           }}>
+            {/* Floating coin background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '12%',
+              left: '10%',
+              fontSize: '130px',
+              opacity: 0.08,
+              transform: 'rotate(-18deg)',
+              pointerEvents: 'none',
+              color: '#f59e0b'
+            }}>🪙</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '18%',
+              right: '12%',
+              fontSize: '110px',
+              opacity: 0.06,
+              transform: 'rotate(22deg)',
+              pointerEvents: 'none',
+              color: '#fbbf24'
+            }}>💰</div>
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              right: '18%',
+              fontSize: '90px',
+              opacity: 0.05,
+              transform: 'rotate(-28deg)',
+              pointerEvents: 'none',
+              color: '#d97706'
+            }}>🎖️</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '40%',
+              left: '15%',
+              fontSize: '85px',
+              opacity: 0.07,
+              transform: 'rotate(35deg)',
+              pointerEvents: 'none',
+              color: '#fde047'
+            }}>🏆</div>
+            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',

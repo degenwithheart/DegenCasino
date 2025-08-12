@@ -434,18 +434,61 @@ export default function Slots() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #581c87 0%, #7c3aed 25%, #a855f7 50%, #c084fc 75%, #e879f9 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(168, 85, 247, 0.3)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(168, 85, 247, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
+            {/* Floating slot machine background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '8%',
+              left: '6%',
+              fontSize: '110px',
+              opacity: 0.06,
+              transform: 'rotate(-12deg)',
+              pointerEvents: 'none',
+              color: '#a855f7'
+            }}>🎰</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '12%',
+              right: '8%',
+              fontSize: '95px',
+              opacity: 0.08,
+              transform: 'rotate(20deg)',
+              pointerEvents: 'none',
+              color: '#c084fc'
+            }}>💎</div>
+            <div style={{
+              position: 'absolute',
+              top: '40%',
+              right: '12%',
+              fontSize: '85px',
+              opacity: 0.05,
+              transform: 'rotate(-20deg)',
+              pointerEvents: 'none',
+              color: '#7c3aed'
+            }}>🍒</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '30%',
+              left: '10%',
+              fontSize: '75px',
+              opacity: 0.07,
+              transform: 'rotate(25deg)',
+              pointerEvents: 'none',
+              color: '#e879f9'
+            }}>🔔</div>
+            
             {/* Decorative corner elements */}
             <div style={{
               position: 'absolute',

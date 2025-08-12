@@ -291,12 +291,60 @@ export default function HiLo(props: HiLoConfig) {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 25%, #ef4444 50%, #f87171 75%, #fca5a5 100%)',
+            borderRadius: '24px',
+            border: '3px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: `
+              0 25px 50px rgba(0, 0, 0, 0.5),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(239, 68, 68, 0.2)
+            `,
             position: 'relative',
             overflow: 'hidden'
           }}>
+            {/* Floating card background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '10%',
+              left: '8%',
+              fontSize: '110px',
+              opacity: 0.08,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#ef4444'
+            }}>🃏</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '10%',
+              fontSize: '95px',
+              opacity: 0.06,
+              transform: 'rotate(20deg)',
+              pointerEvents: 'none',
+              color: '#f87171'
+            }}>🎴</div>
+            <div style={{
+              position: 'absolute',
+              top: '42%',
+              right: '12%',
+              fontSize: '85px',
+              opacity: 0.07,
+              transform: 'rotate(-25deg)',
+              pointerEvents: 'none',
+              color: '#dc2626'
+            }}>♠️</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '38%',
+              left: '10%',
+              fontSize: '75px',
+              opacity: 0.05,
+              transform: 'rotate(30deg)',
+              pointerEvents: 'none',
+              color: '#fca5a5'
+            }}>♥️</div>
+            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',

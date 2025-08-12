@@ -224,12 +224,60 @@ export default function Limbo() {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 25%, #4b5563 50%, #6b7280 75%, #9ca3af 100%)',
+            borderRadius: '24px',
+            border: '3px solid rgba(75, 85, 99, 0.3)',
+            boxShadow: `
+              0 25px 50px rgba(0, 0, 0, 0.5),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(75, 85, 99, 0.2)
+            `,
             position: 'relative',
             overflow: 'hidden'
           }}>
+            {/* Floating limbo background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '10%',
+              left: '8%',
+              fontSize: '110px',
+              opacity: 0.08,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#4b5563'
+            }}>🌀</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '10%',
+              fontSize: '95px',
+              opacity: 0.06,
+              transform: 'rotate(20deg)',
+              pointerEvents: 'none',
+              color: '#6b7280'
+            }}>⚫</div>
+            <div style={{
+              position: 'absolute',
+              top: '42%',
+              right: '12%',
+              fontSize: '85px',
+              opacity: 0.07,
+              transform: 'rotate(-25deg)',
+              pointerEvents: 'none',
+              color: '#374151'
+            }}>🕳️</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '38%',
+              left: '10%',
+              fontSize: '75px',
+              opacity: 0.05,
+              transform: 'rotate(30deg)',
+              pointerEvents: 'none',
+              color: '#9ca3af'
+            }}>💀</div>
+            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',

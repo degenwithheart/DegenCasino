@@ -133,18 +133,61 @@ export default function DiceRoll() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #155e75 0%, #0891b2 25%, #06b6d4 50%, #67e8f9 75%, #cffafe 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(6, 182, 212, 0.3)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(6, 182, 212, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
+            {/* Floating dice roll background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '10%',
+              left: '8%',
+              fontSize: '110px',
+              opacity: 0.08,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#06b6d4'
+            }}>🎲</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '10%',
+              fontSize: '95px',
+              opacity: 0.06,
+              transform: 'rotate(20deg)',
+              pointerEvents: 'none',
+              color: '#67e8f9'
+            }}>🎯</div>
+            <div style={{
+              position: 'absolute',
+              top: '42%',
+              right: '12%',
+              fontSize: '85px',
+              opacity: 0.07,
+              transform: 'rotate(-25deg)',
+              pointerEvents: 'none',
+              color: '#0891b2'
+            }}>⚡</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '38%',
+              left: '10%',
+              fontSize: '75px',
+              opacity: 0.05,
+              transform: 'rotate(30deg)',
+              pointerEvents: 'none',
+              color: '#cffafe'
+            }}>🌟</div>
+            
             <div style={{
               textAlign: 'center',
               marginBottom: 20,

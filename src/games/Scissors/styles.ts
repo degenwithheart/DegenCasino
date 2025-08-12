@@ -63,11 +63,51 @@ export const GameArea = styled.div`
   justify-content: space-between;
   flex: 1;
   min-height: 300px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 16px;
+  background: linear-gradient(135deg, #7e22ce 0%, #9333ea 25%, #a855f7 50%, #c084fc 75%, #e9d5ff 100%);
+  border-radius: 24px;
+  border: 3px solid rgba(147, 51, 234, 0.3);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(147, 51, 234, 0.2);
   padding: 40px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8%;
+    left: 10%;
+    font-size: 90px;
+    opacity: 0.08;
+    transform: rotate(-15deg);
+    pointer-events: none;
+    color: #9333ea;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle' font-size='50'%3E✂️%3C/text%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 90px;
+    height: 90px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 15%;
+    right: 8%;
+    font-size: 80px;
+    opacity: 0.06;
+    transform: rotate(20deg);
+    pointer-events: none;
+    color: #a855f7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle' font-size='50'%3E🪨%3C/text%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 80px;
+    height: 80px;
+  }
 
   @media (max-width: 768px) {
     flex-direction: column;

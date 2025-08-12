@@ -391,18 +391,61 @@ export default function ProgressivePoker() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #4a1d1d 0%, #7c2d12 25%, #dc2626 50%, #f87171 75%, #fecaca 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(220, 38, 38, 0.3)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(220, 38, 38, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
+            {/* Floating poker background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '8%',
+              left: '10%',
+              fontSize: '120px',
+              opacity: 0.08,
+              transform: 'rotate(-20deg)',
+              pointerEvents: 'none',
+              color: '#dc2626'
+            }}>♠️</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '12%',
+              right: '8%',
+              fontSize: '100px',
+              opacity: 0.06,
+              transform: 'rotate(25deg)',
+              pointerEvents: 'none',
+              color: '#f87171'
+            }}>♥️</div>
+            <div style={{
+              position: 'absolute',
+              top: '45%',
+              right: '15%',
+              fontSize: '90px',
+              opacity: 0.07,
+              transform: 'rotate(-30deg)',
+              pointerEvents: 'none',
+              color: '#7c2d12'
+            }}>♦️</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '40%',
+              left: '12%',
+              fontSize: '80px',
+              opacity: 0.05,
+              transform: 'rotate(35deg)',
+              pointerEvents: 'none',
+              color: '#fecaca'
+            }}>♣️</div>
+
             <div style={{
               textAlign: 'center',
               marginBottom: 20,
