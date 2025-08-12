@@ -224,12 +224,50 @@ export default function Limbo() {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #7c3aed 75%, #8b5cf6 100%)',
+            borderRadius: '24px',
+            border: '3px solid rgba(139, 92, 246, 0.3)',
+            boxShadow: `
+              0 25px 50px rgba(0, 0, 0, 0.5),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(139, 92, 246, 0.2)
+            `,
             position: 'relative',
             overflow: 'hidden'
           }}>
+            {/* Floating limbo background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '8%',
+              left: '5%',
+              fontSize: '120px',
+              opacity: 0.05,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#7c3aed'
+            }}>🔮</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '8%',
+              right: '5%',
+              fontSize: '90px',
+              opacity: 0.06,
+              transform: 'rotate(25deg)',
+              pointerEvents: 'none',
+              color: '#8b5cf6'
+            }}>⚡</div>
+            <div style={{
+              position: 'absolute',
+              top: '40%',
+              right: '8%',
+              fontSize: '70px',
+              opacity: 0.04,
+              transform: 'rotate(-30deg)',
+              pointerEvents: 'none',
+              color: '#a855f7'
+            }}>💫</div>
+            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',
@@ -237,8 +275,8 @@ export default function Limbo() {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
-              opacity: playing ? 1 : 0.5,
+              background: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+              opacity: playing ? 1 : 0.6,
               transition: 'opacity 0.5s ease'
             }} />
             

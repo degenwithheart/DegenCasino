@@ -247,18 +247,51 @@ export default function Plinko() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #a855f7 75%, #c084fc 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(168, 85, 247, 0.3)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(168, 85, 247, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
+            {/* Floating plinko background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '8%',
+              left: '5%',
+              fontSize: '100px',
+              opacity: 0.05,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#a855f7'
+            }}>🔵</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '8%',
+              right: '5%',
+              fontSize: '80px',
+              opacity: 0.06,
+              transform: 'rotate(25deg)',
+              pointerEvents: 'none',
+              color: '#c084fc'
+            }}>⚫</div>
+            <div style={{
+              position: 'absolute',
+              top: '30%',
+              right: '10%',
+              fontSize: '60px',
+              opacity: 0.04,
+              transform: 'rotate(-30deg)',
+              pointerEvents: 'none',
+              color: '#8b5cf6'
+            }}>🟠</div>
+            
             {/* Decorative corner elements */}
             <div style={{
               position: 'absolute',
@@ -267,8 +300,8 @@ export default function Plinko() {
               width: '100%',
               height: '100%',
               background: `
-                radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%)
+                radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.1) 0%, transparent 60%)
               `,
               pointerEvents: 'none',
             }} />

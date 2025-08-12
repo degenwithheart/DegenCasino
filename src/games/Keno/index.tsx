@@ -304,18 +304,51 @@ export default function Keno() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #f59e0b 75%, #fbbf24 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(251, 191, 36, 0.3)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(251, 191, 36, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
+            {/* Floating keno number background elements */}
+            <div style={{
+              position: 'absolute',
+              top: '8%',
+              left: '5%',
+              fontSize: '100px',
+              opacity: 0.05,
+              transform: 'rotate(-15deg)',
+              pointerEvents: 'none',
+              color: '#f59e0b'
+            }}>🎱</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '8%',
+              right: '5%',
+              fontSize: '80px',
+              opacity: 0.06,
+              transform: 'rotate(25deg)',
+              pointerEvents: 'none',
+              color: '#fbbf24'
+            }}>🔢</div>
+            <div style={{
+              position: 'absolute',
+              top: '40%',
+              right: '8%',
+              fontSize: '60px',
+              opacity: 0.04,
+              transform: 'rotate(-30deg)',
+              pointerEvents: 'none',
+              color: '#d97706'
+            }}>🎯</div>
+            
             <div style={{
               display: 'flex',
               flexDirection: 'column',

@@ -233,84 +233,147 @@ export default function Dice() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
-              borderRadius: '20px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, #1a0a2e 0%, #16213e 25%, #0f3460 50%, #0e4b99 75%, #2e86ab 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(255, 255, 255, 0.15)',
               boxShadow: `
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(46, 134, 171, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
             <Container>
-              <div
-                style={{
-                  fontWeight: 800,
-                  fontSize: 28,
-                  color: '#fff',
-                  marginBottom: 16,
-                  letterSpacing: 2,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                  textAlign: 'center'
-                }}
-              >
-                🎲 Roll the Dice!
+              {/* Floating dice background elements */}
+              <div style={{
+                position: 'absolute',
+                top: '10%',
+                left: '5%',
+                fontSize: '120px',
+                opacity: 0.05,
+                transform: 'rotate(-15deg)',
+                pointerEvents: 'none',
+                color: '#00ffe1'
+              }}>🎲</div>
+              <div style={{
+                position: 'absolute',
+                bottom: '10%',
+                right: '5%',
+                fontSize: '80px',
+                opacity: 0.08,
+                transform: 'rotate(25deg)',
+                pointerEvents: 'none',
+                color: '#ffd700'
+              }}>🎲</div>
+              
+              {/* Modern Game Header */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: '30px',
+                animation: 'fadeInDown 0.8s ease-out'
+              }}>
+                <div
+                  style={{
+                    fontWeight: 900,
+                    fontSize: 36,
+                    color: '#fff',
+                    marginBottom: 8,
+                    letterSpacing: 4,
+                    textShadow: '0 4px 20px rgba(0,255,225,0.5), 0 0 40px rgba(255,215,0,0.3)',
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #00ffe1, #ffd700, #00ffe1)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 3s ease-in-out infinite'
+                  }}
+                >
+                  DICE MASTER
+                </div>
+                <div style={{
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: 16,
+                  fontWeight: 600,
+                  textAlign: 'center',
+                  letterSpacing: 1
+                }}>
+                  Roll under your target number to win big!
+                </div>
               </div>
               
               <RollUnder>
-                <div>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(0, 255, 225, 0.2), rgba(0, 212, 255, 0.2))',
+                  borderRadius: '20px',
+                  padding: '20px 30px',
+                  border: '2px solid rgba(0, 255, 225, 0.4)',
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 8px 32px rgba(0, 255, 225, 0.15)'
+                }}>
                   <div
                     style={{ 
-                      fontSize: 42, 
+                      fontSize: 48, 
                       color: '#00ffe1', 
-                      fontWeight: 800,
-                      textShadow: '0 0 20px rgba(0, 255, 225, 0.5)',
+                      fontWeight: 900,
+                      textShadow: '0 0 30px rgba(0, 255, 225, 0.8), 0 0 60px rgba(0, 255, 225, 0.4)',
+                      marginBottom: 8
                     }}
                   >
                     {rollUnderIndex + 1}
                   </div>
-                  <div style={{ fontSize: 16, color: '#bbb', fontWeight: 600 }}>Roll Under</div>
+                  <div style={{ fontSize: 18, color: '#e0e0e0', fontWeight: 700, letterSpacing: 1 }}>
+                    ROLL UNDER
+                  </div>
                 </div>
               </RollUnder>
               
               <Stats>
                 <div style={{
-                  background: 'rgba(34, 197, 94, 0.2)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  border: '1px solid rgba(34, 197, 94, 0.3)'
+                  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(16, 185, 129, 0.25))',
+                  borderRadius: '16px',
+                  padding: '12px 18px',
+                  border: '2px solid rgba(34, 197, 94, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 6px 24px rgba(34, 197, 94, 0.15)'
                 }}>
-                  <div style={{ color: '#22c55e', fontWeight: 700, fontSize: 18 }}>
+                  <div style={{ color: '#22c55e', fontWeight: 800, fontSize: 20, textShadow: '0 0 10px rgba(34, 197, 94, 0.5)' }}>
                     {((rollUnderIndex / 100) * 100).toFixed(2)}%
                   </div>
-                  <div style={{ color: '#aaa', fontSize: 12 }}>Win Chance</div>
+                  <div style={{ color: '#d1d5db', fontSize: 13, fontWeight: 600, letterSpacing: 0.5 }}>WIN CHANCE</div>
                 </div>
                 
                 <div style={{
-                  background: 'rgba(255, 215, 0, 0.2)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  border: '1px solid rgba(255, 215, 0, 0.3)'
+                  background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 193, 7, 0.25))',
+                  borderRadius: '16px',
+                  padding: '12px 18px',
+                  border: '2px solid rgba(255, 215, 0, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 6px 24px rgba(255, 215, 0, 0.15)'
                 }}>
-                  <div style={{ color: '#ffd700', fontWeight: 700, fontSize: 18 }}>
+                  <div style={{ color: '#ffd700', fontWeight: 800, fontSize: 20, textShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}>
                     {multiplier.toFixed(2)}x
                   </div>
-                  <div style={{ color: '#aaa', fontSize: 12 }}>Multiplier</div>
+                  <div style={{ color: '#d1d5db', fontSize: 13, fontWeight: 600, letterSpacing: 0.5 }}>MULTIPLIER</div>
                 </div>
                 
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(139, 92, 246, 0.25))',
+                  borderRadius: '16px',
+                  padding: '12px 18px',
+                  border: '2px solid rgba(168, 85, 247, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 6px 24px rgba(168, 85, 247, 0.15)'
                 }}>
-                  <div style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>
+                  <div style={{ color: '#a855f7', fontWeight: 800, fontSize: 20, textShadow: '0 0 10px rgba(168, 85, 247, 0.5)' }}>
                     <TokenValue suffix="" amount={maxWin} />
                   </div>
-                  <div style={{ color: '#aaa', fontSize: 12 }}>Payout</div>
+                  <div style={{ color: '#d1d5db', fontSize: 13, fontWeight: 600, letterSpacing: 0.5 }}>PAYOUT</div>
                 </div>
               </Stats>
               

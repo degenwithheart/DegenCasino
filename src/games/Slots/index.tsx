@@ -438,6 +438,18 @@ export default function Slots() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '20px',
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533a7d 75%, #8e44ad 100%)',
+              borderRadius: '24px',
+              border: '3px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: `
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(142, 68, 173, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
+              padding: '20px'
             }}
             className="slots-game-scaler"
           >
