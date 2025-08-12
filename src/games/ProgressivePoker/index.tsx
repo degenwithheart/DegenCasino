@@ -13,12 +13,13 @@ import { Paytable } from './Paytable'
 import ProgressivePokerPaytable, { ProgressivePokerPaytableRef } from './ProgressivePokerPaytable'
 import { PokerCard } from './PokerCard'
 import { JACKS_OR_BETTER_BET_ARRAY } from './betArray'
-import { GameControls, GambaResultModal } from '../../components'
-import { GambaResultContext } from '../../context/GambaResultContext'
+import { GameControls } from '../../components'
 import { useIsCompact } from '../../hooks/useIsCompact'
+import { ProgressivePokerOverlays } from './ProgressivePokerOverlays'
 
 import { getCurrentHandName, Card as PokerCardType } from './getCurrentHandName'
 import { getBestPossibleHandName } from './getBestPossibleHandName'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 // Pulse animation CSS
 const pulseFadeStyle = `
@@ -126,7 +127,6 @@ const getPokerHandCards = (type: string) => {
 
 export default function ProgressivePoker() {
   const [resultModalOpen, setResultModalOpen] = useState(false)
-  const { setGambaResult } = useContext(GambaResultContext)
   
   // Live paytable tracking
   const paytableRef = useRef<ProgressivePokerPaytableRef>(null)
@@ -171,6 +171,13 @@ export default function ProgressivePoker() {
   const [profit, setProfit] = useState(0)
   const [inProgress, setInProgress] = useState(false)
 
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🃏')
+
   const tokenMeta = token
     ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol)
     : undefined
@@ -204,6 +211,11 @@ export default function ProgressivePoker() {
 
   // Start a new game, get result and sequence
   const play = async (customWager?: number) => {
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🃏', '💭', '🎯', '♠️'][Math.floor(Math.random() * 4)])
+    
     setHand(null)
     setSequence([])
     setRevealedCards([])
@@ -224,8 +236,14 @@ export default function ProgressivePoker() {
         bet: JACKS_OR_BETTER_BET_ARRAY,
       })
       const result = await game.result()
-      setGambaResult(result)
       setResultModalOpen(true)
+
+      // Dramatic pause phase
+      setGamePhase('dramatic')
+      setDramaticPause(true)
+      
+      // Wait for dramatic effect
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       const resultIndex = result?.resultIndex ?? 0
       const handTemplate = HAND_TEMPLATES[resultIndex]
@@ -249,15 +267,42 @@ export default function ProgressivePoker() {
         suit: c.suit,
       }))
 
+      const isWin = payout > 0
+      
+      // Set celebration intensity based on win amount
+      if (isWin) {
+        const multiplier = payout / currentWager
+        if (multiplier >= 10) {
+          setCelebrationIntensity(3) // Epic win
+        } else if (multiplier >= 3) {
+          setCelebrationIntensity(2) // Big win
+        } else {
+          setCelebrationIntensity(1) // Regular win
+        }
+        setGamePhase('celebrating')
+      } else {
+        setGamePhase('mourning')
+      }
+
       setSequence(seqConverted)
       setHand(null) // No hand revealed yet
       setProfit((prev) => prev + payout - currentWager)
       setRevealing(false)
       setRevealedCards([])
       setCardRevealed([false, false, false, false, false])
+      
+      // Reset to idle after celebration/mourning
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     } catch (e) {
       setRevealing(false)
       setInProgress(false)
+      setGamePhase('mourning')
+      // Reset to idle after error
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     }
   }
 
@@ -620,7 +665,15 @@ export default function ProgressivePoker() {
         playButtonText="Play"
         playButtonDisabled={revealing || balance < wager}
       />
-      <GambaResultModal open={resultModalOpen} onClose={() => setResultModalOpen(false)} />
+      {renderThinkingOverlay(
+        <ProgressivePokerOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   )
 }

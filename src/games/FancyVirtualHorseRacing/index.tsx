@@ -7,11 +7,10 @@ import {
   FAKE_TOKEN_MINT,
 } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { GameControls, GambaResultModal } from '../../components'
+import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { TOKEN_METADATA } from '../../constants'
-import React, { useContext, useRef } from 'react'
-import { GambaResultContext } from '../../context/GambaResultContext'
+import React, { useRef } from 'react'
 import CRASH_SOUND from './lose.mp3'
 import WIN_SOUND from './win.mp3'
 import START_SOUND from './start.mp3'
@@ -19,6 +18,8 @@ import { ScreenWrapper } from './styles'
 import { Track } from './Track'
 import { HorseState } from './types'
 import HorseRacingPaytable, { HorseRacingPaytableRef } from './HorseRacingPaytable'
+import { FancyVirtualHorseRacingOverlays } from './FancyVirtualHorseRacingOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 const overlayStyle: React.CSSProperties = {
   position: 'absolute',
@@ -39,7 +40,6 @@ const overlayStyle: React.CSSProperties = {
 }
 
 export default function FancyVirtualHorseRacing() {
-  const { setGambaResult } = useContext(GambaResultContext)
   const game = GambaUi.useGame()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
@@ -59,6 +59,13 @@ export default function FancyVirtualHorseRacing() {
     isWin,
     profitAmount,
   } = useGameOutcome()
+
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🐎')
 
   // Custom handlePlayAgain that also resets game state
   const handlePlayAgain = () => {
@@ -188,6 +195,11 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
   const playRace = async () => {
     if (selectedHorse === null || wager <= 0) return;
 
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🐎', '💭', '🏆', '🎯'][Math.floor(Math.random() * 4)])
+
     const selected = selectedHorse;
     const selectedOdds = horses[selected]?.odds ?? 2;
     const betArray = horses.map((_, i) => (i === selected ? selectedOdds : 0));
@@ -198,21 +210,43 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
     await game.play({ wager, bet: betArray });
     const result = await game.result();
 
-  setGambaResult(result);
-  setResultModalOpen(true);
+    setResultModalOpen(true);
 
     setWinningIndex(result.resultIndex);
     setPayout(result.payout);
 
+    // Dramatic pause phase
+    setGamePhase('dramatic')
+    setDramaticPause(true)
+    
+    // Wait for dramatic effect
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
     const raceWinner = await simulateRace(result.resultIndex);
     setWinner(raceWinner);
-
 
     setConfirming(false);
 
     // Skip photo finish and go directly to winner overlay
     setShowOverlay(true);
     setPhase('finished');
+    
+    const isWin = selectedHorse === result.resultIndex
+    
+    // Set celebration intensity based on win amount
+    if (isWin) {
+      const multiplier = result.payout / wager
+      if (multiplier >= 10) {
+        setCelebrationIntensity(3) // Epic win
+      } else if (multiplier >= 3) {
+        setCelebrationIntensity(2) // Big win
+      } else {
+        setCelebrationIntensity(1) // Regular win
+      }
+      setGamePhase('celebrating')
+    } else {
+      setGamePhase('mourning')
+    }
     
     // Handle game outcome for overlay
     handleGameComplete({ payout: result.payout, wager });
@@ -234,6 +268,11 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
     } else {
       sound.play('lose');
     }
+    
+    // Reset to idle after celebration/mourning
+    setTimeout(() => {
+      setGamePhase('idle')
+    }, 3000)
   }
 
   return (
@@ -344,10 +383,21 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
         setWager={setWager}
         onPlay={playRace}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={hasPlayedBefore ? 'Start Another Race' : 'Start Race'}
         playButtonDisabled={!confirming || selectedHorse === null}
+        onPlayAgain={originalHandlePlayAgain}
       >
       </GameControls>
+      {renderThinkingOverlay(
+        <FancyVirtualHorseRacingOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   )
 }

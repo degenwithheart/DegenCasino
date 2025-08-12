@@ -10,6 +10,8 @@ import { calculateBetArray } from './utils'
 import Candle from './Candle'
 import { TOKEN_METADATA } from '../../constants'
 import CryptoChartPaytable, { CryptoChartPaytableRef } from './CryptoChartPaytable'
+import { CryptoChartGameOverlays } from './CryptoChartGameOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 export default function CryptoChartGame() {
   const [wager, setWager] = useWagerInput()
@@ -23,7 +25,7 @@ export default function CryptoChartGame() {
     const maxWager = baseWager * 1000000
     const tokenPrice = tokenMeta?.usdPrice ?? 0
 
-    const { showOutcome, hasPlayedBefore, handleGameComplete } = useGameOutcome()
+    const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain } = useGameOutcome()
 
     // Set default wager: 1 for free tokens, 0 for real tokens
     React.useEffect(() => {
@@ -55,6 +57,13 @@ export default function CryptoChartGame() {
     ])
     const [finalMultiplier, setFinalMultiplier] = React.useState(0)
     const [lastPayout, setLastPayout] = React.useState<number | null>(null)
+
+    // Overlay states
+    const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+    const [thinkingPhase, setThinkingPhase] = React.useState(false)
+    const [dramaticPause, setDramaticPause] = React.useState(false)
+    const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+    const [thinkingEmoji, setThinkingEmoji] = React.useState('📈')
 
     const viewBoxWidth = 300
     const viewBoxHeight = 100
@@ -123,6 +132,12 @@ export default function CryptoChartGame() {
         clearTimeout(animationRef.current)
         animationRef.current = undefined
       }
+      
+      // Start thinking phase
+      setGamePhase('thinking')
+      setThinkingPhase(true)
+      setThinkingEmoji(['📈', '💭', '📊', '💸'][Math.floor(Math.random() * 4)])
+      
       setGameState('idle')
       setCurrentMultiplier(0)
       setFinalMultiplier(0)
@@ -133,6 +148,14 @@ export default function CryptoChartGame() {
         const result = await game.result()
         const win = result.payout > 0
         setLastPayout(win ? result.payout : null)
+        
+        // Dramatic pause phase
+        setGamePhase('dramatic')
+        setDramaticPause(true)
+        
+        // Wait for dramatic effect
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        
         let target
         if (win) {
           const extraMoon = Math.random() < 0.5
@@ -143,11 +166,38 @@ export default function CryptoChartGame() {
             ? 1 + Math.random() * Math.max(0.5, multiplierTarget - 1.5)
             : calculateBiasedLowMultiplier(multiplierTarget)
         }
+        
         const finalResult = { payout: result.payout, wager }
+        
+        // Set celebration intensity based on win amount
+        if (win) {
+          const multiplier = finalResult.payout / finalResult.wager
+          if (multiplier >= 10) {
+            setCelebrationIntensity(3) // Epic win
+          } else if (multiplier >= 3) {
+            setCelebrationIntensity(2) // Big win
+          } else {
+            setCelebrationIntensity(1) // Regular win
+          }
+          setGamePhase('celebrating')
+        } else {
+          setGamePhase('mourning')
+        }
+        
         animate(0, target, win, finalResult)
+        
+        // Reset to idle after celebration/mourning
+        setTimeout(() => {
+          setGamePhase('idle')
+        }, 3000)
       } catch {
         setGameState('idle')
         setLastPayout(null)
+        setGamePhase('mourning')
+        // Reset to idle after error
+        setTimeout(() => {
+          setGamePhase('idle')
+        }, 3000)
       }
     }
 
@@ -271,14 +321,25 @@ export default function CryptoChartGame() {
           setWager={setWager}
           onPlay={play}
           isPlaying={isPlaying}
+          showOutcome={showOutcome}
           playButtonText={hasPlayedBefore ? 'Trade Again' : 'Trade'}
           style={{ padding: '0 16px' }}
+          onPlayAgain={handlePlayAgain}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: '200px' }}>
             <span style={{ fontWeight: 'bold' }}>Target:</span>
             <CustomSlider value={multiplierTarget} onChange={setMultiplierTarget} />
           </div>
         </GameControls>
+        {renderThinkingOverlay(
+          <CryptoChartGameOverlays 
+            gamePhase={getGamePhaseState(gamePhase)}
+            thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+            dramaticPause={dramaticPause}
+            celebrationIntensity={celebrationIntensity}
+            thinkingEmoji={thinkingEmoji}
+          />
+        )}
       </>
     )
   }

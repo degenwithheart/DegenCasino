@@ -1,16 +1,15 @@
 
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useIsCompact } from '../../hooks/useIsCompact';
-import { GambaResultContext } from '../../context/GambaResultContext'
 import { GambaUi, useWagerInput } from 'gamba-react-ui-v2';
-import { GameControls, GambaResultModal } from '../../components';
+import { GameControls } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome';
 import DiceRollPaytable, { DiceRollPaytableRef } from './DiceRollPaytable'
+import { DiceRollOverlays } from './DiceRollOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 
 export default function DiceRoll() {
-  const { setGambaResult } = useContext(GambaResultContext)
-
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const [pick, setPick] = React.useState(1)
   const [wager, setWager] = useWagerInput()
@@ -41,7 +40,19 @@ export default function DiceRoll() {
     resetGameState,
   } = useGameOutcome()
 
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🎲')
+
   const play = async () => {
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🎲', '💭', '🎯', '🔮'][Math.floor(Math.random() * 4)])
+    
     setIsPlaying(true)
     setResult(null)
     setPayout(null)
@@ -58,11 +69,17 @@ export default function DiceRoll() {
     const bet = [0, 0, 0, 1.2, 1.5, 2];
     await game.play({ wager, bet })
     const res = await game.result()
-    setGambaResult(res)
     setResult(res.resultIndex + 1)
     setPayout(res.payout)
     setRolling(false)
     setIsPlaying(false)
+    
+    // Dramatic pause phase
+    setGamePhase('dramatic')
+    setDramaticPause(true)
+    
+    // Wait for dramatic effect
+    await new Promise(resolve => setTimeout(resolve, 1500))
     
     // Track result in live paytable
     const resultFace = res.resultIndex + 1
@@ -76,6 +93,26 @@ export default function DiceRoll() {
         amount: res.payout
       })
     }
+    
+    // Set celebration intensity based on win amount
+    if (wasWin) {
+      const multiplier = res.payout / wager
+      if (multiplier >= 10) {
+        setCelebrationIntensity(3) // Epic win
+      } else if (multiplier >= 3) {
+        setCelebrationIntensity(2) // Big win
+      } else {
+        setCelebrationIntensity(1) // Regular win
+      }
+      setGamePhase('celebrating')
+    } else {
+      setGamePhase('mourning')
+    }
+    
+    // Reset to idle after celebration/mourning
+    setTimeout(() => {
+      setGamePhase('idle')
+    }, 3000)
     
     // Show outcome overlay
     handleGameComplete({ payout: res.payout, wager })
@@ -277,10 +314,10 @@ export default function DiceRoll() {
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={hasPlayedBefore && !showOutcome ? 'Roll Again' : 'Roll Dice'}
+        onPlayAgain={handlePlayAgain}
       />
-      
-      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
       
       <style>{`
         @keyframes diceRoll {
@@ -298,6 +335,15 @@ export default function DiceRoll() {
           50% { opacity: 0.7; }
         }
       `}</style>
+      {renderThinkingOverlay(
+        <DiceRollOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   )
 }

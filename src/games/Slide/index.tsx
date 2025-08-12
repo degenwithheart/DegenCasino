@@ -9,10 +9,10 @@ import {
 } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components/GameControls'
-import { GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
-import { GambaResultContext } from '../../context/GambaResultContext'
 import SlidePaytable, { SlidePaytableRef } from './SlidePaytable'
+import { SlideOverlays } from './SlideOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 const ORIGINAL_MULTIPLIERS = [1.05, 0, 1.34, 0, 1.04, 0, 1.76, 0, 1.95, 0]
 
@@ -74,7 +74,6 @@ export default function SlideGame() {
   const resizeTimeoutRef = useRef<NodeJS.Timeout>()
   const [wager, setWager] = useWagerInput()
   const [scale, setScale] = useState(getResponsiveScale())
-  const { setGambaResult } = useContext(GambaResultContext)
   const paytableRef = useRef<SlidePaytableRef>(null)
 
   useEffect(() => {
@@ -109,6 +108,13 @@ export default function SlideGame() {
 
   // Game outcome hook
   const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain: baseHandlePlayAgain, isWin, profitAmount, resetGameState } = useGameOutcome()
+
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🎰')
 
   // Custom play again handler to reset slide game state
   const handlePlayAgain = () => {
@@ -248,7 +254,6 @@ const stopSlider = async () => {
       payout: res.payout
     });
 
-    setGambaResult(res)
 
     // Calculate the exact position needed to center the winning card under the needle
     // Always use the middle set (3rd set out of 5) for positioning consistency
@@ -337,13 +342,50 @@ const stopSlider = async () => {
   const play = async () => {
     if (!wager || playing) return
     
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🎰', '💭', '🎯', '🃏'][Math.floor(Math.random() * 4)])
+    
     try {
       await startSlider()
+      
+      // Dramatic pause phase before final result
+      setGamePhase('dramatic')
+      setDramaticPause(true)
+      
       await stopSlider()
+      
+      // Set celebration intensity based on final result
+      if (result && gambaResult) {
+        const multiplier = gambaResult.payout / wager
+        if (multiplier > 0) {
+          if (multiplier >= 10) {
+            setCelebrationIntensity(3) // Epic win
+          } else if (multiplier >= 3) {
+            setCelebrationIntensity(2) // Big win
+          } else {
+            setCelebrationIntensity(1) // Regular win
+          }
+          setGamePhase('celebrating')
+        } else {
+          setGamePhase('mourning')
+        }
+        
+        // Reset to idle after celebration/mourning
+        setTimeout(() => {
+          setGamePhase('idle')
+        }, 3000)
+      }
     } catch (error) {
       console.error('Play error:', error)
       setPlaying(false)
       setProgress(100)
+      setGamePhase('mourning')
+      // Reset to idle after error
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     }
   }
 
@@ -961,12 +1003,23 @@ const stopSlider = async () => {
         wager={wager}
         setWager={setWager}
         isPlaying={playing}
+        showOutcome={showOutcome}
         onPlay={() => {
           play();
           setResultModalOpen(true);
         }}
         playButtonText={playing ? 'Sliding...' : 'Slide'}
+        onPlayAgain={baseHandlePlayAgain}
       />
+      {renderThinkingOverlay(
+        <SlideOverlays 
+          gamePhase={getGamePhaseState(gamePhase)}
+          thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+          dramaticPause={dramaticPause}
+          celebrationIntensity={celebrationIntensity}
+          thinkingEmoji={thinkingEmoji}
+        />
+      )}
     </>
   )
 }

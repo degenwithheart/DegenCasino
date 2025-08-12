@@ -15,7 +15,6 @@ import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 // --- App constants for configuration ---
 import { DEFAULT_POOL, POOLS, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, RPC_ENDPOINT, TOKEN_METADATA } from './constants'
 import './styles.css'
-import { GambaResultProvider } from './context/GambaResultContext'
 
 // --- Entry point: create React root ---
 const root = ReactDOM.createRoot(document.getElementById('root')!)
@@ -92,11 +91,9 @@ function Root() {
                       prefix="code"
                       fee={PLATFORM_REFERRAL_FEE}
                     >
-                      <GambaResultProvider>
                         <GlobalErrorBoundary>
                           <App />
                         </GlobalErrorBoundary>
-                      </GambaResultProvider>
                     </ReferralProvider>
                   </GambaPlatformProvider>
                 </GambaProvider>

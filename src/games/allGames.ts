@@ -3,6 +3,18 @@ import React from 'react'
 
 export const ALL_GAMES: GameBundle[] = [
   {
+    id: 'scissors',
+    live: 'down',
+    meta: {
+      background: '#000000CC',
+      name: 'Scissors',
+      image: '/games/scissors/scissors.png',
+      description: `Rock, Paper, Scissors - the eternal triangle of choice. Your weapon against fate's computer. Rock crushes dreams, Paper covers truth, Scissors cut through hope. Choose your poison and let the ancient ritual decide your fortune.`,
+      effect: 'pulse',
+    },
+    app: React.lazy(() => import('./Scissors')),
+  },
+  {
     id: 'dice',
     live: 'up',
     meta: {

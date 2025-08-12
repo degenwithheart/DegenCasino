@@ -21,6 +21,7 @@ interface GameControlsProps {
   children?: React.ReactNode
   style?: React.CSSProperties
   onOpenSidebar?: () => void // Optional prop for opening sidebar/overlay
+  onPlayAgain?: () => void // Optional callback for when play again is clicked
 }
 
 // Simple hook for screen width
@@ -46,6 +47,7 @@ export function GameControls({
   children,
   style,
   onOpenSidebar,
+  onPlayAgain,
 }: GameControlsProps) {
 
   // Use live token prices and force re-render on update
@@ -68,7 +70,16 @@ export function GameControls({
     }
   }, [setWager, token, baseWager])
 
-  const isPlayButtonDisabled = isPlaying || !wager || showOutcome || playButtonDisabled
+  const isPlayButtonDisabled = isPlaying || !wager || playButtonDisabled
+
+  // Handle play button click - reset outcome state if needed
+  const handlePlayClick = () => {
+    if (showOutcome && onPlayAgain) {
+      onPlayAgain()
+    } else {
+      onPlay()
+    }
+  }
 
   // Styles
   const containerStyle: React.CSSProperties = {
@@ -271,7 +282,7 @@ export function GameControls({
 
         {/* Play row: Play button, Set Wager (mobile only), PayTable (always) */}
         <div style={playRowStyle}>
-          <GambaUi.PlayButton onClick={onPlay} disabled={isPlayButtonDisabled}>
+          <GambaUi.PlayButton onClick={handlePlayClick} disabled={isPlayButtonDisabled}>
             <span style={{ fontSize: 20 }}>{playButtonText}</span>
           </GambaUi.PlayButton>
           {isMobile && (

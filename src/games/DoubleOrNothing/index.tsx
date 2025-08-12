@@ -7,6 +7,8 @@ import SOUND from './test.mp3'
 import { ModernWagerInput } from '../../components/ModernWagerInput';
 import { TOKEN_METADATA } from '../../constants'
 import DoubleOrNothingPaytable, { DoubleOrNothingPaytableRef } from './DoubleOrNothingPaytable'
+import { DoubleOrNothingOverlays } from './DoubleOrNothingOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 const MODES = [
   { label: '2x', bet: [2, 0], labels: ['Double!', 'Nothing'] },
@@ -48,6 +50,13 @@ function DoubleOrNothing() {
     profitAmount,
   } = useGameOutcome();
 
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('💰')
+
   // Set default wager: 1 for free tokens, 0 for real tokens
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -63,6 +72,11 @@ function DoubleOrNothing() {
   };
 
   const play = async () => {
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['💰', '💭', '🎯', '💸'][Math.floor(Math.random() * 4)])
+    
     setIsPlaying(true);
     setResult(null);
     setPayout(null);
@@ -75,6 +89,13 @@ function DoubleOrNothing() {
     setResult(res.resultIndex);
     setPayout(res.payout);
     setIsPlaying(false);
+    
+    // Dramatic pause phase
+    setGamePhase('dramatic')
+    setDramaticPause(true)
+    
+    // Wait for dramatic effect
+    await new Promise(resolve => setTimeout(resolve, 1500))
     
     const win = res.resultIndex === 0
     
@@ -94,9 +115,29 @@ function DoubleOrNothing() {
       setCurrentRound(1)
     }
     
+    // Set celebration intensity based on win amount
+    if (win) {
+      const multiplier = res.payout / wager
+      if (multiplier >= 10) {
+        setCelebrationIntensity(3) // Epic win
+      } else if (multiplier >= 3) {
+        setCelebrationIntensity(2) // Big win
+      } else {
+        setCelebrationIntensity(1) // Regular win
+      }
+      setGamePhase('celebrating')
+    } else {
+      setGamePhase('mourning')
+    }
+    
     // Handle game outcome for overlay
     handleGameComplete({ payout: res.payout, wager });
     sound.play('test', { playbackRate: res.resultIndex === 0 ? 1.2 : 0.8 });
+    
+    // Reset to idle after celebration/mourning
+    setTimeout(() => {
+      setGamePhase('idle')
+    }, 3000)
   };
 
   // Format payout using token decimals for real value
@@ -306,7 +347,9 @@ function DoubleOrNothing() {
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        onPlayAgain={handlePlayAgain}
       >
         {/* Mode Selection */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -322,6 +365,15 @@ function DoubleOrNothing() {
           ))}
         </div>
       </GameControls>
+      {renderThinkingOverlay(
+        <DoubleOrNothingOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   );
 }

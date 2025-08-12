@@ -13,3 +13,13 @@ export const extractMetadata = (event: GambaTransaction<'GameSettled'>) => {
     return {}
   }
 }
+
+// Re-export overlay utilities for easy access
+export {
+  renderThinkingOverlay,
+  getThinkingPhaseState,
+  getGamePhaseState,
+  withOverlayToggle,
+  useOverlayEnabled,
+  shouldShowThinkingOverlay
+} from './utils/overlayUtils'

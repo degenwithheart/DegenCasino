@@ -207,11 +207,10 @@ export const FOOTER_LINKS = [
     href: 'https://x.com/DegenWithHeart',
     title: 'X',
   },
-  {
-    type: 'gamba-result-modal',
-    title: 'Gamba Result',
-  },
 ]
 
 // Feature toggle for enabling/disabling the leaderboard functionality.
 export const ENABLE_LEADERBOARD = true
+
+// Feature toggle for enabling/disabling the thinking overlay animations.
+export const ENABLE_THINKING_OVERLAY = false

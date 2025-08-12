@@ -15,7 +15,6 @@ export const Container = styled.div<{ $disabled?: boolean }>`
 `
 
 export const CardArea = styled.div`
-  border: 2px solid white;
   border-radius: 10px;
   padding: 10px;
   margin: 10px;
@@ -78,8 +77,8 @@ export const HandsWrapper = styled.div<{ $compact?: boolean }>`
   flex-wrap: wrap;
   width: 100%;
   text-align: center;
-  flex-direction: ${props => props.compact ? 'column' : 'row'};
-  gap: ${props => props.compact ? '12px' : '24px'};
+  flex-direction: ${props => props.$compact ? 'column' : 'row'};
+  gap: ${props => props.$compact ? '12px' : '24px'};
   align-items: center;
 `
 

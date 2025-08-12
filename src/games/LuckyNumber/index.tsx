@@ -8,11 +8,12 @@ import {
 } from 'gamba-react-ui-v2';
 import { TOKEN_METADATA } from '../../constants';
 import React, { useContext, useRef } from 'react';
-import { GambaResultContext } from '../../context/GambaResultContext';
-import { GameControls, GambaResultModal } from '../../components';
+import { GameControls } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome';
 import { useIsCompact } from '../../hooks/useIsCompact';
 import LuckyNumberPaytable, { LuckyNumberPaytableRef } from './LuckyNumberPaytable'
+import { LuckyNumberOverlays } from './LuckyNumberOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 // Pure function, accepts isCompact as argument
 const getResponsiveScale = (isCompact: boolean): number => {
@@ -31,7 +32,6 @@ const getResponsiveScale = (isCompact: boolean): number => {
 
 export default function LuckyNumber() {
   const [resultModalOpen, setResultModalOpen] = React.useState(false);
-  const { setGambaResult } = useContext(GambaResultContext);
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const { compact: isCompact } = useIsCompact(); // <-- extract only the boolean value
   const [scale, setScale] = React.useState(1);
@@ -88,6 +88,13 @@ export default function LuckyNumber() {
     profitAmount,
   } = useGameOutcome();
 
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🍀')
+
   // Set default wager: 1 for free tokens, 0 for real tokens
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -98,6 +105,11 @@ export default function LuckyNumber() {
   }, [setWager, token, baseWager]);
 
   const play = async () => {
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🍀', '💭', '🎯', '✨'][Math.floor(Math.random() * 4)])
+    
     setIsPlaying(true);
     setResult(null);
     setPayout(null);
@@ -105,8 +117,15 @@ export default function LuckyNumber() {
     bet[pick - 1] = 10;
     await game.play({ wager, bet });
     const res = await game.result();
-  setGambaResult(res);
   setResultModalOpen(true);
+  
+    // Dramatic pause phase
+    setGamePhase('dramatic')
+    setDramaticPause(true)
+    
+    // Wait for dramatic effect
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
     const resultNumber = res.resultIndex + 1
     setResult(resultNumber);
     setPayout(res.payout);
@@ -126,8 +145,28 @@ export default function LuckyNumber() {
       })
     }
     
+    // Set celebration intensity based on win amount
+    if (wasWin) {
+      const multiplier = res.payout / wager
+      if (multiplier >= 10) {
+        setCelebrationIntensity(3) // Epic win
+      } else if (multiplier >= 3) {
+        setCelebrationIntensity(2) // Big win
+      } else {
+        setCelebrationIntensity(1) // Regular win
+      }
+      setGamePhase('celebrating')
+    } else {
+      setGamePhase('mourning')
+    }
+    
     // Handle game outcome for overlay
     handleGameComplete({ payout: res.payout, wager });
+    
+    // Reset to idle after celebration/mourning
+    setTimeout(() => {
+      setGamePhase('idle')
+    }, 3000)
   };
 
   const formatPayout = (payout: number | null) => {
@@ -352,7 +391,9 @@ export default function LuckyNumber() {
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={hasPlayedBefore ? 'Pick Again' : 'Pick Number'}
+        onPlayAgain={handlePlayAgain}
       >
         {/* Number Selection Display */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -372,8 +413,6 @@ export default function LuckyNumber() {
         </div>
       </GameControls>
       
-      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
-      
       <style>{`
         @keyframes reveal {
           0% { opacity: 0; transform: scale(0.7) translateY(20px); }
@@ -389,6 +428,15 @@ export default function LuckyNumber() {
           50% { opacity: 0.7; }
         }
       `}</style>
+      {renderThinkingOverlay(
+        <LuckyNumberOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   );
 }

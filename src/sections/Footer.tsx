@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { FOOTER_LINKS } from '../constants'
 import { getAccessWindow, isWithinAccessTime } from '../utils/timeAccess'
-import { GambaResultModal } from '../components/GambaResultModal'
 import { useLocation } from 'react-router-dom'
 
 // Casino animations
@@ -205,11 +204,8 @@ function formatTime(ms: number): string {
 }
 
 export default function Footer() {
-  const location = useLocation();
-  const isGameRoute = location.pathname.startsWith('/game/');
   const [isLive, setIsLive] = useState(isWithinAccessTime())
   const [timeRemaining, setTimeRemaining] = useState(0)
-  const [showGambaModal, setShowGambaModal] = useState(false)
 
   useEffect(() => {
     const update = () => {
@@ -240,103 +236,37 @@ export default function Footer() {
         </LiveStatus>
 
         <FooterLinks>
-          {FOOTER_LINKS.map((link, idx) => {
-            if (link.type === 'gamba-result-modal') {
-              if (!isGameRoute) return null;
-              return (
-                <li key={link.type || idx}>
-                  <button
-                    type="button"
-                    style={{
-                      color: '#ddd',
-                      background: 'none',
-                      border: '1px solid transparent',
-                      fontSize: '15px',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontWeight: 500,
-                      transition: 'all 0.3s',
-                    }}
-                    onClick={() => setShowGambaModal(true)}
-                    onMouseOver={e => {
-                      e.currentTarget.style.color = '#ffd700';
-                      e.currentTarget.style.background = 'rgba(255, 215, 0, 0.1)';
-                      e.currentTarget.style.border = '1px solid rgba(255, 215, 0, 0.3)';
-                      e.currentTarget.style.boxShadow = '0 0 12px rgba(255, 215, 0, 0.2)';
-                      e.currentTarget.style.textShadow = '0 0 8px #ffd700';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseOut={e => {
-                      e.currentTarget.style.color = '#ddd';
-                      e.currentTarget.style.background = 'none';
-                      e.currentTarget.style.border = '1px solid transparent';
-                      e.currentTarget.style.boxShadow = 'none';
-                      e.currentTarget.style.textShadow = 'none';
-                      e.currentTarget.style.transform = 'none';
-                    }}
-                  >
-                    {link.title}
-                  </button>
-                </li>
-              )
-            }
-            return (
-              <li key={link.href}>
-                <a href={link.href} rel="noopener noreferrer">
-                  {link.title}
-                </a>
-              </li>
-            )
-          })}
+          {FOOTER_LINKS.map((link, idx) => (
+            <li key={link.href}>
+              <a href={link.href} rel="noopener noreferrer">
+                {link.title}
+              </a>
+            </li>
+          ))}
         </FooterLinks>
-        <GambaResultModal open={showGambaModal} onClose={() => setShowGambaModal(false)} />
       </StyledFooter>
       {/* Mobile footer */}
       <MobileFooter>
         <span style={{ fontWeight: 700, color: isLive ? '#00ff88' : '#ff6666', fontFamily: 'Luckiest Guy, cursive', fontSize: '1.05rem' }}>
           {isLive ? '🟢 LIVE' : '🔴 OFFLINE'}
         </span>
-        {FOOTER_LINKS.slice(0, 3).map((link, idx) => {
-          if (link.type === 'gamba-result-modal') {
-            if (!isGameRoute) return null;
-            return (
-              <button
-                key={link.type || idx}
-                style={{
-                  color: '#ffd700',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.05rem',
-                  padding: '0 8px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                }}
-                onClick={() => setShowGambaModal(true)}
-              >
-                {link.title}
-              </button>
-            )
-          }
-          return (
-            <a
-              key={link.href}
-              href={link.href}
-              rel="noopener noreferrer"
-              style={{
-                color: '#ffd700',
-                textDecoration: 'none',
-                fontWeight: 700,
-                fontSize: '1.05rem',
-                padding: '0 8px',
-                borderRadius: '6px',
-              }}
-            >
-              {link.title}
-            </a>
-          )
-        })}
+        {FOOTER_LINKS.slice(0, 3).map((link, idx) => (
+          <a
+            key={link.href}
+            href={link.href}
+            rel="noopener noreferrer"
+            style={{
+              color: '#ffd700',
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              padding: '0 8px',
+              borderRadius: '6px',
+            }}
+          >
+            {link.title}
+          </a>
+        ))}
       </MobileFooter>
     </>
   )

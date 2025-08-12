@@ -1,15 +1,15 @@
 import { GambaUi, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
-import { GameControls, GambaResultModal } from '../../components'
+import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import React, { useContext, useRef } from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
-import { GambaResultContext } from '../../context/GambaResultContext'
 import WheelSpinPaytable, { WheelSpinPaytableRef } from './WheelSpinPaytable'
+import { WheelSpinOverlays } from './WheelSpinOverlays'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 export default function WheelSpin() {
   const [resultModalOpen, setResultModalOpen] = React.useState(false);
-  const { setGambaResult } = useContext(GambaResultContext)
   const [wager, setWager] = useWagerInput()
   const game = GambaUi.useGame()
   const [result, setResult] = React.useState<number | null>(null)
@@ -33,6 +33,13 @@ export default function WheelSpin() {
     profitAmount,
     resetGameState,
   } = useGameOutcome();
+
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🎡')
 
   // Dynamic play button text
   const playButtonText = hasPlayedBefore && !showOutcome ? "Play Again" : "Spin";
@@ -72,6 +79,11 @@ export default function WheelSpin() {
       return
     }
 
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🎡', '💭', '🎯', '🍀'][Math.floor(Math.random() * 4)])
+
     setIsPlaying(true)
     setResult(null)
     setPayout(null)
@@ -81,8 +93,12 @@ export default function WheelSpin() {
     await new Promise(res => setTimeout(res, 1200))
     await game.play({ wager, bet: segments })
     const res = await game.result()
-  setGambaResult(res)
   setResultModalOpen(true)
+    
+    // Dramatic pause phase
+    setGamePhase('dramatic')
+    setDramaticPause(true)
+    
     const segmentAngle = 360 / spinSegments
     const finalAngle = 360 * spinRounds + (segmentAngle * res.resultIndex) + segmentAngle / 2
     setSpinAngle(finalAngle)
@@ -105,11 +121,31 @@ export default function WheelSpin() {
         })
       }
 
+      // Set celebration intensity based on win amount
+      if (wasWin) {
+        const multiplier = res.payout / wager
+        if (multiplier >= 10) {
+          setCelebrationIntensity(3) // Epic win
+        } else if (multiplier >= 3) {
+          setCelebrationIntensity(2) // Big win
+        } else {
+          setCelebrationIntensity(1) // Regular win
+        }
+        setGamePhase('celebrating')
+      } else {
+        setGamePhase('mourning')
+      }
+
       // Handle game outcome for overlay
       handleGameComplete({
         payout: res.payout,
         wager: wager,
       });
+      
+      // Reset to idle after celebration/mourning
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     }, 1200)
   }
 
@@ -339,10 +375,10 @@ export default function WheelSpin() {
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={playButtonText}
+        onPlayAgain={handlePlayAgain}
       />
-      
-      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
       
       <style>{`
         @keyframes resultGlow {
@@ -354,6 +390,15 @@ export default function WheelSpin() {
           50% { opacity: 0.7; }
         }
       `}</style>
+      {renderThinkingOverlay(
+        <WheelSpinOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   )
 }

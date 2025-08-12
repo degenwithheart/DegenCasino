@@ -3,13 +3,14 @@ import { FAKE_TOKEN_MINT, GambaUi, TokenValue, useSound, useWagerInput, useToken
 import { useCurrentToken } from 'gamba-react-ui-v2'
 import { useCurrentPool } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
-import { GameControls, GambaResultModal } from '../../components'
+import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
-import React, { useState, useContext, useRef } from 'react'
-import { GambaResultContext } from '../../context/GambaResultContext'
+import React, { useState, useRef } from 'react'
 import KenoPaytable, { KenoPaytableRef } from './KenoPaytable'
+import { KenoOverlays } from './KenoOverlays'
 
 import { useIsCompact } from '../../hooks/useIsCompact';
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 // 🎵 Assign sounds using URLs
 const revealSound = "/assets/games/keno/reveal.mp3";
@@ -23,7 +24,6 @@ const MAX_SELECTION = 10
 
 export default function Keno() {
   const [resultModalOpen, setResultModalOpen] = useState(false)
-  const { setGambaResult } = useContext(GambaResultContext)
   const pool = useCurrentPool();
   const [wager, setWager] = useWagerInput()
   const isCompact = useIsCompact();
@@ -65,6 +65,13 @@ export default function Keno() {
     profitAmount,
     resetGameState,
   } = useGameOutcome();
+
+  // Overlay states
+  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  const [thinkingPhase, setThinkingPhase] = React.useState(false)
+  const [dramaticPause, setDramaticPause] = React.useState(false)
+  const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
+  const [thinkingEmoji, setThinkingEmoji] = React.useState('🎱')
 
   // Set default wager: 1 for free tokens, 0 for real tokens
   React.useEffect(() => {
@@ -118,6 +125,11 @@ export default function Keno() {
       return // Cannot play without selecting numbers
     }
 
+    // Start thinking phase
+    setGamePhase('thinking')
+    setThinkingPhase(true)
+    setThinkingEmoji(['🎱', '💭', '🔮', '🎯'][Math.floor(Math.random() * 4)])
+
     setRevealedBlocks(new Set())
     setGameWon(null)
     setIsPlaying(true)
@@ -135,9 +147,15 @@ export default function Keno() {
       })
 
       const gameResult = await game.result()
-      setGambaResult(gameResult)
       setResultModalOpen(true)
       const win = gameResult.payout > 0
+
+      // Dramatic pause phase
+      setGamePhase('dramatic')
+      setDramaticPause(true)
+      
+      // Wait for dramatic effect
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       const simulatedDrawnNumbers = simulateDrawnNumbers(win, selectedNumbers)
       setDrawnNumbers(simulatedDrawnNumbers)
@@ -167,6 +185,21 @@ export default function Keno() {
         });
       }
 
+      // Set celebration intensity based on win amount
+      if (win) {
+        const multiplier = gameResult.payout / wager
+        if (multiplier >= 10) {
+          setCelebrationIntensity(3) // Epic win
+        } else if (multiplier >= 3) {
+          setCelebrationIntensity(2) // Big win
+        } else {
+          setCelebrationIntensity(1) // Regular win
+        }
+        setGamePhase('celebrating')
+      } else {
+        setGamePhase('mourning')
+      }
+
       revealDrawnNumbers(simulatedDrawnNumbers, win)
       setGameWon(win)
 
@@ -175,7 +208,17 @@ export default function Keno() {
         payout: gameResult.payout,
         wager: wager,
       });
+      
+      // Reset to idle after celebration/mourning
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     } catch (err: any) {
+      setGamePhase('mourning')
+      // Reset to idle after error
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 3000)
     } finally {
       setIsPlaying(false)
     }
@@ -379,8 +422,10 @@ export default function Keno() {
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
+        showOutcome={showOutcome}
         playButtonText={playButtonText}
         playButtonDisabled={selectedNumbers.length === 0}
+        onPlayAgain={handlePlayAgain}
       >
         {/* Selected Numbers Display */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -422,7 +467,15 @@ export default function Keno() {
           )}
         </div>
       </GameControls>
-      <GambaResultModal open={resultModalOpen} onClose={() => setResultModalOpen(false)} />
+      {renderThinkingOverlay(
+        <KenoOverlays 
+        gamePhase={getGamePhaseState(gamePhase)}
+        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+        dramaticPause={dramaticPause}
+        celebrationIntensity={celebrationIntensity}
+        thinkingEmoji={thinkingEmoji}
+      />
+        )}
     </>
   )
 }

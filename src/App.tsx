@@ -32,7 +32,6 @@ import ExchangePage from './sections/Dashboard/ExchangePage';
 // Import global responsive paytables (works for all games automatically)
 import './utils/globalResponsivePaytables';
 import Propagation from './pages/propagation';
-import { GambaResultProvider } from './context/GambaResultContext';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -92,7 +91,6 @@ export default function App() {
   }
 
   return (
-    <GambaResultProvider>
     <LiveAccessWrapper>
       <div style={{ display: 'flex' }}>
         <Sidebar />
@@ -224,6 +222,5 @@ export default function App() {
         </div>
       </div>
     </LiveAccessWrapper>
-    </GambaResultProvider>
   );
 }
