@@ -166,57 +166,6 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
           </h3>
         </div>
 
-        {/* Current Game Info */}
-        {selectedChoice && (
-          <div style={{
-            background: selectedChoice === 'double' 
-              ? 'rgba(34, 197, 94, 0.1)' 
-              : 'rgba(239, 68, 68, 0.1)',
-            borderRadius: '12px',
-            padding: '12px',
-            border: selectedChoice === 'double' 
-              ? '1px solid rgba(34, 197, 94, 0.3)'
-              : '1px solid rgba(239, 68, 68, 0.3)'
-          }}>
-            <div style={{ 
-              fontSize: '14px', 
-              color: selectedChoice === 'double' ? '#22C55E' : '#EF4444', 
-              fontWeight: 600, 
-              marginBottom: '8px' 
-            }}>
-              Current Choice
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  background: selectedChoice === 'double' 
-                    ? 'linear-gradient(135deg, #22C55E, #10B981)' 
-                    : 'linear-gradient(135deg, #EF4444, #DC2626)',
-                  color: '#fff',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  textAlign: 'center'
-                }}>
-                  {selectedChoice === 'double' ? '💰 DOUBLE' : '❌ NOTHING'}
-                </div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px' }}>
-                  Round {currentRound}
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ color: '#22C55E', fontSize: '12px' }}>
-                  50% chance
-                </div>
-                <div style={{ color: '#FCD34D', fontSize: '12px' }}>
-                  <TokenValue amount={potentialPayout} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Session Statistics */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',

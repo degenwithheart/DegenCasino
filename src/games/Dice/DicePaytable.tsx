@@ -325,21 +325,6 @@ const DicePaytable = forwardRef<DicePaytableRef, DicePaytableProps>(({
         }
       `}</style>
 
-      {/* Current Bet Info */}
-      <div className="paytable-card">
-        <div className="paytable-title">Current Bet</div>
-        <div className="odds-info">
-          <div className="odds-value">{odds.toFixed(1)}%</div>
-          <div className="odds-label">Win Chance</div>
-        </div>
-        <div className="multiplier-info">
-          <div className="multiplier-value">{currentMultiplier}x</div>
-          <div className="target-info">
-            Roll {rollUnder ? 'under' : 'over'} {rollUnder ? odds : (100 - odds).toFixed(1)} to win
-          </div>
-        </div>
-      </div>
-
       {/* Recent Rolls */}
       <div className="paytable-card recent-rolls">
         <div className="paytable-title">Recent Rolls</div>

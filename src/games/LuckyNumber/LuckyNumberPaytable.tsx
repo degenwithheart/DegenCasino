@@ -89,48 +89,6 @@ const LuckyNumberPaytable = forwardRef<LuckyNumberPaytableRef, LuckyNumberPaytab
           </h3>
         </div>
 
-        {/* Current Pick */}
-        <div style={{
-          background: 'rgba(34, 197, 94, 0.1)',
-          borderRadius: '12px',
-          padding: 16,
-          border: '1px solid rgba(34, 197, 94, 0.2)'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#22c55e',
-            marginBottom: 8,
-            textAlign: 'center'
-          }}>
-            Your Lucky Number
-          </div>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Selected:</span>
-            <span style={{ 
-              color: '#22c55e', 
-              fontSize: '24px', 
-              fontWeight: 700,
-              textShadow: '0 2px 4px rgba(34, 197, 94, 0.5)'
-            }}>
-              {selectedNumber}
-            </span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Win Chance:</span>
-            <span style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 600 }}>
-              10% (1 in 10)
-            </span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Potential Win:</span>
-            <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 600 }}>
-              {expectedPayout.toFixed(2)} (10x)
-            </span>
-          </div>
-        </div>
-
         {/* Game Odds */}
         <div style={{
           background: 'rgba(0, 0, 0, 0.3)',

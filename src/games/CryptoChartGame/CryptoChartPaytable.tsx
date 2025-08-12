@@ -101,55 +101,6 @@ const CryptoChartPaytable = forwardRef<CryptoChartPaytableRef, CryptoChartPaytab
           </h3>
         </div>
 
-        {/* Current Trade */}
-        <div style={{
-          background: 'rgba(34, 197, 94, 0.1)',
-          borderRadius: '12px',
-          padding: 16,
-          border: '1px solid rgba(34, 197, 94, 0.2)'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#22c55e',
-            marginBottom: 8,
-            textAlign: 'center'
-          }}>
-            Current Position
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#e5e7eb', fontSize: '13px' }}>Target:</span>
-              <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 700 }}>
-                {targetMultiplier.toFixed(2)}x
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#e5e7eb', fontSize: '13px' }}>Current:</span>
-              <span style={{ 
-                color: currentMultiplier >= targetMultiplier ? '#22c55e' : '#fbbf24', 
-                fontSize: '14px', 
-                fontWeight: 700 
-              }}>
-                {currentMultiplier.toFixed(2)}x
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#e5e7eb', fontSize: '13px' }}>SOL Price:</span>
-              <span style={{ color: '#9ca3af', fontSize: '13px', fontWeight: 600 }}>
-                ${currentPrice.toFixed(2)}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#e5e7eb', fontSize: '13px' }}>Potential Win:</span>
-              <span style={{ color: '#22c55e', fontSize: '13px', fontWeight: 600 }}>
-                {targetPayout.toFixed(2)}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Price Levels */}
         <div style={{
           background: 'rgba(0, 0, 0, 0.3)',

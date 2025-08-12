@@ -135,31 +135,6 @@ const LimboPaytable = forwardRef<LimboPaytableRef, LimboPaytableProps>(
           </h3>
         </div>
 
-        {/* Current Game Info */}
-        <div style={{
-          background: 'rgba(139, 92, 246, 0.1)',
-          borderRadius: '12px',
-          padding: '12px',
-          border: '1px solid rgba(139, 92, 246, 0.3)'
-        }}>
-          <div style={{ fontSize: '14px', color: '#A78BFA', fontWeight: 600, marginBottom: '8px' }}>
-            Current Target
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ color: '#fff', fontSize: '18px', fontWeight: 700 }}>
-              {targetMultiplier.toFixed(2)}x
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ color: '#22C55E', fontSize: '12px' }}>
-                {winChance.toFixed(2)}% chance
-              </div>
-              <div style={{ color: '#FCD34D', fontSize: '12px' }}>
-                <TokenValue amount={potentialPayout} />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Session Statistics */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',

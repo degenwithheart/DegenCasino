@@ -91,37 +91,6 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
           </h3>
         </div>
 
-        {/* Current Target */}
-        <div style={{
-          background: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '12px',
-          padding: 16,
-          border: '1px solid rgba(59, 130, 246, 0.2)'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#60a5fa',
-            marginBottom: 8,
-            textAlign: 'center'
-          }}>
-            Current Target
-          </div>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Multiplier:</span>
-            <span style={{ color: '#60a5fa', fontSize: '16px', fontWeight: 700 }}>
-              {targetMultiplier.toFixed(2)}x
-            </span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Potential Win:</span>
-            <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 600 }}>
-              {formatAmountWithSymbol(targetPayout, token)}
-            </span>
-          </div>
-        </div>
-
         {/* Crash Probabilities */}
         <div style={{
           background: 'rgba(0, 0, 0, 0.3)',

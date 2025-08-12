@@ -214,49 +214,6 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
         </p>
       </div>
 
-      {/* Current Result */}
-      {currentResult && (
-        <div style={{ 
-          marginBottom: '16px',
-          padding: '12px',
-          background: currentResult.wasWin 
-            ? 'rgba(34, 197, 94, 0.15)' 
-            : 'rgba(239, 68, 68, 0.15)',
-          borderRadius: '8px',
-          border: `1px solid ${currentResult.wasWin ? '#22c55e' : '#ef4444'}33`
-        }}>
-          <div style={{ 
-            fontSize: '13px', 
-            fontWeight: '600', 
-            marginBottom: '6px',
-            color: currentResult.wasWin ? '#22c55e' : '#ef4444' 
-          }}>
-            Latest Spin
-          </div>
-          <div style={{ 
-            fontSize: '14px', 
-            color: '#fff', 
-            marginBottom: '4px',
-            fontWeight: '700'
-          }}>
-            Number: <span style={{ 
-              color: getNumberColor(currentResult.winningNumber) === 'red' ? '#ef4444' :
-                     getNumberColor(currentResult.winningNumber) === 'black' ? '#fff' : '#22c55e'
-            }}>
-              {currentResult.winningNumber}
-            </span>
-          </div>
-          <div style={{ fontSize: '12px', color: '#fff' }}>
-            Won: {formatAmountWithSymbol(currentResult.totalWon, token)}
-          </div>
-          {currentResult.winningBets.length > 0 && (
-            <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
-              Winning bets: {currentResult.winningBets.join(', ')}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Session Statistics */}
       <div style={{ marginBottom: '16px' }}>
         <h4 style={{ 

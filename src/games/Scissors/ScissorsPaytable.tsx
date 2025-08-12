@@ -71,77 +71,7 @@ const ScissorsPaytable = forwardRef<ScissorsPaytableRef, ScissorsPaytableProps>(
           </h3>
         </div>
 
-        {/* Current Selection & Payouts */}
         <div style={{ padding: '16px' }}>
-          <div style={{
-            background: 'rgba(252, 211, 77, 0.1)',
-            borderRadius: '12px',
-            padding: '12px',
-            marginBottom: '16px',
-            border: '1px solid rgba(252, 211, 77, 0.2)'
-          }}>
-            <div style={{ 
-              color: '#FCD34D', 
-              fontSize: '14px', 
-              fontWeight: 600, 
-              marginBottom: '8px',
-              textAlign: 'center'
-            }}>
-              YOUR CHOICE: {CHOICE_EMOJI[selectedChoice]} {selectedChoice.toUpperCase()}
-            </div>
-            
-            {/* Payout Table */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                color: '#22C55E',
-                fontSize: '12px',
-                fontWeight: 600
-              }}>
-                <span>🎉 WIN:</span>
-                <span>
-                  <TokenValue amount={winAmount} />
-                  <span style={{ color: '#9CA3AF', marginLeft: '4px' }}>
-                    ({currentMode.winMultiplier}x)
-                  </span>
-                </span>
-              </div>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                color: '#9CA3AF',
-                fontSize: '12px',
-                fontWeight: 600
-              }}>
-                <span>🤝 TIE:</span>
-                <span>
-                  <TokenValue amount={tieAmount} />
-                  <span style={{ color: '#9CA3AF', marginLeft: '4px' }}>
-                    ({currentMode.tieMultiplier}x)
-                  </span>
-                </span>
-              </div>
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                color: '#EF4444',
-                fontSize: '12px',
-                fontWeight: 600
-              }}>
-                <span>💀 LOSE:</span>
-                <span>
-                  <TokenValue amount={0} />
-                  <span style={{ color: '#9CA3AF', marginLeft: '4px' }}>
-                    (0x)
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Game Rules */}
           <div style={{
             background: 'rgba(0, 0, 0, 0.3)',

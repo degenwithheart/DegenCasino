@@ -151,43 +151,6 @@ const FlipPaytable = forwardRef<FlipPaytableRef, FlipPaytableProps>(
           </h3>
         </div>
 
-        {/* Current Game Info */}
-        {selectedSide && (
-          <div style={{
-            background: 'rgba(252, 211, 77, 0.1)',
-            borderRadius: '12px',
-            padding: '12px',
-            border: '1px solid rgba(252, 211, 77, 0.3)'
-          }}>
-            <div style={{ fontSize: '14px', color: '#FCD34D', fontWeight: 600, marginBottom: '8px' }}>
-              Current Selection
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  background: selectedSide === 'heads' ? 'linear-gradient(135deg, #FCD34D, #F59E0B)' : 'linear-gradient(135deg, #94A3B8, #64748B)',
-                  color: selectedSide === 'heads' ? '#000' : '#fff',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  textAlign: 'center'
-                }}>
-                  {selectedSide === 'heads' ? '👑' : '⚡'} {selectedSide.toUpperCase()}
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ color: '#22C55E', fontSize: '12px' }}>
-                  50% chance
-                </div>
-                <div style={{ color: '#FCD34D', fontSize: '12px' }}>
-                  <TokenValue amount={potentialPayout} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Session Statistics */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',

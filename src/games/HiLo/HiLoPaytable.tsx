@@ -175,47 +175,6 @@ const HiLoPaytable = forwardRef<HiLoPaytableRef, HiLoPaytableProps>(
           </h3>
         </div>
 
-        {/* Current Game Info */}
-        {currentCard && guessType && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            borderRadius: '12px',
-            padding: '12px',
-            border: '1px solid rgba(239, 68, 68, 0.3)'
-          }}>
-            <div style={{ fontSize: '14px', color: '#FCA5A5', fontWeight: 600, marginBottom: '8px' }}>
-              Current Guess
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  background: '#fff',
-                  color: getCardColor(currentCard),
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  minWidth: '40px',
-                  textAlign: 'center'
-                }}>
-                  {getCardName(currentCard)}
-                </div>
-                <span style={{ color: '#fff', fontSize: '14px' }}>
-                  → {guessType.toUpperCase()}
-                </span>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ color: '#FCD34D', fontSize: '12px' }}>
-                  {potentialMultiplier.toFixed(2)}x
-                </div>
-                <div style={{ color: '#22C55E', fontSize: '12px' }}>
-                  <TokenValue amount={potentialPayout} />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Session Statistics */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.05)',
