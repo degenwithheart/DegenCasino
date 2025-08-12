@@ -187,38 +187,36 @@ export default function CrashGame() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
-            {/* Game Area */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <ScreenWrapper>
-                <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
-                <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
-                <StarsLayer2 style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
-                <LineLayer2 style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
-                <StarsLayer3 style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
-                <LineLayer3 style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
-                <MultiplierText color={multiplierColor}>
-                  {currentMultiplier.toFixed(2)}x
-                </MultiplierText>
-                <Rocket style={getRocketStyle()} />
-              </ScreenWrapper>
-            </div>
-
-            {/* Live Paytable */}
-            <CrashPaytable
-              ref={paytableRef}
-              wager={wager}
-              targetMultiplier={multiplierTarget}
-              currentResult={rocketState !== 'idle' ? {
-                targetMultiplier: multiplierTarget,
-                crashMultiplier: currentMultiplier,
-                wasWin: rocketState === 'win',
-                amount: 0 // Will be set when animation completes
-              } : undefined}
-            />
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <ScreenWrapper>
+              <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
+              <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
+              <StarsLayer2 style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
+              <LineLayer2 style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
+              <StarsLayer3 style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
+              <LineLayer3 style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
+              <MultiplierText color={multiplierColor}>
+                {currentMultiplier.toFixed(2)}x
+              </MultiplierText>
+              <Rocket style={getRocketStyle()} />
+            </ScreenWrapper>
           </div>
-        </GambaUi.Responsive>
+
+          {/* Paytable sidebar */}
+          <CrashPaytable
+            ref={paytableRef}
+            wager={wager}
+            targetMultiplier={multiplierTarget}
+            currentResult={rocketState !== 'idle' ? {
+              targetMultiplier: multiplierTarget,
+              crashMultiplier: currentMultiplier,
+              wasWin: rocketState === 'win',
+              amount: 0 // Will be set when animation completes
+            } : undefined}
+          />
+        </div>
       </GambaUi.Portal>
       <GameControls
         wager={wager}

@@ -123,25 +123,53 @@ export default function WheelSpin() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <div style={{ 
-            display: 'flex', 
-            gap: 16, 
-            height: '100%', 
-            width: '100%',
-            background: 'linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(10, 10, 25, 0.95))',
-            borderRadius: '16px',
-            overflow: 'hidden'
-          }}>
-            {/* Game Area */}
-            <div style={{ 
-              flex: 1, 
-              display: 'flex', 
-              alignItems: 'center', 
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
               position: 'relative',
-              minHeight: '400px'
+            }}
+          >
+            <div style={{
+              textAlign: 'center',
+              marginBottom: 20,
+              zIndex: 10,
+              position: 'relative'
             }}>
+              <h2 style={{
+                fontSize: 32,
+                fontWeight: 800,
+                margin: '0 0 8px 0',
+                letterSpacing: 2,
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                color: '#fff'
+              }}>
+                🌀 WHEEL SPIN 🎯
+              </h2>
+              <div style={{
+                fontSize: 16,
+                color: '#888',
+                fontWeight: 600
+              }}>
+                Spin the wheel of fortune for big wins!
+              </div>
+            </div>
+
+            <GambaUi.Responsive>
               <div style={{
                 transform: `scale(${scale})`,
                 transformOrigin: 'center',
@@ -151,19 +179,12 @@ export default function WheelSpin() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'transform 0.2s ease-out',
-                padding: '20px'
+                padding: '20px',
+                position: 'relative',
+                zIndex: 5
               }} className="wheelspin-game-scaler">
                 <div style={{ textAlign: 'center', position: 'relative' }}>
-                  <h2 style={{ 
-                    fontWeight: 700, 
-                    fontSize: 32, 
-                    marginBottom: 24,
-                    color: '#fff',
-                    textShadow: '0 4px 8px rgba(0,0,0,0.5)'
-                  }}>
-                    🌀 Wheel Spin
-                  </h2>
-                  
+                  {/* Wheel Display */}
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 24 }}>
                     <div style={{ width: 260, height: 260, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg
@@ -243,61 +264,74 @@ export default function WheelSpin() {
                         filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                       }} />
                       
-                      {/* Result Display */}
-                      {!spinning && result !== null && (
-                        <div style={{
-                          position: 'absolute',
-                          left: 'calc(100% + 24px)',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          minWidth: 160,
-                          background: payout && payout > 0 
-                            ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))'
-                            : 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))',
-                          borderRadius: 12,
-                          padding: '18px 20px',
-                          fontSize: 16,
-                          fontWeight: 600,
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                          textAlign: 'center',
-                          zIndex: 3,
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          color: '#fff',
-                          animation: 'resultGlow 1s ease-in-out'
-                        }}>
-                          {payout && payout > 0 ? (
-                            <>
-                              🎉 You Win!<br />
-                              <span style={{ fontSize: '18px', fontWeight: 700 }}>
-                                +{formatPayout(payout)} {token?.symbol}
-                              </span>
-                            </>
-                          ) : (
-                            <>😔 You Lost</>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
+
+                  {/* Game Info */}
+                  <div style={{
+                    marginTop: 20,
+                    padding: '12px 20px',
+                    borderRadius: '12px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    color: '#60a5fa',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}>
+                    <div>Wheel Segments: {segments.join(' | ')}</div>
+                    <div style={{ marginTop: 4 }}>Expected Return: Variable based on segment hit</div>
+                  </div>
+
+                  {/* Result Display */}
+                  {!spinning && result !== null && (
+                    <div style={{
+                      marginTop: 20,
+                      padding: '16px 24px',
+                      borderRadius: '12px',
+                      background: payout && payout > 0 
+                        ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2))'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2))',
+                      border: payout && payout > 0
+                        ? '1px solid rgba(34, 197, 94, 0.4)'
+                        : '1px solid rgba(239, 68, 68, 0.4)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '18px',
+                      textAlign: 'center',
+                      animation: 'resultGlow 1s ease-in-out'
+                    }}>
+                      {payout && payout > 0 ? (
+                        <>
+                          🎉 You Win!<br />
+                          <span style={{ fontSize: '18px', fontWeight: 700 }}>
+                            +{formatPayout(payout)} {token?.symbol}
+                          </span>
+                        </>
+                      ) : (
+                        <>😔 You Lost</>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {/* Live Paytable */}
-            <WheelSpinPaytable
-              ref={paytableRef}
-              wager={wager}
-              segments={segments}
-              wheelColors={wheelColors}
-              currentResult={result !== null ? {
-                segmentIndex: result,
-                multiplier: segments[result],
-                wasWin: payout !== null && payout > 0,
-                amount: payout || 0
-              } : undefined}
-            />
+            </GambaUi.Responsive>
           </div>
-        </GambaUi.Responsive>
+
+          {/* Paytable sidebar */}
+          <WheelSpinPaytable
+            ref={paytableRef}
+            wager={wager}
+            segments={segments}
+            wheelColors={wheelColors}
+            currentResult={result !== null ? {
+              segmentIndex: result,
+              multiplier: segments[result],
+              wasWin: payout !== null && payout > 0,
+              amount: payout || 0
+            } : undefined}
+          />
+        </div>
       </GambaUi.Portal>
       
       <GameControls

@@ -1,4 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 export interface HorseRacingPaytableRef {
   trackRace: (data: {

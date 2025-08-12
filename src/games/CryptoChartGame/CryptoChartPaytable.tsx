@@ -1,4 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface CryptoChartResult {
   targetMultiplier: number
@@ -29,6 +31,7 @@ const PRICE_RANGES = [
 
 const CryptoChartPaytable = forwardRef<CryptoChartPaytableRef, CryptoChartPaytableProps>(
   ({ wager, targetMultiplier, currentMultiplier, currentResult }, ref) => {
+    const token = useCurrentToken()
     const [sessionStats, setSessionStats] = useState({
       totalGames: 0,
       totalWins: 0,

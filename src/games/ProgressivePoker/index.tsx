@@ -337,255 +337,279 @@ export default function ProgressivePoker() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <div style={{ 
-          display: 'flex', 
-          gap: '20px', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          width: '100%', 
-          height: '100%',
-          flexDirection: compact ? 'column' : 'row'
-        }}>
-          {/* Game Area */}
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
           <div
             style={{
+              flex: 1,
+              minHeight: '400px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(24, 24, 42, 0.92)',
-              borderRadius: 14,
-              padding: '12px 16px',
-              margin: compact ? '12px auto' : '24px auto',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.267)',
-              color: 'rgb(255, 224, 102)',
-              minHeight: 340,
-              height: compact ? 'auto' : '100%',
-              maxWidth: compact ? '100%' : '600px',
-              width: compact ? '100%' : 'auto'
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            <div
-              style={{
-                marginTop: 0,
-                marginBottom: 24,
-                textAlign: 'center',
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: 12,
-                padding: '18px 12px 12px 12px',
-                boxShadow: '0 1px 8px 0 #0003',
-                minHeight: 160,
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: '#ffe082',
-                  margin: 0,
-                  textShadow: '0 2px 8px #000a',
-                  minHeight: 34,
-                }}
-              >
-                {hand ? (
-                  hand.name !== hand.type ? (
-                    <>
-                      {hand.name}{' '}
-                      <span style={{ color: '#fff', fontWeight: 400 }}>
-                        ({hand.type})
-                      </span>
-                    </>
-                  ) : (
-                    <>{hand.name}</>
-                  )
-                ) : (
-                  <span className="pulse-fade" style={{ color: '#fff', opacity: 0.5 }}>
-                    Awaiting Hand...
-                  </span>
-                )}
-              </h3>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: 10,
-                  margin: '18px 0 10px 0',
-                }}
-              >
-                {(sequence.length ? sequence : Array(5).fill(null)).map((card, i) => {
-                  // Always use the same size for both revealed and placeholder cards
-                  const cardSize = { width: 68, height: 104 };
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        position: 'relative',
-                        width: cardSize.width,
-                        height: cardSize.height,
-                        perspective: 400,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'width 0.2s, height 0.2s',
-                      }}
-                    >
-                      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                        {/* Card front */}
-                        <div
-                          style={{
-
-                            position: 'absolute',
-                            width: 'auto',
-                            height: 'auto',
-                            minHeight: 104,
-                            left: 0,
-                            top: 0,
-                            borderRadius: 8,
-                            background: 'linear-gradient(135deg, #232b3a 60%, #1a1f2b 100%)',
-                            boxShadow: '0 2px 8px #000a',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontSize: 54,
-                            fontWeight: 700,
-                            letterSpacing: 2,
-                            zIndex: 2,
-                            transform: card && cardRevealed[i] ? 'rotateY(0deg)' : 'rotateY(180deg)',
-                            transition: 'transform 0.6s cubic-bezier(.4,2,.6,1)',
-                            display: card && cardRevealed[i] ? 'block' : 'none',
-                          }}
-                        >
-                          {card && cardRevealed[i] && <PokerCard rank={card.rank} suit={card.suit} />}
-                        </div>
-                        {/* Card back */}
-                        <div
-                          style={{
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            left: 0,
-                            top: 0,
-                            borderRadius: 8,
-                            background: 'linear-gradient(135deg, #232b3a 60%, #1a1f2b 100%)',
-                            boxShadow: '0 2px 8px #000a',
-                            display: card && cardRevealed[i] ? 'none' : 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontSize: 54,
-                            fontWeight: 700,
-                            letterSpacing: 2,
-                            backfaceVisibility: 'hidden',
-                            zIndex: 1,
-                            userSelect: 'none',
-                            transition: 'display 0.2s, font-size 0.2s',
-                          }}
-                        >
-                          ?
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: 20,
+              zIndex: 10,
+              position: 'relative'
+            }}>
+              <h2 style={{
+                fontSize: 32,
+                fontWeight: 800,
+                margin: '0 0 8px 0',
+                letterSpacing: 2,
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                color: '#fff'
+              }}>
+                🃏 PROGRESSIVE POKER 🎰
+              </h2>
+              <div style={{
+                fontSize: 16,
+                color: '#888',
+                fontWeight: 600
+              }}>
+                Draw cards to make the best poker hand
               </div>
             </div>
 
-            {/* LIVE UPDATE TEXT (Current Hand & Best Possible) */}
-            <div style={{ marginTop: 12, width: '100%' }}>
-              <p
-                style={{
-                  fontWeight: 600,
-                  fontSize: 18,
-                  textAlign: 'center',
-                  color: '#fff',
-                  margin: 0,
-                  letterSpacing: 0.5,
-                }}
-              >
-                Current Hand:{' '}
-                {revealedCards.length ? (
-                  getCurrentHandName(revealedCards)
-                ) : (
-                  <span className="pulse-fade" style={{ opacity: 0.6 }}>
-                    Evaluating...
-                  </span>
-                )}
-              </p>
-              <p
-                style={{
-                  fontWeight: 600,
-                  fontSize: 18,
-                  textAlign: 'center',
-                  color: bestPossible.toLowerCase().includes('bust') ? '#ff7f7f' : '#ffe082',
-                  margin: 0,
-                  letterSpacing: 0.5,
-                }}
-              >
-                Best Possible: {bestPossible}
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-                <style>
-                  {`
-                    @keyframes shimmer {
-                      0% { background-position: 0% 50%; }
-                      100% { background-position: 100% 50%; }
-                    }
-                    .shimmer-btn {
-                      background: linear-gradient(270deg, #ffe082, #fff4b1, #ffe082);
-                      background-size: 600% 600%;
-                      animation: shimmer 3s ease-in-out infinite alternate;
-                      color: #222;
-                      border: none;
-                      padding: 12px 24px;
-                      font-weight: 700;
-                      font-size: 16px;
-                      border-radius: 8px;
-                      cursor: pointer;
-                      width: 160px;
-                      user-select: none;
-                      transition: box-shadow 0.3s ease;
-                    }
-                    .shimmer-btn:hover {
-                      box-shadow: 0 0 12px #ffe082aa;
-                    }
-                    .shimmer-btn:disabled {
-                      cursor: not-allowed;
-                      opacity: 0.5;
-                      animation-play-state: paused;
-                    }
-                  `}
-                </style>
-                <button
-                  className="shimmer-btn"
-                  disabled={
-                    !inProgress ||
-                    revealedCards.length >= 5 ||
-                    revealing
-                  }
-                  onClick={handleContinue}
+            <GambaUi.Responsive>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                zIndex: 10,
+                padding: '20px'
+              }}>
+                {/* Hand name display */}
+                <div
+                  style={{
+                    marginTop: 0,
+                    marginBottom: 24,
+                    textAlign: 'center',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: 12,
+                    padding: '18px 12px 12px 12px',
+                    boxShadow: '0 1px 8px 0 #0003',
+                    minHeight: 160,
+                  }}
                 >
-                  Draw Next Card
-                </button>
+                  <h3
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: '#ffe082',
+                      margin: 0,
+                      textShadow: '0 2px 8px #000a',
+                      minHeight: 34,
+                    }}
+                  >
+                    {hand ? (
+                      hand.name !== hand.type ? (
+                        <>
+                          {hand.name}{' '}
+                          <span style={{ color: '#fff', fontWeight: 400 }}>
+                            ({hand.type})
+                          </span>
+                        </>
+                      ) : (
+                        <>{hand.name}</>
+                      )
+                    ) : (
+                      <span className="pulse-fade" style={{ color: '#fff', opacity: 0.5 }}>
+                        Awaiting Hand...
+                      </span>
+                    )}
+                  </h3>
+                  
+                  {/* Cards display */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: 10,
+                      margin: '18px 0 10px 0',
+                    }}
+                  >
+                    {(sequence.length ? sequence : Array(5).fill(null)).map((card, i) => {
+                      // Always use the same size for both revealed and placeholder cards
+                      const cardSize = { width: 68, height: 104 };
+                      return (
+                        <div
+                          key={i}
+                          style={{
+                            position: 'relative',
+                            width: cardSize.width,
+                            height: cardSize.height,
+                            perspective: 400,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'width 0.2s, height 0.2s',
+                          }}
+                        >
+                          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                            {/* Card front */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                width: 'auto',
+                                height: 'auto',
+                                minHeight: 104,
+                                left: 0,
+                                top: 0,
+                                borderRadius: 8,
+                                background: 'linear-gradient(135deg, #232b3a 60%, #1a1f2b 100%)',
+                                boxShadow: '0 2px 8px #000a',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                fontSize: 54,
+                                fontWeight: 700,
+                                letterSpacing: 2,
+                                zIndex: 2,
+                                transform: card && cardRevealed[i] ? 'rotateY(0deg)' : 'rotateY(180deg)',
+                                transition: 'transform 0.6s cubic-bezier(.4,2,.6,1)',
+                                display: card && cardRevealed[i] ? 'block' : 'none',
+                              }}
+                            >
+                              {card && cardRevealed[i] && <PokerCard rank={card.rank} suit={card.suit} />}
+                            </div>
+                            {/* Card back */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                width: '100%',
+                                height: '100%',
+                                left: 0,
+                                top: 0,
+                                borderRadius: 8,
+                                background: 'linear-gradient(135deg, #232b3a 60%, #1a1f2b 100%)',
+                                boxShadow: '0 2px 8px #000a',
+                                display: card && cardRevealed[i] ? 'none' : 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                fontSize: 54,
+                                fontWeight: 700,
+                                letterSpacing: 2,
+                                backfaceVisibility: 'hidden',
+                                zIndex: 1,
+                                userSelect: 'none',
+                                transition: 'display 0.2s, font-size 0.2s',
+                              }}
+                            >
+                              ?
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* LIVE UPDATE TEXT (Current Hand & Best Possible) */}
+                <div style={{ marginTop: 12, width: '100%' }}>
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 18,
+                      textAlign: 'center',
+                      color: '#fff',
+                      margin: 0,
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    Current Hand:{' '}
+                    {revealedCards.length ? (
+                      getCurrentHandName(revealedCards)
+                    ) : (
+                      <span className="pulse-fade" style={{ opacity: 0.6 }}>
+                        Evaluating...
+                      </span>
+                    )}
+                  </p>
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 18,
+                      textAlign: 'center',
+                      color: bestPossible.toLowerCase().includes('bust') ? '#ff7f7f' : '#ffe082',
+                      margin: 0,
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    Best Possible: {bestPossible}
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+                    <style>
+                      {`
+                        @keyframes shimmer {
+                          0% { background-position: 0% 50%; }
+                          100% { background-position: 100% 50%; }
+                        }
+                        .shimmer-btn {
+                          background: linear-gradient(270deg, #ffe082, #fff4b1, #ffe082);
+                          background-size: 600% 600%;
+                          animation: shimmer 3s ease-in-out infinite alternate;
+                          color: #222;
+                          border: none;
+                          padding: 12px 24px;
+                          font-weight: 700;
+                          font-size: 16px;
+                          border-radius: 8px;
+                          cursor: pointer;
+                          width: 160px;
+                          user-select: none;
+                          transition: box-shadow 0.3s ease;
+                        }
+                        .shimmer-btn:hover {
+                          box-shadow: 0 0 12px #ffe082aa;
+                        }
+                        .shimmer-btn:disabled {
+                          cursor: not-allowed;
+                          opacity: 0.5;
+                          animation-play-state: paused;
+                        }
+                      `}
+                    </style>
+                    <button
+                      className="shimmer-btn"
+                      disabled={
+                        !inProgress ||
+                        revealedCards.length >= 5 ||
+                        revealing
+                      }
+                      onClick={handleContinue}
+                    >
+                      Draw Next Card
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            </GambaUi.Responsive>
           </div>
-          
-          {/* Live Paytable */}
-          <div
-            style={{
-              height: compact ? 'auto' : '100%',
-              maxWidth: compact ? '400px' : '300px',
-              width: compact ? '100%' : '300px',
-            }}
-          >
-            <ProgressivePokerPaytable
-              ref={paytableRef}
-              wager={wager}
-              currentHandType={hand?.type || (bestPossible.toLowerCase().includes('bust') ? 'Bust' : undefined)}
-              currentResult={currentResult}
-            />
-          </div>
+            
+          {/* Paytable sidebar */}
+          <ProgressivePokerPaytable
+            ref={paytableRef}
+            wager={wager}
+            currentHandType={hand?.type || (bestPossible.toLowerCase().includes('bust') ? 'Bust' : undefined)}
+            currentResult={currentResult}
+          />
         </div>
       </GambaUi.Portal>
       <GameControls

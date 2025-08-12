@@ -1,7 +1,9 @@
 
 
 import React from 'react'
+import { useCurrentToken } from 'gamba-react-ui-v2'
 import { JACKS_OR_BETTER_BET_ARRAY } from './betArray'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 const HANDS = [
   { label: 'Jackpot (Royal Flush)', payout: JACKS_OR_BETTER_BET_ARRAY[9], type: 'Jackpot' },

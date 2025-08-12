@@ -385,83 +385,94 @@ const stopSlider = async () => {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
-            {/* Game Area */}
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+
+            <GambaUi.Responsive>
               <div
                 style={{
                   width: '100%',
                   height: '100%',
-                  background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)',
+                  background: 'transparent',
                   color: '#fff',
                   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
                   position: 'relative',
                   overflow: 'hidden',
+                  padding: '20px'
                 }}
               >
-            {/* Overlay props removed */}
-            {/* Animated Background Elements */}
-            <div style={{
-              position: 'absolute',
-              top: '10%',
-              right: '10%',
-              width: '300px',
-              height: '300px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%)',
-              animation: 'float 6s ease-in-out infinite',
-              zIndex: 0
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: '20%',
-              left: '5%',
-              width: '200px',
-              height: '200px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%)',
-              animation: 'float 4s ease-in-out infinite reverse',
-              zIndex: 0
-            }} />
+                {/* Animated Background Elements */}
+                <div style={{
+                  position: 'absolute',
+                  top: '10%',
+                  right: '10%',
+                  width: '300px',
+                  height: '300px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%)',
+                  animation: 'float 6s ease-in-out infinite',
+                  zIndex: 0
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '20%',
+                  left: '5%',
+                  width: '200px',
+                  height: '200px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%)',
+                  animation: 'float 4s ease-in-out infinite reverse',
+                  zIndex: 0
+                }} />
 
-            <div style={{ 
-              padding: '32px 24px',
-              textAlign: 'center',
-              position: 'relative',
-              zIndex: 1
-            }}>
-              {/* Header */}
-              <div style={{ marginBottom: 48 }}>
-                <h1 style={{ 
-                  fontSize: '3.5rem',
-                  fontWeight: '800',
-                  margin: '0 0 12px 0',
-                  background: 'linear-gradient(135deg, #00d4ff 0%, #ff6b35 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textShadow: '0 0 40px rgba(0, 212, 255, 0.3)',
-                  letterSpacing: '-0.02em'
+                <div style={{ 
+                  padding: '32px 24px',
+                  width: '1100px',
+                  textAlign: 'center',
+                  position: 'relative',
+                  zIndex: 1
                 }}>
-                  SLIDE
-                </h1>
-                <p style={{ 
-                  fontSize: '1.2rem',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  margin: 0,
-                  fontWeight: '300'
-                }}>
-                  Spin the wheel of fortune
-                  {gambaResult && (
+                  {/* Header */}
+                  <div style={{ marginBottom: 48 }}>
+                    <h1 style={{ 
+                      fontSize: '3.5rem',
+                      fontWeight: '800',
+                      margin: '0 0 12px 0',
+                      background: 'linear-gradient(135deg, #00d4ff 0%, #ff6b35 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      textShadow: '0 0 40px rgba(0, 212, 255, 0.3)',
+                      letterSpacing: '-0.02em'
+                    }}>
+                      SLIDE
+                    </h1>
+                    <p style={{ 
+                      fontSize: '1.2rem',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      margin: 0,
+                      fontWeight: '300'
+                    }}>
+                      Spin the wheel of fortune
+                      {gambaResult && (
                     <span style={{
                       marginLeft: '16px',
                       padding: '4px 12px',
@@ -487,7 +498,7 @@ const stopSlider = async () => {
                 {/* Multiplier Carousel */}
                 <div style={{
                   position: 'relative',
-                  width: 600,
+                  width: '100%',
                   margin: '0 auto 32px',
                   height: 200,
                   overflow: 'hidden',
@@ -798,7 +809,7 @@ const stopSlider = async () => {
                   borderRadius: '16px',
                   padding: '24px',
                   margin: '0 auto',
-                  maxWidth: '600px',
+                  maxWidth: '100%',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   marginBottom: 32
                 }}>
@@ -933,19 +944,18 @@ const stopSlider = async () => {
               }
               @keyframes slideIn {
                 from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-              }
-                  `}
-                </style>
-              </div>
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                    `}
+                  </style>
+                </div>
+              </GambaUi.Responsive>
             </div>
-            {/* Live Paytable */}
-            <div style={{ width: 350 }}>
-              <SlidePaytable ref={paytableRef} />
-            </div>
+              
+            {/* Paytable sidebar */}
+            <SlidePaytable ref={paytableRef} />
           </div>
-        </GambaUi.Responsive>
-      </GambaUi.Portal>
+        </GambaUi.Portal>
 
       <GameControls
         wager={wager}

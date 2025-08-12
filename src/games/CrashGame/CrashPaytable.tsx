@@ -1,4 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface CrashResult {
   targetMultiplier: number
@@ -28,6 +30,7 @@ const MULTIPLIER_RANGES = [
 
 const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
   ({ wager, targetMultiplier, currentResult }, ref) => {
+    const token = useCurrentToken()
     const [sessionStats, setSessionStats] = useState({
       totalGames: 0,
       totalWins: 0,
@@ -114,7 +117,7 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: '#e5e7eb', fontSize: '14px' }}>Potential Win:</span>
             <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 600 }}>
-              {targetPayout.toFixed(2)}
+              {formatAmountWithSymbol(targetPayout, token)}
             </span>
           </div>
         </div>
@@ -210,7 +213,7 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
                 fontSize: '13px', 
                 fontWeight: 600 
               }}>
-                {netProfit >= 0 ? '+' : ''}{netProfit.toFixed(2)}
+                {formatAmountWithSymbol(netProfit, token, { showPlusSign: true })}
               </span>
             </div>
           </div>
@@ -281,7 +284,10 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
                     fontWeight: 600,
                     color: result.wasWin ? '#22c55e' : '#ef4444'
                   }}>
-                    {result.wasWin ? `+${result.amount.toFixed(2)}` : `-${wager.toFixed(2)}`}
+                    {result.wasWin 
+                      ? formatAmountWithSymbol(result.amount, token, { showPlusSign: true })
+                      : formatAmountWithSymbol(-wager, token)
+                    }
                   </span>
                 </div>
               ))}

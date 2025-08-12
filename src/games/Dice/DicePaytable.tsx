@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
 import { useCurrentToken, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
+import { formatAmount, formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface DiceResult {
   rollValue: number
@@ -72,22 +73,6 @@ const DicePaytable = forwardRef<DicePaytableRef, DicePaytableProps>(({
     underWins: 0,
     overWins: 0
   })
-
-  const formatAmount = (amount: number) => {
-    // For FAKE_TOKEN_MINT (DGHRT), treat as 1:1 since it's free play token valued as 1
-    if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
-      return (amount / 1e9).toLocaleString(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })
-    }
-    
-    // For real tokens, use proper decimal conversion
-    return (amount / Math.pow(10, token?.decimals || 9)).toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    })
-  }
 
   // Track roll results
   React.useEffect(() => {

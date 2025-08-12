@@ -87,25 +87,53 @@ export default function DiceRoll() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <div style={{ 
-            display: 'flex', 
-            gap: 16, 
-            height: '100%', 
-            width: '100%',
-            background: 'linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(10, 10, 25, 0.95))',
-            borderRadius: '16px',
-            overflow: 'hidden'
-          }}>
-            {/* Game Area */}
-            <div style={{ 
-              flex: 1, 
-              display: 'flex', 
-              alignItems: 'center', 
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
               position: 'relative',
-              minHeight: '400px'
+            }}
+          >
+            <div style={{
+              textAlign: 'center',
+              marginBottom: 20,
+              zIndex: 10,
+              position: 'relative'
             }}>
+              <h2 style={{
+                fontSize: 32,
+                fontWeight: 800,
+                margin: '0 0 8px 0',
+                letterSpacing: 2,
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                color: '#fff'
+              }}>
+                🎲 DICE ROLL 🎲
+              </h2>
+              <div style={{
+                fontSize: 16,
+                color: '#888',
+                fontWeight: 600
+              }}>
+                Pick a number and roll for big wins!
+              </div>
+            </div>
+
+            <GambaUi.Responsive>
               <div
                 ref={scalerRef}
                 style={{
@@ -117,7 +145,9 @@ export default function DiceRoll() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'transform 0.2s ease-out',
-                  padding: '20px'
+                  padding: '20px',
+                  position: 'relative',
+                  zIndex: 5
                 }}
                 className="diceroll-game-scaler"
               >
@@ -126,16 +156,6 @@ export default function DiceRoll() {
                   width: '100%',
                   maxWidth: '500px'
                 }}>
-                  <h2 style={{ 
-                    fontWeight: 700, 
-                    fontSize: 32, 
-                    marginBottom: 24,
-                    color: '#fff',
-                    textShadow: '0 4px 8px rgba(0,0,0,0.5)'
-                  }}>
-                    🎲 Dice Roll
-                  </h2>
-                  
                   {/* Dice Display */}
                   <div style={{
                     margin: '24px auto',
@@ -194,6 +214,20 @@ export default function DiceRoll() {
                     </div>
                   </div>
 
+                  {/* Expected Payout Display */}
+                  <div style={{
+                    marginTop: 20,
+                    padding: '12px 20px',
+                    borderRadius: '12px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    color: '#60a5fa',
+                    fontWeight: 600,
+                    fontSize: '14px'
+                  }}>
+                    Expected Payout: {(diceMultipliers[pick] * wager).toFixed(2)} (x{diceMultipliers[pick]})
+                  </div>
+
                   {/* Result Display */}
                   {result !== null && (
                     <div style={{
@@ -220,22 +254,22 @@ export default function DiceRoll() {
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Live Paytable */}
-            <DiceRollPaytable
-              ref={paytableRef}
-              wager={wager}
-              selectedFace={pick}
-              currentResult={result !== null ? {
-                selectedFace: pick,
-                resultFace: result,
-                wasWin: payout !== null && payout > 0,
-                amount: payout || 0
-              } : undefined}
-            />
+            </GambaUi.Responsive>
           </div>
-        </GambaUi.Responsive>
+
+          {/* Paytable sidebar */}
+          <DiceRollPaytable
+            ref={paytableRef}
+            wager={wager}
+            selectedFace={pick}
+            currentResult={result !== null ? {
+              selectedFace: pick,
+              resultFace: result,
+              wasWin: payout !== null && payout > 0,
+              amount: payout || 0
+            } : undefined}
+          />
+        </div>
       </GambaUi.Portal>
       
       <GameControls

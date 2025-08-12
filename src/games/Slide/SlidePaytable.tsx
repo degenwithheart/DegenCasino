@@ -1,4 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 export interface SlidePaytableRef {
   trackSpin: (data: {
@@ -192,54 +194,6 @@ const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>((props, r
             )
           })}
         </div>
-      </div>
-
-      {/* Recent Results */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: 8,
-        padding: 12
-      }}>
-        <h4 style={{ margin: '0 0 8px 0', fontSize: 14, color: '#06b6d4' }}>Recent Results</h4>
-        {recentResults.length === 0 ? (
-          <div style={{ color: '#666', fontSize: 12, textAlign: 'center', padding: 20 }}>
-            No spins yet - start playing to see results!
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {recentResults.slice(0, 5).map((result, index) => (
-              <div
-                key={result.timestamp}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '6px 8px',
-                  background: result.win 
-                    ? 'rgba(74, 222, 128, 0.1)' 
-                    : 'rgba(239, 68, 68, 0.1)',
-                  border: `1px solid ${result.win ? 'rgba(74, 222, 128, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
-                  borderRadius: 6,
-                  fontSize: 11,
-                  opacity: 1 - (index * 0.15)
-                }}
-              >
-                <div style={{ 
-                  fontWeight: 'bold',
-                  color: result.multiplier === 0 ? '#ef4444' : result.multiplier >= 10 ? '#ffd93d' : '#fff'
-                }}>
-                  {result.multiplier}x
-                </div>
-                <div style={{ 
-                  color: result.win ? '#4ade80' : '#ef4444',
-                  fontWeight: 'bold'
-                }}>
-                  {result.win ? '+' : ''}{(result.payout - result.wager).toFixed(4)}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Live Tracking Indicator */}

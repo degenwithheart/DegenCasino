@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
 import { useCurrentToken, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
+import { formatAmount, formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface RouletteResult {
   winningNumber: number
@@ -63,27 +64,6 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
     colorStats: { red: 0, black: 0, green: 0 },
     sectionStats: { '1st12': 0, '2nd12': 0, '3rd12': 0, high: 0, low: 0, even: 0, odd: 0 }
   })
-
-  // Format amount based on token type
-  const formatAmount = (amount: number): string => {
-    if (!token) return '0'
-    
-    if (token.mint === FAKE_TOKEN_MINT) {
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(amount)
-    }
-    
-    const decimals = token.decimals || 9
-    const divisor = Math.pow(10, decimals)
-    const humanAmount = amount / divisor
-    
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    }).format(humanAmount)
-  }
 
   // Roulette number color mapping
   const getNumberColor = (num: number): 'red' | 'black' | 'green' => {
@@ -230,38 +210,8 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
           color: '#888', 
           fontSize: '13px' 
         }}>
-          Session tracking • Total bet: {formatAmount(totalBet)} {token?.symbol}
+          Session tracking • Total bet: {formatAmountWithSymbol(totalBet, token)}
         </p>
-      </div>
-
-      {/* Common Bet Payouts */}
-      <div style={{ marginBottom: '16px' }}>
-        <h4 style={{ 
-          margin: '0 0 8px 0', 
-          color: '#ffd700', 
-          fontSize: '14px', 
-          fontWeight: '600' 
-        }}>
-          Standard Payouts
-        </h4>
-        <div style={{ 
-          background: 'rgba(255,215,0,0.1)', 
-          borderRadius: '8px', 
-          padding: '8px',
-          fontSize: '11px'
-        }}>
-          {Object.entries(betPayouts).map(([betType, payout]) => (
-            <div key={betType} style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              color: '#fff',
-              marginBottom: '2px'
-            }}>
-              <span>{betType}:</span>
-              <span style={{ color: '#ffd700' }}>{payout}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Current Result */}
@@ -297,7 +247,7 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
             </span>
           </div>
           <div style={{ fontSize: '12px', color: '#fff' }}>
-            Won: {formatAmount(currentResult.totalWon)} {token?.symbol}
+            Won: {formatAmountWithSymbol(currentResult.totalWon, token)}
           </div>
           {currentResult.winningBets.length > 0 && (
             <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
@@ -347,7 +297,7 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
             textAlign: 'right',
             fontWeight: '600'
           }}>
-            {netPL >= 0 ? '+' : ''}{formatAmount(netPL)} {token?.symbol}
+            {formatAmountWithSymbol(netPL, token, { showPlusSign: true })}
           </div>
         </div>
       </div>
@@ -425,7 +375,7 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
                   {result.winningNumber}
                 </span>
                 <span style={{ color: '#ccc' }}>
-                  {formatAmount(result.totalWon)} {token?.symbol}
+                  {formatAmountWithSymbol(result.totalWon, token)}
                 </span>
               </div>
             ))}

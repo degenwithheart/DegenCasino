@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
-import { TokenValue } from 'gamba-react-ui-v2'
+import { TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface DoubleOrNothingResult {
   choice: 'double' | 'nothing'

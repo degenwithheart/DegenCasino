@@ -1,5 +1,6 @@
 import React from 'react'
 import { useCurrentToken } from 'gamba-react-ui-v2'
+import { formatAmount, formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface BucketHit {
   multiplier: number
@@ -29,15 +30,6 @@ export default function PlinkoPaytable({
   ballResults
 }: PlinkoPaytableProps) {
   const token = useCurrentToken()
-
-  const formatAmount = (amount: number) => {
-    if (!token) return amount.toFixed(2)
-    const tokenAmount = amount / Math.pow(10, token.decimals)
-    return tokenAmount.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    })
-  }
 
   const getRowColor = (multiplier: number, count: number) => {
     if (count === 0) return 'rgba(255, 255, 255, 0.1)'
@@ -109,7 +101,7 @@ export default function PlinkoPaytable({
                   </span>
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 'bold' }}>
-                  {payout > 0 ? '+' : ''}{formatAmount(payout)} {token?.symbol}
+                  {formatAmountWithSymbol(payout, token, { showPlusSign: payout > 0 })}
                 </div>
               </div>
             )
@@ -137,7 +129,7 @@ export default function PlinkoPaytable({
           fontWeight: 'bold',
           color: runningTotal >= 0 ? '#22c55e' : '#ef4444'
         }}>
-          {runningTotal >= 0 ? '+' : ''}{formatAmount(runningTotal)} {token?.symbol}
+          {formatAmountWithSymbol(runningTotal, token, { showPlusSign: true })}
         </div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>
           ({ballResults.length}/{totalBalls} balls played)
@@ -174,7 +166,7 @@ export default function PlinkoPaytable({
                   color: result >= 0 ? '#22c55e' : '#ef4444',
                   fontWeight: 'bold'
                 }}>
-                  {result >= 0 ? '+' : ''}{formatAmount(result)} {token?.symbol}
+                  {formatAmountWithSymbol(result, token, { showPlusSign: true })}
                 </span>
               </div>
             ))}

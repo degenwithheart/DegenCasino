@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
 import { useCurrentToken, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
+import { formatAmount, formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface BlackJackResult {
   playerCards: any[]
@@ -77,27 +78,6 @@ const BlackJackPaytable = forwardRef<BlackJackPaytableRef, BlackJackPaytableProp
     bustCount: 0,
     dealerBustCount: 0
   })
-
-  // Format amount based on token type
-  const formatAmount = (amount: number): string => {
-    if (!token) return '0'
-    
-    if (token.mint === FAKE_TOKEN_MINT) {
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(amount)
-    }
-    
-    const decimals = token.decimals || 9
-    const divisor = Math.pow(10, decimals)
-    const humanAmount = amount / divisor
-    
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    }).format(humanAmount)
-  }
 
   // Get standard BlackJack payouts
   const getPayoutStructure = () => {
@@ -237,7 +217,7 @@ const BlackJackPaytable = forwardRef<BlackJackPaytableRef, BlackJackPaytableProp
           color: '#888', 
           fontSize: '13px' 
         }}>
-          Session tracking • Wager: {formatAmount(wager)} {token?.symbol}
+          Session tracking • Wager: {formatAmountWithSymbol(wager, token)}
         </p>
       </div>
 
@@ -304,7 +284,7 @@ const BlackJackPaytable = forwardRef<BlackJackPaytableRef, BlackJackPaytableProp
             Player: {currentResult.playerTotal} • Dealer: {currentResult.dealerTotal}
           </div>
           <div style={{ fontSize: '12px', color: '#fff' }}>
-            <strong>{currentResult.multiplier.toFixed(1)}x</strong> • Win: {formatAmount(wager * currentResult.multiplier)} {token?.symbol}
+            <strong>{currentResult.multiplier.toFixed(1)}x</strong> • Win: {formatAmountWithSymbol(wager * currentResult.multiplier, token)}
           </div>
         </div>
       )}
@@ -352,7 +332,7 @@ const BlackJackPaytable = forwardRef<BlackJackPaytableRef, BlackJackPaytableProp
             textAlign: 'right',
             fontWeight: '600'
           }}>
-            {netPL >= 0 ? '+' : ''}{formatAmount(netPL)} {token?.symbol}
+            {formatAmountWithSymbol(netPL, token, { showPlusSign: true })}
           </div>
         </div>
       </div>
@@ -447,7 +427,7 @@ const BlackJackPaytable = forwardRef<BlackJackPaytableRef, BlackJackPaytableProp
                   </span>
                 </div>
                 <div style={{ color: '#ccc' }}>
-                  {result.multiplier.toFixed(1)}x • {formatAmount(result.amount)} {token?.symbol}
+                  {result.multiplier.toFixed(1)}x • {formatAmountWithSymbol(result.amount, token)}
                 </div>
               </div>
             ))}

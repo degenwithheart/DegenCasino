@@ -1,6 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react'
 import { useCurrentToken, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { SLOT_ITEMS, PAYLINES } from './constants'
+import { formatAmount, formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface SlotsPaytableProps {
   onSymbolHover?: (symbolId: string | null) => void
@@ -50,22 +51,6 @@ const SlotsPaytable = forwardRef<SlotsPaytableRef, SlotsPaytableProps>(({
     symbolHits: {},
     paylineHits: {}
   })
-
-  const formatAmount = (amount: number, decimals: number = 2) => {
-    // For FAKE_TOKEN_MINT (DGHRT), treat as 1:1 since it's free play token valued as 1
-    if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
-      return (amount / 1e9).toLocaleString(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })
-    }
-    
-    // For real tokens, use proper decimal conversion
-    return (amount / Math.pow(10, token?.decimals || decimals)).toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    })
-  }
 
   // Track new wins
   React.useEffect(() => {
@@ -223,7 +208,7 @@ const SlotsPaytable = forwardRef<SlotsPaytableRef, SlotsPaytableProps>(({
             fontWeight: '700',
             color: netProfit >= 0 ? '#4ade80' : '#ef4444'
           }}>
-            {netProfit >= 0 ? '+' : ''}{formatAmount(netProfit, 2)} {token?.symbol}
+            {formatAmountWithSymbol(netProfit, token, { showPlusSign: true })}
           </div>
           <div style={{ 
             fontSize: '11px', 
@@ -238,7 +223,7 @@ const SlotsPaytable = forwardRef<SlotsPaytableRef, SlotsPaytableProps>(({
           <div style={{ marginTop: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '12px', color: '#ccc' }}>Biggest Win</div>
             <div style={{ fontSize: '14px', fontWeight: '700', color: '#ffe066' }}>
-              {formatAmount(sessionStats.biggestWin, 2)} {token?.symbol}
+              {formatAmountWithSymbol(sessionStats.biggestWin, token)}
             </div>
           </div>
         )}
