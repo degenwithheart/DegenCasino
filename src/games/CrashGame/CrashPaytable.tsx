@@ -87,50 +87,8 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
             color: '#fff',
             textShadow: '0 2px 4px rgba(0,0,0,0.5)'
           }}>
-            🚀 CRASH ANALYTICS
+            🚀 CRASH STATS
           </h3>
-        </div>
-
-        {/* Crash Probabilities */}
-        <div style={{
-          background: 'rgba(0, 0, 0, 0.3)',
-          borderRadius: '12px',
-          padding: 16,
-          border: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#fbbf24',
-            marginBottom: 12,
-            textAlign: 'center'
-          }}>
-            Crash Probabilities
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {MULTIPLIER_RANGES.map((range, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              >
-                <span style={{ color: range.color, fontSize: '12px', fontWeight: 600 }}>
-                  {range.range}
-                </span>
-                <span style={{ color: '#9ca3af', fontSize: '12px' }}>
-                  {range.probability}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Session Statistics */}
@@ -187,102 +145,6 @@ const CrashPaytable = forwardRef<CrashPaytableRef, CrashPaytableProps>(
             </div>
           </div>
         </div>
-
-        {/* Recent Results */}
-        {sessionStats.recentResults.length > 0 && (
-          <div style={{
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '12px',
-            padding: 16,
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#fbbf24',
-              marginBottom: 12,
-              textAlign: 'center'
-            }}>
-              Recent Launches
-            </div>
-            
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-              flex: 1,
-              overflow: 'auto'
-            }}>
-              {sessionStats.recentResults.slice(0, 8).map((result, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    background: result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.1)' 
-                      : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.2)' 
-                      : 'rgba(239, 68, 68, 0.2)'}`
-                  }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{
-                      fontSize: '11px',
-                      color: '#e5e7eb'
-                    }}>
-                      Target: {result.targetMultiplier.toFixed(2)}x
-                    </span>
-                    <span style={{
-                      fontSize: '12px',
-                      color: result.wasWin ? '#22c55e' : '#ef4444',
-                      fontWeight: 600
-                    }}>
-                      Crash: {result.crashMultiplier.toFixed(2)}x
-                    </span>
-                  </div>
-                  <span style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: result.wasWin ? '#22c55e' : '#ef4444'
-                  }}>
-                    {result.wasWin 
-                      ? formatAmountWithSymbol(result.amount, token, { showPlusSign: true })
-                      : formatAmountWithSymbol(-wager, token)
-                    }
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Current Result Highlight */}
-        {currentResult && (
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: currentResult.wasWin 
-              ? 'rgba(34, 197, 94, 0.1)' 
-              : 'rgba(239, 68, 68, 0.1)',
-            borderRadius: '16px',
-            border: `2px solid ${currentResult.wasWin 
-              ? 'rgba(34, 197, 94, 0.3)' 
-              : 'rgba(239, 68, 68, 0.3)'}`,
-            animation: 'pulse 2s ease-in-out 3',
-            pointerEvents: 'none'
-          }} />
-        )}
       </div>
     )
   }

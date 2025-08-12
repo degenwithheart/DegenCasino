@@ -131,7 +131,7 @@ const LimboPaytable = forwardRef<LimboPaytableRef, LimboPaytableProps>(
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>
-            🚀 Limbo Paytable
+            🚀 Limbo Stats
           </h3>
         </div>
 
@@ -173,57 +173,6 @@ const LimboPaytable = forwardRef<LimboPaytableRef, LimboPaytableProps>(
                 {stats.highestMultiplierHit.toFixed(2)}x
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Recent Results */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '12px',
-          padding: '12px'
-        }}>
-          <div style={{ fontSize: '14px', color: '#9CA3AF', fontWeight: 600, marginBottom: '8px' }}>
-            Recent Results
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '200px', overflowY: 'auto' }}>
-            {recentResults.length === 0 ? (
-              <div style={{ color: '#6B7280', fontSize: '12px', textAlign: 'center', padding: '8px' }}>
-                No games played yet
-              </div>
-            ) : (
-              recentResults.map((result, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    background: result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.1)' 
-                      : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${result.wasWin ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                    fontSize: '11px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ color: result.wasWin ? '#22C55E' : '#EF4444' }}>
-                      {result.wasWin ? '✓' : '✗'}
-                    </span>
-                    <span style={{ color: '#fff' }}>
-                      {result.targetMultiplier.toFixed(2)}x → {result.resultMultiplier.toFixed(2)}x
-                    </span>
-                  </div>
-                  <span style={{ 
-                    color: result.wasWin ? '#22C55E' : '#EF4444',
-                    fontWeight: 600 
-                  }}>
-                    <TokenValue amount={result.wasWin ? result.amount : -wager} />
-                  </span>
-                </div>
-              ))
-            )}
           </div>
         </div>
 

@@ -260,60 +260,6 @@ const KenoPaytable = forwardRef<KenoPaytableRef, KenoPaytableProps>(({
         </div>
       </div>
 
-      {/* Recent Results */}
-      {results.length > 0 && (
-        <div>
-          <h4 style={{ 
-            margin: '0 0 8px 0', 
-            color: '#888', 
-            fontSize: '13px', 
-            fontWeight: '600' 
-          }}>
-            Recent Results
-          </h4>
-          <div style={{ 
-            maxHeight: '200px', 
-            overflowY: 'auto',
-            scrollbarWidth: 'thin'
-          }}>
-            {results.map((result, index) => (
-              <div 
-                key={index} 
-                style={{ 
-                  padding: '8px',
-                  marginBottom: '6px',
-                  background: result.wasWin 
-                    ? 'rgba(34, 197, 94, 0.1)' 
-                    : 'rgba(239, 68, 68, 0.1)',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  border: `1px solid ${result.wasWin ? '#22c55e' : '#ef4444'}22`
-                }}
-              >
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  marginBottom: '4px' 
-                }}>
-                  <span style={{ color: '#888' }}>
-                    {result.selectedNumbers.length} selected
-                  </span>
-                  <span style={{ 
-                    color: result.wasWin ? '#22c55e' : '#ef4444',
-                    fontWeight: '600'
-                  }}>
-                    {result.hits} hits
-                  </span>
-                </div>
-                <div style={{ color: '#ccc' }}>
-                  {result.multiplier.toFixed(1)}x • {formatAmount(result.amount)} {token?.symbol}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Reset Button */}
       {sessionStats.totalGames > 0 && (
         <button

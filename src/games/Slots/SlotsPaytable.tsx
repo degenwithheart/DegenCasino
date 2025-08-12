@@ -169,14 +169,6 @@ const SlotsPaytable = forwardRef<SlotsPaytableRef, SlotsPaytableProps>(({
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        
-        .profit-positive {
-          color: #4ade80;
-        }
-        
-        .profit-negative {
-          color: #ef4444;
-        }
       `}</style>
 
       {/* Session Statistics */}

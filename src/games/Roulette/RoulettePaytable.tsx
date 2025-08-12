@@ -205,13 +205,6 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
         }}>
           Live Roulette Statistics
         </h3>
-        <p style={{ 
-          margin: 0, 
-          color: '#888', 
-          fontSize: '13px' 
-        }}>
-          Session tracking • Total bet: {formatAmountWithSymbol(totalBet, token)}
-        </p>
       </div>
 
       {/* Session Statistics */}
@@ -238,11 +231,6 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
             {winRate.toFixed(1)}%
           </div>
           
-          <div style={{ color: '#888' }}>Favorite #:</div>
-          <div style={{ color: '#ffd700', textAlign: 'right' }}>
-            {sessionStats.favoriteNumber} ({sessionStats.numberHits[sessionStats.favoriteNumber] || 0}x)
-          </div>
-          
           <div style={{ color: '#888' }}>Win Streak:</div>
           <div style={{ color: '#fff', textAlign: 'right' }}>
             {sessionStats.currentStreak} (best: {sessionStats.longestWinStreak})
@@ -258,87 +246,6 @@ const RoulettePaytable = forwardRef<RoulettePaytableRef, RoulettePaytableProps>(
           </div>
         </div>
       </div>
-
-      {/* Color & Section Stats */}
-      <div style={{ marginBottom: '16px' }}>
-        <h4 style={{ 
-          margin: '0 0 8px 0', 
-          color: '#888', 
-          fontSize: '13px', 
-          fontWeight: '600' 
-        }}>
-          Hit Distribution
-        </h4>
-        <div style={{ fontSize: '11px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span style={{ color: '#ef4444' }}>Red: {sessionStats.colorStats.red}</span>
-            <span style={{ color: '#fff' }}>Black: {sessionStats.colorStats.black}</span>
-            <span style={{ color: '#22c55e' }}>Green: {sessionStats.colorStats.green}</span>
-          </div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '1fr 1fr 1fr', 
-            gap: '4px', 
-            color: '#888' 
-          }}>
-            <div>1st12: {sessionStats.sectionStats['1st12']}</div>
-            <div>2nd12: {sessionStats.sectionStats['2nd12']}</div>
-            <div>3rd12: {sessionStats.sectionStats['3rd12']}</div>
-            <div>Low: {sessionStats.sectionStats.low}</div>
-            <div>High: {sessionStats.sectionStats.high}</div>
-            <div>Even: {sessionStats.sectionStats.even}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Results */}
-      {results.length > 0 && (
-        <div>
-          <h4 style={{ 
-            margin: '0 0 8px 0', 
-            color: '#888', 
-            fontSize: '13px', 
-            fontWeight: '600' 
-          }}>
-            Recent Spins
-          </h4>
-          <div style={{ 
-            maxHeight: '120px', 
-            overflowY: 'auto',
-            scrollbarWidth: 'thin'
-          }}>
-            {results.map((result, index) => (
-              <div 
-                key={index} 
-                style={{ 
-                  padding: '6px',
-                  marginBottom: '4px',
-                  background: result.wasWin 
-                    ? 'rgba(34, 197, 94, 0.1)' 
-                    : 'rgba(239, 68, 68, 0.1)',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  border: `1px solid ${result.wasWin ? '#22c55e' : '#ef4444'}22`,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <span style={{ 
-                  fontWeight: '600',
-                  color: getNumberColor(result.winningNumber) === 'red' ? '#ef4444' :
-                         getNumberColor(result.winningNumber) === 'black' ? '#fff' : '#22c55e'
-                }}>
-                  {result.winningNumber}
-                </span>
-                <span style={{ color: '#ccc' }}>
-                  {formatAmountWithSymbol(result.totalWon, token)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Reset Button */}
       {sessionStats.totalSpins > 0 && (

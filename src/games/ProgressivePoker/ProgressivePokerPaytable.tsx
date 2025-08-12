@@ -294,58 +294,6 @@ const ProgressivePokerPaytable = forwardRef<ProgressivePokerPaytableRef, Progres
         }
       `}</style>
 
-      {/* Hand Payouts */}
-      <div className="paytable-card">
-        <div className="paytable-title">Hand Payouts</div>
-        <table className="hands-table">
-          <tbody>
-            {HANDS.map((hand, i) => {
-              const isActive = currentHandType && hand.type === currentHandType
-              return (
-                <tr key={i} className={`hand-row ${isActive ? 'active' : ''}`}>
-                  <td className="hand-name">{hand.label}</td>
-                  <td className="hand-payout">{hand.payout}x</td>
-                </tr>
-              )
-            })}
-            <tr className={`hand-row ${currentHandType === 'Bust' ? 'bust' : ''}`}>
-              <td className="hand-name">Bust / No Win</td>
-              <td className="hand-payout">0x</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Recent Hands */}
-      <div className="paytable-card recent-hands">
-        <div className="paytable-title">Recent Hands</div>
-        {recentHands.length > 0 ? (
-          recentHands.map((hand, index) => (
-            <div key={index} className="hand-item">
-              <div className="hand-details">
-                <div>{hand.handType}</div>
-                <div style={{ color: '#ccc', fontSize: '10px' }}>
-                  {hand.multiplier}x multiplier
-                </div>
-              </div>
-              <div className={`hand-amount ${hand.multiplier > 0 ? 'hand-win' : 'hand-loss'}`}>
-                {hand.multiplier > 0 ? '+' : ''}{formatAmount(hand.amount)} {token?.symbol}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            color: '#888', 
-            fontStyle: 'italic', 
-            textAlign: 'center', 
-            padding: '20px 0',
-            fontSize: '12px'
-          }}>
-            No hands played yet!
-          </div>
-        )}
-      </div>
-
       {/* Session Statistics */}
       <div className="paytable-card">
         <div className="paytable-title">Session Stats</div>

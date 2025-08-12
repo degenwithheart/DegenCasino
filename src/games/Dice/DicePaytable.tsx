@@ -77,18 +77,7 @@ const DicePaytable = forwardRef<DicePaytableRef, DicePaytableProps>(({
   // Track roll results
   React.useEffect(() => {
     if (currentResult && currentResult.rollValue >= 0) {
-      const resultAmount = wager * currentResult.multiplier
-      const newRoll: DiceResult = {
-        rollValue: currentResult.rollValue,
-        targetValue: currentResult.targetValue,
-        rollUnder: rollUnder,
-        multiplier: currentResult.multiplier,
-        amount: resultAmount,
-        wasWin: currentResult.wasWin,
-        timestamp: Date.now()
-      }
-
-      setRecentRolls(prev => [newRoll, ...prev.slice(0, 4)]) // Keep last 5 rolls
+      const resultAmount = currentResult.wasWin ? wager * currentResult.multiplier : 0
 
       // Update session stats
       setSessionStats(prev => {
@@ -324,36 +313,6 @@ const DicePaytable = forwardRef<DicePaytableRef, DicePaytableProps>(({
           text-align: center;
         }
       `}</style>
-
-      {/* Recent Rolls */}
-      <div className="paytable-card recent-rolls">
-        <div className="paytable-title">Recent Rolls</div>
-        {recentRolls.length > 0 ? (
-          recentRolls.map((roll, index) => (
-            <div key={index} className="roll-item">
-              <div className="roll-details">
-                <div className="roll-value">{roll.rollValue.toFixed(1)}</div>
-                <div style={{ color: '#ccc', fontSize: '10px' }}>
-                  {roll.rollUnder ? 'Under' : 'Over'} {roll.targetValue.toFixed(1)} • {roll.multiplier.toFixed(2)}x
-                </div>
-              </div>
-              <div className={`roll-amount ${roll.wasWin ? 'roll-win' : 'roll-loss'}`}>
-                {roll.wasWin ? '+' : ''}{formatAmount(roll.amount)} {token?.symbol}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ 
-            color: '#888', 
-            fontStyle: 'italic', 
-            textAlign: 'center', 
-            padding: '20px 0',
-            fontSize: '12px'
-          }}>
-            No rolls yet - place your bet!
-          </div>
-        )}
-      </div>
 
       {/* Session Statistics */}
       <div className="paytable-card">

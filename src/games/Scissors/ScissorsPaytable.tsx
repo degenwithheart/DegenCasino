@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2';
 import { PlayerChoice, PaytableGameData } from './types';
-import { CHOICE_EMOJI, GAME_MODES, GAME_QUOTES } from './constants';
+import { GAME_MODES, GAME_QUOTES } from './constants';
 
 interface ScissorsPaytableProps {
   wager: number;
@@ -67,59 +67,19 @@ const ScissorsPaytable = forwardRef<ScissorsPaytableRef, ScissorsPaytableProps>(
             fontWeight: 700,
             textAlign: 'center'
           }}>
-            🪨📄✂️ ROCK PAPER SCISSORS
+            🪨📄✂️ SESSION STATS
           </h3>
         </div>
 
         <div style={{ padding: '16px' }}>
-          {/* Game Rules */}
-          <div style={{
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '8px',
-            padding: '12px',
-            marginBottom: '16px'
-          }}>
-            <div style={{ 
-              color: '#9CA3AF', 
-              fontSize: '12px', 
-              fontWeight: 600, 
-              marginBottom: '8px'
-            }}>
-              RULES:
-            </div>
-            <div style={{ color: '#9CA3AF', fontSize: '11px', lineHeight: '1.4' }}>
-              🪨 Rock crushes ✂️ Scissors<br/>
-              📄 Paper covers 🪨 Rock<br/>
-              ✂️ Scissors cut 📄 Paper
-            </div>
-            <div style={{ 
-              color: '#FCD34D', 
-              fontSize: '10px', 
-              fontStyle: 'italic',
-              marginTop: '8px',
-              textAlign: 'center'
-            }}>
-              "{GAME_QUOTES[Math.floor(Math.random() * GAME_QUOTES.length)]}"
-            </div>
-          </div>
-
           {/* Session Stats */}
-          {stats.totalGames > 0 && (
+          {stats.totalGames > 0 ? (
             <div style={{
               background: 'rgba(0, 0, 0, 0.3)',
               borderRadius: '8px',
-              padding: '12px',
-              marginBottom: '16px'
+              padding: '12px'
             }}>
-              <div style={{ 
-                color: '#9CA3AF', 
-                fontSize: '12px', 
-                fontWeight: 600, 
-                marginBottom: '8px'
-              }}>
-                SESSION STATS:
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '11px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
                 <div style={{ color: '#22C55E' }}>
                   Wins: {stats.wins} ({((stats.wins / stats.totalGames) * 100).toFixed(1)}%)
                 </div>
@@ -144,57 +104,14 @@ const ScissorsPaytable = forwardRef<ScissorsPaytableRef, ScissorsPaytableProps>(
                 </div>
               )}
             </div>
-          )}
-
-          {/* Recent Games */}
-          {recentGames.length > 0 && (
-            <div>
-              <div style={{ 
-                color: '#9CA3AF', 
-                fontSize: '12px', 
-                fontWeight: 600, 
-                marginBottom: '8px'
-              }}>
-                RECENT GAMES:
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {recentGames.slice(0, 5).map((game, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
-                      background: game.result === 'win' 
-                        ? 'rgba(34, 197, 94, 0.1)' 
-                        : game.result === 'lose'
-                        ? 'rgba(239, 68, 68, 0.1)'
-                        : 'rgba(156, 163, 175, 0.1)',
-                      border: `1px solid ${
-                        game.result === 'win' 
-                          ? 'rgba(34, 197, 94, 0.2)' 
-                          : game.result === 'lose'
-                          ? 'rgba(239, 68, 68, 0.2)'
-                          : 'rgba(156, 163, 175, 0.2)'
-                      }`
-                    }}
-                  >
-                    <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                      {CHOICE_EMOJI[game.playerChoice]} vs {CHOICE_EMOJI[game.computerChoice]}
-                    </div>
-                    <div style={{ 
-                      fontSize: '11px', 
-                      fontWeight: 600,
-                      color: game.result === 'win' ? '#22C55E' : game.result === 'lose' ? '#EF4444' : '#9CA3AF'
-                    }}>
-                      {game.result === 'win' ? '+' : game.result === 'lose' ? '-' : '='}{' '}
-                      <TokenValue amount={Math.abs(game.payout - game.wager)} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          ) : (
+            <div style={{ 
+              color: '#9CA3AF', 
+              fontSize: '12px', 
+              textAlign: 'center', 
+              padding: '20px 0' 
+            }}>
+              No games played yet
             </div>
           )}
         </div>
