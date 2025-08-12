@@ -28,6 +28,9 @@ import { getAccessWindow, isWithinAccessTime } from './utils/timeAccess';
 
 import LiveAccessWrapper from './components/LiveAccessWrapper';
 import ExchangePage from './sections/Dashboard/ExchangePage';
+
+// Import global responsive paytables (works for all games automatically)
+import './utils/globalResponsivePaytables';
 import Propagation from './pages/propagation';
 import { GambaResultProvider } from './context/GambaResultContext';
 

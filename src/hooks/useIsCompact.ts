@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 
 /**
  * Returns { compact, screenTooSmall } for responsive layouts.
- * compact: true if <= 768px (mobile/tablet)
+ * compact: true if <= 1000px (mobile/tablet)
  * screenTooSmall: true if < 400px (very small devices)
  */
 export function useIsCompact() {
-  const [compact, setCompact] = useState(() => window.innerWidth <= 768);
-  const [screenTooSmall, setScreenTooSmall] = useState(() => window.innerWidth < 1000);
+  const [compact, setCompact] = useState(() => window.innerWidth <= 1000);
+  const [screenTooSmall, setScreenTooSmall] = useState(() => window.innerWidth < 400);
 
   useEffect(() => {
     const handleResize = () => {
-      setCompact(window.innerWidth <= 768);
-      setScreenTooSmall(window.innerWidth < 1000);
+      setCompact(window.innerWidth <= 1000);
+      setScreenTooSmall(window.innerWidth < 400);
     };
     window.addEventListener('resize', handleResize);
     handleResize();

@@ -8,7 +8,7 @@ export function getAccessWindow(): { start: Date; end: Date } {
   dayStart.setHours(0, 0, 0, 0)
   const msSinceDayStart = now.getTime() - dayStart.getTime()
   const cycleMs = 4 * 60 * 60 * 1000 // 4 hours per cycle
-  const onlineMs = 4 * 60 * 60 * 1000 // 3 hours online
+  const onlineMs = 3 * 60 * 60 * 1000 // 3 hours online
   const cycleNum = Math.floor(msSinceDayStart / cycleMs)
   const cycleStart = new Date(dayStart.getTime() + cycleNum * cycleMs)
   const cycleEnd = new Date(cycleStart.getTime() + onlineMs)
@@ -59,7 +59,7 @@ export function isWithinAccessTime(): boolean {
   dayStart.setHours(0, 0, 0, 0)
   const msSinceDayStart = now.getTime() - dayStart.getTime()
   const cycleMs = 4 * 60 * 60 * 1000 // 4 hours per cycle
-  const onlineMs = 4 * 60 * 60 * 1000 // 3 hours online
+  const onlineMs = 3 * 60 * 60 * 1000 // 3 hours online
   const cycleNum = Math.floor(msSinceDayStart / cycleMs)
   const cycleStart = new Date(dayStart.getTime() + cycleNum * cycleMs)
   const cycleEnd = new Date(cycleStart.getTime() + onlineMs)
