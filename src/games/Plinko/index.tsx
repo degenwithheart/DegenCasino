@@ -17,9 +17,9 @@ import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
 import WIN from './win.mp3'
 import { TOKEN_METADATA } from '../../constants'
-import PlinkoMultiBallOverlay from './PlinkoMultiBallOverlay'
+import PlinkoPaytable from './PlinkoPaytable'
 import BallCountSelector from './BallCountSelector'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls } from '../../components'
 
 function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   const [plinko, set] = React.useState<PlinkoGame>(null!)
@@ -47,14 +47,15 @@ export default function Plinko() {
   const [degen, setDegen] = React.useState(false)
   const [ballCount, setBallCount] = React.useState(1)
   const [isPlaying, setIsPlaying] = React.useState(false)
-  const [showOutcome, setShowOutcome] = React.useState(false)
+  const [currentBall, setCurrentBall] = React.useState(0)
+  const [ballResults, setBallResults] = React.useState<number[]>([])
+  const [bucketHits, setBucketHits] = React.useState<Array<{
+    multiplier: number
+    count: number
+    totalPayout: number
+  }>>([])
+  const [runningTotal, setRunningTotal] = React.useState(0)
   const [hasPlayedBefore, setHasPlayedBefore] = React.useState(false)
-  const [multiBallResults, setMultiBallResults] = React.useState<{
-    totalAmount: number
-    ballsPlayed: number
-    individualResults: number[]
-    isWin: boolean
-  } | null>(null)
   
   const sounds = useSound({
     bump: BUMP,
@@ -116,12 +117,24 @@ export default function Plinko() {
     if (isPlaying) return
     
     setIsPlaying(true)
-    setShowOutcome(false)
+    setCurrentBall(0)
+    setBallResults([])
+    setRunningTotal(0)
+    
+    // Initialize bucket hits tracking
+    const initialBucketHits = multipliers.map(multiplier => ({
+      multiplier,
+      count: 0,
+      totalPayout: 0
+    }))
+    setBucketHits(initialBucketHits)
     
     const results: number[] = []
     let totalAmount = 0
     
     for (let i = 0; i < ballCount; i++) {
+      setCurrentBall(i + 1)
+      
       // Add delay between balls for visual effect
       if (i > 0) {
         await new Promise(resolve => setTimeout(resolve, 1000))
@@ -130,177 +143,343 @@ export default function Plinko() {
       await game.play({ wager, bet })
       const result = await game.result()
       setGambaResult(result)
+      
       // Run the plinko animation
       plinko.run(result.multiplier)
+      
       // Calculate profit/loss for this ball
       const profit = result.payout - wager
       results.push(profit)
       totalAmount += profit
+      
+      // Update bucket hits
+      setBucketHits(prev => prev.map(bucket => {
+        if (bucket.multiplier === result.multiplier) {
+          return {
+            ...bucket,
+            count: bucket.count + 1,
+            totalPayout: bucket.totalPayout + profit
+          }
+        }
+        return bucket
+      }))
+      
+      // Update live totals
+      setBallResults([...results])
+      setRunningTotal(totalAmount)
     }
     
-    const isWin = totalAmount > 0
-    
-    setMultiBallResults({
-      totalAmount,
-      ballsPlayed: ballCount,
-      individualResults: results,
-      isWin
-    })
-    
-    setShowOutcome(true)
     setHasPlayedBefore(true)
     setIsPlaying(false)
+    setCurrentBall(0)
   }
 
   const handlePlayAgain = () => {
-    setShowOutcome(false)
-    setMultiBallResults(null)
-    // Keep hasPlayedBefore as true for subsequent plays
+    setBallResults([])
+    setRunningTotal(0)
+    setBucketHits(multipliers.map(multiplier => ({
+      multiplier,
+      count: 0,
+      totalPayout: 0
+    })))
   }
 
   return (
-    <GameScreenLayout
-      left={
-        <GambaUi.Portal target="screen">
-          <GambaUi.Canvas
-            render={({ ctx, size }) => {
-              if (!plinko) return
-              const bodies = plinko.getBodies()
-              const xx = size.width / plinko.width
-              const yy = size.height / plinko.height
-              const s = Math.min(xx, yy)
-
-              ctx.clearRect(0, 0, size.width, size.height)
-              ctx.fillStyle = '#0b0b13'
-              ctx.fillRect(0, 0, size.width, size.height)
-              ctx.save()
-              ctx.translate(size.width / 2 - (plinko.width / 2) * s, size.height / 2 - (plinko.height / 2) * s)
-              ctx.scale(s, s)
-
-              if (debug) {
-                ctx.beginPath()
-                bodies.forEach(({ vertices }) => {
-                  ctx.moveTo(vertices[0].x, vertices[0].y)
-                  for (let j = 1; j < vertices.length; j += 1) {
-                    ctx.lineTo(vertices[j].x, vertices[j].y)
-                  }
-                  ctx.lineTo(vertices[0].x, vertices[0].y)
-                })
-                ctx.lineWidth = 1
-                ctx.strokeStyle = '#fff'
-                ctx.stroke()
-              } else {
-                bodies.forEach((body, i) => {
-                  const { label, position } = body
-                  if (label === 'Peg') {
-                    ctx.save()
-                    ctx.translate(position.x, position.y)
-                    const animation = pegAnimations.current[body.plugin.pegIndex] ?? 0
-                    if (pegAnimations.current[body.plugin.pegIndex]) pegAnimations.current[body.plugin.pegIndex] *= 0.9
-                    ctx.scale(1 + animation * 0.4, 1 + animation * 0.4)
-                    const pegHue = (position.y + position.x + Date.now() * 0.05) % 360
-                    ctx.fillStyle = `hsla(${pegHue}, 75%, 60%, ${(1 + animation * 2) * 0.2})`
-                    ctx.beginPath()
-                    ctx.arc(0, 0, PEG_RADIUS + 4, 0, Math.PI * 2)
-                    ctx.fill()
-                    const light = 75 + animation * 25
-                    ctx.fillStyle = `hsla(${pegHue}, 85%, ${light}%, 1)`
-                    ctx.beginPath()
-                    ctx.arc(0, 0, PEG_RADIUS, 0, Math.PI * 2)
-                    ctx.fill()
-                    ctx.restore()
-                  }
-                  if (label === 'Plinko') {
-                    ctx.save()
-                    ctx.translate(position.x, position.y)
-                    ctx.fillStyle = `hsla(${(i * 420) % 360}, 75%, 90%, 0.2)`
-                    ctx.beginPath()
-                    ctx.arc(0, 0, PLINKO_RAIUS * 1.5, 0, Math.PI * 2)
-                    ctx.fill()
-                    ctx.fillStyle = `hsla(${(i * 420) % 360}, 75%, 75%, 1)`
-                    ctx.beginPath()
-                    ctx.arc(0, 0, PLINKO_RAIUS, 0, Math.PI * 2)
-                    ctx.fill()
-                    ctx.restore()
-                  }
-                  if (label === 'Bucket') {
-                    const animation = bucketAnimations.current[body.plugin.bucketIndex] ?? 0
-                    if (bucketAnimations.current[body.plugin.bucketIndex]) bucketAnimations.current[body.plugin.bucketIndex] *= 0.9
-                    ctx.save()
-                    ctx.translate(position.x, position.y)
-                    const bucketHue =
-                      25 + (multipliers.indexOf(body.plugin.bucketMultiplier) / multipliers.length) * 125
-                    const bucketAlpha = 0.05 + animation
-                    ctx.save()
-                    ctx.translate(0, bucketHeight / 2)
-                    ctx.scale(1, 1 + animation * 2)
-                    ctx.fillStyle = `hsla(${bucketHue}, 75%, 75%, ${bucketAlpha})`
-                    ctx.fillRect(-25, -bucketHeight, 50, bucketHeight)
-                    ctx.restore()
-                    ctx.font = '20px Arial'
-                    ctx.textAlign = 'center'
-                    ctx.fillStyle = `hsla(${bucketHue}, 75%, ${75 + animation * 25}%, 1)`
-                    ctx.lineWidth = 5
-                    ctx.lineJoin = 'miter'
-                    ctx.miterLimit = 2
-                    ctx.beginPath()
-                    ctx.strokeText('x' + body.plugin.bucketMultiplier, 0, 0)
-                    ctx.stroke()
-                    ctx.fillText('x' + body.plugin.bucketMultiplier, 0, 0)
-                    ctx.fill()
-                    ctx.restore()
-                  }
-                  if (label === 'Barrier') {
-                    ctx.save()
-                    ctx.translate(position.x, position.y)
-                    ctx.fillStyle = '#cccccc22'
-                    ctx.fillRect(-barrierWidth / 2, -barrierHeight / 2, barrierWidth, barrierHeight)
-                    ctx.restore()
-                  }
-                })
-              }
-
-              ctx.restore()
+    <>
+      <GambaUi.Portal target="screen">
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
             }}
-          />
-        </GambaUi.Portal>
-      }
-      right={
-        <GameControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={playMultipleBalls}
-          isPlaying={isPlaying}
-          playButtonText={
-            isPlaying 
-              ? `Playing ${ballCount} ball${ballCount > 1 ? 's' : ''}...`
-              : hasPlayedBefore 
-                ? `${ballCount} Ball${ballCount > 1 ? 's' : ''}` 
-                : `${ballCount} Ball${ballCount > 1 ? 's' : ''}`
-          }
-          playButtonDisabled={!wager || wager * ballCount > balance}
-        >
-          {/* Ball Count Selector */}
-          <BallCountSelector
-            ballCount={ballCount}
-            onBallCountChange={setBallCount}
-            disabled={isPlaying}
-          />
-          {/* Toggles */}
-          <div style={{ display: 'flex', gap: 18, justifyContent: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 14 }}>
-              <input
-                type="checkbox"
-                checked={degen}
-                onChange={e => setDegen(e.target.checked)}
-                style={{ accentColor: '#ff0' }}
-                disabled={isPlaying}
-              />
-              Degen
-            </label>
+          >
+            {/* Decorative corner elements */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: `
+                radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%)
+              `,
+              pointerEvents: 'none',
+            }} />
+            <GambaUi.Canvas
+              render={({ ctx, size }) => {
+                if (!plinko) return
+                const bodies = plinko.getBodies()
+                const xx = size.width / plinko.width
+                const yy = size.height / plinko.height
+                const s = Math.min(xx, yy)
+
+                ctx.clearRect(0, 0, size.width, size.height)
+                
+                // Enhanced multi-layer gradient background
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, size.height)
+                bgGradient.addColorStop(0, '#0a0a1a')
+                bgGradient.addColorStop(0.3, '#1a1a2e')
+                bgGradient.addColorStop(0.7, '#16213e')
+                bgGradient.addColorStop(1, '#0f0f23')
+                ctx.fillStyle = bgGradient
+                ctx.fillRect(0, 0, size.width, size.height)
+                
+                // Add subtle noise texture
+                for (let i = 0; i < 200; i++) {
+                  const x = Math.random() * size.width
+                  const y = Math.random() * size.height
+                  ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.02})`
+                  ctx.fillRect(x, y, 1, 1)
+                }
+                
+                ctx.save()
+                ctx.translate(size.width / 2 - (plinko.width / 2) * s, size.height / 2 - (plinko.height / 2) * s)
+                ctx.scale(s, s)
+
+                if (debug) {
+                  ctx.beginPath()
+                  bodies.forEach(({ vertices }) => {
+                    ctx.moveTo(vertices[0].x, vertices[0].y)
+                    for (let j = 1; j < vertices.length; j += 1) {
+                      ctx.lineTo(vertices[j].x, vertices[j].y)
+                    }
+                    ctx.lineTo(vertices[0].x, vertices[0].y)
+                  })
+                  ctx.lineWidth = 1
+                  ctx.strokeStyle = '#fff'
+                  ctx.stroke()
+                } else {
+                  bodies.forEach((body, i) => {
+                    const { label, position } = body
+                    if (label === 'Peg') {
+                      ctx.save()
+                      ctx.translate(position.x, position.y)
+                      const animation = pegAnimations.current[body.plugin.pegIndex] ?? 0
+                      if (pegAnimations.current[body.plugin.pegIndex]) pegAnimations.current[body.plugin.pegIndex] *= 0.9
+                      ctx.scale(1 + animation * 0.4, 1 + animation * 0.4)
+                      
+                      // Improved peg design with depth
+                      const pegRadius = PEG_RADIUS
+                      
+                      // Outer glow
+                      if (animation > 0.1) {
+                        ctx.shadowColor = '#ffffff'
+                        ctx.shadowBlur = 15 + animation * 10
+                        ctx.fillStyle = `rgba(255, 255, 255, ${animation * 0.3})`
+                        ctx.beginPath()
+                        ctx.arc(0, 0, pegRadius + 8, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.shadowBlur = 0
+                      }
+                      
+                      // Main peg with metallic gradient
+                      const pegGradient = ctx.createRadialGradient(-2, -2, 0, 0, 0, pegRadius)
+                      pegGradient.addColorStop(0, '#e2e8f0')
+                      pegGradient.addColorStop(0.7, '#94a3b8')
+                      pegGradient.addColorStop(1, '#475569')
+                      ctx.fillStyle = pegGradient
+                      ctx.beginPath()
+                      ctx.arc(0, 0, pegRadius, 0, Math.PI * 2)
+                      ctx.fill()
+                      
+                      // Peg highlight
+                      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
+                      ctx.beginPath()
+                      ctx.arc(-1, -1, pegRadius * 0.4, 0, Math.PI * 2)
+                      ctx.fill()
+                      
+                      ctx.restore()
+                    }
+                    if (label === 'Plinko') {
+                      ctx.save()
+                      ctx.translate(position.x, position.y)
+                      
+                      // Enhanced ball with better gradient and glow
+                      const ballRadius = PLINKO_RAIUS
+                      
+                      // Ball glow effect
+                      ctx.shadowColor = '#00d4ff'
+                      ctx.shadowBlur = 20
+                      
+                      // Main ball gradient
+                      const ballGradient = ctx.createRadialGradient(-ballRadius * 0.3, -ballRadius * 0.3, 0, 0, 0, ballRadius)
+                      ballGradient.addColorStop(0, '#ffffff')
+                      ballGradient.addColorStop(0.3, '#00d4ff')
+                      ballGradient.addColorStop(0.7, '#0ea5e9')
+                      ballGradient.addColorStop(1, '#0369a1')
+                      
+                      ctx.fillStyle = ballGradient
+                      ctx.beginPath()
+                      ctx.arc(0, 0, ballRadius, 0, Math.PI * 2)
+                      ctx.fill()
+                      
+                      // Ball highlight
+                      ctx.shadowBlur = 0
+                      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+                      ctx.beginPath()
+                      ctx.arc(-ballRadius * 0.3, -ballRadius * 0.3, ballRadius * 0.3, 0, Math.PI * 2)
+                      ctx.fill()
+                      
+                      // Rim effect
+                      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+                      ctx.lineWidth = 1
+                      ctx.beginPath()
+                      ctx.arc(0, 0, ballRadius - 0.5, 0, Math.PI * 2)
+                      ctx.stroke()
+                      
+                      ctx.restore()
+                    }
+                    if (label === 'Bucket') {
+                      const animation = bucketAnimations.current[body.plugin.bucketIndex] ?? 0
+                      if (bucketAnimations.current[body.plugin.bucketIndex]) bucketAnimations.current[body.plugin.bucketIndex] *= 0.9
+                      ctx.save()
+                      ctx.translate(position.x, position.y)
+                      
+                      // Improved bucket colors based on multiplier value
+                      const multiplier = body.plugin.bucketMultiplier
+                      let bucketColor
+                      if (multiplier === 0) {
+                        bucketColor = { h: 0, s: 75, l: 50 } // Red for 0x
+                      } else if (multiplier < 1) {
+                        bucketColor = { h: 25, s: 75, l: 55 } // Orange for < 1x
+                      } else if (multiplier === 1) {
+                        bucketColor = { h: 200, s: 75, l: 60 } // Blue for 1x
+                      } else if (multiplier < 3) {
+                        bucketColor = { h: 120, s: 75, l: 55 } // Green for 1-3x
+                      } else {
+                        bucketColor = { h: 280, s: 85, l: 65 } // Purple for high multipliers
+                      }
+                      
+                      ctx.save()
+                      ctx.translate(0, bucketHeight / 2)
+                      ctx.scale(1, 1 + animation * 2)
+                      
+                      // Bucket background with gradient
+                      const bucketGradient = ctx.createLinearGradient(0, -bucketHeight, 0, 0)
+                      bucketGradient.addColorStop(0, `hsla(${bucketColor.h}, ${bucketColor.s}%, ${bucketColor.l + 20}%, 0.3)`)
+                      bucketGradient.addColorStop(1, `hsla(${bucketColor.h}, ${bucketColor.s}%, ${bucketColor.l}%, 0.6)`)
+                      ctx.fillStyle = bucketGradient
+                      
+                      // Enhanced bucket with glow when animated
+                      if (animation > 0.1) {
+                        ctx.shadowColor = `hsla(${bucketColor.h}, ${bucketColor.s}%, ${bucketColor.l}%, 0.8)`
+                        ctx.shadowBlur = 20 + animation * 15
+                      }
+                      
+                      ctx.fillRect(-25, -bucketHeight, 50, bucketHeight)
+                      ctx.shadowBlur = 0
+                      
+                      // Bucket border
+                      ctx.strokeStyle = `hsla(${bucketColor.h}, ${bucketColor.s}%, ${bucketColor.l + 10}%, 0.8)`
+                      ctx.lineWidth = 2
+                      ctx.strokeRect(-25, -bucketHeight, 50, bucketHeight)
+                      
+                      ctx.restore()
+                      
+                      // Multiplier text with better styling
+                      ctx.font = 'bold 18px Arial'
+                      ctx.textAlign = 'center'
+                      ctx.textBaseline = 'middle'
+                      
+                      // Text shadow
+                      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+                      ctx.fillText('x' + multiplier, 1, 1)
+                      
+                      // Main text
+                      ctx.fillStyle = `hsla(${bucketColor.h}, ${bucketColor.s}%, ${Math.min(90, bucketColor.l + 30 + animation * 15)}%, 1)`
+                      ctx.fillText('x' + multiplier, 0, 0)
+                      
+                      ctx.restore()
+                    }
+                    if (label === 'Barrier') {
+                      ctx.save()
+                      ctx.translate(position.x, position.y)
+                      
+                      // Enhanced barriers with subtle gradient
+                      const barrierGradient = ctx.createLinearGradient(0, -barrierHeight/2, 0, barrierHeight/2)
+                      barrierGradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)')
+                      barrierGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.12)')
+                      barrierGradient.addColorStop(1, 'rgba(255, 255, 255, 0.06)')
+                      ctx.fillStyle = barrierGradient
+                      ctx.fillRect(-barrierWidth / 2, -barrierHeight / 2, barrierWidth, barrierHeight)
+                      
+                      // Barrier border with subtle glow
+                      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+                      ctx.lineWidth = 0.5
+                      ctx.strokeRect(-barrierWidth / 2, -barrierHeight / 2, barrierWidth, barrierHeight)
+                      
+                      ctx.restore()
+                    }
+                  })
+                }
+
+                ctx.restore()
+              }}
+            />
           </div>
-        </GameControls>
-      }
-    />
+          
+          {/* Paytable sidebar */}
+          <PlinkoPaytable
+            multipliers={multipliers}
+            bucketHits={bucketHits}
+            currentBall={currentBall}
+            totalBalls={ballCount}
+            runningTotal={runningTotal}
+            wager={wager}
+            isPlaying={isPlaying}
+            ballResults={ballResults}
+          />
+        </div>
+      </GambaUi.Portal>
+      
+      <GameControls
+        wager={wager}
+        setWager={setWager}
+        onPlay={playMultipleBalls}
+        isPlaying={isPlaying}
+        playButtonText={
+          isPlaying 
+            ? `Ball ${currentBall}/${ballCount} - ${ballCount - currentBall} remaining`
+            : `Play ${ballCount} Ball${ballCount > 1 ? 's' : ''}`
+        }
+        playButtonDisabled={!wager || wager * ballCount > balance}
+      >
+        {/* Ball Count Selector */}
+        <BallCountSelector
+          ballCount={ballCount}
+          onBallCountChange={setBallCount}
+          disabled={isPlaying}
+        />
+        {/* Toggles */}
+        <div style={{ display: 'flex', gap: 18, justifyContent: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 14 }}>
+            <input
+              type="checkbox"
+              checked={degen}
+              onChange={e => setDegen(e.target.checked)}
+              style={{ accentColor: '#ff0' }}
+              disabled={isPlaying}
+            />
+            Degen
+          </label>
+        </div>
+      </GameControls>
+    </>
   )
 }

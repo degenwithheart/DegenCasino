@@ -3,11 +3,12 @@ import { useIsCompact } from '../../hooks/useIsCompact';
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { GambaResultContext } from '../../context/GambaResultContext'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit, PayoutPanel } from './styles'
 import { TOKEN_METADATA } from '../../constants'
+import HiLoPaytable, { HiLoPaytableRef } from './HiLoPaytable'
 
 const BPS_PER_WHOLE = 10000
 
@@ -93,6 +94,7 @@ export default function HiLo(props: HiLoConfig) {
   const currentRank = cards[cards.length - 1].rank
   const [option, setOption] = React.useState<'hi' | 'lo'>(currentRank > RANKS / 2 ? 'lo' : 'hi')
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
+  const paytableRef = React.useRef<HiLoPaytableRef>(null)
 
   // Track last card index for flip/glow
   const [lastCardIndex, setLastCardIndex] = React.useState(0);
@@ -184,6 +186,9 @@ export default function HiLo(props: HiLoConfig) {
   const play = async () => {
     sounds.play('play')
 
+    const selectedOption = option
+    const targetCard = currentRank
+
     await game.play({
       bet,
       wager,
@@ -198,6 +203,16 @@ export default function HiLo(props: HiLoConfig) {
     setTimeout(() => {
       setProfit(result.payout)
       handleGameComplete({ payout: result.payout, wager })
+
+      // Track game result in paytable
+      paytableRef.current?.trackGame({
+        guessType: selectedOption === 'hi' ? 'higher' : 'lower',
+        targetCard: targetCard + 1, // Convert to 1-52 range for display
+        resultCard: result.resultIndex + 1,
+        wasWin: win,
+        amount: win ? result.payout - wager : 0,
+        multiplier: win ? result.payout / wager : 0,
+      })
 
       if (win) {
         sounds.play('win')
@@ -223,134 +238,165 @@ export default function HiLo(props: HiLoConfig) {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameScreenLayout
-          left={
-            <GambaUi.Responsive>
-              <div
-                ref={scalerRef}
-                style={{
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'center',
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.2s cubic-bezier(.4,2,.6,1)',
-                  background: 'radial-gradient(ellipse at 50% 30%, #23234a 60%, #18182a 100%)',
-                  minHeight: 400,
-                  borderRadius: 24,
-                  boxShadow: '0 8px 32px #0008',
-                  overflow: 'hidden',
-                }}
-                className="hilo-game-scaler"
-              >
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main Game Area */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background Effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.1) 0%, transparent 50%)',
+              opacity: gamba.isPlaying ? 1 : 0.5,
+              transition: 'opacity 0.5s ease'
+            }} />
+
+            <Container $disabled={claiming || gamba.isPlaying}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <CardsContainer>
+                  {cards.map((card, i) => {
+                    const offset = -(cards.length - (i + 1));
+                    const xxx = cards.length > 3 ? (i / cards.length) : 1;
+                    const opacity = Math.min(1, xxx * 3);
+                    const isLast = i === cards.length - 1;
+                    const isWinner = isLast && profit > 0;
+                    return (
+                      <CardContainer
+                        key={card.key}
+                        style={{
+                          transform: `translate(${offset * 30}px, ${-offset * 0}px) rotateZ(-5deg) rotateY(5deg)`,
+                          opacity,
+                        }}
+                        $isFlipped={isLast}
+                        $isWinner={isWinner}
+                      >
+                        <Card style={{
+                          background: isLast ? 'linear-gradient(135deg, #ffe06644 0%, #fff0 100%)' : undefined,
+                          boxShadow: isWinner ? '0 0 16px #ffe06688' : undefined,
+                        }}>
+                          <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
+                          <div className="suit" style={{ backgroundImage: 'url(' + props.logo + ')' }} />
+                        </Card>
+                      </CardContainer>
+                    );
+                  })}
+                </CardsContainer>
+                <Options>
+                  <Option
+                    selected={option === 'hi'}
+                    onClick={() => setOption('hi')}
+                    onMouseEnter={() => hoverOption('hi')}
+                    onMouseLeave={() => hoverOption(undefined)}
+                  >
+                    <div>👆</div>
+                    <div>HI - ({Math.max(...betHi).toFixed(2)}x)</div>
+                  </Option>
+                  <Option
+                    selected={option === 'lo'}
+                    onClick={() => setOption('lo')}
+                    onMouseEnter={() => hoverOption('lo')}
+                    onMouseLeave={() => hoverOption(undefined)}
+                  >
+                    <div>👇</div>
+                    <div>LO - ({Math.max(...betLo).toFixed(2)}x)</div>
+                  </Option>
+                </Options>
+              </div>
+              <CardPreview>
+                {Array.from({ length: RANKS }).map((_, rankIndex) => {
+                  const opacity = bet[rankIndex] > 0 ? .95 : .4;
+                  return (
+                    <Card
+                      key={rankIndex}
+                      $small
+                      style={{ opacity }}
+                      onClick={() => addCard(rankIndex)}
+                      title={bet[rankIndex] > 0 ? `Payout: ${bet[rankIndex].toFixed(2)}x` : undefined}
+                    >
+                      <div className="rank">{RANK_SYMBOLS[rankIndex]}</div>
+                    </Card>
+                  );
+                })}
+              </CardPreview>
+              {profit > 0 && (
+                <Profit key={profit} onClick={resetGame}>
+                  <TokenValue amount={profit} /> +{Math.round(profit / initialWager * 100 - 100).toLocaleString()}%
+                </Profit>
+              )}
+            </Container>
+            
+            {/* Enhanced Payout Panel */}
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '20px',
+              right: '20px',
+              background: 'rgba(0, 0, 0, 0.7)',
+              borderRadius: '12px',
+              padding: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ 
+                color: '#9CA3AF', 
+                fontSize: '12px', 
+                fontWeight: 600, 
+                marginBottom: '8px',
+                textAlign: 'center'
+              }}>
+                PAYOUTS
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'stretch',
-                  justifyContent: 'center',
-                  width: '100%',
-                  gap: 32,
-                  padding: 24,
+                  background: option === 'hi' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  textAlign: 'center',
+                  border: option === 'hi' ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'
                 }}>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <Container $disabled={claiming || gamba.isPlaying}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                        <CardsContainer>
-                          {cards.map((card, i) => {
-                            const offset = -(cards.length - (i + 1));
-                            const xxx = cards.length > 3 ? (i / cards.length) : 1;
-                            const opacity = Math.min(1, xxx * 3);
-                            const isLast = i === cards.length - 1;
-                            const isWinner = isLast && profit > 0;
-                            return (
-                              <CardContainer
-                                key={card.key}
-                                style={{
-                                  transform: `translate(${offset * 30}px, ${-offset * 0}px) rotateZ(-5deg) rotateY(5deg)`,
-                                  opacity,
-                                }}
-                                $isFlipped={isLast}
-                                $isWinner={isWinner}
-                              >
-                                <Card style={{
-                                  background: isLast ? 'linear-gradient(135deg, #ffe06644 0%, #fff0 100%)' : undefined,
-                                  boxShadow: isWinner ? '0 0 16px #ffe06688' : undefined,
-                                }}>
-                                  <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                                  <div className="suit" style={{ backgroundImage: 'url(' + props.logo + ')' }} />
-                                </Card>
-                              </CardContainer>
-                            );
-                          })}
-                        </CardsContainer>
-                        <Options>
-                          <Option
-                            selected={option === 'hi'}
-                            onClick={() => setOption('hi')}
-                            onMouseEnter={() => hoverOption('hi')}
-                            onMouseLeave={() => hoverOption(undefined)}
-                          >
-                            <div>👆</div>
-                            <div>HI - ({Math.max(...betHi).toFixed(2)}x)</div>
-                          </Option>
-                          <Option
-                            selected={option === 'lo'}
-                            onClick={() => setOption('lo')}
-                            onMouseEnter={() => hoverOption('lo')}
-                            onMouseLeave={() => hoverOption(undefined)}
-                          >
-                            <div>👇</div>
-                            <div>LO - ({Math.max(...betLo).toFixed(2)}x)</div>
-                          </Option>
-                        </Options>
-                      </div>
-                      <CardPreview>
-                        {Array.from({ length: RANKS }).map((_, rankIndex) => {
-                          const opacity = bet[rankIndex] > 0 ? .95 : .4;
-                          return (
-                            <Card
-                              key={rankIndex}
-                              $small
-                              style={{ opacity }}
-                              onClick={() => addCard(rankIndex)}
-                              title={bet[rankIndex] > 0 ? `Payout: ${bet[rankIndex].toFixed(2)}x` : undefined}
-                            >
-                              <div className="rank">{RANK_SYMBOLS[rankIndex]}</div>
-                            </Card>
-                          );
-                        })}
-                      </CardPreview>
-                      {profit > 0 && (
-                        <Profit key={profit} onClick={resetGame}>
-                          <TokenValue amount={profit} /> +{Math.round(profit / initialWager * 100 - 100).toLocaleString()}%
-                        </Profit>
-                      )}
-                    </Container>
+                  <div style={{ color: '#22C55E', fontSize: '16px', fontWeight: 700 }}>
+                    {Math.max(...betHi).toFixed(2)}x
                   </div>
+                  <div style={{ color: '#9CA3AF', fontSize: '10px' }}>HI</div>
+                </div>
+                <div style={{
+                  background: option === 'lo' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  textAlign: 'center',
+                  border: option === 'lo' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div style={{ color: '#EF4444', fontSize: '16px', fontWeight: 700 }}>
+                    {Math.max(...betLo).toFixed(2)}x
+                  </div>
+                  <div style={{ color: '#9CA3AF', fontSize: '10px' }}>LO</div>
                 </div>
               </div>
-            </GambaUi.Responsive>
-          }
-          right={
-            <PayoutPanel $option={option}>
-              <div className="payout-title">Payouts</div>
-              <div className="payout-row">
-                <span>HI</span>
-                <span>{Math.max(...betHi).toFixed(2)}x</span>
-              </div>
-              <div className="payout-row">
-                <span>LO</span>
-                <span>{Math.max(...betLo).toFixed(2)}x</span>
-              </div>
-              <div className="payout-desc">
-                Choose HI or LO.<br />Payouts update based on the current card.
-              </div>
-            </PayoutPanel>
-          }
-        />
+            </div>
+          </div>
+
+          {/* Live Paytable */}
+          <HiLoPaytable
+            ref={paytableRef}
+            wager={wager}
+            currentCard={currentRank + 1}
+            guessType={option === 'hi' ? 'higher' : 'lower'}
+          />
+        </div>
       </GambaUi.Portal>
+      
       <GameControls
         wager={initialWager}
         setWager={setWager}

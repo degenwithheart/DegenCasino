@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react"
+import React, { useState, useContext, useRef } from "react"
 import {
   GambaUi,
   useWagerInput,
@@ -15,22 +15,25 @@ import { GambaResultContext } from '../../context/GambaResultContext'
 import { TOKEN_METADATA } from '../../constants'
 import { useGamba } from 'gamba-react-v2'
 import Slider from './Slider'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls, GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
-
-// Sound paths
-const spinSound = "/assets/games/limbo/numbers.mp3"
-const winSound = "/assets/games/limbo/win.mp3"
-const loseSound = "/assets/games/limbo/lose.mp3"
-const tickSound = "/assets/games/limbo/tick.mp3"
+import LimboPaytable, { LimboPaytableRef } from './LimboPaytable'
 
 export default function Limbo() {
+  // Sound paths
+  const spinSound = "/assets/games/limbo/numbers.mp3"
+  const winSound = "/assets/games/limbo/win.mp3"
+  const loseSound = "/assets/games/limbo/lose.mp3"
+  const tickSound = "/assets/games/limbo/tick.mp3"
+
+  const [resultModalOpen, setResultModalOpen] = useState(false)
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [wager, setWager] = useWagerInput()
   const [targetMultiplier, setTargetMultiplier] = useState<number>(20)
   const [resultMultiplier, setResultMultiplier] = useState<number>(0)
   const [playing, setPlaying] = useState<boolean>(false)
+  const paytableRef = useRef<LimboPaytableRef>(null)
   const [isWin, setIsWin] = useState<boolean | null>(null)
   const [textColor, setTextColor] = useState<string>('#FFFFFF')
 
@@ -130,7 +133,8 @@ export default function Limbo() {
       const result = await game.result()
       const winCondition = result.resultIndex === targetMultiplier
       setIsWin(winCondition)
-      setGambaResult(result)
+  setGambaResult(result)
+  setResultModalOpen(true)
 
       sounds.play('spin', { playbackRate: 0.8 })
 
@@ -140,6 +144,15 @@ export default function Limbo() {
 
       setTimeout(() => {
         startAnimation(1, endMultiplier, winCondition)
+        
+        // Track game result in paytable
+        paytableRef.current?.trackGame({
+          targetMultiplier,
+          resultMultiplier: endMultiplier,
+          wasWin: winCondition,
+          amount: winCondition ? result.payout - wager : 0,
+        })
+        
         // Show outcome overlay after animation
         setTimeout(() => {
           handleGameComplete({ payout: result.payout, wager })
@@ -153,98 +166,224 @@ export default function Limbo() {
   }
 
   return (
-    <GameScreenLayout
-      left={
-        <GambaUi.Portal target="screen">
-          <div style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'center',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
+    <>
+      <GambaUi.Portal target="screen">
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main Game Area */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
             justifyContent: 'center',
-            transition: 'transform 0.2s ease-out'
-          }} className="limbo-game-scaler">
-            <GambaUi.Responsive>
-              <div className="flex flex-col items-center justify-center h-[500px] transition-all" style={{ transform: 'scale(0.85)' }}>
-                <div
-                  style={{
-                    fontSize: '10rem',
-                    fontWeight: 'bold',
-                    color: textColor,
-                    transition: 'color 0.5s ease-in-out',
-                  }}
-                >
-                  {resultMultiplier.toFixed(2)}x
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background Effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
+              opacity: playing ? 1 : 0.5,
+              transition: 'opacity 0.5s ease'
+            }} />
+            
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              zIndex: 10
+            }}>
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                borderRadius: '12px',
+                padding: '8px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <span style={{ color: '#A78BFA', fontSize: '12px', fontWeight: 600 }}>
+                  TARGET MULTIPLIER
+                </span>
+                <div style={{ color: '#fff', fontSize: '18px', fontWeight: 700 }}>
+                  {targetMultiplier.toFixed(2)}x
                 </div>
-                <div className="flex gap-4 justify-between items-center mx-auto">
-                  <div className="flex flex-col items-center">
-                    <div style={{ fontSize: '2vh', fontWeight: 'bold', color: textColor }}>
-                      {targetMultiplier}%
-                    </div>
-                    <div style={{ fontSize: '2vh', color: textColor, marginBottom: '2vh' }}>
-                      Win Chance
-                    </div>
+              </div>
+              
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.5)',
+                borderRadius: '12px',
+                padding: '8px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <span style={{ color: '#06B6D4', fontSize: '12px', fontWeight: 600 }}>
+                  WIN CHANCE
+                </span>
+                <div style={{ color: '#fff', fontSize: '18px', fontWeight: 700 }}>
+                  {(100 / targetMultiplier).toFixed(2)}%
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '24px',
+              zIndex: 5
+            }}>
+              {/* Main Multiplier Display */}
+              <div style={{
+                fontSize: isCompact ? '6rem' : '8rem',
+                fontWeight: 900,
+                color: textColor,
+                transition: 'all 0.5s ease-in-out',
+                textShadow: '0 0 30px rgba(139, 92, 246, 0.5)',
+                letterSpacing: '-0.02em',
+                filter: 'drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5))'
+              }}>
+                {resultMultiplier.toFixed(2)}x
+              </div>
+
+              {/* Game Stats */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '20px',
+                maxWidth: '480px',
+                width: '100%'
+              }}>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    WIN CHANCE
                   </div>
-                  <div className="flex flex-col items-center">
-                    <div style={{ fontSize: '2vh', fontWeight: 'bold', color: textColor }}>
-                      {targetMultiplier}x
-                    </div>
-                    <div style={{ fontSize: '2vh', color: textColor, marginBottom: '2vh' }}>
-                      Multiplier
-                    </div>
+                  <div style={{ color: textColor, fontSize: '20px', fontWeight: 700 }}>
+                    {(100 / targetMultiplier).toFixed(1)}%
                   </div>
-                  <div className="flex flex-col items-center">
-                    <div style={{ fontSize: '2vh', fontWeight: 'bold', color: textColor }}>
-                      <TokenValue
-                        mint={pool.token}
-                        suffix={token?.symbol}
-                        amount={targetMultiplier * wager}
-                      />
-                    </div>
-                    <div style={{ fontSize: '2vh', color: textColor, marginBottom: '2vh' }}>
-                      Payout
-                    </div>
+                </div>
+                
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    MULTIPLIER
+                  </div>
+                  <div style={{ color: textColor, fontSize: '20px', fontWeight: 700 }}>
+                    {targetMultiplier.toFixed(2)}x
+                  </div>
+                </div>
+                
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                    POTENTIAL PAYOUT
+                  </div>
+                  <div style={{ color: '#FCD34D', fontSize: '14px', fontWeight: 700 }}>
+                    <TokenValue
+                      mint={pool.token}
+                      suffix={token?.symbol}
+                      amount={targetMultiplier * wager}
+                    />
                   </div>
                 </div>
               </div>
-            </GambaUi.Responsive>
-          </div>
-        </GambaUi.Portal>
-      }
-      right={
-        <GameControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={play}
-          isPlaying={playing}
-          playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
-        >
-          {/* Multiplier Target Slider */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontWeight: 'bold' }}>Target:</span>
-              <span style={{ 
-                padding: '4px 12px', 
-                background: '#222', 
-                borderRadius: 6,
-                fontSize: 14
-              }}>
-                {targetMultiplier}x
-              </span>
             </div>
-            <Slider
-              disabled={playing}
-              range={[2, 100]}
-              min={2}
-              max={100}
-              value={targetMultiplier}
-              onChange={handleMultiplierChange}
-            />
+
+            {/* Playing Indicator */}
+            {playing && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(139, 92, 246, 0.2)',
+                borderRadius: '20px',
+                padding: '8px 16px',
+                border: '1px solid rgba(139, 92, 246, 0.4)',
+                animation: 'pulse 2s infinite'
+              }}>
+                <span style={{ color: '#A78BFA', fontSize: '12px', fontWeight: 600 }}>
+                  🚀 LAUNCHING...
+                </span>
+              </div>
+            )}
           </div>
-        </GameControls>
-      }
-    />
+
+          {/* Live Paytable */}
+          <LimboPaytable
+            ref={paytableRef}
+            targetMultiplier={targetMultiplier}
+            wager={wager}
+            currentResult={
+              isWin !== null
+                ? {
+                    targetMultiplier,
+                    resultMultiplier,
+                    wasWin: isWin,
+                  }
+                : undefined
+            }
+          />
+        </div>
+      </GambaUi.Portal>
+      
+      <GameControls
+        wager={wager}
+        setWager={setWager}
+        onPlay={play}
+        isPlaying={playing}
+        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+      >
+        {/* Multiplier Target Slider */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 'bold' }}>Target:</span>
+            <span style={{ 
+              padding: '4px 12px', 
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              border: '1px solid rgba(139, 92, 246, 0.3)'
+            }}>
+              {targetMultiplier.toFixed(2)}x
+            </span>
+          </div>
+          <Slider
+            disabled={playing}
+            range={[2, 100]}
+            min={2}
+            max={100}
+            value={targetMultiplier}
+            onChange={handleMultiplierChange}
+          />
+        </div>
+      </GameControls>
+      
+      <GambaResultModal open={resultModalOpen} onClose={() => setResultModalOpen(false)} />
+    </>
   )
 }

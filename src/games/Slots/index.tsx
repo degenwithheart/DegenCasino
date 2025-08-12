@@ -11,7 +11,7 @@ import {
   useWagerInput,
 } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls, GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import React, { useEffect, useRef, useContext, useState } from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
@@ -40,68 +40,77 @@ import {
   PAYLINES,
 } from './constants'
 import { generateBetArray, getSlotCombination } from './utils'
+import SlotsPaytable from './SlotsPaytable'
+
+interface CurrentWin {
+  symbol: string
+  count: number
+  multiplier: number
+  winType: 'payline' | 'scatter'
+  paylineNumber?: number
+}
 
 /**
  * Check if grid has winning patterns (paylines or scatters)
  */
 function checkWinningPattern(grid: SlotItem[]) {
-  // Collect all winning patterns instead of returning first found
-  const allWinningPatterns: Array<{
-    hasWin: boolean
-    isLegendary: boolean
-    maxCount: number
-    winningPositions: number[]
-    winningPayline: number[]
-    isScatter: boolean
-  }> = []
+  if (grid.length !== TOTAL_POSITIONS) {
+    console.warn('Grid size mismatch:', grid.length, 'expected:', TOTAL_POSITIONS)
+    return { hasWin: false, isLegendary: false, maxCount: 0, winningPositions: [], winningPayline: null, isScatter: false }
+  }
 
   // Check paylines for consecutive matches
   for (const payline of PAYLINES) {
-    for (let startPos = 0; startPos <= payline.length - MIN_MATCH; startPos++) {
-      for (let length = 6; length >= MIN_MATCH; length--) {
-        if (startPos + length > payline.length) continue
-        
-        const positions = payline.slice(startPos, startPos + length)
-        const symbols = positions.map(pos => grid[pos])
-        
-        if (symbols.every(symbol => symbol?.id === symbols[0]?.id)) {
-          const item = symbols[0]
-          const isLegendary = item && item.multiplier >= LEGENDARY_THRESHOLD
-          allWinningPatterns.push({ 
-            hasWin: true, 
-            isLegendary, 
-            maxCount: length, 
-            winningPositions: positions,
-            winningPayline: payline,
-            isScatter: false
-          })
-        }
+    if (payline.length < MIN_MATCH) continue
+
+    const symbols = payline.map(pos => grid[pos]?.id).filter(Boolean)
+    if (symbols.length < MIN_MATCH) continue
+
+    const firstSymbol = symbols[0]
+    let consecutiveCount = 1
+
+    for (let i = 1; i < symbols.length; i++) {
+      if (symbols[i] === firstSymbol) {
+        consecutiveCount++
+      } else {
+        break
+      }
+    }
+
+    if (consecutiveCount >= MIN_MATCH) {
+      const matchingPositions = payline.slice(0, consecutiveCount)
+      const isLegendary = firstSymbol === 'unicorn' || consecutiveCount === NUM_REELS
+      return {
+        hasWin: true,
+        isLegendary,
+        maxCount: consecutiveCount,
+        winningPositions: matchingPositions,
+        winningPayline: payline,
+        isScatter: false
       }
     }
   }
 
-  // If we found winning patterns, return a random one instead of the first
-  if (allWinningPatterns.length > 0) {
-    const randomPattern = allWinningPatterns[Math.floor(Math.random() * allWinningPatterns.length)]
-    return randomPattern
-  }
-  
-  // Check for scatter wins (unicorns anywhere)
-  const unicornPositions: number[] = []
-  grid.forEach((item, index) => {
-    if (item?.id === 'unicorn') {
-      unicornPositions.push(index)
-    }
-  })
-  
-  if (unicornPositions.length >= MIN_MATCH) {
-    return { 
-      hasWin: true, 
-      isLegendary: true, 
-      maxCount: unicornPositions.length,
-      winningPositions: unicornPositions,
-      winningPayline: null,
-      isScatter: true
+  // Check for scatter patterns (6+ matching symbols anywhere)
+  const symbolCounts = grid.reduce((acc, slot) => {
+    acc[slot.id] = (acc[slot.id] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  for (const [symbolId, count] of Object.entries(symbolCounts)) {
+    if (count >= MIN_MATCH && symbolId === 'unicorn') {
+      const unicornPositions = grid
+        .map((slot, index) => slot.id === 'unicorn' ? index : -1)
+        .filter(index => index !== -1)
+      
+      return {
+        hasWin: true,
+        isLegendary: true, 
+        maxCount: unicornPositions.length,
+        winningPositions: unicornPositions,
+        winningPayline: null,
+        isScatter: true
+      }
     }
   }
   
@@ -115,36 +124,28 @@ function checkWinningPattern(grid: SlotItem[]) {
   }
 }
 
-function Messages({ messages }: { messages: string[] }) {
-  const [messageIndex, setMessageIndex] = React.useState(0)
-  React.useEffect(() => {
-    const timeout = setInterval(() => {
-      setMessageIndex((x) => (x + 1) % messages.length)
-    }, 2500)
-    return () => clearInterval(timeout)
-  }, [messages])
-  return <>{messages[messageIndex]}</>
-}
-
 export default function Slots() {
   const { setGambaResult } = useContext(GambaResultContext)
-  const [showPatterns, setShowPatterns] = React.useState(false)
   const gamba = GambaUi.useGame()
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   const token = useCurrentToken()
   const { balance: walletBalance } = useTokenBalance()
+  const paytableRef = useRef<any>(null)
 
   const [spinning, setSpinning] = React.useState(false)
   const [result, setResult] = React.useState<GameResult>()
   const [good, setGood] = React.useState(false)
-  const [revealedReels, setRevealedReels] = React.useState(NUM_REELS) // Track revealed reels instead of slots
+  const [revealedReels, setRevealedReels] = React.useState(NUM_REELS)
   const [wager, setWager] = useWagerInput()
   const [combination, setCombination] = React.useState(
     Array.from({ length: TOTAL_POSITIONS }).map(() => SLOT_ITEMS[0]),
   )
   const [winningPositions, setWinningPositions] = React.useState<number[]>([])
   const [winningPayline, setWinningPayline] = React.useState<number[] | null>(null)
+  const [currentWin, setCurrentWin] = React.useState<CurrentWin | undefined>(undefined)
+  const [highlightedSymbol, setHighlightedSymbol] = React.useState<string | null>(null)
+  const [highlightedPayline, setHighlightedPayline] = React.useState<number | null>(null)
 
   // Game outcome overlay state
   const {
@@ -155,7 +156,7 @@ export default function Slots() {
     isWin,
     profitAmount,
     resetGameState,
-  } = useGameOutcome();
+  } = useGameOutcome()
 
   // Dynamic play button text
   const playButtonText = hasPlayedBefore && !showOutcome ? "Play Again" : "Spin";
@@ -220,6 +221,9 @@ export default function Slots() {
         // CRITICAL: Use ONLY Gamba's result to determine win/loss
         const isGambaWin = gambaResult && gambaResult.multiplier > 0
         
+        // Track this spin in paytable
+        paytableRef.current?.trackSpin(isGambaWin)
+        
         console.log('Final result determination:', {
           gambaMultiplier: gambaResult?.multiplier,
           gambaPayout: gambaResult?.payout,
@@ -237,6 +241,20 @@ export default function Slots() {
           setWinningPositions(winningPositions)
           setWinningPayline(winningPayline)
           
+          // Set current win for paytable tracking
+          if (winningPositions.length > 0) {
+            const winningSymbol = grid[winningPositions[0]]
+            const paylineIndex = winningPayline ? PAYLINES.findIndex(p => p.toString() === winningPayline.toString()) : undefined
+            
+            setCurrentWin({
+              symbol: winningSymbol.id,
+              count: winningPositions.length,
+              multiplier: gambaResult?.multiplier || 0,
+              winType: isScatter ? 'scatter' : 'payline',
+              paylineNumber: paylineIndex
+            })
+          }
+          
           console.log('Win detected - showing winning lines:', {
             winningPositions,
             winningPayline,
@@ -248,6 +266,7 @@ export default function Slots() {
           setGood(false)
           setWinningPositions([])
           setWinningPayline(null)
+          setCurrentWin(undefined)
           
           console.log('Loss detected - no winning lines shown')
         }
@@ -290,6 +309,7 @@ export default function Slots() {
       setResult(undefined)
       setWinningPositions([])
       setWinningPayline(null)
+      setCurrentWin(undefined)
       await game.play({ wager, bet })
 
       sounds.play('play')
@@ -322,6 +342,7 @@ export default function Slots() {
       setResult(undefined)
       setWinningPositions([])
       setWinningPayline(null)
+      setCurrentWin(undefined)
       setCombination(Array.from({ length: TOTAL_POSITIONS }).map(() => SLOT_ITEMS[0]))
       window?.alert?.('An error occurred during the spin. Please try again.')
       console.error('Slots error:', err)
@@ -333,132 +354,11 @@ export default function Slots() {
   const [scale, setScale] = useState(compact ? 1 : 1.28);
   useEffect(() => { setScale(compact ? 1 : 1.28); }, [compact]);
 
-  // Ref for slots grid and paytable
+  // Ref for slots grid
   const slotsGridRef = React.useRef<HTMLDivElement>(null);
-  const [slotsGridHeight, setSlotsGridHeight] = React.useState<number | undefined>(undefined);
 
-  // Update paytable height to match slots grid
-  React.useEffect(() => {
-    if (slotsGridRef.current) {
-      setSlotsGridHeight(slotsGridRef.current.offsetHeight);
-    }
-  }, [combination, scale, revealedReels]);
-
-  // Paytable overlay content
-  const PaytablePanel = () => {
-    const [selectedPayline, setSelectedPayline] = React.useState(0);
-    React.useEffect(() => {
-      const interval = setInterval(() => {
-        setSelectedPayline((prev) => (prev + 1) % PAYLINES.length);
-      }, 2000);
-      return () => clearInterval(interval);
-    }, []);
-    const payline = PAYLINES[selectedPayline];
-    const paylineSymbol = SLOT_ITEMS.filter(item => item.multiplier > 0).sort((a, b) => b.multiplier - a.multiplier)[selectedPayline % SLOT_ITEMS.filter(item => item.multiplier > 0).length];
-    const gridRows = NUM_ROWS;
-    const gridCols = NUM_REELS;
-    const panelWidth = 200;
-    const gridCell = 18;
-    const gridGap = 2;
-    const gridPad = 5;
-    const cardMaxHeight = 340;
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: panelWidth,
-          maxWidth: panelWidth,
-          height: slotsGridHeight ? slotsGridHeight : 'auto',
-          transition: 'height 0.2s',
-        }}
-      >
-        <div
-          style={{
-            maxHeight: cardMaxHeight,
-            width: '100%',
-            background: 'rgba(24,24,42,0.92)',
-            borderRadius: 14,
-            padding: '18px 8px 14px 8px',
-            boxShadow: '0 2px 12px #0004',
-            margin: 'auto 0',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: 12, fontWeight: 700, color: '#ffe066', fontSize: '1.1rem', letterSpacing: 0.2 }}>Paytable</div>
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            {SLOT_ITEMS.filter(item => item.multiplier > 0).sort((a, b) => a.multiplier - b.multiplier).map(item => (
-              <div key={item.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <img src={item.image} alt={item.id} style={{ width: 16, height: 16, borderRadius: 3, background: '#222', boxShadow: '0 1px 4px #0006' }} />
-                <span style={{ fontWeight: 900, fontSize: 11, color: '#ffe066', background: '#23234a', borderRadius: 3, padding: '0px 4px', marginTop: 1 }}>{item.multiplier}x</span>
-              </div>
-            ))}
-          </div>
-          {/* Auto-cycling Winning Patterns section */}
-          <div style={{ width: '100%', marginTop: 2, background: 'linear-gradient(120deg, #e0ffb3 0%, #b3ffd9 100%)', borderRadius: 10, boxShadow: '0 2px 16px #0002', padding: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ fontWeight: 900, fontSize: 13, color: '#555', marginBottom: 4, letterSpacing: 0.5 }}>{`Paylines (${PAYLINES.length} total)`}</div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontWeight: 700, fontSize: 11, color: '#333', background: '#fff7', borderRadius: 5, padding: '2px 8px' }}>{`Payline ${selectedPayline + 1}`}</span>
-            </div>
-            {/* Payline grid */}
-            <div style={{ display: 'grid', gridTemplateRows: `repeat(${gridRows}, ${gridCell}px)`, gridTemplateColumns: `repeat(${gridCols}, ${gridCell}px)`, gap: gridGap, background: '#222', borderRadius: 7, padding: gridPad, marginBottom: 6, boxShadow: '0 2px 8px #0002' }}>
-              {Array.from({ length: gridRows }).map((_, row) => (
-                Array.from({ length: gridCols }).map((_, col) => {
-                  const idx = row * gridCols + col;
-                  const isActive = payline.includes(idx);
-                  return (
-                    <div key={idx} style={{ width: gridCell - 2, height: gridCell - 2, borderRadius: 4, background: isActive ? '#ffe066' : '#23234a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {isActive ? (
-                        <img src={paylineSymbol?.image} alt={paylineSymbol?.id} style={{ width: gridCell - 8, height: gridCell - 8 }} />
-                      ) : null}
-                    </div>
-                  );
-                })
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Controls with Paytable button
-  function ControlsWithPaytable({ onOpenSidebar }: { onOpenSidebar?: () => void }) {
-    return (
-      <GameControls
-        wager={wager}
-        setWager={setWager}
-        onPlay={play}
-        isPlaying={spinning}
-        playButtonText={playButtonText}
-      >
-        <button
-          type="button"
-          style={{
-            marginLeft: 8,
-            padding: '8px 16px',
-            borderRadius: 8,
-            background: 'linear-gradient(90deg, #ffd700, #a259ff)',
-            color: '#222',
-            fontWeight: 700,
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 14,
-            boxShadow: '0 0 8px #ffd70088',
-          }}
-          onClick={onOpenSidebar}
-        >
-          Paytable
-        </button>
-      </GameControls>
-    );
-  }
-
+  const [resultModalOpen, setResultModalOpen] = useState(false);
+  
   return (
     <>
       <GambaUi.Portal target="screen">
@@ -474,62 +374,170 @@ export default function Slots() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '20px',
             }}
             className="slots-game-scaler"
           >
-            <GameScreenLayout
-              display="ruby"
-              left={
-                <StyledSlots>
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+            {/* Main Game Area */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              flex: 1,
+              maxWidth: '600px'
+            }}>
+              <StyledSlots>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                }}>
+                  <div style={{ 
+                    flex: 1, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
                     width: '100%',
-                    height: '100%',
-                    flex: 1
+                    marginBottom: '20px'
                   }}>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <div className="slots-grid" ref={slotsGridRef}>
-                        {/* Winning Line Overlay */}
-                        {good && (
-                          <WinningLine
-                            winningPositions={winningPositions}
-                            winningPayline={winningPayline}
-                            isScatter={winningPayline === null && winningPositions.length > 0}
-                          />
-                        )}
-                        {/* Group slots by reel instead of by row */}
-                        {Array.from({ length: NUM_REELS }).map((_, reelIndex) => (
-                          <div key={reelIndex} className="slots-reel">
-                            <div className="reel-label">REEL {reelIndex + 1}</div>
-                            {Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                              const slotIndex = rowIndex * NUM_REELS + reelIndex
-                              const isReelRevealed = revealedReels > reelIndex
-                              return (
-                                <Slot
-                                  key={slotIndex}
-                                  index={slotIndex}
-                                  revealed={isReelRevealed}
-                                  item={combination[slotIndex]}
-                                  good={good}
-                                />
-                              )
-                            })}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="slots-grid" ref={slotsGridRef}>
+                      {/* Winning Line Overlay */}
+                      {good && (
+                        <WinningLine
+                          winningPositions={winningPositions}
+                          winningPayline={winningPayline}
+                          isScatter={winningPayline === null && winningPositions.length > 0}
+                        />
+                      )}
+                      {/* Enhanced Symbol Highlighting */}
+                      {highlightedSymbol && (
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          pointerEvents: 'none',
+                          zIndex: 10
+                        }}>
+                          {combination.map((item, index) => 
+                            item.id === highlightedSymbol ? (
+                              <div
+                                key={index}
+                                style={{
+                                  position: 'absolute',
+                                  top: `${Math.floor(index / NUM_REELS) * (100 / NUM_ROWS)}%`,
+                                  left: `${(index % NUM_REELS) * (100 / NUM_REELS)}%`,
+                                  width: `${100 / NUM_REELS}%`,
+                                  height: `${100 / NUM_ROWS}%`,
+                                  background: 'rgba(255, 224, 102, 0.3)',
+                                  border: '2px solid #ffe066',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 0 15px rgba(255, 224, 102, 0.6)',
+                                  animation: 'pulse 1.5s infinite'
+                                }}
+                              />
+                            ) : null
+                          )}
+                        </div>
+                      )}
+                      {/* Payline Highlighting */}
+                      {highlightedPayline !== null && PAYLINES[highlightedPayline] && (
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          pointerEvents: 'none',
+                          zIndex: 5
+                        }}>
+                          {PAYLINES[highlightedPayline].map((position, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                position: 'absolute',
+                                top: `${Math.floor(position / NUM_REELS) * (100 / NUM_ROWS)}%`,
+                                left: `${(position % NUM_REELS) * (100 / NUM_REELS)}%`,
+                                width: `${100 / NUM_REELS}%`,
+                                height: `${100 / NUM_ROWS}%`,
+                                background: 'rgba(224, 255, 179, 0.2)',
+                                border: '2px solid #b3ffd9',
+                                borderRadius: '8px',
+                                animation: 'glow 2s infinite'
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      {/* Group slots by reel */}
+                      {Array.from({ length: NUM_REELS }).map((_, reelIndex) => (
+                        <div key={reelIndex} className="slots-reel">
+                          <div className="reel-label">REEL {reelIndex + 1}</div>
+                          {Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                            const slotIndex = rowIndex * NUM_REELS + reelIndex
+                            const isReelRevealed = revealedReels > reelIndex
+                            return (
+                              <Slot
+                                key={slotIndex}
+                                index={slotIndex}
+                                revealed={isReelRevealed}
+                                item={combination[slotIndex]}
+                                good={good}
+                              />
+                            )
+                          })}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </StyledSlots>
-              }
-              right={<PaytablePanel />}
-              controls={<ControlsWithPaytable />}
+                </div>
+              </StyledSlots>
+            </div>
+
+            {/* Live Paytable Sidebar */}
+            <SlotsPaytable
+              ref={paytableRef}
+              wager={wager}
+              currentWin={currentWin}
+              onSymbolHover={setHighlightedSymbol}
+              onPaylineHover={setHighlightedPayline}
             />
           </div>
         </GambaUi.Responsive>
       </GambaUi.Portal>
+      
+      <GambaUi.Portal target="controls">
+        <GameControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={play}
+          isPlaying={spinning}
+          playButtonText={hasPlayedBefore && !showOutcome ? "Spin Again" : "Spin"}
+        />
+      </GambaUi.Portal>
+      
+      <GambaResultModal open={resultModalOpen} onClose={() => setResultModalOpen(false)} />
+      
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        
+        @keyframes glow {
+          0%, 100% { 
+            box-shadow: 0 0 5px rgba(179, 255, 217, 0.3);
+          }
+          50% { 
+            box-shadow: 0 0 20px rgba(179, 255, 217, 0.8);
+          }
+        }
+      `}</style>
     </>
   );
 }

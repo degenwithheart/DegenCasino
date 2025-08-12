@@ -1,8 +1,8 @@
 import { GambaUi, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { TOKEN_METADATA } from '../../constants'
-import React from 'react'
-import { GameControls } from '../../components'
+import React, { useRef } from 'react'
+import { GameControls, GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
@@ -10,13 +10,17 @@ import SOUND from './music.mp3'
 import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapper, StarsLayer1, StarsLayer2, StarsLayer3 } from './styles'
 import { calculateBetArray } from './utils'
 import WIN_SOUND from './win.mp3'
-import { useIsCompact } from '../../hooks/useIsCompact';
+import { useIsCompact } from '../../hooks/useIsCompact'
+import CrashPaytable, { CrashPaytableRef } from './CrashPaytable'
 
 export default function CrashGame() {
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
   const gamba = useGamba()
+
+  // Live paytable tracking
+  const paytableRef = useRef<CrashPaytableRef>(null)
 
   // Find token metadata for symbol display
   const tokenMeta = token ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol) : undefined
@@ -87,18 +91,29 @@ export default function CrashGame() {
     currentMultiplier: number,
     targetMultiplier: number,
     win: boolean,
-    finalResult: { payout: number; wager: number }
+    finalResult: { payout: number; wager: number },
+    crashMultiplier: number
   ) => {
     const nextIncrement = 0.01 * (Math.floor(currentMultiplier) + 1)
     const nextValue = currentMultiplier + nextIncrement
 
     setCurrentMultiplier(nextValue)
 
-    if (nextValue >= targetMultiplier) {
+    if (nextValue >= crashMultiplier) {
       sound.sounds.music.player.stop()
       sound.play(win ? 'win' : 'crash')
       setRocketState(win ? 'win' : 'crash')
-      setCurrentMultiplier(targetMultiplier)
+      setCurrentMultiplier(crashMultiplier)
+      
+      // Track result in live paytable
+      if (paytableRef.current) {
+        paytableRef.current.trackGame({
+          targetMultiplier,
+          crashMultiplier,
+          wasWin: win,
+          amount: finalResult.payout
+        })
+      }
       
       // Handle game outcome for overlay after animation completes
       setTimeout(() => {
@@ -107,7 +122,7 @@ export default function CrashGame() {
       return
     }
 
-    setTimeout(() => doTheIntervalThing(nextValue, targetMultiplier, win, finalResult), 50)
+    setTimeout(() => doTheIntervalThing(nextValue, targetMultiplier, win, finalResult, crashMultiplier), 50)
   }
 
   const multiplierColor = (
@@ -137,12 +152,12 @@ export default function CrashGame() {
 
       const result = await game.result()
       const win = result.payout > 0
-      const multiplierResult = win ? multiplierTarget : calculateBiasedLowMultiplier(multiplierTarget)
+      const crashMultiplier = win ? multiplierTarget : calculateBiasedLowMultiplier(multiplierTarget)
 
       // Prepare result for overlay handling
       const finalResult = { payout: result.payout, wager }
 
-      console.log('multiplierResult', multiplierResult)
+      console.log('crashMultiplier', crashMultiplier)
       console.log('win', win)
 
       try {
@@ -151,7 +166,7 @@ export default function CrashGame() {
         console.error('Sound playback failed:', err)
         // Optionally show user feedback here
       }
-      doTheIntervalThing(0, multiplierResult, win, finalResult)
+      doTheIntervalThing(0, multiplierTarget, win, finalResult, crashMultiplier)
     } catch (err) {
       setRocketState('crash')
       console.error('Crash game error:', err)
@@ -172,31 +187,38 @@ export default function CrashGame() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <div style={{
-          transform: `scale(${scale})`,
-          transformOrigin: 'center',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.2s ease-out'
-        }} className="crash-game-scaler">
-          <ScreenWrapper>
-            <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
-            <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
-            <StarsLayer2 style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
-            <LineLayer2 style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
-            <StarsLayer3 style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
-            <LineLayer3 style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
-            <MultiplierText color={multiplierColor}>
-              {currentMultiplier.toFixed(2)}x
-            </MultiplierText>
-            <Rocket style={getRocketStyle()} />
-          </ScreenWrapper>
-        </div>
-        
-        
+        <GambaUi.Responsive>
+          <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+            {/* Game Area */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <ScreenWrapper>
+                <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
+                <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
+                <StarsLayer2 style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
+                <LineLayer2 style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
+                <StarsLayer3 style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
+                <LineLayer3 style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
+                <MultiplierText color={multiplierColor}>
+                  {currentMultiplier.toFixed(2)}x
+                </MultiplierText>
+                <Rocket style={getRocketStyle()} />
+              </ScreenWrapper>
+            </div>
+
+            {/* Live Paytable */}
+            <CrashPaytable
+              ref={paytableRef}
+              wager={wager}
+              targetMultiplier={multiplierTarget}
+              currentResult={rocketState !== 'idle' ? {
+                targetMultiplier: multiplierTarget,
+                crashMultiplier: currentMultiplier,
+                wasWin: rocketState === 'win',
+                amount: 0 // Will be set when animation completes
+              } : undefined}
+            />
+          </div>
+        </GambaUi.Responsive>
       </GambaUi.Portal>
       <GameControls
         wager={wager}
@@ -226,6 +248,7 @@ export default function CrashGame() {
           </span>
         </div>
       </GameControls>
+      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
     </>
   )
 }

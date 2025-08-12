@@ -1,11 +1,12 @@
 import { GambaUi, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import React from 'react'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useIsCompact } from '../../hooks/useIsCompact';
 import SOUND from './test.mp3'
 import { ModernWagerInput } from '../../components/ModernWagerInput';
 import { TOKEN_METADATA } from '../../constants'
+import DoubleOrNothingPaytable, { DoubleOrNothingPaytableRef } from './DoubleOrNothingPaytable'
 
 const MODES = [
   { label: '2x', bet: [2, 0], labels: ['Double!', 'Nothing'] },
@@ -31,6 +32,8 @@ function DoubleOrNothing() {
   const [mode, setMode] = React.useState(0);
   const token = useCurrentToken();
   const { balance } = useTokenBalance();
+  const paytableRef = React.useRef<DoubleOrNothingPaytableRef>(null)
+  const [currentRound, setCurrentRound] = React.useState(1)
   const tokenMeta = token ? TOKEN_METADATA.find(t => t.symbol === token.symbol) : undefined;
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1);
   const maxWager = baseWager * 1000000;
@@ -63,11 +66,34 @@ function DoubleOrNothing() {
     setIsPlaying(true);
     setResult(null);
     setPayout(null);
+    
+    const selectedMode = mode
+    const modeChoice = selectedMode === 0 ? 'double' : selectedMode === 1 ? 'triple' : 'degen'
+    
     await game.play({ wager, bet: MODES[mode].bet });
     const res = await game.result();
     setResult(res.resultIndex);
     setPayout(res.payout);
     setIsPlaying(false);
+    
+    const win = res.resultIndex === 0
+    
+    // Track game result in paytable
+    paytableRef.current?.trackGame({
+      choice: win ? 'double' : 'nothing', // Simplified for tracking
+      result: win ? 'double' : 'nothing',
+      wasWin: win,
+      amount: win ? res.payout - wager : 0,
+      multiplier: win ? res.payout / wager : 0,
+      currentRound: currentRound,
+    })
+    
+    if (win) {
+      setCurrentRound(prev => prev + 1)
+    } else {
+      setCurrentRound(1)
+    }
+    
     // Handle game outcome for overlay
     handleGameComplete({ payout: res.payout, wager });
     sound.play('test', { playbackRate: res.resultIndex === 0 ? 1.2 : 0.8 });
@@ -82,128 +108,199 @@ function DoubleOrNothing() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameScreenLayout
-          left={
-            <div
-              ref={scalerRef}
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main Game Area */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background Effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(circle at 50% 50%, ${
+                mode === 0 ? 'rgba(16, 185, 129, 0.1)' :
+                mode === 1 ? 'rgba(251, 191, 36, 0.1)' :
+                'rgba(239, 68, 68, 0.1)'
+              } 0%, transparent 50%)`,
+              opacity: isPlaying ? 1 : 0.5,
+              transition: 'opacity 0.5s ease'
+            }} />
+
+            {/* Mode Selection */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '12px',
+              zIndex: 10
+            }}>
+              {MODES.map((modeOption, index) => (
+                <button
+                  key={index}
+                  onClick={() => setMode(index)}
+                  disabled={isPlaying}
+                  style={{
+                    background: mode === index 
+                      ? index === 0 ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%)'
+                        : index === 1 ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%)'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%)'
+                      : 'rgba(0, 0, 0, 0.5)',
+                    border: mode === index 
+                      ? index === 0 ? '2px solid rgba(16, 185, 129, 0.5)'
+                        : index === 1 ? '2px solid rgba(251, 191, 36, 0.5)'
+                        : '2px solid rgba(239, 68, 68, 0.5)'
+                      : '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: isPlaying ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    opacity: isPlaying ? 0.6 : 1
+                  }}
+                >
+                  {modeOption.label} ({modeOption.bet[0]}x)
+                </button>
+              ))}
+            </div>
+
+            {/* Animated Canvas */}
+            <GambaUi.Canvas
               style={{
-                transform: `scale(${scale})`,
-                transformOrigin: 'center',
                 width: '100%',
                 height: '100%',
                 minHeight: 400,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.2s ease-out',
+                display: 'block',
               }}
-              className="doubleornothing-game-scaler"
-            >
-              <div className="doubleornothing-container" style={{ width: isCompact ? '100%' : 600 }}>
+              render={({ ctx, size }, clock) => {
+                const scale = 3 + Math.cos(clock.time) * .5;
+                const hue = _hue.current;
+                ctx.clearRect(0, 0, size.width, size.height);
+                // Mode-based intensity
+                const modeIntensity = [
+                  { glow: 0.12, orb: 32, color: '#10B981', bg: [160, 80, 55], shadow: '#10B981' }, // Double
+                  { glow: 0.18, orb: 40, color: '#FBBF24', bg: [45, 90, 60], shadow: '#FBBF24' }, // Triple
+                  { glow: 0.28, orb: 52, color: '#EF4444', bg: [0, 100, 60], shadow: '#EF4444' }, // Degen
+                ][mode];
+                // Animated glowing background, more layers for higher intensity
+                for (let i = 0; i < 8 + mode * 4; i++) {
+                  ctx.save();
+                  ctx.globalAlpha = modeIntensity.glow + 0.04 * Math.sin(clock.time * (2 + mode) + i);
+                  ctx.fillStyle = `hsla(${modeIntensity.bg[0] + i * 20}, ${modeIntensity.bg[1]}%, ${modeIntensity.bg[2]}%, 1)`;
+                  ctx.beginPath();
+                  ctx.arc(size.width / 2, size.height / 2, 60 + i * (18 + mode * 2) + Math.sin(clock.time + i) * (8 + mode * 2), 0, Math.PI * 2);
+                  ctx.fill();
+                  ctx.restore();
+                }
+                ctx.save();
+                ctx.translate(size.width / 2, size.height / 2);
+                // Central glowing orb, bigger and more vibrant for harder modes
+                ctx.shadowColor = modeIntensity.shadow;
+                ctx.shadowBlur = modeIntensity.orb;
+                ctx.fillStyle = modeIntensity.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, modeIntensity.orb + Math.sin(clock.time * (2 + mode)) * (4 + mode * 2), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                // Result text
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = result !== null ? `bold ${48 + mode * 8}px Arial` : '32px Arial';
+                ctx.fillStyle = result === 0 ? modeIntensity.color : result === 1 ? '#f00' : '#fff';
+                if (isPlaying || result === null) {
+                  ctx.fillStyle = '#fff';
+                  ctx.font = '32px Arial';
+                  ctx.fillText('Spinning...', 0, 0);
+                }
+                ctx.restore();
+              }}
+            />
+
+            {/* Result Display */}
+            {result !== null && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0, 0, 0, 0.8)',
+                borderRadius: '16px',
+                padding: '16px 24px',
+                border: `2px solid ${result === 0 ? '#10B981' : '#EF4444'}`,
+                backdropFilter: 'blur(10px)',
+                textAlign: 'center',
+                minWidth: '200px'
+              }}>
                 <div style={{
-                  flex: 1,
-                  position: 'relative',
-                  height: '100%',
-                  minHeight: 400,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  color: result === 0 ? '#10B981' : '#EF4444',
+                  fontSize: '24px',
+                  fontWeight: 900,
+                  marginBottom: '8px'
                 }}>
-                  <GambaUi.Canvas
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      minHeight: 400,
-                      display: 'block',
-                    }}
-                    render={({ ctx, size }, clock) => {
-                      const scale = 3 + Math.cos(clock.time) * .5;
-                      const hue = _hue.current;
-                      ctx.clearRect(0, 0, size.width, size.height);
-                      // Mode-based intensity
-                      const modeIntensity = [
-                        { glow: 0.12, orb: 32, color: '#00ffe1', bg: [hue, 80, 55], shadow: '#00ffe1' }, // Double
-                        { glow: 0.18, orb: 40, color: '#ffb300', bg: [hue + 40, 90, 60], shadow: '#ffb300' }, // Triple
-                        { glow: 0.28, orb: 52, color: '#ff0055', bg: [hue + 80, 100, 60], shadow: '#ff0055' }, // Degen
-                      ][mode];
-                      // Animated glowing background, more layers for higher intensity
-                      for (let i = 0; i < 8 + mode * 4; i++) {
-                        ctx.save();
-                        ctx.globalAlpha = modeIntensity.glow + 0.04 * Math.sin(clock.time * (2 + mode) + i);
-                        ctx.fillStyle = `hsla(${modeIntensity.bg[0] + i * 20}, ${modeIntensity.bg[1]}%, ${modeIntensity.bg[2]}%, 1)`;
-                        ctx.beginPath();
-                        ctx.arc(size.width / 2, size.height / 2, 60 + i * (18 + mode * 2) + Math.sin(clock.time + i) * (8 + mode * 2), 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                      }
-                      ctx.save();
-                      ctx.translate(size.width / 2, size.height / 2);
-                      // Central glowing orb, bigger and more vibrant for harder modes
-                      ctx.shadowColor = modeIntensity.shadow;
-                      ctx.shadowBlur = modeIntensity.orb;
-                      ctx.fillStyle = modeIntensity.color;
-                      ctx.beginPath();
-                      ctx.arc(0, 0, modeIntensity.orb + Math.sin(clock.time * (2 + mode)) * (4 + mode * 2), 0, Math.PI * 2);
-                      ctx.fill();
-                      ctx.shadowBlur = 0;
-                      // Result text
-                      ctx.textAlign = 'center';
-                      ctx.textBaseline = 'middle';
-                      ctx.font = result !== null ? `bold ${48 + mode * 8}px Arial` : '32px Arial';
-                      ctx.fillStyle = result === 0 ? modeIntensity.color : result === 1 ? '#f00' : '#fff';
-                      if (isPlaying || result === null) {
-                        ctx.fillStyle = '#fff';
-                        ctx.font = '32px Arial';
-                        ctx.fillText('Spinning...', 0, 0);
-                      }
-                      ctx.restore();
-                    }}
-                  />
-                  {result !== null && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '62%',
-                      left: '50%',
-                      transform: 'translate(-50%, 0)',
-                      color: result === 0 ? '#00ffe1' : '#f00',
-                      fontSize: 32,
-                      fontWeight: 'bold',
-                      textShadow: '0 2px 16px #000, 0 0 8px #00ffe1',
-                      textAlign: 'center',
-                      padding: '12px 0',
-                      borderRadius: 8,
-                      background: 'rgba(24,24,24,0.7)',
-                      minWidth: 180,
-                    }}>
-                      {result === 0 ? MODES[mode].labels[0] + ' 🎉' : MODES[mode].labels[1] + ' 💀'}
-                      <br />
-                      <span style={{ fontSize: 22, color: '#fff', fontWeight: 500 }}>
-                        Payout: <span style={{ color: '#00ffe1', fontWeight: 700 }}>{formatPayout(payout)} {token?.symbol}</span>
-                      </span>
-                    </div>
-                  )}
+                  {result === 0 ? MODES[mode].labels[0] + ' 🎉' : MODES[mode].labels[1] + ' 💀'}
+                </div>
+                <div style={{ 
+                  color: '#9CA3AF', 
+                  fontSize: '12px', 
+                  fontWeight: 600,
+                  marginBottom: '4px'
+                }}>
+                  PAYOUT
+                </div>
+                <div style={{ 
+                  color: '#FCD34D', 
+                  fontSize: '18px', 
+                  fontWeight: 700 
+                }}>
+                  {formatPayout(payout)} {token?.symbol}
                 </div>
               </div>
-            </div>
-          }
-          right={
-            <div style={{ minWidth: 200, maxWidth: 220, marginLeft: 16, background: 'rgba(24,24,42,0.92)', borderRadius: 14, padding: '8px 4px', boxShadow: '0 2px 12px #0004', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 700, color: '#ffe066', fontSize: '1rem' }}>Payouts</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-                {MODES.map((m, idx) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', background: idx === mode ? '#23234a' : 'transparent', borderRadius: 6, padding: '4px 8px', fontWeight: idx === mode ? 900 : 500, color: idx === mode ? '#ffe066' : '#fff', fontSize: 15 }}>
-                    <span>{m.label}</span>
-                    <span style={{ fontWeight: 900 }}>{m.bet[0]}x</span>
-                  </div>
-                ))}
+            )}
+
+            {/* Round Counter */}
+            <div style={{
+              position: 'absolute',
+              top: '80px',
+              right: '20px',
+              background: 'rgba(0, 0, 0, 0.7)',
+              borderRadius: '12px',
+              padding: '8px 16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>
+                ROUND
               </div>
-              <div style={{ fontSize: 12, color: '#bbb', textAlign: 'center', marginTop: 8 }}>
-                Select a mode and try to double, triple, or 10x your wager!
+              <div style={{ color: '#FCD34D', fontSize: '18px', fontWeight: 700 }}>
+                {currentRound}
               </div>
             </div>
-          }
-        />
+          </div>
+
+          {/* Live Paytable */}
+          <DoubleOrNothingPaytable
+            ref={paytableRef}
+            wager={wager}
+            selectedChoice={mode === 0 ? 'double' : 'double'} // Simplified for tracking
+            currentRound={currentRound}
+          />
+        </div>
       </GambaUi.Portal>
+      
       <GameControls
         wager={wager}
         setWager={setWager}

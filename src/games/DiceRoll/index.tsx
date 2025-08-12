@@ -1,11 +1,11 @@
 
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { GambaResultContext } from '../../context/GambaResultContext'
 import { GambaUi, useWagerInput } from 'gamba-react-ui-v2';
-import { GameControls, GameScreenLayout } from '../../components';
+import { GameControls, GambaResultModal } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome';
-// Improved responsive scaling with hard cap at 475px height (from Slots)
+import DiceRollPaytable, { DiceRollPaytableRef } from './DiceRollPaytable'
 
 
 export default function DiceRoll() {
@@ -16,6 +16,9 @@ export default function DiceRoll() {
   const [wager, setWager] = useWagerInput()
   const isCompact = useIsCompact();
   const [scale, setScale] = React.useState(isCompact ? 1 : 1.2);
+
+  // Live paytable tracking
+  const paytableRef = useRef<DiceRollPaytableRef>(null)
 
   React.useEffect(() => {
     setScale(isCompact ? 1 : 1.2);
@@ -44,12 +47,14 @@ export default function DiceRoll() {
     setPayout(null)
     setRolling(true)
     setRollValue(null)
+    
     // Simulate dice rolling animation
     let rollTimes = 15;
     for (let i = 0; i < rollTimes; i++) {
       setRollValue(Math.floor(Math.random() * 6) + 1);
       await new Promise(res => setTimeout(res, 60 + i * 10));
     }
+    
     const bet = [0, 0, 0, 1.2, 1.5, 2];
     await game.play({ wager, bet })
     const res = await game.result()
@@ -58,6 +63,19 @@ export default function DiceRoll() {
     setPayout(res.payout)
     setRolling(false)
     setIsPlaying(false)
+    
+    // Track result in live paytable
+    const resultFace = res.resultIndex + 1
+    const wasWin = res.payout > 0
+    
+    if (paytableRef.current) {
+      paytableRef.current.trackGame({
+        selectedFace: pick,
+        resultFace,
+        wasWin,
+        amount: res.payout
+      })
+    }
     
     // Show outcome overlay
     handleGameComplete({ payout: res.payout, wager })
@@ -69,9 +87,25 @@ export default function DiceRoll() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameScreenLayout
-          left={
-            <GambaUi.Responsive>
+        <GambaUi.Responsive>
+          <div style={{ 
+            display: 'flex', 
+            gap: 16, 
+            height: '100%', 
+            width: '100%',
+            background: 'linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(10, 10, 25, 0.95))',
+            borderRadius: '16px',
+            overflow: 'hidden'
+          }}>
+            {/* Game Area */}
+            <div style={{ 
+              flex: 1, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              position: 'relative',
+              minHeight: '400px'
+            }}>
               <div
                 ref={scalerRef}
                 style={{
@@ -83,74 +117,153 @@ export default function DiceRoll() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'transform 0.2s ease-out',
+                  padding: '20px'
                 }}
                 className="diceroll-game-scaler"
               >
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <div style={{ flex: 1 }}>
+                <div style={{ 
+                  textAlign: 'center',
+                  width: '100%',
+                  maxWidth: '500px'
+                }}>
+                  <h2 style={{ 
+                    fontWeight: 700, 
+                    fontSize: 32, 
+                    marginBottom: 24,
+                    color: '#fff',
+                    textShadow: '0 4px 8px rgba(0,0,0,0.5)'
+                  }}>
+                    🎲 Dice Roll
+                  </h2>
+                  
+                  {/* Dice Display */}
+                  <div style={{
+                    margin: '24px auto',
+                    width: '120px',
+                    height: '120px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'linear-gradient(145deg, #2a2a3a, #1a1a2a)',
+                    borderRadius: '20px',
+                    border: '3px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                    fontSize: '48px',
+                    color: '#fff',
+                    animation: rolling ? 'diceRoll 0.1s infinite' : undefined
+                  }}>
+                    {rollValue || result || '?'}
+                  </div>
+
+                  {/* Face Selection */}
+                  <div style={{ marginBottom: 24 }}>
                     <div style={{ 
-                      textAlign: 'center', 
-                      marginTop: 32, 
-                      position: 'relative', 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      justifyContent: 'center',
-                      minHeight: '400px',
-                      padding: '20px'
+                      fontSize: '16px', 
+                      fontWeight: 600, 
+                      color: '#fbbf24', 
+                      marginBottom: 12 
                     }}>
-                      <h2 style={{ fontWeight: 700, fontSize: 32, marginBottom: 16 }}>
-                        🎲 Dice Roll
-                      </h2>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 24 }}>
-                        {[1,2,3,4,5,6].map(n => (
-                          <button
-                            key={n}
-                            onClick={() => setPick(n)}
-                            disabled={isPlaying || showOutcome}
-                            style={{
-                              width: 48,
-                              height: 48,
-                              fontSize: 24,
-                              borderRadius: 12,
-                              border: pick === n ? '2px solid #00ffe1' : '2px solid #333',
-                              background: pick === n ? '#222' : '#111',
-                              color: pick === n ? '#00ffe1' : '#fff',
-                              boxShadow: pick === n ? '0 0 8px #00ffe1' : 'none',
-                              transition: 'all 0.2s',
-                              cursor: 'pointer',
-                            }}
-                          >{n}</button>
-                        ))}
-                      </div>
-                      <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 700, color: '#ffe066', fontSize: '1rem' }}>Payouts</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8, width: '100%' }}>
-                        {[1,2,3,4,5,6].map((n, idx) => (
-                          <div key={n} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: pick === n ? '#ffe06622' : '#23234a', borderRadius: 4, padding: '4px 8px', fontWeight: pick === n ? 700 : 400 }}>
-                            <span style={{ color: pick === n ? '#ffe066' : '#fff', fontSize: 14 }}>Face {n}</span>
-                            <span style={{ color: pick === n ? '#ffe066' : '#ffe066cc', fontWeight: 900, fontSize: 15 }}>{diceMultipliers[idx]}x</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#bbb', textAlign: 'center', marginTop: 8 }}>
-                        Select a dice face. Payouts are shown for each face.
-                      </div>
+                      Select Your Face
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+                      {[1,2,3,4,5,6].map(n => (
+                        <button
+                          key={n}
+                          onClick={() => setPick(n)}
+                          disabled={isPlaying || showOutcome}
+                          style={{
+                            width: 52,
+                            height: 52,
+                            fontSize: 24,
+                            borderRadius: 12,
+                            border: pick === n ? '2px solid #3b82f6' : '2px solid rgba(255, 255, 255, 0.2)',
+                            background: pick === n 
+                              ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' 
+                              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                            color: '#fff',
+                            boxShadow: pick === n 
+                              ? '0 4px 16px rgba(59, 130, 246, 0.4)' 
+                              : '0 2px 8px rgba(0,0,0,0.2)',
+                            transition: 'all 0.2s ease',
+                            cursor: isPlaying ? 'not-allowed' : 'pointer',
+                            fontWeight: 700,
+                            transform: pick === n ? 'scale(1.05)' : 'scale(1)',
+                          }}
+                        >{n}</button>
+                      ))}
                     </div>
                   </div>
+
+                  {/* Result Display */}
+                  {result !== null && (
+                    <div style={{
+                      marginTop: 20,
+                      padding: '16px 24px',
+                      borderRadius: '12px',
+                      background: payout && payout > 0 
+                        ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2))'
+                        : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2))',
+                      border: payout && payout > 0
+                        ? '1px solid rgba(34, 197, 94, 0.4)'
+                        : '1px solid rgba(239, 68, 68, 0.4)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '18px',
+                      animation: 'resultGlow 1s ease-in-out'
+                    }}>
+                      {payout && payout > 0 ? (
+                        <>🎉 You Won! +{payout.toFixed(2)}</>
+                      ) : (
+                        <>😔 You Lost</>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            </GambaUi.Responsive>
-          }
-          right={null}
-        />
+            </div>
+
+            {/* Live Paytable */}
+            <DiceRollPaytable
+              ref={paytableRef}
+              wager={wager}
+              selectedFace={pick}
+              currentResult={result !== null ? {
+                selectedFace: pick,
+                resultFace: result,
+                wasWin: payout !== null && payout > 0,
+                amount: payout || 0
+              } : undefined}
+            />
+          </div>
+        </GambaUi.Responsive>
       </GambaUi.Portal>
+      
       <GameControls
         wager={wager}
         setWager={setWager}
         onPlay={play}
         isPlaying={isPlaying}
-        playButtonText={hasPlayedBefore && !showOutcome ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore && !showOutcome ? 'Roll Again' : 'Roll Dice'}
       />
+      
+      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
+      
+      <style>{`
+        @keyframes diceRoll {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(90deg); }
+          50% { transform: rotate(180deg); }
+          75% { transform: rotate(270deg); }
+        }
+        @keyframes resultGlow {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      `}</style>
     </>
   )
 }

@@ -9,9 +9,10 @@ import {
   useCurrentToken,
   useTokenMeta,
 } from 'gamba-react-ui-v2'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls } from '../../components'
 import { GambaResultContext } from '../../context/GambaResultContext'
 import { useIsCompact } from '../../hooks/useIsCompact'
+import MinesPaytable, { MinesPaytableRef } from './MinesPaytable'
 import {
   GRID_SIZE,
   MINE_SELECT,
@@ -35,116 +36,6 @@ function getResponsiveScale() {
   if (width <= 1200) return 1.28
   if (width <= 1600) return 1.38
   return 1
-}
-
-// PayTable component
-type PayTableProps = {
-  mines: number
-  levels: Array<{ wager: number; bet: number[]; cumProfit: number }>
-  gridSize: number
-  currentLevel: number
-}
-
-function PayTable({ mines, levels, gridSize, currentLevel }: PayTableProps) {
-  const windowSize = 5
-  const totalLevels = levels.length
-  let start = 0
-  if (currentLevel > 2 && totalLevels > windowSize) {
-    start = Math.min(currentLevel - 2, totalLevels - windowSize)
-  }
-  const visibleLevels = levels.slice(start, start + windowSize)
-
-  return (
-    <div
-      style={{
-        minWidth: 240,
-        maxWidth: 320,
-        marginLeft: 24,
-        background: '#111',
-        borderRadius: 14,
-        padding: '12px 10px',
-        boxShadow: '0 2px 12px #0004',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <div
-        style={{
-          textAlign: 'center',
-          marginBottom: 8,
-          fontWeight: 700,
-          color: '#ffe066',
-          fontSize: '1rem',
-        }}
-      >
-        Payouts
-      </div>
-      <table
-        className="payout-table"
-        style={{ width: '100%', borderCollapse: 'collapse', background: 'none', color: '#ccc', borderRadius: 8, overflow: 'hidden' }}
-      >
-        <thead>
-          <tr style={{ background: '#181818', color: '#aaa', fontWeight: 700, fontSize: 13 }}>
-            <th style={{ textAlign: 'center', padding: '8px 6px' }}>Level</th>
-            <th style={{ textAlign: 'center', padding: '8px 6px' }}>Chance</th>
-            <th style={{ textAlign: 'center', padding: '8px 6px' }}>Multiplier</th>
-            <th style={{ textAlign: 'center', padding: '8px 6px' }}>Profit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {visibleLevels.map((level, i) => {
-            const realIndex = start + i
-            const multiplier = level.wager && level.bet ? level.bet.find((x) => x > 0) || 0 : 0
-            const remainingCells = gridSize - realIndex
-            const safeCells = remainingCells - mines
-            const chance = safeCells > 0 ? (100 * safeCells) / remainingCells : 0
-            const isActive = realIndex === currentLevel
-
-            return (
-              <tr
-                key={realIndex}
-                className={isActive ? 'payout-row active' : 'payout-row'}
-                style={{
-                  background: isActive ? '#222' : 'none',
-                  borderLeft: isActive ? '4px solid #ff69b4' : undefined,
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? '#fff' : undefined,
-                  transition: 'background 0.2s, color 0.2s',
-                }}
-              >
-                <td style={{ textAlign: 'center', padding: '8px 6px' }}>Lv {realIndex + 1}</td>
-                <td style={{ textAlign: 'center', padding: '8px 6px' }}>{chance.toFixed(2)}%</td>
-                <td
-                  style={{
-                    textAlign: 'center',
-                    padding: '8px 6px',
-                    color: multiplier === 0 ? '#f00' : '#ffe066',
-                    fontWeight: 700,
-                  }}
-                >
-                  {multiplier ? multiplier.toFixed(2) + 'x' : '-'}
-                </td>
-                <td style={{ textAlign: 'center', padding: '8px 6px', color: '#6cf' }}>
-                  {level.cumProfit ? <TokenValue amount={level.cumProfit} /> : '-'}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <div style={{ marginTop: 8, color: '#aaa', fontSize: 12, textAlign: 'center' }}>
-        Each level shows the multiplier, chance, and cumulative profit for a safe pick.
-        <br />
-        Pick carefully to climb higher!
-      </div>
-      <style>{`
-        .payout-table th, .payout-table td { border-bottom: 1px solid #222; }
-        .payout-row.active { background: #222 !important; border-left: 1px solid #ff69b4 !important; font-weight: bold !important; color: #fff !important; }
-        .payout-row { transition: background 0.2s, color 0.2s; }
-      `}</style>
-    </div>
-  )
 }
 
 function Mines() {
@@ -171,6 +62,14 @@ function Mines() {
 
   const [initialWager, setInitialWager] = useWagerInput()
   const [mines, setMines] = useState(MINE_SELECT[2])
+  
+  // Live paytable tracking
+  const paytableRef = useRef<MinesPaytableRef>(null)
+  const [currentResult, setCurrentResult] = useState<{
+    level: number
+    multiplier: number
+    wasSuccessful: boolean
+  } | undefined>()
 
   // Responsive: detect compact/mobile
   const isCompact = useIsCompact();
@@ -232,6 +131,16 @@ function Mines() {
   }
 
   const endGame = async () => {
+    // Track cash-out if there was a gain
+    if (totalGain > 0 && currentLevel > 0) {
+      const multiplier = totalGain / initialWager
+      setCurrentResult({
+        level: currentLevel - 1,
+        multiplier: multiplier,
+        wasSuccessful: true
+      })
+    }
+    
     sounds.play('finish')
     reset()
   }
@@ -255,6 +164,13 @@ function Mines() {
 
       // Lose condition
       if (result.payout === 0) {
+        // Track mine hit
+        setCurrentResult({
+          level: currentLevel,
+          multiplier: 0,
+          wasSuccessful: false
+        })
+        
         setStarted(false)
         setGrid(revealAllMines(grid, cellIndex, mines))
         sounds.play('explode')
@@ -393,129 +309,175 @@ function Mines() {
   };
 
   return (
-    <GambaUi.Portal target="screen">
-      <GameScreenLayout
-        display="flex"
-        left={
-          <div ref={scalerRef} style={gridContainerStyles}>
-            <GambaUi.Responsive>
-              <Container>
-                <Grid>
-                  {grid.map((cell, index) => (
-                    <CellButton
-                      key={index}
-                      status={cell.status}
-                      selected={selected === index}
-                      onClick={() => play(index)}
-                      disabled={!canPlay || cell.status !== 'hidden'}
-                    >
-                      {/* Hidden: Show pulsing token or bomb */}
-                      {cell.status === 'hidden' && (
-                        <span
-                          className="pulse"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            position: 'relative',
-                            width: 28,
-                            height: 28,
-                          }}
-                        >
-                          <span
-                            style={{
-                              position: 'absolute',
-                              left: 0,
-                              top: 0,
-                              width: 28,
-                              height: 28,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              opacity: showBomb ? 1 : 0,
-                              transition: 'opacity 0.85s',
-                            }}
-                          >
-                            <span style={{ fontSize: 28, color: '#ff5252' }}>💣</span>
-                          </span>
-                          <span
-                            style={{
-                              position: 'absolute',
-                              left: 0,
-                              top: 0,
-                              width: 28,
-                              height: 28,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              opacity: showBomb ? 0 : 1,
-                              transition: 'opacity 0.85s',
-                            }}
-                          >
-                            {tokenMeta?.image ? (
-                              <img
-                                src={tokenMeta.image}
-                                alt={tokenMeta.symbol}
-                                style={{ width: 28, height: 28, borderRadius: '50%' }}
-                              />
-                            ) : (
-                              '🪙'
-                            )}
-                          </span>
-                        </span>
-                      )}
-                      {/* Gold: Show profit */}
-                      {cell.status === 'gold' && (
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {tokenMeta?.image ? (
-                            <img
-                              src={tokenMeta.image}
-                              alt={tokenMeta.symbol}
-                              style={{ width: 28, height: 28, borderRadius: '50%' }}
-                            />
-                          ) : (
-                            '🪙'
-                          )}
-                        </span>
-                      )}
-                      {/* Mine: Show bomb */}
-                      {cell.status === 'mine' && (
-                        <span style={{ fontSize: 28, color: '#ff5252' }}>💣</span>
-                      )}
-                    </CellButton>
-                  ))}
-                </Grid>
-              </Container>
-            </GambaUi.Responsive>
-          </div>
-        }
-        right={
-          <div style={{ width: '100%' }}>
-            <PayTable mines={mines} levels={levels} gridSize={GRID_SIZE} currentLevel={currentLevel} />
-          </div>
-        }
-        controls={
-          <GameControls
-            wager={initialWager}
-            setWager={setInitialWager}
-            onPlay={start}
-            isPlaying={loading}
-            playButtonText="Start"
-            playButtonDisabled={started}
+    <>
+      <GambaUi.Portal target="screen">
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            ref={scalerRef}
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
           >
-            <GambaUi.Select options={MINE_SELECT} value={mines} onChange={setMines} label={(m) => <>{m} Mines</>} />
-            {started && (
-              <GambaUi.Button onClick={endGame}>{totalGain > 0 ? 'Finish' : 'Reset'}</GambaUi.Button>
-            )}
-            {window.location.origin.includes('localhost') && started && (
-              <>
-                <GambaUi.Button onClick={test}>Test</GambaUi.Button>
-                <GambaUi.Button onClick={simulate}>Simulate</GambaUi.Button>
-              </>
-            )}
-          </GameControls>
-        }
-      />
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '100%',
+            }}>
+              <div style={{
+                textAlign: 'center',
+                marginBottom: 20,
+                zIndex: 10,
+                position: 'relative'
+              }}>
+                <h2 style={{
+                  fontSize: 32,
+                  fontWeight: 800,
+                  margin: '0 0 8px 0',
+                  letterSpacing: 2,
+                  textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                  color: '#fff'
+                }}>
+                  💣 MINES 💎
+                </h2>
+                <div style={{
+                  fontSize: 16,
+                  color: '#888',
+                  fontWeight: 600
+                }}>
+                  Find diamonds, avoid mines
+                </div>
+              </div>
+
+              <GambaUi.Responsive>
+                <Container>
+                  <Grid>
+                    {grid.map((cell, index) => (
+                      <CellButton
+                        key={index}
+                        status={cell.status}
+                        selected={selected === index}
+                        onClick={() => play(index)}
+                        disabled={!canPlay || cell.status !== 'hidden'}
+                      >
+                        {/* Hidden: Show pulsing token or bomb */}
+                        {cell.status === 'hidden' && (
+                          <span
+                            className="pulse"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative',
+                              width: 28,
+                              height: 28,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: showBomb ? 22 : 14,
+                                filter: showBomb
+                                  ? 'hue-rotate(0deg) drop-shadow(0 0 8px #ff6b6b88)'
+                                  : 'hue-rotate(45deg) drop-shadow(0 0 6px #ffe06688)',
+                                transition: 'all 0.3s ease',
+                              }}
+                            >
+                              {showBomb ? '💣' : (tokenMeta?.image ? '💎' : '🪙')}
+                            </span>
+                          </span>
+                        )}
+                        
+                        {/* Revealed: Show mines, gold, or profit */}
+                        {cell.status === 'gold' && (
+                          <div
+                            style={{
+                              fontSize: 22,
+                              filter: 'drop-shadow(0 0 8px #ffe06688)',
+                            }}
+                          >
+                            💎
+                          </div>
+                        )}
+                        
+                        {cell.status === 'mine' && (
+                          <div
+                            style={{
+                              fontSize: 22,
+                              filter: 'drop-shadow(0 0 8px #ff6b6b88)',
+                            }}
+                          >
+                            💥
+                          </div>
+                        )}
+                        
+                        {cell.profit && (
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: '#22c55e',
+                              fontWeight: 'bold',
+                              textShadow: '0 0 4px #22c55e88',
+                            }}
+                          >
+                            <TokenValue amount={cell.profit} />
+                          </div>
+                        )}
+                      </CellButton>
+                    ))}
+                  </Grid>
+                </Container>
+              </GambaUi.Responsive>
+            </div>
+          </div>
+
+          {/* Paytable sidebar */}
+          <MinesPaytable
+            ref={paytableRef}
+            mines={mines}
+            levels={levels}
+            gridSize={GRID_SIZE}
+            currentLevel={currentLevel}
+            wager={initialWager}
+            currentResult={currentResult}
+          />
+        </div>
+      </GambaUi.Portal>
+      <GameControls
+        wager={initialWager}
+        setWager={setInitialWager}
+        onPlay={start}
+        isPlaying={loading}
+        playButtonText="Start"
+        playButtonDisabled={started}
+      >
+        <GambaUi.Select options={MINE_SELECT} value={mines} onChange={setMines} label={(m) => <>{m} Mines</>} />
+        {started && (
+          <GambaUi.Button onClick={endGame}>{totalGain > 0 ? 'Finish' : 'Reset'}</GambaUi.Button>
+        )}
+        {window.location.origin.includes('localhost') && started && (
+          <>
+            <GambaUi.Button onClick={test}>Test</GambaUi.Button>
+            <GambaUi.Button onClick={simulate}>Simulate</GambaUi.Button>
+          </>
+        )}
+      </GameControls>
       {/* Pulse animation */}
       <style>{`
         .pulse {
@@ -528,7 +490,7 @@ function Mines() {
           100% { transform: scale(1); opacity: 0.85; }
         }
       `}</style>
-    </GambaUi.Portal>
+    </>
   )
 }
 

@@ -9,8 +9,10 @@ import {
 } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components/GameControls'
+import { GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { GambaResultContext } from '../../context/GambaResultContext'
+import SlidePaytable, { SlidePaytableRef } from './SlidePaytable'
 
 const ORIGINAL_MULTIPLIERS = [1.05, 0, 1.34, 0, 1.04, 0, 1.76, 0, 1.95, 0]
 
@@ -68,10 +70,12 @@ const getResponsiveScale = () => {
 };
 
 export default function SlideGame() {
+  const [resultModalOpen, setResultModalOpen] = useState(false);
   const resizeTimeoutRef = useRef<NodeJS.Timeout>()
   const [wager, setWager] = useWagerInput()
   const [scale, setScale] = useState(getResponsiveScale())
   const { setGambaResult } = useContext(GambaResultContext)
+  const paytableRef = useRef<SlidePaytableRef>(null)
 
   useEffect(() => {
     const handleResize = () => {
@@ -316,6 +320,14 @@ const stopSlider = async () => {
       },
       ...prev.slice(0, 4),
     ]);
+
+    // Track result in paytable
+    paytableRef.current?.trackSpin({
+      multiplier: ORIGINAL_MULTIPLIERS[resultIndex],
+      win: res.payout > 0,
+      wager,
+      payout: res.payout
+    })
   } catch (err) {
     console.error("Error during spin:", err);
     setPlaying(false);
@@ -371,555 +383,578 @@ const stopSlider = async () => {
   }
 
   return (
-    <>      
+    <>
       <GambaUi.Portal target="screen">
-        <div style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}>
-        <div style={{ 
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)',
-          color: '#fff',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Overlay props removed */}
-          {/* Animated Background Elements */}
-          <div style={{
-            position: 'absolute',
-            top: '10%',
-            right: '10%',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%)',
-            animation: 'float 6s ease-in-out infinite',
-            zIndex: 0
-          }} />
-          <div style={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '5%',
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%)',
-            animation: 'float 4s ease-in-out infinite reverse',
-            zIndex: 0
-          }} />
-
-          <div style={{ 
-            padding: '32px 24px',
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            {/* Header */}
-            <div style={{ marginBottom: 48 }}>
-              <h1 style={{ 
-                fontSize: '3.5rem',
-                fontWeight: '800',
-                margin: '0 0 12px 0',
-                background: 'linear-gradient(135deg, #00d4ff 0%, #ff6b35 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 40px rgba(0, 212, 255, 0.3)',
-                letterSpacing: '-0.02em'
-              }}>
-                SLIDE
-              </h1>
-              <p style={{ 
-                fontSize: '1.2rem',
-                color: 'rgba(255, 255, 255, 0.7)',
-                margin: 0,
-                fontWeight: '300'
-              }}>
-                Spin the wheel of fortune
-                {gambaResult && (
-                  <span style={{
-                    marginLeft: '16px',
-                    padding: '4px 12px',
-                    background: gambaResult.payout > 0 
-                      ? 'rgba(0, 255, 136, 0.2)' 
-                      : 'rgba(255, 85, 85, 0.2)',
-                    border: `1px solid ${gambaResult.payout > 0 ? '#00ff88' : '#ff5555'}`,
-                    borderRadius: '8px',
-                    color: gambaResult.payout > 0 ? '#00ff88' : '#ff5555',
-                    fontWeight: '600',
-                    fontSize: '1rem'
-                  }}>
-                    {ORIGINAL_MULTIPLIERS[gambaResult.resultIndex] === 0 
-                      ? '💀 LOSE' 
-                      : `${ORIGINAL_MULTIPLIERS[gambaResult.resultIndex]?.toFixed(2)}x`}
-                  </span>
-                )}
-              </p>
-            </div>
-
-            {/* Main Game Area */}
-            <div>
-              {/* Multiplier Carousel */}
-              <div style={{
-                position: 'relative',
-                width: 600,
-                margin: '0 auto 32px',
-                height: 200,
-                overflow: 'hidden',
-                borderRadius: 24,
-                background: 'linear-gradient(145deg, rgba(20, 20, 40, 0.95) 0%, rgba(15, 15, 30, 0.95) 100%)',
-                border: '2px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                boxShadow: `
-                  0 20px 40px rgba(0, 0, 0, 0.6),
-                  0 0 0 1px rgba(255, 255, 255, 0.05),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                  inset 0 -1px 0 rgba(0, 0, 0, 0.2)
-                `,
-                transition: 'all 0.4s ease-in-out',
+        <GambaUi.Responsive>
+          <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+            {/* Game Area */}
+            <div
+              style={{
+                flex: 1,
                 display: 'flex',
                 alignItems: 'center',
-                padding: '20px 0',
-              }}>
-                
-                {/* Inner glow effect */}
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)',
+                  color: '#fff',
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+            {/* Overlay props removed */}
+            {/* Animated Background Elements */}
+            <div style={{
+              position: 'absolute',
+              top: '10%',
+              right: '10%',
+              width: '300px',
+              height: '300px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%)',
+              animation: 'float 6s ease-in-out infinite',
+              zIndex: 0
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '20%',
+              left: '5%',
+              width: '200px',
+              height: '200px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%)',
+              animation: 'float 4s ease-in-out infinite reverse',
+              zIndex: 0
+            }} />
+
+            <div style={{ 
+              padding: '32px 24px',
+              textAlign: 'center',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              {/* Header */}
+              <div style={{ marginBottom: 48 }}>
+                <h1 style={{ 
+                  fontSize: '3.5rem',
+                  fontWeight: '800',
+                  margin: '0 0 12px 0',
+                  background: 'linear-gradient(135deg, #00d4ff 0%, #ff6b35 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 40px rgba(0, 212, 255, 0.3)',
+                  letterSpacing: '-0.02em'
+                }}>
+                  SLIDE
+                </h1>
+                <p style={{ 
+                  fontSize: '1.2rem',
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  margin: 0,
+                  fontWeight: '300'
+                }}>
+                  Spin the wheel of fortune
+                  {gambaResult && (
+                    <span style={{
+                      marginLeft: '16px',
+                      padding: '4px 12px',
+                      background: gambaResult.payout > 0 
+                        ? 'rgba(0, 255, 136, 0.2)' 
+                        : 'rgba(255, 85, 85, 0.2)',
+                      border: `1px solid ${gambaResult.payout > 0 ? '#00ff88' : '#ff5555'}`,
+                      borderRadius: '8px',
+                      color: gambaResult.payout > 0 ? '#00ff88' : '#ff5555',
+                      fontWeight: '600',
+                      fontSize: '1rem'
+                    }}>
+                      {ORIGINAL_MULTIPLIERS[gambaResult.resultIndex] === 0 
+                        ? '💀 LOSE' 
+                        : `${ORIGINAL_MULTIPLIERS[gambaResult.resultIndex]?.toFixed(2)}x`}
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              {/* Main Game Area */}
+              <div>
+                {/* Multiplier Carousel */}
                 <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: 22,
-                  background: 'radial-gradient(ellipse at center, rgba(0, 212, 255, 0.03) 0%, transparent 70%)',
-                  pointerEvents: 'none',
-                  zIndex: 1
-                }} />
+                  position: 'relative',
+                  width: 600,
+                  margin: '0 auto 32px',
+                  height: 200,
+                  overflow: 'hidden',
+                  borderRadius: 24,
+                  background: 'linear-gradient(145deg, rgba(20, 20, 40, 0.95) 0%, rgba(15, 15, 30, 0.95) 100%)',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  boxShadow: `
+                    0 20px 40px rgba(0, 0, 0, 0.6),
+                    0 0 0 1px rgba(255, 255, 255, 0.05),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                  `,
+                  transition: 'all 0.4s ease-in-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '20px 0',
+                }}>
+                  
+                  {/* Inner glow effect */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 22,
+                    background: 'radial-gradient(ellipse at center, rgba(0, 212, 255, 0.03) 0%, transparent 70%)',
+                    pointerEvents: 'none',
+                    zIndex: 1
+                  }} />
 
-                <div style={carouselStyle}>
-                  {renderedMultipliers.map((multiplier, index) => {
-                    const color = getMultiplierColor(multiplier)
-                    const isUnderNeedle = index === cardUnderNeedle;
-                    const showWinnerHighlight = isUnderNeedle && !playing && result !== null;
-                    
-                    return (
-                      <div
-                        key={index}
-                        style={{
-                          width: RENDERED_CARD_WIDTH,
-                          height: 160,
-                          borderRadius: '20px',
-                          background: showWinnerHighlight 
-                            ? `linear-gradient(135deg, 
-                                rgba(0, 255, 136, 0.9) 0%, 
-                                rgba(0, 255, 136, 0.6) 20%, 
-                                ${color}80 100%)`
-                            : `linear-gradient(135deg, 
-                                rgba(255, 255, 255, 0.1) 0%, 
-                                ${color}40 20%, 
-                                ${color}20 80%, 
-                                rgba(0, 0, 0, 0.2) 100%)`,
-                          border: showWinnerHighlight 
-                            ? `3px solid #00ff88`
-                            : `2px solid ${color}60`,
-                          boxShadow: showWinnerHighlight
-                            ? `
-                                0 0 0 1px rgba(0, 255, 136, 0.3),
-                                0 8px 32px rgba(0, 255, 136, 0.6),
-                                0 0 60px rgba(0, 255, 136, 0.4),
-                                inset 0 1px 0 rgba(255, 255, 255, 0.2)
-                              `
-                            : `
-                                0 8px 24px rgba(0, 0, 0, 0.4),
-                                0 0 0 1px rgba(255, 255, 255, 0.1),
-                                0 0 20px ${color}20,
-                                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
-                              `,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#fff',
-                          fontWeight: '700',
-                          fontSize: '1.4rem',
-                          userSelect: 'none',
-                          position: 'relative',
-                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                          transform: playing 
-                            ? 'scale(0.95) rotateY(2deg)' 
-                            : (showWinnerHighlight ? 'scale(1.08) rotateY(-2deg)' : 'scale(1)'),
-                          overflow: 'hidden'
-                        }}
-                      >
-                        {/* Card shine effect */}
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: '-100%',
-                          width: '100%',
-                          height: '100%',
-                          background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-                          animation: playing ? 'shine 2s ease-in-out infinite' : 'none',
-                          zIndex: 1
-                        }} />
-
-                        {/* Background pattern */}
-                        <div style={{
-                          position: 'absolute',
-                          inset: 0,
-                          opacity: 0.1,
-                          background: `
-                            radial-gradient(circle at 20% 20%, ${color} 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, ${color} 0%, transparent 50%)
-                          `,
-                          borderRadius: 'inherit'
-                        }} />
-
-                        <div style={{
-                          fontSize: '2.2rem',
-                          fontWeight: '900',
-                          textShadow: `
-                            0 0 20px ${color},
-                            0 2px 4px rgba(0, 0, 0, 0.8),
-                            0 0 40px ${showWinnerHighlight ? '#00ff88' : color}
-                          `,
-                          marginBottom: '4px',
-                          position: 'relative',
-                          zIndex: 2
-                        }}>
-                          {multiplier === 0 ? '💀' : `${multiplier.toFixed(2)}x`}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '0.75rem',
-                          opacity: 0.9,
-                          fontWeight: '600',
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
-                          position: 'relative',
-                          zIndex: 2
-                        }}>
-                          {multiplier === 0 ? 'LOSE' : 
-                           multiplier >= 10 ? 'MEGA' : 
-                           multiplier >= 5 ? 'HIGH' : 
-                           multiplier >= 2 ? 'MID' : 'LOW'}
-                        </div>
-                        
-                        {/* Winner indicator */}
-                        {showWinnerHighlight && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '0px',
-                            right: '0px',
-                            width: '36px',
-                            height: '36px',
+                  <div style={carouselStyle}>
+                    {renderedMultipliers.map((multiplier, index) => {
+                      const color = getMultiplierColor(multiplier)
+                      const isUnderNeedle = index === cardUnderNeedle;
+                      const showWinnerHighlight = isUnderNeedle && !playing && result !== null;
+                      
+                      return (
+                        <div
+                          key={index}
+                          style={{
+                            width: RENDERED_CARD_WIDTH,
+                            height: 160,
+                            borderRadius: '20px',
+                            background: showWinnerHighlight 
+                              ? `linear-gradient(135deg, 
+                                  rgba(0, 255, 136, 0.9) 0%, 
+                                  rgba(0, 255, 136, 0.6) 20%, 
+                                  ${color}80 100%)`
+                              : `linear-gradient(135deg, 
+                                  rgba(255, 255, 255, 0.1) 0%, 
+                                  ${color}40 20%, 
+                                  ${color}20 80%, 
+                                  rgba(0, 0, 0, 0.2) 100%)`,
+                            border: showWinnerHighlight 
+                              ? `3px solid #00ff88`
+                              : `2px solid ${color}60`,
+                            boxShadow: showWinnerHighlight
+                              ? `
+                                  0 0 0 1px rgba(0, 255, 136, 0.3),
+                                  0 8px 32px rgba(0, 255, 136, 0.6),
+                                  0 0 60px rgba(0, 255, 136, 0.4),
+                                  inset 0 1px 0 rgba(255, 255, 255, 0.2)
+                                `
+                              : `
+                                  0 8px 24px rgba(0, 0, 0, 0.4),
+                                  0 0 0 1px rgba(255, 255, 255, 0.1),
+                                  0 0 20px ${color}20,
+                                  inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                                  inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                                `,
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            color: 'rgb(0, 0, 0)',
-                            animation: '1.5s ease-in-out 0s infinite normal none running winnerPulse',
-                            zIndex: 10
+                            color: '#fff',
+                            fontWeight: '700',
+                            fontSize: '1.4rem',
+                            userSelect: 'none',
+                            position: 'relative',
+                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: playing 
+                              ? 'scale(0.95) rotateY(2deg)' 
+                              : (showWinnerHighlight ? 'scale(1.08) rotateY(-2deg)' : 'scale(1)'),
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {/* Card shine effect */}
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '-100%',
+                            width: '100%',
+                            height: '100%',
+                            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+                            animation: playing ? 'shine 2s ease-in-out infinite' : 'none',
+                            zIndex: 1
+                          }} />
+
+                          {/* Background pattern */}
+                          <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            opacity: 0.1,
+                            background: `
+                              radial-gradient(circle at 20% 20%, ${color} 0%, transparent 50%),
+                              radial-gradient(circle at 80% 80%, ${color} 0%, transparent 50%)
+                            `,
+                            borderRadius: 'inherit'
+                          }} />
+
+                          <div style={{
+                            fontSize: '2.2rem',
+                            fontWeight: '900',
+                            textShadow: `
+                              0 0 20px ${color},
+                              0 2px 4px rgba(0, 0, 0, 0.8),
+                              0 0 40px ${showWinnerHighlight ? '#00ff88' : color}
+                            `,
+                            marginBottom: '4px',
+                            position: 'relative',
+                            zIndex: 2
                           }}>
-                            🎯
+                            {multiplier === 0 ? '💀' : `${multiplier.toFixed(2)}x`}
                           </div>
-                        )}
-                        
-                        {/* Animated border glow for spinning */}
-                        <div style={{
-                          position: 'absolute',
-                          inset: -3,
-                          borderRadius: '23px',
-                          padding: '3px',
-                          background: `conic-gradient(from 0deg, ${color}, transparent, ${color}, transparent, ${color})`,
-                          mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                          maskComposite: 'xor',
-                          WebkitMaskComposite: 'xor',
-                          opacity: playing ? 0.8 : 0,
-                          animation: playing ? 'rotate 3s linear infinite' : 'none'
-                        }} />
-                      </div>
-                    )
-                  })}
+                          
+                          <div style={{
+                            fontSize: '0.75rem',
+                            opacity: 0.9,
+                            fontWeight: '600',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
+                            position: 'relative',
+                            zIndex: 2
+                          }}>
+                            {multiplier === 0 ? 'LOSE' : 
+                             multiplier >= 10 ? 'MEGA' : 
+                             multiplier >= 5 ? 'HIGH' : 
+                             multiplier >= 2 ? 'MID' : 'LOW'}
+                          </div>
+                          
+                          {/* Winner indicator */}
+                          {showWinnerHighlight && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '0px',
+                              right: '0px',
+                              width: '36px',
+                              height: '36px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '18px',
+                              fontWeight: 'bold',
+                              color: 'rgb(0, 0, 0)',
+                              animation: '1.5s ease-in-out 0s infinite normal none running winnerPulse',
+                              zIndex: 10
+                            }}>
+                              🎯
+                            </div>
+                          )}
+                          
+                          {/* Animated border glow for spinning */}
+                          <div style={{
+                            position: 'absolute',
+                            inset: -3,
+                            borderRadius: '23px',
+                            padding: '3px',
+                            background: `conic-gradient(from 0deg, ${color}, transparent, ${color}, transparent, ${color})`,
+                            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            maskComposite: 'xor',
+                            WebkitMaskComposite: 'xor',
+                            opacity: playing ? 0.8 : 0,
+                            animation: playing ? 'rotate 3s linear infinite' : 'none'
+                          }} />
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Enhanced side fade effects */}
+                  <div style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    width: '80px',
+                    height: '100%',
+                    background: 'linear-gradient(to right, rgba(15, 15, 30, 0.95) 0%, rgba(15, 15, 30, 0.7) 50%, transparent 100%)',
+                    pointerEvents: 'none',
+                    zIndex: 15
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    width: '80px',
+                    height: '100%',
+                    background: 'linear-gradient(to left, rgba(15, 15, 30, 0.95) 0%, rgba(15, 15, 30, 0.7) 50%, transparent 100%)',
+                    pointerEvents: 'none',
+                    zIndex: 15
+                  }} />
+                  
+                  {/* Top and bottom subtle highlights */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '2px',
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                    pointerEvents: 'none'
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '1px',
+                    background: 'linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3), transparent)',
+                    pointerEvents: 'none'
+                  }} />
                 </div>
 
-                {/* Enhanced side fade effects */}
+                {/* Progress Bar */}
                 <div style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: '80px',
-                  height: '100%',
-                  background: 'linear-gradient(to right, rgba(15, 15, 30, 0.95) 0%, rgba(15, 15, 30, 0.7) 50%, transparent 100%)',
-                  pointerEvents: 'none',
-                  zIndex: 15
-                }} />
-                <div style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  width: '80px',
-                  height: '100%',
-                  background: 'linear-gradient(to left, rgba(15, 15, 30, 0.95) 0%, rgba(15, 15, 30, 0.7) 50%, transparent 100%)',
-                  pointerEvents: 'none',
-                  zIndex: 15
-                }} />
-                
-                {/* Top and bottom subtle highlights */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '2px',
-                  background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                  pointerEvents: 'none'
-                }} />
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: '1px',
-                  background: 'linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.3), transparent)',
-                  pointerEvents: 'none'
-                }} />
-              </div>
-
-              {/* Progress Bar */}
-              <div style={{
-                width: '100%',
-                height: '8px',
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '4px',
-                overflow: 'hidden',
-                marginBottom: 24
-              }}>
-                <div style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #00d4ff 0%, #ff6b35 100%)',
+                  width: '100%',
+                  height: '8px',
+                  background: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '4px',
-                  transition: 'width 0.1s ease',
-                  boxShadow: '0 0 10px rgba(0, 212, 255, 0.5)'
-                }} />
-              </div>
-
-              {/* Result Display */}
-              {result !== null && (
-                <div style={{
-                  padding: '24px',
-                  borderRadius: '16px',
-                  background: result > 0 
-                    ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 255, 136, 0.05) 100%)'
-                    : 'linear-gradient(135deg, rgba(255, 85, 85, 0.2) 0%, rgba(255, 85, 85, 0.05) 100%)',
-                  border: `2px solid ${result > 0 ? '#00ff88' : '#ff5555'}`,
-                  marginBottom: 24,
-                  animation: 'slideIn 0.5s ease-out'
+                  overflow: 'hidden',
+                  marginBottom: 24
                 }}>
                   <div style={{
-                    fontSize: '1.8rem',
-                    fontWeight: '700',
-                    color: result > 0 ? '#00ff88' : '#ff5555',
-                    textAlign: 'center',
-                    textShadow: `0 0 20px ${result > 0 ? '#00ff88' : '#ff5555'}`
+                    width: `${progress}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #00d4ff 0%, #ff6b35 100%)',
+                    borderRadius: '4px',
+                    transition: 'width 0.1s ease',
+                    boxShadow: '0 0 10px rgba(0, 212, 255, 0.5)'
+                  }} />
+                </div>
+
+                {/* Result Display */}
+                {result !== null && (
+                  <div style={{
+                    padding: '24px',
+                    borderRadius: '16px',
+                    background: result > 0 
+                      ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 255, 136, 0.05) 100%)'
+                      : 'linear-gradient(135deg, rgba(255, 85, 85, 0.2) 0%, rgba(255, 85, 85, 0.05) 100%)',
+                    border: `2px solid ${result > 0 ? '#00ff88' : '#ff5555'}`,
+                    marginBottom: 24,
+                    animation: 'slideIn 0.5s ease-out'
                   }}>
-                    {result > 0 ? (
-                      <>
-                        🎉 WIN! +{formatPayout(result, decimals)} {token?.symbol || ''}
-                      </>
-                    ) : (
-                      <>
-                        💸 BETTER LUCK NEXT TIME
-                      </>
-                    )}
+                    <div style={{
+                      fontSize: '1.8rem',
+                      fontWeight: '700',
+                      color: result > 0 ? '#00ff88' : '#ff5555',
+                      textAlign: 'center',
+                      textShadow: `0 0 20px ${result > 0 ? '#00ff88' : '#ff5555'}`
+                    }}>
+                      {result > 0 ? (
+                        <>
+                          🎉 WIN! +{formatPayout(result, decimals)} {token?.symbol || ''}
+                        </>
+                      ) : (
+                        <>
+                          💸 BETTER LUCK NEXT TIME
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Gamba Result Debug Display */}
+                {gambaResult && (
+                  <div style={{
+                    padding: '16px',
+                    borderRadius: '8px',
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    border: '1px solid #444',
+                    marginBottom: 24,
+                    fontSize: '0.8rem',
+                    color: '#ccc',
+                    fontFamily: 'monospace',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Gamba Result (Debug):</div>
+                    <div>Result Index: {gambaResult.resultIndex}</div>
+                    <div>Expected Multiplier: {ORIGINAL_MULTIPLIERS[gambaResult.resultIndex ?? 0]}</div>
+                    <div>Card Under Needle Index: {cardUnderNeedle}</div>
+                    <div>Multiplier Under Needle: {renderedMultipliers[cardUnderNeedle]}</div>
+                    <div>Target Card Index: {ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)}</div>
+                    <div>Match: {cardUnderNeedle === (ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)) ? '✅' : '❌'}</div>
+                    <div>Payout: {gambaResult.payout}</div>
+                    <div>Current Offset: {offset.toFixed(2)}</div>
+                    <div>Target Card Center: {getCardCenter(ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)).toFixed(2)}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Plays */}
+              {recentPlays.length > 0 && (
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  margin: '0 auto',
+                  maxWidth: '600px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  marginBottom: 32
+                }}>
+                  <h3 style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    margin: '0 0 16px 0',
+                    color: 'rgba(255, 255, 255, 0.9)'
+                  }}>
+                    Recent Results
+                  </h3>
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap'
+                  }}>
+                    {recentPlays.map((play, index) => (
+                      <div key={index} style={{
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        background: play.win 
+                          ? 'rgba(0, 255, 136, 0.1)' 
+                          : 'rgba(255, 85, 85, 0.1)',
+                        border: `1px solid ${play.win ? '#00ff88' : '#ff5555'}`,
+                        color: play.win ? '#00ff88' : '#ff5555',
+                        fontSize: '0.9rem',
+                        fontWeight: '600'
+                      }}>
+                        {play.multiplier === 0 ? '💀 LOSE' : `${play.multiplier.toFixed(2)}x`}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
-
-              {/* Gamba Result Debug Display */}
-              {gambaResult && (
-                <div style={{
-                  padding: '16px',
-                  borderRadius: '8px',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid #444',
-                  marginBottom: 24,
-                  fontSize: '0.8rem',
-                  color: '#ccc',
-                  fontFamily: 'monospace',
-                  textAlign: 'left'
-                }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Gamba Result (Debug):</div>
-                  <div>Result Index: {gambaResult.resultIndex}</div>
-                  <div>Expected Multiplier: {ORIGINAL_MULTIPLIERS[gambaResult.resultIndex ?? 0]}</div>
-                  <div>Card Under Needle Index: {cardUnderNeedle}</div>
-                  <div>Multiplier Under Needle: {renderedMultipliers[cardUnderNeedle]}</div>
-                  <div>Target Card Index: {ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)}</div>
-                  <div>Match: {cardUnderNeedle === (ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)) ? '✅' : '❌'}</div>
-                  <div>Payout: {gambaResult.payout}</div>
-                  <div>Current Offset: {offset.toFixed(2)}</div>
-                  <div>Target Card Center: {getCardCenter(ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)).toFixed(2)}</div>
-                </div>
-              )}
             </div>
 
-            {/* Recent Plays */}
-            {recentPlays.length > 0 && (
+            {/* Fairness Modal Overlay */}
+            {showFairness && (
               <div style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '16px',
-                padding: '24px',
-                margin: '0 auto',
-                maxWidth: '600px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                marginBottom: 32
-              }}>
-                <h3 style={{
-                  fontSize: '1.2rem',
-                  fontWeight: '600',
-                  margin: '0 0 16px 0',
-                  color: 'rgba(255, 255, 255, 0.9)'
-                }}>
-                  Recent Results
-                </h3>
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.8)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+                backdropFilter: 'blur(10px)'
+              }} onClick={() => setShowFairness(false)}>
                 <div style={{
-                  display: 'flex',
-                  gap: '12px',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap'
-                }}>
-                  {recentPlays.map((play, index) => (
-                    <div key={index} style={{
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      background: play.win 
-                        ? 'rgba(0, 255, 136, 0.1)' 
-                        : 'rgba(255, 85, 85, 0.1)',
-                      border: `1px solid ${play.win ? '#00ff88' : '#ff5555'}`,
-                      color: play.win ? '#00ff88' : '#ff5555',
-                      fontSize: '0.9rem',
-                      fontWeight: '600'
-                    }}>
-                      {play.multiplier === 0 ? '💀 LOSE' : `${play.multiplier.toFixed(2)}x`}
-                    </div>
-                  ))}
+                  background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                  borderRadius: '20px',
+                  padding: '32px',
+                  maxWidth: '500px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
+                }} onClick={e => e.stopPropagation()}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '20px'
+                  }}>
+                    <FairnessIcon />
+                    <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>
+                      Provably Fair
+                    </h3>
+                  </div>
+                  <p style={{ 
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    lineHeight: 1.6,
+                    margin: '0 0 20px 0'
+                  }}>
+                    Every game result is cryptographically verifiable. The outcome is determined by 
+                    combining the server seed, client seed, and nonce using industry-standard algorithms.
+                  </p>
+                  <button style={{
+                    background: 'linear-gradient(135deg, #00d4ff 0%, #5b63f7 100%)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    color: '#fff',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    width: '100%'
+                  }} onClick={() => setShowFairness(false)}>
+                    Got it
+                  </button>
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Fairness Modal Overlay */}
-          {showFairness && (
-            <div style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.8)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000,
-              backdropFilter: 'blur(10px)'
-            }} onClick={() => setShowFairness(false)}>
-              <div style={{
-                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-                borderRadius: '20px',
-                padding: '32px',
-                maxWidth: '500px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
-              }} onClick={e => e.stopPropagation()}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '20px'
-                }}>
-                  <FairnessIcon />
-                  <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>
-                    Provably Fair
-                  </h3>
-                </div>
-                <p style={{ 
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  lineHeight: 1.6,
-                  margin: '0 0 20px 0'
-                }}>
-                  Every game result is cryptographically verifiable. The outcome is determined by 
-                  combining the server seed, client seed, and nonce using industry-standard algorithms.
-                </p>
-                <button style={{
-                  background: 'linear-gradient(135deg, #00d4ff 0%, #5b63f7 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '12px 24px',
-                  color: '#fff',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  width: '100%'
-                }} onClick={() => setShowFairness(false)}>
-                  Got it
-                </button>
+                {/* CSS Animations */}
+                <style>
+                  {`
+              @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-20px); }
+              }
+              @keyframes winnerPulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.9; }
+              }
+              @keyframes indicatorPulse {
+                0%, 100% { transform: scaleY(1); opacity: 1; }
+                50% { transform: scaleY(1.1); opacity: 0.8; }
+              }
+              @keyframes indicatorGlow {
+                0% { 
+                  filter: drop-shadow(0 0 10px #00ff88); 
+                  transform: scaleY(1);
+                }
+                100% { 
+                  filter: drop-shadow(0 0 25px #00ff88); 
+                  transform: scaleY(1.05);
+                }
+              }
+              @keyframes shine {
+                0% { left: -100%; }
+                50%, 100% { left: 100%; }
+              }
+              @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.05); opacity: 0.8; }
+              }
+              @keyframes glow {
+                0% { filter: drop-shadow(0 0 10px #00ff88); }
+                100% { filter: drop-shadow(0 0 25px #00ff88); }
+              }
+              @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+              @keyframes slideIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+                  `}
+                </style>
               </div>
             </div>
-          )}
-        </div>
-        </div>
-
-        {/* CSS Animations */}
-        <style>
-          {`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px); }
-              50% { transform: translateY(-20px); }
-            }
-            @keyframes winnerPulse {
-              0%, 100% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(1.1); opacity: 0.9; }
-            }
-            @keyframes indicatorPulse {
-              0%, 100% { transform: scaleY(1); opacity: 1; }
-              50% { transform: scaleY(1.1); opacity: 0.8; }
-            }
-            @keyframes indicatorGlow {
-              0% { 
-                filter: drop-shadow(0 0 10px #00ff88); 
-                transform: scaleY(1);
-              }
-              100% { 
-                filter: drop-shadow(0 0 25px #00ff88); 
-                transform: scaleY(1.05);
-              }
-            }
-            @keyframes shine {
-              0% { left: -100%; }
-              50%, 100% { left: 100%; }
-            }
-            @keyframes pulse {
-              0%, 100% { transform: scale(1); opacity: 1; }
-              50% { transform: scale(1.05); opacity: 0.8; }
-            }
-            @keyframes glow {
-              0% { filter: drop-shadow(0 0 10px #00ff88); }
-              100% { filter: drop-shadow(0 0 25px #00ff88); }
-            }
-            @keyframes rotate {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            @keyframes slideIn {
-              from { opacity: 0; transform: translateY(20px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-          `}
-        </style>
+            {/* Live Paytable */}
+            <div style={{ width: 350 }}>
+              <SlidePaytable ref={paytableRef} />
+            </div>
+          </div>
+        </GambaUi.Responsive>
       </GambaUi.Portal>
 
       <GameControls
         wager={wager}
         setWager={setWager}
         isPlaying={playing}
-        onPlay={play}
+        onPlay={() => {
+          play();
+          setResultModalOpen(true);
+        }}
         playButtonText={playing ? 'Sliding...' : 'Slide'}
       />
     </>

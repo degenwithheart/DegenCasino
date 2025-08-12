@@ -7,10 +7,10 @@ import {
   FAKE_TOKEN_MINT,
 } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { GameControls } from '../../components'
+import { GameControls, GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { TOKEN_METADATA } from '../../constants'
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import { GambaResultContext } from '../../context/GambaResultContext'
 import CRASH_SOUND from './lose.mp3'
 import WIN_SOUND from './win.mp3'
@@ -18,6 +18,7 @@ import START_SOUND from './start.mp3'
 import { ScreenWrapper } from './styles'
 import { Track } from './Track'
 import { HorseState } from './types'
+import HorseRacingPaytable, { HorseRacingPaytableRef } from './HorseRacingPaytable'
 
 const overlayStyle: React.CSSProperties = {
   position: 'absolute',
@@ -44,6 +45,7 @@ export default function FancyVirtualHorseRacing() {
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
   const gamba = useGamba()
+  const [resultModalOpen, setResultModalOpen] = React.useState(false)
   const tokenMeta = token ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
   const maxWager = baseWager * 1000000
@@ -87,6 +89,7 @@ export default function FancyVirtualHorseRacing() {
 
   const [showOverlay, setShowOverlay] = React.useState(true)
   const [confirming, setConfirming] = React.useState(false)
+  const paytableRef = useRef<HorseRacingPaytableRef>(null)
 
   React.useEffect(() => {
     if (phase === 'betting') {
@@ -194,7 +197,9 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
 
     await game.play({ wager, bet: betArray });
     const result = await game.result();
-    setGambaResult(result);
+
+  setGambaResult(result);
+  setResultModalOpen(true);
 
     setWinningIndex(result.resultIndex);
     setPayout(result.payout);
@@ -212,6 +217,18 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
     // Handle game outcome for overlay
     handleGameComplete({ payout: result.payout, wager });
     
+    // Track race result in paytable
+    const winnerHorseData = horses[result.resultIndex]
+    paytableRef.current?.trackRace({
+      selectedHorse: selectedHorse,
+      winnerHorse: result.resultIndex,
+      horseName: winnerHorseData?.name || `Horse ${result.resultIndex + 1}`,
+      odds: selectedOdds,
+      win: selectedHorse === result.resultIndex,
+      wager,
+      payout: result.payout
+    })
+    
     if (selectedHorse === result.resultIndex) {
       sound.play('win');
     } else {
@@ -222,87 +239,104 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
   return (
     <>
       <GambaUi.Portal target="screen">
-        <ScreenWrapper style={{ position: 'relative' }}>
-          
-          {showOverlay && (
-            <div style={overlayStyle}>
-              {phase === 'finished' && winner ? (
-                <>
-                  <div style={{ fontSize: 24, fontWeight: 'bold' }}>
-                    Winner: {winner.name}!
-                  </div>
-                  <div style={{ color: payout > 0 ? '#0f0' : '#f44', fontWeight: 'bold', fontSize: 20 }}>
-                    {payout > 0
-                      ? `You win ${(payout / baseWager).toLocaleString(undefined, {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 6,
-                      })} ${token?.symbol}!`
-                      : 'Better luck next time!'}
-                  </div>
-                  <GambaUi.Button onClick={() => {
-                    setPhase('betting')
-                    setShowOverlay(true)
-                    setSelectedHorse(null)
-                    setConfirming(false)
-                    setWinningIndex(null)
-                    setPayout(0)
-                  }}>
-                    Restart
-                  </GambaUi.Button>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontWeight: 'bold', fontSize: 22 }}>Choose your horse:</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-                    {horses.map(horse => (
-                      <button
-                        key={horse.id}
-                        style={{
-                          background: selectedHorse === horse.id ? horse.color : '#222',
-                          color: '#fff',
-                          border: selectedHorse === horse.id ? '2px solid #fff' : '1px solid #444',
-                          borderRadius: 8,
-                          padding: '12px 20px',
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                          minWidth: 100,
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div style={{ flex: 1 }}>
+            <ScreenWrapper style={{ position: 'relative', minHeight: 420, minWidth: 340 }}>
+              {/* Overlay only for betting/finished, not during race */}
+              {showOverlay && (
+                <div style={overlayStyle}>
+                  {phase === 'finished' && winner ? (
+                    <>
+                      <div style={{ fontSize: 24, fontWeight: 'bold' }}>
+                        Winner: {winner.name}!
+                      </div>
+                      <div style={{ color: payout > 0 ? '#0f0' : '#f44', fontWeight: 'bold', fontSize: 20 }}>
+                        {payout > 0
+                          ? `You win ${(payout / baseWager).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 6,
+                          })} ${token?.symbol}!`
+                          : 'Better luck next time!'}
+                      </div>
+                      <GambaUi.Button onClick={() => {
+                        setPhase('betting')
+                        setShowOverlay(true)
+                        setSelectedHorse(null)
+                        setConfirming(false)
+                        setWinningIndex(null)
+                        setPayout(0)
+                      }}>
+                        Restart
+                      </GambaUi.Button>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontWeight: 'bold', fontSize: 22 }}>Choose your horse:</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
+                        {horses.length === 0 ? (
+                          <div style={{ color: '#fff', fontSize: 18 }}>Loading horses...</div>
+                        ) : (
+                          horses.map(horse => (
+                            <button
+                              key={horse.id}
+                              style={{
+                                background: selectedHorse === horse.id ? horse.color : '#222',
+                                color: '#fff',
+                                border: selectedHorse === horse.id ? '2px solid #fff' : '1px solid #444',
+                                borderRadius: 8,
+                                padding: '12px 20px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                minWidth: 100,
+                              }}
+                              onClick={() => setSelectedHorse(horse.id)}
+                            >
+                              {horse.name}
+                              {horse.isFavorite && <span style={{ color: 'gold' }}> ⭐ Favorite</span>}
+                              <br />
+                              <span style={{ fontSize: 14, color: '#fff9' }}>Odds: {horse.odds}x</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      <GambaUi.Button
+                        disabled={selectedHorse === null}
+                        onClick={() => {
+                          setConfirming(true)
+                          setShowOverlay(false)
                         }}
-                        onClick={() => setSelectedHorse(horse.id)}
                       >
-                        {horse.name}
-                        {horse.isFavorite && <span style={{ color: 'gold' }}> ⭐ Favorite</span>}
-                        <br />
-                        <span style={{ fontSize: 14, color: '#fff9' }}>Odds: {horse.odds}x</span>
-                      </button>
-                    ))}
-                  </div>
-                  <GambaUi.Button
-                    disabled={selectedHorse === null}
-                    onClick={() => {
-                      setConfirming(true)
-                      setShowOverlay(false)
-                    }}
-                  >
-                    Confirm Selection
-                  </GambaUi.Button>
-                </>
+                        Confirm Selection
+                      </GambaUi.Button>
+                    </>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-
-          <Track
-            horses={horses.map((h, i) => ({
-              name: h.name,
-              color: h.color,
-              left: h.position,
-              stumbled: h.stumbled,
-              top: i * 100,
-              isWinner: i === winningIndex,
-            }))}
-          />
-        </ScreenWrapper>
-        
-        
+              {/* Always render the track, fallback if horses empty */}
+              <Track
+                horses={horses.length === 0 ? [
+                  { name: 'Horse 1', color: '#ffb347', left: 0, stumbled: false, top: 0 },
+                  { name: 'Horse 2', color: '#77dd77', left: 0, stumbled: false, top: 100 },
+                  { name: 'Horse 3', color: '#779ecb', left: 0, stumbled: false, top: 200 },
+                  { name: 'Horse 4', color: '#ff6961', left: 0, stumbled: false, top: 300 },
+                ] : horses.map((h, i) => ({
+                  name: h.name,
+                  color: h.color,
+                  left: h.position,
+                  stumbled: h.stumbled,
+                  top: i * 100,
+                  isWinner: i === winningIndex,
+                }))}
+              />
+            </ScreenWrapper>
+          </div>
+          
+          {/* Live Paytable */}
+          <div style={{ width: 350 }}>
+            <HorseRacingPaytable ref={paytableRef} />
+          </div>
+        </div>
       </GambaUi.Portal>
 
       <GameControls

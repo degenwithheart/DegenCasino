@@ -187,3 +187,4 @@ export const GambaResultModal: React.FC<GambaResultModalProps> = ({ open, onClos
     document.body
   );
 };
+  export default GambaResultModal;

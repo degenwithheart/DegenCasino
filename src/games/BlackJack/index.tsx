@@ -9,9 +9,9 @@ import {
   FAKE_TOKEN_MINT,
 } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls, GambaResultModal } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import { GambaResultContext } from '../../context/GambaResultContext'
 import {
   CARD_VALUES,
@@ -37,16 +37,41 @@ import {
   ProfitWrapper,
 } from './styles'
 import { TOKEN_METADATA } from '../../constants'
+import { useIsCompact } from '../../hooks/useIsCompact'
+import BlackJackPaytable, { BlackJackPaytableRef } from './BlackJackPaytable'
 
 const randomRank = () => Math.floor(Math.random() * RANKS)
 const randomSuit = () => Math.floor(Math.random() * SUITS)
 
-import { useIsCompact } from '../../hooks/useIsCompact'
 const createCard = (rank = randomRank(), suit = randomSuit()): Card => ({
   key: Math.random(),
   rank,
   suit,
 })
+
+// Helper function to calculate hand total
+const calculateHandTotal = (cards: Card[]): number => {
+  let total = 0
+  let aces = 0
+  
+  for (const card of cards) {
+    const value = CARD_VALUES[card.rank]
+    if (value === 1) {
+      aces++
+      total += 11 // Count ace as 11 initially
+    } else {
+      total += value
+    }
+  }
+  
+  // Convert aces from 11 to 1 if total is over 21
+  while (total > 21 && aces > 0) {
+    total -= 10
+    aces--
+  }
+  
+  return total
+}
 
 interface Card {
   key: number
@@ -65,6 +90,7 @@ export default function Blackjack(props: BlackjackConfig) {
   const pool = useCurrentPool()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
+  const isCompact = useIsCompact()
   const tokenMeta = token ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
   const maxWager = baseWager * 1000000
@@ -75,6 +101,18 @@ export default function Blackjack(props: BlackjackConfig) {
   const [profit, setProfit] = React.useState<number | null>(null)
   const [claiming, setClaiming] = React.useState(false)
   const isPlaying = gamba.isPlaying
+
+  // Live paytable tracking
+  const paytableRef = useRef<BlackJackPaytableRef>(null)
+  const [currentResult, setCurrentResult] = React.useState<{
+    playerCards: any[]
+    dealerCards: any[]
+    playerTotal: number
+    dealerTotal: number
+    outcome: 'blackjack' | 'win' | 'push' | 'lose'
+    multiplier: number
+    wasWin: boolean
+  } | undefined>()
 
   const {
     showOutcome,
@@ -93,14 +131,6 @@ export default function Blackjack(props: BlackjackConfig) {
       setWager(0) // 0 for real tokens
     }
   }, [setWager, token, baseWager])
-
-  // Responsive scaling logic using useIsCompact
-  const isCompact = useIsCompact();
-  const [scale, setScale] = React.useState(isCompact ? 1 : 1.3);
-
-  React.useEffect(() => {
-    setScale(isCompact ? 1 : 1.3);
-  }, [isCompact]);
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -164,6 +194,48 @@ export default function Blackjack(props: BlackjackConfig) {
     }
 
     await dealCards()
+
+    // Calculate hand totals and determine outcome
+    const playerTotal = calculateHandTotal(newPlayerCards)
+    const dealerTotal = calculateHandTotal(newDealerCards)
+    
+    let outcome: 'blackjack' | 'win' | 'push' | 'lose'
+    if (payoutMultiplier === 2.5) {
+      outcome = 'blackjack'
+    } else if (payoutMultiplier === 2) {
+      outcome = 'win'
+    } else if (payoutMultiplier === 1) {
+      outcome = 'push'
+    } else {
+      outcome = 'lose'
+    }
+    
+    const wasWin = payoutMultiplier > 1
+    
+    // Track result in paytable
+    const resultData = {
+      playerCards: newPlayerCards,
+      dealerCards: newDealerCards,
+      playerTotal,
+      dealerTotal,
+      outcome,
+      multiplier: payoutMultiplier,
+      wasWin
+    }
+    setCurrentResult(resultData)
+    
+    if (paytableRef.current) {
+      paytableRef.current.trackHand({
+        playerCards: newPlayerCards,
+        dealerCards: newDealerCards,
+        playerTotal,
+        dealerTotal,
+        outcome,
+        multiplier: payoutMultiplier,
+        wasWin,
+        amount: result.payout
+      })
+    }
 
     setProfit(result.payout)
     
@@ -259,73 +331,154 @@ export default function Blackjack(props: BlackjackConfig) {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <div
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'center',
-            width: '100%',
-            height: '100%',
-            transition: 'transform 0.2s ease-out',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          className="blackjack-game-scaler"
-        >
-          <GambaUi.Responsive>
-            <GameScreenLayout
-              left={
-                <Container $disabled={claiming || isPlaying}>
-                  <HandsWrapper>
-                    <div>
-                      <h2>Dealer's Hand</h2>
-                      <CardArea>
-                        <CardsContainer>
-                          {dealerCards.map((card) => (
-                            <CardContainer key={card.key}>
-                              <Card color={SUIT_COLORS[card.suit]}>
-                                <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                                <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                              </Card>
-                            </CardContainer>
-                          ))}
-                        </CardsContainer>
-                      </CardArea>
-                    </div>
-                    <div>
-                      <h2>Player's Hand</h2>
-                      <CardArea>
-                        <CardsContainer>
-                          {playerCards.map((card) => (
-                            <CardContainer key={card.key}>
-                              <Card color={SUIT_COLORS[card.suit]}>
-                                <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                                <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                              </Card>
-                            </CardContainer>
-                          ))}
-                        </CardsContainer>
-                      </CardArea>
-                    </div>
-                  </HandsWrapper>
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <div style={{
+              textAlign: 'center',
+              marginBottom: 20,
+              zIndex: 10,
+              position: 'relative'
+            }}>
+              <h2 style={{
+                fontSize: 32,
+                fontWeight: 800,
+                margin: '0 0 8px 0',
+                letterSpacing: 2,
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                color: '#fff'
+              }}>
+                ♠️ BLACKJACK ♥️
+              </h2>
+              <div style={{
+                fontSize: 16,
+                color: '#888',
+                fontWeight: 600
+              }}>
+                Get as close to 21 as possible without going over
+              </div>
+            </div>
+
+            <GambaUi.Responsive>
+              <Container $disabled={claiming || isPlaying}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  position: 'relative',
+                  zIndex: 10 
+                }}>
+                  <h2 style={{
+                    background: 'linear-gradient(45deg, #dc2626, #ef4444)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    marginBottom: '16px'
+                  }}>Dealer's Hand</h2>
+                  <CardArea>
+                    <CardsContainer>
+                      {dealerCards.map((card) => (
+                        <CardContainer key={card.key}>
+                          <Card 
+                            color={SUIT_COLORS[card.suit]}
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,240,240,0.9))',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.2)',
+                              transition: 'all 0.3s ease',
+                              animation: 'blackjackGlow 2s ease-in-out infinite alternate'
+                            }}
+                          >
+                            <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
+                            <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
+                          </Card>
+                        </CardContainer>
+                      ))}
+                    </CardsContainer>
+                  </CardArea>
+                  
+                  <h2 style={{
+                    background: 'linear-gradient(45deg, #dc2626, #ef4444)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    margin: '24px 0 16px 0'
+                  }}>Player's Hand</h2>
+                  
+                  <CardArea>
+                    <CardsContainer>
+                      {playerCards.map((card) => (
+                        <CardContainer key={card.key}>
+                          <Card 
+                            color={SUIT_COLORS[card.suit]}
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,240,240,0.9))',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.2)',
+                              transition: 'all 0.3s ease',
+                              animation: 'blackjackGlow 2s ease-in-out infinite alternate'
+                            }}
+                          >
+                            <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
+                            <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
+                          </Card>
+                        </CardContainer>
+                      ))}
+                    </CardsContainer>
+                  </CardArea>
+                  
                   {profit !== null && (
-                    <ProfitWrapper>
-                      <Profit key={profit}>
-                        {profit > 0 ? (
-                          <>
-                            <TokenValue amount={profit} /> +{Math.round((profit / wager) * 100 - 100)}%
-                          </>
-                        ) : (
-                          <>You Lost</>
-                        )}
-                      </Profit>
-                    </ProfitWrapper>
+                    <Profit key={profit} style={{
+                      background: profit > 0 
+                        ? 'linear-gradient(135deg, #00ffb0, #00d4aa)'
+                        : 'linear-gradient(135deg, #ff5252, #f44336)',
+                      color: '#fff',
+                      padding: '12px 24px',
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '18px',
+                      marginTop: '16px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                      animation: 'blackjackGlow 1s ease-in-out'
+                    }}>
+                      {profit > 0 ? (
+                        <>
+                          <TokenValue amount={profit} /> +{Math.round((profit / wager) * 100 - 100)}%
+                        </>
+                      ) : (
+                        <>You Lost</>
+                      )}
+                    </Profit>
                   )}
-                </Container>
-              }
-              right={null}
-            />
-          </GambaUi.Responsive>
+                </div>
+              </Container>
+            </GambaUi.Responsive>
+          </div>
+            
+          {/* Paytable sidebar */}
+          <BlackJackPaytable
+            ref={paytableRef}
+            wager={wager}
+            currentResult={currentResult}
+          />
         </div>
       </GambaUi.Portal>
       <GameControls
@@ -335,6 +488,7 @@ export default function Blackjack(props: BlackjackConfig) {
         isPlaying={isPlaying}
         playButtonText={hasPlayedBefore ? 'Deal Again' : 'Deal'}
       />
+      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
     </>
   )
 }

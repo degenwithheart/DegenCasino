@@ -7,11 +7,12 @@ import {
   useTokenBalance,
 } from 'gamba-react-ui-v2';
 import { TOKEN_METADATA } from '../../constants';
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { GambaResultContext } from '../../context/GambaResultContext';
-import { GameControls, GameScreenLayout } from '../../components';
+import { GameControls, GambaResultModal } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome';
 import { useIsCompact } from '../../hooks/useIsCompact';
+import LuckyNumberPaytable, { LuckyNumberPaytableRef } from './LuckyNumberPaytable'
 
 // Pure function, accepts isCompact as argument
 const getResponsiveScale = (isCompact: boolean): number => {
@@ -29,12 +30,16 @@ const getResponsiveScale = (isCompact: boolean): number => {
 };
 
 export default function LuckyNumber() {
+  const [resultModalOpen, setResultModalOpen] = React.useState(false);
   const { setGambaResult } = useContext(GambaResultContext);
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const { compact: isCompact } = useIsCompact(); // <-- extract only the boolean value
   const [scale, setScale] = React.useState(1);
   const [pick, setPick] = React.useState(1);
   const [wager, setWager] = useWagerInput();
+
+  // Live paytable tracking
+  const paytableRef = useRef<LuckyNumberPaytableRef>(null)
 
   // Improved scaling effect with hard cap (475px)
   const updateScale = React.useCallback(() => {
@@ -100,10 +105,27 @@ export default function LuckyNumber() {
     bet[pick - 1] = 10;
     await game.play({ wager, bet });
     const res = await game.result();
-    setGambaResult(res);
-    setResult(res.resultIndex + 1);
+  setGambaResult(res);
+  setResultModalOpen(true);
+    const resultNumber = res.resultIndex + 1
+    setResult(resultNumber);
     setPayout(res.payout);
     setIsPlaying(false);
+    
+    // Track result in live paytable
+    const wasWin = res.payout > 0
+    const multiplier = wasWin ? 10 : 0
+    
+    if (paytableRef.current) {
+      paytableRef.current.trackGame({
+        selectedNumber: pick,
+        resultNumber,
+        wasWin,
+        amount: res.payout,
+        multiplier
+      })
+    }
+    
     // Handle game outcome for overlay
     handleGameComplete({ payout: res.payout, wager });
   };
@@ -116,181 +138,221 @@ export default function LuckyNumber() {
   };
 
   return (
-    <GameScreenLayout
-      left={
-        <GambaUi.Portal target="screen">
-          <div
-            ref={scalerRef}
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: 'center',
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
+    <>
+      <GambaUi.Portal target="screen">
+        <GambaUi.Responsive>
+          <div style={{ 
+            display: 'flex', 
+            gap: 16, 
+            height: '100%', 
+            width: '100%',
+            background: 'linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(10, 10, 25, 0.95))',
+            borderRadius: '16px',
+            overflow: 'hidden'
+          }}>
+            {/* Game Area */}
+            <div style={{ 
+              flex: 1, 
+              display: 'flex', 
+              alignItems: 'center', 
               justifyContent: 'center',
-              transition: 'transform 0.2s ease-out',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                width: '100%',
-              }}
-            >
-              {/* Main Game UI */}
-              <div style={{ flex: 1, textAlign: 'center', marginTop: 32 }}>
-                <h2 style={{ fontWeight: 700, fontSize: 32, marginBottom: 16 }}>🎯 Lucky Number</h2>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
-                  {[...Array(10)].map((_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => setPick(i + 1)}
-                      disabled={isPlaying}
-                      style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: '50%',
-                        background: pick === i + 1 ? '#00ffe1' : '#222',
-                        color: pick === i + 1 ? '#222' : '#fff',
-                        border: pick === i + 1 ? '2px solid #00ffe1' : '2px solid #333',
-                        fontWeight: 700,
-                        fontSize: 18,
-                        boxShadow: pick === i + 1 ? '0 0 8px #00ffe1' : 'none',
-                        transition: 'all 0.2s',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-                {/* Result with reveal animation */}
-                {result !== null && (
-                  <div
-                    style={{
-                      fontSize: 28,
-                      margin: '24px 0',
-                      fontWeight: 600,
-                      animation: 'reveal 0.7s cubic-bezier(.5,1.5,.5,1)',
-                    }}
-                  >
-                    <span style={{ fontSize: 40 }}>🎱</span> Result: <b>{result}</b>
-                    <br />
-                    <span
-                      style={{
-                        color: payout ? '#00ffe1' : '#f00',
-                        fontWeight: 700,
-                        fontSize: 22,
-                      }}
-                    >
-                      {payout ? `You win ${formatPayout(payout)} ${token?.symbol}!` : 'You lose.'}
-                    </span>
-                    <style>{`
-                      @keyframes reveal {
-                        0% { opacity: 0; transform: scale(0.7) translateY(20px); }
-                        60% { opacity: 0.7; transform: scale(1.1) translateY(-8px); }
-                        100% { opacity: 1; transform: scale(1) translateY(0); }
-                      }
-                    `}</style>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </GambaUi.Portal>
-      }
-      right={
-        <>
-          {/* Right-side payout info panel */}
-          <div
-            style={{
-              minWidth: 180,
-              maxWidth: 200,
-              marginLeft: 24,
-              background: 'rgba(24,24,42,0.92)',
-              borderRadius: 14,
-              padding: '12px 10px',
-              boxShadow: '0 2px 12px #0004',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <div
-              style={{
-                textAlign: 'center',
-                marginBottom: 8,
-                fontWeight: 700,
-                color: '#ffe066',
-                fontSize: '1rem',
-              }}
-            >
-              Payouts
-            </div>
-            <table style={{ width: '100%', fontSize: 15, borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ color: '#aaa', fontWeight: 700, fontSize: 13 }}>
-                  <th style={{ textAlign: 'center', padding: 2 }}>Number</th>
-                  <th style={{ textAlign: 'center', padding: 2 }}>Payout</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...Array(10)].map((_, i) => (
-                  <tr
-                    key={i + 1}
-                    style={{
-                      background: pick === i + 1 ? '#00ffe133' : 'none',
-                      fontWeight: pick === i + 1 ? 700 : 400,
-                    }}
-                  >
-                    <td style={{ textAlign: 'center', padding: 2 }}>{i + 1}</td>
-                    <td
-                      style={{
-                        textAlign: 'center',
-                        padding: 2,
-                        color: pick === i + 1 ? '#00ffe1' : '#ffe066',
-                      }}
-                    >
-                      x10
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ marginTop: 8, color: '#aaa', fontSize: 12, textAlign: 'center' }}>
-              Pick a number. If it matches, you win 10x your wager!
-            </div>
-          </div>
-          <GameControls
-            wager={wager}
-            setWager={setWager}
-            onPlay={play}
-            isPlaying={isPlaying}
-            playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
-          >
-            {/* Number Selection Display */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontWeight: 'bold' }}>Lucky Number:</span>
-              <span
+              position: 'relative',
+              minHeight: '400px'
+            }}>
+              <div
+                ref={scalerRef}
                 style={{
-                  padding: '6px 12px',
-                  background: '#00ffe1',
-                  color: '#222',
-                  borderRadius: 20,
-                  fontWeight: 'bold',
-                  fontSize: 16,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'transform 0.2s ease-out',
+                  padding: '20px'
                 }}
               >
-                #{pick}
-              </span>
+                <div style={{ textAlign: 'center', width: '100%', maxWidth: '600px' }}>
+                  <h2 style={{ 
+                    fontWeight: 700, 
+                    fontSize: 32, 
+                    marginBottom: 24,
+                    color: '#fff',
+                    textShadow: '0 4px 8px rgba(0,0,0,0.5)'
+                  }}>
+                    🎯 Lucky Number
+                  </h2>
+                  
+                  {/* Number Selection */}
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    gap: 12, 
+                    marginBottom: 32,
+                    flexWrap: 'wrap'
+                  }}>
+                    {[...Array(10)].map((_, i) => {
+                      const number = i + 1
+                      const isSelected = pick === number
+                      const isResult = result === number
+                      
+                      return (
+                        <button
+                          key={number}
+                          onClick={() => setPick(number)}
+                          disabled={isPlaying}
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: '50%',
+                            background: isSelected 
+                              ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
+                              : isResult && result !== null
+                              ? (payout && payout > 0 
+                                ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                                : 'linear-gradient(135deg, #ef4444, #dc2626)')
+                              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                            color: '#fff',
+                            border: isSelected 
+                              ? '2px solid #22c55e' 
+                              : isResult && result !== null
+                              ? (payout && payout > 0 ? '2px solid #22c55e' : '2px solid #ef4444')
+                              : '2px solid rgba(255, 255, 255, 0.2)',
+                            fontWeight: 700,
+                            fontSize: 18,
+                            boxShadow: isSelected 
+                              ? '0 4px 16px rgba(34, 197, 94, 0.4)' 
+                              : isResult && result !== null
+                              ? (payout && payout > 0 
+                                ? '0 4px 16px rgba(34, 197, 94, 0.4)'
+                                : '0 4px 16px rgba(239, 68, 68, 0.4)')
+                              : '0 2px 8px rgba(0,0,0,0.2)',
+                            transition: 'all 0.2s ease',
+                            cursor: isPlaying ? 'not-allowed' : 'pointer',
+                            transform: isSelected || (isResult && result !== null) ? 'scale(1.1)' : 'scale(1)',
+                            animation: isResult && result !== null ? 'resultPulse 1s ease-in-out' : undefined
+                          }}
+                        >
+                          {number}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Result Display */}
+                  {result !== null && (
+                    <div
+                      style={{
+                        fontSize: 24,
+                        margin: '24px 0',
+                        fontWeight: 600,
+                        padding: '16px 24px',
+                        borderRadius: '12px',
+                        background: payout && payout > 0 
+                          ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2))'
+                          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2))',
+                        border: payout && payout > 0
+                          ? '1px solid rgba(34, 197, 94, 0.4)'
+                          : '1px solid rgba(239, 68, 68, 0.4)',
+                        color: '#fff',
+                        animation: 'reveal 0.7s cubic-bezier(.5,1.5,.5,1)',
+                      }}
+                    >
+                      Lucky Number: <span style={{ 
+                        color: payout && payout > 0 ? '#22c55e' : '#ef4444',
+                        fontSize: '32px',
+                        fontWeight: 700
+                      }}>{result}</span>
+                      <br />
+                      {payout && payout > 0 ? (
+                        <>
+                          🎉 You Win! <br />
+                          <span style={{ color: '#22c55e', fontSize: '20px' }}>
+                            +{formatPayout(payout)} {token?.symbol}
+                          </span>
+                        </>
+                      ) : (
+                        <>😔 Better luck next time!</>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Game Instructions */}
+                  <div style={{
+                    marginTop: 24,
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    fontSize: '14px',
+                    color: '#9ca3af'
+                  }}>
+                    Pick a number from 1-10. Match it for a 10x payout!
+                  </div>
+                </div>
+              </div>
             </div>
-          </GameControls>
-        </>
-      }
-    />
+
+            {/* Live Paytable */}
+            <LuckyNumberPaytable
+              ref={paytableRef}
+              wager={wager}
+              selectedNumber={pick}
+              currentResult={result !== null ? {
+                selectedNumber: pick,
+                resultNumber: result,
+                wasWin: payout !== null && payout > 0,
+                amount: payout || 0,
+                multiplier: (payout !== null && payout > 0) ? 10 : 0
+              } : undefined}
+            />
+          </div>
+        </GambaUi.Responsive>
+      </GambaUi.Portal>
+      
+      <GameControls
+        wager={wager}
+        setWager={setWager}
+        onPlay={play}
+        isPlaying={isPlaying}
+        playButtonText={hasPlayedBefore ? 'Pick Again' : 'Pick Number'}
+      >
+        {/* Number Selection Display */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontWeight: 'bold' }}>Lucky Number:</span>
+          <span
+            style={{
+              padding: '6px 12px',
+              background: '#22c55e',
+              color: '#fff',
+              borderRadius: 20,
+              fontWeight: 'bold',
+              fontSize: 16,
+            }}
+          >
+            #{pick}
+          </span>
+        </div>
+      </GameControls>
+      
+      <GambaResultModal open={showOutcome} onClose={handlePlayAgain} />
+      
+      <style>{`
+        @keyframes reveal {
+          0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+          60% { opacity: 0.7; transform: scale(1.1) translateY(-8px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes resultPulse {
+          0%, 100% { transform: scale(1.1); }
+          50% { transform: scale(1.2); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      `}</style>
+    </>
   );
 }

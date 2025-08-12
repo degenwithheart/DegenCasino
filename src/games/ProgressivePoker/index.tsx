@@ -6,14 +6,16 @@ import {
   useTokenBalance,
   FAKE_TOKEN_MINT,
 } from 'gamba-react-ui-v2'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 
 import { TOKEN_METADATA } from '../../constants'
 import { Paytable } from './Paytable'
+import ProgressivePokerPaytable, { ProgressivePokerPaytableRef } from './ProgressivePokerPaytable'
 import { PokerCard } from './PokerCard'
 import { JACKS_OR_BETTER_BET_ARRAY } from './betArray'
-import { GameControls, GameScreenLayout } from '../../components'
+import { GameControls, GambaResultModal } from '../../components'
 import { GambaResultContext } from '../../context/GambaResultContext'
+import { useIsCompact } from '../../hooks/useIsCompact'
 
 import { getCurrentHandName, Card as PokerCardType } from './getCurrentHandName'
 import { getBestPossibleHandName } from './getBestPossibleHandName'
@@ -22,7 +24,6 @@ import { getBestPossibleHandName } from './getBestPossibleHandName'
 const pulseFadeStyle = `
   .pulse-fade {
     animation: pulseFade 1.6s infinite;
-  }
   @keyframes pulseFade {
     0% { opacity: 0.3; }
     50% { opacity: 1; }
@@ -123,8 +124,19 @@ const getPokerHandCards = (type: string) => {
   }
 }
 
-export default function ProgressivePowerPoker() {
+export default function ProgressivePoker() {
+  const [resultModalOpen, setResultModalOpen] = useState(false)
   const { setGambaResult } = useContext(GambaResultContext)
+  
+  // Live paytable tracking
+  const paytableRef = useRef<ProgressivePokerPaytableRef>(null)
+  const [currentResult, setCurrentResult] = useState<{
+    handType: string
+    multiplier: number
+  } | undefined>()
+  
+  // Responsive layout
+  const { compact } = useIsCompact()
 
   useEffect(() => {
     if (!document.getElementById('pulse-fade-style')) {
@@ -213,10 +225,18 @@ export default function ProgressivePowerPoker() {
       })
       const result = await game.result()
       setGambaResult(result)
+      setResultModalOpen(true)
 
       const resultIndex = result?.resultIndex ?? 0
       const handTemplate = HAND_TEMPLATES[resultIndex]
       const payout = JACKS_OR_BETTER_BET_ARRAY[resultIndex] * baseWager
+      const multiplier = JACKS_OR_BETTER_BET_ARRAY[resultIndex]
+
+      // Track result for live paytable
+      setCurrentResult({
+        handType: handTemplate.type,
+        multiplier: multiplier
+      })
 
       // Get card sequence from generated hand (simulate cards from hand type)
       // In your real code, replace this with actual cards from Gamba engine
@@ -315,9 +335,18 @@ export default function ProgressivePowerPoker() {
   }
 
   return (
-    <GambaUi.Portal target="screen">
-      <GameScreenLayout
-        left={
+    <>
+      <GambaUi.Portal target="screen">
+        <div style={{ 
+          display: 'flex', 
+          gap: '20px', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          width: '100%', 
+          height: '100%',
+          flexDirection: compact ? 'column' : 'row'
+        }}>
+          {/* Game Area */}
           <div
             style={{
               display: 'flex',
@@ -327,11 +356,13 @@ export default function ProgressivePowerPoker() {
               background: 'rgba(24, 24, 42, 0.92)',
               borderRadius: 14,
               padding: '12px 16px',
-              margin: '24px auto',
+              margin: compact ? '12px auto' : '24px auto',
               boxShadow: '0 2px 12px rgba(0,0,0,0.267)',
               color: 'rgb(255, 224, 102)',
               minHeight: 340,
-              height: '100%',
+              height: compact ? 'auto' : '100%',
+              maxWidth: compact ? '100%' : '600px',
+              width: compact ? '100%' : 'auto'
             }}
           >
             <div
@@ -539,38 +570,33 @@ export default function ProgressivePowerPoker() {
               </div>
             </div>
           </div>
-        }
-        right={
+          
+          {/* Live Paytable */}
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'flex-start',
-              background: 'rgba(30, 30, 50, 0.96)',
-              borderRadius: 14,
-              padding: '24px 18px',
-              margin: '24px auto',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
-              color: '#ffe082',
-              minHeight: 340,
-              height: '100%',
-              maxWidth: 340,
-              width: '100%',
+              height: compact ? 'auto' : '100%',
+              maxWidth: compact ? '400px' : '300px',
+              width: compact ? '100%' : '300px',
             }}
           >
-            <Paytable currentHandType={hand?.type || (bestPossible.toLowerCase().includes('bust') ? 'Bust' : undefined)} />
-            <GameControls
+            <ProgressivePokerPaytable
+              ref={paytableRef}
               wager={wager}
-              setWager={setWager}
-              onPlay={handleStart}
-              isPlaying={inProgress}
-              playButtonText="Play"
-              playButtonDisabled={revealing || balance < wager}
+              currentHandType={hand?.type || (bestPossible.toLowerCase().includes('bust') ? 'Bust' : undefined)}
+              currentResult={currentResult}
             />
           </div>
-        }
+        </div>
+      </GambaUi.Portal>
+      <GameControls
+        wager={wager}
+        setWager={setWager}
+        onPlay={handleStart}
+        isPlaying={inProgress}
+        playButtonText="Play"
+        playButtonDisabled={revealing || balance < wager}
       />
-    </GambaUi.Portal>
+      <GambaResultModal open={resultModalOpen} onClose={() => setResultModalOpen(false)} />
+    </>
   )
 }

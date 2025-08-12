@@ -15,7 +15,7 @@ const fadeScale = keyframes`
   }
 `
 
-const StyledTable = styled.div`
+const StyledTable = styled.div<{ $disabled?: boolean }>`
   display: grid;
   grid-template-rows: repeat(4, auto);
   gap: 12px;
@@ -24,6 +24,9 @@ const StyledTable = styled.div`
   border-radius: 14px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.9);
   overflow-x: auto;
+  opacity: ${({ $disabled }) => $disabled ? 0.5 : 1};
+  pointer-events: ${({ $disabled }) => $disabled ? 'none' : 'auto'};
+  transition: opacity 0.3s ease;
 
   &::-webkit-scrollbar {
     height: 8px;
@@ -131,17 +134,28 @@ const HoverOutline = styled.div<{ $highlighted: boolean }>`
     $highlighted ? '0 0 14px 4px rgba(100, 100, 255, 0.6)' : 'none'};
 `
 
-export const Table = () => {
-  const handleMouseEnter = useCallback((ids: number[]) => {
-    hover(ids)
-  }, [])
+interface TableProps {
+  disabled?: boolean
+}
+
+export function Table({ disabled = false }: TableProps) {
+  const handleMouseEnter = useCallback((numbers: number[]) => {
+    if (disabled) return
+    hover(numbers)
+  }, [disabled])
 
   const handleMouseLeave = useCallback(() => {
+    if (disabled) return
     hover([])
-  }, [])
+  }, [disabled])
+
+  const handleClick = useCallback((id: string) => {
+    if (disabled) return
+    addChips(id, selectedChip.value)
+  }, [disabled])
 
   return (
-    <StyledTable role="grid" aria-label="Roulette betting table">
+    <StyledTable $disabled={disabled} role="grid" aria-label="Roulette betting table">
       {Object.entries(tableLayout).map(([id, square]) => {
         const chipAmount = getChips(id)
         const isHighlighted = square.numbers
@@ -160,17 +174,22 @@ export const Table = () => {
             aria-label={`${square.label} betting area`}
           >
             <StyledBetButton
-              $highlighted={isHighlighted}
+              $highlighted={isHighlighted && !disabled}
               $color={square.color ?? 'green'}
               onMouseEnter={() => handleMouseEnter(square.numbers.filter((n): n is number => typeof n === 'number'))}
               onMouseLeave={handleMouseLeave}
-              onClick={() => addChips(id, selectedChip.value)}
+              onClick={() => handleClick(id)}
+              disabled={disabled}
               aria-pressed={chipAmount > 0}
-              tabIndex={0}
+              tabIndex={disabled ? -1 : 0}
+              style={{
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                opacity: disabled ? 0.6 : 1
+              }}
             >
               {square.label}
               <div>{chipAmount > 0 ? `x${chipAmount}` : ''}</div>
-              <HoverOutline $highlighted={isHighlighted} />
+              <HoverOutline $highlighted={isHighlighted && !disabled} />
             </StyledBetButton>
 
             {chipAmount > 0 && (

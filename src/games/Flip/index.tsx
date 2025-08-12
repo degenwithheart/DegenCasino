@@ -8,11 +8,12 @@ import { useIsCompact } from '../../hooks/useIsCompact';
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { Effect } from './Effect'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import FlipPaytable, { FlipPaytableRef } from './FlipPaytable'
 
 import SOUND_COIN from './coin.mp3'
 import SOUND_LOSE from './lose.mp3'
 import SOUND_WIN from './win.mp3'
-import { GameControls, GameScreenLayout } from '../../components';
+import { GameControls } from '../../components';
 
 const SIDES = {
   heads: [2, 0],
@@ -31,6 +32,7 @@ export default function Flip() {
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken();
   const { balance } = useTokenBalance();
+  const paytableRef = React.useRef<FlipPaytableRef>(null)
   
   // Game outcome overlay state
   const {
@@ -67,6 +69,8 @@ export default function Flip() {
     try {
       setWin(false)
       setFlipping(true)
+      
+      const selectedSide = side
 
       sounds.play('coin', { playbackRate: .5 })
 
@@ -81,10 +85,19 @@ export default function Flip() {
       const result = await game.result()
 
       const win = result.payout > 0
+      const resultSide = result.resultIndex === 0 ? 'heads' : 'tails'
 
       setResultIndex(result.resultIndex)
-
       setWin(win)
+
+      // Track game result in paytable
+      paytableRef.current?.trackGame({
+        guess: selectedSide,
+        result: resultSide,
+        wasWin: win,
+        amount: win ? result.payout - wager : 0,
+        multiplier: win ? result.payout / wager : 0,
+      })
 
       if (win) {
         sounds.play('win')
@@ -122,56 +135,152 @@ export default function Flip() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameScreenLayout display="ruby"
-          left={
-            <div
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: 'center',
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.2s ease-out',
-              }}
-              className="flip-game-scaler"
-            >
-              <Canvas
-                linear
-                flat
-                orthographic
-                camera={{
-                  zoom: 80,
-                  position: [0, 0, 100],
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main Game Area */}
+          <div style={{ 
+            flex: 1, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background Effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'radial-gradient(circle at 50% 50%, rgba(252, 211, 77, 0.1) 0%, transparent 50%)',
+              opacity: flipping ? 1 : 0.5,
+              transition: 'opacity 0.5s ease'
+            }} />
+
+            {/* Side Selection UI */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '16px',
+              zIndex: 10
+            }}>
+              <button
+                onClick={() => setSide('heads')}
+                disabled={flipping}
+                style={{
+                  background: side === 'heads' 
+                    ? 'linear-gradient(135deg, rgba(252, 211, 77, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%)'
+                    : 'rgba(0, 0, 0, 0.5)',
+                  border: side === 'heads' 
+                    ? '2px solid rgba(252, 211, 77, 0.5)' 
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '12px 24px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: flipping ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  opacity: flipping ? 0.6 : 1
                 }}
               >
-                <React.Suspense fallback={null}>
-                  <Coin result={resultIndex} flipping={flipping} />
-                </React.Suspense>
-                <Effect color="white" />
-                {flipping && <Effect color="white" />}
-                {win && <Effect color="#42ff78" />}
-                <ambientLight intensity={3} />
-                <directionalLight
-                  position-z={1}
-                  position-y={1}
-                  castShadow
-                  color="#CCCCCC"
-                />
-                <hemisphereLight
-                  intensity={.5}
-                  position={[0, 1, 0]}
-                  scale={[1, 1, 1]}
-                  color="#ffadad"
-                  groundColor="#6666fe"
-                />
-              </Canvas>
+                👑 HEADS
+              </button>
+              <button
+                onClick={() => setSide('tails')}
+                disabled={flipping}
+                style={{
+                  background: side === 'tails' 
+                    ? 'linear-gradient(135deg, rgba(148, 163, 184, 0.3) 0%, rgba(100, 116, 139, 0.3) 100%)'
+                    : 'rgba(0, 0, 0, 0.5)',
+                  border: side === 'tails' 
+                    ? '2px solid rgba(148, 163, 184, 0.5)' 
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '12px 24px',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: flipping ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  opacity: flipping ? 0.6 : 1
+                }}
+              >
+                ⚡ TAILS
+              </button>
             </div>
-          }
-          right={null}
-        />
+
+            {/* 3D Coin Canvas */}
+            <Canvas
+              linear
+              flat
+              orthographic
+              camera={{
+                zoom: isCompact ? 160 : 180,
+                position: [0, 0, 100],
+              }}
+              style={{ width: '100%', height: '100%' }}
+            >
+              <React.Suspense fallback={null}>
+                <Coin result={resultIndex} flipping={flipping} />
+              </React.Suspense>
+              <Effect color="white" />
+              {flipping && <Effect color="white" />}
+              {win && <Effect color="#42ff78" />}
+              <ambientLight intensity={3} />
+              <directionalLight
+                position-z={1}
+                position-y={1}
+                castShadow
+                color="#CCCCCC"
+              />
+              <hemisphereLight
+                intensity={.5}
+                position={[0, 1, 0]}
+                scale={[1, 1, 1]}
+                color="#ffadad"
+                groundColor="#6666fe"
+              />
+            </Canvas>
+
+            {/* Game Status */}
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'rgba(0, 0, 0, 0.7)',
+              borderRadius: '12px',
+              padding: '12px 20px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              textAlign: 'center'
+            }}>
+              <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
+                {flipping ? 'FLIPPING...' : `SELECTED: ${side.toUpperCase()}`}
+              </div>
+              <div style={{ color: '#FCD34D', fontSize: '14px', fontWeight: 700 }}>
+                2.00x PAYOUT
+              </div>
+            </div>
+          </div>
+
+          {/* Live Paytable */}
+          <FlipPaytable
+            ref={paytableRef}
+            wager={wager}
+            selectedSide={side}
+          />
+        </div>
       </GambaUi.Portal>
+      
       <GameControls
         wager={wager}
         setWager={setWager}
@@ -188,13 +297,13 @@ export default function Flip() {
               onClick={() => setSide('heads')}
               disabled={flipping || showOutcome}
             >
-              {side === 'heads' ? '✓ Heads' : 'Heads'}
+              {side === 'heads' ? '✓ 👑 Heads' : '👑 Heads'}
             </GambaUi.Button>
             <GambaUi.Button
               onClick={() => setSide('tails')}
               disabled={flipping || showOutcome}
             >
-              {side === 'tails' ? '✓ Tails' : 'Tails'}
+              {side === 'tails' ? '✓ ⚡ Tails' : '⚡ Tails'}
             </GambaUi.Button>
           </div>
         </div>

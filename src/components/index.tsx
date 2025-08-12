@@ -35,4 +35,4 @@ export const Flex = styled.div<{gap?: number}>`
 `
 
 export { GameControls } from './GameControls'
-export { GameScreenLayout } from './GameScreenLayout'
+export { default as GambaResultModal } from './GambaResultModal';
