@@ -1,6 +1,15 @@
 # DegenHeart Casino
 
-A custom Vite + React frontend for on-chain casino games built on top of the Gamba SDKs. This project started from the gamba-labs/platform codebase but has been heavily refactored and is not a drop-in replacement for the original.
+> Looking to build a new game for this platform? Start with the official Hello World Game Template:
+> https://github.com/degenwithheart/HelloWorld-Boilerplate
+
+A custom Vite + React frontend for on-chain casino games built on top of the Gamba SDKs. This project started from the gamba-labs/platform codebase but has been heavily refactored and is not a drop‑in replacement.
+
+## Disclaimer (author’s note)
+- This repository is a custom build I created for my own usage and brand deployment.
+- I am not trying to “muscle in” on, compete with, or replace any existing platform (including gamba-labs/platform).
+- This is not an official fork or product offering; it’s a bespoke implementation aligned to my requirements and preferences.
+- Please treat this codebase as a reference or inspiration, not as a general-purpose platform template.
 
 Highlights:
 - Vite-based build with custom polyfills and Node-browser shims
@@ -42,7 +51,7 @@ This project diverges from the upstream in several architectural and behavioral 
 - Vite config diverges:
   - Uses envPrefix ['VITE_'] and additional define shims (`process.env.ANCHOR_BROWSER`, `global: 'globalThis'`).
   - Adds browser aliases for Node modules (crypto-browserify, stream-browserify, util) and includes `buffer` in optimizeDeps.
-  - Disables HMR overlay and configures manualChunks('vendor') to bundle node_modules differently.
+  - Disables HMR overlay and configures `manualChunks('vendor')` to bundle node_modules differently.
   - Adds a dev server middleware that intercepts `/api` calls and explicitly returns 404 in development.
 - Dedicated polyfills:
   - src/polyfills.ts and inline scripts in public/index.html and index.html set up Buffer, process, and global for browser.
@@ -52,8 +61,8 @@ This project diverges from the upstream in several architectural and behavioral 
 - React Router routes differ from the upstream:
   - Multiple additional pages beyond the original dashboard/game pairing:
     - /terms, /whitepaper, /aboutme, /exchange, /propagation
-    - Dedicated game route pattern: /game/:wallet/:gameName
-    - User profiles: /:wallet/profile
+    - Dedicated game route pattern: `/game/:wallet/:gameName`
+    - User profiles: `/:wallet/profile`
   - BrowserRouter uses the “future” flags for v7 behavior.
 - The upstream platform routes are simpler (e.g., "/" and "/:gameId"). These route shape changes mean navigation, deep links, and shared links are not compatible between the two codebases.
 
@@ -61,7 +70,7 @@ This project diverges from the upstream in several architectural and behavioral 
 - Wallet adapters:
   - This repo enables Solflare by default; other wallets (e.g., Phantom) are not pre-wired.
 - Token metadata:
-  - The TokenMetaProvider is supplied with static TOKEN_METADATA, and the “fetcher” prop is omitted in favor of optional backend routes (see API routes). In the upstream, a fetcher may be provided (e.g., via Helius).
+  - The TokenMetaProvider is supplied with static TOKEN_METADATA, and the “fetcher” prop is omitted in favor of optional backend routes (see API routes). In the upstream, a fetcher may be provided inline.
 - Referral:
   - Referral is supplied via a standalone <ReferralProvider> wrapper here, instead of using the inline `referral` prop of <GambaPlatformProvider> as in the upstream.
 - Priority fee:
@@ -79,7 +88,7 @@ This project diverges from the upstream in several architectural and behavioral 
   - RPC endpoint defaults to a Helius-powered URL (configurable via VITE_RPC_ENDPOINT).
 - Token list diverges:
   - Includes SOL, USDC, JUP, BONK, and a placeholder FAKE “DGHRT” entry with minted=false.
-  - Base wagers, decimals, and price fields differ from upstream sample data (e.g., Wormhole token example in upstream).
+  - Base wagers, decimals, and price fields differ from upstream sample data.
 - Fee configuration values are tuned for this deployment (creator, jackpot, referral).
 
 6) Custom components and UX surface
@@ -101,8 +110,8 @@ This project diverges from the upstream in several architectural and behavioral 
 
 8) API routes (Edge/serverless)
 - This repo includes serverless routes under /api intended for Vercel Edge or similar:
-  - api/auth.ts (Edge runtime) validates a password using process.env.ACCESS_OVERRIDE_PASSWORD.
-  - api/changenow-coins.js and others (e.g., a Helius metadata proxy) are referenced by the frontend via relative paths.
+  - `api/auth.ts` (Edge runtime) validates a password using `process.env.ACCESS_OVERRIDE_PASSWORD`.
+  - `api/changenow-coins.js` and others (e.g., a Helius metadata proxy) are referenced by the frontend via relative paths.
 - The Vite dev server intentionally 404s /api routes to prevent local misuse; deployments are expected to supply serverless function support. The upstream template doesn’t enforce this pattern.
 
 9) Styling system
@@ -127,7 +136,7 @@ As a result, attempting to “swap” code or configuration between this repo an
 
 - Entry and bootstrap
   - public/index.html and index.html provide Buffer/process/global polyfills before mounting React.
-  - src/index.tsx composes providers: ConnectionProvider → WalletProvider → WalletModalProvider → TokenMetaProvider → SendTransactionProvider → GambaProvider → GambaPlatformProvider → ReferralProvider → App.
+  - src/index.tsx composes providers: ConnectionProvider → WalletProvider → WalletModalProvider → TokenMetaProvider → SendTransactionProvider → GambaProvider → GambaPlatformProvider → App.
   - BrowserRouter is enabled with v7 “future” flags for predictable navigation.
 
 - App layout and routes
@@ -170,7 +179,16 @@ Environment and constants are primarily defined in src/constants.ts and import v
 - Explorer URL and sharable URL are tuned for Solscan and DegenHeart.casino
 - Token list includes real tokens and a placeholder DGHRT entry (minted=false)
 
-Some components read process.env at runtime behind a polyfill for certain display logic (e.g., gate maintenance banners). Serverless/Edge functions may use non-VITE envs (like ACCESS_OVERRIDE_PASSWORD) as they run on the server.
+Some components read process.env at runtime behind a polyfill for certain display logic (e.g., gate maintenance banners). Serverless/Edge functions may use non-VITE envs (like ACCESS_OVERRIDE_PASSWORD).
+
+---
+
+## Related repositories
+
+- HelloWorld Game Template (HelloWorld-Boilerplate)
+  - Official starter template for building DegenCasino-compatible games.
+  - Includes portal integration, overlays, live statistics, and the DegenCasino routing pattern (`/game/:wallet/:gameName`).
+  - Repo: https://github.com/degenwithheart/HelloWorld-Boilerplate
 
 ---
 
@@ -181,5 +199,3 @@ Some components read process.env at runtime behind a polyfill for certain displa
 - The broader Solana and Web3 community.
 
 This repository takes the upstream ideas and re-implements significant portions of the build system, routing, configuration, and UI/UX to fit a bespoke deployment and brand.
-
----
