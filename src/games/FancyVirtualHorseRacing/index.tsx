@@ -280,56 +280,8 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
       <GambaUi.Portal target="screen">
         <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
           {/* Main game area */}
-          <div style={{ 
-            flex: 1,
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #065f46 75%, #047857 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(4, 120, 87, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(4, 120, 87, 0.2)
-            `,
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
-            {/* Floating horse racing background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '5%',
-              fontSize: '120px',
-              opacity: 0.05,
-              transform: 'rotate(-10deg)',
-              pointerEvents: 'none',
-              color: '#065f46',
-              zIndex: 1
-            }}>🐎</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '5%',
-              right: '5%',
-              fontSize: '100px',
-              opacity: 0.06,
-              transform: 'rotate(15deg)',
-              pointerEvents: 'none',
-              color: '#047857',
-              zIndex: 1
-            }}>🏁</div>
-            <div style={{
-              position: 'absolute',
-              top: '40%',
-              right: '8%',
-              fontSize: '80px',
-              opacity: 0.04,
-              transform: 'rotate(-25deg)',
-              pointerEvents: 'none',
-              color: '#059669',
-              zIndex: 1
-            }}>🏆</div>
-            
-            <ScreenWrapper style={{ position: 'relative', minHeight: 420, minWidth: 340, zIndex: 2 }}>
+          <div style={{ flex: 1 }}>
+            <ScreenWrapper style={{ position: 'relative', minHeight: 420, minWidth: 340 }}>
               {/* Overlay only for betting/finished, not during race */}
               {showOverlay && (
                 <div style={overlayStyle}>

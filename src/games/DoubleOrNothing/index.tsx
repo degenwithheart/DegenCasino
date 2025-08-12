@@ -156,50 +156,12 @@ function DoubleOrNothing() {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #dc2626 75%, #fbbf24 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(220, 38, 38, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(220, 38, 38, 0.2)
-            `,
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Floating double or nothing background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '5%',
-              fontSize: '120px',
-              opacity: 0.05,
-              transform: 'rotate(-15deg)',
-              pointerEvents: 'none',
-              color: '#dc2626'
-            }}>💰</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '5%',
-              right: '5%',
-              fontSize: '100px',
-              opacity: 0.06,
-              transform: 'rotate(25deg)',
-              pointerEvents: 'none',
-              color: '#fbbf24'
-            }}>⚡</div>
-            <div style={{
-              position: 'absolute',
-              top: '40%',
-              right: '8%',
-              fontSize: '80px',
-              opacity: 0.04,
-              transform: 'rotate(-30deg)',
-              pointerEvents: 'none',
-              color: '#f59e0b'
-            }}>🎯</div>
-            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',
@@ -208,11 +170,11 @@ function DoubleOrNothing() {
               right: 0,
               bottom: 0,
               background: `radial-gradient(circle at 50% 50%, ${
-                mode === 0 ? 'rgba(16, 185, 129, 0.12)' :
-                mode === 1 ? 'rgba(251, 191, 36, 0.12)' :
-                'rgba(239, 68, 68, 0.12)'
-              } 0%, transparent 70%)`,
-              opacity: isPlaying ? 1 : 0.6,
+                mode === 0 ? 'rgba(16, 185, 129, 0.1)' :
+                mode === 1 ? 'rgba(251, 191, 36, 0.1)' :
+                'rgba(239, 68, 68, 0.1)'
+              } 0%, transparent 50%)`,
+              opacity: isPlaying ? 1 : 0.5,
               transition: 'opacity 0.5s ease'
             }} />
 

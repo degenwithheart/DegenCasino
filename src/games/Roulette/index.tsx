@@ -344,200 +344,150 @@ export default function Roulette() {
     <>
       <GambaUi.Portal target="screen">
         <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
-          {/* Main Game Area */}
-          <div style={{ 
-            flex: 1, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #dc2626 50%, #16a34a 75%, #1f2937 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(220, 38, 38, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(220, 38, 38, 0.2)
-            `,
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Floating roulette background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '5%',
-              fontSize: '120px',
-              opacity: 0.05,
-              transform: 'rotate(-10deg)',
-              pointerEvents: 'none',
-              color: '#dc2626'
-            }}>🎰</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '5%',
-              right: '5%',
-              fontSize: '90px',
-              opacity: 0.06,
-              transform: 'rotate(20deg)',
-              pointerEvents: 'none',
-              color: '#16a34a'
-            }}>🔴</div>
-            <div style={{
-              position: 'absolute',
-              top: '40%',
-              right: '8%',
-              fontSize: '70px',
-              opacity: 0.04,
-              transform: 'rotate(-25deg)',
-              pointerEvents: 'none',
-              color: '#1f2937'
-            }}>⚫</div>
-            
-            {/* Background Effects */}
+          {/* Main game area */}
+          <div
+            style={{
+              flex: 1,
+              minHeight: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: `
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+              `,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            {/* Decorative corner elements */}
             <div style={{
               position: 'absolute',
               top: 0,
               left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.12) 0%, transparent 70%)',
-              opacity: gamePhase === 'spinning' ? 1 : 0.4,
-              transition: 'opacity 0.5s ease'
+              width: '100%',
+              height: '100%',
+              background: `
+                radial-gradient(circle at 20% 20%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%)
+              `,
+              pointerEvents: 'none',
             }} />
 
             {/* Phase 1: Betting Table */}
-            {gamePhase === 'betting' && (
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+              opacity: gamePhase === 'betting' ? 1 : 0,
+              transform: gamePhase === 'betting' ? 'translateY(0)' : 'translateY(-20px)',
+              transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: gamePhase === 'betting' ? 'relative' : 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: gamePhase === 'betting' ? 10 : 1
+            }}>
+              {/* Roulette Table - Full Width */}
               <div style={{
                 width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px',
-                opacity: gamePhase === 'betting' ? 1 : 0,
-                transition: 'opacity 0.5s ease',
-                position: 'relative',
-                zIndex: 10
-              }}>
-                {/* Betting Phase Header */}
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.7)',
-                  borderRadius: '16px',
-                  padding: '16px 24px',
-                  marginBottom: '24px',
-                  border: '1px solid rgba(220, 38, 38, 0.3)',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ color: '#DC2626', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
-                    🎰 PLACE YOUR BETS
-                  </div>
-                  <Stats />
-                </div>
-
-                {/* Roulette Table */}
-                <div style={{
-                  width: '100%',
-                  maxWidth: '900px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '20px'
-                }}>
-                  <Table disabled={false} />
-                  
-                  {/* Recent Results */}
-                  <div style={{
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    borderRadius: '12px',
-                    padding: '12px 20px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}>
-                    <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textAlign: 'center' }}>
-                      RECENT RESULTS
-                    </div>
-                    <Results />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Phase 2: Spinning Wheel */}
-            {gamePhase === 'spinning' && (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
+                display: 'block',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                opacity: gamePhase === 'spinning' ? 1 : 0,
-                transition: 'opacity 0.5s ease',
-                position: 'relative',
-                zIndex: 10
+                gap: '20px'
               }}>
-                {/* Spinning Phase Header */}
+                <Table disabled={false} />
+                
+                {/* Recent Results - Moved to bottom of table */}
+                <div style={{
+                  margin: 'auto',
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  width: 'fit-content'
+                }}>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '8px', textAlign: 'center' }}>
+                    RECENT RESULTS
+                  </div>
+                  <Results />
+                </div>
+              </div>
+            </div>
+
+            {/* Phase 2: Spinning Wheel */}
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: gamePhase === 'spinning' ? 1 : 0,
+              transform: gamePhase === 'spinning' ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)',
+              transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: gamePhase === 'spinning' ? 'relative' : 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: gamePhase === 'spinning' ? 10 : 1
+            }}>
+              {/* Large Wheel Display */}
+              <div style={{
+                transform: 'scale(1.5)',
+                transformOrigin: 'center',
+                transition: 'transform 0.6s ease-out'
+              }}>
+                <Wheel key={spinTrigger} winningNumber={latestResult ?? 0} />
+              </div>
+
+              {/* Result Display */}
+              {!isSpinning && latestResult !== null && (
                 <div style={{
                   position: 'absolute',
-                  top: '20px',
+                  bottom: '40px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  background: 'rgba(0, 0, 0, 0.8)',
-                  borderRadius: '16px',
-                  padding: '12px 24px',
-                  border: '2px solid rgba(220, 38, 38, 0.5)',
-                  animation: isSpinning ? 'pulse 2s infinite' : 'none'
+                  background: 'rgba(0, 0, 0, 0.9)',
+                  borderRadius: '20px',
+                  padding: '20px 32px',
+                  border: '3px solid rgba(220, 38, 38, 0.7)',
+                  textAlign: 'center',
+                  minWidth: '250px',
+                  animation: 'slideUpFade 0.8s ease-out'
                 }}>
-                  <div style={{ color: '#DC2626', fontSize: '16px', fontWeight: 700, textAlign: 'center' }}>
-                    {isSpinning ? '🎲 SPINNING...' : '🎯 RESULT'}
+                  <div style={{ color: '#DC2626', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                    WINNING NUMBER
                   </div>
-                </div>
-
-                {/* Large Wheel Display */}
-                <div style={{
-                  transform: 'scale(1.5)',
-                  transformOrigin: 'center'
-                }}>
-                  <Wheel key={spinTrigger} winningNumber={latestResult ?? 0} />
-                </div>
-
-                {/* Result Display */}
-                {!isSpinning && latestResult !== null && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'rgba(0, 0, 0, 0.9)',
-                    borderRadius: '20px',
-                    padding: '20px 32px',
-                    border: '3px solid rgba(220, 38, 38, 0.7)',
-                    textAlign: 'center',
-                    minWidth: '250px'
+                  <div style={{ 
+                    color: '#fff', 
+                    fontSize: '32px', 
+                    fontWeight: 900,
+                    marginBottom: '8px'
                   }}>
-                    <div style={{ color: '#DC2626', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
-                      WINNING NUMBER
-                    </div>
-                    <div style={{ 
-                      color: '#fff', 
-                      fontSize: '32px', 
-                      fontWeight: 900,
-                      marginBottom: '8px'
-                    }}>
-                      {latestResult}
-                    </div>
-                    {currentResult && (
-                      <div style={{ color: currentResult.wasWin ? '#22C55E' : '#EF4444', fontSize: '16px', fontWeight: 700 }}>
-                        {currentResult.wasWin ? `+${currentResult.totalWon.toLocaleString()}` : 'No Win'}
-                      </div>
-                    )}
+                    {latestResult}
                   </div>
-                )}
-              </div>
-            )}
+                  {currentResult && (
+                    <div style={{ color: currentResult.wasWin ? '#22C55E' : '#EF4444', fontSize: '16px', fontWeight: 700 }}>
+                      {currentResult.wasWin ? `+${currentResult.totalWon.toLocaleString()}` : 'No Win'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
-            {/* Phase Transition Overlay */}
+            {/* Phase Transition Effects */}
             {gamePhase === 'spinning' && isSpinning && (
               <div style={{
                 position: 'absolute',
@@ -545,20 +495,25 @@ export default function Roulette() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: 'rgba(0, 0, 0, 0.3)',
+                background: 'rgba(0, 0, 0, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 5
+                zIndex: 20,
+                animation: 'fadeIn 0.5s ease-out'
               }}>
                 <div style={{
                   color: '#DC2626',
                   fontSize: '24px',
                   fontWeight: 700,
                   textShadow: '0 0 20px rgba(220, 38, 38, 0.8)',
-                  animation: 'pulse 1.5s infinite'
+                  animation: 'pulseGlow 1.5s infinite',
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  padding: '20px 40px',
+                  borderRadius: '16px',
+                  border: '2px solid rgba(220, 38, 38, 0.5)'
                 }}>
-                  NO MORE BETS
+                  🎲 NO MORE BETS
                 </div>
               </div>
             )}
@@ -576,7 +531,7 @@ export default function Roulette() {
             )}
           </div>
 
-          {/* Live Paytable Panel - Always Visible */}
+          {/* Paytable sidebar */}
           <RoulettePaytable
             ref={paytableRef}
             totalBet={totalChipValue.value}
@@ -649,6 +604,51 @@ export default function Roulette() {
           </>
         )}
       </GameControls>
+      
+      {/* Enhanced Animation Styles */}
+      <style>
+        {`
+          @keyframes slideUpFade {
+            0% {
+              opacity: 0;
+              transform: translateX(-50%) translateY(30px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateX(-50%) translateY(0);
+            }
+          }
+          
+          @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+          }
+          
+          @keyframes pulseGlow {
+            0%, 100% {
+              opacity: 1;
+              text-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.8;
+              text-shadow: 0 0 30px rgba(220, 38, 38, 1);
+              transform: scale(1.05);
+            }
+          }
+          
+          @keyframes pulse {
+            0%, 100% { 
+              opacity: 1; 
+              transform: scale(1); 
+            }
+            50% { 
+              opacity: 0.8; 
+              transform: scale(1.05); 
+            }
+          }
+        `}
+      </style>
     </>
   )
 }

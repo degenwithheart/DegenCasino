@@ -188,51 +188,18 @@ export default function LuckyNumber() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #16a34a 75%, #22c55e 100%)',
-              borderRadius: '24px',
-              border: '3px solid rgba(34, 197, 94, 0.3)',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
               boxShadow: `
-                0 25px 50px rgba(0, 0, 0, 0.5),
-                inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-                0 0 30px rgba(34, 197, 94, 0.2)
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
-            {/* Floating lucky number background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '5%',
-              fontSize: '120px',
-              opacity: 0.05,
-              transform: 'rotate(-15deg)',
-              pointerEvents: 'none',
-              color: '#16a34a'
-            }}>🍀</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '5%',
-              right: '5%',
-              fontSize: '100px',
-              opacity: 0.06,
-              transform: 'rotate(25deg)',
-              pointerEvents: 'none',
-              color: '#22c55e'
-            }}>7️⃣</div>
-            <div style={{
-              position: 'absolute',
-              top: '40%',
-              right: '8%',
-              fontSize: '80px',
-              opacity: 0.04,
-              transform: 'rotate(-30deg)',
-              pointerEvents: 'none',
-              color: '#15803d'
-            }}>🎯</div>
-            
             <div style={{
               textAlign: 'center',
               marginBottom: 20,

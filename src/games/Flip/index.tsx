@@ -190,40 +190,12 @@ export default function Flip() {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #d4af37 50%, #ffd700 75%, #ffed4e 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(255, 215, 0, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(255, 215, 0, 0.2)
-            `,
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Floating coin background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '5%',
-              left: '3%',
-              fontSize: '100px',
-              opacity: 0.08,
-              transform: 'rotate(-20deg)',
-              pointerEvents: 'none',
-              color: '#ffd700'
-            }}>🪙</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '5%',
-              right: '3%',
-              fontSize: '80px',
-              opacity: 0.06,
-              transform: 'rotate(35deg)',
-              pointerEvents: 'none',
-              color: '#ffed4e'
-            }}>👑</div>
-            
             {/* Background Effects */}
             <div style={{
               position: 'absolute',
@@ -231,8 +203,8 @@ export default function Flip() {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.15) 0%, transparent 70%)',
-              opacity: flipping ? 1 : 0.6,
+              background: 'radial-gradient(circle at 50% 50%, rgba(252, 211, 77, 0.1) 0%, transparent 50%)',
+              opacity: flipping ? 1 : 0.5,
               transition: 'opacity 0.5s ease'
             }} />
 

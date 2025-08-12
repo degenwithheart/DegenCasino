@@ -204,56 +204,8 @@ export default function Scissors() {
       <GambaUi.Portal target="screen">
         <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
           {/* Main Game Area */}
-          <div style={{ 
-            flex: 1,
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #6b21a8 75%, #7c3aed 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(124, 58, 237, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(124, 58, 237, 0.2)
-            `,
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
-            {/* Floating rock paper scissors background elements */}
-            <div style={{
-              position: 'absolute',
-              top: '8%',
-              left: '5%',
-              fontSize: '100px',
-              opacity: 0.05,
-              transform: 'rotate(-15deg)',
-              pointerEvents: 'none',
-              color: '#6b21a8',
-              zIndex: 1
-            }}>✂️</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '8%',
-              right: '5%',
-              fontSize: '80px',
-              opacity: 0.06,
-              transform: 'rotate(25deg)',
-              pointerEvents: 'none',
-              color: '#7c3aed',
-              zIndex: 1
-            }}>🪨</div>
-            <div style={{
-              position: 'absolute',
-              top: '40%',
-              right: '8%',
-              fontSize: '70px',
-              opacity: 0.04,
-              transform: 'rotate(-30deg)',
-              pointerEvents: 'none',
-              color: '#8b5cf6',
-              zIndex: 1
-            }}>📄</div>
-            
-            <Container $isCompact={isCompact} style={{ position: 'relative', zIndex: 2 }}>
+          <div style={{ flex: 1 }}>
+            <Container $isCompact={isCompact}>
               <GameArea>
                 {/* Player Choice Section */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

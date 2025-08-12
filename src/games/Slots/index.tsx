@@ -425,260 +425,272 @@ export default function Slots() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        {good && <EffectTest src={combination[0].image} />}
-        <GambaUi.Responsive>
+        <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
+          {/* Main game area */}
           <div
             style={{
-              transform: `scale(${scale})`,
-              transformOrigin: 'center',
-              width: '100%',
-              height: '100%',
-              transition: 'transform 0.2s ease-out',
+              flex: 1,
+              minHeight: '400px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '20px',
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533a7d 75%, #8e44ad 100%)',
-              borderRadius: '24px',
-              border: '3px solid rgba(255, 255, 255, 0.15)',
+              background: 'linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%)',
+              borderRadius: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
               boxShadow: `
-                0 25px 50px rgba(0, 0, 0, 0.5),
-                inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-                0 0 30px rgba(142, 68, 173, 0.2)
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2)
               `,
               overflow: 'hidden',
               position: 'relative',
-              padding: '20px'
             }}
-            className="slots-game-scaler"
           >
-            {/* Main Game Area */}
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              flex: 1,
-              maxWidth: '600px',
-              position: 'relative'
-            }}>
-              {/* Dramatic Thinking Overlay */}
-              {renderThinkingOverlay(
-                gamePhase === 'thinking' && (
-                  <div className="thinking-overlay">
-                    <div className="thinking-content">
-                      <div className="thinking-emoji">{thinkingEmoji}</div>
-                      <div className="thinking-text">Calculating the perfect spin...</div>
-                      <div className="thinking-subtext">🎯 Analyzing 15 paylines 🎯</div>
-                    </div>
-                  </div>
-                )
-              )}
-
-              {/* Dramatic Pause Overlay */}
-              {renderThinkingOverlay(
-                dramaticPause && (
-                  <div className="dramatic-pause-overlay">
-                    <div className="dramatic-pause-content">
-                      <div className="pause-emoji">⏰</div>
-                      <div className="pause-text">Moment of Truth...</div>
-                    </div>
-                  </div>
-                )
-              )}
-
-              {/* Celebration Overlays */}
-              {renderThinkingOverlay(
-                gamePhase === 'celebrating' && celebrationIntensity > 0 && (
-                  <div className={`celebration-overlay celebration-level-${celebrationIntensity}`}>
-                    <div className="celebration-content">
-                      {celebrationIntensity >= 3 && (
-                        <>
-                          <div className="mega-win-text">🎆 MEGA WIN! 🎆</div>
-                          <div className="win-amount">{currentWin && `${currentWin.multiplier}x MULTIPLIER!`}</div>
-                        </>
-                      )}
-                      {celebrationIntensity === 2 && (
-                        <>
-                          <div className="big-win-text">🎉 BIG WIN! 🎉</div>
-                          <div className="win-amount">{currentWin && `${currentWin.multiplier}x PAYOUT!`}</div>
-                        </>
-                      )}
-                      {celebrationIntensity === 1 && (
-                        <>
-                          <div className="nice-win-text">✨ NICE WIN! ✨</div>
-                          <div className="win-amount">{currentWin && `${currentWin.multiplier}x`}</div>
-                        </>
-                      )}
-                    </div>
-                    <div className="celebration-particles">
-                      {Array.from({ length: celebrationIntensity * 15 }).map((_, i) => (
-                        <div 
-                          key={i} 
-                          className="particle" 
-                          style={{ 
-                            animationDelay: `${Math.random() * 2}s`,
-                            left: `${Math.random() * 100}%`,
-                            animationDuration: `${2 + Math.random() * 2}s`
-                          }}
-                        >
-                          {['💎', '🌟', '✨', '🎉', '🎊', '💰', '🏆', '🔥'][Math.floor(Math.random() * 8)]}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              )}
-
-              {/* Mourning Overlay */}
-              {renderThinkingOverlay(
-                gamePhase === 'mourning' && (
-                  <div className="mourning-overlay">
-                    <div className="mourning-content">
-                      <div className="mourning-emoji">😔</div>
-                      <div className="mourning-text">Better luck next spin!</div>
-                      <div className="mourning-subtext">🎰 The machine hungers for more... 🎰</div>
-                    </div>
-                  </div>
-                )
-              )}
-
-              <StyledSlots className={`game-phase-${gamePhase} celebration-intensity-${celebrationIntensity}`}>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+            {/* Decorative corner elements */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: `
+                radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 20, 147, 0.08) 0%, transparent 50%)
+              `,
+              pointerEvents: 'none',
+            }} />
+            
+            {good && <EffectTest src={combination[0].image} />}
+            <GambaUi.Responsive>
+              <div
+                style={{
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center',
                   width: '100%',
                   height: '100%',
-                }}>
-                  <div style={{ 
-                    flex: 1, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
+                  transition: 'transform 0.2s ease-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                }}
+                className="slots-game-scaler"
+              >
+                {/* Dramatic Thinking Overlay */}
+                {renderThinkingOverlay(
+                  gamePhase === 'thinking' && (
+                    <div className="thinking-overlay">
+                      <div className="thinking-content">
+                        <div className="thinking-emoji">{thinkingEmoji}</div>
+                        <div className="thinking-text">Calculating the perfect spin...</div>
+                        <div className="thinking-subtext">🎯 Analyzing 15 paylines 🎯</div>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {/* Dramatic Pause Overlay */}
+                {renderThinkingOverlay(
+                  dramaticPause && (
+                    <div className="dramatic-pause-overlay">
+                      <div className="dramatic-pause-content">
+                        <div className="pause-emoji">⏰</div>
+                        <div className="pause-text">Moment of Truth...</div>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {/* Celebration Overlays */}
+                {renderThinkingOverlay(
+                  gamePhase === 'celebrating' && celebrationIntensity > 0 && (
+                    <div className={`celebration-overlay celebration-level-${celebrationIntensity}`}>
+                      <div className="celebration-content">
+                        {celebrationIntensity >= 3 && (
+                          <>
+                            <div className="mega-win-text">🎆 MEGA WIN! 🎆</div>
+                            <div className="win-amount">{currentWin && `${currentWin.multiplier}x MULTIPLIER!`}</div>
+                          </>
+                        )}
+                        {celebrationIntensity === 2 && (
+                          <>
+                            <div className="big-win-text">🎉 BIG WIN! 🎉</div>
+                            <div className="win-amount">{currentWin && `${currentWin.multiplier}x PAYOUT!`}</div>
+                          </>
+                        )}
+                        {celebrationIntensity === 1 && (
+                          <>
+                            <div className="nice-win-text">✨ NICE WIN! ✨</div>
+                            <div className="win-amount">{currentWin && `${currentWin.multiplier}x`}</div>
+                          </>
+                        )}
+                      </div>
+                      <div className="celebration-particles">
+                        {Array.from({ length: celebrationIntensity * 15 }).map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="particle" 
+                            style={{ 
+                              animationDelay: `${Math.random() * 2}s`,
+                              left: `${Math.random() * 100}%`,
+                              animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                          >
+                            {['💎', '🌟', '✨', '🎉', '🎊', '💰', '🏆', '🔥'][Math.floor(Math.random() * 8)]}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {/* Mourning Overlay */}
+                {renderThinkingOverlay(
+                  gamePhase === 'mourning' && (
+                    <div className="mourning-overlay">
+                      <div className="mourning-content">
+                        <div className="mourning-emoji">😔</div>
+                        <div className="mourning-text">Better luck next spin!</div>
+                        <div className="mourning-subtext">🎰 The machine hungers for more... 🎰</div>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                <StyledSlots className={`game-phase-${gamePhase} celebration-intensity-${celebrationIntensity}`}>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     width: '100%',
-                    marginBottom: '20px'
+                    height: '100%',
                   }}>
-                    <div className="slots-grid" ref={slotsGridRef}>
-                      {/* Winning Line Overlay */}
-                      {good && (
-                        <WinningLine
-                          winningPositions={winningPositions}
-                          winningPayline={winningPayline}
-                          isScatter={winningPayline === null && winningPositions.length > 0}
-                        />
-                      )}
-                      {/* Enhanced Symbol Highlighting */}
-                      {highlightedSymbol && (
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          pointerEvents: 'none',
-                          zIndex: 10
-                        }}>
-                          {combination.map((item, index) => 
-                            item.id === highlightedSymbol ? (
+                    <div style={{ 
+                      flex: 1, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      width: '100%',
+                      marginBottom: '20px'
+                    }}>
+                      <div className="slots-grid" ref={slotsGridRef}>
+                        {/* Winning Line Overlay */}
+                        {good && (
+                          <WinningLine
+                            winningPositions={winningPositions}
+                            winningPayline={winningPayline}
+                            isScatter={winningPayline === null && winningPositions.length > 0}
+                          />
+                        )}
+                        {/* Enhanced Symbol Highlighting */}
+                        {highlightedSymbol && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            pointerEvents: 'none',
+                            zIndex: 10
+                          }}>
+                            {combination.map((item, index) => 
+                              item.id === highlightedSymbol ? (
+                                <div
+                                  key={index}
+                                  style={{
+                                    position: 'absolute',
+                                    top: `${Math.floor(index / NUM_REELS) * (100 / NUM_ROWS)}%`,
+                                    left: `${(index % NUM_REELS) * (100 / NUM_REELS)}%`,
+                                    width: `${100 / NUM_REELS}%`,
+                                    height: `${100 / NUM_ROWS}%`,
+                                    background: 'rgba(255, 224, 102, 0.3)',
+                                    border: '2px solid #ffe066',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 0 15px rgba(255, 224, 102, 0.6)',
+                                    animation: 'pulse 1.5s infinite'
+                                  }}
+                                />
+                              ) : null
+                            )}
+                          </div>
+                        )}
+                        {/* Payline Highlighting */}
+                        {highlightedPayline !== null && PAYLINES[highlightedPayline] && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            pointerEvents: 'none',
+                            zIndex: 5
+                          }}>
+                            {PAYLINES[highlightedPayline].map((position, index) => (
                               <div
                                 key={index}
                                 style={{
                                   position: 'absolute',
-                                  top: `${Math.floor(index / NUM_REELS) * (100 / NUM_ROWS)}%`,
-                                  left: `${(index % NUM_REELS) * (100 / NUM_REELS)}%`,
+                                  top: `${Math.floor(position / NUM_REELS) * (100 / NUM_ROWS)}%`,
+                                  left: `${(position % NUM_REELS) * (100 / NUM_REELS)}%`,
                                   width: `${100 / NUM_REELS}%`,
                                   height: `${100 / NUM_ROWS}%`,
-                                  background: 'rgba(255, 224, 102, 0.3)',
-                                  border: '2px solid #ffe066',
+                                  background: 'rgba(224, 255, 179, 0.2)',
+                                  border: '2px solid #b3ffd9',
                                   borderRadius: '8px',
-                                  boxShadow: '0 0 15px rgba(255, 224, 102, 0.6)',
-                                  animation: 'pulse 1.5s infinite'
+                                  animation: 'glow 2s infinite'
                                 }}
                               />
-                            ) : null
-                          )}
-                        </div>
-                      )}
-                      {/* Payline Highlighting */}
-                      {highlightedPayline !== null && PAYLINES[highlightedPayline] && (
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          pointerEvents: 'none',
-                          zIndex: 5
-                        }}>
-                          {PAYLINES[highlightedPayline].map((position, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                position: 'absolute',
-                                top: `${Math.floor(position / NUM_REELS) * (100 / NUM_ROWS)}%`,
-                                left: `${(position % NUM_REELS) * (100 / NUM_REELS)}%`,
-                                width: `${100 / NUM_REELS}%`,
-                                height: `${100 / NUM_ROWS}%`,
-                                background: 'rgba(224, 255, 179, 0.2)',
-                                border: '2px solid #b3ffd9',
-                                borderRadius: '8px',
-                                animation: 'glow 2s infinite'
-                              }}
-                            />
-                          ))}
-                        </div>
-                      )}
-                      {/* Group slots by reel */}
-                      {Array.from({ length: NUM_REELS }).map((_, reelIndex) => (
-                        <div key={reelIndex} className="slots-reel">
-                          <div className="reel-label">REEL {reelIndex + 1}</div>
-                          {Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                            const slotIndex = rowIndex * NUM_REELS + reelIndex
-                            const isReelRevealed = revealedReels > reelIndex
-                            return (
-                              <Slot
-                                key={slotIndex}
-                                index={slotIndex}
-                                revealed={isReelRevealed}
-                                item={combination[slotIndex]}
-                                good={good}
-                              />
-                            )
-                          })}
-                        </div>
-                      ))}
+                            ))}
+                          </div>
+                        )}
+                        {/* Group slots by reel */}
+                        {Array.from({ length: NUM_REELS }).map((_, reelIndex) => (
+                          <div key={reelIndex} className="slots-reel">
+                            <div className="reel-label">REEL {reelIndex + 1}</div>
+                            {Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                              const slotIndex = rowIndex * NUM_REELS + reelIndex
+                              const isReelRevealed = revealedReels > reelIndex
+                              return (
+                                <Slot
+                                  key={slotIndex}
+                                  index={slotIndex}
+                                  revealed={isReelRevealed}
+                                  item={combination[slotIndex]}
+                                  good={good}
+                                />
+                              )
+                            })}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </StyledSlots>
-            </div>
-
-            {/* Live Paytable Sidebar */}
-            <SlotsPaytable
-              ref={paytableRef}
-              wager={wager}
-              currentWin={currentWin}
-              onSymbolHover={setHighlightedSymbol}
-              onPaylineHover={setHighlightedPayline}
-            />
+                </StyledSlots>
+              </div>
+            </GambaUi.Responsive>
           </div>
-        </GambaUi.Responsive>
+          
+          {/* Paytable sidebar */}
+          <SlotsPaytable
+            ref={paytableRef}
+            wager={wager}
+            currentWin={currentWin}
+            onSymbolHover={setHighlightedSymbol}
+            onPaylineHover={setHighlightedPayline}
+          />
+        </div>
       </GambaUi.Portal>
       
-      <GambaUi.Portal target="controls">
-        <GameControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={play}
-          isPlaying={spinning || gamePhase === 'thinking'}
-          showOutcome={showOutcome}
-          playButtonText={playButtonText}
-          onPlayAgain={handlePlayAgain}
-        />
-      </GambaUi.Portal>
+      <GameControls
+        wager={wager}
+        setWager={setWager}
+        onPlay={play}
+        isPlaying={spinning || gamePhase === 'thinking'}
+        showOutcome={showOutcome}
+        playButtonText={playButtonText}
+        onPlayAgain={handlePlayAgain}
+      />
       
       <style>{`
         @keyframes pulse {

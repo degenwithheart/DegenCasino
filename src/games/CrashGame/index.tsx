@@ -235,21 +235,7 @@ export default function CrashGame() {
       <GambaUi.Portal target="screen">
         <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
           {/* Main game area */}
-          <div style={{ 
-            flex: 1, 
-            minWidth: 0,
-            background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3a8a 100%)',
-            borderRadius: '24px',
-            border: '3px solid rgba(59, 130, 246, 0.3)',
-            boxShadow: `
-              0 25px 50px rgba(0, 0, 0, 0.5),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-              0 0 30px rgba(59, 130, 246, 0.2)
-            `,
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <ScreenWrapper>
               <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
               <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
