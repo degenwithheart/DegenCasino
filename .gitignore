@@ -2,6 +2,8 @@
 .env
 ExampleGames/
 **/ExampleGames/
+NEWGAME/
+**/NEWGAME/
 .DS_Store
 **/.DS_Store
 .vercel
