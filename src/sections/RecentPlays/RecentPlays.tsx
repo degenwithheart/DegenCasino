@@ -77,8 +77,12 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
   )
 }
 
-export default function RecentPlays() {
-  const events = useRecentPlays({ showAllPlatforms: false })
+interface RecentPlaysProps {
+  showAllPlatforms?: boolean;
+}
+
+export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysProps) {
+  const events = useRecentPlays({ showAllPlatforms })
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
 

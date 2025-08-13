@@ -445,7 +445,7 @@ export default function Dashboard() {
             <GameGrid />
           ) : (
             <SectionWrapper>
-              <RecentPlays />
+              <RecentPlays showAllPlatforms={true} />
             </SectionWrapper>
           )}
         </>

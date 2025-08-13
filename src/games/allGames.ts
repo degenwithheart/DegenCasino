@@ -51,6 +51,18 @@ export const ALL_GAMES: GameBundle[] = [
     app: React.lazy(() => import('./Flip')),
   },
   {
+    id: 'flip-mp',
+    live: 'up',
+    meta: {
+      name: 'Flip MP',
+      image: '/games/flip/flip.png',
+      background: '#000000CC',
+      description: `Heads or Tails, like love or loss. A perfect 50/50 with no strategy and no mercy. Just raw instinct. Fast. Final. Fatal. The coin spins and you hold your breath like it's the last kiss before goodbye.`,
+      effect: 'pulse',
+    },
+    app: React.lazy(() => import('./FlipMP')),
+  },
+  {
     id: 'hilo',
     live: 'up',
     meta: {

@@ -1,0 +1,22 @@
+.flipmp-root{display:flex;flex-direction:column;gap:16px;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+.flipmp-header{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #e5e7eb}
+.mode-select,.wager-input{display:flex;align-items:center;gap:8px}
+.lobby{padding:8px 0}
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.slot-card{border:2px solid #e5e7eb;border-radius:14px;padding:12px;background:#0b0b0c;color:#f3f4f6;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.slot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.team-pill{padding:2px 8px;border-radius:999px;color:#0b0b0c;font-weight:700}
+.slot-index{opacity:.7}
+.join-btn,.ready-btn{width:100%;padding:10px;border-radius:10px;border:none;cursor:pointer;background:#1f2937;color:#fff}
+.join-btn:hover,.ready-btn:hover{background:#374151}
+.player-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.player-name{font-weight:600}
+.ready-dot{width:10px;height:10px;border-radius:999px;background:#6b7280}
+.ready-dot.on{background:#22c55e}
+.countdown-bar{margin-top:8px;text-align:center}
+.countdown strong{font-size:20px}
+.stage{height:360px;border-radius:14px;overflow:hidden;background:radial-gradient(100% 100% at 0% 0%, #0d0f1a 0%, #0b0b0c 70%);border:1px solid #111827}
+.results .result-card{margin-top:8px;padding:12px;border-radius:12px;background:#0b0b0c;border:1px solid #1f2937;color:#e5e7eb}
+.hint{opacity:.7}
+.flip-overlays{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;color:#e5e7eb;padding:8px 12px;border-radius:10px;border:1px solid #374151}
+.flip-paytable{margin-top:8px;padding:12px;border:1px solid #1f2937;border-radius:12px;background:#0b0b0c;color:#e5e7eb}

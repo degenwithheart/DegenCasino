@@ -35,7 +35,6 @@ import Propagation from './pages/propagation';
 import { GambaResultProvider } from './context/GambaResultContext';
 import { MilestoneProvider } from './context/MilestoneContext';
 import { MilestoneModalContainer } from './components/MilestoneModalContainer';
-import { MilestoneTestPanel } from './components/MilestoneTestPanel';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -227,8 +226,6 @@ export default function App() {
           {/* Uncomment if needed */}
           {/* <LeaderboardsModal /> */}
           
-          {/* Milestone Test Panel - Remove in production */}
-          <MilestoneTestPanel />
         </div>
       </div>
     </LiveAccessWrapper>
