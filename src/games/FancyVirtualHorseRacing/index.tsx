@@ -61,6 +61,9 @@ export default function FancyVirtualHorseRacing() {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -391,7 +394,7 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
         onPlay={playRace}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Start Another Race' : 'Start Race'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Start Race'}
         playButtonDisabled={!confirming || selectedHorse === null}
         onPlayAgain={originalHandlePlayAgain}
       >

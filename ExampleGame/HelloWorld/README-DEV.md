@@ -355,7 +355,7 @@ The `GameControls` component is a reusable, standardized controls interface for 
   onPlay={play}
   isPlaying={isPlaying}
   showOutcome={showOutcome}
-  playButtonText={hasPlayedBefore ? 'Play Again' : 'Spin'}
+  playButtonText={hasPlayedBefore ? 'Restart' : 'Spin'}
   onPlayAgain={handlePlayAgain}
   onOpenSidebar={() => setShowPaytable(true)}
 >
@@ -405,7 +405,7 @@ interface GameControlsProps {
 #### Features:
 - **Win/Loss Detection:** Automatically determines if profit > 0
 - **Overlay Management:** Controls `showOutcome` state for result displays
-- **Play Again Logic:** Handles game state reset for consecutive plays
+- **Restart Logic:** Handles game state reset for consecutive plays
 - **Profit Calculation:** Calculates and tracks profit amounts
 
 #### Usage:
@@ -930,7 +930,7 @@ All games using modern architecture:
   onPlay={play}
   isPlaying={isPlaying}
   showOutcome={showOutcome}
-  playButtonText={hasPlayedBefore ? 'Play Again' : 'Start'}
+  playButtonText={hasPlayedBefore ? 'Restart' : 'Start'}
 >
   {/* Custom game-specific controls here */}
 </GameControls>
@@ -963,7 +963,7 @@ interface GameControlsProps {
   onPlay={play}
   isPlaying={isPlaying}
   showOutcome={showOutcome}
-  playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+  playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
 />
 ```
 **With Options:**
@@ -1183,7 +1183,7 @@ The template already wires up wager input and play button. If your game needs ex
   onPlay={play}
   isPlaying={isPlaying}
   showOutcome={showOutcome}
-  playButtonText={hasPlayedBefore ? 'Play Again' : 'Spin'}
+  playButtonText={hasPlayedBefore ? 'Restart' : 'Spin'}
 >
   <GambaUi.Select
     options={DIFFICULTY_OPTIONS}
@@ -1364,7 +1364,7 @@ export default function ExampleGame() {
     profitAmount,
     resetGameState,
   } = useGameOutcome()
-  const playButtonText = hasPlayedBefore && !showOutcome ? 'Play Again' : 'Play'
+  const playButtonText = hasPlayedBefore && !showOutcome ? 'Restart' : 'Play'
   const tokenMeta = token ? TOKEN_METADATA.find((t) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
   const maxWager = baseWager * 1_000_000
@@ -1561,7 +1561,7 @@ export default function HelloWorld() {
     profitAmount,
     resetGameState,
   } = useGameOutcome()
-  const playButtonText = hasPlayedBefore && !showOutcome ? 'Play Again' : 'Play'
+  const playButtonText = hasPlayedBefore && !showOutcome ? 'Restart' : 'Play'
   const tokenMeta = token ? TOKEN_METADATA.find((t) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
   const maxWager = baseWager * 1_000_000

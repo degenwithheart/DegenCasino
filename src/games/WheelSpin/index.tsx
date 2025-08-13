@@ -35,6 +35,9 @@ export default function WheelSpin() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult();
 
@@ -45,8 +48,8 @@ export default function WheelSpin() {
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
   const [thinkingEmoji, setThinkingEmoji] = React.useState('🎡')
 
-  // Dynamic play button text
-  const playButtonText = hasPlayedBefore && !showOutcome ? "Play Again" : "Spin";
+  // Dynamic play button display text
+  const playButtonDisplayText = hasPlayedBefore && !showOutcome ? "Restart" : "Spin"
 
   // Find token metadata for symbol/decimals display
   const tokenMeta = token ? TOKEN_METADATA.find((t) => t.symbol === token.symbol) : undefined
@@ -426,7 +429,7 @@ export default function WheelSpin() {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={playButtonText}
+        playButtonText={playButtonDisplayText}
         onPlayAgain={handlePlayAgain}
       />
       

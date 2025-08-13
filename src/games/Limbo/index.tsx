@@ -73,6 +73,9 @@ export default function Limbo() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -472,7 +475,7 @@ export default function Limbo() {
         onPlay={play}
         isPlaying={playing}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
         onPlayAgain={handlePlayAgain}
       >
         {/* Multiplier Target Slider */}

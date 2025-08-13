@@ -417,7 +417,7 @@ export default function HelloWorld() {
         onPlay={play}
         isPlaying={playing}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
         onPlayAgain={handlePlayAgain}
       >
         {/* Choice Selection Controls */}

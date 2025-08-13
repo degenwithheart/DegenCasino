@@ -110,6 +110,9 @@ export default function SlideGame() {
   // Game outcome hook
   const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain: baseHandlePlayAgain, isWin, profitAmount, resetGameState } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 

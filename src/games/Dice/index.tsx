@@ -69,6 +69,10 @@ export default function Dice() {
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(100 / 2));
   const [isWin, setIsWin] = React.useState<boolean | null>(null);
   const [profitAmount, setProfitAmount] = React.useState(0);
+  const [hasPlayedBefore, setHasPlayedBefore] = React.useState(false);
+  
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore ? "Restart" : "Start"
   
   // Game phase management for overlays
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle');
@@ -131,6 +135,7 @@ export default function Dice() {
     setCelebrationIntensity(0);
     setIsWin(null);
     setResultIndex(-1);
+    setHasPlayedBefore(true);
     
     // Random thinking emoji
     const thinkingEmojis = ['🤔', '🎯', '🔮', '⚡', '🎲', '💭'];
@@ -226,8 +231,6 @@ export default function Dice() {
       await play();
     }
   };
-
-  const playButtonText = "Play";
 
   return (
     <>

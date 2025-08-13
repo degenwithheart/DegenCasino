@@ -296,7 +296,6 @@ export function GameControls({
           {ENABLE_GAMBA_RESULT_MODAL && (
             <GambaUi.Button
               onClick={() => setShowGambaResultModal(true)}
-              disabled={isPlaying || showOutcome}
             >
               Result
             </GambaUi.Button>

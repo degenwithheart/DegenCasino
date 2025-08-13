@@ -131,6 +131,9 @@ export default function Blackjack(props: BlackjackConfig) {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -1033,7 +1036,7 @@ export default function Blackjack(props: BlackjackConfig) {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Deal Again' : 'Deal'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Deal'}
         onPlayAgain={handlePlayAgain}
       />
     </>

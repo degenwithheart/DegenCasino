@@ -83,6 +83,9 @@ export default function HiLo(props: HiLoConfig) {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -516,7 +519,7 @@ export default function HiLo(props: HiLoConfig) {
         onPlay={play}
         isPlaying={gamba.isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
         onPlayAgain={handlePlayAgain}
       >
       </GameControls>

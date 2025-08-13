@@ -51,6 +51,9 @@ function DoubleOrNothing() {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult();
 
@@ -403,7 +406,7 @@ function DoubleOrNothing() {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
         onPlayAgain={handlePlayAgain}
       >
         {/* Mode Selection */}

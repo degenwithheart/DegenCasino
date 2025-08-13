@@ -58,6 +58,9 @@ export default function Plinko() {
   const [runningTotal, setRunningTotal] = React.useState(0)
   const [hasPlayedBefore, setHasPlayedBefore] = React.useState(false)
   
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore ? "Restart" : "Start"
+  
   // Game phase management for overlays
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)

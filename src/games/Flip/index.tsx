@@ -55,6 +55,9 @@ export default function Flip() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -403,7 +406,7 @@ export default function Flip() {
         onPlay={play}
         isPlaying={flipping}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Play Again' : 'Play'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Play'}
         onPlayAgain={handlePlayAgain}
       >
         {/* Side Selection */}

@@ -49,6 +49,9 @@ export default function QuantumLab() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Play Again" : "Start"
+
   const tokenMeta = token ? TOKEN_METADATA.find(t => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
 

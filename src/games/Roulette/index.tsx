@@ -181,6 +181,9 @@ export default function Roulette() {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -600,7 +603,7 @@ export default function Roulette() {
         showOutcome={showOutcome}
         playButtonText={
           gamePhase === 'spinning' ? 'Spinning...' :
-          hasPlayedBefore ? 'Spin Again' : 'Spin'
+          hasPlayedBefore ? 'Restart' : 'Spin'
         }
         playButtonDisabled={balanceExceeded || maxPayoutExceeded || gamePhase === 'spinning'}
         onPlayAgain={handlePlayAgain}

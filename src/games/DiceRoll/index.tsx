@@ -41,6 +41,9 @@ export default function DiceRoll() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -365,7 +368,7 @@ export default function DiceRoll() {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore && !showOutcome ? 'Roll Again' : 'Roll Dice'}
+        playButtonText={hasPlayedBefore && !showOutcome ? 'Restart' : 'Roll Dice'}
         onPlayAgain={handlePlayAgain}
       />
       

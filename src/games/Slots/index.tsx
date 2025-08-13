@@ -164,11 +164,14 @@ export default function Slots() {
     resetGameState,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
   // Dynamic play button text with animation
-  const playButtonText = hasPlayedBefore && !showOutcome ? "🎰 SPIN AGAIN! 🎰" : "🚀 SPIN TO WIN! 🚀"
+  const playButtonDisplayText = hasPlayedBefore && !showOutcome ? "🎰 Restart! 🎰" : "🚀 Spin To Win! 🚀"
 
   // Thinking emoji cycle for dramatic effect
   const thinkingEmojis = ['🎰', '🤔', '💭', '🎯', '🔮', '✨', '🎲', '🎪', '🎭', '🎨', '💎', '🌟']
@@ -739,7 +742,7 @@ export default function Slots() {
         onPlay={play}
         isPlaying={spinning || gamePhase === 'thinking'}
         showOutcome={showOutcome}
-        playButtonText={playButtonText}
+        playButtonText={playButtonDisplayText}
         onPlayAgain={handlePlayAgain}
       />
       

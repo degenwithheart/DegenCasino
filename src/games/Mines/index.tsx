@@ -82,6 +82,9 @@ function Mines() {
   const [celebrationIntensity, setCelebrationIntensity] = useState(0)
   const [thinkingEmoji, setThinkingEmoji] = useState('🤔')
 
+  // Dynamic play button text
+  const playButtonText = started ? "Restart" : "Start"
+
   // Responsive: detect compact/mobile
   const isCompact = useIsCompact();
 

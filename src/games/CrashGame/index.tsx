@@ -40,6 +40,9 @@ export default function CrashGame() {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -280,7 +283,7 @@ export default function CrashGame() {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Launch Again' : 'Launch'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Launch'}
         style={{ padding: '0 16px' }}
         onPlayAgain={handlePlayAgain}
       >

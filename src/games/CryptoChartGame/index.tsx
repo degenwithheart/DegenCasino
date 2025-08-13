@@ -28,6 +28,9 @@ export default function CryptoChartGame() {
 
     const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult()
 
@@ -335,7 +338,7 @@ export default function CryptoChartGame() {
           onPlay={play}
           isPlaying={isPlaying}
           showOutcome={showOutcome}
-          playButtonText={hasPlayedBefore ? 'Trade Again' : 'Trade'}
+          playButtonText={hasPlayedBefore ? 'Restart' : 'Trade'}
           style={{ padding: '0 16px' }}
           onPlayAgain={handlePlayAgain}
         >

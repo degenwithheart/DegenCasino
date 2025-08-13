@@ -234,7 +234,7 @@ const PlinkoMultiBallOverlay: React.FC<PlinkoMultiBallOverlayProps> = ({
         </StatsContainer>
 
         <PlayAgainButton $isWin={isWin} onClick={onPlayAgain}>
-          {hasPlayedBefore ? `Play ${ballsPlayed} Balls Again` : 'Play Again'}
+          {hasPlayedBefore ? `Play ${ballsPlayed} Balls Again` : 'Restart'}
         </PlayAgainButton>
       </ContentContainer>
     </OverlayContainer>

@@ -89,6 +89,9 @@ export default function LuckyNumber() {
     profitAmount,
   } = useGameOutcome()
 
+  // Dynamic play button text
+  const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
+
   // Gamba result storage
   const { storeResult } = useGambaResult();
 
@@ -442,7 +445,7 @@ export default function LuckyNumber() {
         onPlay={play}
         isPlaying={isPlaying}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Pick Again' : 'Pick Number'}
+        playButtonText={hasPlayedBefore ? 'Restart' : 'Pick Number'}
         onPlayAgain={handlePlayAgain}
       >
         {/* Number Selection Display */}

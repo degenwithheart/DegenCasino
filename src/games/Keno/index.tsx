@@ -92,7 +92,7 @@ export default function Keno() {
     : selectedNumbers.length === 0 
       ? "Select Numbers"
       : hasPlayedBefore && !showOutcome 
-        ? "Play Again" 
+        ? "Restart" 
         : "Play Keno";
 
   const sounds = useSound({

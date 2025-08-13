@@ -182,6 +182,9 @@ export default function ProgressivePoker() {
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
   const [thinkingEmoji, setThinkingEmoji] = React.useState('🃏')
 
+  // Dynamic play button text
+  const playButtonText = inProgress ? "Restart" : "Start"
+
   const tokenMeta = token
     ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol)
     : undefined
