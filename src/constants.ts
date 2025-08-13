@@ -213,7 +213,7 @@ export const FOOTER_LINKS = [
 export const ENABLE_LEADERBOARD = true
 
 // Feature toggle for enabling/disabling the thinking overlay animations.
-export const ENABLE_THINKING_OVERLAY = false
+export const ENABLE_THINKING_OVERLAY = true
 
 // Feature toggle for enabling/disabling the Gamba result modal button.
 export const ENABLE_GAMBA_RESULT_MODAL = true

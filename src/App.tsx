@@ -32,9 +32,14 @@ import ExchangePage from './sections/Dashboard/ExchangePage';
 // Import global responsive paytables (works for all games automatically)
 import './utils/globalResponsivePaytables';
 import Propagation from './pages/propagation';
+
 import { GambaResultProvider } from './context/GambaResultContext';
 import { MilestoneProvider } from './context/MilestoneContext';
 import { MilestoneModalContainer } from './components/MilestoneModalContainer';
+import { useIsCompact } from './hooks/useIsCompact';
+import { OverlayToggleProvider } from './utils/overlayUtils';
+
+
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -73,7 +78,6 @@ function ErrorHandler() {
   );
 }
 
-import { useIsCompact } from './hooks/useIsCompact';
 
 export default function App() {
   const { connected } = useWallet();
@@ -82,8 +86,6 @@ export default function App() {
   const isCompact = useIsCompact();
   const [showScreenSizeWarning, setShowScreenSizeWarning] = useState(false);
   const navigate = useNavigate();
-
-  // Remove forced redirect to home page on refresh
 
   useEffect(() => {
     setShowScreenSizeWarning(isCompact.screenTooSmall);
@@ -95,141 +97,143 @@ export default function App() {
 
   return (
     <GambaResultProvider>
-      <MilestoneProvider>
-        <LiveAccessWrapper>
-        <div style={{ display: 'flex' }}>
-          <Sidebar />
-          <div
-            style={{
-              flex: 1,
-              marginLeft: isCompact.compact ? 80 : 290,
-            overflowX: 'hidden',
-            maxWidth: '100vw',
-            boxSizing: 'border-box',
-            transition: 'margin-left 0.3s ease',
-          }}
-        >
-          {newcomer && (
-          <Modal>
-            {/* Overlay background */}
+      <OverlayToggleProvider>
+        <MilestoneProvider>
+          <LiveAccessWrapper>
+          <div style={{ display: 'flex' }}>
+            <Sidebar />
             <div
               style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(20, 10, 40, 0.75)',
-                zIndex: 1000,
+                flex: 1,
+                marginLeft: isCompact.compact ? 80 : 290,
+                overflowX: 'hidden',
+                maxWidth: '100vw',
+                boxSizing: 'border-box',
+                transition: 'margin-left 0.3s ease',
               }}
-            />
-            <div style={{ textAlign: 'center', padding: '2rem 1rem 1.5rem', position: 'relative', zIndex: 1001 }}>
-              <div style={{
-                height: '6px',
-                width: '100%',
-                borderRadius: '3px',
-                margin: '0.5rem 0 1.5rem',
-                background: 'linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700)',
-                backgroundSize: '300% 100%',
-                animation: 'moveGradient 3s linear infinite',
-              }} />
-              <TosWrapper>
+            >
+              {newcomer && (
+              <Modal>
+                {/* Overlay background */}
                 <div
                   style={{
-                    background: 'linear-gradient(90deg, rgb(255, 215, 0), rgb(162, 89, 255))',
-                    color: 'rgb(34, 34, 34)',
-                    boxShadow: '0 0 24px rgba(255, 215, 0, 0.533)',
-                    border: 'none',
-                    borderRadius: '1.25rem',
-                    padding: '2rem 1.5rem',
-                    margin: '0 auto 2rem',
-                    width: 700,
-                    height: 300,  
-                    textAlign: 'center',
-                    fontSize: '1.18rem',
-                    fontFamily: "'Luckiest Guy', 'Inter', cursive, sans-serif",
-                    letterSpacing: '0.01em',
-                    lineHeight: 1.7,
-                    position: 'relative',
-                    zIndex: 2,
-                    transition: 'box-shadow 0.3s',
-                    boxSizing: 'border-box',
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(20, 10, 40, 0.75)',
+                    zIndex: 1000,
                   }}
-                >
-                  <TosInner dangerouslySetInnerHTML={{ __html: TOS_HTML }} />
+                />
+                <div style={{ textAlign: 'center', padding: '2rem 1rem 1.5rem', position: 'relative', zIndex: 1001 }}>
+                  <div style={{
+                    height: '6px',
+                    width: '100%',
+                    borderRadius: '3px',
+                    margin: '0.5rem 0 1.5rem',
+                    background: 'linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700)',
+                    backgroundSize: '300% 100%',
+                    animation: 'moveGradient 3s linear infinite',
+                  }} />
+                  <TosWrapper>
+                    <div
+                      style={{
+                        background: 'linear-gradient(90deg, rgb(255, 215, 0), rgb(162, 89, 255))',
+                        color: 'rgb(34, 34, 34)',
+                        boxShadow: '0 0 24px rgba(255, 215, 0, 0.533)',
+                        border: 'none',
+                        borderRadius: '1.25rem',
+                        padding: '2rem 1.5rem',
+                        margin: '0 auto 2rem',
+                        width: 700,
+                        height: 300,  
+                        textAlign: 'center',
+                        fontSize: '1.18rem',
+                        fontFamily: "'Luckiest Guy', 'Inter', cursive, sans-serif",
+                        letterSpacing: '0.01em',
+                        lineHeight: 1.7,
+                        position: 'relative',
+                        zIndex: 2,
+                        transition: 'box-shadow 0.3s',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      <TosInner dangerouslySetInnerHTML={{ __html: TOS_HTML }} />
+                    </div>
+                  </TosWrapper>
+                  <p style={{
+                    margin: '1.5rem 0 2rem',
+                    fontSize: '1.1rem',
+                    opacity: 0.9,
+                    color: '#fff',
+                    textShadow: '0 0 8px #a259ff',
+                  }}>
+                    By playing on our platform, you confirm your compliance.
+                  </p>
+                  <button
+                    style={{
+                      margin: '0 auto',
+                      display: 'block',
+                      padding: '1rem 2.5rem',
+                      fontSize: '1.3rem',
+                      fontWeight: 700,
+                      borderRadius: '2rem',
+                      background: 'linear-gradient(90deg, #ffd700, #a259ff)',
+                      color: '#222',
+                      boxShadow: '0 0 24px #ffd70088',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: "'Luckiest Guy', cursive, sans-serif",
+                      letterSpacing: '1px',
+                      transition: 'all 0.3s ease-in-out',
+                    }}
+                    onClick={() => set({ newcomer: false })}
+                    onMouseOver={e => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 0 48px #ffd700cc';
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.transform = '';
+                      e.currentTarget.style.boxShadow = '0 0 24px #ffd70088';
+                    }}
+                  >
+                    🚀 Acknowledge
+                  </button>
                 </div>
-              </TosWrapper>
-              <p style={{
-                margin: '1.5rem 0 2rem',
-                fontSize: '1.1rem',
-                opacity: 0.9,
-                color: '#fff',
-                textShadow: '0 0 8px #a259ff',
-              }}>
-                By playing on our platform, you confirm your compliance.
-              </p>
-              <button
-                style={{
-                  margin: '0 auto',
-                  display: 'block',
-                  padding: '1rem 2.5rem',
-                  fontSize: '1.3rem',
-                  fontWeight: 700,
-                  borderRadius: '2rem',
-                  background: 'linear-gradient(90deg, #ffd700, #a259ff)',
-                  color: '#222',
-                  boxShadow: '0 0 24px #ffd70088',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: "'Luckiest Guy', cursive, sans-serif",
-                  letterSpacing: '1px',
-                  transition: 'all 0.3s ease-in-out',
-                }}
-                onClick={() => set({ newcomer: false })}
-                onMouseOver={e => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 0 48px #ffd700cc';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.boxShadow = '0 0 24px #ffd70088';
-                }}
-              >
-                🚀 Acknowledge
-              </button>
+              </Modal>
+              )}
+
+              <ScrollToTop />
+              <ErrorHandler />
+              <MilestoneModalContainer />
+              <Header />
+              <div style={{ height: '50px', visibility: 'hidden', pointerEvents: 'none' }} />
+              <Toasts />
+              <Footer />
+
+              {!connected && (
+                <div>{/* Welcome banner or other pre-connect content can go here */}</div>
+              )}
+
+              <MainWrapper>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/:wallet/profile" element={<UserProfile />} />
+                  <Route path="/game/:wallet/:gameName" element={<Game />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/whitepaper" element={<Whitepaper />} />
+                  <Route path="/aboutme" element={<AboutMe />} />
+                  <Route path="/exchange" element={<ExchangePage />} />
+                  <Route path="/propagation" element={<Propagation />} />
+                </Routes>
+              </MainWrapper>
+
+              {/* Uncomment if needed */}
+              {/* <LeaderboardsModal /> */}
+              
             </div>
-          </Modal>
-          )}
-
-          <ScrollToTop />
-          <ErrorHandler />
-          <MilestoneModalContainer />
-          <Header />
-          <div style={{ height: '50px', visibility: 'hidden', pointerEvents: 'none' }} />
-          <Toasts />
-          <Footer />
-
-          {!connected && (
-            <div>{/* Welcome banner or other pre-connect content can go here */}</div>
-          )}
-
-          <MainWrapper>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/:wallet/profile" element={<UserProfile />} />
-              <Route path="/game/:wallet/:gameName" element={<Game />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/whitepaper" element={<Whitepaper />} />
-              <Route path="/aboutme" element={<AboutMe />} />
-              <Route path="/exchange" element={<ExchangePage />} />
-              <Route path="/propagation" element={<Propagation />} />
-            </Routes>
-          </MainWrapper>
-
-          {/* Uncomment if needed */}
-          {/* <LeaderboardsModal /> */}
-          
-        </div>
-      </div>
-    </LiveAccessWrapper>
-    </MilestoneProvider>
+          </div>
+        </LiveAccessWrapper>
+        </MilestoneProvider>
+      </OverlayToggleProvider>
     </GambaResultProvider>
   );
 }

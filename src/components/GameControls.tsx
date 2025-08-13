@@ -5,7 +5,8 @@ import {
   useCurrentToken, 
   useTokenBalance 
 } from 'gamba-react-ui-v2'
-import { TOKEN_METADATA, ENABLE_GAMBA_RESULT_MODAL } from '../constants'
+import { TOKEN_METADATA, ENABLE_GAMBA_RESULT_MODAL, ENABLE_THINKING_OVERLAY } from '../constants'
+import { useOverlayToggle } from '../utils/overlayUtils'
 import { useTokenPrices } from '../hooks/useTokenPrices'
 import { ModalContent as StyledModalContent } from './GameControlsModal.styles'
 import { PresetScroll } from './GameControlsModal.presetScroll.styles'
@@ -80,6 +81,9 @@ export function GameControls({
       onPlay()
     }
   }
+
+  // Overlay toggle logic
+  const overlayToggle = useOverlayToggle();
 
   // Styles
   const containerStyle: React.CSSProperties = {
@@ -291,6 +295,13 @@ export function GameControls({
               disabled={isPlaying || showOutcome}
             >
               Wager
+            </GambaUi.Button>
+          )}
+          {ENABLE_THINKING_OVERLAY && (
+            <GambaUi.Button
+              onClick={() => overlayToggle.setEnabled(!overlayToggle.rawEnabled)}
+            >
+              {overlayToggle.rawEnabled ? 'Disable' : 'Enable'} Overlay
             </GambaUi.Button>
           )}
           {ENABLE_GAMBA_RESULT_MODAL && (
