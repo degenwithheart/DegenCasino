@@ -2,9 +2,9 @@
 
 <!-- Horizontal scrollable images (mimic a carousel) -->
 <p align="center">
-  <img src="./screenshot/1.jpg" width="350" style="display:inline-block;margin-right:10px;" />
-  <img src="./screenshot/2.jpg" width="350" style="display:inline-block;margin-right:10px;" />
-  <img src="./screenshot/3.jpg" width="350" style="display:inline-block;" />
+  <img src="./screenshots/1.jpg" width="350" style="display:inline-block;margin-right:10px;" />
+  <img src="./screenshots/2.jpg" width="350" style="display:inline-block;margin-right:10px;" />
+  <img src="./screenshots/3.jpg" width="350" style="display:inline-block;" />
 </p>
 
 > Looking to build a new game for this platform? Start with the official Hello World Game Template:
