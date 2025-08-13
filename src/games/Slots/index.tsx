@@ -243,7 +243,13 @@ export default function Slots() {
     if (reelIndex < NUM_REELS - 1) {
       timeout.current = setTimeout(() => revealReel(grid, reelIndex + 1, gambaResult), REVEAL_REEL_DELAY)
     } else {
-      sounds.sounds.spin.player.stop()
+      try {
+        if (sounds.sounds.spin.player.loop) {
+          sounds.sounds.spin.player.stop()
+        }
+      } catch (e) {
+        // Ignore stop errors if sound wasn't started
+      }
       
       // Dramatic pause before revealing result
       setDramaticPause(true)

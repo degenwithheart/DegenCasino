@@ -1,13 +1,13 @@
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
-import { TOKEN_METADATA } from '../../src/constants'
+import { TOKEN_METADATA } from '../../constants'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
-import { useGameOutcome } from '../../src/hooks/useGameOutcome'
+import { useIsCompact } from '../../hooks/useIsCompact'
+import { useGameOutcome } from '../../hooks/useGameOutcome'
 import AlienArtifactHuntPaytable, { AlienArtifactHuntPaytableRef } from './AlienArtifactHuntPaytable'
 import AlienArtifactHuntOverlays from './AlienArtifactHuntOverlays'
-import { GameControls } from '../../src/components'
+import { GameControls } from '../../components'
 
 // Bet arrays for different planet types
 const PLANET_TYPES = {

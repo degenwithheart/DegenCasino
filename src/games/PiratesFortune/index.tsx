@@ -1,41 +1,41 @@
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
-import { TOKEN_METADATA } from '../../src/constants'
+import { TOKEN_METADATA } from '../../constants'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
-import { useGameOutcome } from '../../src/hooks/useGameOutcome'
-import PyramidQuestPaytable, { PyramidQuestPaytableRef } from './PyramidQuestPaytable'
-import PyramidQuestOverlays from './PyramidQuestOverlays'
-import { GameControls } from '../../src/components'
+import { useIsCompact } from '../../hooks/useIsCompact'
+import { useGameOutcome } from '../../hooks/useGameOutcome'
+import PiratesFortunePaytable, { PiratesFortunePaytableRef } from './PiratesFortunePaytable'
+import PiratesFortuneOverlays from './PiratesFortuneOverlays'
+import { GameControls } from '../../components'
 
-// Bet arrays for different entrance paths
-const ENTRANCE_CHOICES = {
-  main: [0, 0, 5, 15],     // Main entrance - moderate risk
-  secret: [0, 0, 0, 25],   // Secret passage - high risk, high reward
-  side: [0, 2, 8, 12],     // Side entrance - balanced approach
+// Bet arrays for different sailing routes
+const ROUTE_CHOICES = {
+  coastal: [0, 2, 3, 8],      // Safe coastal waters
+  deep: [0, 0, 5, 12],        // Deep sea route
+  storm: [0, 0, 0, 20],       // Through the storm
 }
 
-type EntranceChoice = keyof typeof ENTRANCE_CHOICES
+type RouteChoice = keyof typeof ROUTE_CHOICES
 
-export default function PyramidQuest() {
+export default function PiratesFortune() {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
   const [win, setWin] = React.useState(false)
   const [resultIndex, setResultIndex] = React.useState(0)
-  const [choice, setChoice] = React.useState<EntranceChoice>('main')
+  const [choice, setChoice] = React.useState<RouteChoice>('coastal')
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
-  const paytableRef = React.useRef<PyramidQuestPaytableRef>(null)
+  const paytableRef = React.useRef<PiratesFortunePaytableRef>(null)
   
   // Multi-phase states
-  const [currentChamber, setCurrentChamber] = React.useState(0)
-  const [exploringPhase, setExploringPhase] = React.useState(false)
+  const [currentIsland, setCurrentIsland] = React.useState(0)
+  const [sailingPhase, setSailingPhase] = React.useState(false)
   const [foundTreasure, setFoundTreasure] = React.useState(false)
-  const [chamberResults, setChamberResults] = React.useState<('empty' | 'trap' | 'treasure')[]>([])
-  const [torchFlicker, setTorchFlicker] = React.useState(true)
+  const [islandResults, setIslandResults] = React.useState<('empty' | 'bones' | 'treasure')[]>([])
+  const [shipPosition, setShipPosition] = React.useState(0)
   
   // Game outcome state
   const {
@@ -54,7 +54,6 @@ export default function PyramidQuest() {
   const tokenMeta = token ? TOKEN_METADATA.find(t => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
   const maxWager = baseWager * 1000000
-  const tokenPrice = tokenMeta?.usdPrice ?? 0
 
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -74,16 +73,16 @@ export default function PyramidQuest() {
     try {
       setWin(false)
       setPlaying(true)
-      setCurrentChamber(0)
-      setExploringPhase(true)
+      setCurrentIsland(0)
+      setSailingPhase(true)
       setFoundTreasure(false)
-      setChamberResults([])
-      setTorchFlicker(true)
+      setIslandResults([])
+      setShipPosition(0)
       
       const selectedChoice = choice
-      const selectedBet = ENTRANCE_CHOICES[choice]
+      const selectedBet = ROUTE_CHOICES[choice]
 
-      if (sounds.play) sounds.play('play', { playbackRate: 0.7 })
+      if (sounds.play) sounds.play('play', { playbackRate: 0.6 })
 
       await game.play({
         bet: selectedBet,
@@ -91,52 +90,46 @@ export default function PyramidQuest() {
         metadata: [choice],
       })
 
-      // Get result first but don't reveal it
       const result = await game.result()
       const winResult = result.payout > 0
-      const treasureChamber = result.resultIndex
+      const treasureIsland = result.resultIndex
       const multiplier = winResult ? result.payout / wager : 0
 
-      // Create chamber exploration sequence
-      const chamberCount = selectedBet.length
-      const explorationResults: ('empty' | 'trap' | 'treasure')[] = []
+      // Create island hopping sequence
+      const islandCount = selectedBet.length
+      const sailingResults: ('empty' | 'bones' | 'treasure')[] = []
       
-      for (let chamber = 0; chamber < chamberCount; chamber++) {
-        setCurrentChamber(chamber + 1)
+      for (let island = 0; island < islandCount; island++) {
+        setCurrentIsland(island + 1)
+        setShipPosition(((island + 1) / islandCount) * 100)
         
-        // Simulate exploration with torch lighting effect
-        setTorchFlicker(true)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        setTorchFlicker(false)
-        await new Promise(resolve => setTimeout(resolve, 800))
+        // Simulate sailing time
+        await new Promise(resolve => setTimeout(resolve, 1800))
         
-        let chamberResult: 'empty' | 'trap' | 'treasure'
-        if (chamber === treasureChamber && winResult) {
-          chamberResult = selectedBet[chamber] >= 15 ? 'treasure' : 'trap'
-        } else if (chamber < treasureChamber || (!winResult && Math.random() < 0.4)) {
-          chamberResult = Math.random() < 0.6 ? 'empty' : 'trap'
+        let islandResult: 'empty' | 'bones' | 'treasure'
+        if (island === treasureIsland && winResult) {
+          islandResult = selectedBet[island] >= 12 ? 'treasure' : 'bones'
+        } else if (island < treasureIsland || (!winResult && Math.random() < 0.35)) {
+          islandResult = Math.random() < 0.6 ? 'empty' : 'bones'
         } else {
-          chamberResult = 'empty'
+          islandResult = 'empty'
         }
         
-        explorationResults.push(chamberResult)
-        setChamberResults([...explorationResults])
+        sailingResults.push(islandResult)
+        setIslandResults([...sailingResults])
         
-        // If we found the treasure, stop exploring
-        if (chamberResult === 'treasure') {
+        if (islandResult === 'treasure') {
           setFoundTreasure(true)
           break
         }
         
-        // Brief pause between chambers
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 600))
       }
 
-      setExploringPhase(false)
+      setSailingPhase(false)
       setWin(winResult)
       setResultIndex(result.resultIndex)
 
-      // Track result
       paytableRef.current?.trackGame({
         choice: selectedChoice,
         resultIndex: result.resultIndex,
@@ -164,13 +157,13 @@ export default function PyramidQuest() {
     setScale(isCompact ? 1 : 1.2)
   }, [isCompact])
 
-  const getChoiceMultiplier = (choice: EntranceChoice) => {
-    const bet = ENTRANCE_CHOICES[choice]
+  const getChoiceMultiplier = (choice: RouteChoice) => {
+    const bet = ROUTE_CHOICES[choice]
     return Math.max(...bet)
   }
 
-  const getChoiceChance = (choice: EntranceChoice) => {
-    const bet = ENTRANCE_CHOICES[choice]
+  const getChoiceChance = (choice: RouteChoice) => {
+    const bet = ROUTE_CHOICES[choice]
     const winCount = bet.filter(x => x > 0).length
     return Math.round((winCount / bet.length) * 100)
   }
@@ -179,83 +172,62 @@ export default function PyramidQuest() {
     <>
       <GambaUi.Portal target="screen">
         <div style={{ display: 'flex', gap: 16, height: '100%', width: '100%' }}>
-          {/* Main Game Area */}
           <div style={{ 
             flex: 1, 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #451a03 0%, #78350f 25%, #a16207 50%, #ca8a04 75%, #eab308 100%)',
+            background: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 25%, #0284c7 50%, #0ea5e9 75%, #38bdf8 100%)',
             borderRadius: '24px',
-            border: '3px solid rgba(202, 138, 4, 0.3)',
+            border: '3px solid rgba(14, 165, 233, 0.3)',
             boxShadow: `
               0 25px 50px rgba(0, 0, 0, 0.8),
               inset 0 2px 4px rgba(255, 255, 255, 0.1),
               inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-              0 0 30px rgba(202, 138, 4, 0.3)
+              0 0 30px rgba(14, 165, 233, 0.3)
             `,
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Ancient wall texture */}
+            {/* Ocean waves animation */}
             <div style={{
               position: 'absolute',
-              top: 0,
+              bottom: 0,
               left: 0,
               right: 0,
-              bottom: 0,
+              height: '60px',
               background: `
                 repeating-linear-gradient(
-                  45deg,
-                  rgba(120, 53, 15, 0.1) 0px,
-                  rgba(120, 53, 15, 0.1) 2px,
-                  transparent 2px,
-                  transparent 20px
-                ),
-                repeating-linear-gradient(
-                  -45deg,
-                  rgba(161, 98, 7, 0.1) 0px,
-                  rgba(161, 98, 7, 0.1) 2px,
-                  transparent 2px,
-                  transparent 20px
+                  90deg,
+                  rgba(56, 189, 248, 0.3) 0px,
+                  rgba(14, 165, 233, 0.3) 40px,
+                  rgba(56, 189, 248, 0.3) 80px
                 )
               `,
-              opacity: 0.4
+              animation: 'waves 4s linear infinite'
             }} />
             
-            {/* Floating hieroglyphs */}
+            {/* Floating elements */}
             <div style={{
               position: 'absolute',
-              top: '12%',
-              left: '8%',
-              fontSize: '80px',
+              top: '15%',
+              left: '10%',
+              fontSize: '40px',
+              opacity: 0.15,
+              transform: 'rotate(-20deg)',
+              animation: 'float 8s ease-in-out infinite'
+            }}>⚓</div>
+            <div style={{
+              position: 'absolute',
+              bottom: '25%',
+              right: '15%',
+              fontSize: '50px',
               opacity: 0.1,
-              transform: 'rotate(-15deg)',
-              pointerEvents: 'none',
-              color: '#eab308'
-            }}>𓂀</div>
-            <div style={{
-              position: 'absolute',
-              bottom: '15%',
-              right: '10%',
-              fontSize: '70px',
-              opacity: 0.08,
-              transform: 'rotate(20deg)',
-              pointerEvents: 'none',
-              color: '#ca8a04'
-            }}>𓋹</div>
-            <div style={{
-              position: 'absolute',
-              top: '55%',
-              right: '20%',
-              fontSize: '60px',
-              opacity: 0.12,
-              transform: 'rotate(-10deg)',
-              pointerEvents: 'none',
-              color: '#a16207'
-            }}>𓅓</div>
+              transform: 'rotate(15deg)',
+              animation: 'float 6s ease-in-out infinite reverse'
+            }}>🦜</div>
 
-            {/* Entrance Selection UI */}
+            {/* Route Selection */}
             <div style={{
               position: 'absolute',
               top: '20px',
@@ -266,17 +238,17 @@ export default function PyramidQuest() {
               gap: '12px',
               zIndex: 10
             }}>
-              {(['main', 'secret', 'side'] as EntranceChoice[]).map((entranceChoice) => (
+              {(['coastal', 'deep', 'storm'] as RouteChoice[]).map((routeChoice) => (
                 <button
-                  key={entranceChoice}
-                  onClick={() => setChoice(entranceChoice)}
+                  key={routeChoice}
+                  onClick={() => setChoice(routeChoice)}
                   disabled={playing}
                   style={{
-                    background: choice === entranceChoice 
-                      ? 'linear-gradient(135deg, rgba(202, 138, 4, 0.4) 0%, rgba(161, 98, 7, 0.4) 100%)'
+                    background: choice === routeChoice 
+                      ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.4) 0%, rgba(12, 74, 110, 0.4) 100%)'
                       : 'rgba(0, 0, 0, 0.6)',
-                    border: choice === entranceChoice 
-                      ? '2px solid rgba(202, 138, 4, 0.7)' 
+                    border: choice === routeChoice 
+                      ? '2px solid rgba(14, 165, 233, 0.7)' 
                       : '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '12px',
                     padding: '10px 20px',
@@ -289,12 +261,12 @@ export default function PyramidQuest() {
                     textTransform: 'uppercase'
                   }}
                 >
-                  {entranceChoice === 'main' && '🚪 MAIN'} 
-                  {entranceChoice === 'secret' && '🕳️ SECRET'} 
-                  {entranceChoice === 'side' && '📍 SIDE'}
+                  {routeChoice === 'coastal' && '🏖️ COASTAL'} 
+                  {routeChoice === 'deep' && '🌊 DEEP SEA'} 
+                  {routeChoice === 'storm' && '⛈️ STORM'}
                   <br />
                   <span style={{ fontSize: '10px', opacity: 0.8 }}>
-                    {getChoiceChance(entranceChoice)}% • {getChoiceMultiplier(entranceChoice)}x
+                    {getChoiceChance(routeChoice)}% • {getChoiceMultiplier(routeChoice)}x
                   </span>
                 </button>
               ))}
@@ -310,35 +282,30 @@ export default function PyramidQuest() {
                 fontSize: '48px',
                 fontWeight: 800,
                 margin: '0 0 16px 0',
-                background: 'linear-gradient(45deg, #451a03, #ca8a04, #eab308)',
+                background: 'linear-gradient(45deg, #0c4a6e, #0ea5e9, #38bdf8)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(234, 179, 8, 0.5)'
+                textShadow: '0 0 30px rgba(56, 189, 248, 0.5)'
               }}>
-                ⛰️ PYRAMID QUEST 🏺
+                🏴‍☠️ PIRATE'S FORTUNE 🗺️
               </h1>
               
               <div style={{
                 fontSize: '20px',
-                color: '#eab308',
+                color: '#38bdf8',
                 marginBottom: '32px',
                 textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
               }}>
-                {playing && exploringPhase ? (
-                  <span style={{ 
-                    color: torchFlicker ? '#fbbf24' : '#eab308',
-                    transition: 'color 0.3s ease'
-                  }}>
-                    🔥 Exploring Chamber {currentChamber}...
-                  </span>
+                {playing && sailingPhase ? (
+                  <span style={{ color: '#fbbf24' }}>⛵ Sailing to Island {currentIsland}...</span>
                 ) : playing ? (
-                  <span style={{ color: '#22c55e' }}>🏛️ Exploration Complete</span>
+                  <span style={{ color: '#22c55e' }}>🏝️ Voyage Complete</span>
                 ) : (
-                  'Choose your entrance to the ancient pyramid'
+                  'Follow the treasure map across the seven seas'
                 )}
               </div>
 
-              {/* Chamber Display */}
+              {/* Islands Display */}
               {(playing || hasPlayedBefore) && (
                 <div style={{
                   display: 'flex',
@@ -347,10 +314,10 @@ export default function PyramidQuest() {
                   marginBottom: '24px',
                   flexWrap: 'wrap'
                 }}>
-                  {ENTRANCE_CHOICES[choice].map((multiplier, index) => {
-                    const isCurrentChamber = exploringPhase && currentChamber === index + 1
-                    const isExplored = index < chamberResults.length
-                    const chamberResult = chamberResults[index]
+                  {ROUTE_CHOICES[choice].map((multiplier, index) => {
+                    const isCurrentIsland = sailingPhase && currentIsland === index + 1
+                    const isVisited = index < islandResults.length
+                    const islandResult = islandResults[index]
                     
                     return (
                       <div
@@ -358,13 +325,13 @@ export default function PyramidQuest() {
                         style={{
                           width: '80px',
                           height: '80px',
-                          borderRadius: '12px',
-                          border: isCurrentChamber ? '3px solid #fbbf24' : '2px solid rgba(234, 179, 8, 0.3)',
-                          background: isExplored
-                            ? (chamberResult === 'treasure' ? 'linear-gradient(135deg, #eab308, #ca8a04)' 
-                               : chamberResult === 'trap' ? 'linear-gradient(135deg, #dc2626, #991b1b)'
-                               : 'linear-gradient(135deg, #6b7280, #374151)')
-                            : 'rgba(0, 0, 0, 0.4)',
+                          borderRadius: '50%',
+                          border: isCurrentIsland ? '3px solid #fbbf24' : '2px solid rgba(56, 189, 248, 0.3)',
+                          background: isVisited
+                            ? (islandResult === 'treasure' ? 'linear-gradient(135deg, #eab308, #ca8a04)' 
+                               : islandResult === 'bones' ? 'linear-gradient(135deg, #78716c, #57534e)'
+                               : 'linear-gradient(135deg, #22c55e, #16a34a)')
+                            : 'radial-gradient(circle, #16a34a 30%, #0ea5e9 70%)',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
@@ -373,28 +340,57 @@ export default function PyramidQuest() {
                           fontSize: '12px',
                           fontWeight: 600,
                           position: 'relative',
-                          animation: isCurrentChamber && torchFlicker ? 'flicker 0.5s infinite' : 'none',
-                          boxShadow: isCurrentChamber ? '0 0 20px rgba(251, 191, 36, 0.5)' : 'none'
+                          animation: isCurrentIsland ? 'pulse 1s infinite' : 'none',
+                          boxShadow: isCurrentIsland ? '0 0 20px rgba(251, 191, 36, 0.5)' : 'none'
                         }}
                       >
                         <div style={{ fontSize: '20px', marginBottom: '4px' }}>
-                          {isExplored 
-                            ? (chamberResult === 'treasure' ? '💰' 
-                               : chamberResult === 'trap' ? '💀' 
-                               : '🕳️')
-                            : isCurrentChamber ? '🔥' : '❓'}
+                          {isVisited 
+                            ? (islandResult === 'treasure' ? '💰' 
+                               : islandResult === 'bones' ? '💀' 
+                               : '🏝️')
+                            : isCurrentIsland ? '⛵' : '🗺️'}
                         </div>
-                        <div style={{ fontSize: '10px' }}>
-                          CHAMBER {index + 1}
+                        <div style={{ fontSize: '9px' }}>
+                          ISLAND {index + 1}
                         </div>
                         {multiplier > 0 && (
-                          <div style={{ fontSize: '10px', color: '#eab308' }}>
+                          <div style={{ fontSize: '10px', color: '#38bdf8' }}>
                             {multiplier}x
                           </div>
                         )}
                       </div>
                     )
                   })}
+                </div>
+              )}
+
+              {/* Sailing Progress */}
+              {sailingPhase && (
+                <div style={{
+                  width: '300px',
+                  height: '4px',
+                  background: 'rgba(56, 189, 248, 0.3)',
+                  borderRadius: '2px',
+                  margin: '20px auto',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    width: `${shipPosition}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #0ea5e9, #38bdf8)',
+                    borderRadius: '2px',
+                    transition: 'width 1s ease'
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    left: `${shipPosition}%`,
+                    top: '-15px',
+                    fontSize: '20px',
+                    transform: 'translateX(-50%)'
+                  }}>
+                    🚢
+                  </div>
                 </div>
               )}
 
@@ -416,16 +412,15 @@ export default function PyramidQuest() {
                     color: win ? '#eab308' : '#ef4444',
                     marginBottom: '8px'
                   }}>
-                    {win ? '🎉 TREASURE DISCOVERED!' : '💀 TRAPPED IN THE PYRAMID'}
+                    {win ? '🎉 TREASURE FOUND!' : '💀 DAVY JONES\' LOCKER'}
                   </div>
-                  <div style={{ color: '#eab308', fontSize: '16px' }}>
-                    {win ? `Ancient gold recovered!` : 'The pharaoh\'s curse claims another explorer'}
+                  <div style={{ color: '#38bdf8', fontSize: '16px' }}>
+                    {win ? `Captain's gold recovered!` : 'Lost to the depths of the ocean'}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Expedition Status */}
             <div style={{
               position: 'absolute',
               bottom: '20px',
@@ -434,47 +429,45 @@ export default function PyramidQuest() {
               background: 'rgba(0, 0, 0, 0.8)',
               borderRadius: '12px',
               padding: '12px 20px',
-              border: '1px solid rgba(234, 179, 8, 0.2)',
+              border: '1px solid rgba(56, 189, 248, 0.2)',
               backdropFilter: 'blur(10px)',
               textAlign: 'center'
             }}>
               <div style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                {playing ? 'EXPEDITION IN PROGRESS...' : `ENTRANCE: ${choice.toUpperCase()}`}
+                {playing ? 'VOYAGE IN PROGRESS...' : `ROUTE: ${choice.toUpperCase()}`}
               </div>
-              <div style={{ color: '#eab308', fontSize: '14px', fontWeight: 700 }}>
-                {getChoiceMultiplier(choice)}.00x PHARAOH'S GOLD
+              <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 700 }}>
+                {getChoiceMultiplier(choice)}.00x BURIED TREASURE
               </div>
             </div>
             
-            {/* Overlays */}
-            <PyramidQuestOverlays
-              exploringPhase={exploringPhase}
-              currentChamber={currentChamber}
+            <PiratesFortuneOverlays
+              sailingPhase={sailingPhase}
+              currentIsland={currentIsland}
               foundTreasure={foundTreasure}
               win={win}
               choice={choice}
-              torchFlicker={torchFlicker}
             />
 
-            {/* Animations */}
             <style>
               {`
-                @keyframes flicker {
-                  0%, 100% { 
-                    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-                    filter: brightness(1);
-                  }
-                  50% { 
-                    box-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
-                    filter: brightness(1.2);
-                  }
+                @keyframes waves {
+                  0% { transform: translateX(0); }
+                  100% { transform: translateX(-80px); }
+                }
+                @keyframes float {
+                  0%, 100% { transform: translateY(0px) rotate(0deg); }
+                  50% { transform: translateY(-15px) rotate(5deg); }
+                }
+                @keyframes pulse {
+                  0%, 100% { opacity: 1; transform: scale(1); }
+                  50% { opacity: 0.7; transform: scale(1.05); }
                 }
               `}
             </style>
           </div>
 
-          {/* Live Paytable */}
-          <PyramidQuestPaytable
+          <PiratesFortunePaytable
             ref={paytableRef}
             wager={wager}
             selectedChoice={choice}
@@ -488,22 +481,22 @@ export default function PyramidQuest() {
         onPlay={play}
         isPlaying={playing}
         showOutcome={showOutcome}
-        playButtonText={hasPlayedBefore ? 'Explore Again' : 'Enter Pyramid'}
+        playButtonText={hasPlayedBefore ? 'Set Sail Again' : 'Hoist the Colors'}
         onPlayAgain={handlePlayAgain}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 'bold' }}>Entrance:</span>
+          <span style={{ fontWeight: 'bold' }}>Route:</span>
           <div style={{ display: 'flex', gap: 8 }}>
-            {(['main', 'secret', 'side'] as EntranceChoice[]).map((entranceChoice) => (
+            {(['coastal', 'deep', 'storm'] as RouteChoice[]).map((routeChoice) => (
               <GambaUi.Button
-                key={entranceChoice}
-                onClick={() => setChoice(entranceChoice)}
+                key={routeChoice}
+                onClick={() => setChoice(routeChoice)}
                 disabled={playing || showOutcome}
               >
-                {choice === entranceChoice ? '✓ ' : ''}
-                {entranceChoice === 'main' && '🚪 Main'}
-                {entranceChoice === 'secret' && '🕳️ Secret'}
-                {entranceChoice === 'side' && '📍 Side'}
+                {choice === routeChoice ? '✓ ' : ''}
+                {routeChoice === 'coastal' && '🏖️ Coastal'}
+                {routeChoice === 'deep' && '🌊 Deep Sea'}
+                {routeChoice === 'storm' && '⛈️ Storm'}
               </GambaUi.Button>
             ))}
           </div>

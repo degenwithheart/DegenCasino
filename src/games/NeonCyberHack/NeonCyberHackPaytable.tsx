@@ -1,39 +1,39 @@
 import { TokenValue } from 'gamba-react-ui-v2'
 import { useCurrentToken } from 'gamba-react-ui-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/useIsCompact'
 
-interface GalacticSalvageResult {
-  choice: 'safe' | 'risky' | 'extreme'
+interface NeonCyberHackResult {
+  choice: 'stealth' | 'brute' | 'elite'
   resultIndex: number
   wasWin: boolean
   amount: number
   multiplier: number
 }
 
-export interface GalacticSalvagePaytableRef {
-  trackGame: (result: GalacticSalvageResult) => void
+export interface NeonCyberHackPaytableRef {
+  trackGame: (result: NeonCyberHackResult) => void
 }
 
-interface GalacticSalvagePaytableProps {
+interface NeonCyberHackPaytableProps {
   wager: number
-  selectedChoice: 'safe' | 'risky' | 'extreme'
+  selectedChoice: 'stealth' | 'brute' | 'elite'
 }
 
-const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, GalacticSalvagePaytableProps>(
+const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyberHackPaytableProps>(
   ({ wager, selectedChoice }, ref) => {
     const token = useCurrentToken()
-    const [results, setResults] = React.useState<GalacticSalvageResult[]>([])
+    const [results, setResults] = React.useState<NeonCyberHackResult[]>([])
     const [stats, setStats] = React.useState({
-      totalMissions: 0,
-      successfulSalvages: 0,
-      totalHaul: 0,
+      totalHacks: 0,
+      successfulBreaches: 0,
+      totalData: 0,
       successRate: 0,
       averageMultiplier: 0,
-      biggestFind: 0,
-      safeMissions: 0,
-      riskyMissions: 0,
-      extremeMissions: 0,
+      biggestBreach: 0,
+      stealthHacks: 0,
+      bruteHacks: 0,
+      eliteHacks: 0,
       currentStreak: 0,
       isSuccessStreak: false,
       bestStreak: 0,
@@ -42,15 +42,14 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
     const isCompact = useIsCompact()
 
     React.useImperativeHandle(ref, () => ({
-      trackGame: (result: GalacticSalvageResult) => {
-        setResults(prev => [result, ...prev.slice(0, 9)]) // Keep last 10
+      trackGame: (result: NeonCyberHackResult) => {
+        setResults(prev => [result, ...prev.slice(0, 9)])
         setStats(prev => {
-          const newTotal = prev.totalMissions + 1
-          const newSuccesses = prev.successfulSalvages + (result.wasWin ? 1 : 0)
-          const newHaul = prev.totalHaul + result.amount
+          const newTotal = prev.totalHacks + 1
+          const newSuccesses = prev.successfulBreaches + (result.wasWin ? 1 : 0)
+          const newData = prev.totalData + result.amount
           const newSuccessRate = (newSuccesses / newTotal) * 100
 
-          // Streak tracking
           let newCurrentStreak = prev.currentStreak
           let newIsSuccessStreak = prev.isSuccessStreak
           let newBestStreak = prev.bestStreak
@@ -76,15 +75,15 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
           }
 
           return {
-            totalMissions: newTotal,
-            successfulSalvages: newSuccesses,
-            totalHaul: newHaul,
+            totalHacks: newTotal,
+            successfulBreaches: newSuccesses,
+            totalData: newData,
             successRate: newSuccessRate,
-            averageMultiplier: newSuccesses > 0 ? (newHaul + wager * newSuccesses) / (wager * newSuccesses) : 0,
-            biggestFind: Math.max(prev.biggestFind, result.multiplier),
-            safeMissions: prev.safeMissions + (result.choice === 'safe' ? 1 : 0),
-            riskyMissions: prev.riskyMissions + (result.choice === 'risky' ? 1 : 0),
-            extremeMissions: prev.extremeMissions + (result.choice === 'extreme' ? 1 : 0),
+            averageMultiplier: newSuccesses > 0 ? (newData + wager * newSuccesses) / (wager * newSuccesses) : 0,
+            biggestBreach: Math.max(prev.biggestBreach, result.multiplier),
+            stealthHacks: prev.stealthHacks + (result.choice === 'stealth' ? 1 : 0),
+            bruteHacks: prev.bruteHacks + (result.choice === 'brute' ? 1 : 0),
+            eliteHacks: prev.eliteHacks + (result.choice === 'elite' ? 1 : 0),
             currentStreak: newCurrentStreak,
             isSuccessStreak: newIsSuccessStreak,
             bestStreak: newBestStreak,
@@ -93,60 +92,57 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
       }
     }))
 
-    if (isCompact) {
-      return null // Hide on mobile
-    }
+    if (isCompact) return null
 
-    const getRouteEmoji = (choice: 'safe' | 'risky' | 'extreme') => {
+    const getMethodEmoji = (choice: 'stealth' | 'brute' | 'elite') => {
       switch(choice) {
-        case 'safe': return '🛡️'
-        case 'risky': return '⚡'
-        case 'extreme': return '🔥'
+        case 'stealth': return '🥷'
+        case 'brute': return '💥'
+        case 'elite': return '🎯'
       }
     }
     
-    const getResultEmoji = (wasWin: boolean) => wasWin ? '💎' : '❌'
+    const getResultEmoji = (wasWin: boolean) => wasWin ? '🔓' : '🚫'
 
     return (
       <div style={{
         width: '320px',
         height: '100%',
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
         borderRadius: '24px',
-        border: '2px solid rgba(14, 75, 153, 0.3)',
+        border: '2px solid rgba(83, 52, 131, 0.5)',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        fontFamily: 'monospace'
       }}>
-        {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(14, 75, 153, 0.3) 0%, rgba(22, 33, 62, 0.3) 100%)',
+          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%)',
           padding: '20px',
-          borderBottom: '1px solid rgba(100, 181, 246, 0.2)'
+          borderBottom: '1px solid rgba(34, 197, 94, 0.3)'
         }}>
           <h3 style={{
             margin: 0,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: 700,
-            color: '#64b5f6',
+            color: '#22c55e',
             textAlign: 'center',
             marginBottom: '8px'
           }}>
-            🚀 SALVAGE LOG
+            💻 HACK_LOG
           </h3>
           <div style={{
             fontSize: '12px',
             color: '#9CA3AF',
             textAlign: 'center'
           }}>
-            Current Route: {getRouteEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
+            METHOD: {getMethodEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
           </div>
         </div>
 
-        {/* Stats */}
         <div style={{
           padding: '16px',
-          borderBottom: '1px solid rgba(100, 181, 246, 0.1)'
+          borderBottom: '1px solid rgba(34, 197, 94, 0.1)'
         }}>
           <div style={{
             display: 'grid',
@@ -155,16 +151,16 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
             marginBottom: '16px'
           }}>
             <div style={{
-              background: 'rgba(100, 181, 246, 0.1)',
+              background: 'rgba(34, 197, 94, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#64b5f6' }}>
-                {stats.totalMissions}
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#22c55e' }}>
+                {stats.totalHacks}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                MISSIONS
+                ATTEMPTS
               </div>
             </div>
             <div style={{
@@ -188,16 +184,16 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
             gap: '12px'
           }}>
             <div style={{
-              background: 'rgba(251, 191, 36, 0.1)',
+              background: 'rgba(147, 51, 234, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#fbbf24' }}>
-                {stats.biggestFind.toFixed(1)}x
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#9333ea' }}>
+                {stats.biggestBreach.toFixed(1)}x
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                BEST FIND
+                MAX_BREACH
               </div>
             </div>
             <div style={{
@@ -216,30 +212,29 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
                 {stats.currentStreak}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                {stats.isSuccessStreak ? 'WIN' : 'FAIL'} STREAK
+                {stats.isSuccessStreak ? 'SUCCESS' : 'FAIL'}_STREAK
               </div>
             </div>
           </div>
 
-          {/* Route Distribution */}
           <div style={{
             marginTop: '16px',
             padding: '12px',
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '8px'
+            background: 'rgba(0, 0, 0, 0.5)',
+            borderRadius: '8px',
+            border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px' }}>
-              ROUTE DISTRIBUTION
+              METHOD_DISTRIBUTION
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-              <span style={{ color: '#64b5f6' }}>🛡️ {stats.safeMissions}</span>
-              <span style={{ color: '#fbbf24' }}>⚡ {stats.riskyMissions}</span>
-              <span style={{ color: '#ef4444' }}>🔥 {stats.extremeMissions}</span>
+              <span style={{ color: '#22c55e' }}>🥷 {stats.stealthHacks}</span>
+              <span style={{ color: '#f59e0b' }}>💥 {stats.bruteHacks}</span>
+              <span style={{ color: '#9333ea' }}>🎯 {stats.eliteHacks}</span>
             </div>
           </div>
         </div>
 
-        {/* Recent Results */}
         <div style={{
           flex: 1,
           overflow: 'hidden',
@@ -250,9 +245,9 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
             padding: '16px 16px 8px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: '#64b5f6'
+            color: '#22c55e'
           }}>
-            Recent Missions
+            RECENT_OPERATIONS
           </div>
           
           <div style={{
@@ -267,7 +262,7 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
                 fontSize: '12px',
                 marginTop: '20px'
               }}>
-                No missions completed yet
+                NO_OPERATIONS_LOGGED
               </div>
             ) : (
               results.map((result, index) => (
@@ -275,7 +270,7 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
                   key={index}
                   style={{
                     background: result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.1)' 
+                      ? 'rgba(34, 197, 94, 0.15)' 
                       : 'rgba(239, 68, 68, 0.1)',
                     border: `1px solid ${result.wasWin ? '#22c55e40' : '#ef444440'}`,
                     borderRadius: '8px',
@@ -294,7 +289,7 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
                       color: result.wasWin ? '#22c55e' : '#ef4444',
                       fontWeight: 600
                     }}>
-                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'SUCCESS' : 'FAILED'}
+                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'ACCESS' : 'BLOCKED'}
                     </span>
                     <span style={{
                       color: result.wasWin ? '#22c55e' : '#ef4444',
@@ -309,13 +304,13 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
                     color: '#9CA3AF',
                     fontSize: '11px'
                   }}>
-                    <span>Route: {getRouteEmoji(result.choice)} {result.choice}</span>
-                    <span>Sector {result.resultIndex + 1}</span>
+                    <span>METHOD: {getMethodEmoji(result.choice)} {result.choice}</span>
+                    <span>SRV_{(result.resultIndex + 1).toString().padStart(2, '0')}</span>
                   </div>
                   {result.wasWin && (
                     <div style={{
                       marginTop: '4px',
-                      color: '#64b5f6',
+                      color: '#22c55e',
                       fontSize: '11px'
                     }}>
                       <TokenValue amount={result.amount} />
@@ -327,10 +322,9 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
           </div>
         </div>
 
-        {/* Current Wager Display */}
         <div style={{
           padding: '16px',
-          borderTop: '1px solid rgba(100, 181, 246, 0.1)',
+          borderTop: '1px solid rgba(34, 197, 94, 0.1)',
           background: 'rgba(0, 0, 0, 0.3)'
         }}>
           <div style={{
@@ -338,12 +332,12 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
             color: '#9CA3AF',
             marginBottom: '4px'
           }}>
-            Mission Investment
+            OPERATION_BUDGET
           </div>
           <div style={{
             fontSize: '16px',
             fontWeight: 700,
-            color: '#64b5f6'
+            color: '#22c55e'
           }}>
             <TokenValue amount={wager} />
           </div>
@@ -353,6 +347,6 @@ const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, Gal
   }
 )
 
-GalacticSalvagePaytable.displayName = 'GalacticSalvagePaytable'
+NeonCyberHackPaytable.displayName = 'NeonCyberHackPaytable'
 
-export default GalacticSalvagePaytable
+export default NeonCyberHackPaytable

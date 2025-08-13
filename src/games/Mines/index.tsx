@@ -198,7 +198,13 @@ function Mines() {
     // Store result in context for modal
     storeResult(result)
 
-      sounds.sounds.tick.player.stop()
+      try {
+        if (sounds.sounds.tick.player.loop) {
+          sounds.sounds.tick.player.stop()
+        }
+      } catch (e) {
+        // Ignore stop errors if sound wasn't started
+      }
 
       // Lose condition
       if (result.payout === 0) {
@@ -252,8 +258,20 @@ function Mines() {
     } finally {
       setLoading(false)
       setSelected(-1)
-      sounds.sounds.tick.player.stop()
-      sounds.sounds.step.player.stop()
+      try {
+        if (sounds.sounds.tick.player.loop) {
+          sounds.sounds.tick.player.stop()
+        }
+      } catch (e) {
+        // Ignore stop errors if sound wasn't started
+      }
+      try {
+        if (sounds.sounds.step.player.loop) {
+          sounds.sounds.step.player.stop()
+        }
+      } catch (e) {
+        // Ignore stop errors if sound wasn't started
+      }
     }
   }
 

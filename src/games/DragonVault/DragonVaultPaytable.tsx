@@ -81,17 +81,26 @@ const DragonVaultPaytable = React.forwardRef<DragonVaultPaytableRef, DragonVault
 
     return (
       <div style={{ 
+        flex: '0 0 350px',
+        minWidth: '300px',
+        maxWidth: '400px',
+        background: 'linear-gradient(135deg, rgba(40,42,60,0.95) 0%, rgba(25,27,35,0.98) 100%)',
+        borderRadius: '16px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        padding: '20px',
+        height: 'fit-content',
+        maxHeight: '600px',
+        overflowY: 'auto',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        backdropFilter: 'blur(10px)',
         color: '#fff',
         fontFamily: 'monospace'
       }}>
-        <GambaUi.Portal target="sidebar">
-          <GambaUi.Responsive>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '16px',
-              padding: '20px'
-            }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '16px'
+        }}>
               {/* Header */}
               <div style={{ textAlign: 'center' }}>
                 <div style={{ 
@@ -440,8 +449,6 @@ const DragonVaultPaytable = React.forwardRef<DragonVaultPaytableRef, DragonVault
                 </div>
               )}
             </div>
-          </GambaUi.Responsive>
-        </GambaUi.Portal>
       </div>
     )
   }

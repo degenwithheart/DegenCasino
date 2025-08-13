@@ -1,39 +1,39 @@
 import { TokenValue } from 'gamba-react-ui-v2'
 import { useCurrentToken } from 'gamba-react-ui-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/useIsCompact'
 
-interface PiratesFortuneResult {
-  choice: 'coastal' | 'deep' | 'storm'
+interface PyramidQuestResult {
+  choice: 'main' | 'secret' | 'side'
   resultIndex: number
   wasWin: boolean
   amount: number
   multiplier: number
 }
 
-export interface PiratesFortunePaytableRef {
-  trackGame: (result: PiratesFortuneResult) => void
+export interface PyramidQuestPaytableRef {
+  trackGame: (result: PyramidQuestResult) => void
 }
 
-interface PiratesFortunePaytableProps {
+interface PyramidQuestPaytableProps {
   wager: number
-  selectedChoice: 'coastal' | 'deep' | 'storm'
+  selectedChoice: 'main' | 'secret' | 'side'
 }
 
-const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, PiratesFortunePaytableProps>(
+const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQuestPaytableProps>(
   ({ wager, selectedChoice }, ref) => {
     const token = useCurrentToken()
-    const [results, setResults] = React.useState<PiratesFortuneResult[]>([])
+    const [results, setResults] = React.useState<PyramidQuestResult[]>([])
     const [stats, setStats] = React.useState({
-      totalVoyages: 0,
+      totalExpeditions: 0,
       treasuresFound: 0,
-      totalBooty: 0,
+      totalGold: 0,
       successRate: 0,
       averageMultiplier: 0,
-      biggestHaul: 0,
-      coastalVoyages: 0,
-      deepVoyages: 0,
-      stormVoyages: 0,
+      biggestTreasure: 0,
+      mainExpeditions: 0,
+      secretExpeditions: 0,
+      sideExpeditions: 0,
       currentStreak: 0,
       isTreasureStreak: false,
       bestStreak: 0,
@@ -42,14 +42,15 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
     const isCompact = useIsCompact()
 
     React.useImperativeHandle(ref, () => ({
-      trackGame: (result: PiratesFortuneResult) => {
-        setResults(prev => [result, ...prev.slice(0, 9)])
+      trackGame: (result: PyramidQuestResult) => {
+        setResults(prev => [result, ...prev.slice(0, 9)]) // Keep last 10
         setStats(prev => {
-          const newTotal = prev.totalVoyages + 1
+          const newTotal = prev.totalExpeditions + 1
           const newTreasures = prev.treasuresFound + (result.wasWin ? 1 : 0)
-          const newBooty = prev.totalBooty + result.amount
+          const newGold = prev.totalGold + result.amount
           const newSuccessRate = (newTreasures / newTotal) * 100
 
+          // Streak tracking
           let newCurrentStreak = prev.currentStreak
           let newIsTreasureStreak = prev.isTreasureStreak
           let newBestStreak = prev.bestStreak
@@ -75,15 +76,15 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
           }
 
           return {
-            totalVoyages: newTotal,
+            totalExpeditions: newTotal,
             treasuresFound: newTreasures,
-            totalBooty: newBooty,
+            totalGold: newGold,
             successRate: newSuccessRate,
-            averageMultiplier: newTreasures > 0 ? (newBooty + wager * newTreasures) / (wager * newTreasures) : 0,
-            biggestHaul: Math.max(prev.biggestHaul, result.multiplier),
-            coastalVoyages: prev.coastalVoyages + (result.choice === 'coastal' ? 1 : 0),
-            deepVoyages: prev.deepVoyages + (result.choice === 'deep' ? 1 : 0),
-            stormVoyages: prev.stormVoyages + (result.choice === 'storm' ? 1 : 0),
+            averageMultiplier: newTreasures > 0 ? (newGold + wager * newTreasures) / (wager * newTreasures) : 0,
+            biggestTreasure: Math.max(prev.biggestTreasure, result.multiplier),
+            mainExpeditions: prev.mainExpeditions + (result.choice === 'main' ? 1 : 0),
+            secretExpeditions: prev.secretExpeditions + (result.choice === 'secret' ? 1 : 0),
+            sideExpeditions: prev.sideExpeditions + (result.choice === 'side' ? 1 : 0),
             currentStreak: newCurrentStreak,
             isTreasureStreak: newIsTreasureStreak,
             bestStreak: newBestStreak,
@@ -92,13 +93,15 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
       }
     }))
 
-    if (isCompact) return null
+    if (isCompact) {
+      return null // Hide on mobile
+    }
 
-    const getRouteEmoji = (choice: 'coastal' | 'deep' | 'storm') => {
+    const getEntranceEmoji = (choice: 'main' | 'secret' | 'side') => {
       switch(choice) {
-        case 'coastal': return '🏖️'
-        case 'deep': return '🌊'
-        case 'storm': return '⛈️'
+        case 'main': return '🚪'
+        case 'secret': return '🕳️'
+        case 'side': return '📍'
       }
     }
     
@@ -108,40 +111,42 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
       <div style={{
         width: '320px',
         height: '100%',
-        background: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%)',
+        background: 'linear-gradient(135deg, #451a03 0%, #78350f 100%)',
         borderRadius: '24px',
-        border: '2px solid rgba(14, 165, 233, 0.3)',
+        border: '2px solid rgba(202, 138, 4, 0.3)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column'
       }}>
+        {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(12, 74, 110, 0.3) 100%)',
+          background: 'linear-gradient(135deg, rgba(202, 138, 4, 0.3) 0%, rgba(161, 98, 7, 0.3) 100%)',
           padding: '20px',
-          borderBottom: '1px solid rgba(56, 189, 248, 0.2)'
+          borderBottom: '1px solid rgba(234, 179, 8, 0.2)'
         }}>
           <h3 style={{
             margin: 0,
             fontSize: '18px',
             fontWeight: 700,
-            color: '#38bdf8',
+            color: '#eab308',
             textAlign: 'center',
             marginBottom: '8px'
           }}>
-            🏴‍☠️ CAPTAIN'S LOG
+            🏺 EXPEDITION LOG
           </h3>
           <div style={{
             fontSize: '12px',
             color: '#9CA3AF',
             textAlign: 'center'
           }}>
-            Current Route: {getRouteEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
+            Current Path: {getEntranceEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
           </div>
         </div>
 
+        {/* Stats */}
         <div style={{
           padding: '16px',
-          borderBottom: '1px solid rgba(56, 189, 248, 0.1)'
+          borderBottom: '1px solid rgba(234, 179, 8, 0.1)'
         }}>
           <div style={{
             display: 'grid',
@@ -150,16 +155,16 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
             marginBottom: '16px'
           }}>
             <div style={{
-              background: 'rgba(56, 189, 248, 0.1)',
+              background: 'rgba(234, 179, 8, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#38bdf8' }}>
-                {stats.totalVoyages}
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#eab308' }}>
+                {stats.totalExpeditions}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                VOYAGES
+                EXPEDITIONS
               </div>
             </div>
             <div style={{
@@ -189,10 +194,10 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '20px', fontWeight: 700, color: '#fbbf24' }}>
-                {stats.biggestHaul.toFixed(1)}x
+                {stats.biggestTreasure.toFixed(1)}x
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                BEST HAUL
+                BEST FIND
               </div>
             </div>
             <div style={{
@@ -211,11 +216,12 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
                 {stats.currentStreak}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                {stats.isTreasureStreak ? 'TREASURE' : 'LOST'} STREAK
+                {stats.isTreasureStreak ? 'TREASURE' : 'TRAP'} STREAK
               </div>
             </div>
           </div>
 
+          {/* Entrance Distribution */}
           <div style={{
             marginTop: '16px',
             padding: '12px',
@@ -223,16 +229,17 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
             borderRadius: '8px'
           }}>
             <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px' }}>
-              ROUTE PREFERENCE
+              ENTRANCE USAGE
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-              <span style={{ color: '#38bdf8' }}>🏖️ {stats.coastalVoyages}</span>
-              <span style={{ color: '#0ea5e9' }}>🌊 {stats.deepVoyages}</span>
-              <span style={{ color: '#0284c7' }}>⛈️ {stats.stormVoyages}</span>
+              <span style={{ color: '#eab308' }}>🚪 {stats.mainExpeditions}</span>
+              <span style={{ color: '#fbbf24' }}>🕳️ {stats.secretExpeditions}</span>
+              <span style={{ color: '#ca8a04' }}>📍 {stats.sideExpeditions}</span>
             </div>
           </div>
         </div>
 
+        {/* Recent Results */}
         <div style={{
           flex: 1,
           overflow: 'hidden',
@@ -243,9 +250,9 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
             padding: '16px 16px 8px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: '#38bdf8'
+            color: '#eab308'
           }}>
-            Recent Voyages
+            Recent Expeditions
           </div>
           
           <div style={{
@@ -260,7 +267,7 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
                 fontSize: '12px',
                 marginTop: '20px'
               }}>
-                No voyages completed yet
+                No expeditions completed yet
               </div>
             ) : (
               results.map((result, index) => (
@@ -287,7 +294,7 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
                       color: result.wasWin ? '#eab308' : '#ef4444',
                       fontWeight: 600
                     }}>
-                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'TREASURE' : 'LOST'}
+                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'TREASURE' : 'TRAPPED'}
                     </span>
                     <span style={{
                       color: result.wasWin ? '#eab308' : '#ef4444',
@@ -302,13 +309,13 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
                     color: '#9CA3AF',
                     fontSize: '11px'
                   }}>
-                    <span>Route: {getRouteEmoji(result.choice)} {result.choice}</span>
-                    <span>Island {result.resultIndex + 1}</span>
+                    <span>Path: {getEntranceEmoji(result.choice)} {result.choice}</span>
+                    <span>Chamber {result.resultIndex + 1}</span>
                   </div>
                   {result.wasWin && (
                     <div style={{
                       marginTop: '4px',
-                      color: '#38bdf8',
+                      color: '#eab308',
                       fontSize: '11px'
                     }}>
                       <TokenValue amount={result.amount} />
@@ -320,9 +327,10 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
           </div>
         </div>
 
+        {/* Current Wager Display */}
         <div style={{
           padding: '16px',
-          borderTop: '1px solid rgba(56, 189, 248, 0.1)',
+          borderTop: '1px solid rgba(234, 179, 8, 0.1)',
           background: 'rgba(0, 0, 0, 0.3)'
         }}>
           <div style={{
@@ -330,12 +338,12 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
             color: '#9CA3AF',
             marginBottom: '4px'
           }}>
-            Voyage Investment
+            Expedition Fund
           </div>
           <div style={{
             fontSize: '16px',
             fontWeight: 700,
-            color: '#38bdf8'
+            color: '#eab308'
           }}>
             <TokenValue amount={wager} />
           </div>
@@ -345,6 +353,6 @@ const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, Pirat
   }
 )
 
-PiratesFortunePaytable.displayName = 'PiratesFortunePaytable'
+PyramidQuestPaytable.displayName = 'PyramidQuestPaytable'
 
-export default PiratesFortunePaytable
+export default PyramidQuestPaytable

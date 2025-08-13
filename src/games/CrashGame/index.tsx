@@ -116,7 +116,11 @@ export default function CrashGame() {
     setCurrentMultiplier(nextValue)
 
     if (nextValue >= crashMultiplier) {
-      sound.sounds.music.player.stop()
+      try {
+        sound.sounds.music.player.stop()
+      } catch (e) {
+        // Ignore stop errors if sound wasn't started
+      }
       sound.play(win ? 'win' : 'crash')
       setRocketState(win ? 'win' : 'crash')
       setCurrentMultiplier(crashMultiplier)

@@ -43,8 +43,6 @@ const Wrapper = styled.div`
   padding-bottom: 20px;
   animation: wrapper-appear2 0.3s;
   color: white;
-  background: rgba(24, 24, 24, 0.98);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
 
   @media (max-width: 600px) {
     max-width: 100vw;

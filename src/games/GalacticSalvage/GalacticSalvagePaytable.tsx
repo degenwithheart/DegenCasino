@@ -1,73 +1,73 @@
 import { TokenValue } from 'gamba-react-ui-v2'
 import { useCurrentToken } from 'gamba-react-ui-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/useIsCompact'
 
-interface PyramidQuestResult {
-  choice: 'main' | 'secret' | 'side'
+interface GalacticSalvageResult {
+  choice: 'safe' | 'risky' | 'extreme'
   resultIndex: number
   wasWin: boolean
   amount: number
   multiplier: number
 }
 
-export interface PyramidQuestPaytableRef {
-  trackGame: (result: PyramidQuestResult) => void
+export interface GalacticSalvagePaytableRef {
+  trackGame: (result: GalacticSalvageResult) => void
 }
 
-interface PyramidQuestPaytableProps {
+interface GalacticSalvagePaytableProps {
   wager: number
-  selectedChoice: 'main' | 'secret' | 'side'
+  selectedChoice: 'safe' | 'risky' | 'extreme'
 }
 
-const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQuestPaytableProps>(
+const GalacticSalvagePaytable = React.forwardRef<GalacticSalvagePaytableRef, GalacticSalvagePaytableProps>(
   ({ wager, selectedChoice }, ref) => {
     const token = useCurrentToken()
-    const [results, setResults] = React.useState<PyramidQuestResult[]>([])
+    const [results, setResults] = React.useState<GalacticSalvageResult[]>([])
     const [stats, setStats] = React.useState({
-      totalExpeditions: 0,
-      treasuresFound: 0,
-      totalGold: 0,
+      totalMissions: 0,
+      successfulSalvages: 0,
+      totalHaul: 0,
       successRate: 0,
       averageMultiplier: 0,
-      biggestTreasure: 0,
-      mainExpeditions: 0,
-      secretExpeditions: 0,
-      sideExpeditions: 0,
+      biggestFind: 0,
+      safeMissions: 0,
+      riskyMissions: 0,
+      extremeMissions: 0,
       currentStreak: 0,
-      isTreasureStreak: false,
+      isSuccessStreak: false,
       bestStreak: 0,
     })
 
     const isCompact = useIsCompact()
 
     React.useImperativeHandle(ref, () => ({
-      trackGame: (result: PyramidQuestResult) => {
+      trackGame: (result: GalacticSalvageResult) => {
         setResults(prev => [result, ...prev.slice(0, 9)]) // Keep last 10
         setStats(prev => {
-          const newTotal = prev.totalExpeditions + 1
-          const newTreasures = prev.treasuresFound + (result.wasWin ? 1 : 0)
-          const newGold = prev.totalGold + result.amount
-          const newSuccessRate = (newTreasures / newTotal) * 100
+          const newTotal = prev.totalMissions + 1
+          const newSuccesses = prev.successfulSalvages + (result.wasWin ? 1 : 0)
+          const newHaul = prev.totalHaul + result.amount
+          const newSuccessRate = (newSuccesses / newTotal) * 100
 
           // Streak tracking
           let newCurrentStreak = prev.currentStreak
-          let newIsTreasureStreak = prev.isTreasureStreak
+          let newIsSuccessStreak = prev.isSuccessStreak
           let newBestStreak = prev.bestStreak
 
           if (result.wasWin) {
-            if (prev.isTreasureStreak) {
+            if (prev.isSuccessStreak) {
               newCurrentStreak++
             } else {
               newCurrentStreak = 1
-              newIsTreasureStreak = true
+              newIsSuccessStreak = true
             }
           } else {
-            if (!prev.isTreasureStreak) {
+            if (!prev.isSuccessStreak) {
               newCurrentStreak++
             } else {
               newCurrentStreak = 1
-              newIsTreasureStreak = false
+              newIsSuccessStreak = false
             }
           }
 
@@ -76,17 +76,17 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
           }
 
           return {
-            totalExpeditions: newTotal,
-            treasuresFound: newTreasures,
-            totalGold: newGold,
+            totalMissions: newTotal,
+            successfulSalvages: newSuccesses,
+            totalHaul: newHaul,
             successRate: newSuccessRate,
-            averageMultiplier: newTreasures > 0 ? (newGold + wager * newTreasures) / (wager * newTreasures) : 0,
-            biggestTreasure: Math.max(prev.biggestTreasure, result.multiplier),
-            mainExpeditions: prev.mainExpeditions + (result.choice === 'main' ? 1 : 0),
-            secretExpeditions: prev.secretExpeditions + (result.choice === 'secret' ? 1 : 0),
-            sideExpeditions: prev.sideExpeditions + (result.choice === 'side' ? 1 : 0),
+            averageMultiplier: newSuccesses > 0 ? (newHaul + wager * newSuccesses) / (wager * newSuccesses) : 0,
+            biggestFind: Math.max(prev.biggestFind, result.multiplier),
+            safeMissions: prev.safeMissions + (result.choice === 'safe' ? 1 : 0),
+            riskyMissions: prev.riskyMissions + (result.choice === 'risky' ? 1 : 0),
+            extremeMissions: prev.extremeMissions + (result.choice === 'extreme' ? 1 : 0),
             currentStreak: newCurrentStreak,
-            isTreasureStreak: newIsTreasureStreak,
+            isSuccessStreak: newIsSuccessStreak,
             bestStreak: newBestStreak,
           }
         })
@@ -97,56 +97,56 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
       return null // Hide on mobile
     }
 
-    const getEntranceEmoji = (choice: 'main' | 'secret' | 'side') => {
+    const getRouteEmoji = (choice: 'safe' | 'risky' | 'extreme') => {
       switch(choice) {
-        case 'main': return '🚪'
-        case 'secret': return '🕳️'
-        case 'side': return '📍'
+        case 'safe': return '🛡️'
+        case 'risky': return '⚡'
+        case 'extreme': return '🔥'
       }
     }
     
-    const getResultEmoji = (wasWin: boolean) => wasWin ? '💰' : '💀'
+    const getResultEmoji = (wasWin: boolean) => wasWin ? '💎' : '❌'
 
     return (
       <div style={{
         width: '320px',
         height: '100%',
-        background: 'linear-gradient(135deg, #451a03 0%, #78350f 100%)',
+        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
         borderRadius: '24px',
-        border: '2px solid rgba(202, 138, 4, 0.3)',
+        border: '2px solid rgba(14, 75, 153, 0.3)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column'
       }}>
         {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(202, 138, 4, 0.3) 0%, rgba(161, 98, 7, 0.3) 100%)',
+          background: 'linear-gradient(135deg, rgba(14, 75, 153, 0.3) 0%, rgba(22, 33, 62, 0.3) 100%)',
           padding: '20px',
-          borderBottom: '1px solid rgba(234, 179, 8, 0.2)'
+          borderBottom: '1px solid rgba(100, 181, 246, 0.2)'
         }}>
           <h3 style={{
             margin: 0,
             fontSize: '18px',
             fontWeight: 700,
-            color: '#eab308',
+            color: '#64b5f6',
             textAlign: 'center',
             marginBottom: '8px'
           }}>
-            🏺 EXPEDITION LOG
+            🚀 SALVAGE LOG
           </h3>
           <div style={{
             fontSize: '12px',
             color: '#9CA3AF',
             textAlign: 'center'
           }}>
-            Current Path: {getEntranceEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
+            Current Route: {getRouteEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
           </div>
         </div>
 
         {/* Stats */}
         <div style={{
           padding: '16px',
-          borderBottom: '1px solid rgba(234, 179, 8, 0.1)'
+          borderBottom: '1px solid rgba(100, 181, 246, 0.1)'
         }}>
           <div style={{
             display: 'grid',
@@ -155,16 +155,16 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
             marginBottom: '16px'
           }}>
             <div style={{
-              background: 'rgba(234, 179, 8, 0.1)',
+              background: 'rgba(100, 181, 246, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#eab308' }}>
-                {stats.totalExpeditions}
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#64b5f6' }}>
+                {stats.totalMissions}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                EXPEDITIONS
+                MISSIONS
               </div>
             </div>
             <div style={{
@@ -194,14 +194,14 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '20px', fontWeight: 700, color: '#fbbf24' }}>
-                {stats.biggestTreasure.toFixed(1)}x
+                {stats.biggestFind.toFixed(1)}x
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
                 BEST FIND
               </div>
             </div>
             <div style={{
-              background: stats.isTreasureStreak 
+              background: stats.isSuccessStreak 
                 ? 'rgba(34, 197, 94, 0.1)' 
                 : 'rgba(239, 68, 68, 0.1)',
               borderRadius: '8px',
@@ -211,17 +211,17 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
               <div style={{ 
                 fontSize: '20px', 
                 fontWeight: 700, 
-                color: stats.isTreasureStreak ? '#22c55e' : '#ef4444' 
+                color: stats.isSuccessStreak ? '#22c55e' : '#ef4444' 
               }}>
                 {stats.currentStreak}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                {stats.isTreasureStreak ? 'TREASURE' : 'TRAP'} STREAK
+                {stats.isSuccessStreak ? 'WIN' : 'FAIL'} STREAK
               </div>
             </div>
           </div>
 
-          {/* Entrance Distribution */}
+          {/* Route Distribution */}
           <div style={{
             marginTop: '16px',
             padding: '12px',
@@ -229,12 +229,12 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
             borderRadius: '8px'
           }}>
             <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px' }}>
-              ENTRANCE USAGE
+              ROUTE DISTRIBUTION
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-              <span style={{ color: '#eab308' }}>🚪 {stats.mainExpeditions}</span>
-              <span style={{ color: '#fbbf24' }}>🕳️ {stats.secretExpeditions}</span>
-              <span style={{ color: '#ca8a04' }}>📍 {stats.sideExpeditions}</span>
+              <span style={{ color: '#64b5f6' }}>🛡️ {stats.safeMissions}</span>
+              <span style={{ color: '#fbbf24' }}>⚡ {stats.riskyMissions}</span>
+              <span style={{ color: '#ef4444' }}>🔥 {stats.extremeMissions}</span>
             </div>
           </div>
         </div>
@@ -250,9 +250,9 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
             padding: '16px 16px 8px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: '#eab308'
+            color: '#64b5f6'
           }}>
-            Recent Expeditions
+            Recent Missions
           </div>
           
           <div style={{
@@ -267,7 +267,7 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
                 fontSize: '12px',
                 marginTop: '20px'
               }}>
-                No expeditions completed yet
+                No missions completed yet
               </div>
             ) : (
               results.map((result, index) => (
@@ -275,9 +275,9 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
                   key={index}
                   style={{
                     background: result.wasWin 
-                      ? 'rgba(234, 179, 8, 0.2)' 
+                      ? 'rgba(34, 197, 94, 0.1)' 
                       : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${result.wasWin ? '#eab30840' : '#ef444440'}`,
+                    border: `1px solid ${result.wasWin ? '#22c55e40' : '#ef444440'}`,
                     borderRadius: '8px',
                     padding: '10px',
                     marginBottom: '8px',
@@ -291,13 +291,13 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
                     marginBottom: '4px'
                   }}>
                     <span style={{
-                      color: result.wasWin ? '#eab308' : '#ef4444',
+                      color: result.wasWin ? '#22c55e' : '#ef4444',
                       fontWeight: 600
                     }}>
-                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'TREASURE' : 'TRAPPED'}
+                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'SUCCESS' : 'FAILED'}
                     </span>
                     <span style={{
-                      color: result.wasWin ? '#eab308' : '#ef4444',
+                      color: result.wasWin ? '#22c55e' : '#ef4444',
                       fontWeight: 700
                     }}>
                       {result.wasWin ? `${result.multiplier.toFixed(1)}x` : '0x'}
@@ -309,13 +309,13 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
                     color: '#9CA3AF',
                     fontSize: '11px'
                   }}>
-                    <span>Path: {getEntranceEmoji(result.choice)} {result.choice}</span>
-                    <span>Chamber {result.resultIndex + 1}</span>
+                    <span>Route: {getRouteEmoji(result.choice)} {result.choice}</span>
+                    <span>Sector {result.resultIndex + 1}</span>
                   </div>
                   {result.wasWin && (
                     <div style={{
                       marginTop: '4px',
-                      color: '#eab308',
+                      color: '#64b5f6',
                       fontSize: '11px'
                     }}>
                       <TokenValue amount={result.amount} />
@@ -330,7 +330,7 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
         {/* Current Wager Display */}
         <div style={{
           padding: '16px',
-          borderTop: '1px solid rgba(234, 179, 8, 0.1)',
+          borderTop: '1px solid rgba(100, 181, 246, 0.1)',
           background: 'rgba(0, 0, 0, 0.3)'
         }}>
           <div style={{
@@ -338,12 +338,12 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
             color: '#9CA3AF',
             marginBottom: '4px'
           }}>
-            Expedition Fund
+            Mission Investment
           </div>
           <div style={{
             fontSize: '16px',
             fontWeight: 700,
-            color: '#eab308'
+            color: '#64b5f6'
           }}>
             <TokenValue amount={wager} />
           </div>
@@ -353,6 +353,6 @@ const PyramidQuestPaytable = React.forwardRef<PyramidQuestPaytableRef, PyramidQu
   }
 )
 
-PyramidQuestPaytable.displayName = 'PyramidQuestPaytable'
+GalacticSalvagePaytable.displayName = 'GalacticSalvagePaytable'
 
-export default PyramidQuestPaytable
+export default GalacticSalvagePaytable

@@ -1,8 +1,8 @@
 import React from 'react'
-import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext } from 'gamba-react-ui-v2'
+import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurrentToken, useTokenMeta, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
-import { PLATFORM_JACKPOT_FEE } from '../constants'
+import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../constants'
 
 // Casino animations
 const neonPulse = keyframes`
@@ -42,9 +42,7 @@ const ModalContent = styled.div`
   margin: 100px auto 0 auto;
   padding: 1.1rem 1rem;
   border-radius: 18px;
-  background: rgba(24, 24, 24, 0.95);
   backdrop-filter: blur(20px);
-  box-shadow: 0 0 48px rgba(0, 0, 0, 0.6);
   border: 2px solid rgba(255, 215, 0, 0.3);
   color: white;
   position: relative;
@@ -292,6 +290,57 @@ const StatusBadge = styled.span<{ enabled: boolean }>`
   }
 `
 
+const PoolStatsContainer = styled.div`
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+`
+
+const PoolStatsTitle = styled.h4`
+  color: #ffd700;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px #ffd700;
+`
+
+const PoolStatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+`
+
+const PoolStatItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`
+
+const PoolStatLabel = styled.span`
+  color: #c0c0c0;
+  font-size: 0.85rem;
+  font-weight: 500;
+`
+
+const PoolStatValue = styled.span`
+  color: #ffd700;
+  font-size: 0.85rem;
+  font-weight: 700;
+`
+
 interface JackpotModalProps {
   onClose: () => void
 }
@@ -299,6 +348,27 @@ interface JackpotModalProps {
 const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
   const pool = useCurrentPool()
   const context = useGambaPlatformContext()
+  const token = useCurrentToken()
+  const meta = useTokenMeta(token?.mint)
+  
+  // Calculate minimum wager in token amount ($1 USD for real tokens)
+  const getMinimumWager = () => {
+    if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
+      return meta?.baseWager ?? 0 // For free tokens, use base wager
+    }
+    
+    // For real tokens, minimum is $1 USD
+    const tokenPrice = meta?.usdPrice ?? 0
+    if (tokenPrice > 0) {
+      const tokenAmount = 1 / tokenPrice // $1 worth of tokens
+      return tokenAmount * (meta?.baseWager ?? Math.pow(10, meta?.decimals ?? 9))
+    }
+    
+    return meta?.baseWager ?? 0
+  }
+
+  const minimumWager = getMinimumWager()
+  const poolFeePercentage = (PLATFORM_CREATOR_FEE * 100).toFixed(3)
 
   return (
     <Modal onClose={onClose}>
@@ -307,21 +377,45 @@ const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
           <Title>Jackpot 💰</Title>
         </HeaderSection>
 
-        <JackpotAmount>
-          <TokenValue amount={pool.jackpotBalance} />
-          <span>JACKPOT</span>
-        </JackpotAmount>
-
-        <InfoText>
-          <strong><TokenValue amount={pool.jackpotBalance} /></strong> is currently in the Jackpot pool!
-        </InfoText>
-
         <FeatureList>
           <li>Jackpot grows with every bet placed</li>
-          <li>Hit the maximum win to claim the entire pot</li>
-          <li>You contribute up to {(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}% per play</li>
           <li>Winner takes all - jackpot resets after win</li>
         </FeatureList>
+
+        <PoolStatsContainer>
+          <PoolStatsTitle>Pool Statistics</PoolStatsTitle>
+          <PoolStatsGrid>
+            <PoolStatItem>
+              <PoolStatLabel>Pool Fee:</PoolStatLabel>
+              <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
+            </PoolStatItem>
+            
+            <PoolStatItem>
+              <PoolStatLabel>Jackpot:</PoolStatLabel>
+              <PoolStatValue>
+                <TokenValue amount={pool.jackpotBalance} />
+              </PoolStatValue>
+            </PoolStatItem>
+            
+            <PoolStatItem>
+              <PoolStatLabel>Minimum Wager:</PoolStatLabel>
+              <PoolStatValue>
+                {token?.mint?.equals?.(FAKE_TOKEN_MINT) ? (
+                  <TokenValue amount={minimumWager} />
+                ) : (
+                  "$1.00"
+                )}
+              </PoolStatValue>
+            </PoolStatItem>
+            
+            <PoolStatItem>
+              <PoolStatLabel>Maximum Payout:</PoolStatLabel>
+              <PoolStatValue>
+                <TokenValue amount={pool.maxPayout} />
+              </PoolStatValue>
+            </PoolStatItem>
+          </PoolStatsGrid>
+        </PoolStatsContainer>
 
         <ControlSection>
           <ControlLabel>

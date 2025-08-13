@@ -1,72 +1,72 @@
 import { TokenValue } from 'gamba-react-ui-v2'
 import { useCurrentToken } from 'gamba-react-ui-v2'
 import React from 'react'
-import { useIsCompact } from '../../src/hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/useIsCompact'
 
-interface NeonCyberHackResult {
-  choice: 'stealth' | 'brute' | 'elite'
+interface PiratesFortuneResult {
+  choice: 'coastal' | 'deep' | 'storm'
   resultIndex: number
   wasWin: boolean
   amount: number
   multiplier: number
 }
 
-export interface NeonCyberHackPaytableRef {
-  trackGame: (result: NeonCyberHackResult) => void
+export interface PiratesFortunePaytableRef {
+  trackGame: (result: PiratesFortuneResult) => void
 }
 
-interface NeonCyberHackPaytableProps {
+interface PiratesFortunePaytableProps {
   wager: number
-  selectedChoice: 'stealth' | 'brute' | 'elite'
+  selectedChoice: 'coastal' | 'deep' | 'storm'
 }
 
-const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyberHackPaytableProps>(
+const PiratesFortunePaytable = React.forwardRef<PiratesFortunePaytableRef, PiratesFortunePaytableProps>(
   ({ wager, selectedChoice }, ref) => {
     const token = useCurrentToken()
-    const [results, setResults] = React.useState<NeonCyberHackResult[]>([])
+    const [results, setResults] = React.useState<PiratesFortuneResult[]>([])
     const [stats, setStats] = React.useState({
-      totalHacks: 0,
-      successfulBreaches: 0,
-      totalData: 0,
+      totalVoyages: 0,
+      treasuresFound: 0,
+      totalBooty: 0,
       successRate: 0,
       averageMultiplier: 0,
-      biggestBreach: 0,
-      stealthHacks: 0,
-      bruteHacks: 0,
-      eliteHacks: 0,
+      biggestHaul: 0,
+      coastalVoyages: 0,
+      deepVoyages: 0,
+      stormVoyages: 0,
       currentStreak: 0,
-      isSuccessStreak: false,
+      isTreasureStreak: false,
       bestStreak: 0,
     })
 
     const isCompact = useIsCompact()
 
     React.useImperativeHandle(ref, () => ({
-      trackGame: (result: NeonCyberHackResult) => {
+      trackGame: (result: PiratesFortuneResult) => {
         setResults(prev => [result, ...prev.slice(0, 9)])
         setStats(prev => {
-          const newTotal = prev.totalHacks + 1
-          const newSuccesses = prev.successfulBreaches + (result.wasWin ? 1 : 0)
-          const newData = prev.totalData + result.amount
-          const newSuccessRate = (newSuccesses / newTotal) * 100
+          const newTotal = prev.totalVoyages + 1
+          const newTreasures = prev.treasuresFound + (result.wasWin ? 1 : 0)
+          const newBooty = prev.totalBooty + result.amount
+          const newSuccessRate = (newTreasures / newTotal) * 100
 
           let newCurrentStreak = prev.currentStreak
-          let newIsSuccessStreak = prev.isSuccessStreak
+          let newIsTreasureStreak = prev.isTreasureStreak
           let newBestStreak = prev.bestStreak
 
           if (result.wasWin) {
-            if (prev.isSuccessStreak) {
+            if (prev.isTreasureStreak) {
               newCurrentStreak++
             } else {
               newCurrentStreak = 1
-              newIsSuccessStreak = true
+              newIsTreasureStreak = true
             }
           } else {
-            if (!prev.isSuccessStreak) {
+            if (!prev.isTreasureStreak) {
               newCurrentStreak++
             } else {
               newCurrentStreak = 1
-              newIsSuccessStreak = false
+              newIsTreasureStreak = false
             }
           }
 
@@ -75,17 +75,17 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
           }
 
           return {
-            totalHacks: newTotal,
-            successfulBreaches: newSuccesses,
-            totalData: newData,
+            totalVoyages: newTotal,
+            treasuresFound: newTreasures,
+            totalBooty: newBooty,
             successRate: newSuccessRate,
-            averageMultiplier: newSuccesses > 0 ? (newData + wager * newSuccesses) / (wager * newSuccesses) : 0,
-            biggestBreach: Math.max(prev.biggestBreach, result.multiplier),
-            stealthHacks: prev.stealthHacks + (result.choice === 'stealth' ? 1 : 0),
-            bruteHacks: prev.bruteHacks + (result.choice === 'brute' ? 1 : 0),
-            eliteHacks: prev.eliteHacks + (result.choice === 'elite' ? 1 : 0),
+            averageMultiplier: newTreasures > 0 ? (newBooty + wager * newTreasures) / (wager * newTreasures) : 0,
+            biggestHaul: Math.max(prev.biggestHaul, result.multiplier),
+            coastalVoyages: prev.coastalVoyages + (result.choice === 'coastal' ? 1 : 0),
+            deepVoyages: prev.deepVoyages + (result.choice === 'deep' ? 1 : 0),
+            stormVoyages: prev.stormVoyages + (result.choice === 'storm' ? 1 : 0),
             currentStreak: newCurrentStreak,
-            isSuccessStreak: newIsSuccessStreak,
+            isTreasureStreak: newIsTreasureStreak,
             bestStreak: newBestStreak,
           }
         })
@@ -94,55 +94,54 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
 
     if (isCompact) return null
 
-    const getMethodEmoji = (choice: 'stealth' | 'brute' | 'elite') => {
+    const getRouteEmoji = (choice: 'coastal' | 'deep' | 'storm') => {
       switch(choice) {
-        case 'stealth': return '🥷'
-        case 'brute': return '💥'
-        case 'elite': return '🎯'
+        case 'coastal': return '🏖️'
+        case 'deep': return '🌊'
+        case 'storm': return '⛈️'
       }
     }
     
-    const getResultEmoji = (wasWin: boolean) => wasWin ? '🔓' : '🚫'
+    const getResultEmoji = (wasWin: boolean) => wasWin ? '💰' : '💀'
 
     return (
       <div style={{
         width: '320px',
         height: '100%',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+        background: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%)',
         borderRadius: '24px',
-        border: '2px solid rgba(83, 52, 131, 0.5)',
+        border: '2px solid rgba(14, 165, 233, 0.3)',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'monospace'
+        flexDirection: 'column'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%)',
+          background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(12, 74, 110, 0.3) 100%)',
           padding: '20px',
-          borderBottom: '1px solid rgba(34, 197, 94, 0.3)'
+          borderBottom: '1px solid rgba(56, 189, 248, 0.2)'
         }}>
           <h3 style={{
             margin: 0,
-            fontSize: '16px',
+            fontSize: '18px',
             fontWeight: 700,
-            color: '#22c55e',
+            color: '#38bdf8',
             textAlign: 'center',
             marginBottom: '8px'
           }}>
-            💻 HACK_LOG
+            🏴‍☠️ CAPTAIN'S LOG
           </h3>
           <div style={{
             fontSize: '12px',
             color: '#9CA3AF',
             textAlign: 'center'
           }}>
-            METHOD: {getMethodEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
+            Current Route: {getRouteEmoji(selectedChoice)} {selectedChoice.toUpperCase()}
           </div>
         </div>
 
         <div style={{
           padding: '16px',
-          borderBottom: '1px solid rgba(34, 197, 94, 0.1)'
+          borderBottom: '1px solid rgba(56, 189, 248, 0.1)'
         }}>
           <div style={{
             display: 'grid',
@@ -151,16 +150,16 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
             marginBottom: '16px'
           }}>
             <div style={{
-              background: 'rgba(34, 197, 94, 0.1)',
+              background: 'rgba(56, 189, 248, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#22c55e' }}>
-                {stats.totalHacks}
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#38bdf8' }}>
+                {stats.totalVoyages}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                ATTEMPTS
+                VOYAGES
               </div>
             </div>
             <div style={{
@@ -184,20 +183,20 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
             gap: '12px'
           }}>
             <div style={{
-              background: 'rgba(147, 51, 234, 0.1)',
+              background: 'rgba(251, 191, 36, 0.1)',
               borderRadius: '8px',
               padding: '12px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#9333ea' }}>
-                {stats.biggestBreach.toFixed(1)}x
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#fbbf24' }}>
+                {stats.biggestHaul.toFixed(1)}x
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                MAX_BREACH
+                BEST HAUL
               </div>
             </div>
             <div style={{
-              background: stats.isSuccessStreak 
+              background: stats.isTreasureStreak 
                 ? 'rgba(34, 197, 94, 0.1)' 
                 : 'rgba(239, 68, 68, 0.1)',
               borderRadius: '8px',
@@ -207,12 +206,12 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
               <div style={{ 
                 fontSize: '20px', 
                 fontWeight: 700, 
-                color: stats.isSuccessStreak ? '#22c55e' : '#ef4444' 
+                color: stats.isTreasureStreak ? '#22c55e' : '#ef4444' 
               }}>
                 {stats.currentStreak}
               </div>
               <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                {stats.isSuccessStreak ? 'SUCCESS' : 'FAIL'}_STREAK
+                {stats.isTreasureStreak ? 'TREASURE' : 'LOST'} STREAK
               </div>
             </div>
           </div>
@@ -220,17 +219,16 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
           <div style={{
             marginTop: '16px',
             padding: '12px',
-            background: 'rgba(0, 0, 0, 0.5)',
-            borderRadius: '8px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '8px'
           }}>
             <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px' }}>
-              METHOD_DISTRIBUTION
+              ROUTE PREFERENCE
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-              <span style={{ color: '#22c55e' }}>🥷 {stats.stealthHacks}</span>
-              <span style={{ color: '#f59e0b' }}>💥 {stats.bruteHacks}</span>
-              <span style={{ color: '#9333ea' }}>🎯 {stats.eliteHacks}</span>
+              <span style={{ color: '#38bdf8' }}>🏖️ {stats.coastalVoyages}</span>
+              <span style={{ color: '#0ea5e9' }}>🌊 {stats.deepVoyages}</span>
+              <span style={{ color: '#0284c7' }}>⛈️ {stats.stormVoyages}</span>
             </div>
           </div>
         </div>
@@ -245,9 +243,9 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
             padding: '16px 16px 8px 16px',
             fontSize: '14px',
             fontWeight: 600,
-            color: '#22c55e'
+            color: '#38bdf8'
           }}>
-            RECENT_OPERATIONS
+            Recent Voyages
           </div>
           
           <div style={{
@@ -262,7 +260,7 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
                 fontSize: '12px',
                 marginTop: '20px'
               }}>
-                NO_OPERATIONS_LOGGED
+                No voyages completed yet
               </div>
             ) : (
               results.map((result, index) => (
@@ -270,9 +268,9 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
                   key={index}
                   style={{
                     background: result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.15)' 
+                      ? 'rgba(234, 179, 8, 0.2)' 
                       : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${result.wasWin ? '#22c55e40' : '#ef444440'}`,
+                    border: `1px solid ${result.wasWin ? '#eab30840' : '#ef444440'}`,
                     borderRadius: '8px',
                     padding: '10px',
                     marginBottom: '8px',
@@ -286,13 +284,13 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
                     marginBottom: '4px'
                   }}>
                     <span style={{
-                      color: result.wasWin ? '#22c55e' : '#ef4444',
+                      color: result.wasWin ? '#eab308' : '#ef4444',
                       fontWeight: 600
                     }}>
-                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'ACCESS' : 'BLOCKED'}
+                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'TREASURE' : 'LOST'}
                     </span>
                     <span style={{
-                      color: result.wasWin ? '#22c55e' : '#ef4444',
+                      color: result.wasWin ? '#eab308' : '#ef4444',
                       fontWeight: 700
                     }}>
                       {result.wasWin ? `${result.multiplier.toFixed(1)}x` : '0x'}
@@ -304,13 +302,13 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
                     color: '#9CA3AF',
                     fontSize: '11px'
                   }}>
-                    <span>METHOD: {getMethodEmoji(result.choice)} {result.choice}</span>
-                    <span>SRV_{(result.resultIndex + 1).toString().padStart(2, '0')}</span>
+                    <span>Route: {getRouteEmoji(result.choice)} {result.choice}</span>
+                    <span>Island {result.resultIndex + 1}</span>
                   </div>
                   {result.wasWin && (
                     <div style={{
                       marginTop: '4px',
-                      color: '#22c55e',
+                      color: '#38bdf8',
                       fontSize: '11px'
                     }}>
                       <TokenValue amount={result.amount} />
@@ -324,7 +322,7 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
 
         <div style={{
           padding: '16px',
-          borderTop: '1px solid rgba(34, 197, 94, 0.1)',
+          borderTop: '1px solid rgba(56, 189, 248, 0.1)',
           background: 'rgba(0, 0, 0, 0.3)'
         }}>
           <div style={{
@@ -332,12 +330,12 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
             color: '#9CA3AF',
             marginBottom: '4px'
           }}>
-            OPERATION_BUDGET
+            Voyage Investment
           </div>
           <div style={{
             fontSize: '16px',
             fontWeight: 700,
-            color: '#22c55e'
+            color: '#38bdf8'
           }}>
             <TokenValue amount={wager} />
           </div>
@@ -347,6 +345,6 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
   }
 )
 
-NeonCyberHackPaytable.displayName = 'NeonCyberHackPaytable'
+PiratesFortunePaytable.displayName = 'PiratesFortunePaytable'
 
-export default NeonCyberHackPaytable
+export default PiratesFortunePaytable
