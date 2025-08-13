@@ -1,11 +1,11 @@
 # DegenHeart Casino
 
-<!-- Horizontal scrollable images (mimic a carousel) -->
-<p align="center">
-  <img src="./screenshots/1.jpg" width="350" style="display:inline-block;margin-right:10px;" />
-  <img src="./screenshots/2.jpg" width="350" style="display:inline-block;margin-right:10px;" />
-  <img src="./screenshots/3.jpg" width="350" style="display:inline-block;" />
-</p>
+<!-- True horizontal scrollable carousel for screenshots -->
+<div align="center" style="overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; padding-bottom: 8px; scrollbar-width: thin;">
+  <img src="./screenshots/1.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
+  <img src="./screenshots/2.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
+  <img src="./screenshots/3.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
+</div>
 
 > Looking to build a new game for this platform? Start with the official Hello World Game Template:
 > https://github.com/degenwithheart/HelloWorld-Boilerplate
