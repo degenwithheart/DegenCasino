@@ -290,7 +290,7 @@ export function GameControls({
               onClick={() => setShowWagerModal(true)}
               disabled={isPlaying || showOutcome}
             >
-              Set Wager
+              Wager
             </GambaUi.Button>
           )}
           {ENABLE_GAMBA_RESULT_MODAL && (
