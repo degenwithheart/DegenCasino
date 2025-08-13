@@ -102,12 +102,12 @@ export default function FancyVirtualHorseRacing() {
     if (phase === 'betting') {
       const colors = ['#ffb347', '#77dd77', '#779ecb', '#ff6961', '#f49ac2', '#b19cd9']
 
-      // Generate 4 unique odds
-      const generateUniqueOdds = (count: number, min: number = 1.5, max: number = 8.0): number[] => {
+      // Generate 4 unique odds with house edge
+      const generateUniqueOdds = (count: number, min: number = 1.5, max: number = 3.8): number[] => {
         const odds = new Set<number>()
         while (odds.size < count) {
           const val = +(min + Math.random() * (max - min)).toFixed(2)
-          odds.add(val)
+          odds.add(val * 0.95) // Apply 5% house edge
         }
         return Array.from(odds).map(Number).sort(() => Math.random() - 0.5)
       }

@@ -1,19 +1,36 @@
 import { SLOT_ITEMS, SlotItem, WINNING_PATTERNS, SCATTER_PATTERNS, MIN_MATCH, MAX_MATCH, PAYLINES, NUM_REELS, NUM_ROWS, TOTAL_POSITIONS, REEL_STRIPS } from './constants'
 
+// Import seeded random functions for provable fairness
+import { fnv1a, mulberry32 } from '../../sections/userProfileUtils'
+
 const pickRandom = <T>(arr: T[]) => arr.at(Math.floor(Math.random() * arr.length))
 
+// Deterministic shuffle using seeded random (for provable fairness)
+const shuffleWithSeed = <T>(array: T[], seed: string): T[] => {
+  const rng = mulberry32(fnv1a(seed))
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 /**
- * Generate a single reel from its predefined strip at a random position
+ * Generate a single reel from its predefined strip at a deterministic position
+ * Uses a seed based on reel index for consistent but varied results
  */
-const generateReelFromStrip = (reelIndex: number): SlotItem[] => {
+const generateReelFromStrip = (reelIndex: number, seedSuffix: string = ''): SlotItem[] => {
   const strip = REEL_STRIPS[reelIndex]
   if (!strip) {
     // Fallback if reel strip doesn't exist
     return Array.from({ length: NUM_ROWS }, () => pickRandom(SLOT_ITEMS) ?? SLOT_ITEMS[0])
   }
   
-  // Pick a random starting position in the strip
-  const startPos = Math.floor(Math.random() * strip.length)
+  // Use deterministic position based on reel index and seed
+  const seed = `reel-${reelIndex}-${seedSuffix}`
+  const rng = mulberry32(fnv1a(seed))
+  const startPos = Math.floor(rng() * strip.length)
   const reel: SlotItem[] = []
   
   // Get 3 consecutive symbols from the strip (wrapping around if needed)
@@ -181,9 +198,13 @@ export const generateBetArray = (
     arr.push(multiplier)
   }
   
-  // Shuffle the array to randomize positions
+  // Use deterministic shuffle for provable fairness
+  const shuffleSeed = `slots-bet-array-${maxPayout}-${wager}-${maxLength}`
+  const rng = mulberry32(fnv1a(shuffleSeed))
+  
+  // Deterministic Fisher-Yates shuffle
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rng() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]]
   }
 
@@ -328,8 +349,9 @@ export const getSlotCombination = (totalPositions: number, multiplier: number, b
  * Generate a payline win using strict reel strip adherence
  */
 const generatePaylineWinWithStrips = (symbol: string, matchCount: number): SlotItem[] => {
-  // Shuffle paylines to randomize which line gets the win instead of always using the first
-  const shuffledPaylines = [...PAYLINES].sort(() => Math.random() - 0.5)
+  // Use deterministic shuffle based on symbol and match count for provable fairness
+  const shuffleSeed = `${symbol}-${matchCount}-paylines`
+  const shuffledPaylines = shuffleWithSeed(PAYLINES, shuffleSeed)
   
   // Try each payline to see if we can create the winning pattern
   for (const payline of shuffledPaylines) {
@@ -372,8 +394,9 @@ const generatePaylineWinWithStrips = (symbol: string, matchCount: number): SlotI
       }
       
       if (canCreatePattern) {
-        // Generate the winning pattern
-        const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i))
+        // Generate the winning pattern with a deterministic seed
+        const seedSuffix = `payline-win-${symbol}-${matchCount}`
+        const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i, seedSuffix))
         
         // Position required reels to show the winning symbol
         for (const { reelIndex, targetRow } of requiredReelConfigs) {
@@ -403,11 +426,12 @@ const generatePaylineWinWithStrips = (symbol: string, matchCount: number): SlotI
  * Generate a scatter win using strict reel strip adherence
  */
 const generateScatterWinWithStrips = (symbol: string, matchCount: number): SlotItem[] => {
-  const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i))
+  const seedSuffix = `scatter-win-${symbol}-${matchCount}`
+  const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i, seedSuffix))
   
   // Try to position symbols by checking which reels can show the symbol
   let symbolsPlaced = 0
-  const reelIndices = Array.from({ length: NUM_REELS }, (_, i) => i).sort(() => Math.random() - 0.5)
+  const reelIndices = shuffleWithSeed(Array.from({ length: NUM_REELS }, (_, i) => i), `scatter-reels-${symbol}-${matchCount}`)
   
   for (const reelIndex of reelIndices) {
     if (symbolsPlaced >= matchCount) break
@@ -443,8 +467,9 @@ const generateStrictLosingCombination = (): SlotItem[] => {
   let attempts = 0
   
   while (attempts < 50) {
-    // Generate all reels from their strips
-    const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i))
+    // Generate all reels from their strips with deterministic seed based on attempt
+    const seedSuffix = `losing-combo-attempt-${attempts}`
+    const reels = Array.from({ length: NUM_REELS }, (_, i) => generateReelFromStrip(i, seedSuffix))
     const grid = reelsToGrid(reels)
     
     // Check if this accidentally creates any wins

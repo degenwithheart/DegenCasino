@@ -66,7 +66,7 @@ export default function DiceRoll() {
       await new Promise(res => setTimeout(res, 60 + i * 10));
     }
     
-    const bet = [0, 0, 0, 1.2, 1.5, 2];
+    const bet = [0, 0, 0, 0, 0, 5.7]; // 95% RTP (5% house edge) - only 6 wins
     await game.play({ wager, bet })
     const res = await game.result()
     setResult(res.resultIndex + 1)

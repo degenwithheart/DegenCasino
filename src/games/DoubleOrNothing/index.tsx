@@ -11,9 +11,9 @@ import { DoubleOrNothingOverlays } from './DoubleOrNothingOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 const MODES = [
-  { label: '2x', bet: [2, 0], labels: ['Double!', 'Nothing'] },
-  { label: '3x', bet: [3, 0], labels: ['Triple!', 'Nothing'] },
-  { label: '10x', bet: [10, 0], labels: ['Degen!', 'Nothing'] },
+  { label: '2x', bet: [1.9, 0], labels: ['Double!', 'Nothing'] },
+  { label: '3x', bet: [0, 0, 2.85], labels: ['Triple!', 'Nothing'] }, // 1/3 chance to win
+  { label: '10x', bet: [0, 0, 0, 0, 0, 0, 0, 0, 0, 9.5], labels: ['Degen!', 'Nothing'] }, // 1/10 chance to win
 ];
 
 function DoubleOrNothing() {

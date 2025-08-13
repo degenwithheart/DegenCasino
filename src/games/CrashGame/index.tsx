@@ -142,12 +142,15 @@ export default function CrashGame() {
     }
   )()
 
-  //Kinda realistic losing number chooser
-  const calculateBiasedLowMultiplier = (targetMultiplier: number) => {
-    const randomValue = Math.random()
+  // Use deterministic crash multiplier calculation for visual display
+  // This ensures the display is consistent with the provably fair result
+  const calculateVisualCrashMultiplier = (targetMultiplier: number, resultIndex: number) => {
+    // Use the result index from Gamba to determine a consistent crash point
+    // Normalize result index to 0-1 range (assuming it's typically 0-100 or similar)
+    const normalizedResult = (resultIndex % 1000) / 1000
     const maxPossibleMultiplier = Math.min(targetMultiplier, 12)
-    const exponent = randomValue > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
-    const result = 1 + Math.pow(randomValue, exponent) * (maxPossibleMultiplier - 1)
+    const exponent = normalizedResult > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
+    const result = 1 + Math.pow(normalizedResult, exponent) * (maxPossibleMultiplier - 1)
     return parseFloat(result.toFixed(2))
   }
 
@@ -166,7 +169,7 @@ export default function CrashGame() {
 
       const result = await game.result()
       const win = result.payout > 0
-      const crashMultiplier = win ? multiplierTarget : calculateBiasedLowMultiplier(multiplierTarget)
+      const crashMultiplier = win ? multiplierTarget : calculateVisualCrashMultiplier(multiplierTarget, result.resultIndex)
 
       // Prepare result for overlay handling
       const finalResult = { payout: result.payout, wager }

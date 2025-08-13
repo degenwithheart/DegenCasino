@@ -30,16 +30,16 @@ export const WINNING_COMBINATIONS: Record<PlayerChoice, PlayerChoice[]> = {
 export const GAME_MODES: Record<string, GameMode> = {
   standard: {
     label: 'Standard',
-    bet: [2, 0, 1], // Win: 2x, Lose: 0x, Tie: 1x
+    bet: [1.9, 0, 0.95], // Win: 1.9x, Lose: 0x, Tie: 0.95x - 95% RTP
     description: 'Classic Rock Paper Scissors',
-    winMultiplier: 2,
-    tieMultiplier: 1,
+    winMultiplier: 1.9,
+    tieMultiplier: 0.95,
   },
   risky: {
     label: 'High Risk',
-    bet: [3, 0, 0], // Win: 3x, Lose: 0x, Tie: 0x (no ties)
+    bet: [2.85, 0, 0], // Win: 2.85x, Lose: 0x, Tie: 0x - 95% RTP
     description: 'Higher payout, no tie protection',
-    winMultiplier: 3,
+    winMultiplier: 2.85,
     tieMultiplier: 0,
   },
 };

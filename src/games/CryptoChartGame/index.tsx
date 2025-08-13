@@ -156,15 +156,20 @@ export default function CryptoChartGame() {
         // Wait for dramatic effect
         await new Promise(resolve => setTimeout(resolve, 1500))
         
+        // Use deterministic target calculation based on result index for provable fairness
         let target
         if (win) {
-          const extraMoon = Math.random() < 0.5
-          target = extraMoon ? multiplierTarget + Math.random() * multiplierTarget * 2 : multiplierTarget
+          // Use result index to determine if extra moon and how much
+          const normalizedResult = (result.resultIndex % 1000) / 1000
+          const extraMoon = normalizedResult < 0.5
+          target = extraMoon ? multiplierTarget + normalizedResult * multiplierTarget * 2 : multiplierTarget
         } else {
-          const earlyRug = Math.random() < 0.5
+          // Use result index for deterministic crash point
+          const normalizedResult = (result.resultIndex % 1000) / 1000
+          const earlyRug = normalizedResult < 0.5
           target = earlyRug
-            ? 1 + Math.random() * Math.max(0.5, multiplierTarget - 1.5)
-            : calculateBiasedLowMultiplier(multiplierTarget)
+            ? 1 + normalizedResult * Math.max(0.5, multiplierTarget - 1.5)
+            : calculateDeterministicLowMultiplier(multiplierTarget, result.resultIndex)
         }
         
         const finalResult = { payout: result.payout, wager }
@@ -201,11 +206,12 @@ export default function CryptoChartGame() {
       }
     }
 
-    const calculateBiasedLowMultiplier = (targetMultiplier: number) => {
-      const r = Math.random()
+    const calculateDeterministicLowMultiplier = (targetMultiplier: number, resultIndex: number) => {
+      // Use result index for deterministic calculation
+      const normalizedResult = (resultIndex % 1000) / 1000
       const max = Math.min(targetMultiplier, 12)
-      const exponent = r > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
-      const result = 1 + Math.pow(r, exponent) * (max - 1)
+      const exponent = normalizedResult > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
+      const result = 1 + Math.pow(normalizedResult, exponent) * (max - 1)
       return parseFloat(result.toFixed(2))
     }
 

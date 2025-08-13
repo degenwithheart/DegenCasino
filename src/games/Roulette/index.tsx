@@ -197,7 +197,7 @@ export default function Roulette() {
   const wager = isFakeToken
     ? totalChipValue.value * baseWager / 10_000
     : liveWager
-  const betValue = isFakeToken ? bet.value : Array(NUMBERS).fill(1 / NUMBERS)
+  const betValue = isFakeToken ? bet.value : Array(NUMBERS).fill((1 / NUMBERS) * 0.95)
   const multiplier = Math.max(...betValue)
   const maxPayout = multiplier * wager
   const balanceExceeded = wager > (balance.balance + balance.bonusBalance)

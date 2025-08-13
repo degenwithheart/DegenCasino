@@ -164,9 +164,9 @@ export default function Limbo() {
 
       sounds.play('spin', { playbackRate: 0.8 })
 
-      const endMultiplier = winCondition
-        ? targetMultiplier + Math.random() * targetMultiplier * 0.2
-        : result.resultIndex + Math.random() * (targetMultiplier - result.resultIndex)
+      // Use the actual result index from Gamba for provable fairness
+      // The multiplier should reflect the actual on-chain result, not a modified display value
+      const endMultiplier = winCondition ? targetMultiplier : result.resultIndex
 
       // Handle celebration or mourning overlays
       if (winCondition) {

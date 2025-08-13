@@ -18,8 +18,8 @@ import SOUND_WIN from './win.mp3'
 import { GameControls } from '../../components';
 
 const SIDES = {
-  heads: [2, 0],
-  tails: [0, 2],
+  heads: [1.95, 0], // 97.5% RTP (2.5% house edge)
+  tails: [0, 1.95],
 }
 
 type Side = keyof typeof SIDES

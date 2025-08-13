@@ -9,17 +9,21 @@ export const selectedChip = signal<number>(CHIPS[0])
 // Distributes chips placed on squares equally across all numbers covered by those squares
 export const distributedChips = computed(() => {
   const placements = Object.entries(chipPlacements.value)
-  const distributed = Array(NUMBERS).fill(0)
+  const distributed: number[] = Array(NUMBERS).fill(0)
 
   for (const [id, amount] of placements) {
     const square = tableLayout[id]
     if (!square) continue
     // Distribute amount equally to each number in this square
     // Using BigInt to avoid floating precision errors (chip amounts may be decimals)
-    const divided = Number(BigInt(amount * 10_000) / BigInt(square.numbers.length))
+    const divided = Number(BigInt(amount * 10_000) / BigInt(square.numbers.length)) / 10_000
 
     for (const number of square.numbers) {
-      distributed[number - 1] += divided
+      const numValue = typeof number === 'string' ? parseInt(number, 10) : number
+      const index = numValue - 1
+      if (index >= 0 && index < distributed.length) {
+        distributed[index] = distributed[index] + divided
+      }
     }
   }
 
@@ -35,7 +39,7 @@ export const totalChipValue = computed(() =>
 export const bet = computed(() => {
   const total = totalChipValue.value || 1
   return distributedChips.value.map((amount) =>
-    Number(BigInt(amount * distributedChips.value.length * 10_000) / BigInt(total)) / 10_000
+    (Number(BigInt(amount * distributedChips.value.length * 10_000) / BigInt(total)) / 10_000) * 0.95
   )
 })
 

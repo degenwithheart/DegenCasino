@@ -67,10 +67,10 @@ export default function WheelSpin() {
     setScale(compact ? 1 : 1.3);
   }, [compact]);
 
-  // 5 segments: one for all losses (0x), and one for each win multiplier
-  // Each entry is equally likely to be selected by the Gamba engine
-  const segments = [0, 1.2, 1.5, 2, 5];
-  const wheelColors = ['#f00', '#00ffe1', '#ffd700', '#00ffe1', '#f00'] // Red, Cyan, Gold, Cyan, Red
+  // 8 segments with 95% RTP (5% house edge)
+  // 6 lose, 2 win for sustainable casino economics  
+  const segments = [0, 0, 0, 0, 0, 0, 1.9, 5.7];
+  const wheelColors = ['#f00', '#f00', '#f00', '#f00', '#f00', '#f00', '#00ffe1', '#ffd700'] // Mostly red (lose), some win colors
 
   const play = async () => {
     // Reset overlay state when starting new game

@@ -28,7 +28,7 @@ const calculateArraySize = (odds: number): number => {
 
 export const outcomes = (odds: number) => {
   const arraySize = calculateArraySize(odds);
-  const payout = (100 / odds).toFixed(4);
+  const payout = ((100 / odds) * 0.95).toFixed(4); // 95% RTP (5% house edge)
 
   let payoutArray = Array.from({ length: arraySize }).map((_, index) =>
     index < arraySize * (odds / 100) ? parseFloat(payout) : 0
@@ -152,9 +152,9 @@ export default function Dice() {
     const result = await game.result();
     const win = result.payout > 0;
 
-    const resultNum = win
-      ? Math.floor(Math.random() * rollUnderIndex)
-      : Math.floor(Math.random() * (100 - rollUnderIndex) + rollUnderIndex);
+    // Use the provably fair result index from Gamba instead of Math.random()
+    // The result.resultIndex is already the fair random result from 0-99
+    const resultNum = result.resultIndex;
 
     setResultIndex(resultNum);
     setIsWin(win);

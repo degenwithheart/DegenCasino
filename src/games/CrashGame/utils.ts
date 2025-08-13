@@ -1,6 +1,9 @@
 export const calculateBetArray = (multiplier: number) => {
+  // Apply 95% RTP (5% house edge)
+  const adjustedMultiplier = multiplier * 0.95
+  
   // Extract the fractional part and handle precision issues by rounding
-  const fraction = Math.round((multiplier % 1) * 100) / 100
+  const fraction = Math.round((adjustedMultiplier % 1) * 100) / 100
 
   // Determine the number of repetitions based on the fractional part
   const repeatMultiplier = (
@@ -19,10 +22,10 @@ export const calculateBetArray = (multiplier: number) => {
   )()
 
   // Calculate the total sum when the multiplier is used 'repeatMultiplier' times
-  const totalSum = multiplier * repeatMultiplier
+  const totalSum = adjustedMultiplier * repeatMultiplier
 
   // Create the array with the multiplier repeated 'repeatMultiplier' times
-  const betArray = Array.from({ length: repeatMultiplier }).map(() => multiplier)
+  const betArray = Array.from({ length: repeatMultiplier }).map(() => adjustedMultiplier)
 
   // Calculate the total number of elements needed (rounded up to ensure whole number)
   const totalElements = Math.ceil(totalSum)

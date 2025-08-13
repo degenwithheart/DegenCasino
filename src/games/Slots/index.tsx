@@ -246,7 +246,7 @@ export default function Slots() {
         setSpinning(false)
         
         // CRITICAL: Use ONLY Gamba's result to determine win/loss
-        const isGambaWin = gambaResult && gambaResult.multiplier > 0
+        const isGambaWin = gambaResult && gambaResult.payout > 0
         
         // Track this spin in paytable
         paytableRef.current?.trackSpin(isGambaWin)
@@ -390,7 +390,7 @@ export default function Slots() {
         resultIndex: result.resultIndex,
         betArrayLength: bet.length,
         betArraySample: bet.slice(0, 10),
-        isWin: result.multiplier > 0
+        isWin: result.payout > 0
       })
 
       const grid = getSlotCombination(TOTAL_POSITIONS, result.multiplier, bet)

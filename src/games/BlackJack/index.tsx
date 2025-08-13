@@ -167,7 +167,7 @@ export default function Blackjack(props: BlackjackConfig) {
     
     sounds.play('play')
 
-    const betArray = [2.5, 2.5, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    const betArray = [2.4, 2.4, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 0, 0, 0, 0, 0, 0, 0, 0, 0] // 96% RTP
 
     await game.play({
       bet: betArray,

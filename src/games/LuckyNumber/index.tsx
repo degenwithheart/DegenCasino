@@ -114,7 +114,7 @@ export default function LuckyNumber() {
     setResult(null);
     setPayout(null);
     const bet = Array(10).fill(0);
-    bet[pick - 1] = 10;
+    bet[pick - 1] = 9.5; // 95% RTP (5% house edge)
     await game.play({ wager, bet });
     const res = await game.result();
   setResultModalOpen(true);

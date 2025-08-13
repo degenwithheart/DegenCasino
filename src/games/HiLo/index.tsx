@@ -41,7 +41,7 @@ const generateBetArray = (currentRank: number, isHi: boolean) => {
         ? i < currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt(currentRank) : BigInt(0)
         : i <= currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt((currentRank + 1)) : BigInt(0)
     })()
-    return Number(result) / BPS_PER_WHOLE
+    return (Number(result) / BPS_PER_WHOLE) * 0.95 // 95% RTP (5% house edge)
   })
 }
 

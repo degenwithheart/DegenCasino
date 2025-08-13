@@ -135,10 +135,12 @@ export default function Keno() {
     setIsPlaying(true)
 
     try {
-      // Build bet array: each selected number is a winning index with payout = selectedNumbers.length
+      // Build bet array: each selected number is a winning index with balanced payout
       const betArray = Array(GRID_SIZE).fill(0)
+      // Use logarithmic scaling to prevent excessive RTPs for high selection counts
+      const basePayout = Math.max(1, Math.log2(selectedNumbers.length + 1) * 0.95)
       selectedNumbers.forEach(n => {
-        betArray[n - 1] = selectedNumbers.length // payout multiplier for each selected number
+        betArray[n - 1] = basePayout
       })
 
       await game.play({
@@ -157,7 +159,7 @@ export default function Keno() {
       // Wait for dramatic effect
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      const simulatedDrawnNumbers = simulateDrawnNumbers(win, selectedNumbers)
+      const simulatedDrawnNumbers = simulateDrawnNumbers(win, selectedNumbers, gameResult.resultIndex)
       setDrawnNumbers(simulatedDrawnNumbers)
 
       // Calculate hits - how many of our selected numbers were drawn
@@ -240,31 +242,56 @@ export default function Keno() {
     }, drawnNumbers.length)
   }
 
-  const simulateDrawnNumbers = (win: boolean, selected: number[]): number[] => {
+  // Import seeded random functions for deterministic number generation
+  const fnv1a = (str: string): number => {
+    let hash = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+    }
+    return hash >>> 0;
+  }
+
+  const mulberry32 = (seed: number) => {
+    return function () {
+      let t = (seed += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const simulateDrawnNumbers = (win: boolean, selected: number[], resultIndex: number): number[] => {
+    // Use deterministic number generation based on the game result
+    const seed = `keno-${win}-${selected.join(',')}-${resultIndex}`
+    const rng = mulberry32(fnv1a(seed))
+    
     if (win) {
-      const remainingNumbers = generateRandomNumbers(GRID_SIZE - 1, selected, GRID_SIZE)
-      shuffleArray(remainingNumbers)
+      const remainingNumbers = generateRandomNumbers(GRID_SIZE - 1, selected, GRID_SIZE, rng)
+      shuffleArray(remainingNumbers, rng)
       const winningNumbers = remainingNumbers.slice(0, 9)
       return [...winningNumbers, selected[0]]
     } else {
-      return generateRandomNumbers(10, selected, GRID_SIZE)
+      return generateRandomNumbers(10, selected, GRID_SIZE, rng)
     }
   }
 
-  const shuffleArray = (array: any[]) => {
+  const shuffleArray = (array: any[], rng: () => number) => {
     for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
+      const j = Math.floor(rng() * (i + 1))
       ;[array[i], array[j]] = [array[j], array[i]]
     }
   }
 
-  const generateRandomNumbers = (count: number, exclude: number[], max: number) => {
+  const generateRandomNumbers = (count: number, exclude: number[], max: number, rng: () => number) => {
     const nums: number[] = []
-    while (nums.length < count) {
-      const n = Math.floor(Math.random() * max) + 1
+    let attempts = 0
+    while (nums.length < count && attempts < max * 3) { // Prevent infinite loops
+      const n = Math.floor(rng() * max) + 1
       if (!nums.includes(n) && !exclude.includes(n)) {
         nums.push(n)
       }
+      attempts++
     }
     return nums
   }

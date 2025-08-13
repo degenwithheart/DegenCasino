@@ -92,7 +92,8 @@ function Mines() {
   const getMultiplierForLevel = useCallback(
     (level: number) => {
       const remainingCells = GRID_SIZE - level
-      return Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+      const fairMultiplier = Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+      return fairMultiplier * 0.95 // Apply 5% house edge
     },
     [mines],
   )

@@ -1,5 +1,8 @@
 export const calculateBetArray = (multiplier: number) => {
-  const fraction = Math.round((multiplier % 1) * 100) / 100
+  // Apply 95% RTP (5% house edge)
+  const adjustedMultiplier = multiplier * 0.95
+  
+  const fraction = Math.round((adjustedMultiplier % 1) * 100) / 100
   const repeatMultiplier = (() => {
     switch (fraction) {
       case 0.25:
@@ -12,8 +15,8 @@ export const calculateBetArray = (multiplier: number) => {
         return 1
     }
   })()
-  const totalSum = multiplier * repeatMultiplier
-  const betArray = Array.from({ length: repeatMultiplier }).map(() => multiplier)
+  const totalSum = adjustedMultiplier * repeatMultiplier
+  const betArray = Array.from({ length: repeatMultiplier }).map(() => adjustedMultiplier)
   const totalElements = Math.ceil(totalSum)
   const zerosToAdd = totalElements - repeatMultiplier
   return betArray.concat(Array.from({ length: zerosToAdd }).map(() => 0))
