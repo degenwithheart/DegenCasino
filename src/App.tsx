@@ -33,6 +33,9 @@ import ExchangePage from './sections/Dashboard/ExchangePage';
 import './utils/globalResponsivePaytables';
 import Propagation from './pages/propagation';
 import { GambaResultProvider } from './context/GambaResultContext';
+import { MilestoneProvider } from './context/MilestoneContext';
+import { MilestoneModalContainer } from './components/MilestoneModalContainer';
+import { MilestoneTestPanel } from './components/MilestoneTestPanel';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -93,7 +96,8 @@ export default function App() {
 
   return (
     <GambaResultProvider>
-      <LiveAccessWrapper>
+      <MilestoneProvider>
+        <LiveAccessWrapper>
         <div style={{ display: 'flex' }}>
           <Sidebar />
           <div
@@ -197,6 +201,7 @@ export default function App() {
 
           <ScrollToTop />
           <ErrorHandler />
+          <MilestoneModalContainer />
           <Header />
           <div style={{ height: '50px', visibility: 'hidden', pointerEvents: 'none' }} />
           <Toasts />
@@ -221,9 +226,13 @@ export default function App() {
 
           {/* Uncomment if needed */}
           {/* <LeaderboardsModal /> */}
+          
+          {/* Milestone Test Panel - Remove in production */}
+          <MilestoneTestPanel />
         </div>
       </div>
     </LiveAccessWrapper>
+    </MilestoneProvider>
     </GambaResultProvider>
   );
 }

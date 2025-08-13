@@ -10,6 +10,7 @@ import RecentPlays from "../RecentPlays/RecentPlays";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices } from "../../constants";
+import EnhancedTickerTape from "../../components/EnhancedTickerTape";
 
 // Keyframe animations
 const neonPulse = keyframes`
@@ -296,148 +297,6 @@ const ConnectButton = styled.button`
   }
 `;
 
-// Ticker animation
-const tickerMove = keyframes`
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-`;
-
-const TickerTapeWrapper = styled.div`
-  width: 100%;
-  overflow: hidden;
-  background: rgba(34, 34, 34, 0.85);
-  border-radius: 0.7rem;
-  border: 1px solid #ffd70044;
-  margin-bottom: 1.2rem;
-  position: relative;
-  box-shadow: 0 0 16px #ffd70022;
-  @media (max-width: 600px) {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #ffd700 #222;
-  }
-  /* Custom scrollbar for mobile, similar to FeatureGrid */
-  &::-webkit-scrollbar {
-    height: 6px;
-    background: #222;
-    border-radius: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #ffd700;
-    border-radius: 4px;
-  }
-`;
-
-const TickerContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 3.5rem;
-  white-space: nowrap;
-  will-change: transform;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  font-size: 1.1rem;
-  color: #ffd700;
-  animation: ${tickerMove} 18s linear infinite;
-`;
-
-const TickerContentMobile = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  white-space: nowrap;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  font-size: 1.1rem;
-  color: #ffd700;
-  min-width: max-content;
-  width: fit-content;
-  padding: 0.2rem 0.2rem 0.2rem 0.4rem;
-`;
-
-const TokenItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.2rem 1.2rem 0.2rem 0.2rem;
-  border-radius: 1.2rem;
-  background: rgba(24,24,24,0.5);
-  box-shadow: 0 0 8px #ffd70033;
-  @media (max-width: 600px) {
-    gap: 0.2rem;
-    padding: 0.2rem 0.7rem 0.2rem 0.2rem;
-  }
-`;
-
-const TokenImage = styled.img`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  margin-right: 0.4rem;
-`;
-
-function TickerTape() {
-  const [_, setForceUpdate] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    // Update prices every 60 seconds
-    let mounted = true;
-    async function fetchPrices() {
-      await updateTokenPrices();
-      if (mounted) setForceUpdate((v) => v + 1); // force re-render
-    }
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 60000);
-    return () => { mounted = false; clearInterval(interval); };
-  }, []);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 600);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  return (
-    <TickerTapeWrapper style={isMobile ? { overflowX: 'auto', overflowY: 'hidden' } : {}}>
-      {isMobile ? (
-        <TickerContentMobile>
-          {TOKEN_METADATA.map(token => (
-            <TokenItem key={token.mint.toBase58()}>
-              <TokenImage src={token.image} alt={token.symbol} />
-              <span style={{marginLeft: 6, fontWeight: 700, color: '#fff'}}>
-                {token.minted === false
-                  ? 'Coming Soon'
-                  : typeof token.usdPrice === 'number'
-                    ? `$${token.usdPrice.toLocaleString(undefined, { maximumFractionDigits: 6 })}`
-                    : 'N/A'}
-              </span>
-            </TokenItem>
-          ))}
-        </TickerContentMobile>
-      ) : (
-        <TickerContent>
-          {TOKEN_METADATA.map(token => (
-            <TokenItem key={token.mint.toBase58()}>
-              <TokenImage src={token.image} alt={token.symbol} />
-              <span>{token.symbol}</span>
-              <span style={{marginLeft: 6, fontWeight: 700, color: '#fff'}}>
-                {token.minted === false
-                  ? 'Coming Soon'
-                  : typeof token.usdPrice === 'number'
-                    ? `$${token.usdPrice.toLocaleString(undefined, { maximumFractionDigits: 6 })}`
-                    : 'N/A'}
-              </span>
-            </TokenItem>
-          ))}
-        </TickerContent>
-      )}
-    </TickerTapeWrapper>
-  );
-}
-
 export default function Dashboard() {
   const { connected } = useWallet();
   const handleWalletConnect = useHandleWalletConnect();
@@ -446,7 +305,7 @@ export default function Dashboard() {
   return (
     <DashboardWrapper>
       <WelcomeBanner />
-      <TickerTape />
+      <EnhancedTickerTape />
       <AccentBar />
 
       {!connected && (

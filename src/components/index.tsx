@@ -36,3 +36,5 @@ export const Flex = styled.div<{gap?: number}>`
 
 export { GameControls } from './GameControls'
 export { default as GambaResultModal } from './GambaResultModal';
+export { TokenMilestoneModal } from './TokenMilestoneModal';
+export { MilestoneModalContainer } from './MilestoneModalContainer';

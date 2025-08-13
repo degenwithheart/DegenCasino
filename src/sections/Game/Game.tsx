@@ -38,12 +38,11 @@ const pulse = keyframes`
 `;
 
 const ErrorArtWrapper = styled.div`
-  height: 250px;
+  height: 500px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #181828;
 `;
 
 const Error404 = styled.div`
@@ -174,14 +173,16 @@ const ErrorScreen = ({
     <div
       style={{
         textAlign: 'center',
-        marginTop: '20px',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
         borderRadius: '16px',
         overflow: 'hidden',
         boxShadow: '0 0 30px rgba(255,255,255,0.15)',
-        marginLeft: 'auto',
-        marginRight: 'auto',
         background: '#000',
-        maxWidth: '800px',
       }}
     >
       <ErrorArtWrapper>
@@ -510,10 +511,12 @@ export default function Game() {
     <GambaUi.Game
       game={game}
       errorFallback={
-        <ErrorScreen
-          type="500"
-          message="Something went wrong while loading the game."
-        />
+        <GambaUi.Portal target="screen">
+          <ErrorScreen
+            type="500"
+            message="Something went wrong while loading the game."
+          />
+        </GambaUi.Portal>
       }
     >
       <ErrorBoundary>
