@@ -1,11 +1,27 @@
 # DegenHeart Casino
 
-<!-- True horizontal scrollable carousel for screenshots -->
-<div align="center" style="overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; padding-bottom: 8px; scrollbar-width: thin;">
-  <img src="./screenshots/1.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
-  <img src="./screenshots/2.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
-  <img src="./screenshots/3.jpg" width="350" style="display: inline-block; flex: 0 0 auto; border-radius: 8px;" />
-</div>
+<!-- Screenshots (collapsible, thumbnails link to full images below for best GitHub Markdown compatibility) -->
+<details>
+  <summary>Show screenshots</summary>
+
+  <!-- Thumbnails that link to anchors below -->
+  <p align="center">
+    <a href="#screenshot-1"><img src="./screenshots/1.jpg" width="120" alt="Screenshot 1 thumbnail" /></a>
+    <a href="#screenshot-2"><img src="./screenshots/2.jpg" width="120" alt="Screenshot 2 thumbnail" /></a>
+    <a href="#screenshot-3"><img src="./screenshots/3.jpg" width="120" alt="Screenshot 3 thumbnail" /></a>
+  </p>
+
+  <!-- Full-size images with anchors -->
+  <a id="screenshot-1"></a>
+  ![Screenshot 1](./screenshots/1.jpg)
+
+  <a id="screenshot-2"></a>
+  ![Screenshot 2](./screenshots/2.jpg)
+
+  <a id="screenshot-3"></a>
+  ![Screenshot 3](./screenshots/3.jpg)
+
+</details>
 
 > Looking to build a new game for this platform? Start with the official Hello World Game Template:
 > https://github.com/degenwithheart/HelloWorld-Boilerplate
