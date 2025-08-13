@@ -34,6 +34,7 @@ export function EnhancedTickerTape() {
   const [priceHistory, setPriceHistory] = useState<Record<string, { 
     price: number; 
     timestamp: number; 
+    previousPrice?: number; // Add previous price for comparison
   }>>({});
 
   // Update price history when tokenMetadata changes
@@ -51,7 +52,8 @@ export function EnhancedTickerTape() {
             ...prev,
             [mintAddress]: {
               price: currentPrice,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              previousPrice: existing?.price || currentPrice // Store previous for comparison
             }
           };
         }
@@ -78,25 +80,33 @@ export function EnhancedTickerTape() {
     
     // Check price history for change detection
     const priceEntry = priceHistory[mintAddress];
-    const isRecentlyUpdated = priceEntry && (Date.now() - priceEntry.timestamp) < 2 * 60 * 1000;
+    const hasRecentChange = priceEntry && (Date.now() - priceEntry.timestamp) < 5 * 60 * 1000; // 5 minutes
     
-    // Simple trending logic - you can enhance this
-    const isTrending = currentPrice > 1; // Example: tokens over $1
+    // Calculate price change using stored previous price
+    let priceChange = 0;
+    let isIncreasing = false;
+    if (priceEntry && priceEntry.previousPrice && priceEntry.previousPrice > 0 && currentPrice > 0) {
+      priceChange = ((currentPrice - priceEntry.previousPrice) / priceEntry.previousPrice) * 100;
+      isIncreasing = priceChange > 0;
+    }
+    
+    const isSignificantChange = Math.abs(priceChange) > 2; // 2% or more
+    const isTrending = currentPrice > 1; // Simple trending logic
 
     return (
       <TokenItem 
         key={key}
-        $hasChange={false}
-        $isIncreasing={false}
-        $isSignificant={false}
+        $hasChange={!!hasRecentChange && Math.abs(priceChange) > 0.1}
+        $isIncreasing={!!isIncreasing}
+        $isSignificant={!!isSignificantChange}
         $isLiveData={!!isLiveData}
-        title={`${token.symbol} - Source: ${dataSource} | ${isLiveData ? 'Live API data' : 'Fallback data'}`}
+        title={`${token.symbol} - ${isLiveData ? 'Live API data' : 'Fallback data'} | Change: ${priceChange.toFixed(2)}%`}
       >
         <TokenImage src={token.image} alt={token.symbol} />
         {!isMobile && <span>{token.symbol}</span>}
         <PriceDisplay 
-          $isIncreasing={false} 
-          $hasChange={false}
+          $isIncreasing={!!isIncreasing} 
+          $hasChange={!!hasRecentChange && Math.abs(priceChange) > 0.1}
         >
           {token.minted === false
             ? 'Coming Soon'
@@ -105,14 +115,16 @@ export function EnhancedTickerTape() {
               : 'N/A'}
         </PriceDisplay>
         
-        {/* Show LIVE badge for API data */}
-        {isLiveData && dataSource === 'api' && (
-          <DataSourceBadge $isLive={true}>LIVE</DataSourceBadge>
+        {/* Show price change arrows and percentage */}
+        {hasRecentChange && Math.abs(priceChange) > 0.1 && (
+          <ChangeIndicator $isIncreasing={!!isIncreasing}>
+            {isIncreasing ? '↗' : '↘'} {Math.abs(priceChange).toFixed(1)}%
+          </ChangeIndicator>
         )}
         
-        {/* Show FB badge for fallback data */}
-        {!isLiveData && currentPrice > 0 && (
-          <DataSourceBadge $isLive={false}>FB</DataSourceBadge>
+        {/* Small data source indicator in corner */}
+        {isLiveData && (
+          <DataSourceBadge $isLive={true} style={{ fontSize: '10px', padding: '1px 3px' }}>LIVE</DataSourceBadge>
         )}
         
         {/* Show trending fire for "hot" tokens */}
