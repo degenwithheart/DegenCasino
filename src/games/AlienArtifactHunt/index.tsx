@@ -192,7 +192,7 @@ export default function AlienArtifactHunt() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Planet-specific atmospheric effects */}
+            {/* Enhanced Planet-specific atmospheric effects */}
             <div style={{
               position: 'absolute',
               top: 0,
@@ -200,21 +200,55 @@ export default function AlienArtifactHunt() {
               right: 0,
               bottom: 0,
               background: planet === 'earth' 
-                ? 'radial-gradient(circle at 30% 20%, rgba(30, 64, 175, 0.1) 0%, transparent 50%)'
+                ? 'radial-gradient(circle at 30% 20%, rgba(30, 64, 175, 0.2) 0%, transparent 30%), radial-gradient(circle at 80% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 40%)'
                 : planet === 'gas'
-                ? 'radial-gradient(circle at 70% 30%, rgba(217, 119, 6, 0.2) 0%, transparent 50%)'
-                : 'radial-gradient(circle at 50% 40%, rgba(5, 150, 105, 0.15) 0%, transparent 50%)',
-              animation: 'atmosphereShift 10s ease-in-out infinite alternate'
+                ? 'radial-gradient(circle at 70% 30%, rgba(217, 119, 6, 0.3) 0%, transparent 30%), radial-gradient(circle at 20% 70%, rgba(239, 68, 68, 0.15) 0%, transparent 45%)'
+                : 'radial-gradient(circle at 50% 40%, rgba(5, 150, 105, 0.25) 0%, transparent 35%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)',
+              animation: 'atmosphereShift 12s ease-in-out infinite alternate'
             }} />
             
-            {/* Floating celestial objects */}
+            {/* Floating particle effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: planet === 'earth' 
+                ? `repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(59, 130, 246, 0.05) 2px,
+                    rgba(59, 130, 246, 0.05) 4px
+                  )`
+                : planet === 'gas'
+                ? `repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(239, 68, 68, 0.06) 3px,
+                    rgba(239, 68, 68, 0.06) 6px
+                  )`
+                : `repeating-linear-gradient(
+                    135deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(16, 185, 129, 0.08) 4px,
+                    rgba(16, 185, 129, 0.08) 8px
+                  )`,
+              animation: 'particleFlow 20s linear infinite'
+            }} />
+            
+            {/* Enhanced floating celestial objects */}
             <div style={{
               position: 'absolute',
               top: '10%',
               left: '15%',
-              fontSize: '40px',
-              opacity: 0.2,
-              animation: 'celestialFloat 15s ease-in-out infinite'
+              fontSize: '50px',
+              opacity: 0.3,
+              animation: 'celestialFloat 15s ease-in-out infinite',
+              filter: `drop-shadow(0 0 20px ${planet === 'earth' ? 'rgba(59, 130, 246, 0.4)' : planet === 'gas' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)'})`
             }}>
               {planet === 'earth' ? '🌍' : planet === 'gas' ? '🪐' : '💎'}
             </div>
@@ -223,9 +257,10 @@ export default function AlienArtifactHunt() {
               position: 'absolute',
               top: '60%',
               right: '10%',
-              fontSize: '30px',
-              opacity: 0.15,
-              animation: 'celestialFloat 12s ease-in-out infinite reverse'
+              fontSize: '35px',
+              opacity: 0.25,
+              animation: 'celestialFloat 12s ease-in-out infinite reverse',
+              filter: `drop-shadow(0 0 15px ${planet === 'earth' ? 'rgba(59, 130, 246, 0.3)' : planet === 'gas' ? 'rgba(217, 119, 6, 0.3)' : 'rgba(5, 150, 105, 0.3)'})`
             }}>
               {planet === 'earth' ? '🚀' : planet === 'gas' ? '⚡' : '✨'}
             </div>
@@ -234,11 +269,35 @@ export default function AlienArtifactHunt() {
               position: 'absolute',
               bottom: '20%',
               left: '25%',
-              fontSize: '35px',
-              opacity: 0.18,
-              animation: 'celestialFloat 18s ease-in-out infinite'
+              fontSize: '40px',
+              opacity: 0.22,
+              animation: 'celestialFloat 18s ease-in-out infinite',
+              filter: `drop-shadow(0 0 18px ${planet === 'earth' ? 'rgba(96, 165, 250, 0.4)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.4)' : 'rgba(52, 211, 153, 0.4)'})`
             }}>
               {planet === 'earth' ? '🛸' : planet === 'gas' ? '🌪️' : '🔮'}
+            </div>
+            
+            {/* Additional atmospheric creatures */}
+            <div style={{
+              position: 'absolute',
+              top: '30%',
+              right: '25%',
+              fontSize: '25px',
+              opacity: 0.15,
+              animation: 'celestialFloat 25s ease-in-out infinite'
+            }}>
+              {planet === 'earth' ? '🌕' : planet === 'gas' ? '☄️' : '🌟'}
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '40%',
+              right: '20%',
+              fontSize: '30px',
+              opacity: 0.18,
+              animation: 'celestialFloat 22s ease-in-out infinite reverse'
+            }}>
+              {planet === 'earth' ? '🛰️' : planet === 'gas' ? '🌌' : '🔬'}
             </div>
 
             {/* Planet Selection */}
@@ -337,46 +396,84 @@ export default function AlienArtifactHunt() {
                       <div
                         key={index}
                         style={{
-                          width: '300px',
-                          height: '50px',
-                          borderRadius: '25px',
-                          border: isCurrentSite ? '3px solid #fbbf24' : `2px solid ${planet === 'earth' ? 'rgba(60, 165, 250, 0.3)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(52, 211, 153, 0.3)'}`,
+                          width: '320px',
+                          height: '60px',
+                          borderRadius: '30px',
+                          border: isCurrentSite ? '4px solid #fbbf24' : `3px solid ${planet === 'earth' ? 'rgba(60, 165, 250, 0.4)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.4)' : 'rgba(52, 211, 153, 0.4)'}`,
                           background: isExcavated
-                            ? (siteResult === 'artifact' ? `linear-gradient(135deg, ${planet === 'earth' ? '#1e40af, #1e3a8a' : planet === 'gas' ? '#d97706, #b45309' : '#059669, #047857'})` 
-                               : siteResult === 'hostile' ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                               : `linear-gradient(135deg, ${planet === 'earth' ? '#475569, #334155' : planet === 'gas' ? '#78716c, #57534e' : '#6b7280, #4b5563'})`)
+                            ? (siteResult === 'artifact' ? `linear-gradient(135deg, ${planet === 'earth' ? '#1e40af, #1e3a8a, #312e81' : planet === 'gas' ? '#d97706, #b45309, #92400e' : '#059669, #047857, #065f46'})` 
+                               : siteResult === 'hostile' ? 'linear-gradient(135deg, #ef4444, #dc2626, #b91c1c)'
+                               : `linear-gradient(135deg, ${planet === 'earth' ? '#475569, #334155, #1e293b' : planet === 'gas' ? '#78716c, #57534e, #44403c' : '#6b7280, #4b5563, #374151'})`)
                             : `linear-gradient(135deg, 
-                               ${planet === 'earth' ? `rgba(30, 64, 175, ${0.3 + index * 0.15})` : planet === 'gas' ? `rgba(217, 119, 6, ${0.3 + index * 0.15})` : `rgba(5, 150, 105, ${0.3 + index * 0.15})`} 0%, 
-                               ${planet === 'earth' ? `rgba(30, 58, 138, ${0.3 + index * 0.15})` : planet === 'gas' ? `rgba(180, 83, 9, ${0.3 + index * 0.15})` : `rgba(16, 185, 129, ${0.3 + index * 0.15})`} 100%)`,
+                               ${planet === 'earth' ? `rgba(30, 64, 175, ${0.4 + index * 0.12})` : planet === 'gas' ? `rgba(217, 119, 6, ${0.4 + index * 0.12})` : `rgba(5, 150, 105, ${0.4 + index * 0.12})`} 0%, 
+                               ${planet === 'earth' ? `rgba(30, 58, 138, ${0.4 + index * 0.12})` : planet === 'gas' ? `rgba(180, 83, 9, ${0.4 + index * 0.12})` : `rgba(16, 185, 129, ${0.4 + index * 0.12})`} 50%,
+                               ${planet === 'earth' ? `rgba(49, 46, 129, ${0.3 + index * 0.1})` : planet === 'gas' ? `rgba(146, 64, 14, ${0.3 + index * 0.1})` : `rgba(6, 95, 70, ${0.3 + index * 0.1})`} 100%)`,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '0 20px',
+                          padding: '0 24px',
                           color: '#fff',
                           fontSize: '14px',
                           fontWeight: 600,
                           position: 'relative',
-                          animation: isCurrentSite ? 'excavate 1s infinite' : 'none',
-                          boxShadow: isCurrentSite ? '0 0 20px rgba(251, 191, 36, 0.5)' : 'none'
+                          animation: isCurrentSite ? 'excavate 1.5s infinite' : 'none',
+                          boxShadow: isCurrentSite 
+                            ? `0 0 30px rgba(251, 191, 36, 0.7), inset 0 2px 8px rgba(255, 255, 255, 0.2)` 
+                            : isExcavated && siteResult === 'artifact'
+                            ? `0 0 25px ${planet === 'earth' ? 'rgba(30, 64, 175, 0.6)' : planet === 'gas' ? 'rgba(217, 119, 6, 0.6)' : 'rgba(5, 150, 105, 0.6)'}, inset 0 2px 8px rgba(255, 255, 255, 0.1)`
+                            : 'inset 0 2px 4px rgba(255, 255, 255, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.3)',
+                          overflow: 'hidden',
+                          transform: isExcavated && siteResult === 'artifact' ? 'scale(1.02)' : 'scale(1)',
+                          transition: 'all 0.3s ease'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ fontSize: '20px' }}>
+                        {/* Site background pattern */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: isCurrentSite
+                            ? 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px)'
+                            : 'none',
+                          animation: isCurrentSite ? 'particleFlow 2s linear infinite' : 'none'
+                        }} />
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
+                          <div style={{ 
+                            fontSize: '24px',
+                            animation: isCurrentSite ? 'excavationDrill 1.5s infinite' : isExcavated && siteResult === 'artifact' ? 'artifactDiscovered 2s ease-in-out' : 'none',
+                            filter: isExcavated && siteResult === 'artifact' 
+                              ? `drop-shadow(0 0 10px ${planet === 'earth' ? 'rgba(30, 64, 175, 0.8)' : planet === 'gas' ? 'rgba(217, 119, 6, 0.8)' : 'rgba(5, 150, 105, 0.8)'})`
+                              : 'none'
+                          }}>
                             {isExcavated 
                               ? (siteResult === 'artifact' ? '👽' 
                                  : siteResult === 'hostile' ? '💥' 
                                  : '🪨')
                               : isCurrentSite ? '🔍' : '📡'}
                           </div>
-                          <span>SITE {index + 1}</span>
+                          <span style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>SITE {index + 1}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 2 }}>
                           {multiplier > 0 && (
-                            <span style={{ fontSize: '12px', color: planet === 'earth' ? '#60a5fa' : planet === 'gas' ? '#fbbf24' : '#34d399' }}>
+                            <span style={{ 
+                              fontSize: '12px', 
+                              color: planet === 'earth' ? '#60a5fa' : planet === 'gas' ? '#fbbf24' : '#34d399',
+                              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+                              fontWeight: 700
+                            }}>
                               {multiplier}x ARTIFACT
                             </span>
                           )}
-                          <div style={{ fontSize: '16px' }}>
+                          <div style={{ 
+                            fontSize: '16px',
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            padding: '4px 8px',
+                            borderRadius: '8px',
+                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)'
+                          }}>
                             {planet === 'earth' ? 
                               (index === 0 ? 'SURFACE' : index === 1 ? 'CAVERN' : index === 2 ? 'TEMPLE' : index === 3 ? 'CORE' : 'NEXUS') :
                             planet === 'gas' ?
@@ -391,26 +488,61 @@ export default function AlienArtifactHunt() {
                 </div>
               )}
 
-              {/* Excavation Progress */}
+              {/* Enhanced Excavation Progress */}
               {excavationPhase && (
                 <div style={{
-                  width: '200px',
-                  margin: '20px auto',
-                  textAlign: 'center'
+                  width: '240px',
+                  margin: '24px auto',
+                  textAlign: 'center',
+                  background: 'rgba(0, 0, 0, 0.6)',
+                  borderRadius: '20px',
+                  padding: '20px',
+                  border: `2px solid ${planet === 'earth' ? 'rgba(60, 165, 250, 0.4)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.4)' : 'rgba(52, 211, 153, 0.4)'}`,
+                  backdropFilter: 'blur(10px)'
                 }}>
                   <div style={{
-                    fontSize: '60px',
-                    animation: 'excavationDrill 2s ease-in-out infinite',
-                    filter: `drop-shadow(0 0 15px ${planet === 'earth' ? 'rgba(60, 165, 250, 0.8)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.8)' : 'rgba(52, 211, 153, 0.8)'})`
+                    fontSize: '80px',
+                    animation: 'excavationDrill 1.8s ease-in-out infinite',
+                    filter: `drop-shadow(0 0 25px ${planet === 'earth' ? 'rgba(60, 165, 250, 0.9)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.9)' : 'rgba(52, 211, 153, 0.9)'})`
                   }}>
                     🔍
                   </div>
+                  
+                  {/* Atmosphere meter */}
+                  <div style={{
+                    width: '180px',
+                    height: '12px',
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    borderRadius: '6px',
+                    margin: '16px auto 8px',
+                    overflow: 'hidden',
+                    border: `1px solid ${planet === 'earth' ? 'rgba(60, 165, 250, 0.3)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(52, 211, 153, 0.3)'}`
+                  }}>
+                    <div style={{
+                      width: `${atmosphereLevel}%`,
+                      height: '100%',
+                      background: `linear-gradient(90deg, ${planet === 'earth' ? '#1e40af, #3b82f6' : planet === 'gas' ? '#d97706, #f59e0b' : '#059669, #10b981'})`,
+                      borderRadius: '6px',
+                      transition: 'width 0.3s ease',
+                      boxShadow: `0 0 10px ${planet === 'earth' ? 'rgba(60, 165, 250, 0.6)' : planet === 'gas' ? 'rgba(251, 191, 36, 0.6)' : 'rgba(52, 211, 153, 0.6)'}`
+                    }} />
+                  </div>
+                  
                   <div style={{
                     fontSize: '14px',
                     color: planet === 'earth' ? '#60a5fa' : planet === 'gas' ? '#fbbf24' : '#34d399',
-                    marginTop: '10px'
+                    fontWeight: 600,
+                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)'
                   }}>
-                    Atmosphere: {atmosphereLevel.toFixed(0)}%
+                    Atmosphere Density: {atmosphereLevel.toFixed(0)}%
+                  </div>
+                  
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#9CA3AF',
+                    marginTop: '8px'
+                  }}>
+                    Site {currentSite} of {PLANET_TYPES[planet].length}
                   </div>
                 </div>
               )}
@@ -474,20 +606,41 @@ export default function AlienArtifactHunt() {
             <style>
               {`
                 @keyframes atmosphereShift {
-                  0%, 100% { opacity: 0.3; transform: scale(1); }
-                  50% { opacity: 0.6; transform: scale(1.05); }
+                  0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+                  25% { opacity: 0.7; transform: scale(1.03) rotate(2deg); }
+                  50% { opacity: 0.6; transform: scale(1.05) rotate(0deg); }
+                  75% { opacity: 0.8; transform: scale(1.02) rotate(-2deg); }
                 }
                 @keyframes celestialFloat {
-                  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-                  50% { transform: translateY(-20px) rotate(180deg); opacity: 0.4; }
+                  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.3; }
+                  25% { transform: translateY(-15px) rotate(90deg) scale(1.1); opacity: 0.5; }
+                  50% { transform: translateY(-25px) rotate(180deg) scale(1.05); opacity: 0.4; }
+                  75% { transform: translateY(-10px) rotate(270deg) scale(1.15); opacity: 0.6; }
+                }
+                @keyframes particleFlow {
+                  0% { transform: translateX(-100%); }
+                  100% { transform: translateX(100%); }
                 }
                 @keyframes excavate {
-                  0%, 100% { transform: scale(1); opacity: 1; }
-                  50% { transform: scale(1.02); opacity: 0.9; }
+                  0%, 100% { transform: scale(1); opacity: 1; border-radius: 25px; }
+                  25% { transform: scale(1.02); opacity: 0.95; border-radius: 30px; }
+                  50% { transform: scale(1.05); opacity: 0.9; border-radius: 35px; }
+                  75% { transform: scale(1.03); opacity: 0.95; border-radius: 30px; }
                 }
                 @keyframes excavationDrill {
-                  0%, 100% { transform: scale(1) rotate(0deg); }
-                  50% { transform: scale(1.1) rotate(15deg); }
+                  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+                  25% { transform: scale(1.15) rotate(45deg); filter: brightness(1.2); }
+                  50% { transform: scale(1.2) rotate(90deg); filter: brightness(1.4); }
+                  75% { transform: scale(1.1) rotate(135deg); filter: brightness(1.1); }
+                }
+                @keyframes pulseGlow {
+                  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                  50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.4); }
+                }
+                @keyframes artifactDiscovered {
+                  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+                  50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+                  100% { transform: scale(1.1) rotate(360deg); opacity: 0.9; }
                 }
               `}
             </style>

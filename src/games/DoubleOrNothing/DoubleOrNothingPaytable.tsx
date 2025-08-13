@@ -3,8 +3,8 @@ import { TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
 import { formatAmountWithSymbol } from '../../utils/formatAmount'
 
 interface DoubleOrNothingResult {
-  choice: 'double' | 'nothing'
-  result: 'double' | 'nothing'
+  choice: 'double' | 'triple' | 'degen' | 'nothing'
+  result: 'double' | 'triple' | 'degen' | 'nothing'
   wasWin: boolean
   amount: number
   multiplier: number
@@ -22,8 +22,12 @@ interface DoubleOrNothingStats {
   biggestWin: number
   biggestLoss: number
   doubleChoices: number
+  tripleChoices: number
+  degenChoices: number
   nothingChoices: number
   doubleWins: number
+  tripleWins: number
+  degenWins: number
   nothingWins: number
   maxRounds: number
   averageRounds: number
@@ -38,11 +42,11 @@ export interface DoubleOrNothingPaytableRef {
 
 interface DoubleOrNothingPaytableProps {
   wager: number
-  selectedChoice?: 'double' | 'nothing'
+  selectedChoice?: 'double' | 'triple' | 'degen' | 'nothing'
   currentRound?: number
   currentResult?: {
-    choice: 'double' | 'nothing'
-    result: 'double' | 'nothing'
+    choice: 'double' | 'triple' | 'degen' | 'nothing'
+    result: 'double' | 'triple' | 'degen' | 'nothing'
     wasWin: boolean
     multiplier: number
     currentRound: number
@@ -63,8 +67,12 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
       biggestWin: 0,
       biggestLoss: 0,
       doubleChoices: 0,
+      tripleChoices: 0,
+      degenChoices: 0,
       nothingChoices: 0,
       doubleWins: 0,
+      tripleWins: 0,
+      degenWins: 0,
       nothingWins: 0,
       maxRounds: 0,
       averageRounds: 0,
@@ -92,8 +100,12 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
             biggestWin: result.wasWin ? Math.max(prev.biggestWin, result.amount) : prev.biggestWin,
             biggestLoss: !result.wasWin ? Math.max(prev.biggestLoss, wager) : prev.biggestLoss,
             doubleChoices: result.choice === 'double' ? prev.doubleChoices + 1 : prev.doubleChoices,
+            tripleChoices: result.choice === 'triple' ? prev.tripleChoices + 1 : prev.tripleChoices,
+            degenChoices: result.choice === 'degen' ? prev.degenChoices + 1 : prev.degenChoices,
             nothingChoices: result.choice === 'nothing' ? prev.nothingChoices + 1 : prev.nothingChoices,
             doubleWins: result.choice === 'double' && result.wasWin ? prev.doubleWins + 1 : prev.doubleWins,
+            tripleWins: result.choice === 'triple' && result.wasWin ? prev.tripleWins + 1 : prev.tripleWins,
+            degenWins: result.choice === 'degen' && result.wasWin ? prev.degenWins + 1 : prev.degenWins,
             nothingWins: result.choice === 'nothing' && result.wasWin ? prev.nothingWins + 1 : prev.nothingWins,
             maxRounds: Math.max(prev.maxRounds, result.currentRound),
             averageRounds: 0,
@@ -121,8 +133,12 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
           biggestWin: 0,
           biggestLoss: 0,
           doubleChoices: 0,
+          tripleChoices: 0,
+          degenChoices: 0,
           nothingChoices: 0,
           doubleWins: 0,
+          tripleWins: 0,
+          degenWins: 0,
           nothingWins: 0,
           maxRounds: 0,
           averageRounds: 0,
@@ -132,7 +148,9 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
       }
     }))
 
-    const potentialMultiplier = selectedChoice === 'double' ? 2 : 1
+    const potentialMultiplier = selectedChoice === 'double' ? 2 : 
+                                selectedChoice === 'triple' ? 3 : 
+                                selectedChoice === 'degen' ? 10 : 1
     const potentialPayout = wager * potentialMultiplier
 
     return (
@@ -216,35 +234,50 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
           <div style={{ fontSize: '14px', color: '#9CA3AF', fontWeight: 600, marginBottom: '8px' }}>
             Choice Analysis
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
             <div style={{
               background: 'rgba(34, 197, 94, 0.1)',
               borderRadius: '8px',
-              padding: '8px',
+              padding: '6px',
               textAlign: 'center',
               border: '1px solid rgba(34, 197, 94, 0.3)'
             }}>
-              <div style={{ color: '#22C55E', fontSize: '12px', fontWeight: 600 }}>DOUBLE</div>
-              <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>
+              <div style={{ color: '#22C55E', fontSize: '11px', fontWeight: 600 }}>2X</div>
+              <div style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>
                 {stats.doubleChoices > 0 ? Math.round((stats.doubleWins / stats.doubleChoices) * 100) : 0}%
               </div>
-              <div style={{ color: '#9CA3AF', fontSize: '10px' }}>
+              <div style={{ color: '#9CA3AF', fontSize: '9px' }}>
                 {stats.doubleWins}/{stats.doubleChoices}
+              </div>
+            </div>
+            <div style={{
+              background: 'rgba(251, 191, 36, 0.1)',
+              borderRadius: '8px',
+              padding: '6px',
+              textAlign: 'center',
+              border: '1px solid rgba(251, 191, 36, 0.3)'
+            }}>
+              <div style={{ color: '#FBBF24', fontSize: '11px', fontWeight: 600 }}>3X</div>
+              <div style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>
+                {stats.tripleChoices > 0 ? Math.round((stats.tripleWins / stats.tripleChoices) * 100) : 0}%
+              </div>
+              <div style={{ color: '#9CA3AF', fontSize: '9px' }}>
+                {stats.tripleWins}/{stats.tripleChoices}
               </div>
             </div>
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               borderRadius: '8px',
-              padding: '8px',
+              padding: '6px',
               textAlign: 'center',
               border: '1px solid rgba(239, 68, 68, 0.3)'
             }}>
-              <div style={{ color: '#EF4444', fontSize: '12px', fontWeight: 600 }}>NOTHING</div>
-              <div style={{ color: '#fff', fontSize: '14px', fontWeight: 700 }}>
-                {stats.nothingChoices > 0 ? Math.round((stats.nothingWins / stats.nothingChoices) * 100) : 0}%
+              <div style={{ color: '#EF4444', fontSize: '11px', fontWeight: 600 }}>10X</div>
+              <div style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>
+                {stats.degenChoices > 0 ? Math.round((stats.degenWins / stats.degenChoices) * 100) : 0}%
               </div>
-              <div style={{ color: '#9CA3AF', fontSize: '10px' }}>
-                {stats.nothingWins}/{stats.nothingChoices}
+              <div style={{ color: '#9CA3AF', fontSize: '9px' }}>
+                {stats.degenWins}/{stats.degenChoices}
               </div>
             </div>
           </div>
@@ -266,8 +299,12 @@ const DoubleOrNothingPaytable = forwardRef<DoubleOrNothingPaytableRef, DoubleOrN
                 biggestWin: 0,
                 biggestLoss: 0,
                 doubleChoices: 0,
+                tripleChoices: 0,
+                degenChoices: 0,
                 nothingChoices: 0,
                 doubleWins: 0,
+                tripleWins: 0,
+                degenWins: 0,
                 nothingWins: 0,
                 maxRounds: 0,
                 averageRounds: 0,

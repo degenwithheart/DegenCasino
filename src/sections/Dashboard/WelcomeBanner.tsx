@@ -27,17 +27,42 @@ const neonPulse = keyframes`
   }
 `;
 
-const Container = styled.div<{ $isVisible: boolean }>`
+const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean }>`
   width: 100%;
   max-width: 1600px;
-  margin: 0 auto 2rem;
-  padding: 1rem;
-  display: ${({ $isVisible }) => ($isVisible ? "block" : "none")};
-  margin-top: 0.1rem;
+  margin: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? '0 auto 2rem' : '0'
+  };
+  padding: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? '1rem' : '0'
+  };
+  height: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? 'auto' : '0'
+  };
+  overflow: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? 'visible' : 'hidden'
+  };
+  opacity: ${({ $isVisible, $isLoading }) => 
+    $isLoading ? 0 : $isVisible ? 1 : 0
+  };
+  transform: ${({ $isVisible, $isLoading }) => 
+    $isLoading ? 'translateY(10px)' : $isVisible ? 'translateY(0)' : 'translateY(-10px)'
+  };
+  transition: all 0.3s ease;
+  pointer-events: ${({ $isVisible, $isLoading }) => 
+    $isLoading || !$isVisible ? 'none' : 'auto'
+  };
+  margin-top: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? '0.1rem' : '0'
+  };
   gap: 2rem;
   @media (max-width: 768px) {
-    padding: 0.5rem 0.25rem;
-    margin: 0 auto 1rem;
+    padding: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '0.5rem 0.25rem' : '0'
+    };
+    margin: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '0 auto 1rem' : '0'
+    };
     gap: 1rem;
   }
 `;
@@ -353,12 +378,25 @@ export function WelcomeBanner() {
   const wallet = useWallet();
   const quote = useRandomQuote();
 
-  // Example: If you ever add a network request here, use the throttle:
-  // const throttledRequest = useThrottle(() => { /* network call */ }, 10000);
-  // useEffect(() => { if (!wallet.connected) throttledRequest(); }, [wallet.connected]);
+  // Track if wallet auto-connect attempt has finished to prevent flash
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
+  
+  useEffect(() => {
+    // If wallet.connecting just transitioned to false, mark auto-connect as attempted
+    if (!wallet.connecting) {
+      setAutoConnectAttempted(true);
+    }
+  }, [wallet.connecting]);
+
+  // Show welcome banner only when:
+  // 1. Auto-connect has been attempted (to prevent flash)
+  // 2. Wallet is not connected
+  // 3. Wallet is not currently connecting
+  const shouldShow = autoConnectAttempted && !wallet.connected && !wallet.connecting;
+  const isLoading = !autoConnectAttempted || wallet.connecting;
 
   return (
-    <Container $isVisible={!wallet.connected}>
+    <Container $isVisible={shouldShow} $isLoading={isLoading}>
       <Banner>
         <HeroOverlay>
           <Heading>Welcome to the casino of chaos</Heading>

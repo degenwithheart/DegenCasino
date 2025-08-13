@@ -108,11 +108,12 @@ function DoubleOrNothing() {
     await new Promise(resolve => setTimeout(resolve, 1500))
     
     const win = res.resultIndex === 0
+    const choiceType = mode === 0 ? 'double' : mode === 1 ? 'triple' : 'degen'
     
     // Track game result in paytable
     paytableRef.current?.trackGame({
-      choice: win ? 'double' : 'nothing', // Simplified for tracking
-      result: win ? 'double' : 'nothing',
+      choice: choiceType,
+      result: win ? choiceType : 'nothing',
       wasWin: win,
       amount: win ? res.payout - wager : 0,
       multiplier: win ? res.payout / wager : 0,
@@ -394,7 +395,7 @@ function DoubleOrNothing() {
           <DoubleOrNothingPaytable
             ref={paytableRef}
             wager={wager}
-            selectedChoice={mode === 0 ? 'double' : 'double'} // Simplified for tracking
+            selectedChoice={mode === 0 ? 'double' : mode === 1 ? 'triple' : 'degen'}
             currentRound={currentRound}
           />
         </div>

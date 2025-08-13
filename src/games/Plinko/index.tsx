@@ -91,7 +91,8 @@ export default function Plinko() {
   }, [setWager, token, baseWager])
 
   const pegAnimations = React.useRef<Record<number, number>>({})
-  const bucketAnimations = React.useRef<Record<number, number>>({})
+    const pegColors = React.useRef<Record<number, string>>({})
+    const bucketAnimations = React.useRef<Record<number, number>>({})
 
   const bet = degen ? DEGEN_BET : BET
   const rows = degen ? 12 : 14
@@ -113,6 +114,8 @@ export default function Plinko() {
       onContact(contact) {
         if (contact.peg && contact.plinko) {
           pegAnimations.current[contact.peg.plugin.pegIndex] = 1
+          // Assign a random color (HSLA for vibrancy)
+          pegColors.current[contact.peg.plugin.pegIndex] = `hsl(${Math.floor(Math.random() * 360)}, 90%, 60%)`
           sounds.play('bump', { playbackRate: 1 + Math.random() * 0.05 })
         }
         if (contact.barrier && contact.plinko) {
@@ -172,11 +175,15 @@ export default function Plinko() {
       
       // Add delay between balls for visual effect
       if (i > 0) {
+
         await new Promise(resolve => setTimeout(resolve, 1000))
+
       }
       
       await game.play({ wager, bet })
+
       const result = await game.result()
+
 
     // Store result in context for modal
     storeResult(result)
@@ -382,8 +389,12 @@ export default function Plinko() {
                       const pegRadius = PEG_RADIUS
                       
                       // Outer glow
+                      const pegColor = animation > 0.01 
+                        ? pegColors.current[body.plugin.pegIndex] || '#ffffff' 
+                        : '#ffffff'
+                      
                       if (animation > 0.1) {
-                        ctx.shadowColor = '#ffffff'
+                        ctx.shadowColor = pegColor
                         ctx.shadowBlur = 15 + animation * 10
                         ctx.fillStyle = `rgba(255, 255, 255, ${animation * 0.3})`
                         ctx.beginPath()
@@ -392,12 +403,18 @@ export default function Plinko() {
                         ctx.shadowBlur = 0
                       }
                       
-                      // Main peg with metallic gradient
-                      const pegGradient = ctx.createRadialGradient(-2, -2, 0, 0, 0, pegRadius)
-                      pegGradient.addColorStop(0, '#e2e8f0')
-                      pegGradient.addColorStop(0.7, '#94a3b8')
-                      pegGradient.addColorStop(1, '#475569')
-                      ctx.fillStyle = pegGradient
+                      // Main peg - use random color if hit, otherwise near white
+                      if (animation > 0.01) {
+                        // Hit state - use random color
+                        ctx.fillStyle = pegColor
+                      } else {
+                        // Idle state - near white metallic gradient
+                        const pegGradient = ctx.createRadialGradient(-2, -2, 0, 0, 0, pegRadius)
+                        pegGradient.addColorStop(0, '#e2e8f0')
+                        pegGradient.addColorStop(0.7, '#94a3b8')
+                        pegGradient.addColorStop(1, '#475569')
+                        ctx.fillStyle = pegGradient
+                      }
                       ctx.beginPath()
                       ctx.arc(0, 0, pegRadius, 0, Math.PI * 2)
                       ctx.fill()
@@ -407,6 +424,11 @@ export default function Plinko() {
                       ctx.beginPath()
                       ctx.arc(-1, -1, pegRadius * 0.4, 0, Math.PI * 2)
                       ctx.fill()
+                      
+                      // Clear color when animation is done
+                      if (animation < 0.01) {
+                        delete pegColors.current[body.plugin.pegIndex]
+                      }
                       
                       ctx.restore()
                     }

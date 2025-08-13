@@ -92,7 +92,7 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
       }
     }))
 
-    if (isCompact) return null
+    // if (isCompact) return null
 
     const getMethodEmoji = (choice: 'stealth' | 'brute' | 'elite') => {
       switch(choice) {
@@ -106,7 +106,7 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
 
     return (
       <div style={{
-        width: '320px',
+        width: isCompact ? '280px' : '320px',
         height: '100%',
         background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
         borderRadius: '24px',
@@ -232,93 +232,6 @@ const NeonCyberHackPaytable = React.forwardRef<NeonCyberHackPaytableRef, NeonCyb
               <span style={{ color: '#f59e0b' }}>💥 {stats.bruteHacks}</span>
               <span style={{ color: '#9333ea' }}>🎯 {stats.eliteHacks}</span>
             </div>
-          </div>
-        </div>
-
-        <div style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            padding: '16px 16px 8px 16px',
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#22c55e'
-          }}>
-            RECENT_OPERATIONS
-          </div>
-          
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '0 16px 16px 16px'
-          }}>
-            {results.length === 0 ? (
-              <div style={{
-                textAlign: 'center',
-                color: '#6B7280',
-                fontSize: '12px',
-                marginTop: '20px'
-              }}>
-                NO_OPERATIONS_LOGGED
-              </div>
-            ) : (
-              results.map((result, index) => (
-                <div
-                  key={index}
-                  style={{
-                    background: result.wasWin 
-                      ? 'rgba(34, 197, 94, 0.15)' 
-                      : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${result.wasWin ? '#22c55e40' : '#ef444440'}`,
-                    borderRadius: '8px',
-                    padding: '10px',
-                    marginBottom: '8px',
-                    fontSize: '12px'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '4px'
-                  }}>
-                    <span style={{
-                      color: result.wasWin ? '#22c55e' : '#ef4444',
-                      fontWeight: 600
-                    }}>
-                      {getResultEmoji(result.wasWin)} {result.wasWin ? 'ACCESS' : 'BLOCKED'}
-                    </span>
-                    <span style={{
-                      color: result.wasWin ? '#22c55e' : '#ef4444',
-                      fontWeight: 700
-                    }}>
-                      {result.wasWin ? `${result.multiplier.toFixed(1)}x` : '0x'}
-                    </span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    color: '#9CA3AF',
-                    fontSize: '11px'
-                  }}>
-                    <span>METHOD: {getMethodEmoji(result.choice)} {result.choice}</span>
-                    <span>SRV_{(result.resultIndex + 1).toString().padStart(2, '0')}</span>
-                  </div>
-                  {result.wasWin && (
-                    <div style={{
-                      marginTop: '4px',
-                      color: '#22c55e',
-                      fontSize: '11px'
-                    }}>
-                      <TokenValue amount={result.amount} />
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
           </div>
         </div>
 

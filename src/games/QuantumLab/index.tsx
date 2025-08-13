@@ -198,7 +198,7 @@ export default function QuantumLab() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Laboratory ambient effects */}
+            {/* Advanced Quantum Field Effects */}
             <div style={{
               position: 'absolute',
               top: 0,
@@ -206,14 +206,63 @@ export default function QuantumLab() {
               right: 0,
               bottom: 0,
               background: experiment === 'quantum' 
-                ? 'radial-gradient(circle at 25% 25%, rgba(124, 58, 237, 0.1) 0%, transparent 50%)'
+                ? `
+                  radial-gradient(circle at 25% 25%, rgba(124, 58, 237, 0.3) 0%, transparent 30%),
+                  radial-gradient(circle at 75% 75%, rgba(91, 33, 182, 0.2) 0%, transparent 35%),
+                  radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.15) 0%, transparent 40%)
+                `
                 : experiment === 'particle'
-                ? 'radial-gradient(circle at 75% 25%, rgba(220, 38, 38, 0.15) 0%, transparent 50%)'
-                : 'radial-gradient(circle at 50% 75%, rgba(5, 150, 105, 0.12) 0%, transparent 50%)',
-              animation: 'labAmbience 12s ease-in-out infinite alternate'
+                ? `
+                  radial-gradient(circle at 30% 70%, rgba(220, 38, 38, 0.25) 0%, transparent 35%),
+                  radial-gradient(circle at 80% 20%, rgba(185, 28, 28, 0.2) 0%, transparent 40%),
+                  radial-gradient(circle at 10% 40%, rgba(153, 27, 27, 0.15) 0%, transparent 30%)
+                `
+                : `
+                  radial-gradient(circle at 60% 30%, rgba(5, 150, 105, 0.22) 0%, transparent 35%),
+                  radial-gradient(circle at 20% 80%, rgba(4, 120, 87, 0.18) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 60%, rgba(6, 95, 70, 0.12) 0%, transparent 30%)
+                `,
+              animation: 'quantumField 20s ease-in-out infinite alternate'
             }} />
             
-            {/* Floating laboratory equipment */}
+            {/* Particle Stream Effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: experiment === 'quantum' 
+                ? `
+                  repeating-conic-gradient(
+                    from 0deg at 50% 50%,
+                    transparent 0deg,
+                    rgba(124, 58, 237, 0.08) 30deg,
+                    transparent 60deg
+                  )
+                `
+                : experiment === 'particle'
+                ? `
+                  repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(220, 38, 38, 0.06) 4px,
+                    rgba(220, 38, 38, 0.06) 8px
+                  )
+                `
+                : `
+                  repeating-radial-gradient(
+                    circle at 50% 50%,
+                    transparent 0px,
+                    rgba(5, 150, 105, 0.05) 15px,
+                    transparent 30px
+                  )
+                `,
+              animation: 'particleStream 25s linear infinite'
+            }} />
+            
+            {/* Floating Scientific Elements */}
             <div style={{
               position: 'absolute',
               top: '15%',
@@ -500,21 +549,61 @@ export default function QuantumLab() {
 
             <style>
               {`
-                @keyframes labAmbience {
-                  0%, 100% { opacity: 0.3; transform: scale(1); }
-                  50% { opacity: 0.6; transform: scale(1.03); }
+                @keyframes quantumField {
+                  0%, 100% { opacity: 0.5; transform: scale(1) rotate(0deg); }
+                  25% { opacity: 0.7; transform: scale(1.02) rotate(1deg); }
+                  50% { opacity: 0.6; transform: scale(1.05) rotate(0deg); }
+                  75% { opacity: 0.8; transform: scale(1.03) rotate(-1deg); }
                 }
-                @keyframes equipmentFloat {
-                  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
-                  50% { transform: translateY(-15px) rotate(90deg); opacity: 0.25; }
+                @keyframes particleStream {
+                  0% { transform: translateX(-100%) rotate(0deg); opacity: 0.3; }
+                  50% { transform: translateX(0%) rotate(180deg); opacity: 0.6; }
+                  100% { transform: translateX(100%) rotate(360deg); opacity: 0.3; }
+                }
+                @keyframes scientificFloat {
+                  0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.35; }
+                  25% { transform: translateY(-15px) translateX(10px) rotate(90deg); opacity: 0.45; }
+                  50% { transform: translateY(-25px) translateX(-8px) rotate(180deg); opacity: 0.4; }
+                  75% { transform: translateY(-12px) translateX(12px) rotate(270deg); opacity: 0.5; }
+                }
+                @keyframes quantumBeam1 {
+                  0%, 100% { opacity: 0.4; transform: scaleY(1) rotate(15deg); }
+                  50% { opacity: 0.8; transform: scaleY(1.5) rotate(15deg); }
+                }
+                @keyframes quantumBeam2 {
+                  0%, 100% { opacity: 0.3; transform: scaleY(1) rotate(-20deg); }
+                  50% { opacity: 0.7; transform: scaleY(1.3) rotate(-20deg); }
+                }
+                @keyframes quantumBeam3 {
+                  0%, 100% { opacity: 0.25; transform: scaleY(1) rotate(45deg); }
+                  50% { opacity: 0.6; transform: scaleY(1.2) rotate(45deg); }
+                }
+                @keyframes energyOrb {
+                  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.4; }
+                  25% { transform: scale(1.3) rotate(90deg); opacity: 0.6; }
+                  50% { transform: scale(0.8) rotate(180deg); opacity: 0.8; }
+                  75% { transform: scale(1.1) rotate(270deg); opacity: 0.5; }
                 }
                 @keyframes phaseCalibration {
-                  0%, 100% { transform: scale(1); opacity: 1; }
-                  50% { transform: scale(1.01); opacity: 0.95; }
+                  0%, 100% { transform: scale(1); opacity: 1; border-radius: 30px; }
+                  25% { transform: scale(1.03); opacity: 0.95; border-radius: 35px; }
+                  50% { transform: scale(1.06); opacity: 0.9; border-radius: 40px; }
+                  75% { transform: scale(1.04); opacity: 0.95; border-radius: 35px; }
                 }
                 @keyframes labPulse {
-                  0%, 100% { transform: scale(1) rotate(0deg); }
-                  50% { transform: scale(1.05) rotate(5deg); }
+                  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+                  25% { transform: scale(1.08) rotate(3deg); filter: brightness(1.2); }
+                  50% { transform: scale(1.12) rotate(5deg); filter: brightness(1.4); }
+                  75% { transform: scale(1.06) rotate(2deg); filter: brightness(1.1); }
+                }
+                @keyframes quantumResonance {
+                  0%, 100% { filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5)) brightness(1); }
+                  50% { filter: drop-shadow(0 0 30px rgba(124, 58, 237, 0.8)) brightness(1.3); }
+                }
+                @keyframes experimentSuccess {
+                  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+                  50% { transform: scale(1.4) rotate(180deg); opacity: 1; }
+                  100% { transform: scale(1.2) rotate(360deg); opacity: 0.9; }
                 }
               `}
             </style>

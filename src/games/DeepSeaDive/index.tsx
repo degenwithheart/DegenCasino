@@ -188,24 +188,214 @@ export default function DeepSeaDive() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Underwater light rays */}
+            {/* Enhanced underwater light rays and atmospheric effects */}
             <div style={{
               position: 'absolute',
               top: 0,
-              left: '20%',
-              width: '60%',
+              left: '15%',
+              width: '70%',
               height: '100%',
               background: `
                 linear-gradient(
                   180deg,
-                  rgba(56, 189, 248, 0.1) 0%,
-                  rgba(14, 165, 233, 0.05) 50%,
-                  transparent 100%
+                  rgba(14, 165, 233, 0.3) 0%,
+                  rgba(14, 165, 233, 0.15) 20%,
+                  rgba(3, 105, 161, 0.1) 40%,
+                  rgba(30, 64, 175, 0.05) 60%,
+                  transparent 80%
                 )
               `,
-              clipPath: 'polygon(40% 0%, 60% 0%, 80% 100%, 20% 100%)',
-              animation: 'lightRays 8s ease-in-out infinite alternate'
+              animation: 'oceanCurrents 18s ease-in-out infinite alternate',
+              zIndex: 1
             }} />
+            
+            {/* Multiple light ray beams */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: '30%',
+              width: '3px',
+              height: '60%',
+              background: 'linear-gradient(180deg, rgba(14, 165, 233, 0.6) 0%, transparent 100%)',
+              animation: 'lightRay1 12s ease-in-out infinite alternate',
+              zIndex: 2
+            }} />
+            
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: '50%',
+              width: '4px',
+              height: '70%',
+              background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.5) 0%, transparent 100%)',
+              animation: 'lightRay2 15s ease-in-out infinite alternate-reverse',
+              zIndex: 2
+            }} />
+            
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: '70%',
+              width: '2px',
+              height: '50%',
+              background: 'linear-gradient(180deg, rgba(14, 165, 233, 0.4) 0%, transparent 100%)',
+              animation: 'lightRay3 10s ease-in-out infinite alternate',
+              zIndex: 2
+            }} />
+            
+            {/* Floating sea life and bubbles */}
+            <div style={{
+              position: 'absolute',
+              top: '15%',
+              left: '10%',
+              fontSize: '40px',
+              opacity: 0.3,
+              animation: 'seaFloat 20s ease-in-out infinite',
+              filter: 'drop-shadow(0 0 15px rgba(14, 165, 233, 0.4))',
+              zIndex: 3
+            }}>
+              🐠
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              top: '45%',
+              right: '15%',
+              fontSize: '35px',
+              opacity: 0.25,
+              animation: 'seaFloat 25s ease-in-out infinite reverse',
+              filter: 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.3))',
+              zIndex: 3
+            }}>
+              🐢
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              top: '70%',
+              left: '20%',
+              fontSize: '30px',
+              opacity: 0.2,
+              animation: 'seaFloat 18s ease-in-out infinite',
+              filter: 'drop-shadow(0 0 10px rgba(14, 165, 233, 0.3))',
+              zIndex: 3
+            }}>
+              🦈
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '25%',
+              right: '25%',
+              fontSize: '25px',
+              opacity: 0.15,
+              animation: 'seaFloat 22s ease-in-out infinite reverse',
+              zIndex: 3
+            }}>
+              🐙
+            </div>
+            
+            {/* Animated bubble effects */}
+            <div style={{
+              position: 'absolute',
+              bottom: '10%',
+              left: '25%',
+              fontSize: '20px',
+              opacity: 0.4,
+              animation: 'bubbleRise 8s linear infinite',
+              zIndex: 4
+            }}>
+              🫧
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '30%',
+              fontSize: '15px',
+              opacity: 0.3,
+              animation: 'bubbleRise 12s linear infinite',
+              animationDelay: '3s',
+              zIndex: 4
+            }}>
+              🫧
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '20%',
+              left: '60%',
+              fontSize: '18px',
+              opacity: 0.35,
+              animation: 'bubbleRise 10s linear infinite',
+              animationDelay: '6s',
+              zIndex: 4
+            }}>
+              🫧
+            </div>
+            
+            {/* Underwater coral/seaweed effect */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '20%',
+              background: `
+                radial-gradient(ellipse at bottom, 
+                  rgba(5, 150, 105, 0.2) 0%, 
+                  rgba(16, 185, 129, 0.1) 30%, 
+                  transparent 70%
+                )
+              `,
+              animation: 'seaweedSway 14s ease-in-out infinite alternate',
+              zIndex: 1
+            }} />
+
+            {/* Depth Selection Interface */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '12px',
+              zIndex: 10
+            }}>
+              {(['shallow', 'deep', 'abyss'] as DepthChoice[]).map((depthChoice) => (
+                <button
+                  key={depthChoice}
+                  onClick={() => setChoice(depthChoice)}
+                  disabled={playing}
+                  style={{
+                    background: choice === depthChoice 
+                      ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.4) 0%, rgba(3, 105, 161, 0.4) 100%)'
+                      : 'rgba(0, 0, 0, 0.6)',
+                    border: choice === depthChoice 
+                      ? '2px solid rgba(14, 165, 233, 0.7)' 
+                      : '1px solid rgba(107, 114, 128, 0.3)',
+                    borderRadius: '12px',
+                    padding: '10px 20px',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: playing ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    opacity: playing ? 0.6 : 1,
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {depthChoice === 'shallow' && '🏊 SHALLOW DIVE'} 
+                  {depthChoice === 'deep' && '🤿 DEEP DIVE'} 
+                  {depthChoice === 'abyss' && '🌊 ABYSSAL DIVE'}
+                  <br />
+                  <span style={{ fontSize: '10px', opacity: 0.8 }}>
+                    {getChoiceChance(depthChoice)}% • {getChoiceMultiplier(depthChoice)}x
+                  </span>
+                </button>
+              ))}
+            </div>
             
             {/* Sea creatures */}
             <div style={{
@@ -460,21 +650,59 @@ export default function DeepSeaDive() {
 
             <style>
               {`
-                @keyframes lightRays {
-                  0%, 100% { opacity: 0.1; transform: translateX(-10px); }
-                  50% { opacity: 0.3; transform: translateX(10px); }
+                @keyframes oceanCurrents {
+                  0%, 100% { opacity: 0.4; transform: scaleY(1) translateX(-5px); }
+                  25% { opacity: 0.6; transform: scaleY(1.02) translateX(3px); }
+                  50% { opacity: 0.5; transform: scaleY(1.05) translateX(-2px); }
+                  75% { opacity: 0.7; transform: scaleY(1.03) translateX(4px); }
                 }
-                @keyframes swim {
-                  0% { transform: translateX(-100px); }
-                  100% { transform: translateX(calc(100vw + 100px)); }
+                @keyframes lightRay1 {
+                  0%, 100% { opacity: 0.3; transform: translateX(-8px) scaleY(0.8); }
+                  50% { opacity: 0.6; transform: translateX(8px) scaleY(1.2); }
+                }
+                @keyframes lightRay2 {
+                  0%, 100% { opacity: 0.25; transform: translateX(6px) scaleY(0.9); }
+                  50% { opacity: 0.5; transform: translateX(-6px) scaleY(1.1); }
+                }
+                @keyframes lightRay3 {
+                  0%, 100% { opacity: 0.2; transform: translateX(-4px) scaleY(0.7); }
+                  50% { opacity: 0.4; transform: translateX(4px) scaleY(1.0); }
+                }
+                @keyframes seaFloat {
+                  0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
+                  25% { transform: translateY(-15px) translateX(10px) rotate(5deg); opacity: 0.4; }
+                  50% { transform: translateY(-25px) translateX(-5px) rotate(-3deg); opacity: 0.35; }
+                  75% { transform: translateY(-10px) translateX(8px) rotate(7deg); opacity: 0.45; }
+                }
+                @keyframes bubbleRise {
+                  0% { transform: translateY(0px) scale(1); opacity: 0.4; }
+                  50% { transform: translateY(-50vh) scale(1.2); opacity: 0.6; }
+                  100% { transform: translateY(-100vh) scale(0.8); opacity: 0; }
+                }
+                @keyframes seaweedSway {
+                  0%, 100% { transform: scaleX(1) skewX(0deg); opacity: 0.2; }
+                  50% { transform: scaleX(1.1) skewX(3deg); opacity: 0.3; }
                 }
                 @keyframes dive {
-                  0%, 100% { transform: translateY(0px); opacity: 1; }
-                  50% { transform: translateY(5px); opacity: 0.8; }
+                  0%, 100% { transform: translateY(0px) scale(1); opacity: 1; }
+                  25% { transform: translateY(3px) scale(1.02); opacity: 0.95; }
+                  50% { transform: translateY(8px) scale(1.05); opacity: 0.9; }
+                  75% { transform: translateY(5px) scale(1.03); opacity: 0.95; }
                 }
                 @keyframes submarine {
-                  0%, 100% { transform: translateY(0px) rotate(0deg); }
-                  50% { transform: translateY(-10px) rotate(-2deg); }
+                  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+                  25% { transform: translateY(-8px) rotate(-1deg) scale(1.05); }
+                  50% { transform: translateY(-15px) rotate(0deg) scale(1.1); }
+                  75% { transform: translateY(-10px) rotate(1deg) scale(1.05); }
+                }
+                @keyframes pearlGlow {
+                  0%, 100% { filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.5)) brightness(1); }
+                  50% { filter: drop-shadow(0 0 30px rgba(14, 165, 233, 0.8)) brightness(1.3); }
+                }
+                @keyframes treasureFound {
+                  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+                  50% { transform: scale(1.4) rotate(180deg); opacity: 1; }
+                  100% { transform: scale(1.2) rotate(360deg); opacity: 0.9; }
                 }
               `}
             </style>

@@ -15,6 +15,33 @@ export const bucketHeight = bucketWallHeight
 export const barrierHeight = bucketWallHeight * 1.2
 export const barrierWidth = 4
 
+// Visual style constants to mirror SkyCaptainess look (pegs + bucket blocks)
+const PEG_FILL = '#F5DCFF'
+const BUCKET_BLOCK_SIZE = 20
+const BUCKET_BLOCK_MARGIN_Y = 8
+
+// Optional color map for bucket blocks by multiplier
+const MULTIPLIER_COLORS: Record<number, string> = {
+  110: '#ff003f',
+  88:  '#ff1837',
+  41:  '#ff302f',
+  33:  '#ff4827',
+  25:  '#ff6020',
+  18:  '#ff7818',
+  15:  '#ff9010',
+  10:  '#ffa818',
+  5:   '#ffc000',
+  3:   '#ffc000',
+  2:   '#ffa818',
+  1.5: '#ff9010',
+  1:   '#94a3b8',
+  0.5: '#64748b',
+  0.3: '#475569',
+}
+function bucketColorFor(multiplier: number) {
+  return MULTIPLIER_COLORS[multiplier] ?? '#94a3b8'
+}
+
 interface PlinkoContactEvent {
   plinko?: Matter.Body
   peg?: Matter.Body
@@ -62,6 +89,7 @@ export class Plinko {
     this.visualizePath = enabled
   }
 
+  // Buckets: keep sensors/barriers for logic; add non-colliding visual blocks for style
   private makeBuckets() {
     const unique = Array.from(new Set(this.props.multipliers))
     const secondHalf = [...unique].slice(1)
@@ -70,28 +98,75 @@ export class Plinko {
     const buckets = [...firstHalf, ...center, ...secondHalf]
     const numBuckets = buckets.length
     const bucketWidth = this.width / numBuckets
+
+    // Visible but subtle barriers (collision unchanged)
     const barriers = Array.from({ length: numBuckets + 1 }).map((_, i) => {
       const x = i * bucketWidth
-      return Matter.Bodies.rectangle(x, this.height - barrierHeight / 2, barrierWidth, barrierHeight, {
-        isStatic: true,
-        label: 'Barrier',
-        chamfer: { radius: 2 },
-      })
-    })
-    const sensors = buckets.map((bucketMultiplier, bucketIndex) => {
-      const x = bucketIndex * bucketWidth + bucketWidth / 2
-      return Matter.Bodies.rectangle(x, this.height - bucketHeight / 2, bucketWidth - barrierWidth, bucketHeight, {
-        isStatic: true,
-        isSensor: true,
-        label: 'Bucket',
-        plugin: {
-          bucketIndex,
-          bucketMultiplier,
-        },
-      })
+      return Matter.Bodies.rectangle(
+        x,
+        this.height - barrierHeight / 2,
+        barrierWidth,
+        barrierHeight,
+        {
+          isStatic: true,
+          label: 'Barrier',
+          chamfer: { radius: 2 },
+          render: {
+            fillStyle: 'rgba(255,255,255,0.08)',
+          },
+        }
+      )
     })
 
-    return [...sensors, ...barriers]
+    // Sensors remain the logic targets
+    const sensors = buckets.map((bucketMultiplier, bucketIndex) => {
+      const x = bucketIndex * bucketWidth + bucketWidth / 2
+      return Matter.Bodies.rectangle(
+        x,
+        this.height - bucketHeight / 2,
+        bucketWidth - barrierWidth,
+        bucketHeight,
+        {
+          isStatic: true,
+          isSensor: true,
+          label: 'Bucket',
+          plugin: {
+            bucketIndex,
+            bucketMultiplier,
+          },
+          render: {
+            fillStyle: '#0b0014',
+            strokeStyle: '#F5DCFF22',
+            lineWidth: 1,
+          },
+        }
+      )
+    })
+
+    // Add 20x20 visual blocks above sensors to mirror SkyCaptainess bucket tiles
+    const visualBlocks = buckets.map((bucketMultiplier, bucketIndex) => {
+      const x = bucketIndex * bucketWidth + bucketWidth / 2
+      const y = this.height - bucketHeight - BUCKET_BLOCK_MARGIN_Y - BUCKET_BLOCK_SIZE / 2
+      return Matter.Bodies.rectangle(
+        x,
+        y,
+        BUCKET_BLOCK_SIZE,
+        BUCKET_BLOCK_SIZE,
+        {
+          isStatic: true,
+          isSensor: true, // purely visual
+          label: `BucketBlock-${bucketMultiplier}`,
+          collisionFilter: { mask: 0 }, // no collision events
+          render: {
+            fillStyle: bucketColorFor(bucketMultiplier),
+            // To use textures instead, replace with sprite:
+            // sprite: { texture: 'path/to/texture.png', xScale: 1, yScale: 1 }
+          },
+        }
+      )
+    })
+
+    return [...sensors, ...barriers, ...visualBlocks]
   }
 
   private makePlinko = (offsetX: number, index: number) => {
@@ -151,6 +226,11 @@ export class Plinko {
               isStatic: true,
               label: 'Peg',
               plugin: { pegIndex: row * arr.length + column },
+              render: {
+                fillStyle: PEG_FILL,
+                strokeStyle: '#FFFFFF22',
+                lineWidth: 1,
+              },
             })
           })
       }).slice(1)
@@ -215,6 +295,11 @@ export class Plinko {
               isStatic: true,
               label: 'Peg',
               plugin: { pegIndex: row * arr.length + column },
+              render: {
+                fillStyle: PEG_FILL,
+                strokeStyle: '#FFFFFF22',
+                lineWidth: 1,
+              },
             })
           })
       }).slice(1)
@@ -267,7 +352,7 @@ export class Plinko {
       const bodies = Matter.Composite.allBodies(tempBallComposite)
       bodies.forEach((b) => {
         if (b.label === 'Plinko') {
-          const idx = b.plugin.startPositionIndex
+          const idx = (b as any).plugin.startPositionIndex
           paths[idx].push({ x: b.position.x, y: b.position.y })
         }
       })
@@ -279,9 +364,9 @@ export class Plinko {
     const bucketHits: { [plinkoIndex: number]: number } = {}
     allCollisions.forEach(({frame, event}) => {
       if (event.plinko && event.bucket) {
-        const plinkoIndex = event.plinko.plugin.startPositionIndex
+        const plinkoIndex = (event.plinko as any).plugin.startPositionIndex
         if (bucketHits[plinkoIndex] === undefined) {
-          bucketHits[plinkoIndex] = event.bucket.plugin.bucketIndex
+          bucketHits[plinkoIndex] = (event.bucket as any).plugin.bucketIndex
         }
       }
     })
@@ -331,9 +416,9 @@ export class Plinko {
   run(desiredMultiplier: number) {
     // Do not stop the runner or clear events, just add a new ball animation
     const bucket = Matter.Common.choose(
-      this.bucketComposite.bodies.filter((x) => x.plugin.bucketMultiplier === desiredMultiplier),
+      this.bucketComposite.bodies.filter((x) => (x as any).plugin.bucketMultiplier === desiredMultiplier),
     )
-    const candidates = this.simulate(bucket.plugin.bucketIndex)
+    const candidates = this.simulate((bucket as any).plugin.bucketIndex)
     if (!candidates.length) {
       console.error('Failed to simulate desired outcome for multiplier', desiredMultiplier)
       // Optionally show user feedback here, or skip animation
@@ -348,7 +433,7 @@ export class Plinko {
 
     const chosenIndex = chosen.plinkoIndex
     const chosenCollisions = chosen.collisions.filter(({event}) => {
-      return event.plinko && event.plinko.plugin.startPositionIndex === chosenIndex
+      return event.plinko && (event.plinko as any).plugin.startPositionIndex === chosenIndex
     })
 
     const ball = this.makePlinko(this.startPositions[chosenIndex], chosenIndex)

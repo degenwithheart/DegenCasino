@@ -203,7 +203,7 @@ export default function DragonVault() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Vault atmospheric effects */}
+            {/* Enhanced Vault atmospheric effects with magical elements */}
             <div style={{
               position: 'absolute',
               top: 0,
@@ -211,21 +211,55 @@ export default function DragonVault() {
               right: 0,
               bottom: 0,
               background: dragon === 'fire' 
-                ? 'radial-gradient(circle at 30% 20%, rgba(220, 38, 38, 0.15) 0%, transparent 50%)'
+                ? 'radial-gradient(circle at 30% 20%, rgba(220, 38, 38, 0.25) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(239, 68, 68, 0.15) 0%, transparent 50%)'
                 : dragon === 'ice'
-                ? 'radial-gradient(circle at 70% 30%, rgba(14, 165, 233, 0.12) 0%, transparent 50%)'
-                : 'radial-gradient(circle at 50% 60%, rgba(124, 45, 18, 0.1) 0%, transparent 50%)',
-              animation: 'vaultAmbience 14s ease-in-out infinite alternate'
+                ? 'radial-gradient(circle at 70% 30%, rgba(14, 165, 233, 0.2) 0%, transparent 40%), radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 45%)'
+                : 'radial-gradient(circle at 50% 60%, rgba(124, 45, 18, 0.18) 0%, transparent 35%), radial-gradient(circle at 90% 20%, rgba(202, 138, 4, 0.12) 0%, transparent 50%)',
+              animation: 'vaultAmbience 16s ease-in-out infinite alternate'
             }} />
             
-            {/* Floating vault elements */}
+            {/* Magical particle effects */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: dragon === 'fire' 
+                ? `repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(239, 68, 68, 0.05) 3px,
+                    rgba(239, 68, 68, 0.05) 6px
+                  )`
+                : dragon === 'ice'
+                ? `repeating-linear-gradient(
+                    135deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(59, 130, 246, 0.04) 4px,
+                    rgba(59, 130, 246, 0.04) 8px
+                  )`
+                : `repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(202, 138, 4, 0.06) 5px,
+                    rgba(202, 138, 4, 0.06) 10px
+                  )`,
+              animation: 'magicFlow 22s linear infinite'
+            }} />
+            
+            {/* Enhanced floating vault elements with magical glow */}
             <div style={{
               position: 'absolute',
               top: '12%',
               left: '8%',
-              fontSize: '40px',
-              opacity: 0.2,
-              animation: 'vaultFloat 16s ease-in-out infinite'
+              fontSize: '45px',
+              opacity: 0.3,
+              animation: 'vaultFloat 16s ease-in-out infinite',
+              filter: `drop-shadow(0 0 20px ${dragon === 'fire' ? 'rgba(239, 68, 68, 0.6)' : dragon === 'ice' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(202, 138, 4, 0.5)'})`
             }}>
               {dragon === 'fire' ? '🔥' : dragon === 'ice' ? '❄️' : '👑'}
             </div>
@@ -234,9 +268,10 @@ export default function DragonVault() {
               position: 'absolute',
               top: '70%',
               right: '12%',
-              fontSize: '35px',
-              opacity: 0.18,
-              animation: 'vaultFloat 14s ease-in-out infinite reverse'
+              fontSize: '40px',
+              opacity: 0.25,
+              animation: 'vaultFloat 14s ease-in-out infinite reverse',
+              filter: `drop-shadow(0 0 18px ${dragon === 'fire' ? 'rgba(220, 38, 38, 0.5)' : dragon === 'ice' ? 'rgba(14, 165, 233, 0.4)' : 'rgba(124, 45, 18, 0.4)'})`
             }}>
               {dragon === 'fire' ? '💎' : dragon === 'ice' ? '🧊' : '💰'}
             </div>
@@ -245,11 +280,72 @@ export default function DragonVault() {
               position: 'absolute',
               bottom: '20%',
               left: '15%',
-              fontSize: '32px',
-              opacity: 0.15,
-              animation: 'vaultFloat 18s ease-in-out infinite'
+              fontSize: '35px',
+              opacity: 0.2,
+              animation: 'vaultFloat 18s ease-in-out infinite',
+              filter: `drop-shadow(0 0 15px ${dragon === 'fire' ? 'rgba(185, 28, 28, 0.4)' : dragon === 'ice' ? 'rgba(2, 132, 199, 0.3)' : 'rgba(146, 64, 14, 0.3)'})`
             }}>
               {dragon === 'fire' ? '🌋' : dragon === 'ice' ? '🌨️' : '✨'}
+            </div>
+            
+            {/* Additional magical creatures floating */}
+            <div style={{
+              position: 'absolute',
+              top: '35%',
+              right: '20%',
+              fontSize: '30px',
+              opacity: 0.15,
+              animation: 'vaultFloat 20s ease-in-out infinite reverse'
+            }}>
+              {dragon === 'fire' ? '🦄' : dragon === 'ice' ? '🐺' : '🦅'}
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '40%',
+              right: '8%',
+              fontSize: '25px',
+              opacity: 0.12,
+              animation: 'vaultFloat 25s ease-in-out infinite'
+            }}>
+              {dragon === 'fire' ? '⚔️' : dragon === 'ice' ? '🗡️' : '🏆'}
+            </div>
+            
+            {/* Treasure sparkles */}
+            <div style={{
+              position: 'absolute',
+              top: '25%',
+              left: '25%',
+              fontSize: '20px',
+              opacity: 0.4,
+              animation: 'treasureSparkle 6s ease-in-out infinite',
+              animationDelay: '0s'
+            }}>
+              ✨
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              top: '55%',
+              left: '70%',
+              fontSize: '18px',
+              opacity: 0.35,
+              animation: 'treasureSparkle 8s ease-in-out infinite',
+              animationDelay: '2s'
+            }}>
+              💫
+            </div>
+            
+            <div style={{
+              position: 'absolute',
+              top: '80%',
+              left: '50%',
+              fontSize: '22px',
+              opacity: 0.3,
+              animation: 'treasureSparkle 7s ease-in-out infinite',
+              animationDelay: '4s'
+            }}>
+              🌟
             </div>
 
             {/* Dragon Selection */}
@@ -506,20 +602,52 @@ export default function DragonVault() {
             <style>
               {`
                 @keyframes vaultAmbience {
-                  0%, 100% { opacity: 0.4; transform: scale(1); }
-                  50% { opacity: 0.7; transform: scale(1.02); }
+                  0%, 100% { opacity: 0.5; transform: scale(1) rotate(0deg); }
+                  25% { opacity: 0.7; transform: scale(1.02) rotate(1deg); }
+                  50% { opacity: 0.6; transform: scale(1.04) rotate(0deg); }
+                  75% { opacity: 0.8; transform: scale(1.03) rotate(-1deg); }
                 }
                 @keyframes vaultFloat {
-                  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-                  50% { transform: translateY(-18px) rotate(180deg); opacity: 0.35; }
+                  0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
+                  25% { transform: translateY(-12px) translateX(8px) rotate(90deg); opacity: 0.4; }
+                  50% { transform: translateY(-25px) translateX(-5px) rotate(180deg); opacity: 0.35; }
+                  75% { transform: translateY(-15px) translateX(10px) rotate(270deg); opacity: 0.45; }
+                }
+                @keyframes magicFlow {
+                  0% { transform: translateX(-100%) rotate(0deg); }
+                  50% { transform: translateX(0%) rotate(180deg); }
+                  100% { transform: translateX(100%) rotate(360deg); }
+                }
+                @keyframes treasureSparkle {
+                  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.4; }
+                  25% { transform: scale(1.3) rotate(90deg); opacity: 0.6; }
+                  50% { transform: scale(0.8) rotate(180deg); opacity: 0.8; }
+                  75% { transform: scale(1.1) rotate(270deg); opacity: 0.5; }
                 }
                 @keyframes vaultDelving {
-                  0%, 100% { transform: scale(1); opacity: 1; }
-                  50% { transform: scale(1.015); opacity: 0.95; }
+                  0%, 100% { transform: scale(1); opacity: 1; border-radius: 30px; }
+                  25% { transform: scale(1.02); opacity: 0.95; border-radius: 35px; }
+                  50% { transform: scale(1.05); opacity: 0.9; border-radius: 40px; }
+                  75% { transform: scale(1.03); opacity: 0.95; border-radius: 35px; }
                 }
                 @keyframes vaultPulse {
-                  0%, 100% { transform: scale(1) rotate(0deg); }
-                  50% { transform: scale(1.08) rotate(8deg); }
+                  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+                  25% { transform: scale(1.1) rotate(4deg); filter: brightness(1.2); }
+                  50% { transform: scale(1.15) rotate(8deg); filter: brightness(1.4); }
+                  75% { transform: scale(1.08) rotate(4deg); filter: brightness(1.1); }
+                }
+                @keyframes dragonBreath {
+                  0%, 100% { opacity: 0.3; transform: scaleX(1); }
+                  50% { opacity: 0.7; transform: scaleX(1.5); }
+                }
+                @keyframes treasureGlow {
+                  0%, 100% { filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)) brightness(1); }
+                  50% { filter: drop-shadow(0 0 30px rgba(220, 38, 38, 0.8)) brightness(1.3); }
+                }
+                @keyframes dragonAwakening {
+                  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+                  50% { transform: scale(1.4) rotate(180deg); opacity: 1; }
+                  100% { transform: scale(1.2) rotate(360deg); opacity: 0.9; }
                 }
               `}
             </style>

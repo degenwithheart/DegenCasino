@@ -298,9 +298,23 @@ const ConnectButton = styled.button`
 `;
 
 export default function Dashboard() {
-  const { connected } = useWallet();
+  const { connected, connecting } = useWallet();
   const handleWalletConnect = useHandleWalletConnect();
   const [showAllGames, setShowAllGames] = useState(true);
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
+
+  // Track if wallet auto-connect attempt has finished to prevent flash
+  useEffect(() => {
+    if (!connecting) {
+      setAutoConnectAttempted(true);
+    }
+  }, [connecting]);
+
+  // Show "not connected" content only when:
+  // 1. Auto-connect has been attempted (to prevent flash)
+  // 2. Wallet is not connected
+  // 3. Wallet is not currently connecting
+  const shouldShowNotConnected = autoConnectAttempted && !connected && !connecting;
 
   return (
     <DashboardWrapper>
@@ -308,12 +322,15 @@ export default function Dashboard() {
       <EnhancedTickerTape />
       <AccentBar />
 
-      {!connected && (
+      {shouldShowNotConnected && (
         <div
           style={{
             textAlign: 'center',
             margin: '2rem 0',
             padding: '0 0.5rem',
+            opacity: autoConnectAttempted ? 1 : 0,
+            transform: autoConnectAttempted ? 'translateY(0)' : 'translateY(10px)',
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
           }}
         >
           <span
@@ -364,6 +381,9 @@ export default function Dashboard() {
                 position: 'relative',
                 marginBottom: '5.5rem',
                 padding: '0 0.5rem',
+                opacity: connected ? 1 : 0,
+                transform: connected ? 'translateY(0)' : 'translateY(10px)',
+                transition: 'opacity 0.3s ease, transform 0.3s ease',
               }}
             >
               <CasinoSparkles>✨</CasinoSparkles>
