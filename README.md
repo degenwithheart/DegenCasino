@@ -1,10 +1,10 @@
 # DegenHeart Casino
 
-![DegenHeart Casino Screenshot](./screenshots/1)
+![DegenHeart Casino Screenshot](./screenshots/1.jpg)
 
-![DegenHeart Casino Screenshot](./screenshots/2)
+![DegenHeart Casino Screenshot](./screenshots/2.jpg)
 
-![DegenHeart Casino Screenshot](./screenshots/3)
+![DegenHeart Casino Screenshot](./screenshots/3.jpg)
 
 > Looking to build a new game for this platform? Start with the official Hello World Game Template:
 > https://github.com/degenwithheart/HelloWorld-Boilerplate
