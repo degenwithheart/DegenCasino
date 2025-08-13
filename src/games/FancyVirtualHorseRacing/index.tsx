@@ -9,6 +9,7 @@ import {
 import { useGamba } from 'gamba-react-v2'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { TOKEN_METADATA } from '../../constants'
 import React, { useRef } from 'react'
 import CRASH_SOUND from './lose.mp3'
@@ -59,6 +60,9 @@ export default function FancyVirtualHorseRacing() {
     isWin,
     profitAmount,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -208,7 +212,10 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
     sound.play('start');
 
     await game.play({ wager, bet: betArray });
-    const result = await game.result();
+    const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result);
 
     setResultModalOpen(true);
 

@@ -2,6 +2,7 @@ import { GambaUi, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAK
 import React from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { useIsCompact } from '../../hooks/useIsCompact';
 import SOUND from './test.mp3'
 import { ModernWagerInput } from '../../components/ModernWagerInput';
@@ -48,7 +49,10 @@ function DoubleOrNothing() {
     handlePlayAgain,
     isWin,
     profitAmount,
-  } = useGameOutcome();
+  } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult();
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -85,7 +89,10 @@ function DoubleOrNothing() {
     const modeChoice = selectedMode === 0 ? 'double' : selectedMode === 1 ? 'triple' : 'degen'
     
     await game.play({ wager, bet: MODES[mode].bet });
-    const res = await game.result();
+    const res = await game.result()
+
+    // Store result in context for modal
+    storeResult(res);
     setResult(res.resultIndex);
     setPayout(res.payout);
     setIsPlaying(false);

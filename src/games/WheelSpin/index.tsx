@@ -2,6 +2,7 @@ import { GambaUi, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MI
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import React, { useContext, useRef } from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import WheelSpinPaytable, { WheelSpinPaytableRef } from './WheelSpinPaytable'
@@ -32,7 +33,10 @@ export default function WheelSpin() {
     isWin,
     profitAmount,
     resetGameState,
-  } = useGameOutcome();
+  } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult();
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -93,6 +97,9 @@ export default function WheelSpin() {
     await new Promise(res => setTimeout(res, 1200))
     await game.play({ wager, bet: segments })
     const res = await game.result()
+
+    // Store result in context for modal
+    storeResult(res)
   setResultModalOpen(true)
     
     // Dramatic pause phase

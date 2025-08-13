@@ -4,6 +4,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput, useCurren
 import { useGamba } from 'gamba-react-v2'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit, PayoutPanel } from './styles'
 import { TOKEN_METADATA } from '../../constants'
@@ -81,6 +82,9 @@ export default function HiLo(props: HiLoConfig) {
     isWin,
     profitAmount,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -222,6 +226,9 @@ export default function HiLo(props: HiLoConfig) {
     setDramaticPause(false)
 
     const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
     addCard(result.resultIndex)
     sounds.play('card', { playbackRate: .8 })
     const win = result.payout > 0

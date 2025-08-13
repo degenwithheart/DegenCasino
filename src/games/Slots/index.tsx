@@ -13,6 +13,7 @@ import {
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import React, { useEffect, useRef, useState } from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { ItemPreview } from './ItemPreview'
@@ -162,6 +163,9 @@ export default function Slots() {
     profitAmount,
     resetGameState,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   // Dynamic play button text with animation
   const playButtonText = hasPlayedBefore && !showOutcome ? "🎰 SPIN AGAIN! 🎰" : "🚀 SPIN TO WIN! 🚀"
@@ -381,6 +385,10 @@ export default function Slots() {
 
       const startTime = Date.now()
       const result = await gamba.result()
+      
+      // Store result in context for modal
+      storeResult(result)
+      
       const revealDelay = Math.max(0, SPIN_DELAY - (Date.now() - startTime))
 
       console.log('Game Result from Gamba:', {

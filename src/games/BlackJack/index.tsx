@@ -11,6 +11,7 @@ import {
 import { useGamba } from 'gamba-react-v2'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import React, { useRef } from 'react'
 import {
   CARD_VALUES,
@@ -130,6 +131,9 @@ export default function Blackjack(props: BlackjackConfig) {
     profitAmount,
   } = useGameOutcome()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   // Set default wager: 1 for free tokens, 0 for real tokens
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -185,6 +189,9 @@ export default function Blackjack(props: BlackjackConfig) {
     setDramaticPause(false)
 
     const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
     const payoutMultiplier = result.payout / wager
 
     let newPlayerCards: Card[] = []

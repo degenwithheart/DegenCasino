@@ -3,7 +3,8 @@ import React, { useRef } from 'react';
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { GambaUi, useWagerInput } from 'gamba-react-ui-v2';
 import { GameControls } from '../../components';
-import { useGameOutcome } from '../../hooks/useGameOutcome';
+import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult';
 import DiceRollPaytable, { DiceRollPaytableRef } from './DiceRollPaytable'
 import { DiceRollOverlays } from './DiceRollOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -40,6 +41,9 @@ export default function DiceRoll() {
     resetGameState,
   } = useGameOutcome()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
@@ -69,6 +73,9 @@ export default function DiceRoll() {
     const bet = [0, 0, 0, 0, 0, 5.7]; // 95% RTP (5% house edge) - only 6 wins
     await game.play({ wager, bet })
     const res = await game.result()
+
+    // Store result in context for modal
+    storeResult(res)
     setResult(res.resultIndex + 1)
     setPayout(res.payout)
     setRolling(false)

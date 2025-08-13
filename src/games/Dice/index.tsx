@@ -19,6 +19,7 @@ import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants';
 import { Container, Result, RollUnder, Stats } from './styles';
 import { GameControls } from '../../components';
 import { useIsCompact } from '../../hooks/useIsCompact';
+import { useGambaResult } from '../../hooks/useGambaResult';
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
 
 const calculateArraySize = (odds: number): number => {
@@ -85,6 +86,9 @@ export default function Dice() {
     wasWin: boolean
   } | undefined>()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   const sounds = useSound({
     win: SOUND_WIN,
     play: SOUND_PLAY,
@@ -150,6 +154,10 @@ export default function Dice() {
     setDramaticPause(false);
 
     const result = await game.result();
+    
+    // Store result in context for modal
+    storeResult(result);
+    
     const win = result.payout > 0;
 
     // Use the provably fair result index from Gamba instead of Math.random()

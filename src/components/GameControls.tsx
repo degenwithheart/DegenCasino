@@ -5,10 +5,11 @@ import {
   useCurrentToken, 
   useTokenBalance 
 } from 'gamba-react-ui-v2'
-import { TOKEN_METADATA } from '../constants'
+import { TOKEN_METADATA, ENABLE_GAMBA_RESULT_MODAL } from '../constants'
 import { useTokenPrices } from '../hooks/useTokenPrices'
 import { ModalContent as StyledModalContent } from './GameControlsModal.styles'
 import { PresetScroll } from './GameControlsModal.presetScroll.styles'
+import { GambaResultModal } from './GambaResultModal'
 
 interface GameControlsProps {
   wager: number
@@ -20,7 +21,6 @@ interface GameControlsProps {
   playButtonDisabled?: boolean
   children?: React.ReactNode
   style?: React.CSSProperties
-  onOpenSidebar?: () => void // Optional prop for opening sidebar/overlay
   onPlayAgain?: () => void // Optional callback for when play again is clicked
 }
 
@@ -46,7 +46,6 @@ export function GameControls({
   playButtonDisabled = false,
   children,
   style,
-  onOpenSidebar,
   onPlayAgain,
 }: GameControlsProps) {
 
@@ -57,6 +56,7 @@ export function GameControls({
   const { balance } = useTokenBalance()
   const isMobile = useIsMobile()
   const [showWagerModal, setShowWagerModal] = React.useState(false)
+  const [showGambaResultModal, setShowGambaResultModal] = React.useState(false)
 
   const tokenMeta = token ? TOKEN_METADATA.find((t: any) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
@@ -280,7 +280,7 @@ export function GameControls({
         {/* Custom game-specific controls: show inline on desktop, in modal on mobile */}
         {!isMobile && children}
 
-        {/* Play row: Play button, Set Wager (mobile only), PayTable (always) */}
+        {/* Play row: Play button, Set Wager (mobile only), Gamba Result (if enabled) */}
         <div style={playRowStyle}>
           <GambaUi.PlayButton onClick={handlePlayClick} disabled={isPlayButtonDisabled}>
             <span style={{ fontSize: 20 }}>{playButtonText}</span>
@@ -293,15 +293,19 @@ export function GameControls({
               Set Wager
             </GambaUi.Button>
           )}
-          {onOpenSidebar && (
+          {ENABLE_GAMBA_RESULT_MODAL && (
             <GambaUi.Button
-              onClick={onOpenSidebar}
+              onClick={() => setShowGambaResultModal(true)}
               disabled={isPlaying || showOutcome}
             >
-              PayTable
+              Result
             </GambaUi.Button>
           )}
           {isMobile && showWagerModal && <WagerModal />}
+          <GambaResultModal 
+            open={showGambaResultModal} 
+            onClose={() => setShowGambaResultModal(false)} 
+          />
         </div>
       </div>
     </GambaUi.Portal>

@@ -5,6 +5,7 @@ import { useCurrentPool } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import React, { useState, useRef } from 'react'
 import KenoPaytable, { KenoPaytableRef } from './KenoPaytable'
 import { KenoOverlays } from './KenoOverlays'
@@ -64,7 +65,10 @@ export default function Keno() {
     isWin,
     profitAmount,
     resetGameState,
-  } = useGameOutcome();
+  } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult();
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')

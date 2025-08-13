@@ -111,7 +111,7 @@ export interface GambaResultModalProps {
 export const GambaResultModal: React.FC<GambaResultModalProps> = ({ open, onClose }) => {
   const { gambaResult } = useContext(GambaResultContext);
 
-  if (!gambaResult || !open) return null;
+  if (!open) return null;
 
   return ReactDOM.createPortal(
     <ModalOverlay onClick={onClose}>
@@ -124,7 +124,13 @@ export const GambaResultModal: React.FC<GambaResultModalProps> = ({ open, onClos
         </CloseButton>
         <Title>Gamba Result</Title>
         <Pre as="div">
-          {(() => {
+          {!gambaResult ? (
+            <div style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
+              No game result available yet.<br />
+              Play a game to see results here.
+            </div>
+          ) : (
+            (() => {
             // Helper to safely get a string from a value (string, object, or undefined)
             const safeStr = (val: any) => {
               if (val == null) return 'N/A';
@@ -180,7 +186,8 @@ export const GambaResultModal: React.FC<GambaResultModalProps> = ({ open, onClos
               <div><strong>Nonce:</strong> {typeof gambaResult.nonce === 'number' ? gambaResult.nonce : 'N/A'}</div>
               <div><strong>RNG Seed:</strong> {safeStr(gambaResult.rngSeed)}</div>
             </>;
-          })()}
+            })()
+          )}
         </Pre>
       </ModalContent>
     </ModalOverlay>,

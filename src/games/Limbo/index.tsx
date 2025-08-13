@@ -16,6 +16,7 @@ import { useGamba } from 'gamba-react-v2'
 import Slider from './Slider'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import LimboPaytable, { LimboPaytableRef } from './LimboPaytable'
 import LimboOverlays from './LimboOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -71,6 +72,9 @@ export default function Limbo() {
     profitAmount,
     resetGameState,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   const tokenMeta = token
     ? TOKEN_METADATA.find((t) => t.symbol === token.symbol)
@@ -158,6 +162,9 @@ export default function Limbo() {
       setDramaticPause(false)
 
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
       const winCondition = result.resultIndex === targetMultiplier
       setIsWin(winCondition)
       setResultModalOpen(true)

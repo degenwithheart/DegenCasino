@@ -8,6 +8,7 @@ import { useIsCompact } from '../../hooks/useIsCompact';
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { Effect } from './Effect'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import FlipPaytable, { FlipPaytableRef } from './FlipPaytable'
 import FlipOverlays from './FlipOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -53,6 +54,10 @@ export default function Flip() {
     profitAmount,
     resetGameState,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   // Find token metadata for symbol display
   const tokenMeta = token ? TOKEN_METADATA.find(t => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
@@ -111,6 +116,9 @@ export default function Flip() {
       sounds.play('coin')
 
       const result = await game.result()
+
+      // Store result in context for modal
+      storeResult(result)
 
       const win = result.payout > 0
       const resultSide = result.resultIndex === 0 ? 'heads' : 'tails'

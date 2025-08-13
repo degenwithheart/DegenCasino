@@ -13,6 +13,7 @@ import React, { useState, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { Chip } from './Chip'
 import { StyledResults } from './Roulette.styles'
@@ -180,6 +181,9 @@ export default function Roulette() {
     profitAmount,
   } = useGameOutcome()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   // State for live token wager
   const [liveWager, setLiveWager] = useState(0)
 
@@ -270,6 +274,10 @@ export default function Roulette() {
     setDramaticPause(false)
 
     const result = await game.result()
+    
+    // Store result in context for modal
+    storeResult(result)
+    
     setLatestResult(result.resultIndex)
     setSpinTrigger(prev => prev + 1)
 

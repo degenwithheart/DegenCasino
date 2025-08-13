@@ -4,6 +4,7 @@ import { useGamba } from 'gamba-react-v2'
 import React, { useRef } from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import CustomSlider from './Slider'
 import { ChartWrapper, ScreenWrapper } from './styles'
 import { calculateBetArray } from './utils'
@@ -26,6 +27,9 @@ export default function CryptoChartGame() {
     const tokenPrice = tokenMeta?.usdPrice ?? 0
 
     const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
     // Set default wager: 1 for free tokens, 0 for real tokens
     React.useEffect(() => {
@@ -146,6 +150,9 @@ export default function CryptoChartGame() {
         const betArray = calculateBetArray(multiplierTarget)
         await game.play({ wager, bet: betArray })
         const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
         const win = result.payout > 0
         setLastPayout(win ? result.payout : null)
         

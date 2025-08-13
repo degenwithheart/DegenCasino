@@ -1,5 +1,6 @@
 import { GambaUi, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { useIsCompact } from '../../hooks/useIsCompact'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { useGamba } from 'gamba-react-v2'
 import React, { useContext } from 'react'
 import {
@@ -69,6 +70,9 @@ export default function Plinko() {
     win: WIN,
     fall: FALL,
   })
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
   
   const tokenMeta = token ? TOKEN_METADATA.find((t) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
@@ -170,6 +174,9 @@ export default function Plinko() {
       
       await game.play({ wager, bet })
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
       
       // Run the plinko animation
       plinko.run(result.multiplier)

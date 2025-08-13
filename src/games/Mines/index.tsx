@@ -11,6 +11,7 @@ import {
 } from 'gamba-react-ui-v2'
 import { GameControls } from '../../components'
 import { useIsCompact } from '../../hooks/useIsCompact'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import MinesPaytable, { MinesPaytableRef } from './MinesPaytable'
 import MinesOverlays from './MinesOverlays'
 import {
@@ -52,6 +53,9 @@ function Mines() {
   const pool = useCurrentPool()
   const token = useCurrentToken()
   const tokenMeta = useTokenMeta(token?.mint)
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   const [grid, setGrid] = useState(generateGrid(GRID_SIZE))
   const [currentLevel, setLevel] = useState(0)
@@ -187,6 +191,9 @@ function Mines() {
       setDramaticPause(false)
 
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
 
       sounds.sounds.tick.player.stop()
 

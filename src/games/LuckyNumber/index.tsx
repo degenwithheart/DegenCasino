@@ -9,7 +9,8 @@ import {
 import { TOKEN_METADATA } from '../../constants';
 import React, { useContext, useRef } from 'react';
 import { GameControls } from '../../components';
-import { useGameOutcome } from '../../hooks/useGameOutcome';
+import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult';
 import { useIsCompact } from '../../hooks/useIsCompact';
 import LuckyNumberPaytable, { LuckyNumberPaytableRef } from './LuckyNumberPaytable'
 import { LuckyNumberOverlays } from './LuckyNumberOverlays'
@@ -86,7 +87,10 @@ export default function LuckyNumber() {
     handlePlayAgain,
     isWin,
     profitAmount,
-  } = useGameOutcome();
+  } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult();
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -116,7 +120,10 @@ export default function LuckyNumber() {
     const bet = Array(10).fill(0);
     bet[pick - 1] = 9.5; // 95% RTP (5% house edge)
     await game.play({ wager, bet });
-    const res = await game.result();
+    const res = await game.result()
+
+    // Store result in context for modal
+    storeResult(res);
   setResultModalOpen(true);
   
     // Dramatic pause phase

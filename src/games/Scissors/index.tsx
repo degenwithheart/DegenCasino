@@ -2,6 +2,7 @@ import { FAKE_TOKEN_MINT, GambaUi, useSound, useWagerInput, useCurrentToken, use
 import React from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { TOKEN_METADATA } from '../../constants'
 import ScissorsPaytable, { ScissorsPaytableRef } from './ScissorsPaytable'
@@ -77,6 +78,9 @@ export default function Scissors() {
     resetGameState,
   } = useGameOutcome()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
@@ -127,6 +131,9 @@ export default function Scissors() {
       })
 
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
       
       // Dramatic pause phase
       setGamePhase('dramatic')

@@ -15,6 +15,7 @@ import { PokerCard } from './PokerCard'
 import { JACKS_OR_BETTER_BET_ARRAY } from './betArray'
 import { GameControls } from '../../components'
 import { useIsCompact } from '../../hooks/useIsCompact'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import { ProgressivePokerOverlays } from './ProgressivePokerOverlays'
 
 import { getCurrentHandName, Card as PokerCardType } from './getCurrentHandName'
@@ -153,6 +154,9 @@ export default function ProgressivePoker() {
   const pool = useCurrentPool()
   const { balance } = useTokenBalance()
 
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
+
   const [hand, setHand] = useState<
     { name: string; type: HandType; payout: number } | null
   >(null)
@@ -236,6 +240,9 @@ export default function ProgressivePoker() {
         bet: JACKS_OR_BETTER_BET_ARRAY,
       })
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
       setResultModalOpen(true)
 
       // Dramatic pause phase

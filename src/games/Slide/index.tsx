@@ -10,6 +10,7 @@ import {
 import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components/GameControls'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import SlidePaytable, { SlidePaytableRef } from './SlidePaytable'
 import { SlideOverlays } from './SlideOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -108,6 +109,9 @@ export default function SlideGame() {
 
   // Game outcome hook
   const { showOutcome, hasPlayedBefore, handleGameComplete, handlePlayAgain: baseHandlePlayAgain, isWin, profitAmount, resetGameState } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -245,7 +249,10 @@ const stopSlider = async () => {
 
     // Trigger backend spin
     await game.play({ bet: ORIGINAL_MULTIPLIERS, wager });
-    const res = await game.result();
+    const res = await game.result()
+
+    // Store result in context for modal
+    storeResult(res);
     const resultIndex = res.resultIndex ?? 0;
 
     console.log('Game Result:', {

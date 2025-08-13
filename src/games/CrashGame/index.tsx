@@ -4,6 +4,7 @@ import { TOKEN_METADATA } from '../../constants'
 import React, { useRef } from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { useGambaResult } from '../../hooks/useGambaResult'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
 import SOUND from './music.mp3'
@@ -38,6 +39,9 @@ export default function CrashGame() {
     isWin,
     profitAmount,
   } = useGameOutcome()
+
+  // Gamba result storage
+  const { storeResult } = useGambaResult()
 
   // Custom handlePlayAgain that also resets rocket state
   const handlePlayAgain = () => {
@@ -168,6 +172,9 @@ export default function CrashGame() {
       await game.play({ wager, bet })
 
       const result = await game.result()
+
+    // Store result in context for modal
+    storeResult(result)
       const win = result.payout > 0
       const crashMultiplier = win ? multiplierTarget : calculateVisualCrashMultiplier(multiplierTarget, result.resultIndex)
 
