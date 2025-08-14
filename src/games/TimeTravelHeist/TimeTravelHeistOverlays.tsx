@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface TimeTravelHeistOverlaysProps {
   heistPhase: boolean
@@ -7,6 +8,9 @@ interface TimeTravelHeistOverlaysProps {
   win: boolean
   period: 'medieval' | 'modern' | 'future'
   timelineProgress: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function TimeTravelHeistOverlays({
@@ -15,10 +19,51 @@ export default function TimeTravelHeistOverlays({
   treasureFound,
   win,
   period,
-  timelineProgress
+  timelineProgress,
+  result,
+  currentBalance,
+  wager
 }: TimeTravelHeistOverlaysProps) {
+  // Custom win levels for TimeTravelHeist
+  const timeTravelHeistWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Heist Success!",
+      emoji: "⏰",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Time Vault!",
+      emoji: "🚀",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "PARADOX JACKPOT!",
+      emoji: "🌌",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={treasureFound && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={timeTravelHeistWinLevels}
+      />
+
       {/* Time Machine Console */}
       {heistPhase && (
         <div style={{

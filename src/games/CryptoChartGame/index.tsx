@@ -32,7 +32,7 @@ export default function CryptoChartGame() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
     // Set default wager: 1 for free tokens, 0 for real tokens
     React.useEffect(() => {
@@ -354,7 +354,11 @@ export default function CryptoChartGame() {
             dramaticPause={dramaticPause}
             celebrationIntensity={celebrationIntensity}
             thinkingEmoji={thinkingEmoji}
-          />
+          
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
         )}
       </>
     )

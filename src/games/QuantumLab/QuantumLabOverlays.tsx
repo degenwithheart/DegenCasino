@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface QuantumLabOverlaysProps {
   calibrationPhase: boolean
@@ -8,6 +9,9 @@ interface QuantumLabOverlaysProps {
   experiment: 'quantum' | 'particle' | 'dimension'
   energyLevel: number
   stabilityRating: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 const QuantumLabOverlays: React.FC<QuantumLabOverlaysProps> = ({
@@ -17,12 +21,53 @@ const QuantumLabOverlays: React.FC<QuantumLabOverlaysProps> = ({
   win,
   experiment,
   energyLevel,
-  stabilityRating
+  stabilityRating,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for QuantumLab
+  const quantumLabWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Experiment Success!",
+      emoji: "🔬",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Quantum Breakthrough!",
+      emoji: "⚡",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "DIMENSIONAL RIFT!",
+      emoji: "🌌",
+      className: "win-mega"
+    }
+  ];
+
   if (!calibrationPhase && !experimentComplete && !win) return null
 
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={experimentComplete && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={quantumLabWinLevels}
+      />
+
       {/* Laboratory Control Interface */}
       {calibrationPhase && (
         <div style={{

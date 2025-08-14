@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface DragonVaultOverlaysProps {
   delving: boolean
@@ -8,6 +9,9 @@ interface DragonVaultOverlaysProps {
   dragon: 'fire' | 'ice' | 'shadow'
   dragonAwareness: number
   vaultTemperature: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 const DragonVaultOverlays: React.FC<DragonVaultOverlaysProps> = ({
@@ -17,12 +21,53 @@ const DragonVaultOverlays: React.FC<DragonVaultOverlaysProps> = ({
   win,
   dragon,
   dragonAwareness,
-  vaultTemperature
+  vaultTemperature,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for DragonVault
+  const dragonVaultWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Treasure Found!",
+      emoji: "💎",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Dragon's Hoard!",
+      emoji: "🐉",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "LEGENDARY VAULT!",
+      emoji: "👑",
+      className: "win-mega"
+    }
+  ];
+
   if (!delving && !treasureFound && !win) return null
 
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={treasureFound && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={dragonVaultWinLevels}
+      />
+
       {/* Vault Delving Interface */}
       {delving && (
         <div style={{

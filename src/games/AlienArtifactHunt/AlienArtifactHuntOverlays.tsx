@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface AlienArtifactHuntOverlaysProps {
   excavationPhase: boolean
@@ -7,6 +8,9 @@ interface AlienArtifactHuntOverlaysProps {
   win: boolean
   planet: 'earth' | 'gas' | 'crystal'
   atmosphereLevel: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 const AlienArtifactHuntOverlays: React.FC<AlienArtifactHuntOverlaysProps> = ({
@@ -15,12 +19,53 @@ const AlienArtifactHuntOverlays: React.FC<AlienArtifactHuntOverlaysProps> = ({
   artifactFound,
   win,
   planet,
-  atmosphereLevel
+  atmosphereLevel,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for AlienArtifactHunt
+  const alienArtifactHuntWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Artifact Found!",
+      emoji: "🛸",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Rare Discovery!",
+      emoji: "👽",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "ANCIENT RELIC!",
+      emoji: "🌌",
+      className: "win-mega"
+    }
+  ];
+
   if (!excavationPhase && !artifactFound && !win) return null
 
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={artifactFound && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={alienArtifactHuntWinLevels}
+      />
+
       {/* Excavation Scanner Interface */}
       {excavationPhase && (
         <div style={{

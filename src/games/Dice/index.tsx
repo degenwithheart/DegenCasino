@@ -413,6 +413,9 @@ export default function Dice() {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={isWin ? { multiplier: multiplier, amount: profitAmount } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={isWin ? { wasWin: true, payout: profitAmount + wager, multiplier: multiplier } : { wasWin: false, payout: 0, multiplier: 0 }}
+                currentBalance={balance}
+                wager={wager}
               />
             )}
           </div>

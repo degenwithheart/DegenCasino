@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface LuckyNumberOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -8,7 +9,10 @@ interface LuckyNumberOverlaysProps {
   currentWin?: {
     multiplier: number;
     amount: number;
-  };
+    result?: any;
+  currentBalance: number;
+  wager: number;
+};
   thinkingEmoji: string;
 }
 
@@ -19,10 +23,51 @@ export const LuckyNumberOverlays: React.FC<LuckyNumberOverlaysProps> = ({
   celebrationIntensity,
   currentWin,
   thinkingEmoji
+  result,
+  currentBalance,
+  wager
 }) => {
+    // Custom win levels for LuckyNumber
+  const luckynumberWinLevels = [
+    {
+        "minMultiplier": 1,
+        "maxMultiplier": 3,
+        "intensity": 1,
+        "label": "Nice Win!",
+        "emoji": "🎯",
+        "className": "win-small"
+    },
+    {
+        "minMultiplier": 3,
+        "maxMultiplier": 10,
+        "intensity": 2,
+        "label": "Great Win!",
+        "emoji": "🔥",
+        "className": "win-medium"
+    },
+    {
+        "minMultiplier": 10,
+        "maxMultiplier": 1000,
+        "intensity": 3,
+        "label": "MEGA WIN!",
+        "emoji": "💎",
+        "className": "win-mega"
+    }
+];
+
   return (
     <>
-      {/* Dramatic Thinking Overlay */}
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={luckynumberWinLevels}
+      />
+
+      {/* Dramatic Thinking Overlay */}}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">
           <div className="thinking-content">

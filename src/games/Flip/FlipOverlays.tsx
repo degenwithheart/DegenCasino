@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface FlipOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -10,6 +11,10 @@ interface FlipOverlaysProps {
     amount: number;
   };
   thinkingEmoji: string;
+  // Add props needed for synced overlay
+  result?: any; // Game result object
+  currentBalance: number;
+  wager: number;
 }
 
 export const FlipOverlays: React.FC<FlipOverlaysProps> = ({
@@ -18,7 +23,10 @@ export const FlipOverlays: React.FC<FlipOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
+  result,
+  currentBalance,
+  wager
 }) => {
   return (
     <>
@@ -94,6 +102,27 @@ export const FlipOverlays: React.FC<FlipOverlaysProps> = ({
           </div>
         </div>
       )}
+
+      {/* Universal Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating" // For wins
+        wager={wager}
+        winLevels={[
+          { minMultiplier: 1.5, label: 'WIN!', emoji: '🪙', className: 'celebration-level-1' },
+        ]}
+      />
+
+      {/* Universal Synced Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="mourning" // For losses
+        wager={wager}
+      />
 
       <style>{`
         /* Thinking Overlay */

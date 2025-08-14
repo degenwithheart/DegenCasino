@@ -447,7 +447,11 @@ export default function PiratesFortune() {
               foundTreasure={foundTreasure}
               win={win}
               choice={choice}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

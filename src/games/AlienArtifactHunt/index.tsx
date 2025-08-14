@@ -601,7 +601,11 @@ export default function AlienArtifactHunt() {
               win={win}
               planet={planet}
               atmosphereLevel={atmosphereLevel}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

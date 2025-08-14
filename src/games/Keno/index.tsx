@@ -68,7 +68,7 @@ export default function Keno() {
   } = useGameOutcome()
 
   // Gamba result storage
-  const { storeResult } = useGambaResult();
+  const { storeResult, gambaResult } = useGambaResult();
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -548,7 +548,11 @@ export default function Keno() {
         dramaticPause={dramaticPause}
         celebrationIntensity={celebrationIntensity}
         thinkingEmoji={thinkingEmoji}
-      />
+      
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
         )}
     </>
   )

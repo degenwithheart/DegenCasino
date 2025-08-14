@@ -77,7 +77,7 @@ export default function Limbo() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   const tokenMeta = token
     ? TOKEN_METADATA.find((t) => t.symbol === token.symbol)
@@ -447,6 +447,10 @@ export default function Limbo() {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={isWin && resultMultiplier > 0 ? { multiplier: targetMultiplier, amount: targetMultiplier * wager - wager } : undefined}
                 thinkingEmoji={thinkingEmoji}
+              
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
               />
             )}
           </div>

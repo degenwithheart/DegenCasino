@@ -139,7 +139,7 @@ export default function FlipMP() {
   } = useGameOutcome()
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // Find token metadata for symbol display
   const tokenMeta = token ? TOKEN_METADATA.find(t => t.symbol === token.symbol) : undefined

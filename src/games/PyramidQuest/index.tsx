@@ -454,7 +454,11 @@ export default function PyramidQuest() {
               win={win}
               choice={choice}
               torchFlicker={torchFlicker}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             {/* Animations */}
             <style>

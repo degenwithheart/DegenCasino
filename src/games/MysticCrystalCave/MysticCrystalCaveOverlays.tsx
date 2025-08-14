@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface MysticCrystalCaveOverlaysProps {
   exploringPhase: boolean
@@ -7,6 +8,9 @@ interface MysticCrystalCaveOverlaysProps {
   win: boolean
   path: 'crystal' | 'shadow' | 'light'
   magicEnergy: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function MysticCrystalCaveOverlays({
@@ -15,10 +19,51 @@ export default function MysticCrystalCaveOverlays({
   foundCrystal,
   win,
   path,
-  magicEnergy
+  magicEnergy,
+  result,
+  currentBalance,
+  wager
 }: MysticCrystalCaveOverlaysProps) {
+  // Custom win levels for MysticCrystalCave
+  const mysticCrystalCaveWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Crystal Found!",
+      emoji: "💎",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Mystic Power!",
+      emoji: "🔮",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "LEGENDARY CRYSTAL!",
+      emoji: "✨",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={foundCrystal && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={mysticCrystalCaveWinLevels}
+      />
+
       {/* Magic Energy Display */}
       {exploringPhase && (
         <div style={{

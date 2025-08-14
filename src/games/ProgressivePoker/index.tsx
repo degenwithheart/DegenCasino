@@ -155,7 +155,7 @@ export default function ProgressivePoker() {
   const { balance } = useTokenBalance()
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   const [hand, setHand] = useState<
     { name: string; type: HandType; payout: number } | null
@@ -725,7 +725,11 @@ export default function ProgressivePoker() {
         dramaticPause={dramaticPause}
         celebrationIntensity={celebrationIntensity}
         thinkingEmoji={thinkingEmoji}
-      />
+      
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
         )}
     </>
   )

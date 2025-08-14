@@ -135,7 +135,7 @@ export default function Blackjack(props: BlackjackConfig) {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // Set default wager: 1 for free tokens, 0 for real tokens
   React.useEffect(() => {
@@ -1018,6 +1018,9 @@ export default function Blackjack(props: BlackjackConfig) {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={profit && profit > wager ? { multiplier: profit / wager, amount: profit - wager } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={gambaResult}
+                currentBalance={balance}
+                wager={wager}
               />
             )}
           </div>

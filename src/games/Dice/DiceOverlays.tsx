@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface DiceOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -10,6 +11,10 @@ interface DiceOverlaysProps {
     amount: number;
   };
   thinkingEmoji: string;
+  // Add props needed for synced overlay
+  result?: any; // Game result object
+  currentBalance: number;
+  wager: number;
 }
 
 export const DiceOverlays: React.FC<DiceOverlaysProps> = ({
@@ -18,7 +23,10 @@ export const DiceOverlays: React.FC<DiceOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
+  result,
+  currentBalance,
+  wager
 }) => {
   return (
     <>
@@ -94,6 +102,29 @@ export const DiceOverlays: React.FC<DiceOverlaysProps> = ({
           </div>
         </div>
       )}
+
+      {/* Universal Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating" // For wins
+        wager={wager}
+        winLevels={[
+          { minMultiplier: 10, label: 'MEGA WIN!', emoji: '🎲', className: 'celebration-level-3' },
+          { minMultiplier: 3, label: 'BIG WIN!', emoji: '🎉', className: 'celebration-level-2' },
+          { minMultiplier: 1, label: 'WIN!', emoji: '✨', className: 'celebration-level-1' },
+        ]}
+      />
+
+      {/* Universal Synced Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="mourning" // For losses
+        wager={wager}
+      />
 
       <style>{`
         /* Thinking Overlay */

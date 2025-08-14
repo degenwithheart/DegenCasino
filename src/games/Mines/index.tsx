@@ -8,6 +8,7 @@ import {
   useWagerInput,
   useCurrentToken,
   useTokenMeta,
+  useUserBalance,
 } from 'gamba-react-ui-v2'
 import { GameControls } from '../../components'
 import { useIsCompact } from '../../hooks/useIsCompact'
@@ -53,9 +54,10 @@ function Mines() {
   const pool = useCurrentPool()
   const token = useCurrentToken()
   const tokenMeta = useTokenMeta(token?.mint)
+  const balance = useUserBalance()
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   const [grid, setGrid] = useState(generateGrid(GRID_SIZE))
   const [currentLevel, setLevel] = useState(0)
@@ -575,6 +577,9 @@ function Mines() {
                   celebrationIntensity={celebrationIntensity}
                   currentWin={totalGain > initialWager ? { multiplier: totalGain / initialWager, amount: totalGain - initialWager } : undefined}
                   thinkingEmoji={thinkingEmoji}
+                  result={gambaResult}
+                  currentBalance={balance.balance + balance.bonusBalance}
+                  wager={initialWager}
                 />
               )}
             </div>

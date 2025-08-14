@@ -1,7 +1,7 @@
 
 import React, { useRef } from 'react';
 import { useIsCompact } from '../../hooks/useIsCompact';
-import { GambaUi, useWagerInput } from 'gamba-react-ui-v2';
+import { GambaUi, useWagerInput } } from 'gamba-react-ui-v2';
 import { GameControls } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult';
@@ -24,6 +24,7 @@ export default function DiceRoll() {
     setScale(isCompact ? 1 : 1.2);
   }, [isCompact]);
   const game = GambaUi.useGame()
+  const balance = useUserBalance()
   const [result, setResult] = React.useState<number | null>(null)
   const [payout, setPayout] = React.useState<number | null>(null)
   const [isPlaying, setIsPlaying] = React.useState(false)
@@ -45,7 +46,7 @@ export default function DiceRoll() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -395,7 +396,11 @@ export default function DiceRoll() {
         dramaticPause={dramaticPause}
         celebrationIntensity={celebrationIntensity}
         thinkingEmoji={thinkingEmoji}
-      />
+      
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
         )}
     </>
   )

@@ -87,7 +87,7 @@ export default function HiLo(props: HiLoConfig) {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   React.useEffect(() => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
@@ -107,7 +107,6 @@ export default function HiLo(props: HiLoConfig) {
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
-  const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
   const [thinkingEmoji, setThinkingEmoji] = React.useState('🤔')
 
   // Track last card index for flip/glow
@@ -202,7 +201,6 @@ export default function HiLo(props: HiLoConfig) {
     setGamePhase('thinking')
     setThinkingPhase(true)
     setDramaticPause(false)
-    setCelebrationIntensity(0)
     
     // Random thinking emoji
     const thinkingEmojis = ['🤔', '🃏', '🎯', '⚡', '💭', '🔮']
@@ -252,19 +250,12 @@ export default function HiLo(props: HiLoConfig) {
 
       // Handle celebration or mourning overlays
       if (win) {
-        const multiplier = result.payout / wager
-        let intensity = 1
-        if (multiplier >= 10) intensity = 3
-        else if (multiplier >= 3) intensity = 2
-        
-        setCelebrationIntensity(intensity)
         setGamePhase('celebrating')
         sounds.play('win')
         
         // Auto-reset after celebration
         setTimeout(() => {
           setGamePhase('idle')
-          setCelebrationIntensity(0)
         }, 4000)
       } else {
         setGamePhase('mourning')
@@ -496,9 +487,11 @@ export default function HiLo(props: HiLoConfig) {
                 gamePhase={getGamePhaseState(gamePhase)}
                 thinkingPhase={getThinkingPhaseState(thinkingPhase)}
                 dramaticPause={dramaticPause}
-                celebrationIntensity={celebrationIntensity}
                 currentWin={profit > initialWager ? { multiplier: profit / initialWager, amount: profit - initialWager } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={gambaResult}
+                currentBalance={balance.balance + balance.bonusBalance}
+                wager={wager}
               />
             )}
           </div>

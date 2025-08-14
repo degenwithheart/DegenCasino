@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface BlackJackOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -10,6 +11,9 @@ interface BlackJackOverlaysProps {
     amount: number;
   };
   thinkingEmoji: string;
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export const BlackJackOverlays: React.FC<BlackJackOverlaysProps> = ({
@@ -18,10 +22,51 @@ export const BlackJackOverlays: React.FC<BlackJackOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for BlackJack
+  const blackjackWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 1.5, 
+      intensity: 1,
+      label: "Winner!",
+      emoji: "♠️",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 1.5, 
+      maxMultiplier: 2, 
+      intensity: 2,
+      label: "Blackjack!",
+      emoji: "🎯",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 2, 
+      maxMultiplier: 10, 
+      intensity: 3,
+      label: "NATURAL 21!",
+      emoji: "💎",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={blackjackWinLevels}
+      />
+
       {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">

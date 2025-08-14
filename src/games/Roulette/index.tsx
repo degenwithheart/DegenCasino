@@ -185,7 +185,7 @@ export default function Roulette() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // State for live token wager
   const [liveWager, setLiveWager] = useState(0)
@@ -581,6 +581,9 @@ export default function Roulette() {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={currentResult?.wasWin ? { multiplier: currentResult.totalWon / wager, amount: currentResult.totalWon - wager } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={gambaResult}
+                currentBalance={balance.balance + balance.bonusBalance}
+                wager={wager}
               />
             )}
           </div>

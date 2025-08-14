@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface GalacticSalvageOverlaysProps {
   scanningPhase: boolean
@@ -6,6 +7,9 @@ interface GalacticSalvageOverlaysProps {
   foundLoot: boolean
   win: boolean
   choice: 'safe' | 'risky' | 'extreme'
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function GalacticSalvageOverlays({
@@ -13,13 +17,57 @@ export default function GalacticSalvageOverlays({
   currentSector,
   foundLoot,
   win,
-  choice
+  choice,
+  result,
+  currentBalance,
+  wager
 }: GalacticSalvageOverlaysProps) {
+  // Custom win levels for GalacticSalvage
+  const galacticSalvageWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Salvage Found!",
+      emoji: "🚀",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Stellar Cache!",
+      emoji: "⭐",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "COSMIC FORTUNE!",
+      emoji: "🌌",
+      className: "win-mega"
+    }
+  ];
+  
+  // Synced Win/Loss Overlay
+  const syncedOverlay = (
+    <SyncedWinLossOverlay
+      result={result}
+      currentBalance={currentBalance}
+      animationPhase={foundLoot && win ? 'celebrating' : 'idle'}
+      triggerPhase="celebrating"
+      wager={wager}
+      winLevels={galacticSalvageWinLevels}
+    />
+  );
   
   // Scanning overlay
   if (scanningPhase && currentSector > 0) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -153,13 +201,16 @@ export default function GalacticSalvageOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
   // Found loot overlay
   if (foundLoot && win) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -258,8 +309,13 @@ export default function GalacticSalvageOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
-  return null
+  return (
+    <>
+      {syncedOverlay}
+    </>
+  )
 }

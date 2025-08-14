@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface PlinkoOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -10,6 +11,9 @@ interface PlinkoOverlaysProps {
     amount: number;
   };
   thinkingEmoji: string;
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export const PlinkoOverlays: React.FC<PlinkoOverlaysProps> = ({
@@ -18,10 +22,51 @@ export const PlinkoOverlays: React.FC<PlinkoOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for Plinko
+  const plinkoWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Good Drop!",
+      emoji: "⚡",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Amazing Drop!",
+      emoji: "💥",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "MEGA DROP!",
+      emoji: "💎",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={plinkoWinLevels}
+      />
+
       {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">

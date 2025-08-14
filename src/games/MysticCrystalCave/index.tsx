@@ -478,7 +478,11 @@ export default function MysticCrystalCave() {
               win={win}
               path={path}
               magicEnergy={magicEnergy}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

@@ -434,7 +434,11 @@ export default function GalacticSalvage() {
               foundLoot={foundLoot}
               win={win}
               choice={choice}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             {/* Animations */}
             <style>

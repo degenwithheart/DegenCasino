@@ -597,7 +597,11 @@ export default function DragonVault() {
               dragon={dragon}
               dragonAwareness={dragonAwareness}
               vaultTemperature={vaultTemperature}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

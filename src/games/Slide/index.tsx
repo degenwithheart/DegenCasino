@@ -114,7 +114,7 @@ export default function SlideGame() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // Overlay states
   const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
@@ -1070,7 +1070,11 @@ const stopSlider = async () => {
           dramaticPause={dramaticPause}
           celebrationIntensity={celebrationIntensity}
           thinkingEmoji={thinkingEmoji}
-        />
+        
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
       )}
     </>
   )

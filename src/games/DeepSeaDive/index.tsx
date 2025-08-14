@@ -646,7 +646,11 @@ export default function DeepSeaDive() {
               win={win}
               choice={choice}
               submarineDepth={submarineDepth}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

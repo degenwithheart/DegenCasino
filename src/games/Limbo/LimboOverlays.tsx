@@ -1,4 +1,5 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface LimboOverlaysProps {
   gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
@@ -10,6 +11,9 @@ interface LimboOverlaysProps {
     amount: number;
   };
   thinkingEmoji: string;
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export const LimboOverlays: React.FC<LimboOverlaysProps> = ({
@@ -18,10 +22,51 @@ export const LimboOverlays: React.FC<LimboOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
+  result,
+  currentBalance,
+  wager
 }) => {
+  // Custom win levels for Limbo
+  const limboWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 5, 
+      intensity: 1,
+      label: "Safe!",
+      emoji: "🌟",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 5, 
+      maxMultiplier: 50, 
+      intensity: 2,
+      label: "High Flyer!",
+      emoji: "🚀",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 50, 
+      maxMultiplier: 10000, 
+      intensity: 3,
+      label: "TO THE MOON!",
+      emoji: "🌙",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={gamePhase}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={limboWinLevels}
+      />
+
       {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">

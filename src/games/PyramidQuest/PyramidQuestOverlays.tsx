@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface PyramidQuestOverlaysProps {
   exploringPhase: boolean
@@ -7,6 +8,9 @@ interface PyramidQuestOverlaysProps {
   win: boolean
   choice: 'main' | 'secret' | 'side'
   torchFlicker: boolean
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function PyramidQuestOverlays({
@@ -15,13 +19,56 @@ export default function PyramidQuestOverlays({
   foundTreasure,
   win,
   choice,
-  torchFlicker
+  torchFlicker,
+  result,
+  currentBalance,
+  wager
 }: PyramidQuestOverlaysProps) {
+  // Custom win levels for PyramidQuest
+  const pyramidQuestWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Ancient Coins!",
+      emoji: "🪙",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Pharaoh's Gold!",
+      emoji: "👑",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "PYRAMID FORTUNE!",
+      emoji: "💎",
+      className: "win-mega"
+    }
+  ];
+
+  const syncedOverlay = (
+    <SyncedWinLossOverlay
+      result={result}
+      currentBalance={currentBalance}
+      animationPhase={foundTreasure && win ? 'celebrating' : 'idle'}
+      triggerPhase="celebrating"
+      wager={wager}
+      winLevels={pyramidQuestWinLevels}
+    />
+  );
   
   // Exploring overlay
   if (exploringPhase && currentChamber > 0) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -150,13 +197,16 @@ export default function PyramidQuestOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
   // Found treasure overlay
   if (foundTreasure && win) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -320,8 +370,13 @@ export default function PyramidQuestOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
-  return null
+  return (
+    <>
+      {syncedOverlay}
+    </>
+  )
 }

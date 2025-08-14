@@ -545,7 +545,11 @@ export default function QuantumLab() {
               experiment={experiment}
               energyLevel={energyLevel}
               stabilityRating={stabilityRating}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

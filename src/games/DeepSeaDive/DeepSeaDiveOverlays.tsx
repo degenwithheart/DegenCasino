@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface DeepSeaDiveOverlaysProps {
   divingPhase: boolean
@@ -7,6 +8,9 @@ interface DeepSeaDiveOverlaysProps {
   win: boolean
   choice: 'shallow' | 'deep' | 'abyss'
   submarineDepth: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function DeepSeaDiveOverlays({
@@ -15,10 +19,51 @@ export default function DeepSeaDiveOverlays({
   foundPearl,
   win,
   choice,
-  submarineDepth
+  submarineDepth,
+  result,
+  currentBalance,
+  wager
 }: DeepSeaDiveOverlaysProps) {
+  // Custom win levels for DeepSeaDive
+  const deepSeaDiveWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Pearl Found!",
+      emoji: "🦪",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Deep Treasure!",
+      emoji: "🐠",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "ABYSSAL RICHES!",
+      emoji: "🌊",
+      className: "win-mega"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={foundPearl && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={deepSeaDiveWinLevels}
+      />
+
       {/* Diving Depth Indicator */}
       {divingPhase && (
         <div style={{

@@ -459,7 +459,11 @@ export default function TimeTravelHeist() {
               win={win}
               period={period}
               timelineProgress={timelineProgress}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

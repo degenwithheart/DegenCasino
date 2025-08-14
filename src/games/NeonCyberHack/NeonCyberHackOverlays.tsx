@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface NeonCyberHackOverlaysProps {
   hackingPhase: boolean
@@ -7,6 +8,9 @@ interface NeonCyberHackOverlaysProps {
   win: boolean
   choice: 'stealth' | 'brute' | 'elite'
   hackingProgress: number
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 const HACK_COMMANDS = [
@@ -38,8 +42,39 @@ export default function NeonCyberHackOverlays({
   accessGranted,
   win,
   choice,
-  hackingProgress
+  hackingProgress,
+  result,
+  currentBalance,
+  wager
 }: NeonCyberHackOverlaysProps) {
+  // Custom win levels for NeonCyberHack
+  const neonCyberHackWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Access Granted!",
+      emoji: "💻",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "System Hacked!",
+      emoji: "⚡",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "MATRIX BREACHED!",
+      emoji: "🔥",
+      className: "win-mega"
+    }
+  ];
+
   const [terminalLines, setTerminalLines] = React.useState<string[]>([])
   const [currentCommand, setCurrentCommand] = React.useState('')
   
@@ -83,8 +118,24 @@ export default function NeonCyberHackOverlays({
     return outputs[Math.floor(Math.random() * outputs.length)]
   }
   
-  if (hackingPhase && currentServer > 0) {
-    return (
+  return (
+    <>
+      {/* Synced Win/Loss Overlay */}
+      <SyncedWinLossOverlay
+        result={result}
+        currentBalance={currentBalance}
+        animationPhase={accessGranted && win ? 'celebrating' : 'idle'}
+        triggerPhase="celebrating"
+        wager={wager}
+        winLevels={neonCyberHackWinLevels}
+      />
+      {renderMainOverlay()}
+    </>
+  )
+
+  function renderMainOverlay() {
+    if (hackingPhase && currentServer > 0) {
+      return (
       <div style={{
         position: 'absolute',
         top: '20px',
@@ -520,4 +571,5 @@ export default function NeonCyberHackOverlays({
   }
 
   return null
+  }
 }

@@ -1,14 +1,49 @@
 import React from 'react';
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface FlipOverlaysProps {
   gamePhase: 'idle' | 'countdown' | 'done';
   thinkingPhase: boolean;
   result: 'heads' | 'tails' | null;
+  gambaResult?: any;
+  currentBalance?: number;
+  wager?: number;
 }
 
-const FlipOverlays: React.FC<FlipOverlaysProps> = ({ gamePhase, thinkingPhase, result }) => {
+const FlipOverlays: React.FC<FlipOverlaysProps> = ({ 
+  gamePhase, 
+  thinkingPhase, 
+  result, 
+  gambaResult, 
+  currentBalance, 
+  wager 
+}) => {
+  // Custom win levels for FlipMP
+  const flipMPWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 2, 
+      intensity: 1,
+      label: "Correct Call!",
+      emoji: "🎯",
+      className: "win-small"
+    }
+  ];
+
   return (
     <>
+      {/* Synced Win/Loss Overlay for FlipMP */}
+      {gambaResult && currentBalance !== undefined && wager && (
+        <SyncedWinLossOverlay
+          result={gambaResult}
+          currentBalance={currentBalance}
+          animationPhase={gamePhase === 'done' ? 'celebrating' : 'idle'}
+          triggerPhase="celebrating"
+          wager={wager}
+          winLevels={flipMPWinLevels}
+        />
+      )}
+
       {/* Idle State Overlay */}
       {gamePhase === 'idle' && (
         <div style={{

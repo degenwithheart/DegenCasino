@@ -44,7 +44,7 @@ export default function CrashGame() {
   const playButtonText = hasPlayedBefore && !showOutcome ? "Restart" : "Start"
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
 
   // Custom handlePlayAgain that also resets rocket state
   const handlePlayAgain = () => {
@@ -318,7 +318,11 @@ export default function CrashGame() {
           dramaticPause={dramaticPause}
           celebrationIntensity={celebrationIntensity}
           thinkingEmoji={thinkingEmoji}
-        />
+        
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
       )}
     </>
   )

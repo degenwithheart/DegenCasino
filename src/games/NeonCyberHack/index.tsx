@@ -687,7 +687,11 @@ export default function NeonCyberHack() {
               win={win}
               choice={choice}
               hackingProgress={hackingProgress}
-            />
+            
+                result={gambaResult}
+                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                wager={wager}
+              />
 
             <style>
               {`

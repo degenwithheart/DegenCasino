@@ -1,4 +1,5 @@
 import React from 'react'
+import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
 
 interface PiratesFortuneOverlaysProps {
   sailingPhase: boolean
@@ -6,6 +7,9 @@ interface PiratesFortuneOverlaysProps {
   foundTreasure: boolean
   win: boolean
   choice: 'coastal' | 'deep' | 'storm'
+  result?: any;
+  currentBalance: number;
+  wager: number;
 }
 
 export default function PiratesFortuneOverlays({
@@ -13,12 +17,55 @@ export default function PiratesFortuneOverlays({
   currentIsland,
   foundTreasure,
   win,
-  choice
+  choice,
+  result,
+  currentBalance,
+  wager
 }: PiratesFortuneOverlaysProps) {
+  // Custom win levels for PiratesFortune
+  const piratesFortuneWinLevels = [
+    { 
+      minMultiplier: 1, 
+      maxMultiplier: 3, 
+      intensity: 1,
+      label: "Treasure Chest!",
+      emoji: "🏴‍☠️",
+      className: "win-small"
+    },
+    { 
+      minMultiplier: 3, 
+      maxMultiplier: 10, 
+      intensity: 2,
+      label: "Pirate's Hoard!",
+      emoji: "💰",
+      className: "win-medium"
+    },
+    { 
+      minMultiplier: 10, 
+      maxMultiplier: 1000, 
+      intensity: 3,
+      label: "LEGENDARY BOUNTY!",
+      emoji: "⚓",
+      className: "win-mega"
+    }
+  ];
+
+  const syncedOverlay = (
+    <SyncedWinLossOverlay
+      result={result}
+      currentBalance={currentBalance}
+      animationPhase={foundTreasure && win ? 'celebrating' : 'idle'}
+      triggerPhase="celebrating"
+      wager={wager}
+      winLevels={piratesFortuneWinLevels}
+    />
+  );
   
   if (sailingPhase && currentIsland > 0) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -131,12 +178,15 @@ export default function PiratesFortuneOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
   if (foundTreasure && win) {
     return (
-      <div style={{
+      <>
+        {syncedOverlay}
+        <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -234,8 +284,13 @@ export default function PiratesFortuneOverlays({
           `}
         </style>
       </div>
+      </>
     )
   }
 
-  return null
+  return (
+    <>
+      {syncedOverlay}
+    </>
+  )
 }

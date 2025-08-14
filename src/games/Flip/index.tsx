@@ -387,6 +387,9 @@ export default function Flip() {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={win && profitAmount ? { multiplier: (profitAmount + wager) / wager, amount: profitAmount } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={win ? { wasWin: true, payout: profitAmount + wager, multiplier: (profitAmount + wager) / wager } : { wasWin: false, payout: 0, multiplier: 0 }}
+                currentBalance={balance}
+                wager={wager}
               />
             )}
           </div>

@@ -75,7 +75,7 @@ export default function Plinko() {
   })
 
   // Gamba result storage
-  const { storeResult } = useGambaResult()
+  const { storeResult, gambaResult } = useGambaResult()
   
   const tokenMeta = token ? TOKEN_METADATA.find((t) => t.symbol === token.symbol) : undefined
   const baseWager = tokenMeta?.baseWager ?? (token ? Math.pow(10, token.decimals) : 1)
@@ -568,6 +568,9 @@ export default function Plinko() {
                 celebrationIntensity={celebrationIntensity}
                 currentWin={runningTotal > 0 ? { multiplier: (runningTotal + (ballCount * wager)) / (ballCount * wager), amount: runningTotal } : undefined}
                 thinkingEmoji={thinkingEmoji}
+                result={gambaResult}
+                currentBalance={balance}
+                wager={wager}
               />
             )}
           </div>
