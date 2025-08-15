@@ -4,13 +4,6 @@
 <details>
   <summary>Show screenshots</summary>
 
-  <!-- Thumbnails that link to anchors below -->
-  <p align="center">
-    <a href="#screenshot-1"><img src="./screenshots/1.jpg" width="120" alt="Screenshot 1 thumbnail" /></a>
-    <a href="#screenshot-2"><img src="./screenshots/2.jpg" width="120" alt="Screenshot 2 thumbnail" /></a>
-    <a href="#screenshot-3"><img src="./screenshots/3.jpg" width="120" alt="Screenshot 3 thumbnail" /></a>
-  </p>
-
   <!-- Full-size images with anchors -->
   <a id="screenshot-1"></a>
   ![Screenshot 1](./screenshots/1.jpg)
