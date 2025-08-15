@@ -27,7 +27,6 @@ import { MainWrapper, TosInner, TosWrapper } from './styles';
 import { getAccessWindow, isWithinAccessTime } from './utils/timeAccess';
 
 import LiveAccessWrapper from './components/LiveAccessWrapper';
-import ExchangePage from './sections/Dashboard/ExchangePage';
 
 // Import global responsive paytables (works for all games automatically)
 import './utils/globalResponsivePaytables';
