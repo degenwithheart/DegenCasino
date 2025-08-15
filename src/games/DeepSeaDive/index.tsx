@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import DeepSeaDivePaytable, { DeepSeaDivePaytableRef } from './DeepSeaDivePaytable'
 import DeepSeaDiveOverlays from './DeepSeaDiveOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const DEPTH_CHOICES = {
 type DepthChoice = keyof typeof DEPTH_CHOICES
 
 export default function DeepSeaDive() {
+  return (
+    <GameStateProvider>
+      <DeepSeaDiveGame />
+    </GameStateProvider>
+  )
+}
+
+function DeepSeaDiveGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -646,10 +656,8 @@ export default function DeepSeaDive() {
               win={win}
               choice={choice}
               submarineDepth={submarineDepth}
-            
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
+              currentBalance={balance}
+              wager={wager}
               />
 
             <style>

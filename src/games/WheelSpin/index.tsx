@@ -8,8 +8,17 @@ import { useIsCompact } from '../../hooks/useIsCompact'
 import WheelSpinPaytable, { WheelSpinPaytableRef } from './WheelSpinPaytable'
 import { WheelSpinOverlays } from './WheelSpinOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 export default function WheelSpin() {
+  return (
+    <GameStateProvider>
+      <WheelSpinGame />
+    </GameStateProvider>
+  )
+}
+
+function WheelSpinGame() {
   const [resultModalOpen, setResultModalOpen] = React.useState(false);
   const [wager, setWager] = useWagerInput()
   const game = GambaUi.useGame()
@@ -20,6 +29,7 @@ export default function WheelSpin() {
   const [spinAngle, setSpinAngle] = React.useState(0)
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Live paytable tracking
   const paytableRef = useRef<WheelSpinPaytableRef>(null)
@@ -42,7 +52,6 @@ export default function WheelSpin() {
   const { storeResult, gambaResult } = useGambaResult();
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -452,7 +461,7 @@ export default function WheelSpin() {
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

@@ -1,8 +1,9 @@
 import React from 'react';
 import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
+import { GamePhase } from '../../hooks/useGameState';
 
 interface SlideOverlaysProps {
-  gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
+  gamePhase: GamePhase;
   thinkingPhase: boolean;
   dramaticPause: boolean;
   celebrationIntensity: number;
@@ -10,10 +11,11 @@ interface SlideOverlaysProps {
     multiplier: number;
     amount: number;
     result?: any;
+  };
+  thinkingEmoji: string;
+  result?: any;
   currentBalance: number;
   wager: number;
-};
-  thinkingEmoji: string;
 }
 
 export const SlideOverlays: React.FC<SlideOverlaysProps> = ({
@@ -22,7 +24,7 @@ export const SlideOverlays: React.FC<SlideOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
   result,
   currentBalance,
   wager
@@ -67,7 +69,7 @@ export const SlideOverlays: React.FC<SlideOverlaysProps> = ({
         winLevels={slideWinLevels}
       />
 
-      {/* Dramatic Thinking Overlay */}}
+      {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">
           <div className="thinking-content">

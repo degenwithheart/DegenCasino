@@ -3,6 +3,7 @@ import React from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import { useIsCompact } from '../../hooks/useIsCompact';
 import SOUND from './test.mp3'
 import { ModernWagerInput } from '../../components/ModernWagerInput';
@@ -18,6 +19,15 @@ const MODES = [
 ];
 
 function DoubleOrNothing() {
+  return (
+    <GameStateProvider>
+      <DoubleOrNothingGame />
+    </GameStateProvider>
+  )
+}
+
+function DoubleOrNothingGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const isCompact = useIsCompact();
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const _hue = React.useRef(0);
@@ -58,7 +68,6 @@ function DoubleOrNothing() {
   const { storeResult, gambaResult } = useGambaResult();
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -433,7 +442,7 @@ function DoubleOrNothing() {
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

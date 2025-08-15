@@ -15,12 +15,22 @@ import { useIsCompact } from '../../hooks/useIsCompact'
 import CrashPaytable, { CrashPaytableRef } from './CrashPaytable'
 import CrashGameOverlays from './CrashGameOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 export default function CrashGame() {
+  return (
+    <GameStateProvider>
+      <CrashGameComponent />
+    </GameStateProvider>
+  )
+}
+
+function CrashGameComponent() {
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
   const gamba = useGamba()
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Live paytable tracking
   const paytableRef = useRef<CrashPaytableRef>(null)
@@ -70,7 +80,6 @@ export default function CrashGame() {
   const isPlaying = gamba.isPlaying || rocketState !== 'idle'
 
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
@@ -320,7 +329,7 @@ export default function CrashGame() {
           thinkingEmoji={thinkingEmoji}
         
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
       )}

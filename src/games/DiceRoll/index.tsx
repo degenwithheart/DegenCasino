@@ -1,16 +1,24 @@
 
 import React, { useRef } from 'react';
 import { useIsCompact } from '../../hooks/useIsCompact';
-import { GambaUi, useWagerInput } } from 'gamba-react-ui-v2';
+import { GambaUi, useWagerInput, useTokenBalance } from 'gamba-react-ui-v2';
 import { GameControls } from '../../components';
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult';
+import { useGameState, GameStateProvider } from '../../hooks/useGameState';
 import DiceRollPaytable, { DiceRollPaytableRef } from './DiceRollPaytable'
 import { DiceRollOverlays } from './DiceRollOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
-
+import { renderThinkingOverlay } from '../../utils/overlayUtils'
 
 export default function DiceRoll() {
+  return (
+    <GameStateProvider>
+      <DiceRollGame />
+    </GameStateProvider>
+  )
+}
+
+function DiceRollGame() {
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const [pick, setPick] = React.useState(1)
   const [wager, setWager] = useWagerInput()
@@ -24,7 +32,8 @@ export default function DiceRoll() {
     setScale(isCompact ? 1 : 1.2);
   }, [isCompact]);
   const game = GambaUi.useGame()
-  const balance = useUserBalance()
+  const { gamePhase, setGamePhase } = useGameState()
+  const { balance } = useTokenBalance()
   const [result, setResult] = React.useState<number | null>(null)
   const [payout, setPayout] = React.useState<number | null>(null)
   const [isPlaying, setIsPlaying] = React.useState(false)
@@ -48,8 +57,7 @@ export default function DiceRoll() {
   // Gamba result storage
   const { storeResult, gambaResult } = useGambaResult()
 
-  // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  // Overlay states (keep local for non-shared overlay states)
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -391,17 +399,16 @@ export default function DiceRoll() {
       `}</style>
       {renderThinkingOverlay(
         <DiceRollOverlays 
-        gamePhase={getGamePhaseState(gamePhase)}
-        thinkingPhase={getThinkingPhaseState(thinkingPhase)}
-        dramaticPause={dramaticPause}
-        celebrationIntensity={celebrationIntensity}
-        thinkingEmoji={thinkingEmoji}
-      
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
-              />
-        )}
+          gamePhase={gamePhase}
+          thinkingPhase={thinkingPhase}
+          dramaticPause={dramaticPause}
+          celebrationIntensity={celebrationIntensity}
+          thinkingEmoji={thinkingEmoji}
+          result={gambaResult}
+          currentBalance={balance}
+          wager={wager}
+        />
+      )}
     </>
   )
 }

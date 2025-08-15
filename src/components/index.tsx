@@ -39,3 +39,4 @@ export { default as GambaResultModal } from './GambaResultModal';
 export { TokenMilestoneModal } from './TokenMilestoneModal';
 export { MilestoneModalContainer } from './MilestoneModalContainer';
 export { SyncedWinLossOverlay } from './SyncedWinLossOverlay';
+export { default as CentralizedHUD } from './CentralizedHUD';

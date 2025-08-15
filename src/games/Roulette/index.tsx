@@ -39,6 +39,7 @@ import { Wheel } from './Wheel'
 import RoulettePaytable, { RoulettePaytableRef } from './RoulettePaytable'
 import RouletteOverlays from './RouletteOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 // Add global keyframes for animations
 const pulseAnimation = keyframes`
@@ -147,6 +148,14 @@ function Stats() {
 
 
 export default function Roulette() {
+  return (
+    <GameStateProvider>
+      <RouletteGame />
+    </GameStateProvider>
+  )
+}
+
+function RouletteGame() {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const token = useCurrentToken()
@@ -155,6 +164,7 @@ export default function Roulette() {
   const isCompact = useIsCompact()
   const baseWager = token?.baseWager ?? Math.pow(10, token?.decimals ?? 9)
   const tokenPrice = token?.usdPrice
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Live paytable tracking
   const paytableRef = useRef<RoulettePaytableRef>(null)
@@ -166,8 +176,7 @@ export default function Roulette() {
     wasWin: boolean
   } | undefined>()
 
-  // 2-Phase Game State
-  const [gamePhase, setGamePhase] = useState<'betting' | 'spinning'>('betting')
+  // 2-Phase Game State  
   const [isSpinning, setIsSpinning] = useState(false)
   const [latestResult, setLatestResult] = useState<number | null>(null)
   const [spinTrigger, setSpinTrigger] = useState(0)

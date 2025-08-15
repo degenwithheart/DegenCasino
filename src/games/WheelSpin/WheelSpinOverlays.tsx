@@ -1,19 +1,20 @@
 import React from 'react';
 import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
+import { GamePhase } from '../../hooks/useGameState';
 
 interface WheelSpinOverlaysProps {
-  gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
+  gamePhase: GamePhase;
   thinkingPhase: boolean;
   dramaticPause: boolean;
   celebrationIntensity: number;
   currentWin?: {
     multiplier: number;
     amount: number;
-    result?: any;
+  };
+  thinkingEmoji: string;
+  result?: any;
   currentBalance: number;
   wager: number;
-};
-  thinkingEmoji: string;
 }
 
 export const WheelSpinOverlays: React.FC<WheelSpinOverlaysProps> = ({
@@ -22,7 +23,7 @@ export const WheelSpinOverlays: React.FC<WheelSpinOverlaysProps> = ({
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
   result,
   currentBalance,
   wager
@@ -67,7 +68,7 @@ export const WheelSpinOverlays: React.FC<WheelSpinOverlaysProps> = ({
         winLevels={wheelspinWinLevels}
       />
 
-      {/* Dramatic Thinking Overlay */}}
+      {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">
           <div className="thinking-content">

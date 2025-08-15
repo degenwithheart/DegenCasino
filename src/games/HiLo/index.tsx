@@ -5,12 +5,13 @@ import { useGamba } from 'gamba-react-v2'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { useGameState, GameStateProvider } from '../../hooks/useGameState'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit, PayoutPanel } from './styles'
 import { TOKEN_METADATA } from '../../constants'
 import HiLoPaytable, { HiLoPaytableRef } from './HiLoPaytable'
-import HiLoOverlays from './HiLoOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { HiLoOverlays } from './HiLoOverlays'
+import { renderThinkingOverlay } from '../../utils/overlayUtils'
 
 const BPS_PER_WHOLE = 10000
 
@@ -58,9 +59,18 @@ const adjustBetArray = (betArray: number[]) => {
 }
 
 export default function HiLo(props: HiLoConfig) {
+  return (
+    <GameStateProvider>
+      <HiLoGame {...props} />
+    </GameStateProvider>
+  )
+}
+
+function HiLoGame(props: HiLoConfig) {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
+  const { gamePhase, setGamePhase } = useGameState() // Use shared game state
   const [cards, setCards] = React.useState([card()])
   const [claiming, setClaiming] = React.useState(false)
   const [initialWager, setInitialWager] = useWagerInput()
@@ -103,8 +113,7 @@ export default function HiLo(props: HiLoConfig) {
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
   const paytableRef = React.useRef<HiLoPaytableRef>(null)
 
-  // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  // Game phase management for overlays (other local states)
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [thinkingEmoji, setThinkingEmoji] = React.useState('🤔')
@@ -484,13 +493,13 @@ export default function HiLo(props: HiLoConfig) {
             {/* Add the overlay component - conditionally rendered based on ENABLE_THINKING_OVERLAY */}
             {renderThinkingOverlay(
               <HiLoOverlays
-                gamePhase={getGamePhaseState(gamePhase)}
-                thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+                gamePhase={gamePhase}
+                thinkingPhase={thinkingPhase}
                 dramaticPause={dramaticPause}
                 currentWin={profit > initialWager ? { multiplier: profit / initialWager, amount: profit - initialWager } : undefined}
                 thinkingEmoji={thinkingEmoji}
                 result={gambaResult}
-                currentBalance={balance.balance + balance.bonusBalance}
+                currentBalance={balance}
                 wager={wager}
               />
             )}

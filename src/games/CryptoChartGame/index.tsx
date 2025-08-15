@@ -5,6 +5,7 @@ import React, { useRef } from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import CustomSlider from './Slider'
 import { ChartWrapper, ScreenWrapper } from './styles'
 import { calculateBetArray } from './utils'
@@ -12,9 +13,18 @@ import Candle from './Candle'
 import { TOKEN_METADATA } from '../../constants'
 import CryptoChartPaytable, { CryptoChartPaytableRef } from './CryptoChartPaytable'
 import { CryptoChartGameOverlays } from './CryptoChartGameOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { renderThinkingOverlay } from '../../utils/overlayUtils'
 
 export default function CryptoChartGame() {
+  return (
+    <GameStateProvider>
+      <CryptoChartGameComponent />
+    </GameStateProvider>
+  )
+}
+
+function CryptoChartGameComponent() {
+  const { gamePhase, setGamePhase } = useGameState()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
@@ -66,7 +76,6 @@ export default function CryptoChartGame() {
     const [lastPayout, setLastPayout] = React.useState<number | null>(null)
 
     // Overlay states
-    const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
     const [thinkingPhase, setThinkingPhase] = React.useState(false)
     const [dramaticPause, setDramaticPause] = React.useState(false)
     const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -349,16 +358,15 @@ export default function CryptoChartGame() {
         </GameControls>
         {renderThinkingOverlay(
           <CryptoChartGameOverlays 
-            gamePhase={getGamePhaseState(gamePhase)}
-            thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+            gamePhase={gamePhase}
+            thinkingPhase={thinkingPhase}
             dramaticPause={dramaticPause}
             celebrationIntensity={celebrationIntensity}
             thinkingEmoji={thinkingEmoji}
-          
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
-              />
+            result={gambaResult}
+            currentBalance={balance}
+            wager={wager}
+          />
         )}
       </>
     )

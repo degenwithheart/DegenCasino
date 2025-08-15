@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import NeonCyberHackPaytable, { NeonCyberHackPaytableRef } from './NeonCyberHackPaytable'
 import NeonCyberHackOverlays from './NeonCyberHackOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const HACK_CHOICES = {
 type HackChoice = keyof typeof HACK_CHOICES
 
 export default function NeonCyberHack() {
+  return (
+    <GameStateProvider>
+      <NeonCyberHackGame />
+    </GameStateProvider>
+  )
+}
+
+function NeonCyberHackGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -688,8 +698,7 @@ export default function NeonCyberHack() {
               choice={choice}
               hackingProgress={hackingProgress}
             
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
 

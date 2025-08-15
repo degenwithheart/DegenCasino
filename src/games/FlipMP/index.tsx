@@ -9,6 +9,7 @@ import { Coin } from './Coin'
 import Effect from './Effect'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import FlipPaytable, { FlipPaytableRef } from './FlipPaytable'
 import FlipOverlays from './FlipOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -91,6 +92,15 @@ function useCountdown(active: boolean, seconds: number, onDone: () => void) {
 }
 
 export default function FlipMP() {
+  return (
+    <GameStateProvider>
+      <FlipMPGame />
+    </GameStateProvider>
+  )
+}
+
+function FlipMPGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   
@@ -121,7 +131,6 @@ export default function FlipMP() {
   const paytableRef = React.useRef<FlipPaytableRef>(null)
   
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = useState(false)
   const [dramaticPause, setDramaticPause] = useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = useState(0)

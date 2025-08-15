@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import PyramidQuestPaytable, { PyramidQuestPaytableRef } from './PyramidQuestPaytable'
 import PyramidQuestOverlays from './PyramidQuestOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const ENTRANCE_CHOICES = {
 type EntranceChoice = keyof typeof ENTRANCE_CHOICES
 
 export default function PyramidQuest() {
+  return (
+    <GameStateProvider>
+      <PyramidQuestGame />
+    </GameStateProvider>
+  )
+}
+
+function PyramidQuestGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -455,9 +465,8 @@ export default function PyramidQuest() {
               choice={choice}
               torchFlicker={torchFlicker}
             
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
+              currentBalance={balance}
+              wager={wager}
               />
 
             {/* Animations */}

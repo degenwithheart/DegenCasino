@@ -4,7 +4,7 @@
  * Just import this once in App.tsx and it works everywhere
  */
 
-const MOBILE_BREAKPOINT = 1000
+const MOBILE_BREAKPOINT = 768; // 768px for mobile view
 
 /**
  * Inject responsive CSS that hides paytables on mobile
@@ -28,19 +28,11 @@ function injectResponsiveCSS() {
       [class*="paytable" i] {
         display: none !important;
       }
-      
-      /* Target flex layouts - hide second child (typically paytable) */
-      [data-gamba-ui-portal="screen"] div[style*="display: flex"] > div:nth-child(2):last-child,
-      div[style*="display: flex"][style*="gap"] > div:nth-child(2):last-child {
-        display: none !important;
-      }
-      
       /* Adjust flex layout when paytable is hidden */
       [data-gamba-ui-portal="screen"] div[style*="display: flex"],
       div[style*="display: flex"][style*="gap"] {
         gap: 0 !important;
       }
-      
       /* Make game area expand */
       [data-gamba-ui-portal="screen"] div[style*="display: flex"] > div:first-child,
       div[style*="display: flex"][style*="gap"] > div:first-child {

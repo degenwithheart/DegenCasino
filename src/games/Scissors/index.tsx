@@ -3,6 +3,7 @@ import React from 'react'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { TOKEN_METADATA } from '../../constants'
 import ScissorsPaytable, { ScissorsPaytableRef } from './ScissorsPaytable'
@@ -26,9 +27,18 @@ import {
   VersusText
 } from './styles'
 import { ScissorsOverlays } from './ScissorsOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { renderThinkingOverlay } from '../../utils/overlayUtils'
 
 export default function Scissors() {
+  return (
+    <GameStateProvider>
+      <ScissorsGame />
+    </GameStateProvider>
+  )
+}
+
+function ScissorsGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
@@ -85,7 +95,6 @@ export default function Scissors() {
   const { storeResult, gambaResult } = useGambaResult()
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -340,16 +349,15 @@ export default function Scissors() {
       </GameControls>
       {renderThinkingOverlay(
         <ScissorsOverlays 
-          gamePhase={getGamePhaseState(gamePhase)}
-          thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+          gamePhase={gamePhase}
+          thinkingPhase={thinkingPhase}
           dramaticPause={dramaticPause}
           celebrationIntensity={celebrationIntensity}
           thinkingEmoji={overlayThinkingEmoji}
-        
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
-              />
+          result={gambaResult}
+          currentBalance={balance}
+          wager={wager}
+        />
       )}
     </>
   )

@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import PiratesFortunePaytable, { PiratesFortunePaytableRef } from './PiratesFortunePaytable'
 import PiratesFortuneOverlays from './PiratesFortuneOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const ROUTE_CHOICES = {
 type RouteChoice = keyof typeof ROUTE_CHOICES
 
 export default function PiratesFortune() {
+  return (
+    <GameStateProvider>
+      <PiratesFortuneGame />
+    </GameStateProvider>
+  )
+}
+
+function PiratesFortuneGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -448,8 +458,7 @@ export default function PiratesFortune() {
               win={win}
               choice={choice}
             
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
 

@@ -10,6 +10,7 @@ import { useGamba } from 'gamba-react-v2'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import { TOKEN_METADATA } from '../../constants'
 import React, { useRef } from 'react'
 import CRASH_SOUND from './lose.mp3'
@@ -41,6 +42,15 @@ const overlayStyle: React.CSSProperties = {
 }
 
 export default function FancyVirtualHorseRacing() {
+  return (
+    <GameStateProvider>
+      <FancyVirtualHorseRacingGame />
+    </GameStateProvider>
+  )
+}
+
+function FancyVirtualHorseRacingGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
@@ -68,7 +78,6 @@ export default function FancyVirtualHorseRacing() {
   const { storeResult, gambaResult } = useGambaResult()
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -408,7 +417,7 @@ const simulateRace = (winnerIndex: number): Promise<HorseState> =>
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

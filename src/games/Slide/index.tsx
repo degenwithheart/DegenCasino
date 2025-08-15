@@ -11,6 +11,7 @@ import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components/GameControls'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import SlidePaytable, { SlidePaytableRef } from './SlidePaytable'
 import { SlideOverlays } from './SlideOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
@@ -71,6 +72,15 @@ const getResponsiveScale = () => {
 };
 
 export default function SlideGame() {
+  return (
+    <GameStateProvider>
+      <SlideGameComponent />
+    </GameStateProvider>
+  )
+}
+
+function SlideGameComponent() {
+  const { gamePhase, setGamePhase } = useGameState()
   const [resultModalOpen, setResultModalOpen] = useState(false);
   const resizeTimeoutRef = useRef<NodeJS.Timeout>()
   const [wager, setWager] = useWagerInput()
@@ -96,7 +106,6 @@ export default function SlideGame() {
   const pool = useCurrentPool()
   const { balance } = useTokenBalance()
   const [result, setResult] = useState<number | null>(null)
-  const [gambaResult, setGambaResultState] = useState<any>(null) // For debugging
   const [playing, setPlaying] = useState(false)
   const [offset, setOffset] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -117,7 +126,6 @@ export default function SlideGame() {
   const { storeResult, gambaResult } = useGambaResult()
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -126,7 +134,6 @@ export default function SlideGame() {
   // Custom play again handler to reset slide game state
   const handlePlayAgain = () => {
     setResult(null)
-    setGambaResultState(null)
     setProgress(0)
     setOffset(0)
     baseHandlePlayAgain()
@@ -1072,7 +1079,7 @@ const stopSlider = async () => {
           thinkingEmoji={thinkingEmoji}
         
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
       )}

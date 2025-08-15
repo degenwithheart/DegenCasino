@@ -1,8 +1,9 @@
 import React from 'react';
 import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
+import { GamePhase } from '../../hooks/useGameState';
 
 interface HiLoOverlaysProps {
-  gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
+  gamePhase: GamePhase;
   thinkingPhase: boolean;
   dramaticPause: boolean;
   currentWin?: {

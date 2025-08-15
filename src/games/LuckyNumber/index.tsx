@@ -15,6 +15,7 @@ import { useIsCompact } from '../../hooks/useIsCompact';
 import LuckyNumberPaytable, { LuckyNumberPaytableRef } from './LuckyNumberPaytable'
 import { LuckyNumberOverlays } from './LuckyNumberOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 // Pure function, accepts isCompact as argument
 const getResponsiveScale = (isCompact: boolean): number => {
@@ -32,12 +33,21 @@ const getResponsiveScale = (isCompact: boolean): number => {
 };
 
 export default function LuckyNumber() {
+  return (
+    <GameStateProvider>
+      <LuckyNumberGame />
+    </GameStateProvider>
+  )
+}
+
+function LuckyNumberGame() {
   const [resultModalOpen, setResultModalOpen] = React.useState(false);
   const scalerRef = React.useRef<HTMLDivElement>(null);
   const { compact: isCompact } = useIsCompact(); // <-- extract only the boolean value
   const [scale, setScale] = React.useState(1);
   const [pick, setPick] = React.useState(1);
   const [wager, setWager] = useWagerInput();
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Live paytable tracking
   const paytableRef = useRef<LuckyNumberPaytableRef>(null)
@@ -96,7 +106,6 @@ export default function LuckyNumber() {
   const { storeResult, gambaResult } = useGambaResult();
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -490,7 +499,7 @@ export default function LuckyNumber() {
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

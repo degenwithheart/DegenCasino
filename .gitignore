@@ -1,9 +1,7 @@
 # Ignore environment file
 .env
-ExampleGames/
-**/ExampleGames/
-NEWGAME/
-**/NEWGAME/
+ExampleGame/
+**/ExampleGame/
 .DS_Store
 **/.DS_Store
 .vercel

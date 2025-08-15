@@ -12,6 +12,7 @@ import { KenoOverlays } from './KenoOverlays'
 
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 // 🎵 Assign sounds using URLs
 const revealSound = "/assets/games/keno/reveal.mp3";
@@ -24,10 +25,19 @@ const MAX_SELECTION = 10
 
 
 export default function Keno() {
+  return (
+    <GameStateProvider>
+      <KenoGame />
+    </GameStateProvider>
+  )
+}
+
+function KenoGame() {
   const [resultModalOpen, setResultModalOpen] = useState(false)
   const pool = useCurrentPool();
   const [wager, setWager] = useWagerInput()
   const isCompact = useIsCompact();
+  const { gamePhase, setGamePhase } = useGameState();
   const token = useCurrentToken();
   const { balance } = useTokenBalance();
   
@@ -71,7 +81,6 @@ export default function Keno() {
   const { storeResult, gambaResult } = useGambaResult();
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -550,7 +559,7 @@ export default function Keno() {
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

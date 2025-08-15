@@ -20,8 +20,17 @@ import { useGambaResult } from '../../hooks/useGambaResult'
 import LimboPaytable, { LimboPaytableRef } from './LimboPaytable'
 import LimboOverlays from './LimboOverlays'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 export default function Limbo() {
+  return (
+    <GameStateProvider>
+      <LimboGame />
+    </GameStateProvider>
+  )
+}
+
+function LimboGame() {
   // Sound paths
   const spinSound = "/assets/games/limbo/numbers.mp3"
   const winSound = "/assets/games/limbo/win.mp3"
@@ -38,9 +47,9 @@ export default function Limbo() {
   const paytableRef = useRef<LimboPaytableRef>(null)
   const [isWin, setIsWin] = useState<boolean | null>(null)
   const [textColor, setTextColor] = useState<string>('#FFFFFF')
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
@@ -449,7 +458,7 @@ export default function Limbo() {
                 thinkingEmoji={thinkingEmoji}
               
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
             )}

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ENABLE_THINKING_OVERLAY } from '../constants';
+import { CentralizedHUD } from '../components';
 
 // Context for runtime overlay toggle (per session)
 const OverlayToggleContext = React.createContext<{
@@ -46,10 +47,17 @@ export const withOverlayToggle = <P extends object>(OverlayComponent: React.Comp
   };
 };
 
-// Conditional overlay renderer
+// Conditional overlay renderer with integrated HUD
 export const renderThinkingOverlay = (overlayJSX: React.ReactNode): React.ReactNode => {
   const { enabled } = useOverlayToggle();
-  return enabled ? overlayJSX : null;
+  return (
+    <>
+      {/* Always show the HUD regardless of overlay state */}
+      <CentralizedHUD />
+      {/* Only show thinking overlays when enabled */}
+      {enabled ? overlayJSX : null}
+    </>
+  );
 };
 
 // Hook to get current overlay toggle state

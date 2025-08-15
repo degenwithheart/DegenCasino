@@ -21,6 +21,7 @@ import { GameControls } from '../../components';
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { useGambaResult } from '../../hooks/useGambaResult';
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 const calculateArraySize = (odds: number): number => {
   const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
@@ -53,10 +54,19 @@ export const outcomes = (odds: number) => {
 // Styled payout info panel (like Mines) - REMOVED, replaced with live paytable
 
 export default function Dice() {
+  return (
+    <GameStateProvider>
+      <DiceGame />
+    </GameStateProvider>
+  )
+}
+
+function DiceGame() {
   const gamba = useGamba();
   const [wager, setWager] = useWagerInput();
   const token = useCurrentToken();
   const { balance } = useTokenBalance();
+  const { gamePhase, setGamePhase } = useGameState();
   const isCompact = useIsCompact();
 
   // Find token metadata for symbol display
@@ -75,7 +85,6 @@ export default function Dice() {
   const playButtonText = hasPlayedBefore ? "Restart" : "Start"
   
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle');
   const [thinkingPhase, setThinkingPhase] = React.useState(false);
   const [dramaticPause, setDramaticPause] = React.useState(false);
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0);

@@ -25,6 +25,9 @@ export const PLATFORM_SHARABLE_URL = 'DegenHeart.casino'
 // Fees taken by the platform creator, represented as a decimal fraction (5%).
 export const PLATFORM_CREATOR_FEE = 0.05
 
+// Multiplayer game fee (1%)
+export const MULTIPLAYER_FEE = 0.01
+
 // Fee percentage for the jackpot pool (0.2% here).
 export const PLATFORM_JACKPOT_FEE = 0.002
 

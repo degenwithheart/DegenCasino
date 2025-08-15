@@ -405,7 +405,44 @@ function CustomRenderer() {
       <Container>
         <Screen>
           <Splash>
-            <img height="150px" src={game.meta.image} />
+            <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+              <g>
+                <circle
+                  cx="90" cy="90" r="80"
+                  stroke="#ffd700"
+                  strokeWidth="8"
+                  fill="#18181f"
+                  style={{
+                    transformOrigin: '90px 90px',
+                    animation: 'spin 1.2s linear infinite'
+                  }}
+                />
+                <text
+                  x="50%" y="50%"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontFamily="'Luckiest Guy', cursive, sans-serif"
+                  fontSize="36"
+                  fill="#ffd700"
+                  letterSpacing="2"
+                  style={{
+                    textTransform: 'uppercase',
+                    animation: 'pulse 1.2s ease-in-out infinite'
+                  }}
+                >
+                  Loading
+                </text>
+              </g>
+              <style>{`
+                @keyframes spin {
+                  100% { transform: rotate(360deg); }
+                }
+                @keyframes pulse {
+                  0%, 100% { opacity: 1; }
+                  50% { opacity: 0.5; }
+                }
+              `}</style>
+            </svg>
           </Splash>
           <GambaUi.PortalTarget target="error" />
           {ready && <GambaUi.PortalTarget target="screen" />}

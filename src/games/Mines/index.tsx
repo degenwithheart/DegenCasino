@@ -28,6 +28,7 @@ import {
 import { CellButton, Container, Container2, Grid } from './styles'
 import { generateGrid, revealAllMines, revealGold } from './utils'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 // Responsive scaling helper (from Slots)
 function getResponsiveScale() {
@@ -39,6 +40,14 @@ function getResponsiveScale() {
   if (width <= 1200) return 1.28
   if (width <= 1600) return 1.38
   return 1
+}
+
+export default function MinesWrapper() {
+  return (
+    <GameStateProvider>
+      <Mines />
+    </GameStateProvider>
+  )
 }
 
 function Mines() {
@@ -55,6 +64,7 @@ function Mines() {
   const token = useCurrentToken()
   const tokenMeta = useTokenMeta(token?.mint)
   const balance = useUserBalance()
+  const { gamePhase, setGamePhase } = useGameState();
 
   // Gamba result storage
   const { storeResult, gambaResult } = useGambaResult()
@@ -78,7 +88,6 @@ function Mines() {
   } | undefined>()
 
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = useState(false)
   const [dramaticPause, setDramaticPause] = useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = useState(0)
@@ -631,5 +640,3 @@ function Mines() {
     </>
   )
 }
-
-export default Mines

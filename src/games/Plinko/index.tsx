@@ -1,12 +1,13 @@
 import { GambaUi, useSound, useWagerInput, useCurrentToken, useTokenBalance, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { useGameState, GameStateProvider } from '../../hooks/useGameState'
 import { useGamba } from 'gamba-react-v2'
 import React, { useContext } from 'react'
 import {
   PEG_RADIUS,
   PLINKO_RAIUS,
-  Plinko as PlinkoGame,
+  Plinko as PlinkoGameEngine,
   PlinkoProps,
   barrierHeight,
   barrierWidth,
@@ -16,18 +17,20 @@ import {
 import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
 import WIN from './win.mp3'
+import BIG_COMBO from './bigcombo.mp3'
+import OUCH from './ouch.mp3'
 import { TOKEN_METADATA } from '../../constants'
 import PlinkoPaytable from './PlinkoPaytable'
 import BallCountSelector from './BallCountSelector'
 import { GameControls } from '../../components'
-import PlinkoOverlays from './PlinkoOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { PlinkoOverlays } from './PlinkoOverlays'
+import { renderThinkingOverlay } from '../../utils/overlayUtils'
 
 function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
-  const [plinko, set] = React.useState<PlinkoGame>(null!)
+  const [plinko, set] = React.useState<PlinkoGameEngine>(null!)
 
   React.useEffect(() => {
-    const p = new PlinkoGame(props)
+    const p = new PlinkoGameEngine(props)
     set(p)
     return () => p.cleanup()
   }, deps)
@@ -39,8 +42,23 @@ const DEGEN_BET = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 const BET = [.48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, .48, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48, 1.44, 1.44, 1.44, 1.44, 1.44, 1.44, 1.44, 1.44, 1.44, 1.44, 2.88, 2.88, 2.88, 2.88, 2.88, 2.88, 2.88, 5.76] // 96% RTP
 
 export default function Plinko() {
+  return (
+    <GameStateProvider>
+      <PlinkoGame />
+    </GameStateProvider>
+  )
+}
+
+function PlinkoGame() {
   const game = GambaUi.useGame()
   const gamba = useGamba()
+  const { 
+    gamePhase, 
+    setGamePhase, 
+    triggerBigCombo, 
+    triggerDeduction, 
+    playSoundEffect 
+  } = useGameState()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
   const { balance } = useTokenBalance()
@@ -61,8 +79,7 @@ export default function Plinko() {
   // Dynamic play button text
   const playButtonText = hasPlayedBefore ? "Restart" : "Start"
   
-  // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
+  // Game phase management for overlays (other local states for non-shared overlays)
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
@@ -72,6 +89,8 @@ export default function Plinko() {
     bump: BUMP,
     win: WIN,
     fall: FALL,
+    bigcombo: BIG_COMBO,
+    ouch: OUCH,
   })
 
   // Gamba result storage
@@ -116,14 +135,23 @@ export default function Plinko() {
           pegAnimations.current[contact.peg.plugin.pegIndex] = 1
           // Assign a random color (HSLA for vibrancy)
           pegColors.current[contact.peg.plugin.pegIndex] = `hsl(${Math.floor(Math.random() * 360)}, 90%, 60%)`
-          sounds.play('bump', { playbackRate: 1 + Math.random() * 0.05 })
+          playSoundEffect('bump', sounds)
         }
         if (contact.barrier && contact.plinko) {
-          sounds.play('bump', { playbackRate: 0.5 + Math.random() * 0.05 })
+          playSoundEffect('bump', sounds)
         }
         if (contact.bucket && contact.plinko) {
           bucketAnimations.current[contact.bucket.plugin.bucketIndex] = 1
-          sounds.play(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall')
+          const multiplier = contact.bucket.plugin.bucketMultiplier
+          
+          // Announcer effects based on multiplier
+          if (multiplier >= 5) {
+            triggerBigCombo(sounds)
+          } else if (multiplier <= 0.5) {
+            triggerDeduction(sounds)
+          }
+          
+          playSoundEffect(multiplier >= 1 ? 'win' : 'fall', sounds)
         }
       },
     },
@@ -173,11 +201,9 @@ export default function Plinko() {
     for (let i = 0; i < ballCount; i++) {
       setCurrentBall(i + 1)
       
-      // Add delay between balls for visual effect
+      // Smoother delay between balls (reduced from 1000ms to 500ms for better flow)
       if (i > 0) {
-
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
+        await new Promise(resolve => setTimeout(resolve, 500))
       }
       
       await game.play({ wager, bet })
@@ -239,6 +265,11 @@ export default function Plinko() {
       setTimeout(() => {
         setGamePhase('idle')
       }, 2500)
+    } else {
+      // No win or loss, just return to idle
+      setTimeout(() => {
+        setGamePhase('idle')
+      }, 1000)
     }
   }
 
@@ -562,8 +593,8 @@ export default function Plinko() {
             {/* Add the overlay component - conditionally rendered based on ENABLE_THINKING_OVERLAY */}
             {renderThinkingOverlay(
               <PlinkoOverlays
-                gamePhase={getGamePhaseState(gamePhase)}
-                thinkingPhase={getThinkingPhaseState(thinkingPhase)}
+                gamePhase={gamePhase}
+                thinkingPhase={thinkingPhase}
                 dramaticPause={dramaticPause}
                 celebrationIntensity={celebrationIntensity}
                 currentWin={runningTotal > 0 ? { multiplier: (runningTotal + (ballCount * wager)) / (ballCount * wager), amount: runningTotal } : undefined}

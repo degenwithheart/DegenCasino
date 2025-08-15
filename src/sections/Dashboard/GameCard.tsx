@@ -116,6 +116,7 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
     letter-spacing: 1px;
     border: none;
     transition: all 0.3s ease;
+    z-index: 1;
   }
 
   &:hover {
@@ -179,6 +180,21 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
   }
 `;
 
+// New badge for the “VS” tag (or any other tag you choose)
+const Tag = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: 4px;
+  text-transform: uppercase;
+  z-index: 1;
+`;
+
 export function GameCard({ game }: { game: GameBundle }) {
   const location = useLocation()
   const small = location.pathname !== '/'
@@ -198,6 +214,9 @@ export function GameCard({ game }: { game: GameBundle }) {
       $background={game.meta?.background}
       $effect={game.meta?.effect}
     >
+      {game.meta?.tag && (
+        <Tag>{game.meta.tag}</Tag>
+      )}
       <div className="background" />
       <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
       {game.maintenance && (

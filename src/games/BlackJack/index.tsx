@@ -1,3 +1,16 @@
+// Patch: Only allow valid overlay phases for BlackJack overlays
+function getBlackJackOverlayPhase(gamePhase: string): "idle" | "thinking" | "dramatic" | "celebrating" | "mourning" {
+  switch (gamePhase) {
+    case "idle":
+    case "thinking":
+    case "dramatic":
+    case "celebrating":
+    case "mourning":
+      return gamePhase;
+    default:
+      return "idle";
+  }
+}
 import {
   GambaUi,
   TokenValue,
@@ -40,7 +53,8 @@ import { TOKEN_METADATA } from '../../constants'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import BlackJackPaytable, { BlackJackPaytableRef } from './BlackJackPaytable'
 import BlackJackOverlays from './BlackJackOverlays'
-import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState as baseGetGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 const randomRank = () => Math.floor(Math.random() * RANKS)
 const randomSuit = () => Math.floor(Math.random() * SUITS)
@@ -86,6 +100,14 @@ export interface BlackjackConfig {
 }
 
 export default function Blackjack(props: BlackjackConfig) {
+  return (
+    <GameStateProvider>
+      <BlackjackGame {...props} />
+    </GameStateProvider>
+  )
+}
+
+function BlackjackGame(props: BlackjackConfig) {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -97,6 +119,7 @@ export default function Blackjack(props: BlackjackConfig) {
   const maxWager = baseWager * 1000000
   const tokenPrice = tokenMeta?.usdPrice ?? 0
   const [wager, setWager] = useWagerInput()
+  const { gamePhase, setGamePhase } = useGameState();
   const [playerCards, setPlayerCards] = React.useState<Card[]>([])
   const [dealerCards, setDealerCards] = React.useState<Card[]>([])
   const [profit, setProfit] = React.useState<number | null>(null)
@@ -104,7 +127,6 @@ export default function Blackjack(props: BlackjackConfig) {
   const isPlaying = gamba.isPlaying
 
   // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
@@ -1012,7 +1034,7 @@ export default function Blackjack(props: BlackjackConfig) {
             {/* Add the overlay component - conditionally rendered based on ENABLE_THINKING_OVERLAY */}
             {renderThinkingOverlay(
               <BlackJackOverlays
-                gamePhase={getGamePhaseState(gamePhase)}
+                gamePhase={getBlackJackOverlayPhase(gamePhase)}
                 thinkingPhase={getThinkingPhaseState(thinkingPhase)}
                 dramaticPause={dramaticPause}
                 celebrationIntensity={celebrationIntensity}
@@ -1023,6 +1045,8 @@ export default function Blackjack(props: BlackjackConfig) {
                 wager={wager}
               />
             )}
+
+// Patch: Only allow valid overlay phases for BlackJack overlays
           </div>
             
           {/* Paytable sidebar - separate from main game UI */}

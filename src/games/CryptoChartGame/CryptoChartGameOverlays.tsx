@@ -1,8 +1,9 @@
 import React from 'react';
 import { SyncedWinLossOverlay } from '../../components/SyncedWinLossOverlay';
+import { GamePhase } from '../../hooks/useGameState';
 
 interface CryptoChartGameOverlaysProps {
-  gamePhase: 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle';
+  gamePhase: GamePhase;
   thinkingPhase: boolean;
   dramaticPause: boolean;
   celebrationIntensity: number;
@@ -10,10 +11,11 @@ interface CryptoChartGameOverlaysProps {
     multiplier: number;
     amount: number;
     result?: any;
+  };
+  thinkingEmoji: string;
+  result?: any;
   currentBalance: number;
   wager: number;
-};
-  thinkingEmoji: string;
 }
 
 export const CryptoChartGameOverlays: React.FC<CryptoChartGameOverlaysProps> = ({
@@ -22,7 +24,7 @@ export const CryptoChartGameOverlays: React.FC<CryptoChartGameOverlaysProps> = (
   dramaticPause,
   celebrationIntensity,
   currentWin,
-  thinkingEmoji
+  thinkingEmoji,
   result,
   currentBalance,
   wager
@@ -67,7 +69,7 @@ export const CryptoChartGameOverlays: React.FC<CryptoChartGameOverlaysProps> = (
         winLevels={cryptochartgameWinLevels}
       />
 
-      {/* Dramatic Thinking Overlay */}}
+      {/* Dramatic Thinking Overlay */}
       {gamePhase === 'thinking' && thinkingPhase && (
         <div className="thinking-overlay">
           <div className="thinking-content">

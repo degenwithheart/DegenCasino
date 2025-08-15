@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import QuantumLabPaytable, { QuantumLabPaytableRef } from './QuantumLabPaytable'
 import QuantumLabOverlays from './QuantumLabOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const EXPERIMENT_TYPES = {
 type ExperimentType = keyof typeof EXPERIMENT_TYPES
 
 export default function QuantumLab() {
+  return (
+    <GameStateProvider>
+      <QuantumLabGame />
+    </GameStateProvider>
+  )
+}
+
+function QuantumLabGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -546,8 +556,7 @@ export default function QuantumLab() {
               energyLevel={energyLevel}
               stabilityRating={stabilityRating}
             
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
 

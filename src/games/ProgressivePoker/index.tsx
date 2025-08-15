@@ -21,6 +21,7 @@ import { ProgressivePokerOverlays } from './ProgressivePokerOverlays'
 import { getCurrentHandName, Card as PokerCardType } from './getCurrentHandName'
 import { getBestPossibleHandName } from './getBestPossibleHandName'
 import { renderThinkingOverlay, getThinkingPhaseState, getGamePhaseState } from '../../utils/overlayUtils'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState';
 
 // Pulse animation CSS
 const pulseFadeStyle = `
@@ -127,7 +128,16 @@ const getPokerHandCards = (type: string) => {
 }
 
 export default function ProgressivePoker() {
+  return (
+    <GameStateProvider>
+      <ProgressivePokerGame />
+    </GameStateProvider>
+  )
+}
+
+function ProgressivePokerGame() {
   const [resultModalOpen, setResultModalOpen] = useState(false)
+  const { gamePhase, setGamePhase } = useGameState();
   
   // Live paytable tracking
   const paytableRef = useRef<ProgressivePokerPaytableRef>(null)
@@ -176,7 +186,6 @@ export default function ProgressivePoker() {
   const [inProgress, setInProgress] = useState(false)
 
   // Overlay states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(1)
@@ -727,7 +736,7 @@ export default function ProgressivePoker() {
         thinkingEmoji={thinkingEmoji}
       
                 result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
+                currentBalance={balance}
                 wager={wager}
               />
         )}

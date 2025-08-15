@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import GalacticSalvagePaytable, { GalacticSalvagePaytableRef } from './GalacticSalvagePaytable'
 import GalacticSalvageOverlays from './GalacticSalvageOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const SECTOR_CHOICES = {
 type SectorChoice = keyof typeof SECTOR_CHOICES
 
 export default function GalacticSalvage() {
+  return (
+    <GameStateProvider>
+      <GalacticSalvageGame />
+    </GameStateProvider>
+  )
+}
+
+function GalacticSalvageGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -434,10 +444,8 @@ export default function GalacticSalvage() {
               foundLoot={foundLoot}
               win={win}
               choice={choice}
-            
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
+              currentBalance={balance}
+              wager={wager}
               />
 
             {/* Animations */}

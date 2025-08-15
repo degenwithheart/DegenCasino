@@ -5,6 +5,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
+import { GameStateProvider, useGameState } from '../../hooks/useGameState'
 import DragonVaultPaytable, { DragonVaultPaytableRef } from './DragonVaultPaytable'
 import DragonVaultOverlays from './DragonVaultOverlays'
 import { GameControls } from '../../components'
@@ -19,6 +20,15 @@ const DRAGON_TYPES = {
 type DragonType = keyof typeof DRAGON_TYPES
 
 export default function DragonVault() {
+  return (
+    <GameStateProvider>
+      <DragonVaultGame />
+    </GameStateProvider>
+  )
+}
+
+function DragonVaultGame() {
+  const { gamePhase, setGamePhase } = useGameState()
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [playing, setPlaying] = React.useState(false)
@@ -597,10 +607,8 @@ export default function DragonVault() {
               dragon={dragon}
               dragonAwareness={dragonAwareness}
               vaultTemperature={vaultTemperature}
-            
-                result={gambaResult}
-                currentBalance={balance.balance ? balance.balance + balance.bonusBalance : balance}
-                wager={wager}
+              currentBalance={balance}
+              wager={wager}
               />
 
             <style>

@@ -3,6 +3,7 @@ import { FAKE_TOKEN_MINT, GambaUi, useSound, useWagerInput } from 'gamba-react-u
 import { useCurrentToken, useTokenBalance } from 'gamba-react-ui-v2'
 import { TOKEN_METADATA } from '../../constants'
 import { useGamba } from 'gamba-react-v2'
+import { useGameState, GameStateProvider } from '../../hooks/useGameState'
 import React from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact';
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
@@ -26,8 +27,17 @@ const SIDES = {
 type Side = keyof typeof SIDES
 
 export default function Flip() {
+  return (
+    <GameStateProvider>
+      <FlipGame />
+    </GameStateProvider>
+  )
+}
+
+function FlipGame() {
   const game = GambaUi.useGame()
   const gamba = useGamba()
+  const { gamePhase, setGamePhase } = useGameState()
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
   const [resultIndex, setResultIndex] = React.useState(0)
@@ -36,9 +46,6 @@ export default function Flip() {
   const token = useCurrentToken();
   const { balance } = useTokenBalance();
   const paytableRef = React.useRef<FlipPaytableRef>(null)
-  
-  // Game phase management for overlays
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'dramatic' | 'celebrating' | 'mourning'>('idle')
   const [thinkingPhase, setThinkingPhase] = React.useState(false)
   const [dramaticPause, setDramaticPause] = React.useState(false)
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)

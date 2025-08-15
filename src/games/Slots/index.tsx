@@ -14,6 +14,7 @@ import { TOKEN_METADATA } from '../../constants'
 import { GameControls } from '../../components'
 import { useGameOutcome } from '../../hooks/useGameOutcome'
 import { useGambaResult } from '../../hooks/useGambaResult'
+import { useGameState, GameStateProvider } from '../../hooks/useGameState'
 import React, { useEffect, useRef, useState } from 'react'
 import { useIsCompact } from '../../hooks/useIsCompact'
 import { ItemPreview } from './ItemPreview'
@@ -126,11 +127,20 @@ function checkWinningPattern(grid: SlotItem[]) {
 }
 
 export default function Slots() {
+  return (
+    <GameStateProvider>
+      <SlotsGame />
+    </GameStateProvider>
+  )
+}
+
+function SlotsGame() {
   const gamba = GambaUi.useGame()
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   const token = useCurrentToken()
   const { balance: walletBalance } = useTokenBalance()
+  const { gamePhase, setGamePhase } = useGameState()
   const paytableRef = useRef<any>(null)
 
   const [spinning, setSpinning] = React.useState(false)
@@ -147,8 +157,7 @@ export default function Slots() {
   const [highlightedSymbol, setHighlightedSymbol] = React.useState<string | null>(null)
   const [highlightedPayline, setHighlightedPayline] = React.useState<number | null>(null)
   
-  // Enhanced animation states
-  const [gamePhase, setGamePhase] = React.useState<'idle' | 'thinking' | 'spinning' | 'revealing' | 'celebrating' | 'mourning'>('idle')
+  // Enhanced animation states (other local states)
   const [thinkingEmoji, setThinkingEmoji] = React.useState('🎰')
   const [celebrationIntensity, setCelebrationIntensity] = React.useState(0)
   const [dramaticPause, setDramaticPause] = React.useState(false)
