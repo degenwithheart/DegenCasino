@@ -333,18 +333,6 @@ const Sidebar: React.FC = () => {
       <SectionTitle $compact={compact}>📄 Degen Pages</SectionTitle>
 
       <StyledNavLink
-        to="/exchange"
-        $compact={compact}
-        className={({ isActive }) => (isActive ? 'active' : '')}
-      >
-        {compact ? (
-          <img src="https://cdn-icons-png.flaticon.com/512/992/992651.png" alt="Exchange" style={{ width: 28, height: 28, margin: '0 auto', display: 'block' }} />
-        ) : (
-          <span>Exchange</span>
-        )}
-      </StyledNavLink>
-
-      <StyledNavLink
         to="/aboutme"
         $compact={compact}
         className={({ isActive }) => (isActive ? 'active' : '')}

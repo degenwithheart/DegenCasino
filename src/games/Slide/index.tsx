@@ -417,22 +417,6 @@ const stopSlider = async () => {
   // Get the current card under the needle
   const cardUnderNeedle = getCardUnderNeedle(offset);
 
-  // Debug: Log the carousel positioning
-  React.useEffect(() => {
-    if (gambaResult && !playing) {
-      console.log('FINAL CAROUSEL STATE:', {
-        offset,
-        cardUnderNeedle,
-        multiplierUnderNeedle: renderedMultipliers[cardUnderNeedle],
-        expectedIndex: gambaResult.resultIndex,
-        expectedMultiplier: ORIGINAL_MULTIPLIERS[gambaResult.resultIndex],
-        middleSetTargetIndex: ORIGINAL_MULTIPLIERS.length * 2 + gambaResult.resultIndex,
-        actualTargetCard: renderedMultipliers[ORIGINAL_MULTIPLIERS.length * 2 + gambaResult.resultIndex],
-        MATCH: cardUnderNeedle === (ORIGINAL_MULTIPLIERS.length * 2 + gambaResult.resultIndex)
-      });
-    }
-  }, [offset, gambaResult, renderedMultipliers, playing, cardUnderNeedle]);
-
   const getMultiplierColor = (multiplier: number) => {
     if (multiplier === 0) return '#ff3333' // Loss - red
     if (multiplier >= 10) return '#ff6b35' // High multiplier - orange
@@ -874,78 +858,7 @@ const stopSlider = async () => {
                     </div>
                   </div>
                 )}
-
-                {/* Gamba Result Debug Display */}
-                {gambaResult && (
-                  <div style={{
-                    padding: '16px',
-                    borderRadius: '8px',
-                    background: 'rgba(0, 0, 0, 0.3)',
-                    border: '1px solid #444',
-                    marginBottom: 24,
-                    fontSize: '0.8rem',
-                    color: '#ccc',
-                    fontFamily: 'monospace',
-                    textAlign: 'left'
-                  }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Gamba Result (Debug):</div>
-                    <div>Result Index: {gambaResult.resultIndex}</div>
-                    <div>Expected Multiplier: {ORIGINAL_MULTIPLIERS[gambaResult.resultIndex ?? 0]}</div>
-                    <div>Card Under Needle Index: {cardUnderNeedle}</div>
-                    <div>Multiplier Under Needle: {renderedMultipliers[cardUnderNeedle]}</div>
-                    <div>Target Card Index: {ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)}</div>
-                    <div>Match: {cardUnderNeedle === (ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)) ? '✅' : '❌'}</div>
-                    <div>Payout: {gambaResult.payout}</div>
-                    <div>Current Offset: {offset.toFixed(2)}</div>
-                    <div>Target Card Center: {getCardCenter(ORIGINAL_MULTIPLIERS.length * 2 + (gambaResult.resultIndex ?? 0)).toFixed(2)}</div>
-                  </div>
-                )}
               </div>
-
-              {/* Recent Plays */}
-              {recentPlays.length > 0 && (
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  margin: '0 auto',
-                  maxWidth: '100%',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  marginBottom: 32
-                }}>
-                  <h3 style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: 'rgba(255, 255, 255, 0.9)'
-                  }}>
-                    Recent Results
-                  </h3>
-                  <div style={{
-                    display: 'flex',
-                    gap: '12px',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap'
-                  }}>
-                    {recentPlays.map((play, index) => (
-                      <div key={index} style={{
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        background: play.win 
-                          ? 'rgba(0, 255, 136, 0.1)' 
-                          : 'rgba(255, 85, 85, 0.1)',
-                        border: `1px solid ${play.win ? '#00ff88' : '#ff5555'}`,
-                        color: play.win ? '#00ff88' : '#ff5555',
-                        fontSize: '0.9rem',
-                        fontWeight: '600'
-                      }}>
-                        {play.multiplier === 0 ? '💀 LOSE' : `${play.multiplier.toFixed(2)}x`}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Fairness Modal Overlay */}
@@ -1054,7 +967,7 @@ const stopSlider = async () => {
             </div>
               
             {/* Paytable sidebar */}
-            <SlidePaytable ref={paytableRef} />
+            <SlidePaytable ref={paytableRef} multipliers={ORIGINAL_MULTIPLIERS} />
           </div>
         </GambaUi.Portal>
 
@@ -1072,7 +985,11 @@ const stopSlider = async () => {
       />
       {renderThinkingOverlay(
         <SlideOverlays 
-          gamePhase={getGamePhaseState(gamePhase)}
+          gamePhase={getGamePhaseState(
+            ['thinking', 'dramatic', 'celebrating', 'mourning', 'idle'].includes(gamePhase)
+              ? gamePhase as 'thinking' | 'dramatic' | 'celebrating' | 'mourning' | 'idle'
+              : 'idle'
+          )}
           thinkingPhase={getThinkingPhaseState(thinkingPhase)}
           dramaticPause={dramaticPause}
           celebrationIntensity={celebrationIntensity}

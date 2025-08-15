@@ -105,32 +105,11 @@ export function FeesTab({ value, onChange }: FeesTabProps) {
 
   // Determine if value is a preset or custom
   const isPreset = presetLamports.includes(value);
-  const [customValue, setCustomValue] = React.useState(
-    !isPreset && value ? value : getLamportsForSol(0.01, decimals)
-  );
-
-  React.useEffect(() => {
-    if (!isPreset && value !== customValue) {
-      setCustomValue(value);
-    }
-    // eslint-disable-next-line
-  }, [value]);
 
   const handleCustomSelect = () => {
     if (isPreset) {
-      onChange(customValue);
+      // No-op, custom selection is disabled
     }
-  };
-
-  // Set a real-world range for the slider: 0.0005 to 0.05 SOL in lamports
-  const minCustom = getLamportsForSol(0.0005, decimals);
-  const maxCustom = getLamportsForSol(0.05, decimals);
-
-  // Keep slider and input in sync, clamp to min/max
-  const handleCustomChange = (v: number) => {
-    const clamped = Math.max(minCustom, Math.min(maxCustom, v));
-    setCustomValue(clamped);
-    onChange(clamped);
   };
 
   return (
@@ -151,12 +130,12 @@ export function FeesTab({ value, onChange }: FeesTabProps) {
       }}>
         <span role="img" aria-label="info" style={{marginRight: 6}}>ℹ️</span>
         <span>
-          <b>Priority Fee</b> lets you increase the speed of your Solana transactions by paying a higher network fee. Higher fees can help your bets confirm faster during network congestion. Choose a preset or set your own.
+          <b>Priority Fee</b> lets you increase the speed of your Solana transactions by paying a higher network fee. Higher fees can help your bets confirm faster during network congestion. Choose a preset.
         </span>
       </div>
       <h3 style={{ color: '#ffd700', marginBottom: 16 }}>Transaction Priority Fee</h3>
       <FeeOptionsContainer>
-        {SOL_PRESETS.map((sol, idx) => {
+        {SOL_PRESETS.filter(sol => sol !== 0).map((sol, idx) => {
           const lamports = getLamportsForSol(sol, decimals);
           return (
             <FeeOptionButton
@@ -166,43 +145,11 @@ export function FeesTab({ value, onChange }: FeesTabProps) {
               type="button"
               aria-pressed={value === lamports}
             >
-              {sol === 0 ? '0' : sol.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} SOL
+              {sol.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} SOL
             </FeeOptionButton>
           );
         })}
-        <FeeOptionButton
-          selected={!isPreset}
-          onClick={handleCustomSelect}
-          type="button"
-          aria-pressed={!isPreset}
-        >
-          Custom
-        </FeeOptionButton>
       </FeeOptionsContainer>
-      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>Custom:</span>
-        <input
-          type="range"
-          min={minCustom}
-          max={maxCustom}
-          step={1}
-          value={customValue}
-          onChange={e => handleCustomChange(Number(e.target.value))}
-          disabled={isPreset}
-          style={{ flex: 1, accentColor: '#ffd700' }}
-        />
-        <CustomInput
-          type="text"
-          min={minCustom}
-          max={maxCustom}
-          value={
-            (customValue / 10 ** decimals).toLocaleString('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 9 })
-          }
-          readOnly
-          disabled={isPreset}
-        />
-        <span style={{ color: '#ffd700', fontWeight: 700 }}>{symbol}</span>
-      </div>
       <div style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
         1 {symbol} = ${price ? price.toFixed(4) : '...'} (live)
       </div>

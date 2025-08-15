@@ -19,9 +19,11 @@ interface SlideResult {
   timestamp: number
 }
 
-interface SlidePaytableProps {}
+interface SlidePaytableProps {
+  multipliers: number[]
+}
 
-const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>((props, ref) => {
+const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>(({ multipliers }, ref) => {
   const [sessionStats, setSessionStats] = useState({
     totalSpins: 0,
     totalWagered: 0,
@@ -29,7 +31,7 @@ const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>((props, r
     winCount: 0,
     multiplierHits: {} as Record<string, number>
   })
-  
+
   const [recentResults, setRecentResults] = useState<SlideResult[]>([])
   const [multiplierStats, setMultiplierStats] = useState<Record<string, { hits: number; lastHit?: number }>>({})
 
@@ -70,9 +72,11 @@ const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>((props, r
 
   const winRate = sessionStats.totalSpins > 0 ? (sessionStats.winCount / sessionStats.totalSpins) * 100 : 0
   const netPnL = sessionStats.totalWon - sessionStats.totalWagered
+  // Net profit: sum of (payout - wager) for each spin
+  const netProfit = recentResults.reduce((acc, r) => acc + (r.payout - r.wager), 0)
 
-  // Standard Slide multipliers (from game logic)
-  const slideMultipliers = [0, 1.2, 1.5, 2.0, 3.0, 5.0, 10.0, 25.0, 50.0]
+  // Use only non-zero multipliers from props
+  const slideMultipliers = multipliers.filter(m => m !== 0)
 
   return (
     <div style={{
@@ -127,12 +131,21 @@ const SlidePaytable = forwardRef<SlidePaytableRef, SlidePaytableProps>((props, r
             </div>
           </div>
           <div>
-            <div style={{ color: '#aaa' }}>Net P&L:</div>
+            <div style={{ color: '#aaa' }}>Net P&L (Total Won - Total Wagered):</div>
             <div style={{ 
               fontWeight: 'bold',
               color: netPnL > 0 ? '#4ade80' : netPnL < 0 ? '#ef4444' : '#fff'
             }}>
-              {netPnL > 0 ? '+' : ''}{netPnL.toFixed(4)}
+              {netPnL > 0 ? '+' : ''}{formatAmountWithSymbol(netPnL, useCurrentToken())}
+            </div>
+          </div>
+          <div>
+            <div style={{ color: '#aaa' }}>Net Profit (Σ(Payout - Wager)):</div>
+            <div style={{ 
+              fontWeight: 'bold',
+              color: netProfit > 0 ? '#4ade80' : netProfit < 0 ? '#ef4444' : '#fff'
+            }}>
+              {netProfit > 0 ? '+' : ''}{formatAmountWithSymbol(netProfit, useCurrentToken())}
             </div>
           </div>
           <div>
