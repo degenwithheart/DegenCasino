@@ -1,0 +1,8 @@
+# Ignore environment file
+.env
+.DS_Store
+**/.DS_Store
+.vercel
+.vite
+dist
+node_modules
