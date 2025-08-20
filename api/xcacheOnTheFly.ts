@@ -24,9 +24,10 @@ export async function cacheOnTheFly(key: string, fetcher: () => Promise<any>, tt
   } else {
     console.log(`[xcache] MISS for key:`, key)
   }
-  if (cache.set && typeof cache.set === 'function' && ttlMs && cache.set.length >= 3) {
-    // @httpx/xcache supports set(key, value, ttl)
-    cache.set(key, value, ttlMs)
+  if (cache.set && typeof cache.set === 'function') {
+    // Only pass two arguments as expected by cache.set
+    cache.set(key, value)
+    // If TTL is needed, implement TTL logic here or ensure your cache implementation supports it
   } else {
     cacheSet(key, value)
   }
