@@ -231,7 +231,7 @@ export default function App() {
         </Routes>
       </MainContent>
       <Footer />
-      {ENABLE_TROLLBOX && <TrollBox />}
+      {ENABLE_TROLLBOX && connected && <TrollBox />}
     </GamesModalContext.Provider>
   );
 }

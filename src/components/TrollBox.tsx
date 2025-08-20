@@ -3,6 +3,8 @@ import styled, { css, keyframes } from 'styled-components'
 import useSWR from 'swr'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { generateUsernameFromWallet } from '../sections/userProfileUtils';
+
 
 function getProfileUsername(publicKey: string | undefined): string {
   if (!publicKey) return 'anon';
@@ -12,8 +14,10 @@ function getProfileUsername(publicKey: string | undefined): string {
     storedUsername = localStorage.getItem(`username-${key}`) || '';
   } catch {}
   if (!storedUsername) {
-    // fallback: first 6 chars of wallet
-    return key.slice(0, 6);
+    storedUsername = generateUsernameFromWallet(key);
+    try {
+      localStorage.setItem(`username-${key}`, storedUsername);
+    } catch {}
   }
   return storedUsername;
 }
@@ -341,7 +345,7 @@ export default function TrollBox() {
   )
   const userName = useMemo(() => {
     if (connected && publicKey) {
-      return getProfileUsername(publicKey.toBase58()) || publicKey.toBase58().slice(0, 6);
+      return getProfileUsername(publicKey.toBase58());
     }
     return anonFallback;
   }, [connected, publicKey, anonFallback]);
