@@ -51,12 +51,17 @@ export class Plinko {
   private ballComposite = Matter.Composite.create();
   private bucketComposite = Matter.Composite.create();
   private startPositions: number[];
-  private currentPath: Float32Array | null = null;
-  private replayCollisions: { frame: number; event: PlinkoContactEvent }[] = [];
-  private currentFrame = 0;
-  private replayBall: Matter.Body | null = null;
   private animationId: number | null = null;
   private visualizePath = false;
+
+  // public list of currently animating balls
+  public activeBalls: {
+    path: Float32Array;
+    frame: number;
+    collisions: { frame: number; event: PlinkoContactEvent }[];
+    ball: Matter.Body;
+    done: boolean;
+  }[] = [];
 
   setVisualizePath(on: boolean) {
     this.visualizePath = on;
@@ -69,9 +74,19 @@ export class Plinko {
       Matter.Common.random(-SPAWN_OFFSET_RANGE / 2, SPAWN_OFFSET_RANGE / 2)
     );
 
-    // build peg grid
-    const rowSize = this.height / (props.rows + 2);
-    const pegs = Array.from({ length: props.rows })
+    // build board (pegs + buckets) in the live engine
+    const pegs = this.buildPegs();
+    Matter.Composite.add(this.bucketComposite, this.makeBuckets());
+    Matter.Composite.add(this.engine.world, [
+      ...pegs,
+      this.ballComposite,
+      this.bucketComposite,
+    ]);
+  }
+
+  private buildPegs() {
+    const rowSize = this.height / (this.props.rows + 2);
+    const pegs = Array.from({ length: this.props.rows })
       .flatMap((_, row, all) => {
         const cols = row + 1;
         const rowW = (this.width * row) / (all.length - 1);
@@ -87,13 +102,7 @@ export class Plinko {
         });
       })
       .slice(1);
-
-    Matter.Composite.add(this.bucketComposite, this.makeBuckets());
-    Matter.Composite.add(this.engine.world, [
-      ...pegs,
-      this.ballComposite,
-      this.bucketComposite,
-    ]);
+    return pegs;
   }
 
   private makeBuckets() {
@@ -158,34 +167,89 @@ export class Plinko {
     Matter.Engine.clear(this.engine);
     if (this.animationId !== null) cancelAnimationFrame(this.animationId);
     this.animationId = null;
+    this.activeBalls = [];
   }
 
+  /** Clears *only* simulated balls (not pegs/buckets). Keep for dev usage. */
   reset() {
     Matter.Runner.stop(this.runner);
     Matter.Composite.clear(this.ballComposite, false);
-    Matter.Composite.add(
-      this.ballComposite,
-      this.startPositions.map(this.makePlinko)
-    );
+    this.activeBalls = [];
   }
 
-  /** Simulate up to 1 000 steps, recording *all* paths until the very first
-    * ball hits the target bucket, then stop. */
+  /** Run an isolated simulation on a temporary engine to find a path
+   * for a ball that lands in the desired bucket. This will not affect
+   * the live board or existing animated balls. */
   private simulate(desiredBucketIndex: number): SimulationResult | null {
-    this.reset();
+    // temp engine & runner
+    const simEngine = Matter.Engine.create({
+      gravity: { y: GRAVITY },
+      timing: { timeScale: 1 },
+    });
+    const simRunner = Matter.Runner.create({ isFixed: true });
 
-    // per-ball path buffers
+    // temp composites
+    const simBallComposite = Matter.Composite.create();
+    const simBucketComposite = Matter.Composite.create();
+
+    // build pegs & buckets for the sim world (same metadata)
+    const simPegs = this.buildPegs();
+    Matter.Composite.add(simBucketComposite, this.makeBuckets());
+    Matter.Composite.add(simEngine.world, [
+      ...simPegs,
+      simBallComposite,
+      simBucketComposite,
+    ]);
+
+    // spawn all candidate start positions
+    const spawn = (offsetX: number, index: number) =>
+      Matter.Bodies.circle(this.width / 2 + offsetX, -10, PLINKO_RAIUS, {
+        restitution: RESTITUTION,
+        collisionFilter: { group: -6969 },
+        label: "Plinko",
+        plugin: { startPositionIndex: index },
+      });
+
+    Matter.Composite.add(
+      simBallComposite,
+      this.startPositions.map(spawn)
+    );
+
+    // helpers
     const paths: number[][] = this.startPositions.map(() => []);
-    // all collisions, to be filtered
     const allCollisions: { frame: number; event: PlinkoContactEvent }[] = [];
     let chosenIndex: number | null = null;
     let frame = 0;
 
-    const simHandler = (ev: Matter.IEventCollision<Matter.Engine>) => {
-      // record every collision
-      this.recordContactEvent(ev, frame, allCollisions);
+    const recordContactEvent = (
+      ev: Matter.IEventCollision<Matter.Engine>,
+      f: number,
+      list: { frame: number; event: PlinkoContactEvent }[],
+      onlyForPlinko?: number
+    ) => {
+      for (const p of ev.pairs) {
+        const evt: PlinkoContactEvent = {};
+        const tag = (k: keyof PlinkoContactEvent, lbl: string) => {
+          if (p.bodyA.label === lbl) evt[k] = p.bodyA;
+          if (p.bodyB.label === lbl) evt[k] = p.bodyB;
+        };
+        tag("peg", "Peg");
+        tag("barrier", "Barrier");
+        tag("bucket", "Bucket");
+        tag("plinko", "Plinko");
 
-      // detect the *first* bucket hit
+        if (
+          evt.plinko &&
+          (onlyForPlinko === undefined ||
+            evt.plinko.plugin.startPositionIndex === onlyForPlinko)
+        ) {
+          list.push({ frame: f, event: evt });
+        }
+      }
+    };
+
+    const simHandler = (ev: Matter.IEventCollision<Matter.Engine>) => {
+      recordContactEvent(ev, frame, allCollisions);
       for (const p of ev.pairs) {
         const A = p.bodyA, B = p.bodyB;
         if (
@@ -198,23 +262,18 @@ export class Plinko {
       }
     };
 
-    Matter.Events.on(this.engine, "collisionStart", simHandler);
+    Matter.Events.on(simEngine, "collisionStart", simHandler);
 
-    // run up to 1 000 ms-ticks or until chosen ball leaves bottom
-    for (; frame < 1000; frame++) {
-      Matter.Runner.tick(this.runner, this.engine, 1);
-
-      // record position for every ball this frame
-      for (const b of this.ballComposite.bodies) {
+    for (frame = 0; frame < 1000; frame++) {
+      Matter.Runner.tick(simRunner, simEngine, 1);
+      for (const b of simBallComposite.bodies) {
         if (b.label === "Plinko") {
           const idx = b.plugin.startPositionIndex;
           paths[idx].push(b.position.x, b.position.y);
         }
       }
-
-      // once we know which ball and it has dropped below view, stop
       if (chosenIndex !== null) {
-        const winBall = this.ballComposite.bodies.find(
+        const winBall = simBallComposite.bodies.find(
           (b) => b.plugin.startPositionIndex === chosenIndex
         )!;
         if (winBall.position.y > this.height) {
@@ -224,19 +283,19 @@ export class Plinko {
       }
     }
 
-    Matter.Events.off(this.engine, "collisionStart", simHandler);
-    Matter.Runner.stop(this.runner);
-    Matter.Composite.clear(this.ballComposite, false);
+    Matter.Events.off(simEngine, "collisionStart", simHandler);
 
-    if (chosenIndex === null) return null;
+    if (chosenIndex === null) {
+      Matter.Engine.clear(simEngine);
+      return null;
+    }
 
-    // build a typed array for the winner’s full path
     const winnerPath = new Float32Array(paths[chosenIndex]);
-
-    // filter out only this ball’s collisions
     const winnerCollisions = allCollisions.filter(
       (c) => c.event.plinko?.plugin.startPositionIndex === chosenIndex
     );
+
+    Matter.Engine.clear(simEngine);
 
     return {
       bucketIndex: desiredBucketIndex,
@@ -246,40 +305,16 @@ export class Plinko {
     };
   }
 
-  private recordContactEvent(
-    ev: Matter.IEventCollision<Matter.Engine>,
-    frame: number,
-    list: { frame: number; event: PlinkoContactEvent }[],
-    onlyForPlinko?: number
-  ) {
-    for (const p of ev.pairs) {
-      const evt: PlinkoContactEvent = {};
-      const tag = (k: keyof PlinkoContactEvent, lbl: string) => {
-        if (p.bodyA.label === lbl) evt[k] = p.bodyA;
-        if (p.bodyB.label === lbl) evt[k] = p.bodyB;
-      };
-      tag("peg", "Peg");
-      tag("barrier", "Barrier");
-      tag("bucket", "Bucket");
-      tag("plinko", "Plinko");
-
-      if (
-        evt.plinko &&
-        (onlyForPlinko === undefined ||
-          evt.plinko.plugin.startPositionIndex === onlyForPlinko)
-      ) {
-        list.push({ frame, event: evt });
-      }
-    }
-  }
-
+  /** Choose a bucket matching the given multiplier and enqueue a new replayed ball. */
   run(desiredMultiplier: number) {
-    // pick a bucket with matching multiplier
+    // pick a bucket with matching multiplier from the *live* bucketComposite
     const bucket = Matter.Common.choose(
       this.bucketComposite.bodies.filter(
-        (b) => b.plugin.bucketMultiplier === desiredMultiplier
+        (b) => b.label === "Bucket" && b.plugin.bucketMultiplier === desiredMultiplier
       )
     );
+    if (!bucket) throw new Error("No bucket matches desired multiplier");
+
     const sim = this.simulate(bucket.plugin.bucketIndex);
     if (!sim) throw new Error("Failed to simulate desired outcome");
 
@@ -287,46 +322,81 @@ export class Plinko {
       console.log("Simulation frames:", sim.path.length / 2);
     }
 
-    this.currentPath = sim.path;
-    this.currentFrame = 0;
-    this.replayCollisions = sim.collisions;
-
     // spawn the live ball at the same start offset
     const liveBall = this.makePlinko(
       this.startPositions[sim.plinkoIndex],
       sim.plinkoIndex
     );
     Matter.Composite.add(this.ballComposite, liveBall);
-    this.replayBall = liveBall;
 
-    // purely positional replay—no physics
+    // track this replay
+    this.activeBalls.push({
+      path: sim.path,
+      frame: 0,
+      collisions: sim.collisions,
+      ball: liveBall,
+      done: false,
+    });
+
+    // ensure anim loop is running
     this.startReplayAnimation();
   }
 
+  /** Single RAF loop that advances *all* active replays until all are done. */
   private startReplayAnimation() {
-    if (this.animationId !== null) cancelAnimationFrame(this.animationId);
+    if (this.animationId !== null) return; // already running
 
     const step = () => {
-      if (!this.currentPath || !this.replayBall) return;
-      const totalFrames = this.currentPath.length / 2;
-      if (this.currentFrame >= totalFrames) return;
+      if (this.activeBalls.length === 0) {
+        this.animationId = null;
+        return;
+      }
 
-      const x = this.currentPath[this.currentFrame * 2];
-      const y = this.currentPath[this.currentFrame * 2 + 1];
-      Matter.Body.setPosition(this.replayBall, { x, y });
+      // advance all active balls
+      for (const replay of this.activeBalls) {
+        if (replay.done) continue;
+        const totalFrames = replay.path.length / 2;
+        if (replay.frame >= totalFrames) {
+          replay.done = true;
+          continue;
+        }
 
-      // fire any collisions for this frame
-      this.replayCollisions
-        .filter((c) => c.frame === this.currentFrame)
-        .forEach(({ event }) => this.props.onContact(event));
+        const x = replay.path[replay.frame * 2];
+        const y = replay.path[replay.frame * 2 + 1];
+        Matter.Body.setPosition(replay.ball, { x, y });
 
-      this.currentFrame++;
+        // fire collisions for this frame (swap plinko to live ball)
+        replay.collisions
+          .filter((c) => c.frame === replay.frame)
+          .forEach(({ event }) => {
+            const e: PlinkoContactEvent = {
+              ...event,
+              plinko: replay.ball,
+            };
+            this.props.onContact(e);
+          });
+
+        replay.frame++;
+      }
+
+      // remove finished balls from list & from composite
+      const stillActive: typeof this.activeBalls = [];
+      for (const r of this.activeBalls) {
+        if (r.done) {
+          Matter.Composite.remove(this.ballComposite, r.ball);
+        } else {
+          stillActive.push(r);
+        }
+      }
+      this.activeBalls = stillActive;
+
       this.animationId = requestAnimationFrame(step);
     };
 
     this.animationId = requestAnimationFrame(step);
   }
 
+  /** Legacy live-physics visualizer helpers (untouched) */
   collisionHandler = (ev: Matter.IEventCollision<Matter.Engine>) => {
     const evt: PlinkoContactEvent = {};
     for (const p of ev.pairs) {
