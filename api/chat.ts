@@ -1,8 +1,7 @@
 
 // api/chat.ts
 
-// Uncomment for edge runtime in production only
-// export const config = { runtime: 'edge' }
+export const config = { runtime: 'edge' }
 
 type Msg = { user: string; text: string; ts: number }
 const KEY = 'trollbox'
