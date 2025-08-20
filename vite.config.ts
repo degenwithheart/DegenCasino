@@ -27,7 +27,10 @@ export default defineConfig(() => ({
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
-    }
+    },
+    proxy: {
+      '/api': 'http://localhost:5000',
+    },
   },
   assetsInclude: ["**/*.glb"],
   define: {

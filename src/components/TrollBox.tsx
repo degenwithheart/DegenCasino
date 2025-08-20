@@ -4,6 +4,20 @@ import useSWR from 'swr'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
+function getProfileUsername(publicKey: string | undefined): string {
+  if (!publicKey) return 'anon';
+  const key = publicKey.toString();
+  let storedUsername = '';
+  try {
+    storedUsername = localStorage.getItem(`username-${key}`) || '';
+  } catch {}
+  if (!storedUsername) {
+    // fallback: first 6 chars of wallet
+    return key.slice(0, 6);
+  }
+  return storedUsername;
+}
+
 type Msg = { user: string; text: string; ts: number }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -33,26 +47,26 @@ const fadeIn = keyframes`
   to   { opacity: 1; transform: translateY(0) }
 `
 
-const Wrapper = styled.div<{ $isMinimized: boolean }>`
+const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean }>`
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: ${({ $isMaximized }) => ($isMaximized ? '5vh' : $isMaximized ? '16px' : '100px')};
+  right: ${({ $isMaximized }) => ($isMaximized ? '5vw' : $isMaximized ? '16px' : '20px')};
   z-index: 998;
-  border-radius: ${({ $isMinimized }) => ($isMinimized ? '50%' : '12px')};
-  background: ${({ $isMinimized }) => ($isMinimized ? '#5e47ff' : 'rgba(28,28,35,0.85)')};
-  border: 1px solid
-    ${({ $isMinimized }) => ($isMinimized ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)')};
+  border-radius: ${({ $isMinimized, $isMaximized }) =>
+    $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
+  background: ${({ $isMinimized }) => ($isMinimized ? '#5e47ff' : 'rgba(28,28,35,0.92)')};
+  border: 2px solid rgba(255, 215, 0, 0.3);
   color: #eee;
-  font-size: 0.9rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  ${({ $isMinimized }) => !$isMinimized && `backdrop-filter: blur(10px)`};
+  font-size: 0.95rem;
+  box-shadow: 0 0 32px #ffd70088, 0 8px 32px rgba(0,0,0,0.45);
+  ${({ $isMinimized }) => !$isMinimized && `backdrop-filter: blur(18px)`};
   overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: ${({ $isMinimized }) => ($isMinimized ? 'pointer' : 'default')};
-  transition: width 0.3s, height 0.3s, max-height 0.3s, border-radius 0.3s, background 0.3s;
+  transition: width 0.3s, height 0.3s, max-height 0.3s, border-radius 0.3s, background 0.3s, bottom 0.3s, right 0.3s;
 
-  ${({ $isMinimized }) =>
+  ${({ $isMinimized, $isMaximized }) =>
     $isMinimized
       ? `
     width: 56px;
@@ -63,28 +77,94 @@ const Wrapper = styled.div<{ $isMinimized: boolean }>`
     color: #fff;
     & > *:not(${ExpandIconWrapper}) { display: none }
   `
+      : $isMaximized
+      ? `
+    width: min(600px, 96vw);
+    height: min(80vh, 600px);
+    max-width: 98vw;
+    max-height: 98vh;
+    min-height: 200px;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  `
       : `
-    width: 340px;
-    max-height: 450px;
-    min-height: 150px;
+    width: clamp(260px, 32vw, 420px);
+    max-width: 98vw;
+    max-height: clamp(320px, 40vh, 520px);
+    min-height: 120px;
+    font-size: clamp(0.92rem, 1vw, 1.08rem);
   `}
 
-  @media (max-width: 480px) {
-    ${({ $isMinimized }) =>
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 149, 0, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    border-radius: ${({ $isMinimized, $isMaximized }) =>
+      $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ffd700, #ff9500, #ffd700);
+    background-size: 300% 100%;
+    animation: none;
+    border-radius: ${({ $isMinimized, $isMaximized }) =>
+      $isMinimized ? '50%' : $isMaximized ? '24px 24px 0 0' : '18px 18px 0 0'};
+    z-index: 1;
+  }
+
+  @media (max-width: 1024px) {
+    ${({ $isMinimized, $isMaximized }) =>
       $isMinimized
         ? `
-      bottom: 16px;
-      right: 16px;
+      bottom: 12px;
+      right: 12px;
+    `
+        : $isMaximized
+        ? `
+      width: 98vw;
+      height: 98vh;
+      left: 1vw;
+      top: 1vh;
+      right: auto;
+      bottom: auto;
+      border-radius: 16px;
+      transform: none;
     `
         : `
-      width: calc(100% - 32px);
-      max-width: 300px;
-      max-height: 200px;
-      bottom: 16px;
-      right: 16px;
+      width: clamp(200px, 48vw, 340px);
+      max-width: 98vw;
+      max-height: clamp(200px, 40vh, 340px);
+      bottom: 12px;
+      right: 12px;
     `}
   }
+  @media (max-width: 1000px) {
+    display: none !important;
+  }
 `
+const MaximizeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="3" />
+  </svg>
+)
 
 const ContentContainer = styled.div<{ $isMinimized: boolean }>`
   display: flex;
@@ -97,14 +177,18 @@ const ContentContainer = styled.div<{ $isMinimized: boolean }>`
 `
 
 const Header = styled.div`
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 18px 10px 18px;
+  border-bottom: 1.5px solid rgba(255,215,0,0.13);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(90deg, #ffd70022 0%, #ff950022 100%);
   color: #fff;
   cursor: pointer;
+  font-family: 'Luckiest Guy', cursive, sans-serif;
+  font-size: 1.08em;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px #ffd70044;
 `
 
 const HeaderTitle = styled.span`
@@ -160,21 +244,33 @@ const Log = styled.div`
 `
 
 const MessageItem = styled.div<{ $isOwn?: boolean }>`
-  line-height: 1.3;
+  line-height: 1.4;
   animation: ${fadeIn} 0.3s ease-out;
+  margin-bottom: 0.7em;
+  padding: 0.7em 1em 0.8em 1em;
+  border-radius: 14px;
+  background: rgba(32, 24, 48, 0.85);
+  box-shadow: 0 2px 12px rgba(162, 89, 255, 0.08), 0 1.5px 6px rgba(255, 215, 0, 0.06);
+  border: 1.5px solid rgba(255, 215, 0, 0.13);
+  position: relative;
 `
 
 const Username = styled.strong<{ userColor: string }>`
-  font-weight: 600;
-  color: ${({ userColor }) => userColor};
-  margin-right: 0.4em;
+  font-weight: 700;
+  color: #ffd700;
+  margin-right: 0.7em;
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 6px rgba(255, 215, 0, 0.18);
 `
 
 const Timestamp = styled.span`
-  font-size: 0.7rem;
-  color: #888;
-  opacity: 0.7;
-  margin-left: 0.4em;
+  font-size: 0.78em;
+  color: #b6aaff;
+  opacity: 0.8;
+  margin-left: auto;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 `
 
 const InputRow = styled.div`
@@ -235,14 +331,20 @@ export default function TrollBox() {
   const { publicKey, connected } = useWallet()
   const walletModal = useWalletModal()
   const [isMinimized, setIsMinimized] = useState(false)
+  const [isMaximized, setIsMaximized] = useState(false)
   const [cooldown, setCooldown] = useState(0)
+
 
   const anonFallback = useMemo(
     () => 'anon' + Math.floor(Math.random() * 1e4).toString().padStart(4, '0'),
     [],
   )
-  const userName =
-    connected && publicKey ? publicKey.toBase58().slice(0, 6) : anonFallback
+  const userName = useMemo(() => {
+    if (connected && publicKey) {
+      return getProfileUsername(publicKey.toBase58()) || publicKey.toBase58().slice(0, 6);
+    }
+    return anonFallback;
+  }, [connected, publicKey, anonFallback]);
 
   const swrKey =
     isMinimized || (typeof document !== 'undefined' && document.hidden)
@@ -269,18 +371,29 @@ export default function TrollBox() {
 
   async function send() {
     if (!connected) return walletModal.setVisible(true)
-    const txt = text.trim()
+    let txt = text.trim()
     if (!txt || isSending || cooldown > 0) return
+    // Match API: max 256 chars for text
+    if (txt.length > 256) txt = txt.slice(0, 256)
+    let uname = userName
+    if (uname.length > 24) uname = uname.slice(0, 24)
     setIsSending(true)
     const id = Date.now()
-    mutate([...messages, { user: userName, text: txt, ts: id }], false)
+    mutate([...messages, { user: uname, text: txt, ts: id }], false)
     setText('')
     try {
-      await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: userName, text: txt }),
+        body: JSON.stringify({ user: uname, text: txt }),
       })
+      if (!res.ok) {
+        // Optionally show error to user
+        if (res.status === 400) {
+          // Message was empty or invalid
+          // Optionally show a toast or error
+        }
+      }
       mutate()
       setCooldown(5)
     } catch {
@@ -318,34 +431,44 @@ export default function TrollBox() {
       : new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
   const toggleMinimize = () => setIsMinimized(v => !v)
+  const toggleMaximize = () => setIsMaximized(v => !v)
+  // If minimized, un-maximize
+  useEffect(() => {
+    if (isMinimized && isMaximized) setIsMaximized(false)
+  }, [isMinimized, isMaximized])
 
   return (
-    <Wrapper $isMinimized={isMinimized}>
+    <Wrapper $isMinimized={isMinimized} $isMaximized={isMaximized}>
       {isMinimized && (
         <ExpandIconWrapper onClick={toggleMinimize}>
           <ChatIcon />
         </ExpandIconWrapper>
       )}
       <ContentContainer $isMinimized={isMinimized}>
-        <Header onClick={toggleMinimize}>
-          <HeaderTitle>Troll Box</HeaderTitle>
+        <Header>
+          <HeaderTitle>Moonshot Chat</HeaderTitle>
           <HeaderStatus>
             {messages.length ? `${messages.length} msgs` : 'Connecting…'}
           </HeaderStatus>
-          <MinimizeButton>
-            <MinimizeIcon />
-          </MinimizeButton>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <MinimizeButton onClick={toggleMinimize} title="Minimize">
+              <MinimizeIcon />
+            </MinimizeButton>
+            <MinimizeButton onClick={toggleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
+              <MaximizeIcon />
+            </MinimizeButton>
+          </div>
         </Header>
         <Log ref={logRef}>
           {!messages.length && !error && <LoadingText>Loading messages…</LoadingText>}
           {error && <LoadingText style={{ color: '#ff8080' }}>Error loading chat.</LoadingText>}
           {messages.map((m, i) => (
             <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
-              <Username userColor={userColors[m.user]}>
-                {m.user.slice(0, 6)}
-              </Username>
-              : {m.text}
-              <Timestamp>{fmtTime(m.ts)}</Timestamp>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                <Username userColor={userColors[m.user]}>{m.user}</Username>
+                <Timestamp>{fmtTime(m.ts)}</Timestamp>
+              </div>
+              <div style={{ color: '#fff', fontSize: '1em', wordBreak: 'break-word', marginTop: 2 }}>{m.text}</div>
             </MessageItem>
           ))}
         </Log>
@@ -354,7 +477,7 @@ export default function TrollBox() {
             ref={inputRef}
             value={text}
             placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
-            onChange={e => setText(e.target.value)}
+            onChange={e => setText(e.target.value.slice(0, 256))}
             onClick={() => !connected && walletModal.setVisible(true)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -363,7 +486,7 @@ export default function TrollBox() {
               }
             }}
             disabled={isSending || !swrKey}
-            maxLength={200}
+            maxLength={256}
           />
           <SendBtn
             onClick={send}
