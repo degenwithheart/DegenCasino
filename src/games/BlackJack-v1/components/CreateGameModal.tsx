@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { PublicKey } from '@solana/web3.js'
-import { TokenValue } from 'gamba-react-ui-v2'
-import { useCurrentToken } from 'gamba-react-ui-v2'
+import { TokenValue, useCurrentToken, useWagerInput, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useMultiplayer } from 'gamba-react-v2'
+import { buildCreateOptions } from '../multiplayer'
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -176,6 +178,8 @@ export default function CreateGameModal({
   onGameCreated: (gameId: PublicKey) => void
 }) {
   const token = useCurrentToken()
+  const { publicKey } = useWallet()
+  const { createGame } = useMultiplayer()
   
   const [wagerType, setWagerType] = useState<'fixed' | 'range'>('fixed')
   const [betAmount, setBetAmount] = useState('')
@@ -214,10 +218,22 @@ export default function CreateGameModal({
         throw new Error('Max bet must be greater than min bet')
       }
 
-      // This is a placeholder - in a real implementation, you'd use the actual multiplayer API
-      // to create a game. For now, we'll generate a fake game ID
-      const fakeGameId = new PublicKey('11111111111111111111111111111111')
-      onGameCreated(fakeGameId)
+      if (!publicKey) throw new Error('Connect wallet')
+      const wagerAmountLamports = Math.floor(parseFloat(wagerType === 'fixed' ? betAmount : minBet) * token.baseWager)
+      const opts = buildCreateOptions({
+        mint: token.mint,
+        creator: publicKey,
+        wagerLamports: wagerAmountLamports,
+      })
+      if (wagerType === 'range') {
+        const minLam = Math.floor(parseFloat(minBet) * token.baseWager)
+        const maxLam = Math.floor(parseFloat(maxBet) * token.baseWager)
+        opts.minBet = minLam
+        opts.maxBet = maxLam
+        opts.wager = minLam
+      }
+      const pkStr = await createGame(opts)
+      onGameCreated(new PublicKey(pkStr))
       
     } catch (error) {
       console.error('Failed to create game:', error)

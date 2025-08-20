@@ -12,26 +12,32 @@ import IMAGE_JUP from './assets/slot-jup.png'
 import IMAGE_BONK from './assets/slot-bonk.png'
 import IMAGE_UNICORN from './assets/slot-unicorn.png'
 import IMAGE_WOJAK from './assets/slot-wojak.png'
+import { BET_ARRAYS } from '../rtpConfig'
 
 export interface SlotItem {
   multiplier: number
   image: string
 }
 
-const slotItem = (multiplier: number, ...icons: string[]): SlotItem[] =>
-  icons.map((image) => ({ multiplier, image }))
+// Map symbol names to images
+const SYMBOL_IMAGES: Record<string, string> = {
+  UNICORN: IMAGE_UNICORN,
+  DGHRT: IMAGE_DGHRT,
+  SOL: IMAGE_SOL,
+  USDC: IMAGE_USDC,
+  JUP: IMAGE_JUP,
+  BONK: IMAGE_BONK,
+  WOJAK: IMAGE_WOJAK,
+}
 
-export const SLOT_ITEMS = [
-  slotItem(7, 'unicorn', IMAGE_UNICORN),  // Keep unicorn as highest multiplier
-  slotItem(5, 'dghrt', IMAGE_DGHRT),      // DGHRT token  
-  slotItem(3, 'sol', IMAGE_SOL),          // SOL token
-  slotItem(2, 'usdc', IMAGE_USDC),        // USDC token
-  slotItem(1, 'jup', IMAGE_JUP),          // JUP token
-  slotItem(1, 'bonk', IMAGE_BONK),        // BONK token
-  slotItem(0.5, 'wojak', IMAGE_WOJAK),    // Keep wojak as lowest
-].flat()
+// Build SLOT_ITEMS directly from rtpConfig symbols array
+export const SLOT_ITEMS: SlotItem[] = BET_ARRAYS.slots.symbols.map(symbol => ({
+  multiplier: symbol.multiplier,
+  image: SYMBOL_IMAGES[symbol.name] || '',
+}))
 
-export const NUM_SLOTS = 3
+import { SLOTS_CONFIG } from '../rtpConfig'
+export const NUM_SLOTS = SLOTS_CONFIG.NUM_SLOTS
 // MS that it takes for spin to finish and reveal to start
 export const SPIN_DELAY = 1000
 // MS between each slot reveal
@@ -39,4 +45,4 @@ export const REVEAL_SLOT_DELAY = 500
 // MS after reveal until win / lose effect is played
 export const FINAL_DELAY = 500
 //
-export const LEGENDARY_THRESHOLD = 5
+export const LEGENDARY_THRESHOLD = SLOTS_CONFIG.LEGENDARY_THRESHOLD

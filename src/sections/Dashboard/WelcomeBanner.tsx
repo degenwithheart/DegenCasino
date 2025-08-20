@@ -446,10 +446,12 @@ export function WelcomeBanner() {
   // 2. Wallet is not connected
   // 3. Wallet is not currently connecting
   const shouldShow = autoConnectAttempted && !wallet.connected && !wallet.connecting;
-  const isLoading = !autoConnectAttempted || wallet.connecting;
+
+  // Only render the DOM if the banner should be visible
+  if (!shouldShow) return null;
 
   return (
-    <Container $isVisible={shouldShow} $isLoading={isLoading}>
+    <Container $isVisible={true} $isLoading={false}>
       <Banner>
         <HeroOverlay>
           <Heading>Welcome to the casino of chaos</Heading>

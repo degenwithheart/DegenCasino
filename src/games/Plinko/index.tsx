@@ -1,11 +1,13 @@
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
+import { PLINKO_CONFIG } from '../rtpConfig'
 
 import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
@@ -26,8 +28,10 @@ function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   return plinko
 }
 
-const DEGEN_BET = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 10, 10, 10, 15]
-const BET = [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 3, 3, 3, 3, 3, 3, 3, 6]
+// Use centralized bet arrays from rtpConfig
+const BET = PLINKO_CONFIG.normal
+const DEGEN_BET = PLINKO_CONFIG.degen
+const ROWS = PLINKO_CONFIG.ROWS
 
 export default function Plinko() {
   const game = GambaUi.useGame()
@@ -45,7 +49,7 @@ export default function Plinko() {
   const bucketAnimations = React.useRef<Record<number, number>>({})
 
   const bet = degen ? DEGEN_BET : BET
-  const rows = degen ? 12 : 14
+  const rows = degen ? ROWS.degen : ROWS.normal
 
   const multipliers = React.useMemo(() => Array.from(new Set(bet)), [bet])
 
@@ -53,12 +57,17 @@ export default function Plinko() {
     rows,
     multipliers,
     onContact(contact) {
+      // Derive a deterministic but varied playback rate seed from object indices & frame time slice
+      const baseSeed = `${contact.peg?.plugin?.pegIndex ?? 'n'}:${contact.bucket?.plugin?.bucketIndex ?? 'n'}:${contact.barrier ? 'b' : ''}:${Math.floor(Date.now()/250)}`
+      const rng = makeDeterministicRng(baseSeed)
       if (contact.peg && contact.plinko) {
         pegAnimations.current[contact.peg.plugin.pegIndex] = 1
-        sounds.play('bump', { playbackRate: 1 + Math.random() * .05 })
+        const rate = 1 + rng() * .05
+        sounds.play('bump', { playbackRate: rate })
       }
       if (contact.barrier && contact.plinko) {
-        sounds.play('bump', { playbackRate: .5 + Math.random() * .05 })
+        const rate = .5 + rng() * .05
+        sounds.play('bump', { playbackRate: rate })
       }
       if (contact.bucket && contact.plinko) {
         bucketAnimations.current[contact.bucket.plugin.bucketIndex] = 1
@@ -68,7 +77,7 @@ export default function Plinko() {
   }, [rows, multipliers])
 
   const play = async () => {
-    await game.play({ wager, bet })
+    await game.play({ wager, bet: Array.from(bet) })
     const result = await game.result()
     plinko.reset()
     plinko.run(result.multiplier)

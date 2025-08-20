@@ -7,6 +7,7 @@ import { useGameMeta } from '../useGameMeta'
 import { ItemPreview } from './ItemPreview'
 import { Slot } from './Slot'
 import { StyledSlots } from './Slots.styles'
+import { StyledSlotsBackground } from './SlotsBackground.enhanced.styles'
 import {
   FINAL_DELAY,
   LEGENDARY_THRESHOLD,
@@ -38,12 +39,36 @@ function Messages({ messages }: {messages: string[]}) {
   return (
     <>
       {messages[messageIndex]}
-    </>
-  )
+      </>
+    )
 }
 
 export default function Slots() {
-  const gamba = GambaUi.useGame()
+  // Message sets
+  const spinningMessages = [
+    '✨ Spinning the Symphony ✨',
+    '🎭 Dance of Fortune 🎭',
+    '💫 Poetry in Motion 💫',
+  ]
+  const idleMessages = [
+    '🎪 SPIN THE SYMPHONY! 🎪',
+    '❤️ FEELING THE ROMANCE? ❤️',
+    '🌹 ALIGN THE MEMORIES 🌹',
+  ]
+  const goodMessages = [
+    '🎉 JACKPOT! You aligned the stars! 🎉',
+    '🌈 Unbelievable! All matched! 🌈',
+    '💎 Legendary Win! Fortune smiles! 💎',
+    '🔥 You hit the big one! 🔥',
+    '🍀 Lucky streak! Congratulations! 🍀',
+  ]
+  const badMessages = [
+    '😢 Not this time. Try again! 😢',
+    '💔 The reels didn’t align. 💔',
+    '🕳️ No luck, spin again! 🕳️',
+    '🙈 Missed it! Maybe next spin. 🙈',
+    '🌀 The dance continues... 🌀',
+  ]
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   const [spinning, setSpinning] = React.useState(false)
@@ -63,7 +88,12 @@ export default function Slots() {
     play: SOUND_PLAY,
   })
   const bet = React.useMemo(
-    () => generateBetArray(pool.maxPayout, wager),
+    () => {
+      // Cap maxPayout to reasonable limit matching game design (max 7x multiplier)
+      // Using pool.maxPayout directly can create unrealistic bet arrays with 1000x+ multipliers
+      const cappedMaxPayout = Math.min(pool.maxPayout, wager * 7)
+      return generateBetArray(cappedMaxPayout, wager)
+    },
     [pool.maxPayout, wager],
   )
   const timeout = useRef<any>()
@@ -133,13 +163,19 @@ export default function Slots() {
 
       sounds.play('spin', { playbackRate: .5 })
 
-      const result = await gamba.result()
+  const result = await game.result()
 
       // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
       const resultDelay = Date.now() - startTime
       const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
 
-      const combination = getSlotCombination(NUM_SLOTS, result.multiplier, bet)
+      const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
+      const combination = getSlotCombination(
+        NUM_SLOTS,
+        result.multiplier,
+        bet,
+        seed,
+      )
 
       setCombination(combination)
 
@@ -157,59 +193,46 @@ export default function Slots() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <StyledSlots>
-          {/* Casino background elements */}
+        <StyledSlotsBackground>
+          {/* Enhanced background for Slots game */}
+          <div className="slots-bg-elements" />
           <div className="casino-bg-elements" />
           <div className="decorative-overlay" />
           
-          <GameScreenFrame {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}>
-            {good && <EffectTest src={combination[0].image} />}
-            
-            <GambaUi.Responsive>
-              <div className="slots-content">
-                <ItemPreview betArray={bet} />
-                <div className={'slots'}>
-                  {combination.map((slot, i) => (
-                    <Slot
-                      key={i}
-                      index={i}
-                      revealed={revealedSlots > i}
-                      item={slot}
-                      good={good}
-                    />
-                  ))}
+          <StyledSlots>
+            <GameScreenFrame {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}>
+              {good && <EffectTest src={combination[0].image} />}
+              <GambaUi.Responsive>
+                <div className="slots-content">
+                  <ItemPreview betArray={bet} />
+                  <div className={'slots'}>
+                    {combination.map((slot, i) => (
+                      <Slot
+                        key={i}
+                        index={i}
+                        revealed={revealedSlots > i}
+                        item={slot}
+                        good={good}
+                      />
+                    ))}
+                  </div>
+                  <div className="result" data-good={good}>
+                    {spinning ? (
+                      <Messages messages={spinningMessages} />
+                    ) : result ? (
+                      <>
+                        💰 Payout: <TokenValue mint={result.token} amount={result.payout} />
+                        <Messages messages={result.multiplier > 0 ? goodMessages : badMessages} />
+                      </>
+                    ) : (
+                      <Messages messages={idleMessages} />
+                    )}
+                  </div>
                 </div>
-                <div className="result" data-good={good}>
-                  {spinning ? (
-                    <Messages
-                      messages={[
-                        '✨ Spinning the Symphony ✨',
-                        '🎭 Dance of Fortune 🎭',
-                        '💫 Poetry in Motion 💫',
-                      ]}
-                    />
-                  ) : result ? (
-                    <>
-                      💰 Payout: <TokenValue mint={result.token} amount={result.payout} />
-                    </>
-                  ) : isValid ? (
-                    <Messages
-                      messages={[
-                        '🎪 SPIN THE SYMPHONY! 🎪',
-                        '❤️ FEELING THE ROMANCE? ❤️',
-                        '🌹 ALIGN THE MEMORIES 🌹',
-                      ]}
-                    />
-                  ) : (
-                    <>
-                      ❌ Choose a lower wager for this dance!
-                    </>
-                  )}
-                </div>
-              </div>
-            </GambaUi.Responsive>
-          </GameScreenFrame>
-        </StyledSlots>
+              </GambaUi.Responsive>
+            </GameScreenFrame>
+          </StyledSlots>
+        </StyledSlotsBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls

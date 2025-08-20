@@ -9,14 +9,14 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { GambaPlatformProvider, ReferralProvider, TokenMetaProvider } from 'gamba-react-ui-v2'
+import { GambaPlatformProvider, ReferralProvider, TokenMetaProvider, useGambaPlatformContext } from 'gamba-react-ui-v2'
 import { GambaProvider, SendTransactionProvider } from 'gamba-react-v2'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
-import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
+import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
 
 import './styles.css'
 
@@ -35,6 +35,30 @@ function Root() {
     ],
     [],
   )
+
+// --- Helper: Get initial pool selection from localStorage or fallback ---
+function getInitialPool() {
+  try {
+    const savedMint = localStorage.getItem('selectedTokenMint')
+    if (savedMint) {
+      const found = POOLS.find(pool => pool.token.toBase58() === savedMint)
+      if (found) return found
+    }
+  } catch {}
+  return DEFAULT_POOL
+}
+
+// --- PersistSelectedToken: Save selected token to localStorage on change ---
+function PersistSelectedToken() {
+  // This hook must be used inside GambaPlatformProvider
+  const { selectedPool } = useGambaPlatformContext()
+  React.useEffect(() => {
+    if (selectedPool?.token) {
+      localStorage.setItem('selectedTokenMint', selectedPool.token.toBase58())
+    }
+  }, [selectedPool])
+  return null
+}
 
   // Store the initial pool in state so it doesn't change on re-render
   const [initialPool] = React.useState(getInitialPool)
@@ -69,7 +93,7 @@ function Root() {
                     defaultJackpotFee={PLATFORM_JACKPOT_FEE}
                     defaultPool={initialPool}
                   >
-                    {/* <PersistSelectedToken /> */}
+                    <PersistSelectedToken />
                     <ReferralProvider
                       prefix="code"
                       fee={PLATFORM_REFERRAL_FEE}

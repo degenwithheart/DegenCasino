@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { motion } from 'framer-motion'
 import { Engine, Render, World, Bodies, Body } from 'matter-js'
 
@@ -21,8 +22,11 @@ export const SlotReel: React.FC<SlotReelProps> = ({
 
   useEffect(() => {
     if (isSpinning) {
+      const baseSeed = `slotreel:${delay}:${symbols.join(',')}`
+      let tick = 0
       const interval = setInterval(() => {
-        setCurrentSymbol(symbols[Math.floor(Math.random() * symbols.length)])
+        const rng = makeDeterministicRng(baseSeed + ':' + tick++)
+        setCurrentSymbol(symbols[Math.floor(rng() * symbols.length)])
       }, 100)
 
       setTimeout(() => {
@@ -123,8 +127,10 @@ export const CascadingCoins: React.FC<CascadingCoinsProps> = ({ isActive, winAmo
     World.add(engine.world, ground)
 
     const newCoins: Body[] = []
+    const seed = `coins:${winAmount ?? 0}:${Date.now() - (Date.now()%1000)}`
+    const rng = makeDeterministicRng(seed)
     for (let i = 0; i < 15; i++) {
-      const coin = Bodies.circle(Math.random() * 350 + 25, -50 - (i * 30), 15, {
+      const coin = Bodies.circle(rng() * 350 + 25, -50 - (i * 30), 15, {
         restitution: 0.7,
         render: {
           fillStyle: '#FFD700'

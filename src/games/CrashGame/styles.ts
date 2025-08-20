@@ -1,20 +1,22 @@
 import styled, { keyframes } from 'styled-components'
 import rocketAnimation from './rocket.gif'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
-const generateMultipleBoxShadows = (n: number) => {
-  const maxX = window.innerWidth
+const generateMultipleBoxShadows = (n: number, seed: string) => {
+  const maxX = typeof window !== 'undefined' ? window.innerWidth : 1920
   const maxY = 4000
-
-  let value = `${Math.random() * maxX}px ${Math.random() * maxY}px #ffffff`
+  const rng = makeDeterministicRng(seed)
+  let value = `${(rng()*maxX).toFixed(2)}px ${(rng()*maxY).toFixed(2)}px #ffffff`
   for (let i = 2; i <= n; i++) {
-    value += `, ${Math.random() * maxX}px ${Math.random() * maxY}px #ffffff`
+    value += `, ${(rng()*maxX).toFixed(2)}px ${(rng()*maxY).toFixed(2)}px #ffffff`
   }
   return value
 }
 
-const shadowsSmall = generateMultipleBoxShadows(700)
-const shadowsMedium = generateMultipleBoxShadows(200)
-const shadowsBig = generateMultipleBoxShadows(100)
+// Fixed seeds so visual field is reproducible across sessions
+const shadowsSmall = generateMultipleBoxShadows(700, 'crash:small')
+const shadowsMedium = generateMultipleBoxShadows(200, 'crash:medium')
+const shadowsBig = generateMultipleBoxShadows(100, 'crash:big')
 
 export const animStar = keyframes`
   from {

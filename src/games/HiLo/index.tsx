@@ -10,10 +10,16 @@ import { StyledHiLoBackground } from './HiLoBackground.enhanced.styles'
 
 const BPS_PER_WHOLE = 10000
 
-const randomRank = () => 1 + Math.floor(Math.random() * (RANKS - 1))
+// Deterministic helper: given a seed string and offset, derive a rank.
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
+import { HILO_CONFIG } from '../rtpConfig'
+const deriveRank = (seed: string, offset = 0) => {
+  const rng = makeDeterministicRng(seed + ':' + offset)
+  return 1 + Math.floor(rng() * (RANKS - 1))
+}
 
-const card = (rank = randomRank()): Card => ({
-  key: Math.random(),
+const card = (rank: number, key: number): Card => ({
+  key,
   rank,
 })
 
@@ -26,38 +32,19 @@ export interface HiLoConfig {
   logo: string
 }
 
+// Use centralized bet array calculation
 const generateBetArray = (currentRank: number, isHi: boolean) => {
-  return Array.from({ length: RANKS }).map((_, i) => {
-    const result = (() => {
-      if (isHi) {
-        return currentRank === 0
-          ? i > currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt((RANKS - 1) - currentRank) : BigInt(0)
-          : i >= currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt((RANKS - currentRank)) : BigInt(0)
-      }
-      return currentRank === RANKS - 1
-        ? i < currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt(currentRank) : BigInt(0)
-        : i <= currentRank ? BigInt(RANKS * BPS_PER_WHOLE) / BigInt((currentRank + 1)) : BigInt(0)
-    })()
-    return Number(result) / BPS_PER_WHOLE
-  })
+  return HILO_CONFIG.calculateBetArray(currentRank, isHi)
 }
 
-const adjustBetArray = (betArray: number[]) => {
-  const maxLength = betArray.length
-  const sum = betArray.reduce((acc, val) => acc + val, 0)
-  if (sum > maxLength) {
-    const maxIndex = betArray.findIndex(val => val === Math.max(...betArray))
-    betArray[maxIndex] -= sum - maxLength
-    if (betArray[maxIndex] < 0) betArray[maxIndex] = 0
-  }
-  return betArray
-}
+// No further adjustment required; average EV < 1 by scaling factor.
 
 export default function HiLo(props: HiLoConfig) {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
-  const [cards, setCards] = React.useState([card()])
+  const [seed] = React.useState(() => 'hilo-init')
+  const [cards, setCards] = React.useState([card(deriveRank(seed, 0), 0)])
   const [claiming, setClaiming] = React.useState(false)
   const [initialWager, setInitialWager] = useWagerInput()
   const [profit, setProfit] = React.useState(0)
@@ -65,7 +52,7 @@ export default function HiLo(props: HiLoConfig) {
   const [option, setOption] = React.useState<'hi' | 'lo'>(currentRank > RANKS / 2 ? 'lo' : 'hi')
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
 
-  const addCard = (rank: number) => setCards((cards) => [...cards, card(rank)].slice(-MAX_CARD_SHOWN))
+  const addCard = (rank: number) => setCards((cards) => [...cards, card(rank, cards.length)].slice(-MAX_CARD_SHOWN))
 
   const sounds = useSound({
     card: SOUND_CARD,
@@ -92,7 +79,7 @@ export default function HiLo(props: HiLoConfig) {
       setTimeout(() => {
         setProfit(0)
         sounds.play('card')
-        addCard(randomRank())
+  addCard(deriveRank(seed + ':reset', Date.now() /* deterministic enough across resets */ % 10))
         setClaiming(false)
       }, 300)
     } catch {
@@ -100,7 +87,7 @@ export default function HiLo(props: HiLoConfig) {
     }
   }
 
-  const bet = adjustBetArray(_bet)
+  const bet = _bet
 
   const multipler = Math.max(...bet)
   const maxWagerForBet = pool.maxPayout / multipler

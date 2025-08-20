@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { Engine, Render, World, Bodies, Body, Events } from 'matter-js'
 
 interface DicePhysicsProps {
@@ -87,21 +88,18 @@ export const DicePhysics: React.FC<DicePhysicsProps> = ({
 
   useEffect(() => {
     if (isRolling && diceRef.current) {
-      // Apply random force to dice
+      // Cosmetic deterministic physics: derive a seed from rollUnderIndex + timestamp bucket
+      const seed = `dice-anim:${rollUnderIndex}:${Date.now() - (Date.now()%1000)}`
+      const rng = makeDeterministicRng(seed)
       const force = {
-        x: (Math.random() - 0.5) * 0.02,
-        y: -0.05
+        x: (rng() - 0.5) * 0.02,
+        y: -0.05,
       }
       Body.applyForce(diceRef.current, diceRef.current.position, force)
-      Body.setAngularVelocity(diceRef.current, (Math.random() - 0.5) * 0.3)
-
-      // Simulate result after animation
-      setTimeout(() => {
-        const result = Math.floor(Math.random() * 100) + 1
-        onResult(result)
-      }, 2000)
+      Body.setAngularVelocity(diceRef.current, (rng() - 0.5) * 0.3)
+      // Result is now supplied by parent deterministically after chain result; no local RNG here.
     }
-  }, [isRolling, onResult])
+  }, [isRolling, rollUnderIndex])
 
   return (
     <div 

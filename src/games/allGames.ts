@@ -104,19 +104,6 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./Mines')),
   },
   {
-    id: 'roulette',
-    live: 'down',
-    meta: {
-      name: 'Roulette',
-      background: '#000000CC',
-      image: '/games/roulette.png',
-      description: `The wheel is an ancient song, spun in velvet rooms where whispers and champagne blur together. Each rotation is a dance of elegance and chaos, where red and black become lovers circling in the dark. You place your bet not with logic, but with longing, letting your heart rest where reason will not follow. The ball teases, lingers, spins — until it drops, and with it, your fate. Roulette is not just a wager but a serenade, a timeless ritual where fortune flirts with you in public, then disappears without goodbye. It is old-world romance wrapped in modern risk, and every spin writes another verse in its eternal poem.`,
-      tag: 'Singleplayer',
-      effect: 'pulse',
-    },
-    app: React.lazy(() => import('./Roulette')),
-  },
-  {
     id: 'plinko',
     live: 'down',
     meta: {

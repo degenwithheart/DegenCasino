@@ -1,5 +1,6 @@
 // src/components/LobbyBackground.tsx
 import React, { useEffect, useRef } from 'react'
+import { makeDeterministicRng } from '../../../fairness/deterministicRng'
 import Matter, { Bodies, Composite, Body } from 'matter-js'
 import { PhysicsWorld } from '../engine/PhysicsWorld'
 import { GambaUi } from 'gamba-react-ui-v2'
@@ -13,6 +14,7 @@ import {
 } from '../engine/constants'
 
 const SPAWN_INTERVAL = 300
+const SPAWN_BUCKET = 750 // ms grouping for deterministic lobby spawn seed
 const BALL_COLORS = ['#ff9aa2','#ffb7b2','#ffdac1','#e2f0cb','#b5ead7','#c7ceea']
 
 export default function LobbyBackground() {
@@ -34,8 +36,11 @@ export default function LobbyBackground() {
       // spawn a new ball
       if (time - lastSpawn.current > SPAWN_INTERVAL) {
         lastSpawn.current = time
-        const x = WIDTH/2 + (Math.random()*200 - 100)
-        const color = BALL_COLORS[Math.floor(Math.random()*BALL_COLORS.length)]
+        // Seed uses spawn interval bucket so multiple clients render same sequence
+  const seed = `lobbyspawn:${Math.floor(time/ SPAWN_BUCKET)}`
+        const rng = makeDeterministicRng(seed + ':' + (ballsRef.current.length))
+        const x = WIDTH/2 + (rng()*200 - 100)
+        const color = BALL_COLORS[Math.floor(rng()*BALL_COLORS.length)]
         const ball = Bodies.circle(x, -BALL_RADIUS, BALL_RADIUS, {
           restitution: 0.4,
           label: 'Ball',

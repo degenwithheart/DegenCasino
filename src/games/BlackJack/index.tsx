@@ -1,6 +1,8 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
+import { makeDeterministicRng, pickDeterministic } from '../../fairness/deterministicRng'
 import React from 'react'
+import { BLACKJACK_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import { CARD_VALUES, RANKS, RANK_SYMBOLS, SUIT_COLORS, SUIT_SYMBOLS, SUITS, SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants'
 import { Card, CardContainer, CardsContainer, Container, Profit, CardArea } from './styles'
@@ -8,11 +10,9 @@ import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledBlackjackBackground } from './BlackjackBackground.enhanced.styles'
 
-const randomRank = () => Math.floor(Math.random() * RANKS)
-const randomSuit = () => Math.floor(Math.random() * SUITS)
-
-const createCard = (rank = randomRank(), suit = randomSuit()): Card => ({
-  key: Math.random(),
+// Card creation is now deterministic; randomness sourced from on-chain result mapping.
+const createCard = (rank: number, suit: number, keySeed: number): Card => ({
+  key: keySeed,
   rank,
   suit,
 })
@@ -56,7 +56,8 @@ export default function Blackjack(props: BlackjackConfig) {
     resetGame()
     sounds.play('play')
 
-    const betArray = [2.5, 2.5, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+    // Use centralized bet array from rtpConfig
+    const betArray = [...BLACKJACK_CONFIG.betArray]
 
     await game.play({
       bet: betArray,
@@ -66,46 +67,76 @@ export default function Blackjack(props: BlackjackConfig) {
     const result = await game.result()
     const payoutMultiplier = result.payout / initialWager
 
-    let newPlayerCards: Card[] = []
-    let newDealerCards: Card[] = []
+    // Deterministic derivation of card sequences from result
+    // Seed composed of payout multiplier & resultIndex (covers all distinct outcomes)
+    const seed = `${result.resultIndex}:${payoutMultiplier}:${initialWager}`
+    const rng = makeDeterministicRng(seed)
 
-    if (payoutMultiplier === 2.5) {
-      // Player got blackjack
-      newPlayerCards = generateBlackjackHand()
-      newDealerCards = generateRandomHandBelow(21)
-    } else if (payoutMultiplier === 2) {
-      // Player wins normally
-      newPlayerCards = generateWinningHand()
-      newDealerCards = generateLosingHand(newPlayerCards)
-    } else {
-      // Player loses
-      newPlayerCards = generateLosingHand()
-      newDealerCards = generateWinningHandOver(newPlayerCards)
+    const ranks = Array.from({ length: RANKS }, (_, i) => i)
+    const suits = Array.from({ length: SUITS }, (_, i) => i)
+
+    const drawCard = (k: number) => {
+      const r = pickDeterministic(ranks, rng)
+      const s = pickDeterministic(suits, rng)
+      return createCard(r, s, k)
     }
 
-    // Function to deal cards one by one
-    const dealCards = async () => {
-      for (let i = 0; i < 2; i++) {
-        // Deal to player
-        if (i < newPlayerCards.length) {
-          setPlayerCards(prev => [...prev, newPlayerCards[i]])
-          sounds.play('card')
-          await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms
-        }
-        // After dealing player's second card, check for blackjack and play sound
-        if (i === 1 && payoutMultiplier === 2.5) {
-          sounds.play('jackpot') // Play jackpot sound for blackjack immediately
-        }
-        // Deal to dealer
-        if (i < newDealerCards.length) {
-          setDealerCards(prev => [...prev, newDealerCards[i]])
-          sounds.play('card')
-          await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms
-        }
+    // Strategy: generate minimal two-card hands; adjust according to payout class
+    const player: Card[] = [drawCard(1), drawCard(2)]
+    const dealer: Card[] = [drawCard(3), drawCard(4)]
+
+    // If blackjack payout (2.5x) ensure player has Ace + 10-value
+    if (payoutMultiplier === 2.5) {
+      const aceRank = 12
+      const tenRanks = [8,9,10,11]
+      player[0] = createCard(aceRank, player[0].suit, 1)
+      const tenRank = tenRanks[Math.floor(rng()*tenRanks.length)]
+      player[1] = createCard(tenRank, player[1].suit, 2)
+    }
+
+    // Basic value adjustments for non-loss outcomes
+    const handValue = (h: Card[]) => h.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
+    if (payoutMultiplier === 2) {
+      // Ensure player > dealer and <=21
+      let guard = 0
+      while ((handValue(player) <= handValue(dealer) || handValue(player) > 21) && guard < 20) {
+        player[0] = drawCard(10 + guard)
+        player[1] = drawCard(100 + guard)
+        guard++
+      }
+    }
+    if (payoutMultiplier === 0) {
+      // Ensure dealer > player or player bust
+      let guard = 0
+      while (!(handValue(dealer) > handValue(player) || handValue(player) > 21) && guard < 20) {
+        dealer[0] = drawCard(200 + guard)
+        dealer[1] = drawCard(300 + guard)
+        guard++
       }
     }
 
-    await dealCards()
+    const newPlayerCards = player
+    const newDealerCards = dealer
+
+    // Animate sequential reveal deterministically
+    const dealSequence: Card[][] = [newPlayerCards, newDealerCards]
+    for (let h = 0; h < dealSequence.length; h++) {
+      for (let i = 0; i < dealSequence[h].length; i++) {
+        const c = dealSequence[h][i]
+        if (h === 0) {
+          setPlayerCards(prev => [...prev, c])
+        } else {
+          setDealerCards(prev => [...prev, c])
+        }
+        sounds.play('card')
+        if (h === 0 && i === 1 && payoutMultiplier === 2.5) {
+          sounds.play('jackpot')
+        }
+        // small deterministic delay (not random)
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(r => setTimeout(r, 350))
+      }
+    }
 
     setProfit(result.payout)
 
@@ -124,68 +155,7 @@ export default function Blackjack(props: BlackjackConfig) {
     return hand.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
   }
 
-  const generateBlackjackHand = (): Card[] => {
-    const aceRank = 12
-    const tenRanks = [8, 9, 10, 11] // Ranks corresponding to 10-value cards
-    const tenCardRank = tenRanks[Math.floor(Math.random() * tenRanks.length)]
-    return [createCard(aceRank, randomSuit()), createCard(tenCardRank, randomSuit())]
-  }
-
-  const generateRandomHandBelow = (maxTotal: number): Card[] => {
-    let handValue = maxTotal
-    while (handValue >= maxTotal) {
-      const card1 = createCard()
-      const card2 = createCard()
-      handValue = CARD_VALUES[card1.rank] + CARD_VALUES[card2.rank]
-      if (handValue < maxTotal) {
-        return [card1, card2]
-      }
-    }
-    return []
-  }
-
-  const generateWinningHand = (): Card[] => {
-    const totals = [17, 18, 19, 20]
-    const targetTotal = totals[Math.floor(Math.random() * totals.length)]
-    return generateHandWithTotal(targetTotal)
-  }
-
-  const generateLosingHand = (opponentHand?: Card[]): Card[] => {
-    const opponentTotal = opponentHand ? getHandValue(opponentHand) : 20
-    let total = opponentTotal
-    while (total >= opponentTotal) {
-      const hand = [createCard(), createCard()]
-      total = getHandValue(hand)
-      if (total < opponentTotal) {
-        return hand
-      }
-    }
-    return []
-  }
-
-  const generateWinningHandOver = (opponentHand: Card[]): Card[] => {
-    const opponentTotal = getHandValue(opponentHand)
-    let total = opponentTotal
-    while (total <= opponentTotal || total > 21) {
-      const hand = [createCard(), createCard()]
-      total = getHandValue(hand)
-      if (total > opponentTotal && total <= 21) {
-        return hand
-      }
-    }
-    return []
-  }
-
-  const generateHandWithTotal = (targetTotal: number): Card[] => {
-    for (let i = 0; i < 100; i++) {
-      const card1 = createCard()
-      const card2 = createCard()
-      if (CARD_VALUES[card1.rank] + CARD_VALUES[card2.rank] === targetTotal) {
-        return [card1, card2]
-      }
-    }
-    return generateRandomHandBelow(targetTotal)
-  }
+  // Old random-based generators removed (now deterministic via rng + adjustments above)
 
   return (
     <>

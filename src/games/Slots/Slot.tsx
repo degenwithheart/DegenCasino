@@ -168,16 +168,16 @@ const Revealed = styled.div<{$revealed: boolean, $good: boolean}>`
 `
 
 export function Slot({ revealed, good, item, index }: SlotProps) {
-  const items = React.useMemo(() =>
-    [...SLOT_ITEMS].sort(() => Math.random() - .5)
-  , [],
-  )
+  const items = React.useMemo(() => {
+    // Deterministic order (no shuffle) for transparency
+    return SLOT_ITEMS
+  }, [])
   return (
     <StyledSlot $good={good} $revealed={revealed}>
       <StyledSpinner data-spinning={!revealed}>
         {items.map((item, i) => (
-          <div key={i}>
-            <img className={'slotImage'} src={item.image} />
+          <div key={i} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <img className={'slotImage'} src={item.image} style={{ display: 'block', margin: '0 auto' }} />
           </div>
         ))}
       </StyledSpinner>
@@ -191,7 +191,7 @@ export function Slot({ revealed, good, item, index }: SlotProps) {
             <img
               className={'slotImage'}
               src={item.image}
-              style={{ animationDelay: index * .25 + 's' }}
+              style={{ animationDelay: index * .25 + 's', display: 'block', margin: '0 auto' }}
             />
           </Revealed>
         </>

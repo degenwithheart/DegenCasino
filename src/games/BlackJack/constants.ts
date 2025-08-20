@@ -44,8 +44,9 @@ export const SUIT_COLORS: Record<number, string> = {
   3: 'black', // Clubs
 }
 
-export const RANKS = Object.keys(RANK_SYMBOLS).length
-export const SUITS = Object.keys(SUIT_SYMBOLS).length
+import { BLACKJACK_CONFIG } from '../rtpConfig'
+export const RANKS = BLACKJACK_CONFIG.RANKS
+export const SUITS = BLACKJACK_CONFIG.SUITS
 
 export { default as SOUND_LOSE } from './lose.mp3'
 export { default as SOUND_PLAY } from './play.mp3'

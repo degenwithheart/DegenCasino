@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { PublicKey } from '@solana/web3.js'
 import { useSound, useCurrentToken, TokenValue, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
+import { useMultiplayer } from 'gamba-react-v2'
 import CreateGameModal from './CreateGameModal'
+import { isBlackjackV1Game } from '../multiplayer'
+import { Multiplayer } from 'gamba-react-ui-v2'
 import lobbymusicSnd from '../sounds/card.mp3'
 
 const shorten = (pk: PublicKey) =>
@@ -177,15 +180,8 @@ export default function Lobby({ onSelect, onDebug }: {
   const token = useCurrentToken()
   const [showCreateModal, setShowCreateModal] = useState(false)
   
-  // Mock games for now - in a real implementation, you'd fetch from the multiplayer API
-  const games: any[] = []
-  const loading = false
-
-  // Filter for blackjack games - in a real implementation, you'd have metadata to identify blackjack games
-  const blackjackGames = games.filter((game: any) => {
-    // This is a placeholder - you'd implement proper game type identification
-    return true
-  })
+  const { games, loading } = useMultiplayer()
+  const blackjackGames = (games || []).filter(isBlackjackV1Game)
 
   const sounds = useSound({
     lobby: lobbymusicSnd,
@@ -228,7 +224,7 @@ export default function Lobby({ onSelect, onDebug }: {
         </div>
       </Header>
 
-      {blackjackGames.length === 0 ? (
+  {blackjackGames.length === 0 && !loading ? (
         <EmptyState>
           <h3>🎭 The card table stands empty</h3>
           <p>No duels are currently active. Be the first to deal the cards and challenge fate!</p>
@@ -243,6 +239,7 @@ export default function Lobby({ onSelect, onDebug }: {
               <TH>Players</TH>
               <TH>Status</TH>
               <TH>Time Left</TH>
+              <TH>Join</TH>
             </tr>
           </thead>
           <tbody>
@@ -257,7 +254,7 @@ export default function Lobby({ onSelect, onDebug }: {
                   onClick={() => clickable && onSelect(game.publicKey)}
                 >
                   <TD>BlackJack Duel #{index + 1}</TD>
-                  <TD>{shorten(game.creator)}</TD>
+                  <TD>{shorten(game.creatorAddress || game.creator || game.players[0]?.user)}</TD>
                   <TD>
                     <BetLabel
                       wagerType={game.wagerType}
@@ -278,6 +275,19 @@ export default function Lobby({ onSelect, onDebug }: {
                       ? formatDuration(Number(game.softExpirationTimestamp) * 1000 - Date.now())
                       : '∞'
                     }
+                  </TD>
+                  <TD>
+                    {clickable && (
+                      <Multiplayer.JoinGame
+                        pubkey={game.publicKey}
+                        account={game}
+                        creatorAddress={game.creatorAddress || game.creator}
+                        creatorFeeBps={0}
+                        referralFee={0}
+                        enableMetadata
+                        onTx={() => {}}
+                      />
+                    )}
                   </TD>
                 </TR>
               )

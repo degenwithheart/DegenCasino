@@ -6,6 +6,7 @@ import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls,
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
+import { FLIP_CONFIG } from '../rtpConfig'
 import { Effect } from './Effect'
 import { StyledFlipBackground } from './FlipBackground.enhanced.styles'
 
@@ -13,9 +14,10 @@ import SOUND_COIN from './coin.mp3'
 import SOUND_LOSE from './lose.mp3'
 import SOUND_WIN from './win.mp3'
 
+// Use centralized bet arrays from rtpConfig
 const SIDES = {
-  heads: [2, 0],
-  tails: [0, 2],
+  heads: FLIP_CONFIG.heads,
+  tails: FLIP_CONFIG.tails,
 }
 
 type Side = keyof typeof SIDES
@@ -43,7 +45,7 @@ function Flip() {
       sounds.play('coin', { playbackRate: .5 })
 
       await game.play({
-        bet: SIDES[side],
+        bet: [...SIDES[side]],
         wager,
         metadata: [side],
       })

@@ -7,8 +7,9 @@ import SOUND from './music.mp3'
 import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapper, StarsLayer1, StarsLayer2, StarsLayer3 } from './styles'
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { calculateBetArray } from './utils'
+import { CRASH_CONFIG } from '../rtpConfig'
 import WIN_SOUND from './win.mp3'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
 export default function CrashGame() {
   const [wager, setWager] = useWagerInput()
@@ -66,24 +67,27 @@ export default function CrashGame() {
     }
   )()
 
-  //Kinda realistic losing number chooser
-  const calculateBiasedLowMultiplier = (targetMultiplier: number) => {
-    const randomValue = Math.random()
-    const maxPossibleMultiplier = Math.min(targetMultiplier, 12)
-    const exponent = randomValue > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
-    const result = 1 + Math.pow(randomValue, exponent) * (maxPossibleMultiplier - 1)
+  // Deterministic losing multiplier mapping (visual only) derived from on-chain result index & target
+  const deriveLosingMultiplier = (targetMultiplier: number, seed: string) => {
+    const rng = makeDeterministicRng(`crash:${seed}:${targetMultiplier}`)
+    const base = rng()
+    const maxPossible = Math.min(targetMultiplier, 12)
+    const exponent = base > 0.95 ? 2.8 : (targetMultiplier > 10 ? 5 : 6)
+    const result = 1 + Math.pow(base, exponent) * (maxPossible - 1)
     return parseFloat(result.toFixed(2))
   }
 
 
   const play = async () => {
     setRocketState('idle')
-    const bet = calculateBetArray(multiplierTarget)
+    const bet = CRASH_CONFIG.calculateBetArray(multiplierTarget)
     await game.play({ wager, bet })
 
     const result = await game.result()
     const win = result.payout > 0
-    const multiplierResult = win ? multiplierTarget : calculateBiasedLowMultiplier(multiplierTarget)
+    const multiplierResult = win
+      ? parseFloat(multiplierTarget.toFixed(2))
+      : deriveLosingMultiplier(multiplierTarget, `${result.resultIndex}:${result.payout}`)
 
     console.log('multiplierResult', multiplierResult)
     console.log('win', win)
