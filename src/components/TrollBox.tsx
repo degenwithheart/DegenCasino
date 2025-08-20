@@ -3,7 +3,7 @@ import styled, { css, keyframes } from 'styled-components'
 import useSWR from 'swr'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
+import { PLATFORM_CREATOR_ADDRESS } from '../constants';
 import { generateUsernameFromWallet } from '../sections/userProfileUtils';
 
 
@@ -361,7 +361,7 @@ export default function TrollBox() {
   })
 
   // Check if connected wallet is creator
-  const isCreator = connected && publicKey && publicKey.toBase58() === CREATOR_ADDRESS;
+  const isCreator = connected && publicKey && publicKey.toBase58() === PLATFORM_CREATOR_ADDRESS.toBase58();
 
   // Clear chat handler
   const [isClearing, setIsClearing] = useState(false);
