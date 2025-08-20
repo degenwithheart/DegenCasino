@@ -2,7 +2,7 @@ import { cacheOnTheFly } from './xcacheOnTheFly'
 
 // Simple in-memory rate limiter (per process, not per user)
 let lastCall = 0;
-const THROTTLE_MS = 10000; // 10 seconds
+const THROTTLE_MS = 2000; // 2 seconds (less aggressive)
 
 export const config = {
   runtime: 'edge',
@@ -49,11 +49,9 @@ export default async function handler(req: Request): Promise<Response> {
   }
   lastCall = now;
   const { searchParams } = new URL(req.url)
-  const domain = searchParams.get('domain')
+  const domain = searchParams.get('domain') || 'degenheart.casino';
 
-  if (!domain) {
-    return new Response('Missing domain', { status: 400 })
-  }
+  // If no domain provided, default to degenheart.casino for ConnectionStatus
 
   // Cache per domain for 30s
   const cacheKey = `dns:${domain}`;
@@ -106,7 +104,7 @@ export default async function handler(req: Request): Promise<Response> {
     } else if (onlineCount > 0) {
       status = 'Issues';
     }
-    return new Response(JSON.stringify({ status }), {
+    return new Response(JSON.stringify({ status, results }), {
       headers: { 'Content-Type': 'application/json' },
     });
   }
