@@ -103,7 +103,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     mint: FAKE_TOKEN_MINT,
     name: 'Degen Heart',
     symbol: 'DGHRT',
-    image: '/fakemoney.png',
+    image: '/$DGHRT.png',
     baseWager: 1e9,
     decimals: 9,
     usdPrice: 1,
