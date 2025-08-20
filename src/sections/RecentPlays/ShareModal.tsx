@@ -33,8 +33,13 @@ const Content = styled.div`
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
   const { game } = extractMetadata(event)
+  // Get wallet and gameId for route
+  const wallet = event.data.user?.toBase58?.() || ''
+  const gameId = game?.id || ''
   const gotoGame = () => {
-    navigate('/' + game?.id)
+    if (wallet && gameId) {
+      navigate(`/game/${wallet}/${gameId}`)
+    }
     onClose()
   }
   const tokenMeta = useTokenMeta(event.data.tokenMint)
@@ -85,7 +90,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
               Verify
             </GambaUi.Button>
             <GambaUi.Button size="small" onClick={gotoGame}>
-              Play {game?.meta?.name}
+              Play {game?.meta?.name || 'Game'}
             </GambaUi.Button>
           </Flex>
         </Container>
