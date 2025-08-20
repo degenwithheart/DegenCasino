@@ -48,6 +48,8 @@ async function setLocalMessages(msgs: Msg[]): Promise<void> {
   await fs.writeFile(FILE, JSON.stringify(msgs), 'utf8');
 }
 
+const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
+
 async function getMessages(): Promise<Msg[]> {
   if (isVercel()) {
     // @ts-ignore
@@ -93,6 +95,25 @@ export default async function handler(req: Request): Promise<Response> {
       const msg: Msg = { user: cleanUser, text: cleanText, ts: Date.now() };
       await addMessage(msg);
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (req.method === 'DELETE') {
+      // Only allow creator to clear chat
+      let address = '';
+      try {
+        const body = await req.json();
+        address = String(body.address || '').trim();
+      } catch {}
+      if (address !== CREATOR_ADDRESS) {
+        return new Response('Unauthorized', { status: 401, headers: corsHeaders });
+      }
+      if (isVercel()) {
+        // @ts-ignore
+        const { kv } = await import('@vercel/kv');
+        await kv.del(KEY);
+      } else {
+        await setLocalMessages([]);
+      }
+      return new Response(JSON.stringify({ ok: true, cleared: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
   } catch (err: any) {
