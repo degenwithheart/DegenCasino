@@ -1,10 +1,11 @@
 # Ignore environment file
 .env
-docs
 **/gamba_integration_guide.txt
 .DS_Store
 **/.DS_Store
 .vercel
 .vite
 dist
+docs
+new
 node_modules
