@@ -505,7 +505,15 @@ export default function PropagationPage() {
         if (!res.ok) throw new Error('Failed to fetch DNS status')
         return res.json()
       })
-      .then(setStatusList)
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStatusList(data)
+        } else if (data && Array.isArray(data.results)) {
+          setStatusList(data.results)
+        } else {
+          setStatusList([])
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, THROTTLE_MS);
