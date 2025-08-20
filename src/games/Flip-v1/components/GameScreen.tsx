@@ -188,9 +188,10 @@ const GameStatus = styled.div`
   }
 `
 
+// House edge: reduce even-money payout from 2.0x to 1.98x to achieve ~99% RTP with 50% win chance
 const SIDES = {
-  heads: [2, 0],
-  tails: [0, 2],
+  heads: [1.98, 0],
+  tails: [0, 1.98],
 }
 
 type Side = keyof typeof SIDES

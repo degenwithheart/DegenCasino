@@ -17,7 +17,8 @@ export const RANK_SYMBOLS: Record<number, string> = {
   11: 'K',
   12: 'A',
 }
-export const RANKS = Object.keys(RANK_SYMBOLS).length
+import { HILO_CONFIG } from '../rtpConfig'
+export const RANKS = HILO_CONFIG.RANKS
 
 export { default as SOUND_CARD } from './card.mp3'
 export { default as SOUND_FINISH } from './finish.mp3'

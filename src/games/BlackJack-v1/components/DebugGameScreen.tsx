@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { PublicKey } from '@solana/web3.js'
 import { useSound } from 'gamba-react-ui-v2'
+import { makeDeterministicRng } from '../../../fairness/deterministicRng'
 import { Card } from '../Card'
 import cardSnd from '../sounds/card.mp3'
 import winSnd from '../sounds/win.mp3'
@@ -264,15 +265,13 @@ const CARD_VALUES = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10] // A, 2-10, J, 
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 const SUITS = ['♠', '♥', '♦', '♣']
 
+let _debugSeedBase = `${Date.now()}`
+let _debugRng = makeDeterministicRng(_debugSeedBase)
+const resetRng = (preset: string) => { _debugSeedBase = `${Date.now()}:${preset}`; _debugRng = makeDeterministicRng(_debugSeedBase) }
 const createCard = (rankIndex?: number, suitIndex?: number): DebugCard => {
-  const rank = rankIndex !== undefined ? rankIndex : Math.floor(Math.random() * RANKS.length)
-  const suit = suitIndex !== undefined ? suitIndex : Math.floor(Math.random() * SUITS.length)
-  
-  return {
-    rank: RANKS[rank],
-    suit: SUITS[suit],
-    value: CARD_VALUES[rank]
-  }
+  const rank = rankIndex !== undefined ? rankIndex : Math.floor(_debugRng() * RANKS.length)
+  const suit = suitIndex !== undefined ? suitIndex : Math.floor(_debugRng() * SUITS.length)
+  return { rank: RANKS[rank], suit: SUITS[suit], value: CARD_VALUES[rank] }
 }
 
 function calculateHandValue(cards: DebugCard[]): number {
@@ -298,15 +297,15 @@ function calculateHandValue(cards: DebugCard[]): number {
 }
 
 const generateBlackjackHand = (): DebugCard[] => {
-  const aceCard = createCard(0) // Ace
-  const tenCards = [9, 10, 11, 12] // 10, J, Q, K
-  const tenCard = createCard(tenCards[Math.floor(Math.random() * tenCards.length)])
+  const aceCard = createCard(0)
+  const tenCards = [9,10,11,12]
+  const tenCard = createCard(tenCards[Math.floor(_debugRng()*tenCards.length)])
   return [aceCard, tenCard]
 }
 
 const generateWinningHand = (): DebugCard[] => {
-  const values = [17, 18, 19, 20, 21]
-  const targetValue = values[Math.floor(Math.random() * values.length)]
+  const values = [17,18,19,20,21]
+  const targetValue = values[Math.floor(_debugRng()*values.length)]
   
   for (let attempts = 0; attempts < 100; attempts++) {
     const card1 = createCard()
@@ -329,6 +328,7 @@ export default function DebugGameScreen({ onBack }: { onBack: () => void }) {
   const [currentPlayer, setCurrentPlayer] = useState(0)
   const [gamePhase, setGamePhase] = useState<'setup' | 'playing' | 'finished'>('setup')
   const [selectedPreset, setSelectedPreset] = useState<string>('random')
+  React.useEffect(()=>{ resetRng(selectedPreset) },[selectedPreset])
   
   const sounds = useSound({
     card: cardSnd,
@@ -386,11 +386,11 @@ export default function DebugGameScreen({ onBack }: { onBack: () => void }) {
   }
 
   const simulateDuel = () => {
-    const winner = Math.random() < 0.5 ? 0 : 1
+  const winner = _debugRng() < 0.5 ? 0 : 1
     const loser = winner === 0 ? 1 : 0
     
     // Generate winner's hand
-    const winnerCards = Math.random() < 0.3 ? generateBlackjackHand() : generateWinningHand()
+  const winnerCards = _debugRng() < 0.3 ? generateBlackjackHand() : generateWinningHand()
     const winnerValue = calculateHandValue(winnerCards)
     
     // Generate loser's hand (lower value or bust)

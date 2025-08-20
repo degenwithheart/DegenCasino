@@ -2,6 +2,7 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
+import { MINES_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
 import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
@@ -31,9 +32,9 @@ function Mines() {
   const [initialWager, setInitialWager] = useWagerInput()
   const [mines, setMines] = React.useState(MINE_SELECT[2])
 
+  // Use centralized mines configuration
   const getMultiplierForLevel = (level: number) => {
-    const remainingCells = GRID_SIZE - level
-    return Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+    return MINES_CONFIG.getMultiplier(mines, level + 1)
   }
 
   const levels = React.useMemo(

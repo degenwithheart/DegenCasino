@@ -240,6 +240,13 @@ export const SIDEBAR_LINKS = [
     showWhen: () => true,
     external: false,
   },
+  {
+    to: '/audit',
+    label: 'Audit',
+    icon: FaBookOpen,
+    showWhen: () => true,
+    external: false,
+  },
 ];
 
 

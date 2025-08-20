@@ -2,6 +2,8 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
+import { makeDeterministicRng } from '../../fairness/deterministicRng'
+import { DICE_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import Slider from './Slider'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
@@ -10,32 +12,9 @@ import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledDiceBackground } from './DiceBackground.enhanced.styles'
 
-const calculateArraySize = (odds: number): number => {
-  const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
-  return 100 / gcd(100, odds)
-}
-
+// Use centralized bet array calculation
 export const outcomes = (odds: number) => {
-  const arraySize = calculateArraySize(odds)
-  const payout = (100 / odds).toFixed(4)
-
-  let payoutArray = Array.from({ length: arraySize }).map((_, index) =>
-    index < (arraySize * (odds / 100)) ? parseFloat(payout) : 0
-  )
-
-  const totalValue = payoutArray.reduce((acc, curr) => acc + curr, 0)
-
-  if (totalValue > arraySize) {
-    for (let i = payoutArray.length - 1; i >= 0; i--) {
-      if (payoutArray[i] > 0) {
-        payoutArray[i] -= totalValue - arraySize
-        payoutArray[i] = parseFloat(payoutArray[i].toFixed(4))
-        break
-      }
-    }
-  }
-
-  return payoutArray
+  return DICE_CONFIG.calculateBetArray(odds)
 }
 
 export default function Dice() {
@@ -63,22 +42,29 @@ export default function Dice() {
   const play = async () => {
     sounds.play('play')
 
-    await game.play({
-      wager,
-      bet,
-    })
+    await game.play({ wager, bet })
 
     const result = await game.result()
 
     const win = result.payout > 0
 
-    const resultNum = win
-      ? Math.floor(Math.random() * rollUnderIndex)
-      : Math.floor(Math.random() * (100 - rollUnderIndex) + rollUnderIndex)
-
-    setResultIndex(resultNum)
-
-    win ? sounds.play('win') : sounds.play('lose')
+    // Deterministically derive the revealed number from on-chain result index
+    // so there is zero client-side influence over outcome presentation.
+    // We map the resultIndex into either the winning interval [0, rollUnderIndex)
+    // or the losing interval [rollUnderIndex, 100) depending on payout.
+    const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${rollUnderIndex}`
+    const rng = makeDeterministicRng(seed)
+    if (win) {
+      const span = rollUnderIndex
+      const value = Math.floor(rng() * span) // 0 .. rollUnderIndex-1
+      setResultIndex(value)
+      sounds.play('win')
+    } else {
+      const span = 100 - rollUnderIndex
+      const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. 99
+      setResultIndex(value)
+      sounds.play('lose')
+    }
   }
 
   return (

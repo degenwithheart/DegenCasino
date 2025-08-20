@@ -1,67 +1,83 @@
 import { SLOT_ITEMS, SlotItem } from './constants'
 
-const pickRandom = <T>(arr: T[]) => arr.at(Math.floor(Math.random() * arr.length))
+/**
+ * Very small deterministic hash-based PRNG (not cryptographic) used ONLY for
+ * deriving a reproducible visual arrangement from an already-final on-chain
+ * result (signature, multiplier). This does NOT influence payout; it maps a
+ * committed outcome to symbols so players (and auditors) can recompute.
+ */
+function makeDeterministicRng(seed: string) {
+  let h = 1779033703 ^ seed.length
+  for (let i = 0; i < seed.length; i++) {
+    h = Math.imul(h ^ seed.charCodeAt(i), 3432918353)
+    h = (h << 13) | (h >>> 19)
+  }
+  return function () {
+    h = Math.imul(h ^ (h >>> 16), 2246822507)
+    h = Math.imul(h ^ (h >>> 13), 3266489909)
+    const t = (h ^= h >>> 16) >>> 0
+    return t / 4294967296
+  }
+}
+
+const pickDeterministic = <T>(arr: T[], rng: () => number) => arr[Math.floor(rng() * arr.length)]
 
 /**
  * Creates a bet array for given wager amount and max payout
  */
+import { SLOTS_CONFIG } from '../rtpConfig'
+
 export const generateBetArray = (
   maxPayout: number,
   wager: number,
-  maxLength = 50,
+  maxLength = 1000,
 ) => {
-  const maxMultiplier = Math.min(maxLength, maxPayout / wager)
-  const arr = Array.from({ length: maxLength }).fill(0) as number[]
-  let total = 0
-
-  if (!maxMultiplier) return []
-
-  let i = 0
-  while (total < maxLength) {
-    const left = maxLength - total
-    const pickableItems = SLOT_ITEMS.filter((x) => x.multiplier <= Math.min(left, maxMultiplier))
-    const item = pickRandom(pickableItems)
-    if (item) {
-      total += item.multiplier
-      arr[i] = item.multiplier
-    }
-    i++
-    if (i > 1000) break
-  }
-
-  return arr
+  // Always return the full bet array from rtpConfig, no filtering or overrides
+  return SLOTS_CONFIG.betArray;
 }
 
 /**
  * Picks a random slot item combination based on the result
  */
-export const getSlotCombination = (count: number, multiplier: number, bet: number[]) => {
-  // When we win, all slots are the same
+export const getSlotCombination = (
+  count: number,
+  multiplier: number,
+  bet: number[],
+  seed: string, // typically the on-chain result signature
+) => {
+  const rng = makeDeterministicRng(`${seed}:${multiplier}:${bet.length}:${count}`)
+
+  // WIN CASE: every reel shows a symbol with the winning multiplier
   if (multiplier > 0) {
-    const items = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
-    const item = pickRandom(items) ?? pickRandom(SLOT_ITEMS.filter((x) => x.multiplier < 1))
-    return new Array(count).fill(item) as SlotItem[]
+    const winningItems = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
+    const fallback = SLOT_ITEMS.filter((x) => x.multiplier < 1)
+    const chosen = (winningItems.length > 0
+      ? pickDeterministic(winningItems, rng)
+      : pickDeterministic(fallback, rng))
+    return new Array(count).fill(chosen) as SlotItem[]
   }
 
-  // Simulate a random roll
-  const availableSlotItems = SLOT_ITEMS.filter((x) => bet.includes(x.multiplier))
-
-  const { items } = Array.from({ length: count })
-    .reduce<{items: SlotItem[], previous: SlotItem}>(
-    ({ previous, items }, _, i) => {
-      const item = (() => {
-        // Make sure we don't pick one that has been selected
-        if (i === count - 1) {
-          return pickRandom(availableSlotItems.filter((x) => !items.includes(x))) ?? pickRandom(SLOT_ITEMS)!
-        }
-
-        // Pick a random one
-        return Math.random() < .75 ? previous : pickRandom(availableSlotItems)!
-      })()
-
-      return { previous: item, items: [...items, item] }
+  // LOSS CASE: deterministic pseudo-random arrangement, ensuring not all same
+  const available = SLOT_ITEMS.filter((x) => bet.includes(x.multiplier))
+  const pool = available.length ? available : SLOT_ITEMS
+  const items: SlotItem[] = []
+  for (let i = 0; i < count; i++) {
+    if (i === 0) {
+      items.push(pickDeterministic(pool, rng))
+      continue
     }
-    , { previous: pickRandom(availableSlotItems)!, items: [] })
-
+    const repeatPrev = rng() < 0.75 // deterministic probability
+    if (repeatPrev) {
+      items.push(items[i - 1])
+    } else {
+      items.push(pickDeterministic(pool, rng))
+    }
+  }
+  // Ensure not all identical (visual fairness expectation)
+  if (items.every((x) => x === items[0])) {
+    // Replace last with a different one deterministically
+    const alt = pool.find((x) => x !== items[0]) || items[0]
+    items[items.length - 1] = alt
+  }
   return items
 }

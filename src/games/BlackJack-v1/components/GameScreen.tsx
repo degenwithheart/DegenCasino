@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { PublicKey } from '@solana/web3.js'
 import { Multiplayer, TokenValue, GambaUi } from 'gamba-react-ui-v2'
+import { useGame } from 'gamba-react-v2'
+import { makeDeterministicRng } from '../../../fairness/deterministicRng'
 import { useSound } from 'gamba-react-ui-v2'
 import { Card } from '../Card'
+import { RANK_SYMBOLS, SUIT_SYMBOLS, CARD_VALUES } from '../constants'
 import cardSnd from '../sounds/card.mp3'
 import winSnd from '../sounds/win.mp3'
 import win2Snd from '../sounds/win2.mp3'
@@ -199,106 +202,93 @@ const PlayButton = styled.button`
   }
 `
 
-// Types for the game state
-interface BlackjackCard {
-  suit: string
-  rank: string
-  value: number
-}
+// Internal deterministic card representation
+interface BlackjackCard { rankIndex: number; suitIndex: number }
 
-interface GameState {
+// Local derived state from chain multiplayer account
+interface GameStateDerived {
   phase: 'waiting' | 'ready' | 'dealing' | 'finished'
-  players: Array<{
-    publicKey: PublicKey
-    cards: BlackjackCard[]
-    handValue: number
-    isBlackjack: boolean
-    isBust: boolean
-    bet: number
-  }>
   winner?: number
-  pot: number
-  gameResult?: any
 }
 
 // Card generation functions (like original BlackJack)
-const CARD_VALUES = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10] // A, 2-10, J, Q, K
-const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-const SUITS = ['♠', '♥', '♦', '♣']
+// RNG seeded per settlement (using on-chain winner + players) for deterministic deal
+let roundRng: (() => number) | null = null
+const rand = () => (roundRng ? roundRng() : 0)
 
-const createCard = (rankIndex?: number, suitIndex?: number): BlackjackCard => {
-  const rank = rankIndex !== undefined ? rankIndex : Math.floor(Math.random() * RANKS.length)
-  const suit = suitIndex !== undefined ? suitIndex : Math.floor(Math.random() * SUITS.length)
-  
-  return {
-    rank: RANKS[rank],
-    suit: SUITS[suit],
-    value: CARD_VALUES[rank]
-  }
-}
-
-const getHandValue = (cards: BlackjackCard[]): number => {
-  let value = 0
+// Helpers for value calculation
+const cardValue = (c: BlackjackCard) => CARD_VALUES[c.rankIndex]
+const handValue = (cards: BlackjackCard[]) => {
+  let total = 0
   let aces = 0
-  
-  for (const card of cards) {
-    if (card.rank === 'A') {
-      aces++
-      value += 11
-    } else {
-      value += card.value
+  for (const c of cards) {
+    if (RANK_SYMBOLS[c.rankIndex] === 'A') { aces++; total += 11 } else total += cardValue(c)
+  }
+  while (total > 21 && aces > 0) { total -= 10; aces-- }
+  return total
+}
+
+// Build & shuffle a deck deterministically using current roundRng
+const buildShuffledDeck = () => {
+  const deck: BlackjackCard[] = []
+  const ranks = Object.keys(RANK_SYMBOLS).length
+  const suits = Object.keys(SUIT_SYMBOLS).length
+  for (let r = 0; r < ranks; r++) {
+    for (let s = 0; s < suits; s++) deck.push({ rankIndex: r, suitIndex: s })
+  }
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[deck[i], deck[j]] = [deck[j], deck[i]]
+  }
+  return deck
+}
+
+interface DealtHand { cards: BlackjackCard[]; value: number; isBlackjack: boolean; isBust: boolean }
+
+const computeDeterministicHands = (winnerIndex: number, playersLen: number) => {
+  roundRng || (roundRng = makeDeterministicRng('fallback'))
+  const deck = buildShuffledDeck()
+  const used = new Set<number>()
+  // pick best winner pair
+  let winnerPair: number[] | null = null
+  let winnerScore = -1
+  for (let i = 0; i < deck.length - 1; i++) {
+    if (used.has(i) || used.has(i+1)) continue
+    const pair = [deck[i], deck[i+1]]
+    const score = handValue(pair)
+    if (score <= 21 && score > winnerScore) {
+      winnerScore = score
+      winnerPair = [i, i+1]
+      if (score === 21) break
     }
   }
-  
-  // Handle aces
-  while (value > 21 && aces > 0) {
-    value -= 10
-    aces--
+  if (!winnerPair) winnerPair = [0,1]
+  used.add(winnerPair[0]); used.add(winnerPair[1])
+
+  // pick loser pair (first valid with score < winnerScore or bust)
+  let loserPair: number[] | null = null
+  for (let i = 0; i < deck.length - 1; i++) {
+    if (used.has(i) || used.has(i+1)) continue
+    const pair = [deck[i], deck[i+1]]
+    const score = handValue(pair)
+    if (score < winnerScore || score > 21) { loserPair = [i,i+1]; break }
   }
-  
-  return value
-}
-
-const generateBlackjackHand = (): BlackjackCard[] => {
-  const aceCard = createCard(0) // Ace
-  const tenCards = [9, 10, 11, 12] // 10, J, Q, K
-  const tenCard = createCard(tenCards[Math.floor(Math.random() * tenCards.length)])
-  return [aceCard, tenCard]
-}
-
-const generateHandWithValue = (targetValue: number): BlackjackCard[] => {
-  for (let attempts = 0; attempts < 100; attempts++) {
-    const card1 = createCard()
-    const card2 = createCard()
-    const hand = [card1, card2]
-    if (getHandValue(hand) === targetValue) {
-      return hand
-    }
+  if (!loserPair) {
+    for (let i = 0; i < deck.length -1; i++) if (!used.has(i) && !used.has(i+1)) { loserPair = [i,i+1]; break }
   }
-  // Fallback: create a simple hand
-  return [createCard(1), createCard(targetValue - 2)] // 2 + (targetValue - 2)
-}
+  if (!loserPair) loserPair = [2,3]
+  used.add(loserPair[0]); used.add(loserPair[1])
 
-const generateWinningHand = (): BlackjackCard[] => {
-  const values = [17, 18, 19, 20, 21]
-  const targetValue = values[Math.floor(Math.random() * values.length)]
-  return targetValue === 21 ? generateBlackjackHand() : generateHandWithValue(targetValue)
-}
-
-const generateLosingHand = (againstValue: number): BlackjackCard[] => {
-  let maxValue = againstValue - 1
-  if (maxValue < 12) maxValue = 12 // Minimum reasonable losing value
-  
-  for (let attempts = 0; attempts < 100; attempts++) {
-    const hand = [createCard(), createCard()]
-    const value = getHandValue(hand)
-    if (value <= maxValue) {
-      return hand
-    }
+  const hands: DealtHand[] = []
+  for (let p = 0; p < playersLen; p++) {
+    let pairIdx = p === winnerIndex ? winnerPair : loserPair
+    const cards = pairIdx.map(i => deck[i])
+    const val = handValue(cards)
+    const isBlackjack = val === 21 && cards.length === 2
+    const isBust = val > 21
+    hands.push({ cards, value: val, isBlackjack, isBust })
   }
-  
-  // Fallback: create a bust hand
-  return [createCard(9), createCard(9)] // Two 10s = 20, but we'll adjust
+  return hands
 }
 
 export default function GameScreen({ 
@@ -308,7 +298,14 @@ export default function GameScreen({
   gameId: PublicKey
   onBack: () => void 
 }) {
-  const [gameState, setGameState] = useState<GameState | null>(null)
+  const { game: mpGame } = useGame(gameId, { fetchMetadata: true })
+  // Future mapping plan:
+  // 1. Obtain resultIndex / serverSeedHash / clientSeed / nonce from multiplayer resolution.
+  // 2. Derive HMAC -> byte stream -> card sequence using makeDeterministicRng(seedString).
+  // 3. Distribute first two cards to each player, then dealer logic (if implemented) deterministically.
+  // 4. Store derived card list locally for replay & verification panel.
+  const [gameState, setGameState] = useState<GameStateDerived | null>(null)
+  const [hands, setHands] = useState<DealtHand[] | null>(null)
   const [isDealing, setIsDealing] = useState(false)
   
   const sounds = useSound({
@@ -321,93 +318,55 @@ export default function GameScreen({
 
   // Initialize game when component mounts
   useEffect(() => {
-    const initializeGame = async () => {
-      try {
-        // Mock initial state - in real implementation, fetch from multiplayer API
-        const initialState: GameState = {
-          phase: 'waiting',
-          players: [
-            {
-              publicKey: new PublicKey('11111111111111111111111111111111'),
-              cards: [],
-              handValue: 0,
-              isBlackjack: false,
-              isBust: false,
-              bet: 100
-            },
-            {
-              publicKey: new PublicKey('22222222222222222222222222222222'),
-              cards: [],
-              handValue: 0,
-              isBlackjack: false,
-              isBust: false,
-              bet: 100
-            }
-          ],
-          pot: 200
-        }
-        
-        setGameState(initialState)
-      } catch (error) {
-        console.error('Failed to initialize game:', error)
-      }
+    setGameState(prev => {
+      if (!mpGame) return prev
+      if (mpGame.state.settled) return { phase: 'finished', winner: mpGame.winnerIndexes[0] }
+      if (mpGame.players.length === 2) return { phase: 'ready' }
+      return { phase: 'waiting' }
+    })
+  }, [mpGame])
+
+  // When game settles, derive deterministic hands once
+  useEffect(() => {
+    if (mpGame?.state.settled && gameState?.winner != null && !hands) {
+      const seedBase = `${gameId.toBase58?.() || ''}:${mpGame.winnerIndexes[0]}:${mpGame.players.map(p=>p.user.toBase58()).join(',')}`
+      roundRng = makeDeterministicRng(seedBase)
+      const dealt = computeDeterministicHands(gameState.winner, mpGame.players.length)
+      setHands(dealt)
     }
-    
-    initializeGame()
-  }, [gameId])
+  }, [mpGame, gameState, hands, gameId])
 
   const playDuel = async () => {
     if (!gameState || isDealing) return
     
     try {
-      setIsDealing(true)
-      sounds.play('play')
+  setIsDealing(true)
+  sounds.play('play')
 
       // Set phase to ready
       setGameState(prev => prev ? { ...prev, phase: 'ready' } : null)
 
-      // Simulate multiplayer game resolution (single transaction)
-      // In real implementation, this would be done via Gamba multiplayer
-      const winner = Math.random() < 0.5 ? 0 : 1 // Random winner for demo
-      const loser = winner === 0 ? 1 : 0
+  // Simulate retrieving an on-chain game result (placeholder):
+  // Derive a stable deterministic seed from gameId + current pot + player pubkeys ordering.
+  // In real integration, you'd fetch resultIndex & seeds from chain and hash them.
+  const seedBase = `${gameId.toBase58?.() || ''}:${mpGame?.players.map(p=>p.user.toBase58()).join(',')}:manual` // manual trigger seed
+  roundRng = makeDeterministicRng(seedBase)
+  // Simulated resultIndex derived once (0..9999) to show potential future mapping space
+  const resultIndex = Math.floor(rand() * 10000)
+  // Winner derived from resultIndex parity (example mapping)
+  const winner = resultIndex % 2
+  // loser index not needed beyond potential UI expansions
       
-      // Generate appropriate cards based on who won
-      const winnerCards = Math.random() < 0.3 ? generateBlackjackHand() : generateWinningHand()
-      const winnerValue = getHandValue(winnerCards)
-      const loserCards = generateLosingHand(winnerValue)
-      
-      const updatedPlayers = [...gameState.players]
-      updatedPlayers[winner].cards = winnerCards
-      updatedPlayers[winner].handValue = winnerValue
-      updatedPlayers[winner].isBlackjack = winnerValue === 21 && winnerCards.length === 2
-      
-      updatedPlayers[loser].cards = loserCards
-      updatedPlayers[loser].handValue = getHandValue(loserCards)
-      updatedPlayers[loser].isBust = updatedPlayers[loser].handValue > 21
-
-      // Set to dealing phase and show cards one by one
-      setGameState(prev => prev ? { 
-        ...prev, 
-        phase: 'dealing',
-        players: updatedPlayers,
-        winner 
-      } : null)
-
-      // Deal cards with animation
-      await dealCardsWithAnimation(updatedPlayers)
-
-      // Set final state
-      setGameState(prev => prev ? { 
-        ...prev, 
-        phase: 'finished' 
-      } : null)
-
-      // Play result sound
-      if (updatedPlayers[winner].isBlackjack) {
-        sounds.play('win2') // Special sound for blackjack
-      } else {
-        sounds.play('win')
-      }
+  // In absence of chain settle action, we simulate immediate settlement locally (dev only)
+  setGameState({ phase: 'finished', winner })
+  const dealt = computeDeterministicHands(winner, mpGame?.players.length || 2)
+  setHands(dealt)
+  // Play result sound (jackpot sound if blackjack)
+  if (dealt[winner].isBlackjack) {
+    sounds.play('win2')
+  } else {
+    sounds.play('win')
+  }
       
     } catch (error) {
       console.error('Failed to play duel:', error)
@@ -416,33 +375,7 @@ export default function GameScreen({
     }
   }
 
-  const dealCardsWithAnimation = async (finalPlayers: GameState['players']) => {
-    if (!gameState) return
-
-    // Reset cards to empty
-    setGameState(prev => prev ? {
-      ...prev,
-      players: prev.players.map(p => ({ ...p, cards: [], handValue: 0 }))
-    } : null)
-
-    // Deal first card to each player
-    for (let cardIndex = 0; cardIndex < 2; cardIndex++) {
-      for (let playerIndex = 0; playerIndex < finalPlayers.length; playerIndex++) {
-        if (finalPlayers[playerIndex].cards[cardIndex]) {
-          await new Promise(resolve => setTimeout(resolve, 500))
-          sounds.play('card')
-          
-          setGameState(prev => {
-            if (!prev) return null
-            const updatedPlayers = [...prev.players]
-            updatedPlayers[playerIndex].cards.push(finalPlayers[playerIndex].cards[cardIndex])
-            updatedPlayers[playerIndex].handValue = getHandValue(updatedPlayers[playerIndex].cards)
-            return { ...prev, players: updatedPlayers }
-          })
-        }
-      }
-    }
-  }
+  // TODO: When on-chain blackjack logic finalized, animate card distribution from deterministic seed
 
   if (!gameState) {
     return (
@@ -472,9 +405,11 @@ export default function GameScreen({
     )
   }
 
-  const [player1, player2] = gameState.players
-  const isFinished = gameState.phase === 'finished'
-  const winner = gameState.winner
+  const players = mpGame?.players || []
+  const player1 = players[0]
+  const player2 = players[1]
+  const isFinished = gameState?.phase === 'finished'
+  const winner = gameState?.winner
 
   return (
     <GameWrapper>
@@ -492,26 +427,22 @@ export default function GameScreen({
             </PlayerName>
             {player2 && (
               <PlayerStats>
-                <div>Bet: <TokenValue amount={player2.bet} /></div>
+                <div>Bet: <TokenValue amount={player2.pendingPayout || 0} /></div>
                 <div>Status: {isFinished ? (winner === 1 ? 'Winner!' : 'Loser') : 'Ready'}</div>
               </PlayerStats>
             )}
           </PlayerInfo>
           
           <CardsArea>
-            {player2?.cards.map((card, index) => (
-              <Card key={index} card={card} />
+            {hands && hands[1] && hands[1].cards.map((c,i)=> (
+              <Card key={i} card={{ rank: RANK_SYMBOLS[c.rankIndex], suit: SUIT_SYMBOLS[c.suitIndex] }} />
             ))}
           </CardsArea>
-          
-          {player2 && player2.cards.length > 0 && (
-            <HandValue 
-              isBust={player2.isBust} 
-              isBlackjack={player2.isBlackjack}
-            >
-              {player2.handValue}
-              {player2.isBlackjack && ' (Blackjack!)'}
-              {player2.isBust && ' (Bust)'}
+          {hands && hands[1] && (
+            <HandValue isBust={hands[1].isBust} isBlackjack={hands[1].isBlackjack}>
+              {hands[1].value}
+              {hands[1].isBlackjack && ' (Blackjack!)'}
+              {hands[1].isBust && ' (Bust)'}
             </HandValue>
           )}
         </PlayerArea>
@@ -521,7 +452,7 @@ export default function GameScreen({
           <PotInfo>
             <PotLabel>Total Pot</PotLabel>
             <PotAmount>
-              <TokenValue amount={gameState.pot} />
+              <TokenValue amount={(mpGame?.players || []).reduce((a,p)=> a + Number(p.pendingPayout||0), 0)} />
             </PotAmount>
           </PotInfo>
           
@@ -553,26 +484,22 @@ export default function GameScreen({
             </PlayerName>
             {player1 && (
               <PlayerStats>
-                <div>Bet: <TokenValue amount={player1.bet} /></div>
+                <div>Bet: <TokenValue amount={player1.pendingPayout || 0} /></div>
                 <div>Status: {isFinished ? (winner === 0 ? 'Winner!' : 'Loser') : 'Ready'}</div>
               </PlayerStats>
             )}
           </PlayerInfo>
           
           <CardsArea>
-            {player1?.cards.map((card, index) => (
-              <Card key={index} card={card} />
+            {hands && hands[0] && hands[0].cards.map((c,i)=> (
+              <Card key={i} card={{ rank: RANK_SYMBOLS[c.rankIndex], suit: SUIT_SYMBOLS[c.suitIndex] }} />
             ))}
           </CardsArea>
-          
-          {player1 && player1.cards.length > 0 && (
-            <HandValue 
-              isBust={player1.isBust} 
-              isBlackjack={player1.isBlackjack}
-            >
-              {player1.handValue}
-              {player1.isBlackjack && ' (Blackjack!)'}
-              {player1.isBust && ' (Bust)'}
+          {hands && hands[0] && (
+            <HandValue isBust={hands[0].isBust} isBlackjack={hands[0].isBlackjack}>
+              {hands[0].value}
+              {hands[0].isBlackjack && ' (Blackjack!)'}
+              {hands[0].isBust && ' (Bust)'}
             </HandValue>
           )}
         </PlayerArea>

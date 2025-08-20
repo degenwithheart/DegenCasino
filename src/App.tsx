@@ -1,5 +1,6 @@
-import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
 import { Modal } from './components/Modal';
@@ -10,6 +11,7 @@ import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 import AboutMe from './sections/Dashboard/AboutMe';
 import TermsPage from './sections/Dashboard/Terms';
 import Whitepaper from './sections/Dashboard/Whitepaper';
+import FairnessAudit from './sections/Dashboard/FairnessAudit';
 import UserProfile from './sections/UserProfile';
 import Game from './sections/Game/Game';
 import Header from './sections/Header';
@@ -18,9 +20,7 @@ import Toasts from './sections/Toasts';
 import TrollBox from './components/TrollBox';
 import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
-import { useWallet } from '@solana/wallet-adapter-react';
 import Sidebar from './components/Sidebar';
-
 import styled from 'styled-components';
 
 const SIDEBAR_WIDTH = 80;
@@ -30,23 +30,21 @@ const MainContent = styled.main`
   padding-top: 1rem;
   padding-left: ${SIDEBAR_WIDTH}px;
   padding-right: 0;
-  padding-bottom: 80px; /* For footer */
+  padding-bottom: 80px;
   transition: padding 0.3s ease;
-
   @media (max-width: 900px) {
     padding-left: 0;
-    padding-bottom: 150px; /* Space for bottom nav (70px) + footer (80px) */
+    padding-bottom: 150px;
   }
-
   @media (max-width: 700px) {
     padding-left: 0;
-    padding-bottom: 80px; /* Sidebar is hidden, only footer space */
+    padding-bottom: 80px;
   }
 `;
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  React.useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
@@ -66,14 +64,53 @@ function ErrorHandler() {
   return null;
 }
 
-function App() {
+function WelcomeBanner() {
+  const wallet = useWallet();
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
+
+  useEffect(() => {
+    if (!wallet.connecting) {
+      setAutoConnectAttempted(true);
+    }
+  }, [wallet.connecting]);
+
+  const shouldShow = autoConnectAttempted && !wallet.connected && !wallet.connecting;
+  const isLoading = !autoConnectAttempted || wallet.connecting;
+
+  if (!shouldShow) return null;
+
+  return (
+    <div style={{
+      width: '100%',
+      margin: '2rem 0',
+      padding: '1.5rem',
+      background: 'rgba(34,34,34,0.95)',
+      borderRadius: '1.5rem',
+      textAlign: 'center',
+      color: '#ffd700',
+      fontFamily: "'Luckiest Guy', cursive, sans-serif",
+      fontSize: '1.5rem',
+      boxShadow: '0 0 24px #ffd70044',
+    }}>
+      Welcome to the casino of chaos! Please connect your wallet to play.
+    </div>
+  );
+}
+
+export default function App() {
   const newcomer = useUserStore((s) => s.newcomer);
   const set = useUserStore((s) => s.set);
-  const { connected } = useWallet();
-  const [showGamesModal, setShowGamesModal] = React.useState(false);
+  const { connected, connecting } = useWallet();
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
+  const [showGamesModal, setShowGamesModal] = useState(false);
 
-  // Listen for sidebar "Games" button event
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!connecting) {
+      setAutoConnectAttempted(true);
+    }
+  }, [connecting]);
+
+  useEffect(() => {
     const handler = () => setShowGamesModal(true);
     window.addEventListener('openGamesModal', handler);
     return () => window.removeEventListener('openGamesModal', handler);
@@ -179,9 +216,8 @@ function App() {
       <Sidebar />
       <MainContent>
         <Toasts />
-        {!connected && (
-          <div>{/* Welcome banner or other pre-connect content can go here */}</div>
-        )}
+        {/* Only show WelcomeBanner after auto-connect attempt */}
+        {autoConnectAttempted && !connected && <WelcomeBanner />}
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/:wallet/profile" element={<UserProfile />} />
@@ -189,6 +225,7 @@ function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/whitepaper" element={<Whitepaper />} />
           <Route path="/aboutme" element={<AboutMe />} />
+          <Route path="/audit" element={<FairnessAudit />} />
         </Routes>
       </MainContent>
       <Footer />
@@ -196,4 +233,3 @@ function App() {
     </GamesModalContext.Provider>
   );
 }
-export default App;

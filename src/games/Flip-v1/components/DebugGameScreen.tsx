@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import styled from 'styled-components';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { GambaUi, useSound } from 'gamba-react-ui-v2';
+import { makeDeterministicRng } from '../../../fairness/deterministicRng';
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin';
 import { Effect } from './Effect';
 import lobbymusicSnd from '../sounds/coin.mp3';
@@ -247,8 +248,9 @@ export default function DebugGameScreen({
       } else if (player2Choice === coinResult && player1Choice !== coinResult) {
         winnerIndex = 1; // Player 2 wins
       } else {
-        // Both chose same or both chose wrong - use random
-        winnerIndex = Math.random() < 0.5 ? 0 : 1;
+        // Both chose same or both chose wrong - derive deterministically from seed
+        const rng = makeDeterministicRng((seedInput || gamePk || '') + ':flip-draw')
+        winnerIndex = rng() < 0.5 ? 0 : 1;
       }
       
       setWinner(winnerIndex);
