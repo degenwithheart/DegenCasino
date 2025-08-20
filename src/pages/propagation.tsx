@@ -638,25 +638,31 @@ export default function PropagationPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {providers.map((p, idx) => (
-                          <tr key={p.provider + idx} style={{color: p.status === 'online' ? '#6ee7b7' : '#fca5a5'}}>
-                            <td style={{padding: '0.25rem 0.5rem', fontWeight: 600}}>
-                              {getProviderIcon(p.provider)}
-                              {p.provider}
-                            </td>
-                            <td style={{padding: '0.25rem 0.5rem'}}>
-                              {p.status === 'online' ? '🟢 Online' : '🔴 Offline'}
-                              {p.error && (
-                                <span style={{color: '#fca5a5', marginLeft: 6, fontSize: '0.9em'}}>({p.error})</span>
-                              )}
-                            </td>
-                            <td style={{padding: '0.25rem 0.5rem'}}>
-                              {typeof p.responseTimeMs === 'number' ? `${p.responseTimeMs} ms` : '--'}
-                            </td>
-                            <td style={{padding: '0.25rem 0.5rem'}}>
-                              {p.checkedAt ? new Date(p.checkedAt).toLocaleTimeString() : '--'}
-                            </td>
-                          </tr>
+                        {providers
+                          .slice()
+                          .filter(p => typeof p.responseTimeMs === 'number')
+                          .sort((a, b) => (a.responseTimeMs! - b.responseTimeMs!))
+                          .concat(providers.filter(p => typeof p.responseTimeMs !== 'number'))
+                          .slice(0, 2)
+                          .map((p, idx) => (
+                            <tr key={p.provider + idx} style={{color: p.status === 'online' ? '#6ee7b7' : '#fca5a5'}}>
+                              <td style={{padding: '0.25rem 0.5rem', fontWeight: 600}}>
+                                {getProviderIcon(p.provider)}
+                                {p.provider}
+                              </td>
+                              <td style={{padding: '0.25rem 0.5rem'}}>
+                                {p.status === 'online' ? '🟢 Online' : '🔴 Offline'}
+                                {p.error && (
+                                  <span style={{color: '#fca5a5', marginLeft: 6, fontSize: '0.9em'}}>({p.error})</span>
+                                )}
+                              </td>
+                              <td style={{padding: '0.25rem 0.5rem'}}>
+                                {typeof p.responseTimeMs === 'number' ? `${p.responseTimeMs} ms` : '--'}
+                              </td>
+                              <td style={{padding: '0.25rem 0.5rem'}}>
+                                {p.checkedAt ? new Date(p.checkedAt).toLocaleTimeString() : '--'}
+                              </td>
+                            </tr>
                         ))}
                       </tbody>
                     </table>
