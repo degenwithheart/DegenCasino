@@ -501,8 +501,8 @@ export default function PropagationPage() {
   const [statusList, setStatusList] = useState<Status[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Throttle DNS API call to once per 10 seconds, singular, only when page is mounted
-  const THROTTLE_MS = 10000;
+  // Throttle DNS API call to once per 60 seconds, singular, only when page is mounted
+  const THROTTLE_MS = 60000; // 60 seconds
   const throttledDnsCheck = useThrottle(() => {
     const params = new URLSearchParams(window.location.search)
     const domainParam = params.get('domain')
