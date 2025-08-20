@@ -9,11 +9,15 @@ import { EXPLORER_URL, PLATFORM_SHARABLE_URL } from '../../constants'
 import { extractMetadata } from '../../utils'
 
 const Container = styled.div`
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 20px;
   padding-bottom: 0;
   width: 100%;
+  min-height: 100%;
 `
 
 const Inner = styled.div`
@@ -41,39 +45,51 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
 
   return (
     <Modal onClose={() => onClose()}>
-      <Container>
-        <Inner>
-          <Content ref={ref}>
-            <div style={{ display: 'grid', gap: '5px', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', padding: '10px' }}>
-              <img src={tokenMeta.image} style={{ borderRadius: '50%', height: '40px' }} />
-              <div style={{ fontSize: '24px', color: percentChange >= 0 ? '#9bffad' : '#ff4f4f', padding: '10px' }}>
-                <b>
-                  {profit >= 0 ? '+' : '-'}
-                  <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
-                </b>
-                <div style={{ fontSize: '18px' }}>
-                  {(event.data.multiplierBps / 10_000).toLocaleString()}x
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        width: '100vw',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 1000,
+      }}>
+        <Container>
+          <Inner>
+            <Content ref={ref}>
+              <div style={{ display: 'grid', gap: '5px', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', padding: '10px' }}>
+                <img src={tokenMeta.image} style={{ borderRadius: '50%', height: '40px' }} />
+                <div style={{ fontSize: '24px', color: percentChange >= 0 ? '#9bffad' : '#ff4f4f', padding: '10px' }}>
+                  <b>
+                    {profit >= 0 ? '+' : '-'}
+                    <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
+                  </b>
+                  <div style={{ fontSize: '18px' }}>
+                    {(event.data.multiplierBps / 10_000).toLocaleString()}x
+                  </div>
+                </div>
+                <div style={{ padding: '10px', textAlign: 'center' }}>
+                  <img src={game?.meta?.image} width="100px" />
                 </div>
               </div>
-              <div style={{ padding: '10px', textAlign: 'center' }}>
-                <img src={game?.meta?.image} width="100px" />
+              <div style={{ background: '#121217CC', color: '#ffffffcc', fontStyle: 'italic', display: 'flex', alignContent: 'center', gap: '10px', padding: '10px', borderRadius: '10px' }}>
+                <img src="/$DGHRT.png" height="25px" />
+                <div>play on <b>{PLATFORM_SHARABLE_URL}</b></div>
               </div>
-            </div>
-            <div style={{ background: '#121217CC', color: '#ffffffcc', fontStyle: 'italic', display: 'flex', alignContent: 'center', gap: '10px', padding: '10px', borderRadius: '10px' }}>
-              <img src="/gamba.svg" height="25px" />
-              <div>play on <b>{PLATFORM_SHARABLE_URL}</b></div>
-            </div>
-          </Content>
-        </Inner>
-        <Flex>
-          <GambaUi.Button size="small" onClick={() => window.open(`${EXPLORER_URL}/tx/${event.signature}`, '_blank')}>
-            Verify
-          </GambaUi.Button>
-          <GambaUi.Button size="small" onClick={gotoGame}>
-            Play {game?.meta?.name}
-          </GambaUi.Button>
-        </Flex>
-      </Container>
+            </Content>
+          </Inner>
+          <Flex>
+            <GambaUi.Button size="small" onClick={() => window.open(`${EXPLORER_URL}/tx/${event.signature}`, '_blank')}>
+              Verify
+            </GambaUi.Button>
+            <GambaUi.Button size="small" onClick={gotoGame}>
+              Play {game?.meta?.name}
+            </GambaUi.Button>
+          </Flex>
+        </Container>
+      </div>
     </Modal>
   )
 }
