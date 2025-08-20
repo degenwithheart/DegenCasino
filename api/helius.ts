@@ -1,3 +1,4 @@
+import { cacheOnTheFly } from './xcacheOnTheFly'
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
@@ -12,14 +13,18 @@ export default async function handler(req) {
   }
   // Example: Forward POST body to Helius endpoint
   const body = await req.text();
-  const heliusRes = await fetch(heliusEndpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-  });
-  const data = await heliusRes.json();
+  // Cache by endpoint+body for 10s
+  const cacheKey = `helius:${heliusEndpoint}:${body}`;
+  const data = await cacheOnTheFly(cacheKey, async () => {
+    const heliusRes = await fetch(heliusEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    return await heliusRes.json();
+  }, 10000); // 10s TTL
   return new Response(JSON.stringify(data), {
-    status: heliusRes.status,
+    status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
 }
