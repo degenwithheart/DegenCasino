@@ -9,9 +9,14 @@ import {
   useCurrentToken,
   useTokenMeta,
   useTokenBalance,
+  useReferral,
 } from 'gamba-react-ui-v2'
 import styled from 'styled-components'
-import { POOLS } from '../constants'
+import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
+import { truncateString } from '../utils'
+import { generateUsernameFromWallet } from './userProfileUtils'
+import { useToast } from '../hooks/useToast'
+import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
 const GridContainer = styled.div<{ isSingleToken: boolean }>`
   display: grid;
@@ -101,11 +106,6 @@ const ToggleButton = styled.button<{ active: boolean }>`
   }
 `
 
-function TokenImage({ mint, ...props }: { mint: PublicKey }) {
-  const meta = useTokenMeta(mint)
-  return <StyledTokenImage src={meta.image} alt="token" {...props} />
-}
-
 function TokenSelectItem({ mint }: { mint: PublicKey }) {
   const meta = useTokenMeta(mint)
   const balance = useTokenBalance(mint)
@@ -119,174 +119,37 @@ function TokenSelectItem({ mint }: { mint: PublicKey }) {
     maximumFractionDigits: 4,
   })
 
-  // Only show USD value if usdPrice exists and is > 0, otherwise show "Free Play"
-  const formattedUsdValue =
-    meta.usdPrice && meta.usdPrice > 0
-      ? `$${(tokenBalance * meta.usdPrice).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })} USD`
-      : null
-
-  // Check if this is the free token (by mint)
   const isFreeToken = mint.equals(FAKE_TOKEN_MINT)
-
-  if (isFreeToken) {
-    // Visually appealing, casino-style free token card
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '40px',
-          width: '100%',
-          padding: '24px 32px',
-          background: 'none',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div
-            style={{
-              background: 'radial-gradient(circle, #ffd70055 0%, #181818 70%)',
-              borderRadius: '50%',
-              padding: 8,
-              boxShadow: '0 0 32px 8px #ffd70088, 0 0 0 4px #181818',
-              marginBottom: 2,
-            }}
-          >
-            <img
-              src={meta.image}
-              alt="token"
-              style={{
-                height: 72,
-                width: 72,
-                borderRadius: '50%',
-                objectFit: 'cover',
-                boxShadow: '0 0 24px #ffd700cc',
-                border: '2.5px solid #ffd700',
-                background: '#181818',
-                display: 'block',
-              }}
-            />
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%' }}>
-          <div style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 900, letterSpacing: 1.5, textShadow: '0 0 12px #ffd700, 0 0 24px #a259ff', textAlign: 'center', fontFamily: 'Luckiest Guy, cursive, sans-serif' }}>{meta.name}</div>
-          <div style={{ fontSize: '1.15rem', color: '#ffd700', fontWeight: 800, display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center', textShadow: '0 0 8px #ffd70088' }}>
-            <span>Balance:</span>
-            <span style={{ color: '#ffd700', fontWeight: 900 }}>{formattedBalance} {meta.symbol}</span>
-          </div>
-          <div style={{ fontSize: '1.15rem', color: '#00ff88', fontWeight: 800, display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center', textShadow: '0 0 8px #00ff8899' }}>
-            <span>Value:</span>
-            <span style={{ color: '#00ff88', fontWeight: 900 }}>Free Play</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Visually appealing, casino-style vertical card for live tokens (less tall)
   return (
     <div
       style={{
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        gap: '14px', // reduced gap
+        gap: 8,
         width: '100%',
-        padding: '16px 0 12px 0', // reduced vertical padding
+        padding: '2px 6px',
         background: 'none',
+        justifyContent: 'flex-start',
       }}
     >
-      <div
+      <img
+        src={meta.image}
+        alt={meta.symbol}
         style={{
-          background: 'radial-gradient(circle, #ffd70044 0%, #181818 70%)',
+          height: 28,
+          width: 28,
           borderRadius: '50%',
-          padding: 6, // slightly smaller
-          boxShadow: '0 0 24px 6px #ffd70066, 0 0 0 3px #181818',
-          marginBottom: 0,
+          objectFit: 'cover',
+          boxShadow: '0 0 4px #ffd70099',
+          border: '1.2px solid #ffd700',
+          background: '#181818',
         }}
-      >
-        <img
-          src={meta.image}
-          alt="token"
-          style={{
-            height: 54,
-            width: 54,
-            borderRadius: '50%',
-            objectFit: 'cover',
-            boxShadow: '0 0 14px #ffd700cc',
-            border: '2px solid #ffd700',
-            background: '#181818',
-            display: 'block',
-          }}
-        />
-      </div>
-      <div
-        style={{
-          textAlign: 'center',
-          color: '#fff',
-          fontSize: '1.1rem',
-          fontWeight: 900,
-          letterSpacing: 1.1,
-          textShadow: '0 0 8px #ffd700, 0 0 14px #a259ff',
-          fontFamily: 'Luckiest Guy, cursive, sans-serif',
-        }}
-      >
-        {meta.name}
-      </div>
-      <div
-        style={{
-          textAlign: 'center',
-          fontSize: '0.95rem',
-          color: '#ffd700',
-          fontWeight: 800,
-          display: 'flex',
-          gap: 8,
-          alignItems: 'center',
-          justifyContent: 'center',
-          textShadow: '0 0 6px #ffd70088',
-        }}
-      >
-        <span>Balance:</span>
-        <span style={{ color: '#ffd700', fontWeight: 900 }}>{formattedBalance} {meta.symbol}</span>
-      </div>
-      {formattedUsdValue !== null ? (
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: '0.95rem',
-            color: '#a259ff',
-            fontWeight: 800,
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            textShadow: '0 0 6px #a259ff99',
-          }}
-        >
-          <span>Value:</span>
-          <span style={{ color: '#a259ff', fontWeight: 900 }}>{formattedUsdValue}</span>
-        </div>
-      ) : (
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: '0.95rem',
-            color: '#00ff88',
-            fontWeight: 800,
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            textShadow: '0 0 6px #00ff8899',
-          }}
-        >
-          <span>Value:</span>
-          <span style={{ color: '#00ff88', fontWeight: 900 }}>Free Play</span>
-        </div>
-      )}
+      />
+      <span style={{ color: '#ffd700', fontWeight: 700 }}>{meta.symbol}</span>
+      <span style={{ color: '#ffd700', fontWeight: 700 }}>
+        {formattedBalance} {meta.symbol}
+      </span>
+      {isFreeToken && <span style={{ color: '#00ff88', fontWeight: 700 }}></span>}
     </div>
   )
 }
@@ -298,9 +161,12 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
 
-  const [mode, setMode] = React.useState<'free' | 'live' | 'fees'>('live')
+  const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>('live')
+  const referral = useReferral()
+  const [removing, setRemoving] = React.useState(false)
+  const toast = useToast()
+  const walletModal = useWalletModal()
 
-  // Priority fee state, persisted in localStorage
   const [priorityFee, setPriorityFee] = React.useState<number>(() => {
     const saved = localStorage.getItem('priorityFee')
     return saved ? Number(saved) : 400201
@@ -310,8 +176,6 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
     localStorage.setItem('priorityFee', String(priorityFee))
   }, [priorityFee])
 
-  // Helper to get pools for each mode
-
   const getPools = (mode: 'free' | 'live' | 'fees') =>
     mode === 'free'
       ? POOLS.filter((p) => p.token.equals(FAKE_TOKEN_MINT))
@@ -319,15 +183,13 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
         ? POOLS.filter((p) => !p.token.equals(FAKE_TOKEN_MINT))
         : []
 
-  const tokensToShow = getPools(mode)
+  const tokensToShow = getPools(mode as 'free' | 'live' | 'fees')
   const isSingleToken = tokensToShow.length === 1
 
-  // When switching mode, update selectedMint to first token in that mode
-
-  const handleModeChange = (newMode: 'free' | 'live' | 'fees') => {
+  const handleModeChange = (newMode: 'free' | 'live' | 'fees' | 'invite') => {
     setMode(newMode)
-    if (newMode === 'fees') return
-    const pools = getPools(newMode)
+    if (newMode === 'fees' || newMode === 'invite') return
+    const pools = getPools(newMode as 'free' | 'live' | 'fees')
     if (setSelectedMint && pools.length > 0) {
       setSelectedMint(pools[0].token)
     }
@@ -337,6 +199,15 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
     context.setPool(pool.token, pool.authority)
     if (setSelectedMint) {
       setSelectedMint(pool.token)
+    }
+  }
+
+  const removeInvite = async () => {
+    try {
+      setRemoving(true)
+      await referral.removeInvite()
+    } finally {
+      setRemoving(false)
     }
   }
 
@@ -352,9 +223,94 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
         <ToggleButton active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
           Fees
         </ToggleButton>
+        <ToggleButton active={mode === 'invite'} onClick={() => handleModeChange('invite')}>
+          Invite
+        </ToggleButton>
       </ToggleContainer>
 
-      {mode === 'fees' ? (
+      {mode === 'invite' ? (
+        <div>
+          <SectionHeading>🎁 Referral</SectionHeading>
+          {/* Info box styled like Fees tab */}
+          <div
+            style={{
+              background: 'rgba(120, 80, 255, 0.13)',
+              borderRadius: 14,
+              padding: '16px 18px',
+              margin: '16px 0 18px 0',
+              color: '#fff',
+              fontWeight: 500,
+              fontSize: 15,
+              boxShadow: '0 2px 8px rgba(120,80,255,0.10)',
+              maxWidth: 440,
+              width: '100%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+            }}
+          >
+            <span style={{fontSize:20,marginRight:8,marginTop:2,opacity:0.85}}>🎁</span>
+            <span>
+              <span style={{color:'#ffd700',fontWeight:700}}>Referral Bonus:</span> Invite friends and earn <span style={{color:'#00ff88',fontWeight:700}}>0.25%</span> of every bet your friends make!
+            </span>
+          </div>
+          {/* Invite Link row styled like Transaction Priority Fee row */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(24,24,24,0.5)',
+              borderRadius: 10,
+              padding: '10px 14px',
+              margin: '0 0 10px 0',
+              maxWidth: 440,
+              width: '100%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
+            <span style={{color:'#ffd700',fontWeight:600,fontSize:15}}>Invite Link</span>
+            <div style={{ minWidth: 120, fontWeight: 700, fontSize: 15 }}>
+              <GambaUi.Button
+                main
+                onClick={() => {
+                  try {
+                    referral.copyLinkToClipboard()
+                    toast({
+                      title: '📋 Copied to clipboard',
+                      description: 'Your referral code has been copied!',
+                    })
+                  } catch {
+                    walletModal.setVisible(true)
+                  }
+                }}
+              >
+                <span style={{fontSize:17,marginRight:6}}>💸</span>Copy invite link
+              </GambaUi.Button>
+            </div>
+          </div>
+          {/* Subtle share info row styled like token price row */}
+          <div
+            style={{
+              textAlign: 'center',
+              color: '#bdbdbd',
+              fontSize: 13,
+              fontWeight: 400,
+              margin: '0 0 0 0',
+              maxWidth: 440,
+              width: '100%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              letterSpacing: 0.1,
+            }}
+          >
+            Share your link for <span style={{color:'#ffd700',fontWeight:600}}>0.25%</span> of every bet!
+          </div>
+        </div>
+      ) : mode === 'fees' ? (
         <div>
           <SectionHeading>Transaction Fees</SectionHeading>
           <div style={{ margin: '16px 0' }}>
@@ -370,7 +326,6 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
                 key={i}
                 onClick={() => selectPool(pool)}
                 selected={selectedMint ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
-                aria-label={`Select token ${pool.token.toBase58()}`}
               >
                 <TokenSelectItem mint={pool.token} />
               </TokenCard>
