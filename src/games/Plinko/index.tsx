@@ -265,17 +265,6 @@ export default function Plinko() {
             checked={degen}
             onChange={setDegen}
           />
-          {window.location.origin.includes('localhost') && (
-            <>
-              <GambaUi.Switch checked={debug} onChange={setDebug}  />
-              <EnhancedButton onClick={() => plinko.single()}>
-                Test
-              </EnhancedButton>
-              <EnhancedButton onClick={() => plinko.runAll()}>
-                Simulate
-              </EnhancedButton>
-            </>
-          )}
           <EnhancedPlayButton onClick={() => play()}>
             Play
           </EnhancedPlayButton>

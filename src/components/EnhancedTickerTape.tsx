@@ -110,16 +110,13 @@ export function EnhancedTickerTape() {
   const renderTokenItem = (token: any, key: string) => {
     const mintAddress = token.mint.toBase58();
     const currentPrice = token.usdPrice || 0;
-    
     // Get enhanced price data from our service
     const priceData = getTokenPriceData(mintAddress);
     const isLiveData = priceData?.isLivePrice || false;
     const dataSource = priceData?.source || 'fallback';
-    
     // Check price history for change detection
     const priceEntry = priceHistory[mintAddress];
     const hasRecentChange = priceEntry && (Date.now() - priceEntry.timestamp) < 5 * 60 * 1000; // 5 minutes
-    
     // Calculate price change using stored previous price
     let priceChange = 0;
     let isIncreasing = false;
@@ -127,11 +124,14 @@ export function EnhancedTickerTape() {
       priceChange = ((currentPrice - priceEntry.previousPrice) / priceEntry.previousPrice) * 100;
       isIncreasing = priceChange > 0;
     }
-    
     const isSignificantChange = Math.abs(priceChange) > 2; // 2% or more
     const isTrending = currentPrice > 1; // Simple trending logic
 
-    return (
+    // Dexscreener URL for Solana tokens
+    const dexscreenerUrl = `https://dexscreener.com/solana/${mintAddress}`;
+    const isComingSoon = token.minted === false;
+
+    const tokenContent = (
       <TokenItem 
         key={key}
         $hasChange={!!hasRecentChange && Math.abs(priceChange) > 0.1}
@@ -139,6 +139,7 @@ export function EnhancedTickerTape() {
         $isSignificant={!!isSignificantChange}
         $isLiveData={!!isLiveData}
         title={`${token.symbol} - ${isLiveData ? 'Live API data' : 'Fallback data'} | Change: ${priceChange.toFixed(2)}%`}
+        style={isComingSoon ? { cursor: 'not-allowed', opacity: 0.7 } : { cursor: 'pointer' }}
       >
         <TokenImage src={token.image} alt={token.symbol} />
         {!isMobile && <span>{token.symbol}</span>}
@@ -146,28 +147,38 @@ export function EnhancedTickerTape() {
           $isIncreasing={!!isIncreasing} 
           $hasChange={!!hasRecentChange && Math.abs(priceChange) > 0.1}
         >
-          {token.minted === false
+          {isComingSoon
             ? 'Coming Soon'
             : currentPrice > 0
               ? `$${currentPrice.toLocaleString(undefined, { maximumFractionDigits: 6 })}`
               : 'N/A'}
         </PriceDisplay>
-        
         {/* Show price change arrows and percentage */}
         {hasRecentChange && Math.abs(priceChange) > 0.1 && (
           <ChangeIndicator $isIncreasing={!!isIncreasing}>
             {isIncreasing ? '↗' : '↘'} {Math.abs(priceChange).toFixed(1)}%
           </ChangeIndicator>
         )}
-        
         {/* Small data source indicator in corner */}
         {isLiveData && (
           <DataSourceBadge $isLive={true} style={{ fontSize: '10px', padding: '1px 3px' }}>LIVE</DataSourceBadge>
         )}
-        
         {/* Show trending fire for "hot" tokens */}
         {isTrending && <TrendingBadge>🔥</TrendingBadge>}
       </TokenItem>
+    );
+
+    // Only wrap in <a> if not Coming Soon
+    return isComingSoon ? tokenContent : (
+      <a
+        key={key}
+        href={dexscreenerUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: 'none' }}
+      >
+        {tokenContent}
+      </a>
     );
   };
 
