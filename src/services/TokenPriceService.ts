@@ -46,10 +46,8 @@ class TokenPriceService {
    */
   async updatePrices(): Promise<void> {
     if (this.isUpdating) return;
-    
     this.isUpdating = true;
     const now = Date.now();
-
     try {
       // Store original prices for comparison
       const originalPrices = new Map<string, number>();
@@ -60,7 +58,7 @@ class TokenPriceService {
         }
       });
 
-      // Try to update from API sources
+      // Directly update from API sources (no server cache in client code)
       await updateTokenPrices();
 
       // Check what we got and create price objects
@@ -109,16 +107,13 @@ class TokenPriceService {
 
       this.lastFetchTime = now;
       console.log('🔄 Price service updated:', this.priceCache.size, 'tokens');
-      
     } catch (error) {
       console.error('💥 Failed to update token prices:', error);
-      
       // If API fails completely, use fallback prices from constants
       TOKEN_METADATA.forEach(token => {
         const mintAddress = token.mint.toBase58();
         const symbol = token.symbol || 'UNK';
         const fallbackPrice = this.getFallbackPrice(mintAddress);
-
         if (fallbackPrice > 0) {
           const priceData: TokenPrice = {
             mintAddress,
@@ -131,7 +126,6 @@ class TokenPriceService {
           this.priceCache.set(mintAddress, priceData);
         }
       });
-      
     } finally {
       this.isUpdating = false;
     }

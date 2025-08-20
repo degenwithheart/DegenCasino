@@ -1,3 +1,4 @@
+import { cacheOnTheFly } from './xcacheOnTheFly'
 
 // Simple in-memory rate limiter (per process, not per user)
 let lastCall = 0;
@@ -54,48 +55,50 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Missing domain', { status: 400 })
   }
 
-  const results = await Promise.all(
-    LOCATIONS.map(async ({ location, country, code }) => {
-      // Helper to fetch with timeout (Edge runtime compatible)
-      async function fetchWithTimeout(resource, options = {}, timeout = 4000) {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        try {
-          const response = await fetch(resource, { ...options, signal: controller.signal });
-          clearTimeout(id);
-          return response;
-        } catch (err) {
-          clearTimeout(id);
-          throw err;
+  // Cache per domain for 30s
+  const cacheKey = `dns:${domain}`;
+  const results = await cacheOnTheFly(cacheKey, async () => {
+    return await Promise.all(
+      LOCATIONS.map(async ({ location, country, code }) => {
+        // Helper to fetch with timeout (Edge runtime compatible)
+        async function fetchWithTimeout(resource: string, options = {}, timeout = 4000) {
+          const controller = new AbortController();
+          const id = setTimeout(() => controller.abort(), timeout);
+          try {
+            const response = await fetch(resource, { ...options, signal: controller.signal });
+            clearTimeout(id);
+            return response;
+          } catch (err) {
+            clearTimeout(id);
+            throw err;
+          }
         }
-      }
 
-      // Try Google DNS first
-      try {
-        const response = await fetchWithTimeout(`https://dns.google/resolve?name=${domain}&type=A`, {}, 4000);
-        if (!response.ok) throw new Error('Primary DNS failed');
-        const data = await response.json();
-        const status = data.Answer ? 'online' : 'offline';
-        return { location, country, code, status };
-      } catch {
-        // fallback DNS resolver (Cloudflare DoH)
+        // Try Google DNS first
         try {
-          const fallback = await fetchWithTimeout(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`, {
-            headers: { 'accept': 'application/dns-json' },
-          }, 4000);
-          const fallbackData = await fallback.json();
-          const status = fallbackData.Answer ? 'online' : 'offline';
+          const response = await fetchWithTimeout(`https://dns.google/resolve?name=${domain}&type=A`, {}, 4000);
+          if (!response.ok) throw new Error('Primary DNS failed');
+          const data = await response.json();
+          const status = data.Answer ? 'online' : 'offline';
           return { location, country, code, status };
         } catch {
-          return { location, country, code, status: 'offline' };
+          // fallback DNS resolver (Cloudflare DoH)
+          try {
+            const fallback = await fetchWithTimeout(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`, {
+              headers: { 'accept': 'application/dns-json' },
+            }, 4000);
+            const fallbackData = await fallback.json();
+            const status = fallbackData.Answer ? 'online' : 'offline';
+            return { location, country, code, status };
+          } catch {
+            return { location, country, code, status: 'offline' };
+          }
         }
-      }
-    })
-  );
+      })
+    );
+  }, 30000); // 30s TTL
 
-  return new Response(JSON.stringify(results), {
-    headers: { 'Content-Type': 'application/json' },
-  })
-  // Fallback in case something goes wrong (should never reach here)
-  return new Response('Internal Server Error', { status: 500 })
-}
+    return new Response(JSON.stringify(results), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
