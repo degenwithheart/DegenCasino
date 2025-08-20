@@ -1,7 +1,7 @@
 import { cacheOnTheFly } from './xcacheOnTheFly'
 export const config = { runtime: 'edge' };
 
-export default async function handler(req) {
+export default async function handler(req: Request) {
   // Proxy request to Helius using the secret API key
   const url = new URL(req.url);
   const heliusEndpoint = process.env.HELIUS_API_KEY;
