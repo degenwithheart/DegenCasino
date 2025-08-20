@@ -1,5 +1,4 @@
 # Ignore environment file
-.env
 docs
 **/gamba_integration_guide.txt
 .DS_Store
