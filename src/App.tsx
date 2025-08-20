@@ -22,6 +22,7 @@ import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
+import Propagation from './pages/propagation';
 
 const SIDEBAR_WIDTH = 80;
 
@@ -226,6 +227,7 @@ export default function App() {
           <Route path="/whitepaper" element={<Whitepaper />} />
           <Route path="/aboutme" element={<AboutMe />} />
           <Route path="/audit" element={<FairnessAudit />} />
+          <Route path="/propagation" element={<Propagation />} />
         </Routes>
       </MainContent>
       <Footer />
