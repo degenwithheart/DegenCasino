@@ -33,7 +33,6 @@
     "html2canvas": "^1.4.1",
     "matter-js": "^0.20.0",
     "react": "^18.3.1",
-    "react-casino-roulette": "^1.1.2",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.10.0",
@@ -55,7 +54,6 @@
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.12",
     "unplugin-fonts": "^1.0.3",
-    "vite": "6.3.5",
-    "vite-plugin-pwa": "^1.0.2"
+    "vite": "6.3.5"
   }
 }
