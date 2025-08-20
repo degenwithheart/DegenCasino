@@ -98,7 +98,15 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }, 30000); // 30s TTL
 
-    return new Response(JSON.stringify(results), {
+    // Summarize results into a single status string
+    const onlineCount = results.filter(r => r.status === 'online').length;
+    let status: 'Online' | 'Issues' | 'Offline' = 'Offline';
+    if (onlineCount === results.length) {
+      status = 'Online';
+    } else if (onlineCount > 0) {
+      status = 'Issues';
+    }
+    return new Response(JSON.stringify({ status }), {
       headers: { 'Content-Type': 'application/json' },
     });
   }
