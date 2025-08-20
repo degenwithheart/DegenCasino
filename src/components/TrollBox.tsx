@@ -3,6 +3,7 @@ import styled, { css, keyframes } from 'styled-components'
 import useSWR from 'swr'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
 import { generateUsernameFromWallet } from '../sections/userProfileUtils';
 
 
@@ -359,6 +360,28 @@ export default function TrollBox() {
     dedupingInterval: 7500,
   })
 
+  // Check if connected wallet is creator
+  const isCreator = connected && publicKey && publicKey.toBase58() === CREATOR_ADDRESS;
+
+  // Clear chat handler
+  const [isClearing, setIsClearing] = useState(false);
+  async function clearChat() {
+    if (!isCreator) return;
+    setIsClearing(true);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: publicKey?.toBase58() }),
+      });
+      if (res.ok) {
+        mutate();
+      }
+    } finally {
+      setIsClearing(false);
+    }
+  }
+
   const [text, setText] = useState('')
   const [isSending, setIsSending] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
@@ -454,7 +477,17 @@ export default function TrollBox() {
           <HeaderStatus>
             {messages.length ? `${messages.length} msgs` : 'Connecting…'}
           </HeaderStatus>
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            {isCreator && (
+              <MinimizeButton
+                onClick={clearChat}
+                title={isClearing ? 'Clearing…' : 'Clear chat'}
+                disabled={isClearing}
+                style={{ color: isClearing ? '#ffd70088' : '#ffd700', fontWeight: 700 }}
+              >
+                {isClearing ? '…' : 'Clear'}
+              </MinimizeButton>
+            )}
             <MinimizeButton onClick={toggleMinimize} title="Minimize">
               <MinimizeIcon />
             </MinimizeButton>
