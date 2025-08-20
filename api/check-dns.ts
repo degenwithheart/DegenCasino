@@ -55,45 +55,124 @@ export default async function handler(req: Request): Promise<Response> {
 
   // Cache per domain for 30s
   const cacheKey = `dns:${domain}`;
-  const results = await cacheOnTheFly(cacheKey, async () => {
-    return await Promise.all(
-      LOCATIONS.map(async ({ location, country, code }) => {
-        // Helper to fetch with timeout (Edge runtime compatible)
-        async function fetchWithTimeout(resource: string, options = {}, timeout = 4000) {
-          const controller = new AbortController();
-          const id = setTimeout(() => controller.abort(), timeout);
-          try {
-            const response = await fetch(resource, { ...options, signal: controller.signal });
-            clearTimeout(id);
-            return response;
-          } catch (err) {
-            clearTimeout(id);
-            throw err;
-          }
-        }
+  const DNS_PROVIDERS = [
+    {
+      name: 'Google',
+      url: (domain: string) => `https://dns.google/resolve?name=${domain}&type=A`,
+      options: {},
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'Cloudflare',
+      url: (domain: string) => `https://cloudflare-dns.com/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'Quad9',
+      url: (domain: string) => `https://dns.quad9.net/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'NextDNS',
+      url: (domain: string) => `https://dns.nextdns.io/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'OpenDNS',
+      url: (domain: string) => `https://doh.opendns.com/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'CleanBrowsing',
+      url: (domain: string) => `https://doh.cleanbrowsing.org/doh/family-filter/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'AdGuard',
+      url: (domain: string) => `https://dns.adguard.com/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'Neustar',
+      url: (domain: string) => `https://dns.neustar.biz/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'Yandex',
+      url: (domain: string) => `https://dns.yandex.net/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+    {
+      name: 'PowerDNS',
+      url: (domain: string) => `https://doh.powerdns.org/dns-query?name=${domain}&type=A`,
+      options: { headers: { 'accept': 'application/dns-json' } },
+      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
+    },
+  ];
 
-        // Try Google DNS first
-        try {
-          const response = await fetchWithTimeout(`https://dns.google/resolve?name=${domain}&type=A`, {}, 4000);
-          if (!response.ok) throw new Error('Primary DNS failed');
-          const data = await response.json();
-          const status = data.Answer ? 'online' : 'offline';
-          return { location, country, code, status };
-        } catch {
-          // fallback DNS resolver (Cloudflare DoH)
-          try {
-            const fallback = await fetchWithTimeout(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`, {
-              headers: { 'accept': 'application/dns-json' },
-            }, 4000);
-            const fallbackData = await fallback.json();
-            const status = fallbackData.Answer ? 'online' : 'offline';
-            return { location, country, code, status };
-          } catch {
-            return { location, country, code, status: 'offline' };
+  const results = await cacheOnTheFly(cacheKey, async () => {
+    const checkedAt = new Date().toISOString();
+    // For each location, check all providers
+    const allResults = await Promise.all(
+      LOCATIONS.flatMap(({ location, country, code }) =>
+        DNS_PROVIDERS.map(async provider => {
+          // Helper to fetch with timeout (Edge runtime compatible)
+          async function fetchWithTimeout(resource: string, options = {}, timeout = 4000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const start = Date.now();
+            try {
+              const response = await fetch(resource, { ...options, signal: controller.signal });
+              clearTimeout(id);
+              const responseTimeMs = Date.now() - start;
+              return { response, responseTimeMs };
+            } catch (err) {
+              clearTimeout(id);
+              throw err;
+            }
           }
-        }
-      })
+          try {
+            const { response, responseTimeMs } = await fetchWithTimeout(provider.url(domain), provider.options, 4000);
+            if (!response.ok) throw new Error('DNS failed');
+            const data = await response.json();
+            const ips = provider.parse(data);
+            const status = ips && ips.length > 0 ? 'online' : 'offline';
+            return {
+              location,
+              country,
+              code,
+              provider: provider.name,
+              status,
+              responseTimeMs,
+              checkedAt,
+              ip: ips ? ips.join(', ') : undefined,
+              error: undefined
+            };
+          } catch (err: any) {
+            return {
+              location,
+              country,
+              code,
+              provider: provider.name,
+              status: 'offline',
+              responseTimeMs: undefined,
+              checkedAt,
+              ip: undefined,
+              error: (err && err.message) || 'Unknown error'
+            };
+          }
+        })
+      )
     );
+    return allResults;
   }, 30000); // 30s TTL
 
     // Summarize results into a single status string
