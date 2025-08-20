@@ -267,62 +267,22 @@ const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 function useDnsStatus() {
   const [dnsStatus, setDnsStatus] = useState<"Online" | "Issues" | "Offline" | "Loading">("Loading");
 
-
   useEffect(() => {
     let cancelled = false;
     setDnsStatus("Loading");
-    const fetchWithTimeout = async (resource: string, options = {}, timeout = 4000) => {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-      try {
-        const response = await fetch(resource, { ...options, signal: controller.signal });
-        clearTimeout(id);
-        return response;
-      } catch (err) {
-        clearTimeout(id);
-        throw err;
-      }
-    };
-
     const checkDnsStatus = async () => {
-      const urls = [
-        // Google DNS
-        "https://dns.google/resolve?name=degenheart.casino",
-        "https://dns.google/dns-query?name=degenheart.casino&type=A",
-        // Cloudflare DNS
-        "https://cloudflare-dns.com/dns-query?name=degenheart.casino&type=A",
-        // Quad9
-        "https://dns.quad9.net/dns-query?name=degenheart.casino&type=A",
-        // NextDNS
-        "https://dns.nextdns.io/dns-query?name=degenheart.casino&type=A",
-        // OpenDNS
-        "https://doh.opendns.com/dns-query?name=degenheart.casino&type=A",
-        // CleanBrowsing
-        "https://doh.cleanbrowsing.org/doh/family-filter/dns-query?name=degenheart.casino&type=A",
-        // AdGuard
-        "https://dns.adguard.com/dns-query?name=degenheart.casino&type=A",
-        // Neustar
-        "https://dns.neustar.biz/dns-query?name=degenheart.casino&type=A",
-        // Yandex
-        "https://dns.yandex.net/dns-query?name=degenheart.casino&type=A",
-        // PowerDNS
-        "https://doh.powerdns.org/dns-query?name=degenheart.casino&type=A",
-      ];
-      let successes = 0;
-      for (const url of urls) {
-        try {
-          const res = await fetchWithTimeout(url, { headers: { accept: "application/dns-json" } }, 3000);
-          const data = await res.json();
-          if (data?.Answer?.length > 0) successes++;
-        } catch {
-          // ignore errors
+      try {
+        const res = await fetch("/api/check-dns");
+        const data = await res.json();
+        if (!cancelled && data && data.status) {
+          setDnsStatus(data.status);
+        } else if (!cancelled) {
+          setDnsStatus("Issues");
         }
-      }
-      if (!cancelled) {
-        setDnsStatus(successes === urls.length ? "Online" : successes > 0 ? "Issues" : "Offline");
+      } catch {
+        if (!cancelled) setDnsStatus("Offline");
       }
     };
-
     checkDnsStatus();
     return () => { cancelled = true; };
   }, []);
