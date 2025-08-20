@@ -12,12 +12,22 @@ function useThrottle(callback: () => void, delay: number) {
 }
 import styled, { keyframes } from 'styled-components'
 
+type ProviderResult = {
+  provider: string;
+  status: 'online' | 'offline';
+  responseTimeMs?: number;
+  checkedAt: string;
+  ip?: string;
+  error?: string;
+};
+
 type Status = {
-  location: string
-  country: string
-  code: string
-  status: 'online' | 'offline'
-}
+  location: string;
+  country: string;
+  code: string;
+  status: 'online' | 'offline';
+  providers: ProviderResult[];
+};
 
 // Casino animations
 const neonPulse = keyframes`
@@ -462,6 +472,30 @@ const Divider = styled.div`
 const getFlag = (countryCode: string) =>
   String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 127397 + c.charCodeAt(0)))
 
+function getProviderIcon(provider: string) {
+  const iconMap: Record<string, string> = {
+    Google: 'https://cdn-icons-png.flaticon.com/512/300/300221.png',
+    Cloudflare: 'https://cdn-icons-png.flaticon.com/512/4144/4144716.png',
+    Quad9: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    NextDNS: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    OpenDNS: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    CleanBrowsing: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    AdGuard: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    Neustar: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+    Yandex: 'https://cdn-icons-png.flaticon.com/512/5968/5968705.png',
+    PowerDNS: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+  };
+  const src = iconMap[provider] || 'https://cdn-icons-png.flaticon.com/512/44/44948.png';
+  return (
+    <img
+      src={src}
+      alt={provider + ' icon'}
+      style={{ width: 20, height: 20, objectFit: 'contain', marginRight: 6, verticalAlign: 'middle', filter: 'drop-shadow(0 0 2px #0008)' }}
+      onError={(e) => { (e.currentTarget as HTMLImageElement).src = 'https://cdn-icons-png.flaticon.com/512/44/44948.png'; }}
+    />
+  );
+}
+
 export default function PropagationPage() {
   const [domain, setDomain] = useState('')
   const [statusList, setStatusList] = useState<Status[]>([])
@@ -480,18 +514,34 @@ export default function PropagationPage() {
     // Use mock data in development
     if (import.meta.env.DEV) {
       console.log('Using mock DNS propagation data for development')
+      const mockProviders: ProviderResult[] = [
+        {
+          provider: "Google",
+          status: "online",
+          responseTimeMs: 42,
+          checkedAt: new Date().toISOString(),
+          ip: "8.8.8.8",
+        },
+        {
+          provider: "Cloudflare",
+          status: "online",
+          responseTimeMs: 37,
+          checkedAt: new Date().toISOString(),
+          ip: "1.1.1.1",
+        },
+      ];
       const mockLocations = [
-        { location: "Atlanta", country: "United States", code: "US", status: 'online' as const },
-        { location: "New York", country: "United States", code: "US", status: 'online' as const },
-        { location: "London", country: "United Kingdom", code: "GB", status: 'online' as const },
-        { location: "Frankfurt", country: "Germany", code: "DE", status: 'online' as const },
-        { location: "Tokyo", country: "Japan", code: "JP", status: 'offline' as const },
-        { location: "Sydney", country: "Australia", code: "AU", status: 'online' as const },
-        { location: "Singapore", country: "Singapore", code: "SG", status: 'online' as const },
-        { location: "São Paulo", country: "Brazil", code: "BR", status: 'offline' as const },
-        { location: "Mumbai", country: "India", code: "IN", status: 'online' as const },
-        { location: "Toronto", country: "Canada", code: "CA", status: 'online' as const }
-      ]
+        { location: "Atlanta", country: "United States", code: "US", status: 'online' as const, providers: mockProviders },
+        { location: "New York", country: "United States", code: "US", status: 'online' as const, providers: mockProviders },
+        { location: "London", country: "United Kingdom", code: "GB", status: 'online' as const, providers: mockProviders },
+        { location: "Frankfurt", country: "Germany", code: "DE", status: 'online' as const, providers: mockProviders },
+        { location: "Tokyo", country: "Japan", code: "JP", status: 'offline' as const, providers: mockProviders.map(p => ({ ...p, status: "offline" as const, error: "Timeout" })) },
+        { location: "Sydney", country: "Australia", code: "AU", status: 'online' as const, providers: mockProviders },
+        { location: "Singapore", country: "Singapore", code: "SG", status: 'online' as const, providers: mockProviders },
+        { location: "São Paulo", country: "Brazil", code: "BR", status: 'offline' as const, providers: mockProviders.map(p => ({ ...p, status: "offline" as const, error: "Timeout" })) },
+        { location: "Mumbai", country: "India", code: "IN", status: 'online' as const, providers: mockProviders },
+        { location: "Toronto", country: "Canada", code: "CA", status: 'online' as const, providers: mockProviders }
+      ];
       setTimeout(() => {
         setStatusList(mockLocations)
         setLoading(false)
@@ -561,7 +611,7 @@ export default function PropagationPage() {
 
         {!loading && (
           <CardsGrid>
-            {statusList.map(({ location, country, code, status }) => (
+            {statusList.map(({ location, country, code, status, providers }) => (
               <StatusCard key={`${location}-${code}`} $isOnline={status === 'online'}>
                 <CardHeader>
                   <FlagEmoji $isOnline={status === 'online'}>
@@ -571,13 +621,46 @@ export default function PropagationPage() {
                     {status === 'online' ? '✅' : '❌'}
                   </StatusEmoji>
                 </CardHeader>
-                
                 <CardContent>
                   <LocationTitle>{location}</LocationTitle>
                   <CountryText $isOnline={status === 'online'}>{country}</CountryText>
                   <StatusBadge $isOnline={status === 'online'}>
                     {status === 'online' ? '🟢 Online' : '🔴 Offline'}
                   </StatusBadge>
+                  <div style={{marginTop: '0.75rem'}}>
+                    <table style={{width: '100%', fontSize: '0.95rem', background: 'rgba(0,0,0,0.15)', borderRadius: 8, overflow: 'hidden'}}>
+                      <thead>
+                        <tr style={{color: '#ffd700', background: 'rgba(162,89,255,0.08)'}}>
+                          <th style={{padding: '0.25rem 0.5rem'}}>Provider</th>
+                          <th style={{padding: '0.25rem 0.5rem'}}>Status</th>
+                          <th style={{padding: '0.25rem 0.5rem'}}>Time</th>
+                          <th style={{padding: '0.25rem 0.5rem'}}>Checked</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {providers.map((p, idx) => (
+                          <tr key={p.provider + idx} style={{color: p.status === 'online' ? '#6ee7b7' : '#fca5a5'}}>
+                            <td style={{padding: '0.25rem 0.5rem', fontWeight: 600}}>
+                              {getProviderIcon(p.provider)}
+                              {p.provider}
+                            </td>
+                            <td style={{padding: '0.25rem 0.5rem'}}>
+                              {p.status === 'online' ? '🟢 Online' : '🔴 Offline'}
+                              {p.error && (
+                                <span style={{color: '#fca5a5', marginLeft: 6, fontSize: '0.9em'}}>({p.error})</span>
+                              )}
+                            </td>
+                            <td style={{padding: '0.25rem 0.5rem'}}>
+                              {typeof p.responseTimeMs === 'number' ? `${p.responseTimeMs} ms` : '--'}
+                            </td>
+                            <td style={{padding: '0.25rem 0.5rem'}}>
+                              {p.checkedAt ? new Date(p.checkedAt).toLocaleTimeString() : '--'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </CardContent>
               </StatusCard>
             ))}
