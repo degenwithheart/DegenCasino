@@ -8,7 +8,7 @@ console.log('🏷️ useConnection React identity:', ReactLocal)
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import '@solana/wallet-adapter-react-ui/styles.css'
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { GambaPlatformProvider, ReferralProvider, TokenMetaProvider, useGambaPlatformContext } from 'gamba-react-ui-v2'
 import { GambaProvider, SendTransactionProvider } from 'gamba-react-v2'
 import React from 'react'
@@ -30,7 +30,7 @@ function getInitialPool() {
 function Root() {
   const wallets = React.useMemo(
     () => [
-      new PhantomWalletAdapter(),
+  // new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ],
     [],

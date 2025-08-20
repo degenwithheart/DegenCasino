@@ -286,63 +286,27 @@ const InfoText = styled.div`
   }
 `;
 
-const TokenSelectionModal = () => {
-  const user = useUserStore()
-  const referral = useReferral()
-  const toast = useToast()
-  const walletModal = useWalletModal()
-  const [removing, setRemoving] = useState(false)
+  const TokenSelectionModal = () => {
+    const user = useUserStore()
+    const referral = useReferral()
+    const toast = useToast()
+    const walletModal = useWalletModal()
+    const [removing, setRemoving] = useState(false)
 
-  // Use the first pool as the free token (assumed convention)
-  const [selectedMint, setSelectedMint] = useState<PublicKey>(POOLS[0].token)
-  const selectedToken = POOLS.find((t) => t.token.equals(selectedMint))
-  // Defensive: always use .equals for PublicKey comparison
-  const isFreeToken = selectedMint && POOLS[0].token && selectedMint.equals(POOLS[0].token)
+    const [selectedMint, setSelectedMint] = useState<PublicKey>(POOLS[0].token)
+    const selectedToken = POOLS.find((t) => t.token.equals(selectedMint))
+    const isFreeToken = selectedMint && POOLS[0].token && selectedMint.equals(POOLS[0].token)
 
-  const copyInvite = () => {
-    try {
-      referral.copyLinkToClipboard()
-      toast({
-        title: '📋 Copied to clipboard',
-        description: 'Your referral code has been copied!',
-      })
-    } catch {
-      walletModal.setVisible(true)
-    }
+    return (
+      <Modal onClose={() => user.set({ userModal: false })}>
+        <Container>
+          <Header>Select a Token</Header>
+          <TokenSelect setSelectedMint={setSelectedMint} selectedMint={selectedMint} />
+          {/* ✅ Invite section removed — now handled inside Invite tab */}
+        </Container>
+      </Modal>
+    )
   }
-
-  const removeInvite = async () => {
-    try {
-      setRemoving(true)
-      await referral.removeInvite()
-    } finally {
-      setRemoving(false)
-    }
-  }
-
-  return (
-    <Modal onClose={() => user.set({ userModal: false })}>
-      <Container>
-        <Header>Select a Token</Header>
-        <TokenSelect setSelectedMint={setSelectedMint} selectedMint={selectedMint} />
-
-        {/* Invite section only for free token */}
-        {isFreeToken && (
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', alignItems: 'center' }}>
-            <div>
-              <GambaUi.Button main onClick={copyInvite}>
-                💸 Copy invite link
-              </GambaUi.Button>
-            </div>
-            <InfoText>
-              Share your link with new users to earn {(PLATFORM_REFERRAL_FEE * 100)}% every time they play.
-            </InfoText>
-          </div>
-        )}
-      </Container>
-    </Modal>
-  )
-}
 
 const TokenIconAndBalance = () => {
   const selectedToken = useCurrentToken()
