@@ -120,59 +120,63 @@ export default async function handler(req: Request): Promise<Response> {
 
   const results = await cacheOnTheFly(cacheKey, async () => {
     const checkedAt = new Date().toISOString();
-    // For each location, check all providers
-    const allResults = await Promise.all(
-      LOCATIONS.flatMap(({ location, country, code }) =>
-        DNS_PROVIDERS.map(async provider => {
-          // Helper to fetch with timeout (Edge runtime compatible)
-          async function fetchWithTimeout(resource: string, options = {}, timeout = 4000) {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            const start = Date.now();
-            try {
-              const response = await fetch(resource, { ...options, signal: controller.signal });
-              clearTimeout(id);
-              const responseTimeMs = Date.now() - start;
-              return { response, responseTimeMs };
-            } catch (err) {
-              clearTimeout(id);
-              throw err;
+    // For each location, check all providers and group by location
+    const locationResults = await Promise.all(
+      LOCATIONS.map(async ({ location, country, code }) => {
+        const providers = await Promise.all(
+          DNS_PROVIDERS.map(async provider => {
+            async function fetchWithTimeout(resource: string, options = {}, timeout = 4000) {
+              const controller = new AbortController();
+              const id = setTimeout(() => controller.abort(), timeout);
+              const start = Date.now();
+              try {
+                const response = await fetch(resource, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                const responseTimeMs = Date.now() - start;
+                return { response, responseTimeMs };
+              } catch (err) {
+                clearTimeout(id);
+                throw err;
+              }
             }
-          }
-          try {
-            const { response, responseTimeMs } = await fetchWithTimeout(provider.url(domain), provider.options, 4000);
-            if (!response.ok) throw new Error('DNS failed');
-            const data = await response.json();
-            const ips = provider.parse(data);
-            const status = ips && ips.length > 0 ? 'online' : 'offline';
-            return {
-              location,
-              country,
-              code,
-              provider: provider.name,
-              status,
-              responseTimeMs,
-              checkedAt,
-              ip: ips ? ips.join(', ') : undefined,
-              error: undefined
-            };
-          } catch (err: any) {
-            return {
-              location,
-              country,
-              code,
-              provider: provider.name,
-              status: 'offline',
-              responseTimeMs: undefined,
-              checkedAt,
-              ip: undefined,
-              error: (err && err.message) || 'Unknown error'
-            };
-          }
-        })
-      )
+            try {
+              const { response, responseTimeMs } = await fetchWithTimeout(provider.url(domain), provider.options, 4000);
+              if (!response.ok) throw new Error('DNS failed');
+              const data = await response.json();
+              const ips = provider.parse(data);
+              const status = ips && ips.length > 0 ? 'online' : 'offline';
+              return {
+                provider: provider.name,
+                status,
+                responseTimeMs,
+                checkedAt,
+                ip: ips ? ips.join(', ') : undefined,
+                error: undefined
+              };
+            } catch (err: any) {
+              return {
+                provider: provider.name,
+                status: 'offline',
+                responseTimeMs: undefined,
+                checkedAt,
+                ip: undefined,
+                error: (err && err.message) || 'Unknown error'
+              };
+            }
+          })
+        );
+        // Compute summary status: online if any provider is online
+        const summaryStatus = providers.some(p => p.status === 'online') ? 'online' : 'offline';
+        return {
+          location,
+          country,
+          code,
+          status: summaryStatus,
+          providers
+        };
+      })
     );
-    return allResults;
+    return locationResults;
   }, 30000); // 30s TTL
 
     // Summarize results into a single status string
