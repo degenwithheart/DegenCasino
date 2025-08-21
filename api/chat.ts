@@ -24,7 +24,7 @@ function validateUser(user: string) {
 function validateText(text: string) {
   const clean = String(text ?? '').trim();
   if (!clean) return '';
-  if (clean.length > 256) return clean.slice(0, 256);
+  if (clean.length > 260) return clean.slice(0, 260);
   return clean;
 }
 
