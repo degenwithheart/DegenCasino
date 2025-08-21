@@ -155,4 +155,17 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     },
     app: React.lazy(() => import('./BlackJack-v1')),
   },
+  {
+    id: 'progressivepoker',
+    live: 'new',
+    meta: {
+      name: 'Progressive Poker',
+      background: '#000000CC',
+      image: '/games/progressive-poker.png',
+      description: `Five cards hold your fate, but here fortune favors the bold. Each hand dealt is a whispered promise — will you find the pair that starts your climb, the straight that lifts your spirit, or the royal flush that crowns you king? This is not just poker; it is progression itself, where each win becomes the seed of the next dream. Continue playing and watch your fortune blossom, or cash out and hold what you've earned. But beware — one bust hand and all returns to dust. In Progressive Poker, every decision is a love letter to risk, every hand a chance to rise or fall in the most beautiful way possible.`,
+      tag: 'Singleplayer',
+      effect: 'pulse',
+    },
+    app: React.lazy(() => import('./ProgressivePoker')),
+  },
 ]

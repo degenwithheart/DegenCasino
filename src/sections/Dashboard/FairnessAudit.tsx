@@ -11,7 +11,9 @@ import { PLINKO_CONFIG } from '../../games/rtpConfig'
 import { MINES_CONFIG } from '../../games/rtpConfig'
 import { HILO_CONFIG } from '../../games/rtpConfig'
 import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
+import { PROGRESSIVE_POKER_CONFIG } from '../../games/rtpConfig'
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
+import { getBetArray as getProgressivePokerBetArray } from '../../games/ProgressivePoker/betArray'
 
 // NOTE: This audit tests the actual game implementations that players experience,
 // importing directly from the games' source code to ensure 1:1 accuracy.
@@ -60,6 +62,9 @@ const getRealBetArrays = () => {
     // Plinko - use actual game implementations
     plinkoStd: PLINKO_CONFIG.normal,
     plinkoDegen: PLINKO_CONFIG.degen,
+    
+    // Progressive Poker - use actual game implementation with weighted probabilities
+    progressivepoker: getProgressivePokerBetArray(),
   }
 }
 
@@ -656,6 +661,7 @@ export default function FairnessAudit() {
       { game:'Slots (dynamic)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.slots, 'generated array'), targetRtp:0.96, note:'Slot machine game', status:'ok', betVector:realBets.slots },
       { game:'Blackjack (solo)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.blackjack, 'scaled payouts'), targetRtp:0.96, note:'Classic card game vs house', status:'ok', betVector:realBets.blackjack },
       { game:'Blackjack Duel', onChain:true, noLocalRng:true, rtp:calculateRtp([realBets.flip[0], 0], 'PvP'), targetRtp:0.96, note:'Player vs player blackjack', status:'ok', betVector:[realBets.flip[0], 0] },
+      { game:'Progressive Poker', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.progressivepoker, 'poker hand payouts'), targetRtp:0.96, note:'Progressive video poker game', status:'ok', betVector:realBets.progressivepoker },
     ]
   },[seed])
 
