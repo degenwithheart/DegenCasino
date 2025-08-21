@@ -226,27 +226,6 @@ export const SIDEBAR_LINKS = [
     showWhen: () => true,
     external: false,
   },
-  {
-    to: '/aboutme',
-    label: 'About',
-    icon: FaInfoCircle,
-    showWhen: () => true,
-    external: false,
-  },
-  {
-    to: '/terms',
-    label: 'Terms',
-    icon: FaFileAlt,
-    showWhen: () => true,
-    external: false,
-  },
-  {
-    to: '/whitepaper',
-    label: 'Whitepaper',
-    icon: FaBookOpen,
-    showWhen: () => true,
-    external: false,
-  },
 ];
 
 
@@ -263,6 +242,14 @@ export const FOOTER_LINKS = [
   {
     href: '/aboutme',
     title: 'About Me',
+  },
+  {
+    href: '/terms',
+    title: 'Terms',
+  },
+  {
+    href: '/whitepaper',
+    title: 'Whitepaper',
   },
   {
     href: 'https://github.com/degenwithheart',
