@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Flex } from '../../components'
 import { Modal } from '../../components/Modal'
-import { EXPLORER_URL, PLATFORM_SHARABLE_URL } from '../../constants'
+import { PLATFORM_SHARABLE_URL } from '../../constants'
 import { extractMetadata } from '../../utils'
 
 const Container = styled.div`
@@ -13,21 +13,102 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 20px;
-  padding-bottom: 0;
+  gap: 20px;
+  padding: 24px;
   width: 100%;
   min-height: 100%;
 `
 
 const Inner = styled.div`
   overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 `
 
 const Content = styled.div`
-  border-radius: 10px;
+  border-radius: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-width: 400px;
+  
+  @media (max-width: 480px) {
+    min-width: 320px;
+    padding: 20px;
+  }
+`
+
+const GameResult = styled.div`
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
   padding: 20px;
-  background: linear-gradient(156deg, #52527822, #12121700);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin-bottom: 16px;
+`
+
+const TokenIcon = styled.img`
+  border-radius: 50%;
+  height: 48px;
+  width: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+`
+
+const GameIcon = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  object-fit: cover;
+`
+
+const ProfitDisplay = styled.div<{ $isProfit: boolean }>`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${props => props.$isProfit ? '#10b981' : '#ef4444'};
+  text-align: center;
+  
+  .multiplier {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 4px;
+    opacity: 0.9;
+  }
+`
+
+const BrandingSection = styled.div`
+  background: rgba(18, 18, 23, 0.8);
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  
+  img {
+    height: 28px;
+    width: 28px;
+  }
+  
+  .platform-name {
+    font-weight: 600;
+    color: #ff6666;
+  }
+`
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
@@ -36,17 +117,28 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
   // Get wallet and gameId for route
   const wallet = event.data.user?.toBase58?.() || ''
   const gameId = game?.id || ''
+  const signature = event.signature || ''
+  
   const gotoGame = () => {
     if (wallet && gameId) {
       navigate(`/game/${wallet}/${gameId}`)
     }
     onClose()
   }
+  
+  const viewTransaction = () => {
+    if (signature) {
+      navigate(`/explorer/transaction/${signature}?user=${wallet}`)
+    }
+    onClose()
+  }
+  
   const tokenMeta = useTokenMeta(event.data.tokenMint)
   const ref = React.useRef<HTMLDivElement>(null!)
 
   const profit = event.data.payout.sub(event.data.wager).toNumber()
   const percentChange = profit / event.data.wager.toNumber()
+  const isProfit = profit >= 0
 
   return (
     <Modal onClose={() => onClose()}>
@@ -64,35 +156,39 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
         <Container>
           <Inner>
             <Content ref={ref}>
-              <div style={{ display: 'grid', gap: '5px', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', padding: '10px' }}>
-                <img src={tokenMeta.image} style={{ borderRadius: '50%', height: '40px' }} />
-                <div style={{ fontSize: '24px', color: percentChange >= 0 ? '#9bffad' : '#ff4f4f', padding: '10px' }}>
-                  <b>
-                    {profit >= 0 ? '+' : '-'}
+              <GameResult>
+                <TokenIcon src={tokenMeta.image} alt={tokenMeta.symbol} />
+                
+                <ProfitDisplay $isProfit={isProfit}>
+                  <div>
+                    {isProfit ? '+' : '-'}
                     <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
-                  </b>
-                  <div style={{ fontSize: '18px' }}>
+                  </div>
+                  <div className="multiplier">
                     {(event.data.multiplierBps / 10_000).toLocaleString()}x
                   </div>
+                </ProfitDisplay>
+                
+                <GameIcon src={game?.meta?.image} alt={game?.meta?.name || 'Game'} />
+              </GameResult>
+              
+              <BrandingSection>
+                <img src="/$DGHRT.png" alt="DegenHeart" />
+                <div>
+                  play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
                 </div>
-                <div style={{ padding: '10px', textAlign: 'center' }}>
-                  <img src={game?.meta?.image} width="100px" />
-                </div>
-              </div>
-              <div style={{ background: '#121217CC', color: '#ffffffcc', fontStyle: 'italic', display: 'flex', alignContent: 'center', gap: '10px', padding: '10px', borderRadius: '10px' }}>
-                <img src="/$DGHRT.png" height="25px" />
-                <div>play on <b>{PLATFORM_SHARABLE_URL}</b></div>
-              </div>
+              </BrandingSection>
             </Content>
           </Inner>
-          <Flex>
-            <GambaUi.Button size="small" onClick={() => window.open(`${EXPLORER_URL}/tx/${event.signature}`, '_blank')}>
-              Verify
+          
+          <ButtonGroup>
+            <GambaUi.Button size="small" onClick={viewTransaction}>
+              View Details
             </GambaUi.Button>
             <GambaUi.Button size="small" onClick={gotoGame}>
               Play {game?.meta?.name || 'Game'}
             </GambaUi.Button>
-          </Flex>
+          </ButtonGroup>
         </Container>
       </div>
     </Modal>

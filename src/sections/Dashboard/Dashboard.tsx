@@ -439,7 +439,7 @@ export function Dashboard() {
             </>
           ) : (
             <SectionWrapper $compact={compact}>
-              <RecentPlays />
+              <RecentPlays showAllPlatforms={false} />
             </SectionWrapper>
           )}
         </>

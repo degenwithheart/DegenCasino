@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAPI()">Test Gamba API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Fetching platform stats...');
+                const statsResponse = await fetch('https://api.gamba.so/stats?creator=6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
+                console.log('Stats response:', statsResponse.status);
+                
+                if (statsResponse.ok) {
+                    const statsData = await statsResponse.json();
+                    console.log('Stats data:', statsData);
+                }
+                
+                console.log('Fetching recent plays...');
+                const playsResponse = await fetch('https://api.gamba.so/events/settledGames?creator=6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ&itemsPerPage=3&page=0');
+                console.log('Plays response:', playsResponse.status);
+                
+                if (playsResponse.ok) {
+                    const playsData = await playsResponse.json();
+                    console.log('Plays data:', playsData);
+                    resultDiv.innerHTML = `<pre>${JSON.stringify(playsData, null, 2)}</pre>`;
+                } else {
+                    const errorText = await playsResponse.text();
+                    resultDiv.innerHTML = `Error: ${playsResponse.status} - ${errorText}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
