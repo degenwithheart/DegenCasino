@@ -39,10 +39,6 @@ export function useLeaderboardData(period: Period, creator: string) {
 
         // Determine starting timestamp for the selected period
         const now = Date.now();
-        // Retry logic
-        if (retryCount < MAX_RETRIES) {
-          setTimeout(() => setRetryCount(retryCount + 1), 1500);
-        }
         const startTime =
           period === 'weekly'
             ? now - 7 * 24 * 60 * 60 * 1000      // 7 days
@@ -54,7 +50,13 @@ export function useLeaderboardData(period: Period, creator: string) {
           `&sortBy=usd_volume` +
           `&startTime=${startTime}`;
 
-        const res = await fetch(url, { signal });
+        const res = await fetch(url, { 
+          signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
         if (!res.ok) throw new Error(await res.text());
 
         const { players }: LeaderboardResult = await res.json();

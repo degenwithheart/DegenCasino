@@ -23,6 +23,11 @@ import Footer from './sections/Footer';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
 import Propagation from './pages/propagation';
+import Transaction from './components/Transaction';
+import EmbeddedTransaction from './components/EmbeddedTransaction';
+import { PlayerView } from './components/PlayerView';
+import { PlatformView } from './components/PlatformView';
+import ExplorerIndex from './components/ExplorerIndex';
 
 const SIDEBAR_WIDTH = 80;
 
@@ -228,6 +233,10 @@ export default function App() {
           <Route path="/aboutme" element={<AboutMe />} />
           <Route path="/audit" element={<FairnessAudit />} />
           <Route path="/propagation" element={<Propagation />} />
+          <Route path="/explorer" element={<ExplorerIndex />} />
+          <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+          <Route path="/explorer/player/:address" element={<PlayerView />} />
+          <Route path="/explorer/transaction/:txId" element={<Transaction />} />
         </Routes>
       </MainContent>
       <Footer />

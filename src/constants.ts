@@ -1,4 +1,4 @@
-import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter } from 'react-icons/fa';
+import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter, FaSearch } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -217,6 +217,13 @@ export const SIDEBAR_LINKS = [
     label: 'Games',
     icon: FaGamepad,
     showWhen: (connected: boolean) => connected,
+    external: false,
+  },
+  {
+    to: '/explorer',
+    label: 'Explorer',
+    icon: FaSearch,
+    showWhen: () => true,
     external: false,
   },
   {
