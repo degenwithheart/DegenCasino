@@ -4,7 +4,27 @@ import styled, { keyframes } from 'styled-components'
 // Casino animations
 const neonPulse = keyframes`
   0% { 
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
+    box-shadow: 0 0 24px #a259  return (
+    <Container visible={visible}>
+      <h1 style={{ 
+        fontSize: '2.5rem', 
+        marginBottom: '0.5rem',
+        color: '#ffd700',
+        textAlign: 'center',
+        fontFamily: "'Luckiest Guy', cursive",
+        letterSpacing: '2px'
+      }}>
+        ✨ 📖 Whitepaper 📖 ✨
+      </h1>
+      <p style={{ 
+        fontStyle: 'italic', 
+        color: '#999', 
+        marginBottom: '2rem',
+        textAlign: 'center',
+        fontSize: '1.1rem'
+      }}>
+        This isn't just a casino — it's a serenade of risk, a love letter to the chain. 💖
+      </p>0 0 48px #ffd70044;
     border-color: #ffd70044;
     <Container visible={visible}>
       <h1 style={{ 
@@ -52,68 +72,40 @@ const Container = styled.div<ContainerProps>`
   max-width: 100vw;
   padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
   margin: 2rem 0; /* Only vertical margins */
-  border-radius: 24px;
-  background: rgba(24, 24, 24, 0.8);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  background: #0f0f23;
+  border: 1px solid #2a2a4a;
   color: white;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(20px)')};
-  transition: opacity 1s ease, transform 1s ease;
+  transition: all 0.3s ease;
   position: relative;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+  }
 
   @media (max-width: 900px) {
     margin: 1rem 0;
     padding: ${({ $compact }) => ($compact ? '0.5rem' : '1.5rem')};
-    border-radius: 16px;
   }
 
   @media (max-width: 700px) {
     margin: 1rem 0;
     padding: ${({ $compact }) => ($compact ? '0.5rem' : '1rem')};
-    border-radius: 12px;
   }
   
   @media (max-width: 480px) {
     padding: 1rem 0.75rem;
     margin: 0.5rem 0;
-    border-radius: 12px;
   }
   
   @media (max-width: 400px) {
     padding: 0.75rem 0.5rem;
     margin: 0.25rem 0;
     border-radius: 8px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
   }
 `;
 
@@ -124,48 +116,27 @@ const Tabs = styled.div`
   margin-bottom: 2rem;
 
   button {
-    background: rgba(255, 215, 0, 0.1);
-    border: 2px solid rgba(255, 215, 0, 0.3);
+    background: #0f0f23;
+    border: 1px solid #2a2a4a;
     color: #ffd700;
     padding: 0.75rem 1.5rem;
-    border-radius: 12px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
     font-family: 'Luckiest Guy', cursive;
     font-size: 1rem;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
 
     &:hover {
       border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
       transform: translateY(-2px);
-
-      &::before {
-        left: 100%;
-      }
     }
 
     &.active {
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      background: #ffd700;
       color: #1a1a1a;
       border-color: #ffd700;
-      box-shadow: 
-        0 0 30px rgba(255, 215, 0, 0.6),
-        inset 0 2px 10px rgba(255, 255, 255, 0.2);
-      animation: ${neonPulse} 2s ease-in-out infinite alternate;
     }
   }
 
@@ -187,56 +158,22 @@ const Section = styled.section`
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
     color: #ffd700;
-    text-shadow: 
-      0 0 10px #ffd700,
-      0 0 20px #ffd700,
-      2px 2px 4px rgba(0, 0, 0, 0.8);
-    position: relative;
     padding-bottom: 0.5rem;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, #ffd700, #a259ff, #ffd700);
-      background-size: 200% 100%;
-      animation: ${moveGradient} 3s linear infinite;
-      border-radius: 1px;
-    }
   }
 
   p, ul {
     margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    color: #999;
   }
 
   ul {
     padding-left: 1.25rem;
-    list-style-type: none;
-    
-    li {
-      position: relative;
-      padding-left: 1.5rem;
-      
-      &::before {
-        content: '💎';
-        position: absolute;
-        left: 0;
-        top: 0;
-        color: #ffd700;
-        font-size: 0.8rem;
-      }
-    }
+    list-style-type: disc;
   }
 
   strong {
     font-weight: bold;
     color: #ffd700;
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
   }
 
   em {
@@ -248,25 +185,10 @@ const Section = styled.section`
     color: #ffd700;
     text-decoration: none;
     transition: all 0.3s ease;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #ffd700, #a259ff);
-      transition: width 0.3s ease;
-    }
 
     &:hover {
-      text-shadow: 0 0 10px #ffd700;
-      
-      &::after {
-        width: 100%;
-      }
+      color: #fff;
+      text-decoration: underline;
     }
   }
 
@@ -377,12 +299,12 @@ const WhitepaperTabs: React.FC = () => {
           <h2>Roadmap</h2>
           <ul>
             <li>✅ <strong>Q3 2025:</strong> Launch Vite-based frontend with fully on-chain gameplay</li>
-            <li>✅ <strong>Q3 2025:</strong> Add UI polish, live stats, jackpot support</li>
-            <li>🔜 <strong>Q4 2025:</strong> Launch $DGHRT token + claim system</li>
-            <li>🔜 <strong>Q4 2025:</strong> Enable weekly claim page for loyal degens</li>
-            <li>🔜 <strong>Q2 2026:</strong> Raydium DEX listing</li>
-            <li>🔜 <strong>Q3 2026:</strong> Mobile UI + Telegram game integrations</li>
-            <li>🔜 <strong>04 2026:</strong> Governance phase — $DGHRT holders vote on future games</li>
+            <li>✅ <strong>Q4 2025:</strong> Add Mobile UI + UI polish, live stats, jackpot support</li>
+            <li>🔜 <strong>Q3 2026:</strong> Launch $DGHRT token + claim system</li>
+            <li>🔜 <strong>Q4 2026:</strong> Enable weekly claim page for loyal degens</li>
+            <li>🔜 <strong>Q4 2026:</strong> Raydium DEX listing</li>
+            <li>🔜 <strong>Q2 2027:</strong> Mobile App + Telegram game integrations</li>
+            <li>🔜 <strong>Q4 2027:</strong> Governance phase — $DGHRT holders vote on future games</li>
           </ul>
 
           <h2>Links</h2>

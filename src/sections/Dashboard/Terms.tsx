@@ -75,33 +75,34 @@ const Container = styled.div<ContainerProps>`
   max-width: 100vw;
   padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
   margin: 2rem 0; /* Only vertical margins */
-  border-radius: 24px;
-  background: rgba(24, 24, 24, 0.8);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  background: #0f0f23;
+  border: 1px solid #2a2a4a;
   color: white;
   opacity: ${(props) => (props.visible ? 1 : 0)};
   transform: ${(props) => (props.visible ? 'translateY(0)' : 'translateY(20px)')};
-  transition: opacity 1s ease, transform 1s ease;
+  transition: all 0.3s ease;
   position: relative;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+  }
 
   @media (max-width: 900px) {
     margin: 1rem 0;
     padding: ${({ $compact }) => ($compact ? '0.5rem' : '1.5rem')};
-    border-radius: 16px;
   }
 
   @media (max-width: 700px) {
     margin: 1rem 0;
     padding: ${({ $compact }) => ($compact ? '0.5rem' : '1rem')};
-    border-radius: 12px;
   }
   
   @media (max-width: 480px) {
     padding: 1rem 0.75rem;
     margin: 0.5rem 0;
-    border-radius: 12px;
   }
   
   @media (max-width: 400px) {
@@ -109,52 +110,16 @@ const Container = styled.div<ContainerProps>`
     margin: 0.25rem 0;
     border-radius: 8px;
   }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-  }
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
   color: #ffd700;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 2px;
-  position: relative;
-
-  &::before {
-    content: '📜';
-    margin-right: 10px;
-    animation: ${sparkle} 2s infinite;
-  }
+  text-align: center;
 
   @media (max-width: 600px) {
     font-size: 1.5rem;
@@ -164,9 +129,10 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-style: italic;
-  color: #ccc;
+  color: #999;
   margin-bottom: 2rem;
   font-size: 1.1rem;
+  text-align: center;
 `
 
 const Selector = styled.div`
@@ -184,20 +150,22 @@ const Selector = styled.div`
 
   button {
     cursor: pointer;
-    border: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 20px;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
     padding: 0.6rem 1.2rem;
     font-size: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(24, 24, 24, 0.6);
+    background: #0f0f23;
     color: #ddd;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 
     &:hover {
-      background: rgba(255, 215, 0, 0.1);
+      border-color: #ffd700;
+      box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+      transform: translateY(-2px);
+    }
       color: #ffd700;
       border-color: rgba(255, 215, 0, 0.6);
       box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
@@ -233,23 +201,8 @@ const SectionHeading = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
   color: #ffd700;
-  text-shadow: 0 0 8px #ffd700;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 1px;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, transparent);
-    border-radius: 1px;
-    animation: ${moveGradient} 3s linear infinite;
-    background-size: 200% 100%;
-  }
 
   @media (max-width: 600px) {
     font-size: 1.1rem;
@@ -265,6 +218,7 @@ const Content = styled.div`
   p,
   ul {
     margin-bottom: 1rem;
+    color: #999;
   }
 
   ul {
@@ -276,16 +230,10 @@ const Content = styled.div`
     color: #ffd700;
     text-decoration: none;
     transition: all 0.3s ease;
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid transparent;
 
     &:hover {
       color: #fff;
-      background: rgba(255, 215, 0, 0.1);
-      border: 1px solid rgba(255, 215, 0, 0.3);
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-      text-shadow: 0 0 8px #ffd700;
+      text-decoration: underline;
     }
   }
 
@@ -331,8 +279,10 @@ const Terms: React.FC = () => {
 
   return (
     <Container visible={visible}>
-      <Title>📜 Terms of Service</Title>
-      <Subtitle>Last Updated: May 06, 2025</Subtitle>
+      <Title>📜 Terms and Conditions 📜</Title>
+      <Subtitle>
+        Read our terms and understand your rights and responsibilities while using our platform.
+      </Subtitle>
 
       <Selector>
         <label>Select your jurisdiction:</label>
