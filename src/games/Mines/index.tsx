@@ -10,6 +10,144 @@ import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { generateGrid, revealAllMines, revealGold } from './utils'
 import { StyledMinesBackground } from './MinesBackground.enhanced.styles'
+import styled, { keyframes } from 'styled-components'
+
+// Enhanced styles for Mines info display (similar to ProgressiveInfo)
+const pulseFade = keyframes`
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+`
+
+const MinesInfo = styled.div<{ visible: boolean }>`
+  text-align: center;
+  background: rgba(147, 88, 255, 0.1);
+  border: 1px solid rgba(147, 88, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 0;
+  min-height: 60px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  opacity: ${props => props.visible ? 1 : 0};
+  visibility: ${props => props.visible ? 'visible' : 'hidden'};
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+`
+
+const InfoItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  
+  @media (max-width: 768px) {
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+  }
+`
+
+const InfoLabel = styled.div`
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 4px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0;
+    font-size: 11px;
+  }
+`
+
+const InfoValue = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`
+
+const ProfitDisplay = styled.div<{ profit: number }>`
+  font-size: 16px;
+  font-weight: bold;
+  color: ${props => props.profit > 0 ? '#4caf50' : props.profit < 0 ? '#f44336' : '#fff'};
+  margin: 10px 0;
+`
+
+const PlaceholderText = styled.div`
+  text-align: center;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 40px 0;
+  animation: ${pulseFade} 1.6s infinite;
+`
+
+// Enhanced Level styling
+const EnhancedLevels = styled.div`
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(147, 88, 255, 0.2) 0%, rgba(147, 88, 255, 0.1) 100%);
+  border: 1px solid rgba(147, 88, 255, 0.3);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  margin: 0;
+  box-shadow: 0 2px 10px rgba(147, 88, 255, 0.1);
+`
+
+const EnhancedLevel = styled.div<{$active: boolean}>`
+  margin: 0 auto;
+  width: 25%;
+  text-align: center;
+  padding: 8px 5px;
+  opacity: ${props => props.$active ? 1 : 0.5};
+  text-wrap: nowrap;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${props => props.$active ? 'linear-gradient(135deg, rgba(147, 88, 255, 0.3) 0%, rgba(147, 88, 255, 0.1) 100%)' : 'transparent'};
+    border-radius: ${props => props.$active ? '8px' : '0'};
+    transition: all 0.3s ease;
+  }
+
+  & > div:first-child {
+    font-size: 12px;
+    color: ${props => props.$active ? '#9358ff' : '#888'};
+    font-weight: ${props => props.$active ? 'bold' : 'normal'};
+    position: relative;
+    z-index: 1;
+  }
+  
+  & > div:last-child {
+    position: relative;
+    z-index: 1;
+    color: ${props => props.$active ? '#fff' : '#aaa'};
+    font-weight: ${props => props.$active ? 'bold' : 'normal'};
+  }
+
+  ${(props) => props.$active && `
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(147, 88, 255, 0.2);
+  `}
+`
 
 function Mines() {
   const game = GambaUi.useGame()
@@ -149,33 +287,68 @@ function Mines() {
                 <div className="danger-header">
                   <h2>💎 A Lover's Test of Courage & Restraint</h2>
                 </div>
-                <Levels className="dangerous-seduction">
+
+                <EnhancedLevels className="dangerous-seduction">
                   {levels
                     .map(({ cumProfit }, i) => {
                       return (
-                        <Level key={i} $active={currentLevel === i}>
+                        <EnhancedLevel key={i} $active={currentLevel === i}>
                           <div>
-                            💖 DESIRE {i + 1}
+                            💖 LEVEL {i + 1}
                           </div>
                           <div>
                             <TokenValue amount={cumProfit} />
                           </div>
-                        </Level>
+                        </EnhancedLevel>
                       )
                     })}
-                </Levels>
-                <StatusBar>
-                  <div>
-                    <span>
-                      Mines: {mines}
-                    </span>
-                    {totalGain > 0 && (
-                      <span>
-                        +<TokenValue amount={totalGain} /> +{Math.round(totalGain / initialWager * 100 - 100)}%
-                      </span>
-                    )}
-                  </div>
-                </StatusBar>
+                </EnhancedLevels>
+
+                {/* Always show mines info - always visible like poker */}
+                <MinesInfo visible={true}>
+                  {started ? (
+                    <>
+                      <InfoItem>
+                        <InfoLabel>Current Winnings</InfoLabel>
+                        <ProfitDisplay profit={totalGain - initialWager}>
+                          <TokenValue amount={totalGain} />
+                        </ProfitDisplay>
+                      </InfoItem>
+                      
+                      <InfoItem>
+                        <InfoLabel>Profit</InfoLabel>
+                        <InfoValue style={{ color: totalGain - initialWager > 0 ? '#4caf50' : '#f44336' }}>
+                          <TokenValue amount={totalGain - initialWager} />
+                        </InfoValue>
+                      </InfoItem>
+                      
+                      <InfoItem>
+                        <InfoLabel>Level</InfoLabel>
+                        <InfoValue>{currentLevel + 1}</InfoValue>
+                      </InfoItem>
+                      
+                      {!gameFinished && levels[currentLevel + 1] && (
+                        <InfoItem>
+                          <InfoLabel>Next Level</InfoLabel>
+                          <InfoValue style={{ color: '#9358ff' }}>
+                            <TokenValue amount={levels[currentLevel + 1].cumProfit} />
+                          </InfoValue>
+                        </InfoItem>
+                      )}
+                      
+                      {gameFinished && totalGain > 0 && (
+                        <InfoItem>
+                          <InfoLabel>Status</InfoLabel>
+                          <InfoValue style={{ color: '#4caf50', fontSize: '14px' }}>
+                            🎉 Complete!
+                          </InfoValue>
+                        </InfoItem>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ color: 'transparent' }}>Placeholder</div>
+                  )}
+                </MinesInfo>
                 <GambaUi.Responsive>
                   <Container>
               <Grid>
@@ -240,9 +413,16 @@ function Mines() {
             </DesktopControls>
           </>
         ) : (
-          <EnhancedButton onClick={endGame}>
-            {totalGain > 0 ? 'Finish' : 'Reset'}
-          </EnhancedButton>
+          <>
+            {/* Cash Out button - always visible, enabled when there are winnings */}
+            <EnhancedButton 
+              variant="danger"
+              onClick={endGame}
+              disabled={loading || totalGain === 0}
+            >
+              {totalGain > 0 ? 'Cash Out' : 'Reset'}
+            </EnhancedButton>
+          </>
         )}
       </GambaUi.Portal>
     </>
