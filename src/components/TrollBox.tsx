@@ -283,6 +283,22 @@ const InputRow = styled.div`
   border-top: 1px solid rgba(255,255,255,0.08);
   background: rgba(0,0,0,0.1);
   flex-shrink: 0;
+  position: relative;
+`
+
+const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean }>`
+  position: absolute;
+  bottom: 2px;
+  right: 80px;
+  font-size: 0.75rem;
+  color: ${({ $isAtLimit, $isNearLimit }) => 
+    $isAtLimit ? '#ff6b6b' : $isNearLimit ? '#ffa500' : '#888'};
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-weight: 500;
+  z-index: 1;
 `
 
 const TextInput = styled.input`
@@ -335,8 +351,30 @@ const LoadingText = styled.div`
 export default function TrollBox() {
   const { publicKey, connected } = useWallet()
   const walletModal = useWalletModal()
-  const [isMinimized, setIsMinimized] = useState(false)
-  const [isMaximized, setIsMaximized] = useState(false)
+  
+  // Initialize states from localStorage with fallbacks
+  const [isMinimized, setIsMinimized] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trollbox-minimized')
+      if (saved !== null) {
+        return JSON.parse(saved)
+      }
+      // First time loading - start minimized if wallet is connected
+      return connected
+    } catch {
+      return connected // fallback to minimized if wallet connected
+    }
+  })
+  
+  const [isMaximized, setIsMaximized] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trollbox-maximized')
+      return saved ? JSON.parse(saved) : false
+    } catch {
+      return false
+    }
+  })
+  
   const [cooldown, setCooldown] = useState(0)
 
 
@@ -400,8 +438,8 @@ export default function TrollBox() {
     if (!connected) return walletModal.setVisible(true)
     let txt = text.trim()
     if (!txt || isSending || cooldown > 0) return
-    // Match API: max 256 chars for text
-    if (txt.length > 256) txt = txt.slice(0, 256)
+    // Match API: max chars for text
+    if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS)
     let uname = userName
     if (uname.length > 24) uname = uname.slice(0, 24)
     setIsSending(true)
@@ -452,10 +490,41 @@ export default function TrollBox() {
     return () => clearTimeout(timer)
   }, [cooldown])
 
+  // Save minimize state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('trollbox-minimized', JSON.stringify(isMinimized))
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [isMinimized])
+
+  // Save maximize state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('trollbox-maximized', JSON.stringify(isMaximized))
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [isMaximized])
+
   const fmtTime = (ts: number) =>
     ts > Date.now() - 5000
       ? 'sending…'
       : new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+  const MAX_CHARS = 260
+  const remainingChars = MAX_CHARS - text.length
+  const isNearLimit = remainingChars <= 20
+  const isAtLimit = remainingChars <= 0
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    // Only update if within limit or if user is deleting characters
+    if (newValue.length <= MAX_CHARS) {
+      setText(newValue)
+    }
+  }
 
   const toggleMinimize = () => setIsMinimized(v => !v)
   const toggleMaximize = () => setIsMaximized(v => !v)
@@ -514,7 +583,7 @@ export default function TrollBox() {
             ref={inputRef}
             value={text}
             placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
-            onChange={e => setText(e.target.value.slice(0, 256))}
+            onChange={handleInputChange}
             onClick={() => !connected && walletModal.setVisible(true)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -523,8 +592,14 @@ export default function TrollBox() {
               }
             }}
             disabled={isSending || !swrKey}
-            maxLength={256}
+            maxLength={MAX_CHARS}
           />
+          <CharCounter 
+            $isNearLimit={isNearLimit} 
+            $isAtLimit={isAtLimit}
+          >
+            {remainingChars}
+          </CharCounter>
           <SendBtn
             onClick={send}
             disabled={
