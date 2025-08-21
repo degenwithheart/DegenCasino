@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
 import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
+import { ExplorerHeader } from './ExplorerHeader'
 
 const TransactionContainer = styled.div`
   max-width: 1200px;
@@ -590,6 +591,7 @@ export default function TransactionView() {
 
   return (
     <TransactionContainer>
+      <ExplorerHeader />
       {/* Show error message if data is unavailable */}
       {error && (
         <div style={{ 
@@ -906,7 +908,7 @@ export default function TransactionView() {
                       <VerificationStep key={step}>
                         <StepLabel>{step.charAt(0).toUpperCase() + step.slice(1)}</StepLabel>
                         <StepValue style={{ fontFamily: 'monospace', fontSize: '13px' }}>
-                          {description}
+                          {String(description)}
                         </StepValue>
                       </VerificationStep>
                     ))}

@@ -247,18 +247,19 @@ export const SIDEBAR_LINKS = [
     showWhen: () => true,
     external: false,
   },
-  {
-    to: '/audit',
-    label: 'Audit',
-    icon: FaBookOpen,
-    showWhen: () => true,
-    external: false,
-  },
 ];
 
 
 // Footer links shown on the website footer with URLs and display titles.
 export const FOOTER_LINKS = [
+  {
+    href: '/audit',
+    title: 'Audit',
+  },
+  {
+    href: '/explorer',
+    title: 'Explorer',
+  },
   {
     href: '/aboutme',
     title: 'About Me',
