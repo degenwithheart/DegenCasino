@@ -6,6 +6,7 @@ import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { GambaTransaction } from 'gamba-core-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../constants'
+import { ExplorerHeader } from './ExplorerHeader'
 
 interface PlayerResponse {
   volume: number
@@ -389,6 +390,7 @@ export function PlayerView() {
 
   return (
     <PlayerContainer>
+      <ExplorerHeader />
       <StatsRow>
         <StatCard>
           <StatValue>${volume.toFixed(2)}</StatValue>

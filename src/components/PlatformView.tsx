@@ -9,6 +9,7 @@ import { useLeaderboardData } from '../hooks/useLeaderboardData'
 import { extractMetadata } from '../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../constants'
+import { ExplorerHeader } from './ExplorerHeader'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
@@ -496,6 +497,7 @@ export function PlatformView() {
 
   return (
     <PlatformContainer>
+      <ExplorerHeader />
       <Header>
         <PlatformImage src="/casino.png" alt="Platform" />
         <PlatformInfo>
@@ -565,7 +567,7 @@ export function PlatformView() {
                 >
                   <PlayerInfo>
                     <Rank>{index + 1}</Rank>
-                    <PlayerAddress>iyot...nTMX</PlayerAddress>
+                    <PlayerAddress>{player.user.slice(0, 4)}...{player.user.slice(-4)}</PlayerAddress>
                   </PlayerInfo>
                   <VolumeAmount>${player.usd_volume.toLocaleString()}</VolumeAmount>
                 </LeaderboardItem>
