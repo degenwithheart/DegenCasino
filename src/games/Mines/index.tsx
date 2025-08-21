@@ -360,9 +360,14 @@ function Mines() {
                     onClick={() => play(index)}
                     disabled={!canPlay || cell.status !== 'hidden'}
                   >
-                    {(cell.status === 'gold') && (
-                      <div>
-                        +<TokenValue amount={cell.profit} />
+                    {cell.status === 'mine' && (
+                      <div style={{ fontSize: '24px' }}>
+                        💣
+                      </div>
+                    )}
+                    {cell.status === 'gold' && (
+                      <div style={{ fontSize: '20px' }}>
+                        💎
                       </div>
                     )}
                   </CellButton>
@@ -414,14 +419,30 @@ function Mines() {
           </>
         ) : (
           <>
-            {/* Cash Out button - always visible, enabled when there are winnings */}
-            <EnhancedButton 
-              variant="danger"
-              onClick={endGame}
-              disabled={loading || totalGain === 0}
-            >
-              {totalGain > 0 ? 'Cash Out' : 'Reset'}
-            </EnhancedButton>
+            <MobileControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={endGame}
+              playDisabled={loading || totalGain === 0}
+              playText={totalGain > 0 ? 'Cash Out' : 'New Game'}
+            />
+            
+            <DesktopControls>
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
+              <EnhancedPlayButton 
+                onClick={endGame}
+                disabled={loading}
+              >
+                Restart
+              </EnhancedPlayButton>
+              <EnhancedButton 
+                variant="danger"
+                onClick={endGame}
+                disabled={loading || totalGain === 0}
+              >
+                {totalGain > 0 ? 'Cash Out' : 'New Game'}
+              </EnhancedButton>
+            </DesktopControls>
           </>
         )}
       </GambaUi.Portal>
