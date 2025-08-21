@@ -33,16 +33,20 @@ const Container = styled.div<ContainerProps>`
   max-width: none; /* Let main handle max-width */
   padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
   margin: 2rem 0; /* Only vertical margins */
-  border-radius: 24px;
-  background: rgba(24, 24, 24, 0.8);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  background: #0f0f23;
+  border: 1px solid #2a2a4a;
   color: white;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(20px)')};
-  transition: opacity 1s ease, transform 1s ease;
+  transition: all 0.3s ease;
   position: relative;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+  }
 
   @media (max-width: 900px) {
     margin: 1rem 0;
@@ -51,7 +55,7 @@ const Container = styled.div<ContainerProps>`
 
   @media (max-width: 700px) {
     margin: 1rem 0;
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 1.5rem 1rem;
   }
 
@@ -66,35 +70,6 @@ const Container = styled.div<ContainerProps>`
     padding: 0.75rem 0.5rem;
     border-radius: 8px;
   }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-  }
 `
 
 const HeaderSection = styled.div`
@@ -104,70 +79,46 @@ const HeaderSection = styled.div`
   margin-bottom: 2.5rem;
   position: relative;
 
-  &::before {
-    content: '👨‍💻';
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    font-size: 2rem;
-    animation: ${sparkle} 3s infinite;
-  }
-
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
     gap: 1.5rem;
     margin-bottom: 2rem;
-    
-    &::before {
-      top: -5px;
-      right: -5px;
-      font-size: 1.5rem;
-    }
   }
 
   @media (max-width: 480px) {
     gap: 1rem;
     margin-bottom: 1.5rem;
-    
-    &::before {
-      font-size: 1.25rem;
-    }
   }
 `;
 
 const ProfileImage = styled.img`
   width: 140px;
   height: 140px;
-  border-radius: 20px;
+  border-radius: 12px;
   object-fit: cover;
-  box-shadow: 0 0 24px rgba(255, 215, 0, 0.6);
-  border: 3px solid rgba(255, 215, 0, 0.4);
+  border: 1px solid #2a2a4a;
   transition: all 0.3s ease;
 
   &:hover {
-    transform: scale(1.05) rotate(2deg);
-    box-shadow: 0 0 32px rgba(255, 215, 0, 0.8);
-    border-color: rgba(255, 215, 0, 0.8);
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
   }
 
   @media (max-width: 768px) {
     width: 120px;
     height: 120px;
-    border-radius: 16px;
   }
 
   @media (max-width: 480px) {
     width: 100px;
     height: 100px;
-    border-radius: 14px;
-    border-width: 2px;
   }
 
   @media (max-width: 400px) {
     width: 80px;
     height: 80px;
-    border-radius: 12px;
   }
 `;
 
@@ -179,14 +130,13 @@ const TextInfo = styled.div`
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: #ffd700;
-    text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
     font-family: 'Luckiest Guy', cursive, sans-serif;
     letter-spacing: 2px;
   }
 
   p {
     font-style: italic;
-    color: #ccc;
+    color: #999;
     font-size: 1.1rem;
     line-height: 1.4;
   }
@@ -228,23 +178,8 @@ const SectionHeading = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
   color: #ffd700;
-  text-shadow: 0 0 8px #ffd700;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 1px;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, transparent);
-    border-radius: 1px;
-    animation: ${moveGradient} 3s linear infinite;
-    background-size: 200% 100%;
-  }
 
   @media (max-width: 768px) {
     font-size: 1.3rem;
@@ -270,22 +205,17 @@ const Content = styled.div`
   p,
   ul {
     margin-bottom: 1.2rem;
+    color: #999;
   }
 
   a {
     color: #ffd700;
     text-decoration: none;
     transition: all 0.3s ease;
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid transparent;
 
     &:hover {
       color: #fff;
-      background: rgba(255, 215, 0, 0.1);
-      border: 1px solid rgba(255, 215, 0, 0.3);
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-      text-shadow: 0 0 8px #ffd700;
+      text-decoration: underline;
     }
   }
 

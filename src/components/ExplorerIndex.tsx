@@ -126,53 +126,6 @@ const InfoCard = styled.div`
   }
 `
 
-const SearchSection = styled.div`
-  background: var(--slate-1);
-  border: 1px solid var(--slate-4);
-  border-radius: 12px;
-  padding: 32px;
-  text-align: center;
-`
-
-const SearchInput = styled.input`
-  width: 100%;
-  max-width: 500px;
-  padding: 16px 20px;
-  font-size: 1.1rem;
-  border: 1px solid var(--slate-4);
-  border-radius: 8px;
-  background: var(--slate-2);
-  color: #fff;
-  margin-bottom: 16px;
-
-  &::placeholder {
-    color: #666;
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #ffd700;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
-  }
-`
-
-const SearchButton = styled.button`
-  padding: 16px 32px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background: linear-gradient(90deg, #ffd700, #a259ff);
-  color: #222;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
-  }
-`
-
 export default function ExplorerIndex() {
   const [searchTerm, setSearchTerm] = React.useState('')
 
@@ -232,25 +185,6 @@ export default function ExplorerIndex() {
           <p>Comprehensive data on volume, fees, player activity, and platform growth</p>
         </QuickLinkCard>
       </QuickLinksGrid>
-
-      <SearchSection>
-        <h3 style={{ marginBottom: '24px', color: '#ffd700' }}>🔍 Search Explorer</h3>
-        <form onSubmit={handleSearch}>
-          <SearchInput
-            type="text"
-            placeholder="Enter transaction signature or wallet address..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <br />
-          <SearchButton type="submit">
-            Search
-          </SearchButton>
-        </form>
-        <p style={{ marginTop: '16px', color: '#666', fontSize: '0.9rem' }}>
-          Search for transaction signatures (TX Hashes) or wallet addresses.
-        </p>
-      </SearchSection>
     </ExplorerContainer>
   )
 }

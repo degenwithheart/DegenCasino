@@ -44,118 +44,57 @@ interface ProfileContainerProps {
 
 const ProfileContainer = styled.div<ProfileContainerProps>`
   max-width: none; /* Let main handle max-width */
-  padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
+  padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
   margin: 2rem 0; /* Only vertical margins */
-  background: rgba(24, 24, 24, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 2px solid rgba(255, 215, 0, 0.2);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  background: #0f0f23;
+  border-radius: 12px;
+  border: 1px solid #2a2a4a;
   position: relative;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+  }
 
   @media (max-width: 900px) {
-    padding: 1.5rem 1rem;
+    padding: 2rem 1.5rem;
     margin: 1rem;
-    border-radius: 16px;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
   }
   
   @media (max-width: 700px) {
-    padding: 1rem 0.75rem;
+    padding: 1.5rem 1rem;
     margin: 0.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
   }
   
   @media (max-width: 400px) {
-    padding: 0.75rem 0.5rem;
+    padding: 1rem 0.75rem;
     margin: 0.25rem;
     border-radius: 8px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-    @media (max-width: 600px) {
-      border-radius: 12px;
-    }
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-    @media (max-width: 600px) {
-      border-radius: 12px 12px 0 0;
-    }
   }
 `;
 
 const ProfileHeader = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
   
   h1 {
     font-family: 'Luckiest Guy', cursive;
     font-size: 3rem;
     color: #ffd700;
-    text-shadow: 
-      0 0 10px #ffd700,
-      0 0 20px #ffd700,
-      0 0 30px #ffd700,
-      2px 2px 4px rgba(0, 0, 0, 0.8);
     margin-bottom: 1rem;
-    position: relative;
-
-    &::before {
-      content: '👤';
-      position: absolute;
-      left: -3rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 2rem;
-      animation: ${float} 3s ease-in-out infinite;
-    }
-
-    &::after {
-      content: '🎰';
-      position: absolute;
-      right: -3rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 2rem;
-      animation: ${float} 3s ease-in-out infinite 1.5s;
-    }
   }
 
   @media (max-width: 768px) {
+    margin-bottom: 3rem;
     h1 {
-      font-size: 2.1rem;
-      &::before,
-      &::after {
-        display: none;
-      }
+      font-size: 2rem;
     }
   }
-  @media (max-width: 600px) {
+
+  @media (max-width: 480px) {
+    margin-bottom: 2rem;
     h1 {
       font-size: 1.5rem;
     }
@@ -164,141 +103,80 @@ const ProfileHeader = styled.div`
 
 const SectionBox = styled.div<{ visible: boolean; isHovered?: boolean }>`
   max-width: 100%;
-  margin: auto;
-  padding: 1.5rem;
-  border-radius: 24px;
-  background: rgba(24, 24, 24, 0.8);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 215, 0, 0.2);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  background: #0f0f23;
+  border: 1px solid #2a2a4a;
   color: white;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(20px)')};
-  transition: opacity 1s ease, transform 1s ease;
+  transition: all 0.3s ease;
   position: relative;
 
-  @media (max-width: 600px) {
-    padding: 0.8rem 0.3rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-    @media (max-width: 600px) {
-      border-radius: 10px;
-    }
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-    @media (max-width: 600px) {
-      border-radius: 10px 10px 0 0;
-    }
-  }
-
   &:hover {
-    box-shadow: 0 12px 40px rgba(255, 215, 0, 0.3);
-    border-color: rgba(255, 215, 0, 0.4);
-    transform: translateY(-5px);
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  & + & {
+    margin-top: 2.5rem;
   }
 
   label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 1rem;
     font-weight: bold;
     color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     font-family: 'Luckiest Guy', cursive;
     font-size: 1.1rem;
-    @media (max-width: 600px) {
-      font-size: 1rem;
-    }
   }
 
   p {
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 0.5rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    @media (max-width: 600px) {
-      font-size: 0.95rem;
-    }
+    color: #999;
+    margin-bottom: 1rem;
+    line-height: 1.6;
   }
 
-  b {
-    color: #ffd700;
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  @media (max-width: 600px) {
+    padding: 1.5rem 1rem;
+    margin: 1.5rem auto;
+    
+    & + & {
+      margin-top: 2rem;
+    }
   }
 `;
 
 const CasinoButton = styled.button<{ variant?: 'primary' | 'danger' }>`
   background: ${props => 
     props.variant === 'danger' 
-      ? 'linear-gradient(135deg, #ff4444, #cc0000)' 
-      : 'linear-gradient(135deg, #ffd700, #ffed4e)'
+      ? '#ff4444' 
+      : '#ffd700'
   };
   color: ${props => props.variant === 'danger' ? 'white' : '#1a1a1a'};
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 8px;
   font-family: 'Luckiest Guy', cursive;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
   font-weight: bold;
-  margin: 0.25rem;
-
-  @media (max-width: 600px) {
-    font-size: 0.95rem;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-  }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-
-    &::before {
-      left: 100%;
-    }
+    box-shadow: 0 8px 24px ${props => 
+      props.variant === 'danger' 
+        ? 'rgba(255, 68, 68, 0.3)' 
+        : 'rgba(255, 215, 0, 0.3)'
+    };
   }
 
-  &:active {
-    transform: translateY(0);
+  @media (max-width: 600px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -310,22 +188,19 @@ const AvatarContainer = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  border: 4px solid #ffd700;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 8px 16px rgba(0,0,0,0.5);
-  background-color: white;
+  border: 2px solid #2a2a4a;
+  background-color: #0f0f23;
   overflow: hidden;
-  animation: ${neonPulse} 3s ease-in-out infinite alternate;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+  }
 
   @media (max-width: 600px) {
     width: 60px;
     height: 60px;
-    border-width: 2px;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 `;
 
@@ -337,18 +212,21 @@ const DefaultAvatar = styled.div`
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background-color: rgba(255, 215, 0, 0.2);
+  background-color: #0f0f23;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 8px 16px rgba(0,0,0,0.5);
-  border: 4px solid #ffd700;
-  animation: ${neonPulse} 3s ease-in-out infinite alternate;
+  border: 2px solid #2a2a4a;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+  }
 
   @media (max-width: 600px) {
     width: 60px;
     height: 60px;
-    border-width: 2px;
   }
 `;
 
@@ -423,7 +301,7 @@ export function Profile() {
   return (
     <ProfileContainer>
       <ProfileHeader>
-        <h1>User Profile</h1>
+        <h1>👤 User Profile 🎰</h1>
       </ProfileHeader>
       
       {/* Banner container */}
@@ -433,12 +311,11 @@ export function Profile() {
           width: "100%",
           maxWidth: 1500,
           height: 300,
-          margin: "auto auto 24px",
-          borderRadius: 24,
+          margin: "0 auto 3rem auto",
+          borderRadius: 12,
           overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(255, 215, 0, 0.3)",
-          border: "2px solid rgba(255, 215, 0, 0.3)",
-          background: "linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.1))",
+          border: "1px solid #2a2a4a",
+          background: "#0f0f23",
         }}
       >
           {/* Banner image */}
