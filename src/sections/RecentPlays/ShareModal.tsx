@@ -114,12 +114,34 @@ const ButtonGroup = styled.div`
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
   const { game, gameId: extractedGameId } = extractMetadata(event)
+  
+  // Fallback: manually parse metadata if extractMetadata fails
+  let fallbackGameId = ''
+  try {
+    const metadata = event.data.metadata
+    if (metadata && typeof metadata === 'string') {
+      const parts = metadata.split(':')
+      if (parts.length >= 2) {
+        fallbackGameId = parts[1] // Should be 'mines' from '0:mines:0'
+      }
+    }
+  } catch (e) {
+    console.error('Fallback metadata parsing failed:', e)
+  }
+  
   // Get wallet and gameId for route
   const wallet = event.data.user?.toBase58?.() || ''
-  const gameId = extractedGameId || game?.id || ''
+  const gameId = extractedGameId || game?.id || fallbackGameId || ''
   const signature = event.signature || ''
   
-  console.log('ShareModal data:', { wallet, gameId, game, metadata: event.data.metadata, extractedGameId })
+  console.log('ShareModal data:', { 
+    wallet, 
+    gameId, 
+    game, 
+    metadata: event.data.metadata, 
+    extractedGameId, 
+    fallbackGameId 
+  })
   
   const gotoGame = () => {
     console.log('gotoGame called with:', { wallet, gameId, game })
