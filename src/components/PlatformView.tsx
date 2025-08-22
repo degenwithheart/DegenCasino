@@ -536,54 +536,83 @@ export function PlatformView() {
       const fetchData = async () => {
         try {
           setLoading(true)
+          setError(null)
           
-          // Fetch platform stats
-          const statsResponse = await fetch(`https://api.gamba.so/stats?creator=${creator}&startTime=${startTime}`)
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json()
-            console.log('Stats data received:', statsData)
-            setStats(statsData)
-            setApiAvailable(true)
-          } else {
-            console.warn('Failed to fetch stats:', statsResponse.status)
+          // Fetch platform stats with timeout
+          try {
+            const statsController = new AbortController()
+            const statsTimeout = setTimeout(() => statsController.abort(), 10000) // 10 second timeout
+            
+            const statsResponse = await fetch(`https://api.gamba.so/stats?creator=${creator}&startTime=${startTime}`, {
+              signal: statsController.signal
+            })
+            clearTimeout(statsTimeout)
+            
+            if (statsResponse.ok) {
+              const statsData = await statsResponse.json()
+              console.log('Stats data received:', statsData)
+              setStats(statsData)
+              setApiAvailable(true)
+            } else {
+              console.warn('Stats API responded with status:', statsResponse.status)
+              setApiAvailable(false)
+              setStats(null)
+            }
+          } catch (statsError) {
+            console.warn('Stats API failed:', statsError)
             setApiAvailable(false)
             setStats(null)
           }
           
-          // Fetch recent plays for this platform
-          const playsResponse = await fetch(`https://api.gamba.so/events/settledGames?creator=${creator}&itemsPerPage=10&page=0`)
-          if (playsResponse.ok) {
-            const playsData = await playsResponse.json()
-
-            // Filter to only include plays where creator matches exactly
-            const filteredPlays = (playsData.results || []).filter((play: any) => play.creator === creator)
-
-            // Transform the API data to match our display format
-            const transformedPlays = filteredPlays.map((play: any) => {
-              const wager = parseFloat(play.wager) || 0
-              const payout = parseFloat(play.payout) || 0
-              const multiplier = play.multiplier || 0
-
-              return {
-                signature: play.signature,
-                user: play.user,
-                creator: play.creator,
-                token: play.token,
-                wager,
-                payout,
-                time: play.time,
-                multiplier
-              }
+          // Fetch recent plays with timeout (but don't fail if this fails)
+          try {
+            const playsController = new AbortController()
+            const playsTimeout = setTimeout(() => playsController.abort(), 10000) // 10 second timeout
+            
+            const playsResponse = await fetch(`https://api.gamba.so/events/settledGames?creator=${creator}&itemsPerPage=10&page=0`, {
+              signal: playsController.signal
             })
+            clearTimeout(playsTimeout)
+            
+            if (playsResponse.ok) {
+              const playsData = await playsResponse.json()
 
-            setRecentPlays(transformedPlays)
-          } else {
-            const errorText = await playsResponse.text()
-            console.warn('Failed to fetch recent plays:', playsResponse.status, errorText)
+              // Filter to only include plays where creator matches exactly
+              const filteredPlays = (playsData.results || []).filter((play: any) => play.creator === creator)
+
+              // Transform the API data to match our display format
+              const transformedPlays = filteredPlays.map((play: any) => {
+                const wager = parseFloat(play.wager) || 0
+                const payout = parseFloat(play.payout) || 0
+                const multiplier = play.multiplier || 0
+
+                return {
+                  signature: play.signature,
+                  user: play.user,
+                  creator: play.creator,
+                  token: play.token,
+                  wager,
+                  payout,
+                  time: play.time,
+                  multiplier
+                }
+              })
+
+              setRecentPlays(transformedPlays)
+            } else {
+              const errorText = await playsResponse.text()
+              console.warn('Failed to fetch recent plays:', playsResponse.status, errorText)
+            }
+          } catch (playsError) {
+            console.warn('Plays API failed:', playsError)
           }
+          
         } catch (err) {
-          console.error('Failed to fetch platform data:', err)
-          setError('Failed to load platform data')
+          console.error('General fetch error:', err)
+          // Don't set error state unless both APIs fail
+          if (!stats && !apiAvailable) {
+            setError('Failed to load platform data')
+          }
           setApiAvailable(false)
         } finally {
           setLoading(false)
@@ -599,7 +628,37 @@ export function PlatformView() {
   }
 
   if (error) {
-    return <div>Error: {error}</div>
+    return (
+      <PlatformContainer>
+        <ExplorerHeader />
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          height: '400px', 
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          <div style={{ color: '#ff6666', fontSize: '18px' }}>⚠️ {error}</div>
+          <div style={{ color: '#888', fontSize: '14px' }}>
+            The Gamba API may be temporarily unavailable. Please try again later.
+          </div>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{
+              background: '#ffd700',
+              color: '#000',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </PlatformContainer>
+    )
   }
 
   const platformName = creator === PLATFORM_CREATOR_ADDRESS.toString() 
