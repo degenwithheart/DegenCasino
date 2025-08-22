@@ -12,21 +12,15 @@ function CoinModel() {
   const [heads, tails] = useTexture([TEXTURE_HEADS, TEXTURE_TAILS])
   return (
     <>
-      {/* Coin edge */}
-      <mesh>
-        <cylinderGeometry args={[0.65, 0.65, 0.1, 32]} />
-        <meshStandardMaterial color="#FFD700" metalness={0.8} roughness={0.2} />
-      </mesh>
-      
       {/* Heads side */}
-      <mesh position-z={0.051}>
+      <mesh position-z={0.001}>
         <planeGeometry args={[1.3, 1.3]} />
         <meshStandardMaterial transparent map={heads} />
       </mesh>
       
       {/* Tails side */}
       <group rotation-y={Math.PI}>
-        <mesh position-z={0.051}>
+        <mesh position-z={0.001}>
           <planeGeometry args={[1.3, 1.3]} />
           <meshStandardMaterial transparent map={tails} />
         </mesh>
