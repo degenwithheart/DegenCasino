@@ -4,13 +4,25 @@ import { GAMES } from './games'
 export const truncateString = (s: string, startLen = 4, endLen = startLen) => s.slice(0, startLen) + '...' + s.slice(-endLen)
 
 export const extractMetadata = (event: GambaTransaction<'GameSettled'>) => {
+  console.log('extractMetadata called with event:', event)
   try {
-    const [version, ...parts] = event.data.metadata.split(':')
+    const metadata = event.data.metadata
+    console.log('Raw metadata:', metadata)
+    
+    if (!metadata) {
+      console.log('No metadata found')
+      return {}
+    }
+    
+    const [version, ...parts] = metadata.split(':')
     const [gameId] = parts
-    console.log('extractMetadata debug:', { metadata: event.data.metadata, version, parts, gameId })
+    console.log('extractMetadata debug:', { metadata, version, parts, gameId })
+    
     const games = GAMES()
+    console.log('Available games:', games.map(g => g.id))
     const game = games.find((x) => x.id === gameId)
-    console.log('Found game:', game, 'Available games:', games.map(g => g.id))
+    console.log('Found game:', game)
+    
     return { game, gameId }
   } catch (error) {
     console.error('extractMetadata error:', error)
