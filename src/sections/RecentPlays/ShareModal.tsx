@@ -113,13 +113,13 @@ const ButtonGroup = styled.div`
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
-  const { game } = extractMetadata(event)
+  const { game, gameId: extractedGameId } = extractMetadata(event)
   // Get wallet and gameId for route
   const wallet = event.data.user?.toBase58?.() || ''
-  const gameId = game?.id || ''
+  const gameId = extractedGameId || game?.id || ''
   const signature = event.signature || ''
   
-  console.log('ShareModal data:', { wallet, gameId, game, metadata: event.data.metadata })
+  console.log('ShareModal data:', { wallet, gameId, game, metadata: event.data.metadata, extractedGameId })
   
   const gotoGame = () => {
     console.log('gotoGame called with:', { wallet, gameId, game })

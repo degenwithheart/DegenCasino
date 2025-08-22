@@ -7,9 +7,13 @@ export const extractMetadata = (event: GambaTransaction<'GameSettled'>) => {
   try {
     const [version, ...parts] = event.data.metadata.split(':')
     const [gameId] = parts
-    const game = GAMES.find((x) => x.id === gameId)
-    return { game }
-  } catch {
+    console.log('extractMetadata debug:', { metadata: event.data.metadata, version, parts, gameId })
+    const games = GAMES()
+    const game = games.find((x) => x.id === gameId)
+    console.log('Found game:', game, 'Available games:', games.map(g => g.id))
+    return { game, gameId }
+  } catch (error) {
+    console.error('extractMetadata error:', error)
     return {}
   }
 }
