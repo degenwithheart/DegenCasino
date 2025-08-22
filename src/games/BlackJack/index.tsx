@@ -77,10 +77,11 @@ export default function Blackjack(props: BlackjackConfig) {
     })
 
     const result = await game.result()
-    const payoutMultiplier = result.payout / initialWager
+    // Use Gamba's exact multiplier directly (no calculation needed)
+    const payoutMultiplier = result.multiplier
 
     // Deterministic derivation of card sequences from result
-    // Seed composed of payout multiplier & resultIndex (covers all distinct outcomes)
+    // Seed composed of Gamba multiplier & resultIndex (covers all distinct outcomes)
     const seed = `${result.resultIndex}:${payoutMultiplier}:${initialWager}`
     const rng = makeDeterministicRng(seed)
 
