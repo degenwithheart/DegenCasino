@@ -119,9 +119,23 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
   const gameId = game?.id || ''
   const signature = event.signature || ''
   
+  console.log('ShareModal data:', { wallet, gameId, game, metadata: event.data.metadata })
+  
   const gotoGame = () => {
+    console.log('gotoGame called with:', { wallet, gameId, game })
     if (wallet && gameId) {
+      // Navigate to the game with wallet and gameId
+      console.log('Navigating to:', `/game/${wallet}/${gameId}`)
       navigate(`/game/${wallet}/${gameId}`)
+    } else if (gameId) {
+      // If we have gameId but no wallet, try with current user's wallet
+      console.log('Trying with gameId only, navigating to dashboard and selecting game')
+      // Navigate to home and let user select the game
+      navigate('/')
+    } else {
+      console.error('Missing gameId:', { gameId, game, metadata: event.data.metadata })
+      // Fallback: navigate to home page
+      navigate('/')
     }
     onClose()
   }
