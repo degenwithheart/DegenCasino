@@ -10,33 +10,25 @@ import { PLATFORM_SHARABLE_URL } from '../../constants'
 import { extractMetadata } from '../../utils'
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 0;
   width: 100%;
-`
-
-const Inner = styled.div`
-  overflow: hidden;
-  border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-`
-
-const Content = styled.div`
-  border-radius: 16px;
+  max-width: 400px;
   padding: 24px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  min-width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   
   @media (max-width: 480px) {
-    min-width: 320px;
+    max-width: 320px;
     padding: 20px;
   }
+`
+
+const Inner = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `
 
 const GameResult = styled.div`
@@ -104,7 +96,6 @@ const BrandingSection = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 12px;
-  margin-top: 8px;
   
   @media (max-width: 480px) {
     flex-direction: column;
@@ -181,7 +172,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
     <Modal onClose={() => onClose()}>
       <Container>
         <Inner>
-          <Content ref={ref}>
+          <div ref={ref}>
             <GameResult>
               <TokenIcon src={tokenMeta.image} alt={tokenMeta.symbol} />
               
@@ -204,17 +195,17 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
                 play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
               </div>
             </BrandingSection>
-          </Content>
+          </div>
+          
+          <ButtonGroup>
+            <GambaUi.Button size="small" onClick={viewTransaction}>
+              View Details
+            </GambaUi.Button>
+            <GambaUi.Button size="small" onClick={gotoGame}>
+              Play {game?.meta?.name || 'Game'}
+            </GambaUi.Button>
+          </ButtonGroup>
         </Inner>
-        
-        <ButtonGroup>
-          <GambaUi.Button size="small" onClick={viewTransaction}>
-            View Details
-          </GambaUi.Button>
-          <GambaUi.Button size="small" onClick={gotoGame}>
-            Play {game?.meta?.name || 'Game'}
-          </GambaUi.Button>
-        </ButtonGroup>
       </Container>
     </Modal>
   )
