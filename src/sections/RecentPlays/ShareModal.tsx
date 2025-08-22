@@ -11,8 +11,8 @@ import { extractMetadata } from '../../utils'
 
 const Container = styled.div`
   width: 100%;
-  max-width: 400px;
-  padding: 24px;
+  max-width: 380px;
+  padding: 20px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -20,26 +20,26 @@ const Container = styled.div`
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   
   @media (max-width: 480px) {
-    max-width: 320px;
-    padding: 20px;
+    max-width: 300px;
+    padding: 16px;
   }
 `
 
 const Inner = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 `
 
 const GameResult = styled.div`
   display: grid;
-  gap: 16px;
+  gap: 12px;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 20px;
+  padding: 16px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 `
 
 const TokenIcon = styled.img`
@@ -77,14 +77,14 @@ const BrandingSection = styled.div`
   font-style: italic;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px;
   border-radius: 12px;
   font-size: 14px;
   
   img {
-    height: 28px;
-    width: 28px;
+    height: 24px;
+    width: 24px;
   }
   
   .platform-name {
