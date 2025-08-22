@@ -194,22 +194,32 @@ export const StyledFlipBackground = styled.div`
     align-items: center;
     gap: 24px;
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     position: relative;
+    overflow: visible;
+    min-height: 350px;
   }
 
   .coin-container {
     width: 280px;
     height: 280px;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1), transparent);
-    border: 3px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.4),
       inset 0 4px 20px rgba(255, 255, 255, 0.1),
       0 0 40px rgba(148, 163, 184, 0.2);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 1;
+    pointer-events: none;
+
+    /* Force canvas transparency */
+    canvas {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+  }
 
     &::before {
       content: '';
@@ -218,9 +228,9 @@ export const StyledFlipBackground = styled.div`
       left: -50%;
       width: 200%;
       height: 200%;
-      background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.05), transparent);
       animation: rotate 3s linear infinite;
-      opacity: 0.7;
+      opacity: 0.3;
     }
   }
 

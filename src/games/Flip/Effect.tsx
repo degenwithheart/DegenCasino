@@ -7,7 +7,7 @@ import TEXTURE_STAR from './star.png'
 
 const tmp = new THREE.Object3D
 
-const STARS = 10
+const STARS = 25
 
 export const Effect = ({ color }: {color: string}) => {
   const texture = useTexture(TEXTURE_STAR)
@@ -19,7 +19,7 @@ export const Effect = ({ color }: {color: string}) => {
       const angle = i / STARS * Math.PI * 2
       const ssss = .5 + (1 + Math.cos(i)) * 2
       tmp.rotation.z = i + Date.now() * .001
-      tmp.scale.setScalar(ssss * animation.current * 1 * (1 - animation.current))
+      tmp.scale.setScalar(ssss * animation.current * 0.5 * (1 - animation.current))
       const len = 1 + 2 * animation.current
       tmp.position.set(
         Math.cos(angle) * len,
