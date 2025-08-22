@@ -6,6 +6,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGambaEvents } from 'gamba-react-v2'
 import { useLeaderboardData } from '../hooks/useLeaderboardData'
+import { extractMetadata } from '../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../constants'
 import { ExplorerHeader } from './ExplorerHeader'
@@ -538,6 +539,18 @@ export function PlatformView() {
               <ChartPlaceholder>Volume chart visualization would go here</ChartPlaceholder>
             </ChartContainer>
           </Section>
+
+          <Section style={{ marginTop: '24px' }}>
+            <SectionTitle>Volume by token</SectionTitle>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <TokenIcon src="/favicon.png" alt="SOL" />
+              <span style={{ color: 'white' }}>Solana</span>
+              <span style={{ marginLeft: 'auto', color: '#888' }}>{plays} / ${volume.toFixed(2)}</span>
+            </div>
+            <ChartContainer style={{ height: '120px' }}>
+              <ChartPlaceholder>Token distribution chart would go here</ChartPlaceholder>
+            </ChartContainer>
+          </Section>
         </div>
 
         <div>
@@ -563,6 +576,16 @@ export function PlatformView() {
           </Section>
         </div>
       </MainContent>
+
+      <DetailsSection>
+        <Section>
+          <SectionTitle>Details</SectionTitle>
+          <DetailItem>
+            <DetailLabel>Creator</DetailLabel>
+            <DetailValue>{creator}</DetailValue>
+          </DetailItem>
+        </Section>
+      </DetailsSection>
 
       <RecentPlaysTable>
         <Section>
