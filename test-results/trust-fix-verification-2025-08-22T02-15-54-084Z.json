@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-08-22T02:15:54.027Z",
+  "trustScore": 86,
+  "totalTests": 14,
+  "passedTests": 12,
+  "failedTests": 2,
+  "fixes": [
+    {
+      "game": "FLIP",
+      "fix": "Successfully replaced hardcoded 2.00x with FLIP_CONFIG.heads[0]",
+      "status": "FIXED"
+    },
+    {
+      "game": "MINES",
+      "fix": "Successfully uses MINES_CONFIG.generateBetArray for bet logic",
+      "status": "FIXED"
+    },
+    {
+      "game": "MINES",
+      "fix": "Successfully replaced hardcoded payout check with multiplier check",
+      "status": "FIXED"
+    },
+    {
+      "game": "Flip",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "BlackJack",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Mines",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Slots",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "ProgressivePoker",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Dice",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "HiLo",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Plinko",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "GLOBAL",
+      "fix": "No Math.random() usage found in games directory",
+      "status": "FIXED"
+    }
+  ],
+  "issues": [
+    {
+      "game": "BLACKJACK",
+      "issue": "Still contains hardcoded check: === 0)",
+      "severity": "HIGH",
+      "fix": "Should use BLACKJACK_CONFIG.outcomes.playerLose"
+    },
+    {
+      "game": "FLASHHACK",
+      "issue": "Error reading file: ENOENT: no such file or directory, open './src/games/FlashHack/index.tsx'",
+      "severity": "HIGH"
+    }
+  ],
+  "gameResults": {}
+}

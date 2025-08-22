@@ -1,0 +1,145 @@
+{
+  "timestamp": "2025-08-22T02:19:48.667Z",
+  "testType": "global_player_trust_audit",
+  "trustScore": 64.3,
+  "summary": {
+    "totalGames": 14,
+    "trustedGames": 9,
+    "gamesWithIssues": 5
+  },
+  "trustIssues": [
+    {
+      "game": "Flip",
+      "issues": [
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 1.92,
+          "description": "rtpConfig has 1.92x but no visual logic handles this Gamba.result"
+        }
+      ]
+    },
+    {
+      "game": "Slots",
+      "issues": [
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 60,
+          "description": "rtpConfig has 60x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 20,
+          "description": "rtpConfig has 20x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 8,
+          "description": "rtpConfig has 8x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 3,
+          "description": "rtpConfig has 3x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 1.8,
+          "description": "rtpConfig has 1.8x but no visual logic handles this Gamba.result"
+        }
+      ]
+    },
+    {
+      "game": "Mines",
+      "issues": [
+        {
+          "type": "hardcoded_in_dynamic_game",
+          "description": "Dynamic game uses hardcoded checks [0] instead of calculating from rtpConfig"
+        }
+      ]
+    },
+    {
+      "game": "BlackJack",
+      "issues": [
+        {
+          "type": "hardcoded_mismatch",
+          "hardcoded": 1,
+          "rtpValues": [
+            60,
+            20,
+            8,
+            3,
+            1.8,
+            0
+          ],
+          "description": "Visual checks for 1x but rtpConfig only has [60, 20, 8, 3, 1.8, 0]"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 60,
+          "description": "rtpConfig has 60x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 20,
+          "description": "rtpConfig has 20x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 8,
+          "description": "rtpConfig has 8x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 3,
+          "description": "rtpConfig has 3x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 1.8,
+          "description": "rtpConfig has 1.8x but no visual logic handles this Gamba.result"
+        }
+      ]
+    },
+    {
+      "game": "ProgressivePoker",
+      "issues": [
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 60,
+          "description": "rtpConfig has 60x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 20,
+          "description": "rtpConfig has 20x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 8,
+          "description": "rtpConfig has 8x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 3,
+          "description": "rtpConfig has 3x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "missing_visual_logic",
+          "rtpValue": 1.8,
+          "description": "rtpConfig has 1.8x but no visual logic handles this Gamba.result"
+        },
+        {
+          "type": "hardcoded_values",
+          "description": "Game contains hardcoded values that may not match rtpConfig"
+        }
+      ]
+    }
+  ],
+  "recommendations": [
+    "Remove all hardcoded multiplier checks",
+    "Use only rtpConfig values for visual logic",
+    "Ensure visual UI shows exactly what Gamba.result returns",
+    "Remove Math.random() usage",
+    "Test every game with real Gamba transactions"
+  ]
+}

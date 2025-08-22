@@ -1,11 +1,10 @@
-import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput, useCurrentToken, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { makeDeterministicRng, pickDeterministic } from '../../fairness/deterministicRng'
 import React from 'react'
 import { BLACKJACK_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import { CARD_VALUES, RANKS, RANK_SYMBOLS, SUIT_COLORS, SUIT_SYMBOLS, SUITS, SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants'
-import { Card, CardContainer, CardsContainer, Container, Profit, CardArea } from './styles'
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledBlackjackBackground } from './BlackjackBackground.enhanced.styles'
@@ -31,11 +30,15 @@ export default function Blackjack(props: BlackjackConfig) {
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
+  const currentToken = useCurrentToken()
+  const tokenMeta = useTokenMeta(currentToken.mint)
   const [playerCards, setPlayerCards] = React.useState<Card[]>([])
   const [dealerCards, setDealerCards] = React.useState<Card[]>([])
   const [initialWager, setInitialWager] = useWagerInput()
   const [profit, setProfit] = React.useState<number | null>(null)
   const [claiming, setClaiming] = React.useState(false)
+  const [showBetToken, setShowBetToken] = React.useState(false)
+  const [isDealing, setIsDealing] = React.useState(false)
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -49,12 +52,21 @@ export default function Blackjack(props: BlackjackConfig) {
     setProfit(null)
     setPlayerCards([])
     setDealerCards([])
+    setShowBetToken(false)
+    setIsDealing(false)
   }
 
   const play = async () => {
     // Reset game state before playing
     resetGame()
     sounds.play('play')
+    
+    // Show bet token animation first
+    setShowBetToken(true)
+    setIsDealing(true)
+    
+    // Wait for bet animation to complete
+    await new Promise(r => setTimeout(r, 800))
 
     // Use centralized bet array from rtpConfig
     const betArray = [...BLACKJACK_CONFIG.betArray]
@@ -85,8 +97,8 @@ export default function Blackjack(props: BlackjackConfig) {
     const player: Card[] = [drawCard(1), drawCard(2)]
     const dealer: Card[] = [drawCard(3), drawCard(4)]
 
-    // If blackjack payout (2.5x) ensure player has Ace + 10-value
-    if (payoutMultiplier === 2.5) {
+    // If blackjack payout ensure player has Ace + 10-value
+    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
       const aceRank = 12
       const tenRanks = [8,9,10,11]
       player[0] = createCard(aceRank, player[0].suit, 1)
@@ -96,7 +108,7 @@ export default function Blackjack(props: BlackjackConfig) {
 
     // Basic value adjustments for non-loss outcomes
     const handValue = (h: Card[]) => h.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
-    if (payoutMultiplier === 2) {
+    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerWin) {
       // Ensure player > dealer and <=21
       let guard = 0
       while ((handValue(player) <= handValue(dealer) || handValue(player) > 21) && guard < 20) {
@@ -105,7 +117,7 @@ export default function Blackjack(props: BlackjackConfig) {
         guard++
       }
     }
-    if (payoutMultiplier === 0) {
+    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerLose) {
       // Ensure dealer > player or player bust
       let guard = 0
       while (!(handValue(dealer) > handValue(player) || handValue(player) > 21) && guard < 20) {
@@ -129,7 +141,7 @@ export default function Blackjack(props: BlackjackConfig) {
           setDealerCards(prev => [...prev, c])
         }
         sounds.play('card')
-        if (h === 0 && i === 1 && payoutMultiplier === 2.5) {
+        if (h === 0 && i === 1 && payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
           sounds.play('jackpot')
         }
         // small deterministic delay (not random)
@@ -139,23 +151,27 @@ export default function Blackjack(props: BlackjackConfig) {
     }
 
     setProfit(result.payout)
+    setIsDealing(false)
 
     // Play the appropriate sound based on the result
-    if (payoutMultiplier === 2.5) {
+    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
       // Do nothing; jackpot sound already played
     } else if (payoutMultiplier > 0) {
       sounds.play('win')
     } else {
       sounds.play('lose')
     }
+    
+    // Hide bet token after a delay to show the result
+    setTimeout(() => {
+      setShowBetToken(false)
+    }, 3000)
   }
 
   // Helper functions remain the same
   const getHandValue = (hand: Card[]): number => {
     return hand.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
   }
-
-  // Old random-based generators removed (now deterministic via rng + adjustments above)
 
   return (
     <>
@@ -168,61 +184,173 @@ export default function Blackjack(props: BlackjackConfig) {
           
           <GameScreenFrame {...(useGameMeta('blackjack') && { title: useGameMeta('blackjack')!.name, description: useGameMeta('blackjack')!.description })}>
             <GambaUi.Responsive>
-              <div className="blackjack-content">
-                <Container $disabled={claiming || gamba.isPlaying}>
-                  <div className="dealer-area" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <h2>🎩 Dealer's Silent War</h2>
-                    <CardArea className="enhanced-card-area">
-                      <CardsContainer>
-                        {dealerCards.map((card) => (
-                          <CardContainer key={card.key}>
-                            <Card color={SUIT_COLORS[card.suit]}>
-                              <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                              <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                            </Card>
-                          </CardContainer>
-                        ))}
-                      </CardsContainer>
-                    </CardArea>
-                    <h2>🃏 Your Confession</h2>
-                    <CardArea className="enhanced-card-area">
-                      <CardsContainer>
-                        {playerCards.map((card) => (
-                          <CardContainer key={card.key}>
-                            <Card color={SUIT_COLORS[card.suit]}>
-                              <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                              <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                            </Card>
-                          </CardContainer>
-                        ))}
-                      </CardsContainer>
-                    </CardArea>
-                    <div className="player-area">
-                      {profit !== null ? (
-                        <Profit className={profit > 0 ? 'win' : 'lose'}>
-                          {profit === 0 ? (
-                            <>💔 The house wins this heartbeat</>
-                          ) : (
-                            <>💎 Seduction complete: <TokenValue amount={profit} /></>
-                          )}
-                        </Profit>
+              <div className="casino-table">
+
+                {/* Dealer Section */}
+                <div className="dealer-area">
+                  <div className="dealer-label">
+                    <span className="dealer-icon">🎩</span>
+                    <span>DEALER</span>
+                    <div className="dealer-score">
+                      {dealerCards.length > 0 ? (
+                        <span className={getHandValue(dealerCards) > 21 ? 'bust' : ''}>
+                          {getHandValue(dealerCards)}
+                        </span>
                       ) : (
-                        <div style={{ 
-                          color: '#d1fae5', 
-                          fontSize: '18px', 
-                          textAlign: 'center', 
-                          opacity: 0.6,
-                          minHeight: '60px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          🎭 The silent war awaits...
-                        </div>
+                        <span>--</span>
                       )}
                     </div>
                   </div>
-                </Container>
+                  
+                  <div className="dealer-cards">
+                    <div className="card-deck-area">
+                      {/* Dealer's deck indicator */}
+                      <div className="deck-stack">
+                        <div className="deck-card"></div>
+                        <div className="deck-card"></div>
+                        <div className="deck-card"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="dealer-hand">
+                      {dealerCards.length === 0 ? (
+                        <>
+                          <div className="empty-card-slot">
+                            <span>🂠</span>
+                          </div>
+                          <div className="empty-card-slot">
+                            <span>🂠</span>
+                          </div>
+                        </>
+                      ) : (
+                        dealerCards.map((card, index) => (
+                          <div key={card.key} className="casino-card" style={{ animationDelay: `${index * 0.3}s` }}>
+                            <div 
+                              className="playing-card dealer-card" 
+                              style={{ color: SUIT_COLORS[card.suit] }}
+                            >
+                              <div className="card-corner top-left">
+                                <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
+                                <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
+                              </div>
+                              <div className="card-suit center">{SUIT_SYMBOLS[card.suit]}</div>
+                              <div className="card-corner bottom-right">
+                                <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
+                                <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Table Surface */}
+                <div className="table-surface">
+                  {/* Betting Circles */}
+                  <div className="betting-areas">
+                    <div className="bet-circle">
+                      <div className="bet-circle-inner">
+                        {showBetToken ? (
+                          <div className="bet-token-display">
+                            <img 
+                              src={tokenMeta.image} 
+                              alt={tokenMeta.symbol}
+                              className="bet-token-image"
+                            />
+                            <div className="bet-amount">
+                              <TokenValue amount={initialWager} mint={currentToken.mint} />
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="bet-label">BET</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="insurance-area">
+                      <div className="insurance-line">INSURANCE</div>
+                    </div>
+                  </div>
+
+                  {/* Player Section */}
+                  <div className="player-area">
+                    <div className="player-position">
+                      <div className="player-label">
+                        <span className="player-icon">👤</span>
+                        <span>PLAYER</span>
+                        <div className="player-score">
+                          {playerCards.length > 0 ? (
+                            <span className={getHandValue(playerCards) > 21 ? 'bust' : ''}>
+                              {getHandValue(playerCards)}
+                            </span>
+                          ) : (
+                            <span>--</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="player-cards">
+                        {playerCards.length === 0 ? (
+                          <>
+                            <div className="empty-card-slot">
+                              <span>🂠</span>
+                            </div>
+                            <div className="empty-card-slot">
+                              <span>🂠</span>
+                            </div>
+                          </>
+                        ) : (
+                          playerCards.map((card, index) => (
+                            <div key={card.key} className="casino-card" style={{ animationDelay: `${(index + 2) * 0.3}s` }}>
+                              <div 
+                                className="playing-card player-card" 
+                                style={{ color: SUIT_COLORS[card.suit] }}
+                              >
+                                <div className="card-corner top-left">
+                                  <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
+                                  <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
+                                </div>
+                                <div className="card-suit center">{SUIT_SYMBOLS[card.suit]}</div>
+                                <div className="card-corner bottom-right">
+                                  <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
+                                  <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Game Status Display */}
+                <div className="game-status">
+                  {profit !== null ? (
+                    <div className={`result-banner ${profit > 0 ? 'win' : 'lose'}`}>
+                      <div className="result-content">
+                        {profit > 0 ? (
+                          <>
+                            <span className="result-icon">🏆</span>
+                            <span className="result-text">PLAYER WINS!</span>
+                            <span className="result-amount"><TokenValue amount={profit} /></span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="result-icon">🏠</span>
+                            <span className="result-text">HOUSE WINS</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="waiting-banner">
+                      <span className="waiting-icon">🎲</span>
+                      <span className="waiting-text">Place Your Bet and Deal</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </GambaUi.Responsive>
           </GameScreenFrame>
@@ -233,13 +361,15 @@ export default function Blackjack(props: BlackjackConfig) {
           wager={initialWager}
           setWager={setInitialWager}
           onPlay={play}
-          playDisabled={false}
-          playText="Deal Cards"
+          playDisabled={isDealing}
+          playText={isDealing ? "Dealing..." : "Deal Cards"}
         />
         
         <DesktopControls>
-          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
-          <EnhancedPlayButton onClick={play}>Deal Cards</EnhancedPlayButton>
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={isDealing} />
+          <EnhancedPlayButton onClick={play} disabled={isDealing}>
+            {isDealing ? "Dealing..." : "Deal Cards"}
+          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

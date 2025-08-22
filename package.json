@@ -8,7 +8,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "test:games": "node quick-game-test.js",
+    "test:games:enhanced": "node comprehensive-game-test-js.js",
+    "test:games:quick": "node quick-game-test.js",
+    "test:games:extensive": "node comprehensive-game-test-js.js",
+    "test:fairness": "npm run test:games && npm run test:games:enhanced"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
@@ -47,12 +52,15 @@
     "@tailwindcss/postcss": "^4.1.12",
     "@tailwindcss/vite": "^4.1.12",
     "@types/matter-js": "^0.19.5",
+    "@types/node": "^20.19.11",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.0.11",
     "@types/three": "^0.161.2",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2",
     "unplugin-fonts": "^1.0.3",
     "vite": "6.3.5"
   }

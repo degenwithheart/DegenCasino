@@ -157,7 +157,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'progressivepoker',
-    live: 'new',
+    live: 'up',
     meta: {
       name: 'Progressive Poker',
       background: '#000000CC',
