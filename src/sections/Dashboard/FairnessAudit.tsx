@@ -12,6 +12,7 @@ import { MINES_CONFIG } from '../../games/rtpConfig'
 import { HILO_CONFIG } from '../../games/rtpConfig'
 import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
 import { PROGRESSIVE_POKER_CONFIG } from '../../games/rtpConfig'
+import { ROULETTE_CONFIG } from '../../games/rtpConfig'
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
 import { getBetArray as getProgressivePokerBetArray } from '../../games/ProgressivePoker/betArray'
 
@@ -65,6 +66,9 @@ const getRealBetArrays = () => {
     
     // Progressive Poker - use actual game implementation with weighted probabilities
     progressivepoker: getProgressivePokerBetArray(),
+    
+    // Roulette - use actual game implementation (even-money bet example)
+    roulette: ROULETTE_CONFIG.calculateBetArray('red'),
   }
 }
 
@@ -662,6 +666,7 @@ export default function FairnessAudit() {
       { game:'Blackjack (solo)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.blackjack, 'scaled payouts'), targetRtp:0.96, note:'Classic card game vs house', status:'ok', betVector:realBets.blackjack },
       { game:'Blackjack Duel', onChain:true, noLocalRng:true, rtp:calculateRtp([realBets.flip[0], 0], 'PvP'), targetRtp:0.96, note:'Player vs player blackjack', status:'ok', betVector:[realBets.flip[0], 0] },
       { game:'Progressive Poker', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.progressivepoker, 'poker hand payouts'), targetRtp:0.96, note:'Progressive video poker game', status:'ok', betVector:realBets.progressivepoker },
+      { game:'Roulette (Red bet)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.roulette, 'red bet example'), targetRtp:0.97, note:'European roulette red bet (18/37 win)', status:'ok', betVector:realBets.roulette },
     ]
   },[seed])
 

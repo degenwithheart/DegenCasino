@@ -240,54 +240,48 @@ export default function ProgressivePowerPoker() {
 
       setHand(handResult)
 
-      // Debug logging - Enhanced to track the mismatch
-      console.log('🔍 PAYOUT MISMATCH DEBUG:', {
+      console.log('🔍 PROGRESSIVE POKER RESULT:', {
         resultIndex,
         handTypeName: handTemplate.name,
-        rtpConfigMultiplier: multiplier,
-        gambaResultPayout: result.payout,
-        currentWager,
-        expectedPayout: currentWager * multiplier,
-        actualPayout: result.payout,
-        mismatch: result.payout !== (currentWager * multiplier) ? '❌ MISMATCH!' : '✅ Match'
+        gambaMultiplier: result.multiplier,
+        gambaPayout: result.payout,
+        currentWager
       })
 
-      if (multiplier > 0) {
-        // Winning hand - calculate correct payout
-        const expectedPayout = currentWager * multiplier;
-        // Use Gamba's payout if it's non-zero and reasonable, otherwise use our calculation
-        const actualPayout = (result.payout > 0 && result.payout >= expectedPayout * 0.9) 
-          ? result.payout 
-          : expectedPayout;
+      if (result.multiplier > 0) {
+        // WIN: Use exact Gamba result.multiplier and result.payout
+        console.log(`🎉 WIN! Gamba multiplier: ${result.multiplier}x, payout: ${result.payout}`);
         
-        setCurrentBalance(actualPayout)
-        setTotalProfit(actualPayout - initialWager)
-        setHandCount(prev => prev + 1)
-        
-        console.log('🎰 WIN PAYOUT CALCULATION:', {
-          currentWager,
-          multiplier,
-          expectedPayout,
-          gambaResultPayout: result.payout,
-          finalPayout: actualPayout,
-          profit: actualPayout - initialWager,
-          reasoning: (result.payout > 0 && result.payout >= expectedPayout * 0.9) 
-            ? 'Using Gamba payout' 
-            : 'Using calculated payout (Gamba payout was invalid)'
-        });
-        
-        if (multiplier >= 250) {
-          sounds.play('jackpot')
+        // Visual feedback based on exact result.multiplier from rtpConfig
+        if (result.multiplier >= 16) {
+          console.log('🎆 ROYAL/FLUSH! 16x multiplier from rtpConfig!');
+          sounds.play('jackpot');
+        } else if (result.multiplier >= 8) {
+          console.log('🔥 THREE OF A KIND/STRAIGHT! 8x multiplier from rtpConfig!');
+          sounds.play('win');
+        } else if (result.multiplier >= 6) {
+          console.log('💰 TWO PAIR! 6x multiplier from rtpConfig!');
+          sounds.play('win');
+        } else if (result.multiplier >= 3) {
+          console.log('✨ JACKS+ PAIR! 3x multiplier from rtpConfig!');
+          sounds.play('win');
         } else {
-          sounds.play('win')
+          console.log('🙂 Small win!');
+          sounds.play('win');
         }
+        
+        // Use Gamba's exact payout (this already includes the multiplier calculation)
+        setCurrentBalance(result.payout);
+        setTotalProfit(result.payout - initialWager);
+        setHandCount(prev => prev + 1);
+        
       } else {
-        // Bust hand - lose everything, end session
-        setCurrentBalance(0)
-        // Fix: When you bust, you lose your original initial wager
-        setTotalProfit(-initialWager)
-        setInProgress(false)
-        sounds.play('lose')
+        // BUST: result.multiplier = 0, no payout
+        console.log('💔 BUST! Gamba multiplier: 0x');
+        setCurrentBalance(0);
+        setTotalProfit(-initialWager);
+        setInProgress(false);
+        sounds.play('lose');
       }
 
     } catch (error) {

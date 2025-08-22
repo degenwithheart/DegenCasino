@@ -90,7 +90,7 @@ export default function Roulette() {
   const [phase, setPhase] = React.useState<'betting' | 'spinning' | 'result'>('betting')
   const [winningNumber, setWinningNumber] = React.useState<string>('0')
   const [wheelSpinning, setWheelSpinning] = React.useState(false)
-  const [lastGameResult, setLastGameResult] = React.useState<any>(null)
+  const [gameResult, setGameResult] = React.useState<any>(null)
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -148,27 +148,33 @@ export default function Roulette() {
   const balanceExceeded = actualWager > (balance.balance + balance.bonusBalance)
 
   const play = async () => {
-    // Start spinning phase
-    setPhase('spinning')
-    
-    await game.play({
-      bet: bet.value,
-      wager: actualWager,
-    })
-    sounds.play('play')
-    const result = await game.result()
-    
-    // Store the result and determine winning number
-    setLastGameResult(result)
-    const resultNumber = result.resultIndex
-    setWinningNumber(resultNumber.toString())
-    addResult(result.resultIndex)
-    
-    console.log('Gamba result:', result)
-    console.log('Setting wheel winning number to:', resultNumber.toString())
-    
-    // Start the wheel spinning with the result
-    setWheelSpinning(true)
+    try {
+      // Start spinning phase
+      setPhase('spinning')
+      
+      await game.play({
+        bet: bet.value,
+        wager: actualWager,
+      })
+      sounds.play('play')
+      
+      const result = await game.result()
+      
+      // Store the Gamba result and determine winning number
+      setGameResult(result)
+      const resultNumber = result.resultIndex
+      setWinningNumber(resultNumber.toString())
+      addResult(result.resultIndex)
+      
+      console.log('Gamba result:', result)
+      console.log('Setting wheel winning number to:', resultNumber.toString())
+      
+      // Start the wheel spinning with the result
+      setWheelSpinning(true)
+    } catch (error) {
+      console.error('Error in roulette play:', error)
+      setPhase('betting')
+    }
   }
 
   // Handle when the wheel finishes spinning
@@ -176,18 +182,35 @@ export default function Roulette() {
     setWheelSpinning(false)
     setPhase('result')
     
-    // Play win/lose sound based on game result
-    if (lastGameResult && lastGameResult.payout > 0) {
+    // Play win/lose sound based on Gamba result payout (not hardcoded logic)
+    if (gameResult && gameResult.payout > 0) {
       sounds.play('win')
+      
+      // Show visual feedback for the actual payout from Gamba
+      console.log(`🎉 WIN! Gamba payout: ${gameResult.payout}, multiplier: ${gameResult.multiplier}`)
+      
+      // Visual celebration based on actual result.multiplier from Gamba
+      if (gameResult.multiplier >= 35) {
+        console.log('🎆 HUGE WIN! Straight up bet!')
+      } else if (gameResult.multiplier >= 17) {
+        console.log('💰 BIG WIN! Split bet!')
+      } else if (gameResult.multiplier >= 5) {
+        console.log('✨ NICE WIN! Inside bet!')
+      } else if (gameResult.multiplier >= 2) {
+        console.log('🎊 Good win! Outside bet!')
+      } else {
+        console.log('🙂 Small win!')
+      }
     } else {
       sounds.play('lose')
+      console.log('💔 No payout from Gamba.result')
     }
     
     // Return to betting phase after showing result
     setTimeout(() => {
       setPhase('betting')
       clearChips()
-      setLastGameResult(null)
+      setGameResult(null)
     }, 3000)
   }
 
