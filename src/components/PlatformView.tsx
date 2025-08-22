@@ -171,15 +171,71 @@ const ChartContainer = styled.div`
   height: 200px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+`
+
+const VolumeBar = styled.div<{ height: number; index: number }>`
+  position: absolute;
+  bottom: 16px;
+  width: 12px;
+  height: ${props => props.height}%;
+  background: linear-gradient(180deg, #ffd700 0%, #ff6600 100%);
+  border-radius: 2px;
+  left: ${props => 16 + props.index * 20}px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: linear-gradient(180deg, #fff700 0%, #ff8800 100%);
+    transform: scaleY(1.1);
+  }
+`
+
+const TokenDistributionBar = styled.div<{ width: number; color: string }>`
+  height: 20px;
+  width: ${props => props.width}%;
+  background: ${props => props.color};
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scaleY(1.2);
+  }
 `
 
 const ChartPlaceholder = styled.div`
   color: #666;
   font-size: 14px;
+`
+
+const LeaderboardSection = styled(Section)`
+  height: 296px;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(255, 215, 0, 0.5);
+    }
+  }
 `
 
 const LeaderboardHeader = styled.div`
@@ -416,8 +472,62 @@ export function PlatformView() {
   const [recentPlays, setRecentPlays] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [volumeData, setVolumeData] = React.useState<number[]>([])
+  const [tokenDistribution, setTokenDistribution] = React.useState<{token: string, volume: number, percentage: number, color: string}[]>([])
+  const [apiAvailable, setApiAvailable] = React.useState(true)
   
   const { data: leaderboard = [] } = useLeaderboardData('weekly', creator || '')
+
+  // Fetch real historical volume data
+  React.useEffect(() => {
+    const fetchVolumeData = async () => {
+      if (!creator) return
+      
+      try {
+        const promises = []
+        const today = new Date()
+        
+        // Fetch volume for each of the last 7 days
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          const startTime = date.setHours(0, 0, 0, 0)
+          const endTime = date.setHours(23, 59, 59, 999)
+          
+          promises.push(
+            fetch(`https://api.gamba.so/stats?creator=${creator}&startTime=${startTime}&endTime=${endTime}`)
+              .then(res => res.ok ? res.json() : null)
+              .catch(() => null)
+          )
+        }
+        
+        const results = await Promise.all(promises)
+        const volumes = results.map(result => result?.usd_volume || 0)
+        const maxVolume = Math.max(...volumes, 1)
+        
+        // Convert to percentages for display
+        const volumePercentages = volumes.map(vol => (vol / maxVolume) * 100)
+        setVolumeData(volumePercentages)
+      } catch (error) {
+        console.error('Failed to fetch volume data:', error)
+        setApiAvailable(false)
+        setVolumeData([])
+      }
+    }
+    
+    fetchVolumeData()
+  }, [creator])
+
+  // Generate token distribution from real data only
+  React.useEffect(() => {
+    if (stats && stats.usd_volume > 0) {
+      // For now, we don't have per-token breakdown from API
+      // So we'll show a message that this data is not available
+      setTokenDistribution([])
+    } else {
+      setTokenDistribution([])
+    }
+  }, [stats])
 
   React.useEffect(() => {
     if (creator) {
@@ -431,7 +541,13 @@ export function PlatformView() {
           const statsResponse = await fetch(`https://api.gamba.so/stats?creator=${creator}&startTime=${startTime}`)
           if (statsResponse.ok) {
             const statsData = await statsResponse.json()
+            console.log('Stats data received:', statsData)
             setStats(statsData)
+            setApiAvailable(true)
+          } else {
+            console.warn('Failed to fetch stats:', statsResponse.status)
+            setApiAvailable(false)
+            setStats(null)
           }
           
           // Fetch recent plays for this platform
@@ -468,6 +584,7 @@ export function PlatformView() {
         } catch (err) {
           console.error('Failed to fetch platform data:', err)
           setError('Failed to load platform data')
+          setApiAvailable(false)
         } finally {
           setLoading(false)
         }
@@ -532,34 +649,47 @@ export function PlatformView() {
           <Section>
             <SectionTitle>7d Volume</SectionTitle>
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white', marginBottom: '16px' }}>
-              ${volume.toFixed(1)}
+              {apiAvailable ? `$${volume.toFixed(1)}` : 'API Unavailable'}
             </div>
             <ChartContainer>
-              <ChartPlaceholder>Volume chart visualization would go here</ChartPlaceholder>
-            </ChartContainer>
-          </Section>
-
-          <Section style={{ marginTop: '24px' }}>
-            <SectionTitle>Volume by token</SectionTitle>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <TokenIcon src="/favicon.png" alt="SOL" />
-              <span style={{ color: 'white' }}>Solana</span>
-              <span style={{ marginLeft: 'auto', color: '#888' }}>{plays} / ${volume.toFixed(2)}</span>
-            </div>
-            <ChartContainer style={{ height: '120px' }}>
-              <ChartPlaceholder>Token distribution chart would go here</ChartPlaceholder>
+              {!apiAvailable ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#666' }}>
+                  API data not available
+                </div>
+              ) : volumeData.length > 0 ? (
+                <>
+                  {volumeData.map((height, index) => (
+                    <VolumeBar 
+                      key={index} 
+                      height={height} 
+                      index={index}
+                      title={`Day ${index + 1}: ${height.toFixed(1)}% of peak`}
+                    />
+                  ))}
+                  <div style={{ position: 'absolute', bottom: '4px', left: '16px', fontSize: '10px', color: '#666' }}>
+                    7 days ago
+                  </div>
+                  <div style={{ position: 'absolute', bottom: '4px', right: '16px', fontSize: '10px', color: '#666' }}>
+                    Today
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#666' }}>
+                  No volume data available
+                </div>
+              )}
             </ChartContainer>
           </Section>
         </div>
 
         <div>
-          <Section>
+          <LeaderboardSection>
             <LeaderboardHeader>
               <SectionTitle style={{ margin: 0 }}>7d Leaderboard</SectionTitle>
               <ViewAllLink to="#" onClick={(e) => e.preventDefault()}>View all</ViewAllLink>
             </LeaderboardHeader>
             <LeaderboardList>
-              {(leaderboard || []).slice(0, 5).map((player, index) => (
+              {(leaderboard || []).map((player, index) => (
                 <LeaderboardItem 
                   key={player.user}
                   onClick={() => window.location.href = `/explorer/player/${player.user}`}
@@ -572,20 +702,11 @@ export function PlatformView() {
                 </LeaderboardItem>
               ))}
             </LeaderboardList>
-          </Section>
+          </LeaderboardSection>
         </div>
       </MainContent>
 
-      <DetailsSection>
-        <Section>
-          <SectionTitle>Details</SectionTitle>
-          <DetailItem>
-            <DetailLabel>Creator</DetailLabel>
-            <DetailValue>{creator}</DetailValue>
-          </DetailItem>
-        </Section>
-      </DetailsSection>
-
+      {/* 
       <RecentPlaysTable>
         <Section>
           <SectionTitle>Recent plays</SectionTitle>
@@ -615,6 +736,7 @@ export function PlatformView() {
           )}
         </Section>
       </RecentPlaysTable>
+      */}
     </PlatformContainer>
   )
 }
