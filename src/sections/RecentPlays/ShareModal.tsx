@@ -15,9 +15,8 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 24px;
+  padding: 0;
   width: 100%;
-  min-height: 100%;
 `
 
 const Inner = styled.div`
@@ -180,55 +179,43 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
 
   return (
     <Modal onClose={() => onClose()}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        width: '100vw',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1000,
-      }}>
-        <Container>
-          <Inner>
-            <Content ref={ref}>
-              <GameResult>
-                <TokenIcon src={tokenMeta.image} alt={tokenMeta.symbol} />
-                
-                <ProfitDisplay $isProfit={isProfit}>
-                  <div>
-                    {isProfit ? '+' : '-'}
-                    <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
-                  </div>
-                  <div className="multiplier">
-                    {(event.data.multiplierBps / 10_000).toLocaleString()}x
-                  </div>
-                </ProfitDisplay>
-                
-                <GameIcon src={game?.meta?.image} alt={game?.meta?.name || 'Game'} />
-              </GameResult>
+      <Container>
+        <Inner>
+          <Content ref={ref}>
+            <GameResult>
+              <TokenIcon src={tokenMeta.image} alt={tokenMeta.symbol} />
               
-              <BrandingSection>
-                <img src="/$DGHRT.png" alt="DegenHeart" />
+              <ProfitDisplay $isProfit={isProfit}>
                 <div>
-                  play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
+                  {isProfit ? '+' : '-'}
+                  <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
                 </div>
-              </BrandingSection>
-            </Content>
-          </Inner>
-          
-          <ButtonGroup>
-            <GambaUi.Button size="small" onClick={viewTransaction}>
-              View Details
-            </GambaUi.Button>
-            <GambaUi.Button size="small" onClick={gotoGame}>
-              Play {game?.meta?.name || 'Game'}
-            </GambaUi.Button>
-          </ButtonGroup>
-        </Container>
-      </div>
+                <div className="multiplier">
+                  {(event.data.multiplierBps / 10_000).toLocaleString()}x
+                </div>
+              </ProfitDisplay>
+              
+              <GameIcon src={game?.meta?.image} alt={game?.meta?.name || 'Game'} />
+            </GameResult>
+            
+            <BrandingSection>
+              <img src="/$DGHRT.png" alt="DegenHeart" />
+              <div>
+                play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
+              </div>
+            </BrandingSection>
+          </Content>
+        </Inner>
+        
+        <ButtonGroup>
+          <GambaUi.Button size="small" onClick={viewTransaction}>
+            View Details
+          </GambaUi.Button>
+          <GambaUi.Button size="small" onClick={gotoGame}>
+            Play {game?.meta?.name || 'Game'}
+          </GambaUi.Button>
+        </ButtonGroup>
+      </Container>
     </Modal>
   )
 }
