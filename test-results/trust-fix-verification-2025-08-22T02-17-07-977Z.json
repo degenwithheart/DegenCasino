@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-08-22T02:17:07.934Z",
+  "trustScore": 100,
+  "totalTests": 14,
+  "passedTests": 14,
+  "failedTests": 0,
+  "fixes": [
+    {
+      "game": "FLIP",
+      "fix": "Successfully replaced hardcoded 2.00x with FLIP_CONFIG.heads[0]",
+      "status": "FIXED"
+    },
+    {
+      "game": "BLACKJACK",
+      "fix": "Successfully replaced hardcoded multiplier checks with BLACKJACK_CONFIG values",
+      "status": "FIXED"
+    },
+    {
+      "game": "MINES",
+      "fix": "Successfully uses MINES_CONFIG.generateBetArray for bet logic",
+      "status": "FIXED"
+    },
+    {
+      "game": "MINES",
+      "fix": "Successfully replaced hardcoded payout check with multiplier check",
+      "status": "FIXED"
+    },
+    {
+      "game": "GLOBAL",
+      "fix": "Math.random() usage removal verified in existing games",
+      "status": "FIXED"
+    },
+    {
+      "game": "Flip",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "BlackJack",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Mines",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Slots",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "ProgressivePoker",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Dice",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "HiLo",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "Plinko",
+      "fix": "Successfully imports rtpConfig",
+      "status": "FIXED"
+    },
+    {
+      "game": "GLOBAL",
+      "fix": "No Math.random() usage found in games directory",
+      "status": "FIXED"
+    }
+  ],
+  "issues": [],
+  "gameResults": {}
+}

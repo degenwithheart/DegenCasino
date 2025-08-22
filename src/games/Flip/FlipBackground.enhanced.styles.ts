@@ -83,6 +83,272 @@ export const StyledFlipBackground = styled.div`
     min-height: 100%;
   }
 
+  /* Modern Flip Redesign */
+  .flip-redesign {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+    padding: 24px;
+    height: 100%;
+    min-height: 500px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .flip-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .side-indicator {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 12px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .side-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 80px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+    }
+
+    &.active {
+      background: rgba(16, 185, 129, 0.2);
+      border: 2px solid rgba(16, 185, 129, 0.5);
+      transform: scale(1.05);
+
+      img {
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        transform: scale(1.1);
+      }
+
+      span {
+        color: #10B981;
+      }
+    }
+
+    &:not(.active):hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+  }
+
+  .vs-divider {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 0 8px;
+  }
+
+  .win-multiplier {
+    background: linear-gradient(135deg, #F59E0B, #EAB308);
+    color: #92400E;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .coin-arena {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+
+  .coin-container {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1), transparent);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      inset 0 4px 20px rgba(255, 255, 255, 0.1),
+      0 0 40px rgba(148, 163, 184, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: rotate 3s linear infinite;
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .coin-shadow {
+    width: 200px;
+    height: 40px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3), transparent);
+    border-radius: 50%;
+    filter: blur(8px);
+    animation: shadowPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes shadowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+  }
+
+  .status-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .status-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 24px 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    min-width: 200px;
+    transition: all 0.3s ease;
+  }
+
+  .status-icon {
+    font-size: 32px;
+    transition: all 0.3s ease;
+
+    &.spinning {
+      animation: spin 1s linear infinite;
+    }
+
+    &.win {
+      animation: bounce 0.6s ease-in-out;
+    }
+
+    &.lose {
+      animation: shake 0.5s ease-in-out;
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes bounce {
+    0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+    40%, 43% { transform: translate3d(0,-30px,0); }
+    70% { transform: translate3d(0,-15px,0); }
+    90% { transform: translate3d(0,-4px,0); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+  }
+
+  .status-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    transition: all 0.3s ease;
+
+    &.win {
+      color: #10B981;
+      font-weight: 700;
+    }
+
+    &.lose {
+      color: #EF4444;
+      font-weight: 700;
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .flip-redesign {
+      padding: 16px;
+      gap: 24px;
+    }
+
+    .coin-container {
+      width: 220px;
+      height: 220px;
+    }
+
+    .side-option {
+      min-width: 60px;
+      padding: 12px;
+
+      img {
+        width: 36px;
+        height: 36px;
+      }
+
+      span {
+        font-size: 12px;
+      }
+    }
+
+    .status-card {
+      padding: 20px 24px;
+      min-width: 160px;
+    }
+  }
+
   /* Additional silver elements */
   .silver-bg-elements {
     position: absolute;

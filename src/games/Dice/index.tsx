@@ -77,51 +77,91 @@ export default function Dice() {
           
           <GameScreenFrame {...(useGameMeta('dice') && { title: useGameMeta('dice')!.name, description: useGameMeta('dice')!.description })}>
             <GambaUi.Responsive>
-              <div className="dice-content">
-                <Container>
-                  <RollUnder className="roll-under-display">
-                    <div>
-                      <div>{rollUnderIndex + 1}</div>
-                      <div>Sacred Number</div>
-                    </div>
-                  </RollUnder>
-                  <Stats className="ancient-stats">
-                    <div>
-                      <div>{(rollUnderIndex / 100 * 100).toFixed(0)}%</div>
-                      <div>Whispered Prayer</div>
-                    </div>
-                    <div>
-                      <div>{multiplier.toFixed(2)}x</div>
-                      <div>Divine Blessing</div>
-                    </div>
-                    <div>
-                      {maxWin > pool.maxPayout ? (
-                        <div style={{ color: '#fca5a5' }}>🔮 Too ambitious</div>
-                      ) : (
-                        <div><TokenValue suffix="" amount={maxWin} /></div>
-                      )}
-                      <div>Sacred Reward</div>
-                    </div>
-                  </Stats>
-                  <div className="sacred-slider-container" style={{ position: 'relative' }}>
-                    {resultIndex > -1 && (
-                      <Result style={{ left: `${resultIndex / 100 * 100}%` }}>
-                        <div key={resultIndex}>{resultIndex + 1}</div>
-                      </Result>
-                    )}
-                    <Slider
-                      disabled={gamba.isPlaying}
-                      range={[0, 100]}
-                      min={1}
-                      max={100 - 5}
-                      value={rollUnderIndex}
-                      onChange={(value) => {
-                        setRollUnderIndex(value)
-                        sounds.play('tick')
-                      }}
-                    />
+              <div className="dice-redesign">
+                {/* Header Stats */}
+                <div className="dice-header">
+                  <div className="stat-card">
+                    <div className="stat-value">{(rollUnderIndex / 100 * 100).toFixed(0)}%</div>
+                    <div className="stat-label">Win Chance</div>
                   </div>
-                </Container>
+                  <div className="stat-card highlight">
+                    <div className="stat-value">{multiplier.toFixed(2)}x</div>
+                    <div className="stat-label">Multiplier</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">
+                      {maxWin > pool.maxPayout ? (
+                        <span className="error">TOO HIGH</span>
+                      ) : (
+                        <TokenValue suffix="" amount={maxWin} />
+                      )}
+                    </div>
+                    <div className="stat-label">Max Win</div>
+                  </div>
+                </div>
+
+                {/* Roll Under Display */}
+                <div className="roll-target">
+                  <div className="target-circle">
+                    <div className="target-number">{rollUnderIndex + 1}</div>
+                    <div className="target-label">Roll Under</div>
+                  </div>
+                </div>
+
+                {/* Main Dice Area */}
+                <div className="dice-arena">
+                  <div className="dice-track-container">
+                    {/* Result indicator */}
+                    {resultIndex > -1 && (
+                      <div 
+                        className="result-marker" 
+                        style={{ left: `${(resultIndex / 100) * 100}%` }}
+                      >
+                        <div className="result-number">{resultIndex + 1}</div>
+                        <div className="result-arrow"></div>
+                      </div>
+                    )}
+                    
+                    {/* Custom Slider Track */}
+                    <div className="dice-track">
+                      <div className="track-background">
+                        <div 
+                          className="win-zone" 
+                          style={{ width: `${rollUnderIndex}%` }}
+                        ></div>
+                        <div 
+                          className="lose-zone" 
+                          style={{ width: `${100 - rollUnderIndex}%` }}
+                        ></div>
+                      </div>
+                      
+                      {/* Slider Component */}
+                      <Slider
+                        disabled={gamba.isPlaying}
+                        range={[0, 100]}
+                        min={1}
+                        max={100 - 5}
+                        value={rollUnderIndex}
+                        onChange={(value) => {
+                          setRollUnderIndex(value)
+                          sounds.play('tick')
+                        }}
+                      />
+                    </div>
+
+                    {/* Track Labels */}
+                    <div className="track-labels">
+                      <div className="label-win">
+                        <span>WIN ZONE</span>
+                        <span>1 - {rollUnderIndex + 1}</span>
+                      </div>
+                      <div className="label-lose">
+                        <span>LOSE ZONE</span>
+                        <span>{rollUnderIndex + 2} - 100</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </GambaUi.Responsive>
           </GameScreenFrame>

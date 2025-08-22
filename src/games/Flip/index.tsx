@@ -80,65 +80,87 @@ function Flip() {
           <div className="destiny-indicator" />
           
           <GameScreenFrame {...(useGameMeta('flip') && { title: useGameMeta('flip')!.name, description: useGameMeta('flip')!.description })}>
-            <div className="flip-content">
-              <div className="silver-truth-area">
-                <h2 style={{ margin: '0 0 10px 0', fontSize: '24px' }}>
-                  🪙 Silver Caught Between Truths
-                </h2>
+            <div className="flip-redesign">
+              {/* Header Section */}
+              <div className="flip-header">
+                <div className="side-indicator">
+                  <div className={`side-option ${side === 'heads' ? 'active' : ''}`}>
+                    <img src={TEXTURE_HEADS} alt="Heads" />
+                    <span>HEADS</span>
+                  </div>
+                  <div className="vs-divider">VS</div>
+                  <div className={`side-option ${side === 'tails' ? 'active' : ''}`}>
+                    <img src={TEXTURE_TAILS} alt="Tails" />
+                    <span>TAILS</span>
+                  </div>
+                </div>
+                <div className="win-multiplier">{FLIP_CONFIG.heads[0]}x</div>
               </div>
-              
-              <div className="instinct-canvas-container">
-                <Canvas
-                  linear
-                  flat
-                  orthographic
-                  camera={{
-                    zoom: 80,
-                    position: [0, 0, 100],
-                  }}
-                >
-                  <React.Suspense fallback={null}>
-                    <Coin result={resultIndex} flipping={flipping} />
-                  </React.Suspense>
-                  <Effect color="white" />
 
-                  {flipping && <Effect color="white" />}
-                  {win && <Effect color="#42ff78" />}
-                  <ambientLight intensity={3} />
-                  <directionalLight
-                    position-z={1}
-                    position-y={1}
-                    castShadow
-                    color="#CCCCCC"
-                  />
-                  <hemisphereLight
-                    intensity={.5}
-                    position={[0, 1, 0]}
-                    scale={[1, 1, 1]}
-                    color="#ffadad"
-                    groundColor="#6666fe"
-                  />
-                </Canvas>
+              {/* Main Coin Area */}
+              <div className="coin-arena">
+                <div className="coin-container">
+                  <Canvas
+                    linear
+                    flat
+                    orthographic
+                    camera={{
+                      zoom: 250,
+                      position: [0, 0, 100],
+                    }}
+                  >
+                    <React.Suspense fallback={null}>
+                      <Coin result={resultIndex} flipping={flipping} />
+                    </React.Suspense>
+                    <Effect color="white" />
+                    {flipping && <Effect color="white" />}
+                    {win && <Effect color="#10B981" />}
+                    <ambientLight intensity={3} />
+                    <directionalLight
+                      position-z={1}
+                      position-y={1}
+                      castShadow
+                      color="#CCCCCC"
+                    />
+                    <hemisphereLight
+                      intensity={.5}
+                      position={[0, 1, 0]}
+                      scale={[1, 1, 1]}
+                      color="#ffadad"
+                      groundColor="#6666fe"
+                    />
+                  </Canvas>
+                </div>
+                
+                {/* Coin Shadow/Base */}
+                <div className="coin-shadow"></div>
               </div>
-              
-              <div className="fate-result-area">
-                {flipping ? (
-                  <div style={{ fontSize: '18px', opacity: 0.9 }}>
-                    ✨ The world falls silent, breath held...
-                  </div>
-                ) : win ? (
-                  <div style={{ fontSize: '18px', color: '#42ff78' }}>
-                    💫 Destiny favors your raw instinct!
-                  </div>
-                ) : resultIndex !== null ? (
-                  <div style={{ fontSize: '18px', color: '#fca5a5' }}>
-                    🌙 The silver speaks its truth
-                  </div>
-                ) : (
-                  <div style={{ fontSize: '18px', opacity: 0.6 }}>
-                    🎭 The simplest duel with destiny awaits...
-                  </div>
-                )}
+
+              {/* Status Display */}
+              <div className="status-display">
+                <div className="status-card">
+                  {flipping ? (
+                    <>
+                      <div className="status-icon spinning">⚡</div>
+                      <div className="status-text">Flipping...</div>
+                    </>
+                  ) : win ? (
+                    <>
+                      <div className="status-icon win">🎉</div>
+                      <div className="status-text win">You Won!</div>
+                    </>
+                  ) : resultIndex !== null ? (
+                    <>
+                      <div className="status-icon lose">💸</div>
+                      <div className="status-text lose">Better Luck Next Time</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="status-icon">🪙</div>
+                      <div className="status-text">Choose Your Side</div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </GameScreenFrame>

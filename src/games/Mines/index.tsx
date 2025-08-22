@@ -185,8 +185,8 @@ function Mines() {
         // For the first level, the wager is the initial wager. For subsequent levels, it's the previous balance.
         const wager = level === 0 ? initialWager : previousBalance
         const multiplier = getMultiplierForLevel(level)
-        const remainingCells = GRID_SIZE - level
-        const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier)
+        // Use MINES_CONFIG.generateBetArray instead of hardcoded array
+        const bet = MINES_CONFIG.generateBetArray(mines, level)
 
         const profit = wager * (multiplier - 1)
         cumProfit += profit
@@ -244,8 +244,9 @@ function Mines() {
 
       sounds.sounds.tick.player.stop()
 
-      // Lose
-      if (result.payout === 0) {
+      // Check if player hit a mine by looking at the result multiplier
+      // If multiplier is 0, it means the player hit a mine
+      if (result.multiplier === 0) {
         setStarted(false)
         setGrid(revealAllMines(grid, cellIndex, mines))
         sounds.play('explode')
