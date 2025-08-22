@@ -2,6 +2,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useWallet } from '@solana/wallet-adapter-react'
 import styled from 'styled-components'
 import { Flex } from '../../components'
 import { Modal } from '../../components/Modal'
@@ -113,6 +114,7 @@ const ButtonGroup = styled.div`
 
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
+  const { publicKey: connectedWallet } = useWallet()
   const { game, gameId: extractedGameId } = extractMetadata(event)
   
   // Fallback: manually parse metadata if extractMetadata fails
@@ -129,8 +131,8 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
     console.error('Fallback metadata parsing failed:', e)
   }
   
-  // Get wallet and gameId for route
-  const wallet = event.data.user?.toBase58?.() || ''
+  // Use connected wallet instead of transaction wallet to avoid mismatch
+  const wallet = connectedWallet?.toBase58() || ''
   const gameId = extractedGameId || game?.id || fallbackGameId || ''
   const signature = event.signature || ''
   
@@ -140,19 +142,19 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
     game, 
     metadata: event.data.metadata, 
     extractedGameId, 
-    fallbackGameId 
+    fallbackGameId,
+    connectedWallet: connectedWallet?.toBase58()
   })
   
   const gotoGame = () => {
     console.log('gotoGame called with:', { wallet, gameId, game })
-    if (wallet && gameId) {
-      // Navigate to the game with wallet and gameId
+    if (connectedWallet && gameId) {
+      // Navigate to the game with connected wallet and gameId
       console.log('Navigating to:', `/game/${wallet}/${gameId}`)
       navigate(`/game/${wallet}/${gameId}`)
     } else if (gameId) {
-      // If we have gameId but no wallet, try with current user's wallet
-      console.log('Trying with gameId only, navigating to dashboard and selecting game')
-      // Navigate to home and let user select the game
+      // If no wallet connected, navigate to home to connect first
+      console.log('No wallet connected, navigating to home')
       navigate('/')
     } else {
       console.error('Missing gameId:', { gameId, game, metadata: event.data.metadata })
