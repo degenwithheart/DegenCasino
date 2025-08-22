@@ -1,5 +1,6 @@
 // apps/platform/src/sections/RecentPlays/RecentPlays.tsx
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BPS_PER_WHOLE, GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
@@ -63,6 +64,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
   const events = useRecentPlays({ showAllPlatforms })
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
+  const navigate = useNavigate()
 
   return (
     <Container>
@@ -81,7 +83,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
       <GambaUi.Button
         main
         onClick={() =>
-          window.open(`${EXPLORER_URL}/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`)
+          navigate(`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`)
         }
       >
         🚀 Explorer

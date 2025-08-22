@@ -17,7 +17,7 @@ export const PLATFORM_CREATOR_ADDRESS = new PublicKey(
   '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ',
 )
 
-// Gamba explorer URL - Appears in RecentPlays
+// Explorer URL - Appears in RecentPlays
 export const EXPLORER_URL = 'https://degenheart.casino/explorer'
 
 // Platform URL - Appears in ShareModal
