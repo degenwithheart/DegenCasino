@@ -34,6 +34,7 @@ export const RTP_TARGETS = {
   plinko: 0.95,      // Plinko: 5% house edge, always pays something (100% win rate)
   blackjack: 0.97,   // Blackjack: 3% house edge, ~42% win rate
   progressivepoker: 0.96, // Progressive Power Poker: 4% house edge, 35% win rate
+  roulette: 0.973,   // Roulette: 2.7% house edge (European), ~47% win rate for even-money bets
 } as const
 
 
@@ -271,6 +272,187 @@ export const BET_ARRAYS = {
   },
 
 
+  // ROULETTE: European Roulette game configuration
+  // - NUMBERS: Array of all roulette numbers (0-36)
+  // - BET_TYPES: All available bet types with their payouts and coverage
+  // - calculateBetArray: Function to generate bet array for different bet types
+  roulette: {
+    NUMBERS: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36],
+    
+    // Bet types with their base payouts (before house edge)
+    BET_TYPES: {
+      // Inside bets
+      straight: { payout: 35, coverage: 1 },     // Single number: 35:1
+      split: { payout: 17, coverage: 2 },        // Two numbers: 17:1
+      street: { payout: 11, coverage: 3 },       // Three numbers: 11:1
+      corner: { payout: 8, coverage: 4 },        // Four numbers: 8:1
+      sixline: { payout: 5, coverage: 6 },       // Six numbers: 5:1
+      
+      // Outside bets
+      red: { payout: 1, coverage: 18 },          // Red numbers: 1:1
+      black: { payout: 1, coverage: 18 },        // Black numbers: 1:1
+      odd: { payout: 1, coverage: 18 },          // Odd numbers: 1:1
+      even: { payout: 1, coverage: 18 },         // Even numbers: 1:1
+      low: { payout: 1, coverage: 18 },          // 1-18: 1:1
+      high: { payout: 1, coverage: 18 },         // 19-36: 1:1
+      dozen1: { payout: 2, coverage: 12 },       // 1st dozen: 2:1
+      dozen2: { payout: 2, coverage: 12 },       // 2nd dozen: 2:1
+      dozen3: { payout: 2, coverage: 12 },       // 3rd dozen: 2:1
+      column1: { payout: 2, coverage: 12 },      // 1st column: 2:1
+      column2: { payout: 2, coverage: 12 },      // 2nd column: 2:1
+      column3: { payout: 2, coverage: 12 },      // 3rd column: 2:1
+    },
+
+    // Red and black number mappings
+    RED_NUMBERS: [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],
+    BLACK_NUMBERS: [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35],
+
+    calculateBetArray: (betType: string, numbers: number[] = []) => {
+      const TOTAL_NUMBERS = 37; // 0-36
+      const betArray = Array(TOTAL_NUMBERS).fill(0);
+      const betConfig = BET_ARRAYS.roulette.BET_TYPES[betType as keyof typeof BET_ARRAYS.roulette.BET_TYPES];
+      
+      if (!betConfig) return betArray;
+
+      const housePayout = (betConfig.payout + 1) * RTP_TARGETS.roulette; // Apply house edge
+
+      switch (betType) {
+        case 'straight':
+          // Single number bet
+          if (numbers.length === 1 && numbers[0] >= 0 && numbers[0] <= 36) {
+            betArray[numbers[0]] = housePayout;
+          }
+          break;
+
+        case 'red':
+          BET_ARRAYS.roulette.RED_NUMBERS.forEach(num => {
+            betArray[num] = housePayout;
+          });
+          break;
+
+        case 'black':
+          BET_ARRAYS.roulette.BLACK_NUMBERS.forEach(num => {
+            betArray[num] = housePayout;
+          });
+          break;
+
+        case 'odd':
+          for (let i = 1; i <= 36; i += 2) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'even':
+          for (let i = 2; i <= 36; i += 2) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'low':
+          for (let i = 1; i <= 18; i++) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'high':
+          for (let i = 19; i <= 36; i++) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'dozen1':
+          for (let i = 1; i <= 12; i++) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'dozen2':
+          for (let i = 13; i <= 24; i++) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'dozen3':
+          for (let i = 25; i <= 36; i++) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'column1':
+          for (let i = 1; i <= 34; i += 3) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'column2':
+          for (let i = 2; i <= 35; i += 3) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'column3':
+          for (let i = 3; i <= 36; i += 3) {
+            betArray[i] = housePayout;
+          }
+          break;
+
+        case 'split':
+        case 'street':
+        case 'corner':
+        case 'sixline':
+          // Custom number arrays for complex bets
+          numbers.forEach(num => {
+            if (num >= 0 && num <= 36) {
+              betArray[num] = housePayout;
+            }
+          });
+          break;
+      }
+
+      return betArray;
+    },
+
+    // Map RouletteTable bet IDs to our system
+    mapRouletteTableBet: (params: { bet: string; id: string; payload: any[] }) => {
+      const { bet, id, payload } = params
+      
+      // Handle different bet types from RouletteTable
+      switch (bet) {
+        case 'STRAIGHT_UP':
+          // For straight up bets, use the number directly
+          return id
+        case '1ST_COLUMN':
+          return 'row1' // Map to our row1
+        case '2ND_COLUMN':
+          return 'row2' // Map to our row2  
+        case '3RD_COLUMN':
+          return 'row3' // Map to our row3
+        case 'RED':
+          return 'red'
+        case 'BLACK':
+          return 'black'
+        case 'ODD':
+          return 'odd'
+        case 'EVEN':
+          return 'even'
+        case '1_TO_18':
+          return 'firstHalf'
+        case '19_TO_36':
+          return 'secondHalf'
+        case '1ST_DOZEN':
+          return 'firstDozen'
+        case '2ND_DOZEN':
+          return 'secondDozen'
+        case '3RD_DOZEN':
+          return 'thirdDozen'
+        default:
+          // For unrecognized bets, create a simple entry
+          return `roulette_${bet}_${id}`
+      }
+    }
+  },
+
+
   // PROGRESSIVE POWER POKER: Progressive Power Poker game configuration
   // - Based on "Jacks or Better" video poker with compound betting mechanics
   // - Progressive mode: continue playing with accumulated profit until bust or cash out
@@ -485,3 +667,4 @@ export const HILO_CONFIG = BET_ARRAYS.hilo;
 export const DICE_CONFIG = BET_ARRAYS.dice;
 export const BLACKJACK_CONFIG = BET_ARRAYS.blackjack;
 export const PROGRESSIVE_POKER_CONFIG = BET_ARRAYS.progressivepoker;
+export const ROULETTE_CONFIG = BET_ARRAYS.roulette;

@@ -78,6 +78,19 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./Flip-v1')),
   },
   {
+    id: 'roulette',
+    live: 'new',
+    meta: {
+      name: 'Roulette',
+      background: '#000000CC',
+      image: '/games/roulette.png',
+      description: `The wheel of fortune spins with ancient wisdom, its numbered chambers holding the dreams and fears of countless souls. Each chip placed upon the green felt is a whispered prayer, a desperate hope cast into the cosmic dance of chance. Watch as the silver ball dances along the rim, bouncing between destiny and desire, until gravity claims it and fate reveals itself. This is not merely a game — it is a ritual of risk, where red and black become metaphors for life's eternal duality.`,
+      tag: 'Singleplayer',
+      effect: 'pulse',
+    },
+    app: React.lazy(() => import('./Roulette')),
+  },
+  {
     id: 'hilo',
     live: 'up',
     meta: {
