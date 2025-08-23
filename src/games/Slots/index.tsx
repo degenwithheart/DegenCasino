@@ -145,49 +145,42 @@ export default function Slots() {
   }
 
   const play = async () => {
-    try {
-      setSpinning(true)
-      setResult(undefined)
+    setSpinning(true)
+    setResult(undefined)
 
-      await game.play({
-        wager,
-        bet,
-      })
+    await game.play({
+      wager,
+      bet,
+    })
 
-      sounds.play('play')
+    sounds.play('play')
 
-      setRevealedSlots(0)
-      setGood(false)
+    setRevealedSlots(0)
+    setGood(false)
 
-      const startTime = Date.now()
+    const startTime = Date.now()
 
-      sounds.play('spin', { playbackRate: .5 })
+    sounds.play('spin', { playbackRate: .5 })
 
-  const result = await game.result()
+const result = await game.result()
 
-      // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
-      const resultDelay = Date.now() - startTime
-      const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
+    // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
+    const resultDelay = Date.now() - startTime
+    const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
 
-      const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
-      const combination = getSlotCombination(
-        NUM_SLOTS,
-        result.multiplier,
-        bet,
-        seed,
-      )
+    const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
+    const combination = getSlotCombination(
+      NUM_SLOTS,
+      result.multiplier,
+      bet,
+      seed,
+    )
 
-      setCombination(combination)
+    setCombination(combination)
 
-      setResult(result)
+    setResult(result)
 
-      timeout.current = setTimeout(() => revealSlot(combination), revealDelay)
-    } catch (err) {
-      // Reset if there's an error
-      setSpinning(false)
-      setRevealedSlots(NUM_SLOTS)
-      throw err
-    }
+    timeout.current = setTimeout(() => revealSlot(combination), revealDelay)
   }
 
   return (
