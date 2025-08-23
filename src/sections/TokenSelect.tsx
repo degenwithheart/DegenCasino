@@ -16,11 +16,12 @@ import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '.
 import { truncateString } from '../utils'
 import { generateUsernameFromWallet } from './userProfileUtils'
 import { useToast } from '../hooks/useToast'
+import { useWalletToast } from '../utils/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
-const GridContainer = styled.div<{ isSingleToken: boolean }>`
+const GridContainer = styled.div<{ $isSingleToken: boolean }>`
   display: grid;
-  grid-template-columns: ${({ isSingleToken }) => (isSingleToken ? '1fr' : 'repeat(2, 1fr)')};
+  grid-template-columns: ${({ $isSingleToken }) => ($isSingleToken ? '1fr' : 'repeat(2, 1fr)')};
   gap: 16px;
   background: rgba(24, 24, 24, 0.8);
   border-radius: 12px;
@@ -36,10 +37,10 @@ const GridContainer = styled.div<{ isSingleToken: boolean }>`
   }
 `
 
-const TokenCard = styled.button<{ selected?: boolean }>`
+const TokenCard = styled.button<{ $selected?: boolean }>`
   width: 100%;
-  background: ${({ selected }) => (selected ? 'rgba(255, 215, 0, 0.2)' : 'rgba(24, 24, 24, 0.8)')};
-  border: 1px solid ${({ selected }) => (selected ? '#ffd700' : 'rgba(255, 255, 255, 0.2)')};
+  background: ${({ $selected }) => ($selected ? 'rgba(255, 215, 0, 0.2)' : 'rgba(24, 24, 24, 0.8)')};
+  border: 1px solid ${({ $selected }) => ($selected ? '#ffd700' : 'rgba(255, 255, 255, 0.2)')};
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
@@ -89,11 +90,11 @@ const ToggleContainer = styled.div`
   margin-bottom: 16px;
 `
 
-const ToggleButton = styled.button<{ active: boolean }>`
+const ToggleButton = styled.button<{ $active: boolean }>`
   flex: 1;
   padding: 12px 16px;
-  background: ${({ active }) => (active ? '#ffd700' : 'rgba(24, 24, 24, 0.8)')};
-  color: ${({ active }) => (active ? '#222' : '#ffd700')};
+  background: ${({ $active }) => ($active ? '#ffd700' : 'rgba(24, 24, 24, 0.8)')};
+  color: ${({ $active }) => ($active ? '#222' : '#ffd700')};
   border: 1px solid #ffd700;
   border-radius: 12px;
   cursor: pointer;
@@ -165,6 +166,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
   const referral = useReferral()
   const [removing, setRemoving] = React.useState(false)
   const toast = useToast()
+  const { showWalletToast } = useWalletToast()
   const walletModal = useWalletModal()
 
   const [priorityFee, setPriorityFee] = React.useState<number>(() => {
@@ -214,16 +216,16 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
   return (
     <>
       <ToggleContainer>
-        <ToggleButton active={mode === 'free'} onClick={() => handleModeChange('free')}>
+        <ToggleButton $active={mode === 'free'} onClick={() => handleModeChange('free')}>
           Free Play
         </ToggleButton>
-        <ToggleButton active={mode === 'live'} onClick={() => handleModeChange('live')}>
+        <ToggleButton $active={mode === 'live'} onClick={() => handleModeChange('live')}>
           Live Play
         </ToggleButton>
-        <ToggleButton active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
+        <ToggleButton $active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
           Fees
         </ToggleButton>
-        <ToggleButton active={mode === 'invite'} onClick={() => handleModeChange('invite')}>
+        <ToggleButton $active={mode === 'invite'} onClick={() => handleModeChange('invite')}>
           Invite
         </ToggleButton>
       </ToggleContainer>
@@ -279,10 +281,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
                 onClick={() => {
                   try {
                     referral.copyLinkToClipboard()
-                    toast({
-                      title: '📋 Copied to clipboard',
-                      description: 'Your referral code has been copied!',
-                    })
+                    showWalletToast('REFERRAL_COPY_SUCCESS')
                   } catch {
                     walletModal.setVisible(true)
                   }
@@ -320,12 +319,12 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
       ) : (
         <>
           <SectionHeading>{mode === 'free' ? 'Free Play Tokens' : 'Live Play Tokens'}</SectionHeading>
-          <GridContainer isSingleToken={isSingleToken}>
+          <GridContainer $isSingleToken={isSingleToken}>
             {tokensToShow.map((pool, i) => (
               <TokenCard
                 key={i}
                 onClick={() => selectPool(pool)}
-                selected={selectedMint ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
+                $selected={selectedMint ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
               >
                 <TokenSelectItem mint={pool.token} />
               </TokenCard>

@@ -136,6 +136,7 @@ const Error500 = styled.div`
     color: #fff; font-size: 2.2rem; font-weight: bold; z-index: 1;
   }
 `;
+
 const Error503 = styled.div`
   width: 120px; height: 120px; border-radius: 50%; background: #00ffe1; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 32px #00ffe188;
   position: relative;
@@ -331,69 +332,6 @@ function CustomRenderer() {
   }
 
   console.log('CustomRenderer render:', { showSplash, ready, gameName: game.meta.name })
-
-  // global transaction errors
-  useTransactionError(err => {
-    if (err.message === 'NOT_CONNECTED') return
-    // you might want to show a toast here
-  })
-
-// Styled modal content for info modal, matching casino modal look
-const InfoModalContent = styled.div`
-  width: 100vw;
-  max-width: 80vw;
-  min-width: 0;
-  min-height: 350px;
-  max-height: 500px;
-  margin-bottom: 4rem;
-  margin-top: 4rem;
-  padding: 1rem;
-  background: rgba(24, 24, 24, 0.95);
-  border-radius: 1rem;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-  position: relative;
-  color: white;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: moveGradient 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-  }
-  @media (max-width: 1200px) {
-    padding: 1rem;
-  }
-  @media (max-width: 900px) {
-    padding: 0.5rem;
-  }
-  @media (max-width: 700px) {
-    min-height: 200px;
-    padding: 0.25rem;
-    border-radius: 10px;
-    max-width: 98vw;
-  }
-`;
 
   return (
     <>

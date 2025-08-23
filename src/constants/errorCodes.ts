@@ -15,6 +15,9 @@ export const ERROR_CODE_MESSAGES: Record<string, string> = {
   // Example: Transaction failed
   // Stack/message: 'Error: Transaction failed'
   '1K2F': 'Transaction failed. Please try again.',
+  // Example: Transaction success
+  // Stack/message: 'Transaction confirmed successfully'
+  '1K2G': 'Transaction confirmed successfully!',
   // Example: Invalid bet amount
   // Stack/message: 'Error: Invalid bet amount'
   '1K3A': 'Invalid bet amount. Please enter a valid value.',
@@ -39,6 +42,30 @@ export const ERROR_CODE_MESSAGES: Record<string, string> = {
   // Example: Rendering error (used in Game.tsx)
   // Stack/message: 'A rendering error occurred.'
   '1K3M': 'A rendering error occurred.',
+  // Example: Account not found
+  // Stack/message: 'AccountNotFound'
+  '1K3N': 'This wallet has no transaction history yet.',
+  // Example: Access forbidden / 403 error
+  // Stack/message: 'Error: 403 : {"jsonrpc":"2.0","error":{"code": 403, "message":"Access forbidden"}}'
+  '1K3O': 'Access denied. Unable to fetch transaction data.',
+  // Example: Blockhash not found
+  // Stack/message: 'Error: failed to get recent blockhash'
+  '1K3P': 'Network issue. Unable to get recent blockhash.',
+  // Example: Transaction rejected by user
+  // Stack/message: 'Error: User rejected the request'
+  '1K3Q': 'Transaction was rejected in your wallet.',
+  // Example: Simulation failed
+  // Stack/message: 'Error: Simulation failed'
+  '1K3R': 'Transaction simulation failed. Please check your inputs.',
+  // Example: Program error
+  // Stack/message: 'Error: Program error: Custom program error'
+  '1K3S': 'Smart contract execution failed. Please try again.',
+  // Example: Transaction too large
+  // Stack/message: 'Error: Transaction too large'
+  '1K3T': 'Transaction size exceeds limits. Please reduce complexity.',
+  // Example: Index out of range
+  // Stack/message: 'Error: Index out of range'
+  '1K3U': 'Game parameters are out of valid range. Please check your bet settings.',
 };
 
 export function getErrorCode(stackOrMessage: string): string {

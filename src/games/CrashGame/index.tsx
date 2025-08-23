@@ -8,6 +8,7 @@ import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapp
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { CRASH_CONFIG } from '../rtpConfig'
+import { useWalletToast } from '../../utils/solanaWalletToast'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
@@ -18,6 +19,7 @@ export default function CrashGame() {
   const [rocketState, setRocketState] = React.useState<'idle' | 'win' | 'crash'>('idle')
   const game = GambaUi.useGame()
   const sound = useSound({ music: SOUND, crash: CRASH_SOUND, win: WIN_SOUND })
+  const { showTransactionError } = useWalletToast()
 
   const getRocketStyle = () => {
     const maxMultiplier = 1
@@ -79,21 +81,29 @@ export default function CrashGame() {
 
 
   const play = async () => {
-    setRocketState('idle')
-    const bet = CRASH_CONFIG.calculateBetArray(multiplierTarget)
-    await game.play({ wager, bet })
+    try {
+      setRocketState('idle')
+      const bet = CRASH_CONFIG.calculateBetArray(multiplierTarget)
+      await game.play({ wager, bet })
 
-    const result = await game.result()
-    const win = result.payout > 0
-    const multiplierResult = win
-      ? parseFloat(multiplierTarget.toFixed(2))
-      : deriveLosingMultiplier(multiplierTarget, `${result.resultIndex}:${result.payout}`)
+      const result = await game.result()
+      const win = result.payout > 0
+      const multiplierResult = win
+        ? parseFloat(multiplierTarget.toFixed(2))
+        : deriveLosingMultiplier(multiplierTarget, `${result.resultIndex}:${result.payout}`)
 
-    console.log('multiplierResult', multiplierResult)
-    console.log('win', win)
+      console.log('multiplierResult', multiplierResult)
+      console.log('win', win)
 
-    sound.play('music')
-    doTheIntervalThing(0, multiplierResult, win)
+      sound.play('music')
+      doTheIntervalThing(0, multiplierResult, win)
+    } catch (error) {
+      console.error('Crash game error:', error)
+      showTransactionError(error)
+      // Reset game state on error
+      setRocketState('idle')
+      setCurrentMultiplier(0)
+    }
   }
 
   return (
