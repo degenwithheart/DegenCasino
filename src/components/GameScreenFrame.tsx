@@ -7,6 +7,8 @@ interface GameScreenFrameProps {
   description?: string
   colors?: [string, string, string?]
   children: React.ReactNode
+  /** Hide the "Provably Fair" badge for specific games that have positioning conflicts */
+  hideProvablyFairBadge?: boolean
 }
 
 function hashHue(input: string) {
@@ -29,7 +31,7 @@ function buildGradient(description: string, fallback?: [string, string, string?]
   ] as [string, string, string]
 }
 
-export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, description = '', colors, children }) => {
+export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, description = '', colors, children, hideProvablyFairBadge = false }) => {
   // We intentionally no longer render the title/description here; they moved to the Info modal (MetaControls).
   // Still use description/title text (fallback empty) solely to seed a consistent gradient per game.
   const seed = description || title || 'game'

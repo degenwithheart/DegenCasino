@@ -653,9 +653,13 @@ function CustomRenderer() {
 export default function Game() {
   const { wallet, gameId } = useParams()
   const { publicKey } = useWallet()
+  const walletAdapter = useWallet()
   const connectedWallet = publicKey?.toBase58()
   const [loading, setLoading] = useState(true)
   const [game, setGame] = useState<any | null>(null)
+  
+  // Track if wallet auto-connect attempt has finished to prevent error flash
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false)
 
   useEffect(() => {
     const gameFound = GAMES().find(
@@ -665,10 +669,36 @@ export default function Game() {
     setLoading(false)
   }, [gameId])
 
+  useEffect(() => {
+    // If wallet.connecting just transitioned to false, mark auto-connect as attempted
+    if (!walletAdapter.connecting) {
+      setAutoConnectAttempted(true)
+    }
+  }, [walletAdapter.connecting])
+
   // Improved wallet param logic:
-  // 1. If not connected, prompt to connect wallet.
-  // 2. If connected and wallet param exists, require match.
-  // 3. If connected and no wallet param, allow access.
+  // 1. Wait for auto-connect attempt to complete before showing wallet errors
+  // 2. If not connected after auto-connect, prompt to connect wallet.
+  // 3. If connected and wallet param exists, require match.
+  // 4. If connected and no wallet param, allow access.
+  
+  // Don't show wallet errors until auto-connect has been attempted
+  if (!autoConnectAttempted || walletAdapter.connecting) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: '40px',
+          padding: '20px',
+          color: 'white',
+        }}
+      >
+        <Spinner />
+        <p style={{ marginTop: '12px', fontSize: '1.2rem' }}>Connecting...</p>
+      </div>
+    )
+  }
+  
   if (!connectedWallet) {
     return (
       <ErrorScreen
