@@ -69,11 +69,11 @@ export const StyledSlots = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 30px;
+    gap: 0;
     transform: rotateX(3deg) rotateY(0deg);
     position: relative;
     z-index: 2;
-    padding: 60px 40px;
+    padding: 0;
     max-width: 1200px;
     margin: 0 auto;
     min-height: 100%;
