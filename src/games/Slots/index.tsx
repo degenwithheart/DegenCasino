@@ -1,5 +1,5 @@
 import { GameResult } from 'gamba-core-v2'
-import { EffectTest, GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { EffectTest, GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React, { useEffect, useRef } from 'react'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import GameScreenFrame from '../../components/GameScreenFrame'
@@ -25,50 +25,7 @@ import {
 } from './constants'
 import { generateBetArray, getSlotCombination } from './utils'
 
-function Messages({ messages }: {messages: string[]}) {
-  const [messageIndex, setMessageIndex] = React.useState(0)
-  React.useEffect(
-    () => {
-      const timeout = setInterval(() => {
-        setMessageIndex((x) => (x + 1) % messages.length)
-      }, 2500)
-      return () => clearInterval(timeout)
-    },
-    [messages],
-  )
-  return (
-    <>
-      {messages[messageIndex]}
-      </>
-    )
-}
-
 export default function Slots() {
-  // Message sets
-  const spinningMessages = [
-    '✨ Spinning the Symphony ✨',
-    '🎭 Dance of Fortune 🎭',
-    '💫 Poetry in Motion 💫',
-  ]
-  const idleMessages = [
-    '🎪 SPIN THE SYMPHONY! 🎪',
-    '❤️ FEELING THE ROMANCE? ❤️',
-    '🌹 ALIGN THE MEMORIES 🌹',
-  ]
-  const goodMessages = [
-    '🎉 JACKPOT! You aligned the stars! 🎉',
-    '🌈 Unbelievable! All matched! 🌈',
-    '💎 Legendary Win! Fortune smiles! 💎',
-    '🔥 You hit the big one! 🔥',
-    '🍀 Lucky streak! Congratulations! 🍀',
-  ]
-  const badMessages = [
-    '😢 Not this time. Try again! 😢',
-    '💔 The reels didn’t align. 💔',
-    '🕳️ No luck, spin again! 🕳️',
-    '🙈 Missed it! Maybe next spin. 🙈',
-    '🌀 The dance continues... 🌀',
-  ]
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   const [spinning, setSpinning] = React.useState(false)
@@ -200,7 +157,11 @@ const result = await game.result()
               {good && <EffectTest src={combination[0].image} />}
               <GambaUi.Responsive>
                 <div className="slots-content">
-                  <ItemPreview betArray={[...bet]} />
+                  <ItemPreview 
+                    betArray={[...bet]} 
+                    winningMultiplier={good && combination[0] ? combination[0].multiplier : undefined}
+                    isWinning={good}
+                  />
                   <div className={'slots'}>
                     {combination.map((slot, i) => (
                       <Slot
@@ -211,18 +172,6 @@ const result = await game.result()
                         good={good}
                       />
                     ))}
-                  </div>
-                  <div className="result" data-good={good}>
-                    {spinning ? (
-                      <Messages messages={spinningMessages} />
-                    ) : result ? (
-                      <>
-                        💰 Payout: <TokenValue mint={result.token} amount={result.payout} />
-                        <Messages messages={result.multiplier > 0 ? goodMessages : badMessages} />
-                      </>
-                    ) : (
-                      <Messages messages={idleMessages} />
-                    )}
                   </div>
                 </div>
               </GambaUi.Responsive>

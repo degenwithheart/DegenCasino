@@ -18,12 +18,26 @@ const itemsByMultiplier = Object.entries(
   .sort((a, b) => a.multiplier - b.multiplier)
 
 
-export function ItemPreview({ betArray }: {betArray: number[]}) {
+export function ItemPreview({ 
+  betArray, 
+  winningMultiplier,
+  isWinning = false 
+}: {
+  betArray: number[]
+  winningMultiplier?: number
+  isWinning?: boolean
+}) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <StyledItemPreview>
         {itemsByMultiplier.map(({ items, multiplier }, i) => (
-          <div className={!betArray.includes(multiplier) ? "hidden" : ''} key={i}>
+          <div 
+            className={`
+              ${!betArray.includes(multiplier) ? "hidden" : ''} 
+              ${isWinning && winningMultiplier === multiplier ? "winning" : ''}
+            `} 
+            key={i}
+          >
             <div className={"multiplier"}>{multiplier}x</div>
             <div
               key={i}
