@@ -89,8 +89,8 @@ export const WALLET_TOAST_MESSAGES = {
     description: 'Unable to get recent blockhash. Please try again.'
   },
   ACCOUNT_NOT_FOUND: {
-    title: '👤 Account Not Found',
-    description: 'This wallet has no transaction history yet.'
+    title: '� Insufficient Balance',
+    description: 'You need some SOL tokens to play games. Add funds to your wallet first.'
   },
   ACCESS_FORBIDDEN: {
     title: '🚫 Access Denied',
