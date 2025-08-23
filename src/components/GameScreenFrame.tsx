@@ -67,7 +67,12 @@ export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, descrip
 
       {/* Decorative top-right badge retained; primary meta text removed (handled via Info modal) */}
       <motion.div
-        className="absolute top-2 right-2 pointer-events-none hidden md:block text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm shadow-inner z-20"
+        className="absolute pointer-events-none hidden md:block text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm shadow-inner z-20"
+        style={{ 
+          top: '8px', 
+          right: '8px',
+          position: 'absolute'
+        }}
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: .6 }}
