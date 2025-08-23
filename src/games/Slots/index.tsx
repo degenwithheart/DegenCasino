@@ -148,16 +148,6 @@ export default function Slots() {
     setSpinning(true)
     setResult(undefined)
 
-    // Debug bet array and wager values to identify the issue
-    console.log('🎰 Slots Debug:', {
-      wager,
-      bet,
-      betLength: bet.length,
-      poolMaxPayout: pool.maxPayout,
-      isValid,
-      betSample: bet.slice(0, 10) // First 10 values
-    });
-
     await game.play({
       wager,
       bet,

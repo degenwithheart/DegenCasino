@@ -255,47 +255,53 @@ export function useWalletToast() {
 
   const showTransactionError = (error: any) => {
     let messageKey: keyof typeof WALLET_TOAST_MESSAGES = 'TRANSACTION_FAILED';
+    let shouldAppendTechnicalError = true; // Only append technical details for unmapped errors
     
     // Detect specific error types
     const errorMsg = error?.message || error?.error?.errorMessage || String(error);
     const errorString = errorMsg.toLowerCase();
     
-    // Debug logging to help identify error patterns
-    console.log('🔍 Transaction Error Debug:', {
-      originalError: error,
-      errorMsg,
-      errorString,
-      errorType: typeof error
-    });
-    
     if (errorString.includes('not_connected')) {
       messageKey = 'WALLET_NOT_CONNECTED';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('user rejected')) {
       messageKey = 'TRANSACTION_REJECTED';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('insufficient')) {
       messageKey = 'INSUFFICIENT_FUNDS';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('accountnotfound') || errorString.includes('account not found') || errorString.includes('account_not_found')) {
       messageKey = 'ACCOUNT_NOT_FOUND';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('403') || errorString.includes('forbidden')) {
       messageKey = 'ACCESS_FORBIDDEN';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('blockhash')) {
       messageKey = 'BLOCKHASH_NOT_FOUND';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('network') || errorString.includes('fetch')) {
       messageKey = 'NETWORK_ERROR';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('simulation failed')) {
       messageKey = 'SIMULATION_FAILED';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('program error')) {
       messageKey = 'PROGRAM_ERROR';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('too large')) {
       messageKey = 'TRANSACTION_TOO_LARGE';
+      shouldAppendTechnicalError = false;
     } else if (errorString.includes('index out of range')) {
       // For "Index out of range" errors, it's often due to account/balance issues
       // especially in games like Slots where bet array calculation depends on account state
       messageKey = 'ACCOUNT_NOT_FOUND';
+      shouldAppendTechnicalError = false; // Don't show technical "Index out of range" to users
     }
 
     showWalletToast(messageKey, {
-      description: `${getWalletToastMessage(messageKey).description}${errorMsg && errorMsg !== errorString ? ` (${errorMsg})` : ''}`
+      description: shouldAppendTechnicalError && errorMsg && errorMsg !== errorString ? 
+        `${getWalletToastMessage(messageKey).description} (${errorMsg})` :
+        getWalletToastMessage(messageKey).description
     });
   };
 
