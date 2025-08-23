@@ -65,6 +65,55 @@ export const StyledItemPreview = styled.div`
     transform: scale(0.95);
   }
 
+  /* Winning item animation */
+  & > div.winning {
+    animation: winningPulse 1.5s ease-in-out infinite, winningGlow 2s ease-in-out infinite;
+    transform: scale(1.05);
+    
+    & > .icon img {
+      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8)) 
+              drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+    }
+    
+    & > .multiplier {
+      animation: multiplierGlow 1s ease-in-out infinite;
+      background: 
+        linear-gradient(135deg, 
+          rgba(255, 215, 0, 1) 0%,
+          rgba(255, 140, 0, 0.95) 100%
+        );
+      box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 3px 8px rgba(0, 0, 0, 0.4),
+        0 2px 4px rgba(255, 215, 0, 0.4);
+    }
+  }
+
+  @keyframes winningPulse {
+    0%, 100% { transform: scale(1.05); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes winningGlow {
+    0%, 100% { 
+      box-shadow: 
+        0 6px 15px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(255, 215, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.12);
+    }
+    50% { 
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.5),
+        0 0 50px rgba(255, 215, 0, 0.8),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  @keyframes multiplierGlow {
+    0%, 100% { transform: scale(0.95); }
+    50% { transform: scale(1.1); }
+  }
+
   & > div > .icon {
     display: flex;
     justify-content: center;
@@ -75,9 +124,13 @@ export const StyledItemPreview = styled.div`
     width: 100%;
     height: 100%;
     padding: 12px;
+    box-sizing: border-box;
   }
 
   & > div > .icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
     transition: all 0.3s ease;
   }
