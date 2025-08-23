@@ -260,13 +260,21 @@ export function useWalletToast() {
     const errorMsg = error?.message || error?.error?.errorMessage || String(error);
     const errorString = errorMsg.toLowerCase();
     
+    // Debug logging to help identify error patterns
+    console.log('🔍 Transaction Error Debug:', {
+      originalError: error,
+      errorMsg,
+      errorString,
+      errorType: typeof error
+    });
+    
     if (errorString.includes('not_connected')) {
       messageKey = 'WALLET_NOT_CONNECTED';
     } else if (errorString.includes('user rejected')) {
       messageKey = 'TRANSACTION_REJECTED';
     } else if (errorString.includes('insufficient')) {
       messageKey = 'INSUFFICIENT_FUNDS';
-    } else if (errorString.includes('accountnotfound')) {
+    } else if (errorString.includes('accountnotfound') || errorString.includes('account not found') || errorString.includes('account_not_found')) {
       messageKey = 'ACCOUNT_NOT_FOUND';
     } else if (errorString.includes('403') || errorString.includes('forbidden')) {
       messageKey = 'ACCESS_FORBIDDEN';
@@ -281,7 +289,9 @@ export function useWalletToast() {
     } else if (errorString.includes('too large')) {
       messageKey = 'TRANSACTION_TOO_LARGE';
     } else if (errorString.includes('index out of range')) {
-      messageKey = 'INDEX_OUT_OF_RANGE';
+      // For "Index out of range" errors, it's often due to account/balance issues
+      // especially in games like Slots where bet array calculation depends on account state
+      messageKey = 'ACCOUNT_NOT_FOUND';
     }
 
     showWalletToast(messageKey, {
