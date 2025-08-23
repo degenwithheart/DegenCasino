@@ -8,6 +8,7 @@ import { CARD_VALUES, RANKS, RANK_SYMBOLS, SUIT_COLORS, SUIT_SYMBOLS, SUITS, SOU
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledBlackjackBackground } from './BlackjackBackground.enhanced.styles'
+import { useWalletToast } from '../../utils/solanaWalletToast'
 
 // Card creation is now deterministic; randomness sourced from on-chain result mapping.
 const createCard = (rank: number, suit: number, keySeed: number): Card => ({
@@ -48,6 +49,8 @@ export default function Blackjack(props: BlackjackConfig) {
     jackpot: SOUND_JACKPOT,
   })
 
+  const { showTransactionError } = useWalletToast()
+
   const resetGame = () => {
     setProfit(null)
     setPlayerCards([])
@@ -57,116 +60,124 @@ export default function Blackjack(props: BlackjackConfig) {
   }
 
   const play = async () => {
-    // Reset game state before playing
-    resetGame()
-    sounds.play('play')
-    
-    // Show bet token animation first
-    setShowBetToken(true)
-    setIsDealing(true)
-    
-    // Wait for bet animation to complete
-    await new Promise(r => setTimeout(r, 800))
+    try {
+      // Reset game state before playing
+      resetGame()
+      sounds.play('play')
+      
+      // Show bet token animation first
+      setShowBetToken(true)
+      setIsDealing(true)
+      
+      // Wait for bet animation to complete
+      await new Promise(r => setTimeout(r, 800))
 
-    // Use centralized bet array from rtpConfig
-    const betArray = [...BLACKJACK_CONFIG.betArray]
+      // Use centralized bet array from rtpConfig
+      const betArray = [...BLACKJACK_CONFIG.betArray]
 
-    await game.play({
-      bet: betArray,
-      wager: initialWager,
-    })
+      await game.play({
+        bet: betArray,
+        wager: initialWager,
+      })
 
-    const result = await game.result()
-    // Use Gamba's exact multiplier directly (no calculation needed)
-    const payoutMultiplier = result.multiplier
+      const result = await game.result()
+      // Use Gamba's exact multiplier directly (no calculation needed)
+      const payoutMultiplier = result.multiplier
 
-    // Deterministic derivation of card sequences from result
-    // Seed composed of Gamba multiplier & resultIndex (covers all distinct outcomes)
-    const seed = `${result.resultIndex}:${payoutMultiplier}:${initialWager}`
-    const rng = makeDeterministicRng(seed)
+      // Deterministic derivation of card sequences from result
+      // Seed composed of Gamba multiplier & resultIndex (covers all distinct outcomes)
+      const seed = `${result.resultIndex}:${payoutMultiplier}:${initialWager}`
+      const rng = makeDeterministicRng(seed)
 
-    const ranks = Array.from({ length: RANKS }, (_, i) => i)
-    const suits = Array.from({ length: SUITS }, (_, i) => i)
+      const ranks = Array.from({ length: RANKS }, (_, i) => i)
+      const suits = Array.from({ length: SUITS }, (_, i) => i)
 
-    const drawCard = (k: number) => {
-      const r = pickDeterministic(ranks, rng)
-      const s = pickDeterministic(suits, rng)
-      return createCard(r, s, k)
-    }
-
-    // Strategy: generate minimal two-card hands; adjust according to payout class
-    const player: Card[] = [drawCard(1), drawCard(2)]
-    const dealer: Card[] = [drawCard(3), drawCard(4)]
-
-    // If blackjack payout ensure player has Ace + 10-value
-    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
-      const aceRank = 12
-      const tenRanks = [8,9,10,11]
-      player[0] = createCard(aceRank, player[0].suit, 1)
-      const tenRank = tenRanks[Math.floor(rng()*tenRanks.length)]
-      player[1] = createCard(tenRank, player[1].suit, 2)
-    }
-
-    // Basic value adjustments for non-loss outcomes
-    const handValue = (h: Card[]) => h.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
-    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerWin) {
-      // Ensure player > dealer and <=21
-      let guard = 0
-      while ((handValue(player) <= handValue(dealer) || handValue(player) > 21) && guard < 20) {
-        player[0] = drawCard(10 + guard)
-        player[1] = drawCard(100 + guard)
-        guard++
+      const drawCard = (k: number) => {
+        const r = pickDeterministic(ranks, rng)
+        const s = pickDeterministic(suits, rng)
+        return createCard(r, s, k)
       }
-    }
-    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerLose) {
-      // Ensure dealer > player or player bust
-      let guard = 0
-      while (!(handValue(dealer) > handValue(player) || handValue(player) > 21) && guard < 20) {
-        dealer[0] = drawCard(200 + guard)
-        dealer[1] = drawCard(300 + guard)
-        guard++
+
+      // Strategy: generate minimal two-card hands; adjust according to payout class
+      const player: Card[] = [drawCard(1), drawCard(2)]
+      const dealer: Card[] = [drawCard(3), drawCard(4)]
+
+      // If blackjack payout ensure player has Ace + 10-value
+      if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
+        const aceRank = 12
+        const tenRanks = [8,9,10,11]
+        player[0] = createCard(aceRank, player[0].suit, 1)
+        const tenRank = tenRanks[Math.floor(rng()*tenRanks.length)]
+        player[1] = createCard(tenRank, player[1].suit, 2)
       }
-    }
 
-    const newPlayerCards = player
-    const newDealerCards = dealer
-
-    // Animate sequential reveal deterministically
-    const dealSequence: Card[][] = [newPlayerCards, newDealerCards]
-    for (let h = 0; h < dealSequence.length; h++) {
-      for (let i = 0; i < dealSequence[h].length; i++) {
-        const c = dealSequence[h][i]
-        if (h === 0) {
-          setPlayerCards(prev => [...prev, c])
-        } else {
-          setDealerCards(prev => [...prev, c])
+      // Basic value adjustments for non-loss outcomes
+      const handValue = (h: Card[]) => h.reduce((sum, c) => sum + CARD_VALUES[c.rank], 0)
+      if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerWin) {
+        // Ensure player > dealer and <=21
+        let guard = 0
+        while ((handValue(player) <= handValue(dealer) || handValue(player) > 21) && guard < 20) {
+          player[0] = drawCard(10 + guard)
+          player[1] = drawCard(100 + guard)
+          guard++
         }
-        sounds.play('card')
-        if (h === 0 && i === 1 && payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
-          sounds.play('jackpot')
-        }
-        // small deterministic delay (not random)
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise(r => setTimeout(r, 350))
       }
-    }
+      if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerLose) {
+        // Ensure dealer > player or player bust
+        let guard = 0
+        while (!(handValue(dealer) > handValue(player) || handValue(player) > 21) && guard < 20) {
+          dealer[0] = drawCard(200 + guard)
+          dealer[1] = drawCard(300 + guard)
+          guard++
+        }
+      }
 
-    setProfit(result.payout)
-    setIsDealing(false)
+      const newPlayerCards = player
+      const newDealerCards = dealer
 
-    // Play the appropriate sound based on the result
-    if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
-      // Do nothing; jackpot sound already played
-    } else if (payoutMultiplier > 0) {
-      sounds.play('win')
-    } else {
-      sounds.play('lose')
-    }
-    
-    // Hide bet token after a delay to show the result
-    setTimeout(() => {
+      // Animate sequential reveal deterministically
+      const dealSequence: Card[][] = [newPlayerCards, newDealerCards]
+      for (let h = 0; h < dealSequence.length; h++) {
+        for (let i = 0; i < dealSequence[h].length; i++) {
+          const c = dealSequence[h][i]
+          if (h === 0) {
+            setPlayerCards(prev => [...prev, c])
+          } else {
+            setDealerCards(prev => [...prev, c])
+          }
+          sounds.play('card')
+          if (h === 0 && i === 1 && payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
+            sounds.play('jackpot')
+          }
+          // small deterministic delay (not random)
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise(r => setTimeout(r, 350))
+        }
+      }
+
+      setProfit(result.payout)
+      setIsDealing(false)
+
+      // Play the appropriate sound based on the result
+      if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
+        // Do nothing; jackpot sound already played
+      } else if (payoutMultiplier > 0) {
+        sounds.play('win')
+      } else {
+        sounds.play('lose')
+      }
+      
+      // Hide bet token after a delay to show the result
+      setTimeout(() => {
+        setShowBetToken(false)
+      }, 3000)
+    } catch (error) {
+      console.error('BlackJack game error:', error)
+      showTransactionError(error)
+      // Reset UI state on error
+      setIsDealing(false)
       setShowBetToken(false)
-    }, 3000)
+    }
   }
 
   // Helper functions remain the same

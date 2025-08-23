@@ -6,6 +6,7 @@ import { useTransactionError } from 'gamba-react-v2';
 import { Modal } from './components/Modal';
 import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/useToast';
+import { useWalletToast } from './utils/solanaWalletToast';
 import { useUserStore } from './hooks/useUserStore';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 import AboutMe from './sections/Dashboard/AboutMe';
@@ -56,15 +57,13 @@ function ScrollToTop() {
 
 function ErrorHandler() {
   const walletModal = useWalletModal();
-  const toast = useToast();
+  const { showTransactionError } = useWalletToast();
+  
   useTransactionError((err) => {
     if (err.message === 'NOT_CONNECTED') {
       walletModal.setVisible(true);
     } else {
-      toast({
-        title: '❌ Transaction error',
-        description: err.error?.errorMessage ?? err.message,
-      });
+      showTransactionError(err);
     }
   });
   return null;

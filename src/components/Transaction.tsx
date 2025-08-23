@@ -6,6 +6,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { ExplorerHeader } from './ExplorerHeader'
+import { useWalletToast } from '../utils/solanaWalletToast'
 
 const TransactionContainer = styled.div`
   max-width: 1200px;
@@ -474,6 +475,11 @@ async function fetchTransactionLogs(txId: string) {
     }))
   } catch (error) {
     console.error('Failed to fetch transaction logs from both APIs:', error)
+    // Check if the error is specifically about AccountNotFound
+    const errorMessage = String(error)
+    if (errorMessage.includes('AccountNotFound')) {
+      console.warn('Account has no transaction history')
+    }
     return []
   }
 }
@@ -511,11 +517,14 @@ async function hashString(str: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-const copyToClipboard = async (text: string) => {
+const copyToClipboard = async (text: string, showToast?: (key: 'COPY_SUCCESS') => void) => {
   try {
     await navigator.clipboard.writeText(text)
-    // Could add a toast notification here
-    console.log('Copied to clipboard:', text)
+    if (showToast) {
+      showToast('COPY_SUCCESS')
+    } else {
+      console.log('Copied to clipboard:', text)
+    }
   } catch (err) {
     console.error('Failed to copy:', err)
   }
@@ -531,6 +540,7 @@ export default function TransactionView() {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [activeTab, setActiveTab] = React.useState('details')
+  const { showWalletToast } = useWalletToast()
 
   React.useEffect(() => {
     if (txId) {
@@ -550,7 +560,13 @@ export default function TransactionView() {
             
             // Fetch real transaction logs using Helius with fallback
             const transactionLogs = await fetchTransactionLogs(txId)
-            setLogs(transactionLogs)
+            // Ensure transactionLogs is always an array
+            if (Array.isArray(transactionLogs)) {
+              setLogs(transactionLogs)
+            } else {
+              console.warn('fetchTransactionLogs returned non-array:', transactionLogs)
+              setLogs([])
+            }
           } else {
             // Create basic transaction structure with txId but mark data as unavailable
             setTransaction({
@@ -846,7 +862,7 @@ export default function TransactionView() {
                       <StepLabel>Client Seed (Your Input)</StepLabel>
                       <StepValue>
                         {proofData.clientSeed}
-                        <CopyButton onClick={() => copyToClipboard(proofData.clientSeed)}>
+                        <CopyButton onClick={() => copyToClipboard(proofData.clientSeed, showWalletToast)}>
                           Copy
                         </CopyButton>
                       </StepValue>
@@ -859,7 +875,7 @@ export default function TransactionView() {
                       <StepLabel>Server Seed (Casino's Secret)</StepLabel>
                       <StepValue>
                         {proofData.serverSeed}
-                        <CopyButton onClick={() => copyToClipboard(proofData.serverSeed)}>
+                        <CopyButton onClick={() => copyToClipboard(proofData.serverSeed, showWalletToast)}>
                           Copy
                         </CopyButton>
                       </StepValue>
@@ -872,7 +888,7 @@ export default function TransactionView() {
                       <StepLabel>Server Seed Hash (Pre-committed)</StepLabel>
                       <StepValue>
                         {proofData.hashedServerSeed}
-                        <CopyButton onClick={() => copyToClipboard(proofData.hashedServerSeed)}>
+                        <CopyButton onClick={() => copyToClipboard(proofData.hashedServerSeed, showWalletToast)}>
                           Copy
                         </CopyButton>
                       </StepValue>
