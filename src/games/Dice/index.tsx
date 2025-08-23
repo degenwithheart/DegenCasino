@@ -11,7 +11,6 @@ import { Container, Result, RollUnder, Stats } from './styles'
 import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledDiceBackground } from './DiceBackground.enhanced.styles'
-import { useWalletToast } from '../../utils/solanaWalletToast'
 
 // Use centralized bet array calculation
 export const outcomes = (odds: number) => {
@@ -24,7 +23,6 @@ export default function Dice() {
   const pool = useCurrentPool()
   const [resultIndex, setResultIndex] = React.useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(100 / 2))
-  const { showTransactionError } = useWalletToast()
   const sounds = useSound({
     win: SOUND_WIN,
     play: SOUND_PLAY,
@@ -42,35 +40,30 @@ export default function Dice() {
   const game = GambaUi.useGame()
 
   const play = async () => {
-    try {
-      sounds.play('play')
+    sounds.play('play')
 
-      await game.play({ wager, bet })
+    await game.play({ wager, bet })
 
-      const result = await game.result()
+    const result = await game.result()
 
-      const win = result.payout > 0
+    const win = result.payout > 0
 
-      // Deterministically derive the revealed number from on-chain result index
-      // so there is zero client-side influence over outcome presentation.
-      // We map the resultIndex into either the winning interval [0, rollUnderIndex)
-      // or the losing interval [rollUnderIndex, 100) depending on payout.
-      const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${rollUnderIndex}`
-      const rng = makeDeterministicRng(seed)
-      if (win) {
-        const span = rollUnderIndex
-        const value = Math.floor(rng() * span) // 0 .. rollUnderIndex-1
-        setResultIndex(value)
-        sounds.play('win')
-      } else {
-        const span = 100 - rollUnderIndex
-        const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. 99
-        setResultIndex(value)
-        sounds.play('lose')
-      }
-    } catch (error) {
-      console.error('Dice game error:', error)
-      showTransactionError(error)
+    // Deterministically derive the revealed number from on-chain result index
+    // so there is zero client-side influence over outcome presentation.
+    // We map the resultIndex into either the winning interval [0, rollUnderIndex)
+    // or the losing interval [rollUnderIndex, 100) depending on payout.
+    const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${rollUnderIndex}`
+    const rng = makeDeterministicRng(seed)
+    if (win) {
+      const span = rollUnderIndex
+      const value = Math.floor(rng() * span) // 0 .. rollUnderIndex-1
+      setResultIndex(value)
+      sounds.play('win')
+    } else {
+      const span = 100 - rollUnderIndex
+      const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. 99
+      setResultIndex(value)
+      sounds.play('lose')
     }
   }
 

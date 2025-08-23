@@ -480,6 +480,7 @@ async function fetchTransactionLogs(txId: string) {
     if (errorMessage.includes('AccountNotFound')) {
       console.warn('Account has no transaction history')
     }
+    // Always return an empty array, never return the error itself
     return []
   }
 }

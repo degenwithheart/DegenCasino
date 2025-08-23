@@ -61,7 +61,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
-import { useTransactionError } from 'gamba-react-v2'
 
 import { Icon } from '../../components/Icon'
 import { Modal } from '../../components/Modal'
