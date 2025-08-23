@@ -31,7 +31,13 @@ function buildGradient(description: string, fallback?: [string, string, string?]
   ] as [string, string, string]
 }
 
-export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, description = '', colors, children, hideProvablyFairBadge = false }) => {
+export default function GameScreenFrame({ 
+  title, 
+  description, 
+  colors, 
+  children,
+  hideProvablyFairBadge = false
+}: GameScreenFrameProps) {
   // We intentionally no longer render the title/description here; they moved to the Info modal (MetaControls).
   // Still use description/title text (fallback empty) solely to seed a consistent gradient per game.
   const seed = description || title || 'game'
@@ -66,19 +72,21 @@ export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, descrip
       ))}
 
       {/* Decorative top-right badge retained; primary meta text removed (handled via Info modal) */}
-      <motion.div
-        className="absolute pointer-events-none hidden md:block text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm shadow-inner z-20"
-        style={{ 
-          top: '8px', 
-          right: '8px',
-          position: 'absolute'
-        }}
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: .6 }}
-      >
-        Provably Fair
-      </motion.div>
+      {!hideProvablyFairBadge && (
+        <motion.div
+          className="absolute pointer-events-none hidden md:block text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm shadow-inner z-20"
+          style={{ 
+            top: '8px', 
+            right: '8px',
+            position: 'absolute'
+          }}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: .6 }}
+        >
+          Provably Fair
+        </motion.div>
+      )}
 
       <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
         <motion.div
@@ -97,5 +105,3 @@ export const GameScreenFrame: React.FC<GameScreenFrameProps> = ({ title, descrip
     </div>
   )
 }
-
-export default GameScreenFrame

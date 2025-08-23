@@ -193,7 +193,10 @@ const result = await game.result()
           <div className="decorative-overlay" />
           
           <StyledSlots>
-            <GameScreenFrame {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}>
+            <GameScreenFrame 
+              {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}
+              hideProvablyFairBadge={true}
+            >
               {good && <EffectTest src={combination[0].image} />}
               <GambaUi.Responsive>
                 <div className="slots-content">
