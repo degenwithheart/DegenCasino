@@ -15,6 +15,10 @@ const StyledToasts = styled.div`
   padding: 16px;
   width: 100%;
   max-width: 400px;
+  
+  /* Prevent affecting viewport calculations */
+  transform: translateZ(0);
+  will-change: transform;
 
   /* Mobile-first responsive design */
   @media (min-width: 640px) {
@@ -123,12 +127,16 @@ const StyledToast = styled.div`
   animation: toast-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: 100%;
 
-  /* Enhanced shadow and blur effects */
+  /* Enhanced shadow and blur effects - reduced for performance */
   box-shadow: 
-    0 0 20px rgba(149, 100, 255, 0.3),
-    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(149, 100, 255, 0.25),
+    0 4px 15px rgba(0, 0, 0, 0.25),
     inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
+  
+  /* Force hardware acceleration to prevent layout issues */
+  transform: translateZ(0);
+  will-change: transform, opacity;
   
   /* Subtle inner glow */
   &::after {
