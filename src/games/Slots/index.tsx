@@ -74,7 +74,7 @@ export default function Slots() {
   const [spinning, setSpinning] = React.useState(false)
   const [result, setResult] = React.useState<GameResult>()
   const [good, setGood] = React.useState(false)
-  const [revealedSlots, setRevealedSlots] = React.useState(NUM_SLOTS)
+  const [revealedSlots, setRevealedSlots] = React.useState<number>(NUM_SLOTS)
   const [wager, setWager] = useWagerInput()
   const [combination, setCombination] = React.useState(
     Array.from({ length: NUM_SLOTS }).map(() => SLOT_ITEMS[0]),
@@ -150,7 +150,7 @@ export default function Slots() {
 
     await game.play({
       wager,
-      bet,
+      bet: [...bet],
     })
 
     sounds.play('play')
@@ -172,7 +172,7 @@ const result = await game.result()
     const combination = getSlotCombination(
       NUM_SLOTS,
       result.multiplier,
-      bet,
+      [...bet],
       seed,
     )
 
@@ -200,7 +200,7 @@ const result = await game.result()
               {good && <EffectTest src={combination[0].image} />}
               <GambaUi.Responsive>
                 <div className="slots-content">
-                  <ItemPreview betArray={bet} />
+                  <ItemPreview betArray={[...bet]} />
                   <div className={'slots'}>
                     {combination.map((slot, i) => (
                       <Slot

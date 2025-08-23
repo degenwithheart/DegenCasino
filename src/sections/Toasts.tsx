@@ -245,7 +245,7 @@ const StyledTimer = styled.div<{$ticking: boolean}>`
 `
 
 function Toast({ toast }: {toast: TToast}) {
-  const timeout = React.useRef<NodeJS.Timer>()
+  const timeout = React.useRef<ReturnType<typeof setTimeout>>()
   const discard = useToastStore((state) => state.discard)
   const [ticking, setTicking] = React.useState(true)
 
