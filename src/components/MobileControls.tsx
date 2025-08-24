@@ -467,6 +467,14 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     }
   };
 
+  const handlePlayClick = () => {
+    if (wager <= 0) {
+      console.log('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    onPlay();
+  };
+
   const displayValue = wager / token.baseWager;
   
   return (
@@ -495,7 +503,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
         </WagerSection>
         
         <PlaySection>
-          <PlayButton onClick={onPlay} disabled={playDisabled}>
+          <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
             {playText}
           </PlayButton>
         </PlaySection>

@@ -94,6 +94,12 @@ export default function HiLo(props: HiLoConfig) {
   const wager = Math.min(maxWagerForBet, profit || initialWager)
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     sounds.play('play')
 
     await game.play({

@@ -81,6 +81,12 @@ export default function Plinko() {
 
   // Multi-ball play: launch N results, deduct wager per ball
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     const plays = Math.max(1, Math.min(ballCount | 0, 50)) // clamp 1..50
     for (let i = 0; i < plays; i++) {
       await game.play({ wager, bet: Array.from(bet) })

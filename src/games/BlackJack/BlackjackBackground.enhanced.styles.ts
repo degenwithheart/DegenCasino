@@ -311,15 +311,16 @@ export const StyledBlackjackBackground = styled.div`
     flex: 2;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: flex-start;
+    gap: 15px;
     background: radial-gradient(ellipse at center, rgba(0, 100, 50, 0.4) 0%, rgba(0, 80, 40, 0.3) 70%, transparent 100%);
     border: 3px solid rgba(255, 215, 0, 0.4);
     border-radius: 30px;
-    padding: 30px 50px;
+    padding: 15px 30px;
     margin: 10px 0;
     position: relative;
     backdrop-filter: blur(2px);
-    min-height: 300px;
+    min-height: auto;
   }
 
   .betting-areas {
@@ -328,7 +329,8 @@ export const StyledBlackjackBackground = styled.div`
     align-items: center;
     justify-content: center;
     gap: 40px;
-    margin: 20px 0;
+    margin-bottom: 50px;
+    flex-shrink: 0;
   }
 
   .bet-circle {
@@ -410,9 +412,10 @@ export const StyledBlackjackBackground = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 220px;
-    flex: 1;
-    justify-content: center;
+    min-height: auto;
+    flex-shrink: 0;
+    justify-content: flex-start;
+    margin-bottom: 150px;
   }
 
   .player-position {
@@ -657,6 +660,10 @@ export const StyledBlackjackBackground = styled.div`
     .casino-table {
       padding: 10px;
       min-height: 500px;
+    }
+    
+    .betting-areas {
+      display: none;
     }
     
     .table-header {

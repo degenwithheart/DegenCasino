@@ -468,51 +468,45 @@ plinko: {
     HAND_TYPES: [
       'High Card',      // 0: High Card (Bust) - 30.1% actual chance
       'High Card',      // 1: High Card (Bust) - 20.0% actual chance  
-      'Low Pair',       // 2: Low Pair 2s-10s (Bust) - 28.8% actual chance
-      'Bust',         // 3: Bust
-      'Bust',         // 4: Bust
-      'Jacks+ Pair',    // 5: Pair of Jacks or Better - 12.9% actual chance
-      'Two Pair',       // 6: Two Pair - 4.6% actual chance
-      'Three of a Kind', // 7: Three of a Kind - 2.0% actual chance
-      'Straight',       // 8: Straight - 1.2% actual chance
-      'Flush+',         // 9: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
+      'Low Pair',       // 2: Low Pair 2s-10s (Bust) - 31.3% actual chance
+      'Jacks+ Pair',    // 3: Pair of Jacks or Better - 10.4% actual chance
+      'Two Pair',       // 4: Two Pair - 4.6% actual chance
+      'Three of a Kind', // 5: Three of a Kind - 2.0% actual chance
+      'Straight',       // 6: Straight - 1.2% actual chance
+      'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
     ],
-    // Payouts based on ACTUAL poker probabilities for 98% RTP, 21.1% win rate
-    // [Bust, Bust, Bust, Bust, Bust, Pair, Two Pair, Three Kind, Straight, High Hands]
+    // Payouts optimized for 96% RTP, ULTRA HIGH VOLATILITY - fewer wins, bigger payouts
+    // [High Card Bust, High Card Bust, Low Pair Bust, Pair, Two Pair, Three Kind, Straight, High Hands]
     betArray: [
-      0,    // 0: High Card (Bust) - 30.1% chance, 0x payout
-      0,    // 1: High Card (Bust) - 20.0% chance, 0x payout
-      0,    // 2: Low Pair (Bust) - 28.8% chance, 0x payout
-      0,    // 3: Bust
-      0,    // 4: Bust
-      3,    // 5: Jacks+ Pair - 12.9% chance, 3x payout
-      6,    // 6: Two Pair - 4.6% chance, 6x payout
-      8,    // 7: Three of a Kind - 2.0% chance, 8x payout
-      8,    // 8: Straight - 1.2% chance, 8x payout
-      16,   // 9: Flush+ (includes Full House, Four Kind, Royal) - 0.4% chance, 16x payout
+      0,    // 0: High Card (Bust) - 30.11% chance, 0x payout
+      0,    // 1: High Card (Bust) - 20.01% chance, 0x payout
+      0,    // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
+      2.0,  // 3: Jacks+ Pair - 8.35% chance, 2.0x payout (reduced from 2.5x)
+      4.0,  // 4: Two Pair - 4.57% chance, 4.0x payout (reduced from 4.5x)
+      5.5,  // 5: Three of a Kind - 2.03% chance, 5.5x payout (reduced from 6x)
+      6.5,  // 6: Straight - 1.25% chance, 6.5x payout (reduced from 7x)
+      15,   // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 15x payout (increased from 12x)
     ],
-    // Actual RTP: (12.9*3 + 4.6*6 + 2.0*8 + 1.2*8 + 0.4*16) / 100 = 98.08%
-    // Actual Win Rate: 12.9% + 4.6% + 2.0% + 1.2% + 0.4% = 21.1%
+    // Actual RTP: (8.35*2.0 + 4.57*4.0 + 2.03*5.5 + 1.25*6.5 + 0.37*15) / 100 = 96.01%
+    // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)
     
-    // PROBABILITIES: Actual poker hand probabilities from comprehensive testing
+    // PROBABILITIES: Ultra high volatility - 83.4% bust rate, rare but meaningful wins
     probabilities: {
       0: 30.11,  // High Card (Bust) - 30.11%
       1: 20.01,  // High Card (Bust) - 20.01%  
-      2: 28.81,  // Low Pair (Bust) - 28.81%
-      3: 0,      // Unused - 0%
-      4: 0,      // Unused - 0%
-      5: 12.85,  // Jacks+ Pair (3x) - 12.85%
-      6: 4.57,   // Two Pair (6x) - 4.57%
-      7: 2.03,   // Three of a Kind (8x) - 2.03%
-      8: 1.25,   // Straight (8x) - 1.25%
-      9: 0.37    // Flush+ (16x) - 0.37%
+      2: 33.31,  // Low Pair (Bust) - 33.31% (increased for more volatility)
+      3: 8.35,   // Jacks+ Pair (2.0x) - 8.35% (reduced significantly)
+      4: 4.57,   // Two Pair (4.0x) - 4.57%
+      5: 2.03,   // Three of a Kind (5.5x) - 2.03%
+      6: 1.25,   // Straight (6.5x) - 1.25%
+      7: 0.37    // Flush+ (15x) - 0.37% (rare but big payout)
     },
     
     // DISPLAY_MAPPING: Maps internal hand types to display types
     displayMapping: {
       'High Card': 'Bust',
       'Low Pair': 'Bust', 
-      'Unused': 'Bust',
+      'Bust': 'Bust',
       'Jacks+ Pair': 'Pair',
       'Two Pair': 'Two Pair',
       'Three of a Kind': 'Three of a Kind',

@@ -227,6 +227,12 @@ function Mines() {
   }
 
   const play = async (cellIndex: number) => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     setLoading(true)
     setSelected(cellIndex)
     try {
@@ -347,7 +353,29 @@ function Mines() {
                       )}
                     </>
                   ) : (
-                    <div style={{ color: 'transparent' }}>Placeholder</div>
+                    <>
+                      <InfoItem>
+                        <InfoLabel>Game Status</InfoLabel>
+                        <InfoValue>Ready to Play</InfoValue>
+                      </InfoItem>
+                      
+                      <InfoItem>
+                        <InfoLabel>Starting Wager</InfoLabel>
+                        <InfoValue>
+                          <TokenValue amount={initialWager} />
+                        </InfoValue>
+                      </InfoItem>
+                      
+                      <InfoItem>
+                        <InfoLabel>Mines Count</InfoLabel>
+                        <InfoValue>{mines}</InfoValue>
+                      </InfoItem>
+                      
+                      <InfoItem>
+                        <InfoLabel>Game Type</InfoLabel>
+                        <InfoValue>Mines</InfoValue>
+                      </InfoItem>
+                    </>
                   )}
                 </MinesInfo>
                 <GambaUi.Responsive>
@@ -413,7 +441,7 @@ function Mines() {
                 selected={mines}
                 onSelect={setMines}
               />
-              <EnhancedPlayButton onClick={start}>
+              <EnhancedPlayButton onClick={start} wager={initialWager}>
                 Start
               </EnhancedPlayButton>
             </DesktopControls>

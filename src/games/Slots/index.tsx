@@ -124,6 +124,12 @@ export default function Slots() {
   }
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     setSpinning(true)
     setResult(undefined)
 
@@ -176,7 +182,6 @@ const result = await game.result()
           <StyledSlots>
             <GameScreenFrame 
               {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}
-              hideProvablyFairBadge={true}
             >
               {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
               <GambaUi.Responsive>
