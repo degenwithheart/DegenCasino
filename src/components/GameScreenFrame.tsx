@@ -71,65 +71,65 @@ export default function GameScreenFrame({
       style={stateStyles}
       data-game-state={gameState}
     >
-      {/* Animated gradient border */}
+      {/* Animated gradient border - ENHANCED FOR VISIBILITY */}
       {!reducedMotion && (
         <motion.div
-          className="pointer-events-none absolute inset-0 rounded-xl p-[2px]"
+          className="pointer-events-none absolute inset-0 rounded-xl p-[4px]"
           style={{ 
             background: `linear-gradient(130deg, ${gradient[0]}, ${gradient[1]}, ${gradient[2] ?? gradient[0]})` 
           }}
-          initial={{ opacity: 0.4 }}
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
         >
-          <div className="absolute inset-[2px] rounded-[0.65rem] bg-[#0c0c11]" />
+          <div className="absolute inset-[4px] rounded-[0.5rem] bg-[#0c0c11]" />
         </motion.div>
       )}
 
-      {/* Static border for reduced motion */}
+      {/* Static border for reduced motion - ENHANCED FOR VISIBILITY */}
       {reducedMotion && (
         <div
-          className="pointer-events-none absolute inset-0 rounded-xl p-[2px]"
+          className="pointer-events-none absolute inset-0 rounded-xl p-[4px]"
           style={{ 
             background: `linear-gradient(130deg, ${gradient[0]}, ${gradient[1]}, ${gradient[2] ?? gradient[0]})` 
           }}
         >
-          <div className="absolute inset-[2px] rounded-[0.65rem] bg-[#0c0c11]" />
+          <div className="absolute inset-[4px] rounded-[0.5rem] bg-[#0c0c11]" />
         </div>
       )}
 
-      {/* Corner glow effects */}
+      {/* Corner glow effects - ENHANCED FOR VISIBILITY */}
       {enableEffects && !reducedMotion && [0,1,2,3].map(i => (
         <motion.div
           key={i}
-          className="pointer-events-none absolute w-20 h-20 rounded-full blur-2xl opacity-25"
+          className="pointer-events-none absolute w-32 h-32 rounded-full blur-2xl opacity-60"
           style={{
             background: gradient[i % gradient.length],
-            top: i < 2 ? -30 : 'auto',
-            bottom: i >= 2 ? -30 : 'auto',
-            left: i % 2 === 0 ? -30 : 'auto',
-            right: i % 2 === 1 ? -30 : 'auto',
+            top: i < 2 ? -40 : 'auto',
+            bottom: i >= 2 ? -40 : 'auto',
+            left: i % 2 === 0 ? -40 : 'auto',
+            right: i % 2 === 1 ? -40 : 'auto',
           }}
-          animate={{ scale: [1, 1.4, 1] }}
+          animate={{ scale: [1, 1.6, 1] }}
           transition={{ 
-            duration: 10 + i * 2, 
+            duration: 6 + i * 1, 
             repeat: Infinity, 
             ease: 'easeInOut', 
-            delay: i * 0.75 
+            delay: i * 0.5 
           }}
         />
       ))}
 
-      {/* Scanning light effect */}
+      {/* Scanning light effect - ENHANCED FOR VISIBILITY */}
       {enableEffects && !reducedMotion && (
         <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
           <motion.div
             className="absolute top-0 left-0 w-full h-full"
             style={{ 
-              background: `linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)` 
+              background: `linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)` 
             }}
             animate={{ y: ['-100%', '100%'] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
           />
         </div>
       )}
