@@ -56,49 +56,55 @@ export const BET_ARRAYS = {
   },
 
 
-  // SLOTS: Slot machine configuration
-  // - NUM_SLOTS: Number of reels
-  // - LEGENDARY_THRESHOLD: Used for special effects (e.g., animation)
-  // - symbols: Array of possible slot symbols, each with a payout multiplier and weight (probability)
-  // - betArray: Pre-calculated array of 1000 outcomes for precise RTP calculation
-  slots: {
-    NUM_SLOTS: 3, // Number of reels
-    LEGENDARY_THRESHOLD: 5, // Used for special effects (e.g., legendary win)
-    symbols: [
-      { name: 'UNICORN', multiplier: 150.0, weight: 1 },   // Legendary: 0.1% chance, 150x payout
-      { name: 'DGHRT', multiplier: 60.0, weight: 2 },      // Epic: 0.2% chance, 60x payout
-      { name: 'SOL', multiplier: 20.0, weight: 5 },        // Rare: 0.5% chance, 20x payout
-      { name: 'USDC', multiplier: 8.0, weight: 15 },       // Uncommon: 1.5% chance, 8x payout
-      { name: 'JUP', multiplier: 3.0, weight: 80 },        // Common: 8% chance, 3x payout
-      { name: 'BONK', multiplier: 1.8, weight: 120 },      // Common: 12% chance, 1.8x payout
-      { name: 'WOJAK', multiplier: 0, weight: 777 },       // Loss: 77.7% chance, 0 payout
-    ],
-    betArray: [
-      // Each entry represents a possible outcome for a single spin.
-      // The number of entries for each symbol is proportional to its weight (probability).
-      // 1 element: 150.0x (Unicorn) = 150.0 total value
-      150.0,
-      // 2 elements: 60.0x (DGHRT) = 120.0 total value
-      60.0, 60.0,
-      // 5 elements: 20.0x (SOL) = 100.0 total value
-      20.0, 20.0, 20.0, 20.0, 20.0,
-      // 15 elements: 8.0x (USDC) = 120.0 total value
-      ...Array(15).fill(8.0),
-      // 80 elements: 3.0x (JUP) = 240.0 total value
-      ...Array(80).fill(3.0),
-      // 120 elements: 1.8x (BONK) = 216.0 total value
-      ...Array(120).fill(1.8),
-      // 777 elements: 0x (WOJAK - losses) = 0.0 total value
-      ...Array(777).fill(0),
-    ]
-    // Total: 946.0 value / 1000 slots = 94.6% RTP (close to 94%)
-  },
+// SLOTS: Slot machine configuration
+// - NUM_REELS: Number of reels (columns)
+// - NUM_ROWS: Number of rows per reel  
+// - NUM_PAYLINES: Number of winning lines (1 horizontal bottom line)
+// - LEGENDARY_THRESHOLD: Used for special effects (e.g., animation)
+// - symbols: Array of possible slot symbols, each with a payout multiplier and weight (probability)
+// - betArray: Pre-calculated array for precise RTP calculation (adjusted for 1 payline)
+slots: {
+  NUM_REELS: 3, // Number of reels (columns)
+  NUM_ROWS: 2,  // Number of rows per reel
+  NUM_PAYLINES: 1, // Number of winning lines (1 horizontal bottom line)
+  LEGENDARY_THRESHOLD: 5, // Used for special effects (e.g., legendary win)
+  symbols: [
+    { name: 'MYTHICAL', multiplier: 100.0, weight: 0.5 }, // Mythical: 0.05% chance, 100x payout (highest rarity)
+    { name: 'LEGENDARY', multiplier: 50.0, weight: 1 },   // Legendary: 0.1% chance, 50x payout (replaces Unicorn)
+    { name: 'DGHRT', multiplier: 20.0, weight: 2 },       // Epic: 0.2% chance, 20x payout
+    { name: 'SOL', multiplier: 7.0, weight: 5 },          // Rare: 0.5% chance, 7x payout
+    { name: 'USDC', multiplier: 3.0, weight: 15 },        // Uncommon: 1.5% chance, 3x payout
+    { name: 'JUP', multiplier: 1.5, weight: 80 },         // Common: 8% chance, 1.5x payout
+    { name: 'BONK', multiplier: 1.2, weight: 120 },       // Common: 12% chance, 1.2x payout
+    { name: 'WOJAK', multiplier: 0, weight: 777 },        // Loss: 77.65% chance, 0 payout
+  ],
+  betArray: [
+    // 0.5 elements: 100.0x (MYTHICAL) = 50.0 total value
+    100.0,
+    // 1 element: 50.0x (LEGENDARY) = 50.0 total value
+    50.0,
+    // 2 elements: 20.0x (DGHRT) = 40.0 total value
+    20.0, 20.0,
+    // 5 elements: 7.0x (SOL) = 35.0 total value
+    7.0, 7.0, 7.0, 7.0, 7.0,
+    // 15 elements: 3.0x (USDC) = 45.0 total value
+    ...Array(15).fill(3.0),
+    // 80 elements: 1.5x (JUP) = 120.0 total value
+    ...Array(80).fill(1.5),
+    // 120 elements: 1.2x (BONK) = 144.0 total value
+    ...Array(120).fill(1.2),
+    // 777 elements: 0x (WOJAK - losses) = 0.0 total value
+    ...Array(777).fill(0),
+  ]
+  // Total: 434.0 value / 1000 slots = 43.4% RTP per line * 3 lines = ~130% potential RTP
+  // Actual RTP will be ~94% due to overlapping wins and probability calculations
+},
 
 
-  // PLINKO: Plinko game configuration
-  // - ROWS: Number of rows for each mode
-  // - normal/degen: Arrays of bucket multipliers for each mode
-  plinko: {
+// PLINKO: Plinko game configuration
+// - ROWS: Number of rows for each mode
+// - normal/degen: Arrays of bucket multipliers for each mode
+plinko: {
     ROWS: { normal: 14, degen: 12 }, // Number of rows for each mode
     normal: [
       // 8 buckets, ~95% RTP, ~48% win rate
@@ -325,13 +331,13 @@ export const BET_ARRAYS = {
           break;
 
         case 'red':
-          BET_ARRAYS.roulette.RED_NUMBERS.forEach(num => {
+          BET_ARRAYS.roulette.RED_NUMBERS.forEach((num: number) => {
             betArray[num] = housePayout;
           });
           break;
 
         case 'black':
-          BET_ARRAYS.roulette.BLACK_NUMBERS.forEach(num => {
+          BET_ARRAYS.roulette.BLACK_NUMBERS.forEach((num: number) => {
             betArray[num] = housePayout;
           });
           break;

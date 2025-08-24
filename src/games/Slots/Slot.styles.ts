@@ -16,7 +16,7 @@ export const StyledSpinner = styled.div`
   }
 
   --num-items: 5;
-  --spin-speed: .8s;
+  --spin-speed: 1.2s;
 
   position: absolute;
   width: 100%;
@@ -48,7 +48,7 @@ export const StyledSpinner = styled.div`
     justify-content: center;
     align-items: center;
     position: relative;
-    padding: 25px;
+    padding: 8px;
     background: 
       radial-gradient(
         circle at center,

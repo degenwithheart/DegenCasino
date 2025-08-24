@@ -1,5 +1,5 @@
 import React from 'react';
-import { GambaUi } from 'gamba-react-ui-v2';
+import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
 import { 
   WagerInputContainer, 
@@ -21,7 +21,8 @@ const StyledWagerInputWrapper = styled.div`
     width: 100%;
   }
   
-  .gamba-wager-input input {
+  .gamba-wager-input input,
+  input {
     all: unset;
     flex: 1;
     background: rgba(12, 12, 17, 0.8);
@@ -48,6 +49,11 @@ const StyledWagerInputWrapper = styled.div`
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
     }
     
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+    }
+    
     @media (max-width: 800px) {
       font-size: 16px;
       padding: 8px 12px;
@@ -62,15 +68,31 @@ export const EnhancedWagerInput: React.FC<{
   disabled?: boolean;
   options?: number[];
 }> = ({ value, onChange, disabled, options }) => {
+  const token = useCurrentToken();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
+      const numericValue = inputValue === '' ? 0 : parseFloat(inputValue);
+      if (!isNaN(numericValue)) {
+        const wagerAmount = numericValue * token.baseWager;
+        onChange(wagerAmount);
+      }
+    }
+  };
+
+  const displayValue = value / token.baseWager;
+
   return (
     <WagerInputContainer>
       <WagerLabel>Bet Amount</WagerLabel>
       <StyledWagerInputWrapper>
-        <GambaUi.WagerInput 
-          value={value} 
-          onChange={onChange} 
+        <input
+          type="text"
+          value={displayValue === 0 ? '' : displayValue.toString()}
+          onChange={handleInputChange}
           disabled={disabled}
-          options={options}
+          placeholder="0.00"
         />
       </StyledWagerInputWrapper>
     </WagerInputContainer>
