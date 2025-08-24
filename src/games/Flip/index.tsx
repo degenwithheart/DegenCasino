@@ -38,6 +38,12 @@ function Flip() {
   })
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     try {
       setWin(false)
       setFlipping(true)

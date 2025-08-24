@@ -171,6 +171,14 @@ export const MobileGameControls: React.FC<{
     }
   };
 
+  const handlePlayClick = () => {
+    if (wager <= 0) {
+      console.log('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    onPlay();
+  };
+
   const displayValue = wager / token.baseWager;
 
   return (
@@ -194,7 +202,7 @@ export const MobileGameControls: React.FC<{
         
         <PlaySection>
           <CompactPlayButtonWrapper>
-            <GambaUi.PlayButton onClick={onPlay} disabled={playDisabled || disabled}>
+            <GambaUi.PlayButton onClick={handlePlayClick} disabled={playDisabled || disabled}>
               {playText}
             </GambaUi.PlayButton>
           </CompactPlayButtonWrapper>

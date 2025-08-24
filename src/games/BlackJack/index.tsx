@@ -57,6 +57,12 @@ export default function Blackjack(props: BlackjackConfig) {
   }
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (initialWager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     // Reset game state before playing
     resetGame()
     sounds.play('play')
@@ -183,7 +189,9 @@ export default function Blackjack(props: BlackjackConfig) {
           <div className="smoke-overlay" />
           <div className="tension-indicator" />
           
-          <GameScreenFrame {...(useGameMeta('blackjack') && { title: useGameMeta('blackjack')!.name, description: useGameMeta('blackjack')!.description })}>
+          <GameScreenFrame 
+            {...(useGameMeta('blackjack') && { title: useGameMeta('blackjack')!.name, description: useGameMeta('blackjack')!.description })}
+          >
             <GambaUi.Responsive>
               <div className="casino-table">
 

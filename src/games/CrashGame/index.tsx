@@ -79,6 +79,12 @@ export default function CrashGame() {
 
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     setRocketState('idle')
     const bet = CRASH_CONFIG.calculateBetArray(multiplierTarget)
     await game.play({ wager, bet })

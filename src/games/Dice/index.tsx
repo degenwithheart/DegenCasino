@@ -40,6 +40,12 @@ export default function Dice() {
   const game = GambaUi.useGame()
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (wager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     sounds.play('play')
 
     await game.play({ wager, bet })

@@ -148,6 +148,12 @@ export default function Roulette() {
   const balanceExceeded = actualWager > (balance.balance + balance.bonusBalance)
 
   const play = async () => {
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (actualWager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     try {
       // Start spinning phase
       setPhase('spinning')

@@ -213,10 +213,29 @@ export const EnhancedButton: React.FC<{
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'danger';
   children: React.ReactNode;
-}> = ({ onClick, disabled, variant = 'secondary', children }) => {
+  wager?: number; // Add wager prop for validation
+  requireWager?: boolean; // Flag to enable/disable wager validation
+}> = ({ onClick, disabled, variant = 'secondary', children, wager, requireWager = false }) => {
+  
+  const handleClick = () => {
+    // Check wager validation if required
+    if (requireWager && wager !== undefined && wager <= 0) {
+      console.log('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
+    // If onClick is provided and wager is valid (or not required), call it
+    if (onClick) {
+      onClick();
+    }
+  };
+  
+  // Disable if explicitly disabled OR if requireWager is true and wager is 0 or less
+  const isDisabled = disabled || (requireWager && wager !== undefined && wager <= 0);
+  
   return (
     <StyledButtonWrapper variant={variant}>
-      <GambaUi.Button onClick={onClick} disabled={disabled}>
+      <GambaUi.Button onClick={handleClick} disabled={isDisabled}>
         {children}
       </GambaUi.Button>
     </StyledButtonWrapper>
@@ -308,10 +327,28 @@ export const EnhancedPlayButton: React.FC<{
   onClick?: () => void;
   disabled?: boolean;
   children: React.ReactNode;
-}> = ({ onClick, disabled, children }) => {
+  wager?: number; // Add wager prop for validation
+}> = ({ onClick, disabled, children, wager }) => {
+  
+  const handleClick = () => {
+    // Check wager validation first
+    if (wager !== undefined && wager <= 0) {
+      console.log('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
+    // If onClick is provided and wager is valid, call it
+    if (onClick) {
+      onClick();
+    }
+  };
+  
+  // Disable if explicitly disabled OR if wager is 0 or less
+  const isDisabled = disabled || (wager !== undefined && wager <= 0);
+  
   return (
     <StyledPlayButtonWrapper>
-      <GambaUi.PlayButton onClick={onClick} disabled={disabled}>
+      <GambaUi.PlayButton onClick={handleClick} disabled={isDisabled}>
         {children}
       </GambaUi.PlayButton>
     </StyledPlayButtonWrapper>

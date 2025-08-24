@@ -78,7 +78,7 @@ export const WALLET_TOAST_MESSAGES = {
   },
   INSUFFICIENT_FUNDS: {
     title: '💸 Insufficient Funds',
-    description: 'You don\'t have enough SOL to complete this transaction.'
+    description: 'You don\'t have enough funds to complete this transaction.'
   },
   INSUFFICIENT_TOKEN_BALANCE: {
     title: '💸 Insufficient Balance',
@@ -89,8 +89,8 @@ export const WALLET_TOAST_MESSAGES = {
     description: 'Unable to get recent blockhash. Please try again.'
   },
   ACCOUNT_NOT_FOUND: {
-    title: '� Insufficient Balance',
-    description: 'You need some SOL tokens to play games. Add funds to your wallet first.'
+    title: '💰 Insufficient Balance',
+    description: 'You need some tokens to play games. Add funds to your wallet first.'
   },
   ACCESS_FORBIDDEN: {
     title: '🚫 Access Denied',

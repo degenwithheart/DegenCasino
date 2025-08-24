@@ -40,8 +40,35 @@ const CardsContainer = styled.div`
   display: flex;
   gap: 15px;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin: 20px 0;
+  overflow: hidden;
+  padding: 0 10px;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+    margin: 15px 0;
+    padding: 0 5px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+    margin: 10px 0;
+    padding: 0 2px;
+  }
+  
+  /* Scale down cards on smaller screens */
+  @media (max-width: 640px) {
+    transform: scale(0.9);
+  }
+  
+  @media (max-width: 480px) {
+    transform: scale(0.75);
+  }
+  
+  @media (max-width: 380px) {
+    transform: scale(0.65);
+  }
 `
 
 const HandResult = styled.div<{ type: string; visible: boolean }>`
@@ -104,26 +131,112 @@ const ProgressiveInfo = styled.div<{ visible: boolean }>`
   text-align: center;
   background: rgba(0, 150, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px;
   margin: 20px 0;
-  width: 100%;
-  max-width: 500px;
-  height: 280px;
+  min-height: 80px;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: space-evenly;
   align-items: center;
+  flex-wrap: nowrap;
+  gap: 25px;
   opacity: ${props => props.visible ? 1 : 0};
   visibility: ${props => props.visible ? 'visible' : 'hidden'};
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 255, 0, 0.1);
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    margin: 15px 0;
+    gap: 15px;
+    min-height: 60px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px;
+    gap: 8px;
+    min-height: 50px;
+  }
+`
+
+const InfoItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  max-width: 140px;
+  padding: 8px 6px;
+  flex: 1;
+  
+  @media (max-width: 768px) {
+    min-width: 60px;
+    max-width: 100px;
+    padding: 6px 4px;
+  }
+  
+  @media (max-width: 480px) {
+    min-width: 50px;
+    max-width: 80px;
+    padding: 4px 2px;
+  }
+`
+
+const InfoLabel = styled.div`
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 9px;
+    margin-bottom: 2px;
+    letter-spacing: 0.2px;
+  }
+`
+
+const InfoValue = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 `
 
 const ProfitDisplay = styled.div<{ profit: number }>`
-  font-size: 32px;
+  font-size: 18px;
   font-weight: bold;
   color: ${props => props.profit > 0 ? '#4caf50' : props.profit < 0 ? '#f44336' : '#fff'};
-  margin: 10px 0;
+  line-height: 1.2;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `
 
 const ButtonGroup = styled.div`
@@ -194,14 +307,20 @@ export default function ProgressivePowerPoker() {
   const [handCount, setHandCount] = React.useState(0) // Track number of hands played
 
   const play = async () => {
+    // Calculate wager: initial wager for first hand, full balance for subsequent hands
+    const currentWager = handCount === 0 ? initialWager : currentBalance
+    
+    // CRITICAL SECURITY: Prevent zero wager gameplay
+    if (currentWager <= 0) {
+      console.error('❌ BLOCKED: Cannot play with zero wager');
+      return;
+    }
+    
     // Reset state to prevent card face flash
     setHand(null)
     setCards([])
     setCardRevealed([false, false, false, false, false])
     setRevealing(true)
-
-    // Calculate wager: initial wager for first hand, full balance for subsequent hands
-    const currentWager = handCount === 0 ? initialWager : currentBalance
 
     try {
       await game.play({
@@ -361,44 +480,70 @@ export default function ProgressivePowerPoker() {
                 )}
               </CardsContainer>
 
-              {/* Combined Hand Result and Progressive Info - always visible */}
+              {/* Progressive Info - always visible with Mines-style layout */}
               <ProgressiveInfo visible={true}>
-                {/* Hand Result Section */}
-                <HandResult type={hand?.type || 'Bust'} visible={!!hand}>
-                  {hand ? (
-                    <>
-                      {hand.name}
-                      {hand.payout > 0 && (
-                        <div style={{ fontSize: '18px', marginTop: '5px' }}>
-                          Pays {hand.payout}x
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div style={{ color: 'transparent' }}>Placeholder</div>
-                  )}
-                </HandResult>
-
-                {/* Progressive Info Section */}
-                {inProgress && (
+                {inProgress ? (
                   <>
-                    <div style={{ fontSize: '18px', marginBottom: '10px' }}>Current Balance</div>
-                    <ProfitDisplay profit={totalProfit}>
-                      <TokenValue amount={currentBalance} />
-                    </ProfitDisplay>
-                    <div style={{ fontSize: '14px', color: '#aaa', marginTop: '5px' }}>
-                      Profit: <TokenValue amount={totalProfit} /> | Hand #{handCount + 1}
-                    </div>
+                    <InfoItem>
+                      <InfoLabel>Current Hand</InfoLabel>
+                      <InfoValue>{hand?.name || 'Playing...'}</InfoValue>
+                    </InfoItem>
+                    
+                    <InfoItem>
+                      <InfoLabel>Current Balance</InfoLabel>
+                      <ProfitDisplay profit={totalProfit}>
+                        <TokenValue amount={currentBalance} />
+                      </ProfitDisplay>
+                    </InfoItem>
+                    
+                    <InfoItem>
+                      <InfoLabel>Total Profit</InfoLabel>
+                      <InfoValue style={{ color: totalProfit > 0 ? '#4caf50' : '#f44336' }}>
+                        <TokenValue amount={totalProfit} />
+                      </InfoValue>
+                    </InfoItem>
+                    
+                    <InfoItem>
+                      <InfoLabel>Hand #</InfoLabel>
+                      <InfoValue>{handCount + 1}</InfoValue>
+                    </InfoItem>
+                    
                     {canContinue && (
-                      <div style={{ fontSize: '16px', color: '#ffd700', marginTop: '10px', fontWeight: 'bold' }}>
-                        Next wager: <TokenValue amount={currentBalance} /> (Full Balance)
-                      </div>
+                      <InfoItem>
+                        <InfoLabel>Next Wager</InfoLabel>
+                        <InfoValue style={{ color: '#00ff00' }}>
+                          <TokenValue amount={currentBalance} />
+                        </InfoValue>
+                      </InfoItem>
                     )}
+                    
                     {gameEnded && (
-                      <div style={{ color: '#f44336', fontSize: '16px', marginTop: '10px' }}>
-                        Game Over - You hit a bust hand! Lost: <TokenValue amount={handCount === 0 ? initialWager : currentBalance} />
-                      </div>
+                      <InfoItem>
+                        <InfoLabel>Status</InfoLabel>
+                        <InfoValue style={{ color: '#f44336', fontSize: '14px' }}>
+                          💔 Bust!
+                        </InfoValue>
+                      </InfoItem>
                     )}
+                  </>
+                ) : (
+                  <>
+                    <InfoItem>
+                      <InfoLabel>Game Status</InfoLabel>
+                      <InfoValue>Ready to Play</InfoValue>
+                    </InfoItem>
+                    
+                    <InfoItem>
+                      <InfoLabel>Starting Wager</InfoLabel>
+                      <InfoValue>
+                        <TokenValue amount={initialWager} />
+                      </InfoValue>
+                    </InfoItem>
+                    
+                    <InfoItem>
+                      <InfoLabel>Game Type</InfoLabel>
+                      <InfoValue>Progressive Poker</InfoValue>
+                    </InfoItem>
                   </>
                 )}
               </ProgressiveInfo>
@@ -433,6 +578,7 @@ export default function ProgressivePowerPoker() {
               handleStart
             }
             disabled={revealing || !pool || (inProgress && !canContinue && !gameEnded)}
+            wager={initialWager}
           >
             {inProgress && canContinue ? "Continue" : 
              gameEnded ? "Play" : 
