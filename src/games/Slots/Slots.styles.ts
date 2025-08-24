@@ -264,7 +264,8 @@ export const StyledSlots = styled.div`
 
   .slots {
     display: flex;
-    gap: 35px;
+    flex-direction: column;
+    gap: 0;
     justify-content: center;
     box-sizing: border-box;
     border-radius: 25px;
@@ -274,7 +275,7 @@ export const StyledSlots = styled.div`
         rgba(15, 15, 25, 0.95) 50%,
         rgba(20, 20, 30, 0.9) 100%
       );
-    padding: 50px 40px;
+    padding: 0;
     border: 3px solid transparent;
     background-image: 
       linear-gradient(145deg, rgba(30, 30, 30, 0.9), rgba(15, 15, 25, 0.95)),
@@ -294,6 +295,7 @@ export const StyledSlots = styled.div`
       inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     position: relative;
     min-height: 300px;
+    overflow: hidden;
     
     &::before {
       content: '';
@@ -312,6 +314,95 @@ export const StyledSlots = styled.div`
       border-radius: 28px;
       z-index: -1;
       animation: borderGlow 3s ease-in-out infinite alternate;
+    }
+  }
+
+  .winning-line-display {
+    background: 
+      linear-gradient(135deg, 
+        rgba(10, 10, 20, 0.95) 0%,
+        rgba(20, 15, 30, 0.9) 50%,
+        rgba(15, 10, 25, 0.95) 100%
+      );
+    border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+    padding: 20px 30px;
+    border-radius: 22px 22px 0 0;
+    position: relative;
+    
+    &::before {
+      content: 'WINNING COMBINATIONS';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: bold;
+      color: rgba(147, 51, 234, 0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  }
+
+  .slots-reels {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 40px;
+    flex: 1;
+    perspective: 800px;
+    transform: rotateX(-5deg); /* Slight tilt so top appears further back */
+    position: relative;
+  }
+
+  .winning-line-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px; /* Match reel height */
+    width: 60px;
+    position: relative;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .winning-line-arrow-left {
+    margin-right: 10px;
+  }
+
+  .winning-line-arrow-right {
+    margin-left: 10px;
+  }
+
+  .arrow-icon {
+    font-size: 36px;
+    color: #ffd700;
+    text-shadow: 
+      0 0 10px rgba(255, 215, 0, 0.8),
+      0 0 20px rgba(255, 215, 0, 0.6),
+      0 0 30px rgba(255, 215, 0, 0.4);
+    animation: arrowPulse 2s ease-in-out infinite;
+    /* Position the arrow to point at the bottom row (winning line) */
+    transform: translateY(75px); /* Half of reel height (300px / 2) to center on bottom row */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  }
+
+  .winning-line-arrow-left .arrow-icon {
+    transform: translateY(75px) rotate(0deg);
+  }
+
+  .winning-line-arrow-right .arrow-icon {
+    transform: translateY(75px) rotate(0deg);
+  }
+
+  @keyframes arrowPulse {
+    0%, 100% {
+      opacity: 0.7;
+      transform: translateY(75px) scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(75px) scale(1.1);
     }
   }
 
@@ -343,5 +434,39 @@ export const StyledSlots = styled.div`
     aspect-ratio: 1/1;
     max-width: 100%;
     max-height: 100%;
+  }
+
+  /* Mobile responsive adjustments for arrows */
+  @media (max-width: 768px) {
+    .slots-reels {
+      gap: 10px;
+      padding: 30px 20px;
+    }
+
+    .winning-line-arrow {
+      width: 40px;
+    }
+
+    .winning-line-arrow-left {
+      margin-right: 5px;
+    }
+
+    .winning-line-arrow-right {
+      margin-left: 5px;
+    }
+
+    .arrow-icon {
+      font-size: 28px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .winning-line-arrow {
+      width: 30px;
+    }
+
+    .arrow-icon {
+      font-size: 24px;
+    }
   }
 `

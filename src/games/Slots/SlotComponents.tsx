@@ -35,7 +35,7 @@ export const SlotReel: React.FC<SlotReelProps> = ({
           setCurrentSymbol(finalSymbol)
         }
         onSpinComplete()
-      }, 2000 + delay)
+      }, 2500 + delay)
 
       return () => clearInterval(interval)
     }

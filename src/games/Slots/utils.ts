@@ -1,4 +1,4 @@
-import { SLOT_ITEMS, SlotItem } from './constants'
+import { SLOT_ITEMS, SlotItem, NUM_REELS, NUM_ROWS, NUM_PAYLINES } from './constants'
 
 /**
  * Very small deterministic hash-based PRNG (not cryptographic) used ONLY for
@@ -37,47 +37,201 @@ export const generateBetArray = (
 }
 
 /**
- * Picks a random slot item combination based on the result
+ * Gets the paylines for checking wins (1 horizontal bottom line)
+ * Grid layout (2x3 grid, column-major for reels):
+ * Reel 0: [0, 1]  <- Left column (top, bottom)
+ * Reel 1: [2, 3]  <- Middle column (top, bottom)
+ * Reel 2: [4, 5]  <- Right column (top, bottom)
+ * Only the bottom row [1, 3, 5] is the winning line
+ */
+export const getPaylines = () => {
+  return [
+    [1, 3, 5], // Bottom horizontal line (only winning line)
+  ];
+}
+
+/**
+ * Checks if a payline has a winning combination
+ */
+export const checkPaylineWin = (grid: SlotItem[], paylineIndices: number[]) => {
+  const symbols = paylineIndices.map(index => grid[index]);
+  const firstSymbol = symbols[0];
+  
+  // Check if all symbols in the payline are the same and have a multiplier > 0
+  const isWinning = symbols.every(symbol => 
+    symbol.multiplier === firstSymbol.multiplier && 
+    firstSymbol.multiplier > 0
+  );
+  
+  return isWinning ? firstSymbol : null;
+}
+
+/**
+ * Gets all winning paylines from a grid
+ */
+export const getWinningPaylines = (grid: SlotItem[]) => {
+  const paylines = getPaylines();
+  const winningPaylines: { payline: number[], symbol: SlotItem }[] = [];
+  
+  paylines.forEach((payline, index) => {
+    const winningSymbol = checkPaylineWin(grid, payline);
+    if (winningSymbol) {
+      winningPaylines.push({ payline, symbol: winningSymbol });
+    }
+  });
+  
+  return winningPaylines;
+}
+
+/**
+ * Enhanced getSlotCombination with strategic column sequences and no matching top row
+ * Grid layout (2 rows, 3 columns):
+ * [0, 2, 4] <- Top row (never matching)
+ * [1, 3, 5] <- Bottom row (winning line)
+ * 
+ * Column sequences:
+ * Column 0: UNICORN, DGHRT, SOL, USDC, JUP, BONK, WOJAK
+ * Column 1: WOJAK, BONK, JUP, USDC, SOL, DGHRT, UNICORN (reverse)
+ * Column 2: UNICORN, DGHRT, SOL, USDC, JUP, BONK, WOJAK
  */
 export const getSlotCombination = (
-  count: number,
+  count: number, // Should be 6 (2x3 grid)
   multiplier: number,
   bet: number[],
   seed: string, // typically the on-chain result signature
 ) => {
   const rng = makeDeterministicRng(`${seed}:${multiplier}:${bet.length}:${count}`)
 
-  // WIN CASE: every reel shows a symbol with the winning multiplier
-  if (multiplier > 0) {
-    const winningItems = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
-    const fallback = SLOT_ITEMS.filter((x) => x.multiplier < 1)
-    const chosen = (winningItems.length > 0
-      ? pickDeterministic(winningItems, rng)
-      : pickDeterministic(fallback, rng))
-    return new Array(count).fill(chosen) as SlotItem[]
+    // Define column sequences (must match Reel.tsx)
+  const COLUMN_SEQUENCES = {
+    0: ['UNICORN', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
+    1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'UNICORN'], // Column 2 (reverse)
+    2: ['SOL', 'JUP', 'WOJAK', 'UNICORN', 'BONK', 'USDC', 'DGHRT'], // Column 3 (offset)
+  }
+  
+  // Helper to get SlotItem by symbol name
+  const getSymbolByName = (symbolName: string): SlotItem => {
+    const symbolConfig = {
+      'UNICORN': 50.0,
+      'DGHRT': 20.0, 
+      'SOL': 7.0,
+      'USDC': 3.0,
+      'JUP': 1.5,
+      'BONK': 1.2,
+      'WOJAK': 0
+    }
+    const targetMultiplier = symbolConfig[symbolName as keyof typeof symbolConfig]
+    return SLOT_ITEMS.find(item => item.multiplier === targetMultiplier) || SLOT_ITEMS[0]
+  }
+  
+  // Helper to get random position in column sequence
+  const getRandomSymbolFromColumn = (columnIndex: number, rng: () => number): SlotItem => {
+    const sequence = COLUMN_SEQUENCES[columnIndex as keyof typeof COLUMN_SEQUENCES]
+    const randomIndex = Math.floor(rng() * sequence.length)
+    return getSymbolByName(sequence[randomIndex])
   }
 
-  // LOSS CASE: deterministic pseudo-random arrangement, ensuring not all same
-  const available = SLOT_ITEMS.filter((x) => bet.includes(x.multiplier))
-  const pool = available.length ? available : SLOT_ITEMS
-  const items: SlotItem[] = []
-  for (let i = 0; i < count; i++) {
-    if (i === 0) {
-      items.push(pickDeterministic(pool, rng))
-      continue
-    }
-    const repeatPrev = rng() < 0.75 // deterministic probability
-    if (repeatPrev) {
-      items.push(items[i - 1])
-    } else {
-      items.push(pickDeterministic(pool, rng))
-    }
+  // WIN CASE: create a grid with the winning bottom line
+  if (multiplier > 0) {
+    const winningItems = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
+    const chosen = winningItems.length > 0 
+      ? pickDeterministic(winningItems, rng)
+      : pickDeterministic(SLOT_ITEMS, rng)
+
+    // Create a 2x3 grid (6 slots total)
+    const grid: SlotItem[] = new Array(6).fill(null);
+    
+    // Fill the bottom winning line [1, 3, 5] with the winning symbol
+    grid[1] = chosen; // Bottom left
+    grid[3] = chosen; // Bottom middle  
+    grid[5] = chosen; // Bottom right
+    
+    // Fill the top positions [0, 2, 4] ensuring no matches across top row and no column duplicates
+    const topPositions = [0, 2, 4];
+    const usedTopSymbols = new Set<string>();
+    
+    topPositions.forEach((index, i) => {
+      const columnIndex = i; // 0, 1, 2 for columns
+      const bottomIndex = index + 1; // 1, 3, 5 (corresponding bottom positions)
+      const bottomSymbol = grid[bottomIndex]; // The winning symbol
+      
+      let attempts = 0;
+      let symbol: SlotItem;
+      
+      do {
+        symbol = getRandomSymbolFromColumn(columnIndex, rng);
+        attempts++;
+      } while (
+        attempts < 20 && 
+        (usedTopSymbols.has(symbol.image) || symbol.image === bottomSymbol.image)
+      );
+      
+      grid[index] = symbol;
+      usedTopSymbols.add(symbol.image);
+    });
+    
+    return grid;
   }
-  // Ensure not all identical (visual fairness expectation)
-  if (items.every((x) => x === items[0])) {
-    // Replace last with a different one deterministically
-    const alt = pool.find((x) => x !== items[0]) || items[0]
-    items[items.length - 1] = alt
+
+  // LOSS CASE: create a grid with no winning bottom line but following column sequences
+  const grid: SlotItem[] = new Array(6).fill(null);
+  
+  // Fill top row [0, 2, 4] ensuring no matches and following column sequences
+  const usedTopSymbols = new Set<string>();
+  [0, 2, 4].forEach((index, i) => {
+    const columnIndex = i;
+    let attempts = 0;
+    let symbol: SlotItem;
+    
+    do {
+      symbol = getRandomSymbolFromColumn(columnIndex, rng);
+      attempts++;
+    } while (attempts < 20 && usedTopSymbols.has(symbol.image));
+    
+    grid[index] = symbol;
+    usedTopSymbols.add(symbol.image);
+  });
+  
+  // Fill bottom row [1, 3, 5] ensuring no winning line and no column duplicates
+  [1, 3, 5].forEach((index, i) => {
+    const columnIndex = i;
+    const topIndex = i * 2; // 0, 2, 4 (corresponding top positions)
+    const topSymbol = grid[topIndex];
+    
+    let attempts = 0;
+    let symbol: SlotItem;
+    
+    do {
+      symbol = getRandomSymbolFromColumn(columnIndex, rng);
+      attempts++;
+    } while (attempts < 20 && symbol.image === topSymbol.image);
+    
+    grid[index] = symbol;
+  });
+  
+  // Ensure the bottom line [1, 3, 5] is NOT a winning line
+  let attempts = 0;
+  while (attempts < 10) {
+    const bottomLineSymbols = [grid[1], grid[3], grid[5]];
+    const firstSymbol = bottomLineSymbols[0];
+    
+    // Check if bottom line is a winning combination
+    const isBottomLineWinning = bottomLineSymbols.every(symbol => 
+      symbol.multiplier === firstSymbol.multiplier && 
+      firstSymbol.multiplier > 0
+    );
+    
+    if (!isBottomLineWinning) {
+      break; // No winning line, we're good
+    }
+    
+    // Break the winning bottom line by changing one symbol from its column sequence
+    const indexToChange = 1 + Math.floor(rng() * 3) * 2; // 1, 3, or 5
+    const columnIndex = (indexToChange - 1) / 2; // 0, 1, or 2
+    grid[indexToChange] = getRandomSymbolFromColumn(columnIndex, rng);
+    
+    attempts++;
   }
-  return items
+  
+  return grid;
 }

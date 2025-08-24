@@ -1,5 +1,5 @@
 import React from 'react';
-import { GambaUi } from 'gamba-react-ui-v2';
+import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
 import { 
   MobileControlsContainer,
@@ -31,7 +31,8 @@ const CompactStyledWagerInputWrapper = styled.div`
     flex: 1;
   }
   
-  .gamba-wager-input input {
+  .gamba-wager-input,
+  input {
     all: unset;
     flex: 1;
     background: rgba(12, 12, 17, 0.8);
@@ -57,6 +58,11 @@ const CompactStyledWagerInputWrapper = styled.div`
       box-shadow: 
         0 0 0 2px rgba(255, 215, 0, 0.3),
         inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 600;
     }
     
     @media (max-width: 800px) {
@@ -152,6 +158,21 @@ export const MobileGameControls: React.FC<{
   children,
   disabled = false
 }) => {
+  const token = useCurrentToken();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
+      const numericValue = inputValue === '' ? 0 : parseFloat(inputValue);
+      if (!isNaN(numericValue)) {
+        const wagerAmount = numericValue * token.baseWager;
+        setWager(wagerAmount);
+      }
+    }
+  };
+
+  const displayValue = wager / token.baseWager;
+
   return (
     <MobileControlsContainer>
       {/* Top Row: Wager Input (left) + Play Button (right) */}
@@ -160,10 +181,12 @@ export const MobileGameControls: React.FC<{
           <CompactWagerInput>
             <CompactWagerLabel>Bet</CompactWagerLabel>
             <CompactStyledWagerInputWrapper>
-              <GambaUi.WagerInput 
-                value={wager} 
-                onChange={setWager} 
+              <input
+                type="text"
+                value={displayValue === 0 ? '' : displayValue.toString()}
+                onChange={handleInputChange}
                 disabled={disabled}
+                placeholder="0.00"
               />
             </CompactStyledWagerInputWrapper>
           </CompactWagerInput>

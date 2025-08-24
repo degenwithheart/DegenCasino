@@ -3,35 +3,21 @@ import styled from "styled-components";
 export const StyledItemPreview = styled.div`
   display: flex;
   gap: 18px;
-  padding: 30px 40px;
-  background: 
-    linear-gradient(135deg, 
-      rgba(20, 20, 30, 0.8) 0%,
-      rgba(30, 25, 40, 0.85) 50%,
-      rgba(25, 20, 35, 0.8) 100%
-    );
-  border-radius: 20px;
-  border: 3px solid transparent;
-  background-image: 
-    linear-gradient(135deg, rgba(20, 20, 30, 0.8), rgba(25, 20, 35, 0.8)),
-    linear-gradient(135deg, 
-      rgba(147, 51, 234, 0.4) 0%,
-      rgba(255, 215, 0, 0.3) 50%,
-      rgba(147, 51, 234, 0.4) 100%
-    );
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  box-shadow: 
-    0 12px 35px rgba(0, 0, 0, 0.4),
-    0 6px 18px rgba(147, 51, 234, 0.15);
-  margin-bottom: 20px;
+  padding: 20px 30px 10px;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 0;
+  justify-content: center;
+  margin-top: 15px;
 
   & > div {
     position: relative;
-    width: 80px;
-    aspect-ratio: 1/1.3;
-    border-radius: 15px;
-    border: 3px solid transparent;
+    width: 60px;
+    aspect-ratio: 1/1.2;
+    border-radius: 12px;
+    border: 2px solid transparent;
     background: 
       linear-gradient(145deg, 
         rgba(15, 15, 25, 0.9) 0%,
@@ -48,8 +34,8 @@ export const StyledItemPreview = styled.div`
     background-clip: content-box, border-box;
     transition: all 0.3s ease;
     box-shadow: 
-      0 6px 15px rgba(0, 0, 0, 0.4),
-      inset 0 2px 0 rgba(255, 255, 255, 0.12);
+      0 4px 10px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
     &:hover {
       transform: translateY(-3px);
@@ -123,7 +109,7 @@ export const StyledItemPreview = styled.div`
     top: 0;
     width: 100%;
     height: 100%;
-    padding: 12px;
+    padding: 8px;
     box-sizing: border-box;
   }
 
@@ -137,8 +123,8 @@ export const StyledItemPreview = styled.div`
 
   & > div > .multiplier {
     position: absolute;
-    right: -6px;
-    top: -6px;
+    right: -4px;
+    top: -4px;
     color: #1a1a1a;
     background: 
       linear-gradient(135deg, 
@@ -146,16 +132,16 @@ export const StyledItemPreview = styled.div`
         rgba(255, 236, 99, 0.9) 100%
       );
     z-index: 10;
-    padding: 4px 8px;
-    border-radius: 10px;
-    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 10px;
     font-weight: bold;
     border: 2px solid rgba(255, 215, 0, 0.8);
     box-shadow: 
-      0 3px 8px rgba(0, 0, 0, 0.4),
-      0 2px 4px rgba(255, 215, 0, 0.4);
+      0 2px 6px rgba(0, 0, 0, 0.4),
+      0 1px 3px rgba(255, 215, 0, 0.4);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    transform: scale(0.95);
+    transform: scale(0.9);
     transition: all 0.3s ease;
 
     &:hover {

@@ -18,10 +18,24 @@ export const loadingAnimation = keyframes`
 `
 
 export const Container = styled.div`
-  margin: auto 3rem;
+  /* Mobile-first: Start with mobile styles */
+  margin: 0 1rem;
+  max-width: calc(100vw - 2rem);
   position: relative;
   display: grid;
   gap: 5px;
+  
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    margin: 0 2rem;
+    max-width: calc(100vw - 4rem);
+  }
+  
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    margin: 0 3rem;
+    max-width: calc(100vw - 6rem);
+  }
 `
 
 export const SettingControls = styled.div`
@@ -52,8 +66,19 @@ export const Splash = styled.div`
   align-items: center;
   z-index: 5;
   background: #0c0c11;
-  font-size: 42px;
+  /* Mobile-first: Start with smaller font size */
+  font-size: 24px;
   font-weight: bold;
+  
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    font-size: 32px;
+  }
+  
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    font-size: 42px;
+  }
 `
 
 export const Screen = styled.div`
@@ -63,16 +88,22 @@ export const Screen = styled.div`
   border-radius: 10px;
   overflow: hidden;
   transition: height 0.2s ease;
-  /* Responsive game screen height: min/max bounds around available viewport space.
-     Allows tall screens to show a larger playfield (needed for Plinko board) while
-     preventing tiny viewports from collapsing below a usable size. */
-  height: clamp(480px, calc(100vh - 300px), 900px);
-  @media (max-width: 900px) {
-    /* On shorter mobile viewports keep original size bias but still allow some growth */
+  /* Mobile-first: Start with mobile viewport optimized height */
+  height: clamp(320px, calc(100vh - 180px), 500px);
+  
+  /* Small tablets */
+  @media (min-width: 640px) {
+    height: clamp(380px, calc(100vh - 220px), 600px);
+  }
+  
+  /* Tablets */
+  @media (min-width: 768px) {
     height: clamp(420px, calc(100vh - 260px), 720px);
   }
-  @media (max-width: 700px) {
-    height: clamp(380px, calc(100vh - 220px), 600px);
+  
+  /* Desktop */
+  @media (min-width: 1024px) {
+    height: clamp(480px, calc(100vh - 300px), 900px);
   }
 `
 
@@ -81,19 +112,28 @@ export const IconButton = styled.button`
   border: 2px solid #ffd700;
   box-shadow: 0 2px 12px #ffd70044, 0 0px 0px #ff006688;
   padding: 0;
-  width: 54px;
-  height: 54px;
+  /* Mobile-first: Start with mobile-optimized size */
+  width: 48px;
+  height: 48px;
   justify-content: center;
   align-items: center;
   display: flex;
   margin: 0;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   border-radius: 50%;
   color: #fffbe6;
   transition: box-shadow 0.2s, transform 0.15s, background 0.2s;
   position: relative;
   overflow: hidden;
+  
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    width: 54px;
+    height: 54px;
+    font-size: 20px;
+  }
+  
   &:hover {
     background: linear-gradient(135deg, #ffe066 0%, #ff3385 100%);
     box-shadow: 0 4px 24px #ffd70099, 0 0px 0px #ff0066cc;
@@ -106,8 +146,10 @@ export const IconButton = styled.button`
   
   /* Hide the play button portal on mobile since games have their own play buttons */
   &.play-button-portal {
-    @media (max-width: 800px) {
-      display: none;
+    display: none;
+    
+    @media (min-width: 800px) {
+      display: flex;
     }
   }
 `;
@@ -137,16 +179,19 @@ export const Controls = styled.div`
   background: linear-gradient(120deg, #18181f 60%, #2d0036 100%);
   border: 2px solid #ffd70044;
   box-shadow: 0 6px 32px #ffd70022, 0 1.5px 0px #ff006622;
-  padding: 22px 28px;
+  /* Mobile-first: Start with mobile styles */
+  padding: 14px 8px;
   color: #fffbe6;
   border-radius: 18px;
   z-index: 6;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   position: relative;
   overflow: visible;
+  gap: 18px;
+  
   /* Casino glow */
   &:before {
     content: '';
@@ -161,24 +206,26 @@ export const Controls = styled.div`
     position: relative;
     z-index: 1;
   }
-  @media (max-width: 800px) {
-    flex-direction: column;
-    gap: 18px;
-    padding: 14px 8px;
-  }
+  
+  /* Tablet and up: Switch to row layout */
   @media (min-width: 800px) {
+    flex-direction: row;
     gap: 24px;
     height: 70px;
+    padding: 22px 28px;
   }
+  
   .control-buttons {
     display: flex;
-    gap: 20px;
-    justify-content: flex-start;
+    /* Mobile-first: Center layout with smaller gaps */
+    justify-content: center;
+    gap: 18px;
     align-items: center;
     flex: 1;
     
-    /* Desktop: Better spacing for single-tier layout */
+    /* Tablet and up: Better spacing for single-tier layout */
     @media (min-width: 801px) {
+      justify-content: flex-start;
       gap: 24px;
       
       /* Give more space to wager controls */
@@ -186,64 +233,97 @@ export const Controls = styled.div`
         margin-right: 12px;
       }
     }
-    
-    /* Mobile: Keep existing layout */
-    @media (max-width: 800px) {
-      justify-content: center;
-      gap: 18px;
-    }
   }
 `;
 
 export const MetaControls = styled.div`
   display: flex;
-  flex-direction: row; /* Horizontal on all viewports */
+  /* Mobile-first: Start with mobile-optimized layout */
+  flex-direction: row;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border: 2px solid #333;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-  box-shadow: inset 0 1px 0 #ffffff08, 0 4px 12px #00000066;
+  width: 100%;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 4px 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  flex-wrap: wrap;
   
-  /* Subtle separation when many buttons */
-  & > * { flex: 0 0 auto; }
-
-  /* Allow wrapping on very small widths */
-  flex-wrap: nowrap;
-  @media (max-width: 520px) {
-    flex-wrap: wrap;
+  /* Very small screens: Allow wrapping */
+  @media (max-width: 420px) {
     justify-content: center;
   }
-  @media (max-width: 800px) {
+  
+  /* Tablet and up: More compact desktop layout */
+  @media (min-width: 800px) {
+    width: auto;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 2px solid #333;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+    box-shadow: inset 0 1px 0 #ffffff08, 0 4px 12px #00000066;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+  
+  /* Subtle separation when many buttons */
+  & > * { 
+    /* Mobile-first: Equal flex for mobile */
+    flex: 1 1 0;
+    
+    @media (min-width: 800px) {
+      flex: 0 0 auto;
+    }
+  }
+
+  & > button, & > div > button { /* target IconButton (direct or wrapped) */
+    /* Mobile-first: Full width mobile buttons */
     width: 100%;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 4px 4px 8px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    & > * { flex: 1 1 0; }
-    & > button, & > div > button { /* target IconButton (direct or wrapped) */
-      width: 100%;
+    height: 54px;
+    border-radius: 16px;
+    background: linear-gradient(135deg,#ffae00 0%,#ff0066 100%);
+    border: 2px solid #ffd700;
+    box-shadow: 0 4px 18px -4px #ff006688, 0 2px 10px -2px #ffd70066;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: transform .25s, box-shadow .25s;
+    padding: 0;
+    
+    /* Tablet and up: Reset to default button styles */
+    @media (min-width: 800px) {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700 0%, #ff0066 100%);
+      font-size: 18px;
+    }
+    
+    @media (min-width: 1024px) {
+      width: 54px;
       height: 54px;
-      border-radius: 16px;
-      background: linear-gradient(135deg,#ffae00 0%,#ff0066 100%);
-      border: 2px solid #ffd700;
-      box-shadow: 0 4px 18px -4px #ff006688, 0 2px 10px -2px #ffd70066;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      transition: transform .25s, box-shadow .25s;
-      padding: 0;
+      font-size: 20px;
     }
-    & > button:hover, & > div > button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 26px -6px #ff0066aa, 0 3px 14px -2px #ffd70088;
+  }
+  
+  & > button:hover, & > div > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 26px -6px #ff0066aa, 0 3px 14px -2px #ffd70088;
+    
+    @media (min-width: 800px) {
+      transform: scale(1.08);
+      box-shadow: 0 4px 24px #ffd70099, 0 0px 0px #ff0066cc;
     }
-    & > button:active, & > div > button:active {
-      transform: translateY(0);
+  }
+  
+  & > button:active, & > div > button:active {
+    transform: translateY(0);
+    
+    @media (min-width: 800px) {
+      transform: scale(0.98);
     }
   }
 `;
@@ -277,11 +357,14 @@ export const Spinner = styled.div<{$small?: boolean}>`
 // Enhanced Wager Input Styles
 export const WagerInputContainer = styled.div`
   display: flex;
-  align-items: center;
+  /* Mobile-first: Start with mobile layout */
+  flex-direction: column;
+  align-items: stretch;
+  padding: 12px 14px;
+  gap: 8px;
   background: linear-gradient(135deg, rgba(24, 24, 31, 0.95) 0%, rgba(45, 0, 54, 0.8) 100%);
   border: 2px solid rgba(255, 215, 0, 0.4);
   border-radius: 16px;
-  padding: 12px 18px;
   margin: 8px 0;
   position: relative;
   overflow: hidden;
@@ -290,6 +373,14 @@ export const WagerInputContainer = styled.div`
     0 2px 8px rgba(162, 89, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+
+  /* Tablet and up: Switch to row layout */
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 18px;
+    gap: 0;
+  }
 
   &:hover {
     border-color: rgba(255, 215, 0, 0.6);
@@ -321,29 +412,25 @@ export const WagerInputContainer = styled.div`
     pointer-events: none;
     border-radius: 14px;
   }
-
-  @media (max-width: 800px) {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 14px;
-    gap: 8px;
-  }
 `;
 
 export const WagerLabel = styled.span`
   color: #ffd700;
   font-weight: 700;
-  font-size: 16px;
-  min-width: 100px;
+  /* Mobile-first: Start with mobile font size */
+  font-size: 14px;
+  min-width: auto;
+  text-align: center;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
   position: relative;
   z-index: 1;
   letter-spacing: 0.5px;
 
-  @media (max-width: 800px) {
-    font-size: 14px;
-    min-width: auto;
-    text-align: center;
+  /* Tablet and up: Larger font and left alignment */
+  @media (min-width: 768px) {
+    font-size: 16px;
+    min-width: 100px;
+    text-align: left;
   }
 `;
 
@@ -352,24 +439,26 @@ export const WagerDisplay = styled.div`
   background: rgba(12, 12, 17, 0.8);
   border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 10px;
-  padding: 10px 14px;
+  /* Mobile-first: Start with mobile padding and font */
+  padding: 8px 12px;
   color: #fff;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px;
   text-align: center;
   position: relative;
   z-index: 1;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
 
+  /* Tablet and up: Larger padding and font */
+  @media (min-width: 768px) {
+    padding: 10px 14px;
+    font-size: 18px;
+  }
+
   &:hover {
     border-color: rgba(255, 215, 0, 0.5);
     background: rgba(12, 12, 17, 0.9);
-  }
-
-  @media (max-width: 800px) {
-    font-size: 16px;
-    padding: 8px 12px;
   }
 `;
 
@@ -396,8 +485,10 @@ export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | '
   }};
   color: ${props => props.variant === 'primary' ? '#000' : '#fff'};
   font-weight: 700;
-  font-size: 14px;
-  padding: 8px 16px;
+  /* Mobile-first: Start with mobile sizes */
+  font-size: 12px;
+  padding: 6px 12px;
+  min-width: 40px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -415,8 +506,14 @@ export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | '
       }
     }},
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  min-width: 50px;
   text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
+
+  /* Tablet and up: Larger sizes */
+  @media (min-width: 768px) {
+    font-size: 14px;
+    padding: 8px 16px;
+    min-width: 50px;
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.02);
@@ -468,25 +565,23 @@ export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | '
       0 1px 4px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
-
-  @media (max-width: 800px) {
-    font-size: 12px;
-    padding: 6px 12px;
-    min-width: 40px;
-  }
 `;
 
 export const WagerButtonGroup = styled.div`
   display: flex;
-  gap: 8px;
+  /* Mobile-first: Start with mobile layout */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
   align-items: center;
   position: relative;
   z-index: 1;
 
-  @media (max-width: 800px) {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
+  /* Tablet and up: Less wrapping, larger gaps */
+  @media (min-width: 768px) {
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 `;
 
@@ -495,8 +590,10 @@ export const PlayButton = styled.button<{ disabled?: boolean }>`
   border: 3px solid #ffd700;
   color: #fff;
   font-weight: 900;
-  font-size: 18px;
-  padding: 14px 28px;
+  /* Mobile-first: Start with mobile sizes */
+  font-size: 16px;
+  padding: 12px 24px;
+  border-width: 2px;
   border-radius: 50px;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.3s ease;
@@ -510,6 +607,13 @@ export const PlayButton = styled.button<{ disabled?: boolean }>`
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   z-index: 1;
+
+  /* Tablet and up: Larger sizes */
+  @media (min-width: 768px) {
+    font-size: 18px;
+    padding: 14px 28px;
+    border-width: 3px;
+  }
 
   &::before {
     content: '';
@@ -555,74 +659,77 @@ export const PlayButton = styled.button<{ disabled?: boolean }>`
       display: none;
     }
   }
-
-  @media (max-width: 800px) {
-    font-size: 16px;
-    padding: 12px 24px;
-    border-width: 2px;
-  }
 `;
 
 export const PresetButton = styled(WagerButton)`
-  min-width: 60px;
-  font-size: 13px;
-  padding: 6px 12px;
+  /* Mobile-first: Start with mobile sizes */
+  min-width: 50px;
+  font-size: 11px;
+  padding: 5px 10px;
   
-  @media (max-width: 800px) {
-    min-width: 50px;
-    font-size: 11px;
-    padding: 5px 10px;
+  /* Tablet and up: Larger sizes */
+  @media (min-width: 768px) {
+    min-width: 60px;
+    font-size: 13px;
+    padding: 6px 12px;
   }
 `;
 
 export const PresetContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  /* Mobile-first: Start with mobile spacing */
+  gap: 4px;
+  margin-top: 6px;
   justify-content: center;
 
-  @media (max-width: 800px) {
-    gap: 4px;
-    margin-top: 6px;
+  /* Tablet and up: Larger spacing */
+  @media (min-width: 768px) {
+    gap: 6px;
+    margin-top: 8px;
   }
 `;
 
-// Desktop-only wrapper - hides on mobile
-export const DesktopControlsContainer = styled.div`
+// Mobile-first wrapper - shows by default
+export const MobileControlsContainer = styled.div`
+  /* Mobile-first: Display by default */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 
-  @media (max-width: 800px) {
+  /* Desktop: Hide on larger screens */
+  @media (min-width: 800px) {
     display: none;
   }
 `;
 
-// Mobile-Optimized Control Layout
-export const MobileControlsContainer = styled.div`
+// Desktop-only wrapper - hidden on mobile
+export const DesktopControlsContainer = styled.div`
+  /* Mobile-first: Hidden by default */
   display: none;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-
-  @media (max-width: 800px) {
+  
+  /* Desktop: Show on larger screens */
+  @media (min-width: 800px) {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
   }
 `;
 
 export const TopControlsRow = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
-  gap: 16px;
+  /* Mobile-first: Center alignment and smaller gaps */
+  align-items: center;
+  gap: 12px;
   width: 100%;
 
-  @media (max-width: 800px) {
-    gap: 12px;
-    align-items: center;
+  /* Tablet and up: Stretch alignment and larger gaps */
+  @media (min-width: 768px) {
+    align-items: stretch;
+    gap: 16px;
   }
 `;
 
@@ -639,10 +746,12 @@ export const PlaySection = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  min-width: 100px;
+  /* Mobile-first: Smaller minimum width */
+  min-width: 80px;
   
-  @media (max-width: 800px) {
-    min-width: 80px;
+  /* Tablet and up: Larger minimum width */
+  @media (min-width: 768px) {
+    min-width: 100px;
   }
 `;
 
@@ -650,12 +759,14 @@ export const GameSpecificSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
+  /* Mobile-first: Smaller gaps and padding */
+  gap: 8px;
+  padding: 8px 0;
   
-  @media (max-width: 800px) {
-    gap: 8px;
-    padding: 8px 0;
+  /* Tablet and up: Larger gaps and padding */
+  @media (min-width: 768px) {
+    gap: 12px;
+    padding: 12px 0;
   }
 `;
 
@@ -664,25 +775,29 @@ export const GameControlRow = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  /* Mobile-first: Smaller gaps */
+  gap: 6px;
   width: 100%;
 
-  @media (max-width: 800px) {
-    gap: 6px;
+  /* Tablet and up: Larger gaps */
+  @media (min-width: 768px) {
+    gap: 8px;
   }
 `;
 
 export const GameControlLabel = styled.div`
   color: #ffd700;
   font-weight: 600;
-  font-size: 14px;
+  /* Mobile-first: Smaller font and margin */
+  font-size: 13px;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-align: center;
 
-  @media (max-width: 800px) {
-    font-size: 13px;
-    margin-bottom: 4px;
+  /* Tablet and up: Larger font and margin */
+  @media (min-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 6px;
   }
 `;
 
@@ -690,40 +805,48 @@ export const MetaControlsRow = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  padding-top: 8px;
+  /* Mobile-first: Smaller gaps and padding, allow wrapping */
+  gap: 8px;
+  padding-top: 6px;
   border-top: 1px solid rgba(255, 215, 0, 0.2);
+  flex-wrap: wrap;
 
-  @media (max-width: 800px) {
-    gap: 8px;
-    padding-top: 6px;
-    flex-wrap: wrap;
+  /* Tablet and up: Larger gaps and padding, no wrapping */
+  @media (min-width: 768px) {
+    gap: 12px;
+    padding-top: 8px;
+    flex-wrap: nowrap;
   }
 `;
 
 // Compact Wager Input for Mobile Layout
 export const CompactWagerInput = styled(WagerInputContainer)`
   margin: 0;
-  padding: 10px 14px;
+  /* Mobile-first: Start with mobile styles */
+  padding: 8px 12px;
+  border-radius: 12px;
+  gap: 6px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
   
-  @media (max-width: 800px) {
-    padding: 8px 12px;
-    border-radius: 12px;
-    gap: 6px;
+  /* Tablet and up: Larger padding and border radius */
+  @media (min-width: 768px) {
+    padding: 10px 14px;
+    border-radius: 16px;
+    gap: 8px;
   }
 `;
 
 export const CompactWagerLabel = styled(WagerLabel)`
-  font-size: 14px;
+  /* Mobile-first: Start with mobile font size */
+  font-size: 13px;
   text-align: left;
   margin-bottom: 0;
   
-  @media (max-width: 800px) {
-    font-size: 13px;
+  /* Tablet and up: Larger font size */
+  @media (min-width: 768px) {
+    font-size: 14px;
   }
 `;
 
@@ -736,14 +859,22 @@ export const GameOptionButton = styled.button<{ selected?: boolean }>`
   border: 2px solid ${props => props.selected ? '#ffd700' : 'rgba(0, 255, 225, 0.3)'};
   color: ${props => props.selected ? '#000' : '#fff'};
   font-weight: 600;
-  font-size: 14px;
-  padding: 8px 16px;
+  /* Mobile-first: Start with mobile sizes */
+  font-size: 12px;
+  padding: 6px 12px;
+  min-width: 40px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
-  min-width: 50px;
   text-shadow: ${props => props.selected ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
+
+  /* Tablet and up: Larger sizes */
+  @media (min-width: 768px) {
+    font-size: 14px;
+    padding: 8px 16px;
+    min-width: 50px;
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.02);
@@ -762,11 +893,5 @@ export const GameOptionButton = styled.button<{ selected?: boolean }>`
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-  }
-
-  @media (max-width: 800px) {
-    font-size: 12px;
-    padding: 6px 12px;
-    min-width: 40px;
   }
 `;

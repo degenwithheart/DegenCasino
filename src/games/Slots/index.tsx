@@ -6,12 +6,15 @@ import GameScreenFrame from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { ItemPreview } from './ItemPreview'
 import { Slot } from './Slot'
+import { Reel } from './Reel'
 import { StyledSlots } from './Slots.styles'
 import { StyledSlotsBackground } from './SlotsBackground.enhanced.styles'
 import {
   FINAL_DELAY,
   LEGENDARY_THRESHOLD,
   NUM_SLOTS,
+  NUM_REELS,
+  NUM_ROWS,
   REVEAL_SLOT_DELAY,
   SLOT_ITEMS,
   SOUND_LOSE,
@@ -23,7 +26,7 @@ import {
   SPIN_DELAY,
   SlotItem,
 } from './constants'
-import { generateBetArray, getSlotCombination } from './utils'
+import { generateBetArray, getSlotCombination, getWinningPaylines } from './utils'
 
 export default function Slots() {
   const game = GambaUi.useGame()
@@ -36,6 +39,8 @@ export default function Slots() {
   const [combination, setCombination] = React.useState(
     Array.from({ length: NUM_SLOTS }).map(() => SLOT_ITEMS[0]),
   )
+  const [winningPaylines, setWinningPaylines] = React.useState<{ payline: number[], symbol: SlotItem }[]>([])
+  const [winningSymbol, setWinningSymbol] = React.useState<SlotItem | null>(null)
   const sounds = useSound({
     win: SOUND_WIN,
     lose: SOUND_LOSE,
@@ -55,7 +60,7 @@ export default function Slots() {
   )
   const timeout = useRef<any>()
 
-  const isValid = bet.some((x) => x > 1)
+  const isValid = bet.some((x: number) => x > 1)
 
   useEffect(
     () => {
@@ -67,34 +72,51 @@ export default function Slots() {
     [],
   )
 
-  const revealSlot = (combination: SlotItem[], slot = 0) => {
+  const revealReel = (combination: SlotItem[], reel = 0) => {
     sounds.play('reveal', { playbackRate: 1.1 })
 
-    const allSame = combination.slice(0, slot + 1).every((item, index, arr) => !index || item === arr[index - 1])
+    // Reveal entire reel (column) at once
+    const revealedSlotCount = (reel + 1) * NUM_ROWS
+    setRevealedSlots(revealedSlotCount)
 
-    if (combination[slot].multiplier >= LEGENDARY_THRESHOLD) {
-      if (allSame) {
-        sounds.play('revealLegendary')
+    // Check for winning paylines after each reel reveal
+    const currentGrid = combination.slice(0, revealedSlotCount).concat(
+      Array.from({ length: NUM_SLOTS - revealedSlotCount }).map(() => SLOT_ITEMS[0])
+    )
+    const winningLines = getWinningPaylines(currentGrid)
+    
+    // Check if current reel has any legendary wins
+    for (let row = 0; row < NUM_ROWS; row++) {
+      const slotIndex = reel * NUM_ROWS + row
+      if (slotIndex < combination.length && combination[slotIndex].multiplier >= LEGENDARY_THRESHOLD) {
+        if (winningLines.some(line => line.payline.includes(slotIndex))) {
+          sounds.play('revealLegendary')
+          break
+        }
       }
     }
 
-    setRevealedSlots(slot + 1)
-
-    if (slot < NUM_SLOTS - 1) {
-      // Reveal next slot
+    if (reel < NUM_REELS - 1) {
+      // Reveal next reel
       timeout.current = setTimeout(
-        () => revealSlot(combination, slot + 1),
+        () => revealReel(combination, reel + 1),
         REVEAL_SLOT_DELAY,
       )
-    } else if (slot === NUM_SLOTS - 1) {
+    } else if (reel === NUM_REELS - 1) {
       // Show final results
       sounds.sounds.spin.player.stop()
+      const finalWinningLines = getWinningPaylines(combination)
+      setWinningPaylines(finalWinningLines)
+      
       timeout.current = setTimeout(() => {
         setSpinning(false)
-        if (allSame) {
+        if (finalWinningLines.length > 0) {
           setGood(true)
+          setWinningSymbol(finalWinningLines[0].symbol)
           sounds.play('win')
         } else {
+          setGood(false)
+          setWinningSymbol(null)
           sounds.play('lose')
         }
       }, FINAL_DELAY)
@@ -114,6 +136,8 @@ export default function Slots() {
 
     setRevealedSlots(0)
     setGood(false)
+    setWinningPaylines([])
+    setWinningSymbol(null)
 
     const startTime = Date.now()
 
@@ -137,7 +161,7 @@ const result = await game.result()
 
     setResult(result)
 
-    timeout.current = setTimeout(() => revealSlot(combination), revealDelay)
+    timeout.current = setTimeout(() => revealReel(combination), revealDelay)
   }
 
   return (
@@ -154,24 +178,53 @@ const result = await game.result()
               {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}
               hideProvablyFairBadge={true}
             >
-              {good && <EffectTest src={combination[0].image} />}
+              {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
               <GambaUi.Responsive>
                 <div className="slots-content">
-                  <ItemPreview 
-                    betArray={[...bet]} 
-                    winningMultiplier={good && combination[0] ? combination[0].multiplier : undefined}
-                    isWinning={good}
-                  />
                   <div className={'slots'}>
-                    {combination.map((slot, i) => (
-                      <Slot
-                        key={i}
-                        index={i}
-                        revealed={revealedSlots > i}
-                        item={slot}
-                        good={good}
+                    <div className="winning-line-display">
+                      <ItemPreview 
+                        betArray={[...bet]} 
+                        winningMultiplier={winningSymbol?.multiplier}
+                        isWinning={good}
                       />
-                    ))}
+                    </div>
+                    <div className="slots-reels">
+                      {/* Left Arrow */}
+                      <div className="winning-line-arrow winning-line-arrow-left">
+                        <div className="arrow-icon">▶</div>
+                      </div>
+                      
+                      {Array.from({ length: NUM_REELS }).map((_, reelIndex) => {
+                        const reelItems = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
+                          return combination[slotIndex]
+                        })
+                        
+                        const reelGoodSlots = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
+                          return good && winningPaylines.some(line => line.payline.includes(slotIndex))
+                        })
+                        
+                        const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
+                        
+                        return (
+                          <Reel
+                            key={reelIndex}
+                            reelIndex={reelIndex}
+                            revealed={reelRevealed}
+                            good={reelGoodSlots}
+                            items={reelItems}
+                            isSpinning={spinning && !reelRevealed}
+                          />
+                        )
+                      })}
+                      
+                      {/* Right Arrow */}
+                      <div className="winning-line-arrow winning-line-arrow-right">
+                        <div className="arrow-icon">◀</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </GambaUi.Responsive>

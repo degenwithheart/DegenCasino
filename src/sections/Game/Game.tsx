@@ -1,20 +1,49 @@
 import styled from 'styled-components';
 // Styled modal content for info modal, matching casino modal look
 const InfoModalContent = styled.div`
-  width: 100vw;
-  max-width: 80vw;
+  /* Mobile-first: Start with mobile viewport optimized styles */
+  width: 98vw;
+  max-width: 98vw;
   min-width: 0;
-  min-height: 350px;
-  max-height: 500px;
-  margin-bottom: 4rem;
-  margin-top: 4rem;
-  padding: 1rem;
+  min-height: 200px;
+  max-height: 400px;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  padding: 0.25rem;
   background: rgba(24, 24, 24, 0.95);
-  border-radius: 1rem;
+  border-radius: 10px;
   border: 2px solid rgba(255, 215, 0, 0.3);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   position: relative;
   color: white;
+  
+  /* Small tablets */
+  @media (min-width: 640px) {
+    padding: 0.5rem;
+    border-radius: 1rem;
+    max-width: 90vw;
+    min-height: 250px;
+    max-height: 450px;
+  }
+  
+  /* Tablets */
+  @media (min-width: 768px) {
+    padding: 1rem;
+    max-width: 85vw;
+    min-height: 300px;
+    max-height: 500px;
+    margin-bottom: 3rem;
+    margin-top: 3rem;
+  }
+  
+  /* Desktop */
+  @media (min-width: 1024px) {
+    max-width: 80vw;
+    min-height: 350px;
+    margin-bottom: 4rem;
+    margin-top: 4rem;
+  }
+  
   &::before {
     content: '';
     position: absolute;
@@ -27,7 +56,11 @@ const InfoModalContent = styled.div`
       radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
-    border-radius: 24px;
+    border-radius: 10px;
+    
+    @media (min-width: 640px) {
+      border-radius: 24px;
+    }
   }
   &::after {
     content: '';
@@ -39,20 +72,12 @@ const InfoModalContent = styled.div`
     background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
     background-size: 300% 100%;
     animation: moveGradient 4s linear infinite;
-    border-radius: 24px 24px 0 0;
+    border-radius: 10px 10px 0 0;
     z-index: 1;
-  }
-  @media (max-width: 1200px) {
-    padding: 1rem;
-  }
-  @media (max-width: 900px) {
-    padding: 0.5rem;
-  }
-  @media (max-width: 700px) {
-    min-height: 200px;
-    padding: 0.25rem;
-    border-radius: 10px;
-    max-width: 98vw;
+    
+    @media (min-width: 640px) {
+      border-radius: 24px 24px 0 0;
+    }
   }
 `;
 // src/sections/Game/Game.tsx
@@ -351,7 +376,7 @@ function CustomRenderer() {
               width: '100%',
               height: '99%',
               overflow: 'hidden',
-              borderRadius: '24px',
+              borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
               border: '2px solid rgba(255,215,0,.4)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
               boxShadow: '0 10px 50px -10px #ff008866, 0 0 0 1px #000',
@@ -363,23 +388,23 @@ function CustomRenderer() {
             }}>
               <div style={{
                 textAlign: 'center',
-                padding: '3rem',
-                maxWidth: '500px',
+                padding: window.innerWidth <= 640 ? '1.5rem' : window.innerWidth <= 768 ? '2rem' : '3rem',
+                maxWidth: window.innerWidth <= 640 ? '320px' : '500px',
               }}>
                 <div style={{
-                  width: 160,
-                  height: 160,
-                  margin: '0 auto 2rem',
-                  borderRadius: 32,
+                  width: window.innerWidth <= 640 ? 120 : window.innerWidth <= 768 ? 140 : 160,
+                  height: window.innerWidth <= 640 ? 120 : window.innerWidth <= 768 ? 140 : 160,
+                  margin: window.innerWidth <= 640 ? '0 auto 1.5rem' : '0 auto 2rem',
+                  borderRadius: window.innerWidth <= 640 ? 24 : 32,
                   background: 'linear-gradient(145deg,#201826,#110b14)',
-                  padding: 12,
+                  padding: window.innerWidth <= 640 ? 8 : 12,
                   position: 'relative',
                   boxShadow: '0 8px 32px -8px #ffae0055, 0 0 0 1px #ffffff0f, 0 0 24px -4px #ff6ec744'
                 }}>
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    borderRadius: 32,
+                    borderRadius: window.innerWidth <= 640 ? 24 : 32,
                     background: 'radial-gradient(circle at 30% 30%, rgba(255,215,0,0.3), transparent 70%)',
                     pointerEvents: 'none',
                     mixBlendMode: 'overlay'
@@ -387,7 +412,7 @@ function CustomRenderer() {
                   <div style={{
                     width: '100%',
                     height: '100%',
-                    borderRadius: 24,
+                    borderRadius: window.innerWidth <= 640 ? 20 : 24,
                     background: '#0d0d11',
                     display: 'flex',
                     alignItems: 'center',
@@ -416,7 +441,7 @@ function CustomRenderer() {
                               display: flex; 
                               align-items: center; 
                               justify-content: center; 
-                              font-size: 4rem; 
+                              font-size: ${window.innerWidth <= 640 ? '2.5rem' : '4rem'}; 
                               color: #ffd700;
                             ">🎮</div>
                           `
@@ -426,7 +451,7 @@ function CustomRenderer() {
                   </div>
                 </div>
                 <h1 style={{ 
-                  fontSize: 48, 
+                  fontSize: window.innerWidth <= 640 ? 32 : window.innerWidth <= 768 ? 40 : 48, 
                   margin: '0 0 1rem 0', 
                   background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
                   WebkitBackgroundClip: 'text', 
@@ -436,21 +461,21 @@ function CustomRenderer() {
                   {game.meta.name}
                 </h1>
                 <p style={{ 
-                  fontSize: 18, 
+                  fontSize: window.innerWidth <= 640 ? 14 : window.innerWidth <= 768 ? 16 : 18, 
                   lineHeight: 1.6, 
                   color: '#ffffffc9', 
-                  margin: '0 0 3rem 0' 
+                  margin: window.innerWidth <= 640 ? '0 0 2rem 0' : window.innerWidth <= 768 ? '0 0 2.5rem 0' : '0 0 3rem 0' 
                 }}>
                   Ready to test your luck? Click start when you're ready to play!
                 </p>
                 <button 
                   onClick={handleSplashStart} 
                   style={{
-                    width: '200px', 
-                    padding: '18px 24px', 
-                    fontSize: 18, 
+                    width: window.innerWidth <= 640 ? '160px' : '200px', 
+                    padding: window.innerWidth <= 640 ? '14px 20px' : '18px 24px', 
+                    fontSize: window.innerWidth <= 640 ? 16 : 18, 
                     fontWeight: 700,
-                    borderRadius: 16, 
+                    borderRadius: window.innerWidth <= 640 ? 12 : 16, 
                     border: '1px solid #ffffff22', 
                     cursor: 'pointer',
                     background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
@@ -494,7 +519,7 @@ function CustomRenderer() {
               width: '100%',
               height: '99%',
               overflow: 'hidden',
-              borderRadius: '24px',
+              borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
               border: '2px solid rgba(255,215,0,.35)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
               boxShadow: '0 10px 50px -10px #ff008866, 0 0 0 1px #000',
@@ -504,28 +529,35 @@ function CustomRenderer() {
             }}>
               <button onClick={() => { setInfo(false); setProvablyFair(false) }}
                 style={{
-                  position: 'absolute', top: 10, right: 10, width: 42, height: 42,
+                  position: 'absolute', 
+                  top: window.innerWidth <= 640 ? 8 : 10, 
+                  right: window.innerWidth <= 640 ? 8 : 10, 
+                  width: window.innerWidth <= 640 ? 36 : 42, 
+                  height: window.innerWidth <= 640 ? 36 : 42,
                   borderRadius: '50%', border: '1px solid #ffffff22',
                   background: 'linear-gradient(135deg,#ff0066,#ffae00)', color: 'white',
-                  fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 18px #ff006655'
+                  fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 18px #ff006655',
+                  fontSize: window.innerWidth <= 640 ? '14px' : '16px'
                 }}>✕</button>
               {info && (
-                <div style={{ padding: '56px 48px 40px 48px' }}>
-                  <div style={{ textAlign: 'center', marginBottom: 28 }}>
+                <div style={{ 
+                  padding: window.innerWidth <= 640 ? '40px 20px 24px 20px' : window.innerWidth <= 768 ? '48px 32px 32px 32px' : '56px 48px 40px 48px' 
+                }}>
+                  <div style={{ textAlign: 'center', marginBottom: window.innerWidth <= 640 ? 20 : 28 }}>
                     <div style={{
-                      width: 140,
-                      height: 140,
-                      margin: '0 auto 26px',
-                      borderRadius: 32,
+                      width: window.innerWidth <= 640 ? 100 : window.innerWidth <= 768 ? 120 : 140,
+                      height: window.innerWidth <= 640 ? 100 : window.innerWidth <= 768 ? 120 : 140,
+                      margin: window.innerWidth <= 640 ? '0 auto 18px' : '0 auto 26px',
+                      borderRadius: window.innerWidth <= 640 ? 24 : 32,
                       background: 'linear-gradient(145deg,#201826,#110b14)',
-                      padding: 10,
+                      padding: window.innerWidth <= 640 ? 8 : 10,
                       position: 'relative',
                       boxShadow: '0 6px 28px -6px #ffae0055, 0 0 0 1px #ffffff0f, 0 0 18px -2px #ff6ec744'
                     }}>
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        borderRadius: 32,
+                        borderRadius: window.innerWidth <= 640 ? 24 : 32,
                         background: 'radial-gradient(circle at 30% 30%, rgba(255,215,0,0.25), transparent 70%)',
                         pointerEvents: 'none',
                         mixBlendMode: 'overlay'
@@ -533,7 +565,7 @@ function CustomRenderer() {
                       <div style={{
                         width: '100%',
                         height: '100%',
-                        borderRadius: 24,
+                        borderRadius: window.innerWidth <= 640 ? 20 : 24,
                         background: '#0d0d11',
                         display: 'flex',
                         alignItems: 'center',
@@ -553,19 +585,40 @@ function CustomRenderer() {
                         />
                       </div>
                     </div>
-                    <h1 style={{ fontSize: 34, margin: 0, background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', WebkitBackgroundClip: 'text', color: 'transparent', fontWeight: 800 }}>{game.meta.name}</h1>
+                    <h1 style={{ 
+                      fontSize: window.innerWidth <= 640 ? 24 : window.innerWidth <= 768 ? 28 : 34, 
+                      margin: 0, 
+                      background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
+                      WebkitBackgroundClip: 'text', 
+                      color: 'transparent', 
+                      fontWeight: 800 
+                    }}>{game.meta.name}</h1>
                   </div>
-                  <p style={{ fontSize: 16, lineHeight: 1.6, color: '#ffffffc9', margin: '0 0 28px' }}>{game.meta.description}</p>
+                  <p style={{ 
+                    fontSize: window.innerWidth <= 640 ? 14 : 16, 
+                    lineHeight: 1.6, 
+                    color: '#ffffffc9', 
+                    margin: window.innerWidth <= 640 ? '0 0 20px' : '0 0 28px' 
+                  }}>{game.meta.description}</p>
                   <button onClick={() => setInfo(false)} style={{
-                    width: '100%', padding: '15px 20px', fontSize: 16, fontWeight: 600,
-                    borderRadius: 14, border: '1px solid #ffffff22', cursor: 'pointer',
-                    background: 'linear-gradient(135deg,#ffae00,#ff0066)', color: '#fff',
-                    boxShadow: '0 6px 24px -4px #ff006688', letterSpacing: '.5px'
+                    width: '100%', 
+                    padding: window.innerWidth <= 640 ? '12px 16px' : '15px 20px', 
+                    fontSize: window.innerWidth <= 640 ? 14 : 16, 
+                    fontWeight: 600,
+                    borderRadius: window.innerWidth <= 640 ? 12 : 14, 
+                    border: '1px solid #ffffff22', 
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
+                    color: '#fff',
+                    boxShadow: '0 6px 24px -4px #ff006688', 
+                    letterSpacing: '.5px'
                   }}>Play Now</button>
                 </div>
               )}
               {provablyFair && (
-                <div style={{ padding: '56px 48px 40px 48px' }}>
+                <div style={{ 
+                  padding: window.innerWidth <= 640 ? '40px 20px 24px 20px' : window.innerWidth <= 768 ? '48px 32px 32px 32px' : '56px 48px 40px 48px' 
+                }}>
                   <ProvablyFairModal onClose={() => setProvablyFair(false)} inline />
                 </div>
               )}
@@ -579,7 +632,14 @@ function CustomRenderer() {
         <Screen>
           {!ready ? (
             <Splash>
-              <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+              <svg 
+                width={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
+                height={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
+                viewBox="0 0 180 180" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg" 
+                style={{ display: 'block' }}
+              >
                 <g>
                   <circle
                     cx="90" cy="90" r="80"
@@ -596,7 +656,7 @@ function CustomRenderer() {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     fontFamily="'Luckiest Guy', cursive, sans-serif"
-                    fontSize="36"
+                    fontSize={window.innerWidth <= 640 ? "24" : window.innerWidth <= 768 ? "30" : "36"}
                     fill="#ffd700"
                     letterSpacing="2"
                     style={{
