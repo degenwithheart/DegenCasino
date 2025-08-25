@@ -1801,12 +1801,21 @@ export default function FairnessAudit() {
               <StatsTitle>Live Statistics</StatsTitle>
               <div className="stats-grid">
                 <div className="stat-card">
-                  <div className="stat-value">{rows.length}</div>
+                  <div className="stat-value">{edgeCaseData ? Object.keys(edgeCaseData.summary).length : '—'}</div>
                   <div className="stat-label">Games Tested</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-value">
-                    {rows.filter(r => r.status === 'ok').length}/{rows.length}
+                    {edgeCaseData ? 
+                      (() => {
+                        const gameKeys = Object.keys(edgeCaseData.summary);
+                        const passingGames = gameKeys.filter(gameKey => 
+                          edgeCaseData.summary[gameKey].outOfTolerance === 0
+                        ).length;
+                        return `${passingGames}/${gameKeys.length}`;
+                      })()
+                      : '—'
+                    }
                   </div>
                   <div className="stat-label">Passing</div>
                 </div>
