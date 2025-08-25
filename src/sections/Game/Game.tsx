@@ -97,6 +97,7 @@ import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash 
 import { LoadingBar } from './LoadingBar'
 import { ProvablyFairModal } from './ProvablyFairModal'
 import { TransactionModal } from './TransactionModal'
+import { GraphicsSettings, GraphicsSettingsIcon } from '../../components/GraphicsSettings'
 import { keyframes } from 'styled-components';
 
 // Animated CSS illustrations for each error type
@@ -327,6 +328,7 @@ function CustomRenderer() {
   const [info, setInfo] = useState(false)
   const [provablyFair, setProvablyFair] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
+  const [graphicsSettings, setGraphicsSettings] = useState(false)
   const soundStore = useSoundStore()
   const firstTimePlaying = useUserStore(s => !s.gamesPlayed.includes(game.id))
   const markGameAsPlayed = useUserStore(s => () => s.markGameAsPlayed(game.id, true))
@@ -627,6 +629,7 @@ function CustomRenderer() {
         </GambaUi.Portal>
       )}
       {txModal && <TransactionModal onClose={() => setTxModal(false)} />}
+      {graphicsSettings && <GraphicsSettings onClose={() => setGraphicsSettings(false)} />}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
       <Container>
         <Screen>
@@ -696,6 +699,9 @@ function CustomRenderer() {
             </IconButton>
             <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
               <Icon.Fairness />
+            </IconButton>
+            <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
+              <GraphicsSettingsIcon />
             </IconButton>
             <IconButton
               onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}

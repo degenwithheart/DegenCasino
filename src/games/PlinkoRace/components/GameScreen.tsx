@@ -14,13 +14,16 @@ import Board from '../board/Board'
 import { musicManager, stopAndDispose, attachMusic } from '../musicManager'
 import actionSnd from '../sounds/action.mp3'
 import { useSound } from 'gamba-react-ui-v2'
+import type { GameplayEffectsRef } from '../../../components/GameplayFrame'
 
 export default function GameScreen({
   pk,
   onBack,
+  effectsRef,
 }: {
   pk: PublicKey
   onBack: () => void
+  effectsRef?: React.RefObject<GameplayEffectsRef>
 }) {
   const { game: chainGame, metadata } = useGame(pk, { fetchMetadata: true })
   const { publicKey } = useWallet()
@@ -40,7 +43,33 @@ export default function GameScreen({
         Number((p as any).pendingPayout ?? (p as any).pending_payout ?? 0),
       ),
     )
-  }, [chainGame, snapPlayers])
+    
+    // Enhanced race result effects
+    if (effectsRef?.current) {
+      const userPlayer = chainGame.players.find(p => 
+        p.user.toString() === publicKey?.toString()
+      )
+      
+      if (userPlayer) {
+        const userPayout = Number((userPlayer as any).pendingPayout ?? (userPlayer as any).pending_payout ?? 0)
+        
+        if (userPayout > 0) {
+          // Win effects with lightning intensity
+          effectsRef.current.winFlash('#ffd700', 2.5)
+          setTimeout(() => {
+            effectsRef.current?.particleBurst(undefined, undefined, '#ffd700', 60)
+            effectsRef.current?.screenShake(3, 1200)
+          }, 300)
+        } else {
+          // Lose effects for racing game
+          effectsRef.current.loseFlash('#ff4444', 1.5)
+          setTimeout(() => {
+            effectsRef.current?.screenShake(1.5, 800)
+          }, 200)
+        }
+      }
+    }
+  }, [chainGame, snapPlayers, effectsRef])
 
   useEffect(() => {
     if (snapPlayers && snapPlayers.length === 0) {

@@ -4,7 +4,8 @@ import React from 'react'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledHiLoBackground } from './HiLoBackground.enhanced.styles'
 
@@ -51,6 +52,12 @@ export default function HiLo(props: HiLoConfig) {
   const currentRank = cards[cards.length - 1].rank
   const [option, setOption] = React.useState<'hi' | 'lo'>(currentRank > RANKS / 2 ? 'lo' : 'hi')
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Effects system for enhanced visual feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const addCard = (rank: number) => setCards((cards) => [...cards, card(rank, cards.length)].slice(-MAX_CARD_SHOWN))
 
@@ -116,8 +123,19 @@ export default function HiLo(props: HiLoConfig) {
       setProfit(result.payout)
       if (win) {
         sounds.play('win')
+        
+        // 🃏 TRIGGER HILO WIN EFFECTS
+        console.log('🃏 HILO WIN! Correct prediction')
+        effectsRef.current?.winFlash() // Use theme's winGlow color
+        effectsRef.current?.particleBurst(50, 60, undefined, 8) // Card flip particles
+        effectsRef.current?.screenShake(0.8, 500) // Light shake for win
       } else {
         sounds.play('lose')
+        
+        // 💔 TRIGGER HILO LOSE EFFECTS
+        console.log('💔 HILO LOSE! Wrong prediction')
+        effectsRef.current?.loseFlash() // Use theme's loseGlow color
+        effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
       }
     }, 300)
   }
@@ -131,7 +149,10 @@ export default function HiLo(props: HiLoConfig) {
           <div className="razor-overlay" />
           <div className="fragile-indicator" />
           
-          <GameScreenFrame {...(useGameMeta('hilo') && { title: useGameMeta('hilo')!.name, description: useGameMeta('hilo')!.description })}>
+          <GameplayFrame 
+            ref={effectsRef}
+            {...(useGameMeta('hilo') && { title: useGameMeta('hilo')!.name, description: useGameMeta('hilo')!.description })}
+          >
             <GambaUi.Responsive>
               <div className="hilo-content">
                 <Container $disabled={claiming || gamba.isPlaying}>
@@ -139,7 +160,7 @@ export default function HiLo(props: HiLoConfig) {
                     <h2 style={{ marginBottom: '100px' }}>🃏 Cards Are Honest in Ways People Never Are</h2>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
-                    <CardsContainer>
+                    <CardsContainer enableMotion={settings.enableMotion}>
                       {cards.map((card, i) => {
                         const offset = -(cards.length - (i + 1))
                         const xxx = cards.length > 3 ? (i / cards.length) : 1
@@ -147,6 +168,7 @@ export default function HiLo(props: HiLoConfig) {
                         return (
                           <CardContainer
                             key={card.key}
+                            enableMotion={settings.enableMotion}
                             style={{
                               transform: `translate(${offset * 30}px, ${-offset * 0}px) rotateZ(-5deg) rotateY(5deg)`,
                               opacity,
@@ -197,7 +219,7 @@ export default function HiLo(props: HiLoConfig) {
             </CardPreview>
             <div className="romance-result-area">
               {profit > 0 ? (
-                <Profit key={profit} onClick={resetGame}>
+                <Profit key={profit} onClick={resetGame} enableMotion={settings.enableMotion}>
                   💕 Love wins: <TokenValue amount={profit} /> +{Math.round(profit / initialWager * 100 - 100).toLocaleString()}%
                 </Profit>
               ) : (
@@ -218,7 +240,7 @@ export default function HiLo(props: HiLoConfig) {
                 </Container>
               </div>
             </GambaUi.Responsive>
-          </GameScreenFrame>
+          </GameplayFrame>
         </StyledHiLoBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">

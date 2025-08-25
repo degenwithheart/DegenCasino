@@ -29,6 +29,7 @@ import EmbeddedTransaction from './components/EmbeddedTransaction';
 import { PlayerView } from './components/PlayerView';
 import { PlatformView } from './components/PlatformView';
 import ExplorerIndex from './components/ExplorerIndex';
+import { GraphicsProvider } from './components/GameScreenFrame';
 
 const SIDEBAR_WIDTH = 80;
 
@@ -122,13 +123,14 @@ export default function App() {
   }, []);
 
   return (
-    <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
-      {showGamesModal && (
-        <Modal onClose={() => setShowGamesModal(false)}>
-          <h2 style={{ textAlign: 'center', marginBottom: 16 }}>All Games</h2>
-          <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
-        </Modal>
-      )}
+    <GraphicsProvider>
+      <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
+        {showGamesModal && (
+          <Modal onClose={() => setShowGamesModal(false)}>
+            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>All Games</h2>
+            <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
+          </Modal>
+        )}
       {newcomer && (
         <Modal>
           <div
@@ -241,5 +243,6 @@ export default function App() {
       <Footer />
       {ENABLE_TROLLBOX && connected && <TrollBox />}
     </GamesModalContext.Provider>
+    </GraphicsProvider>
   );
 }

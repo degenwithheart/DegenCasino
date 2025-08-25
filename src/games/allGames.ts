@@ -65,19 +65,6 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./Flip')),
   },
   {
-    id: 'flip-v1',
-    live: 'new',
-    meta: {
-      name: 'Flip Duel',
-      background: '#000000CC',
-      image: '/games/flip-dual.png',
-      description: `Two souls, one silver coin, and the breath of destiny between them. This is not just a flip — it is a duel where fate itself becomes the weapon. Face your opponent across the void of chance, both of you bound by the same prayer, the same desperate hope that the spinning silver will favor your choice. When the coin tumbles, it carries with it not just your fortune, but your honor. Victory tastes sweeter when earned against another dreamer, and defeat cuts deeper when witnessed by a rival. In this arena of pure chance, there are no second chances, no mercy, only the raw collision of two destinies and the silver arbiter that decides which dreams survive.`,
-      tag: 'Multiplayer',
-      effect: 'pulse',
-    },
-    app: React.lazy(() => import('./Flip-v1')),
-  },
-  {
     id: 'roulette',
     live: 'new',
     meta: {
@@ -154,19 +141,6 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       effect: 'pulse',
     },
     app: React.lazy(() => import('./BlackJack')),
-  },
-  {
-    id: 'blackjack-v1',
-    live: 'new',
-    meta: {
-      name: 'BlackJack Duel',
-      background: '#000000CC',
-      image: '/games/blackjack-dual.png',
-      description: `The cards whisper secrets across a table where two souls meet in perfect tension. No dealer stands between you — just the raw clash of will against will, heart against heart. Twenty-one remains the sacred number, but now it must be earned not against the house, but against another dreamer who wants victory just as desperately as you do. Each card drawn is both promise and threat, each decision a chess move in a game of chance. When you hit, you dare not just fate but your opponent's courage. When you stand, you challenge their nerve. This is BlackJack stripped to its essence: pure human drama played out in hearts and spades, where the only dealer is destiny itself.`,
-      tag: 'Multiplayer',
-      effect: 'pulse',
-    },
-    app: React.lazy(() => import('./BlackJack-v1')),
   },
   {
     id: 'progressivepoker',

@@ -108,7 +108,7 @@ export const Level = styled.div<{$active: boolean}>`
   `}
 `
 
-export const CellButton = styled.button<{status: CellStatus, selected: boolean}>`
+export const CellButton = styled.button<{status: CellStatus, selected: boolean, enableMotion?: boolean}>`
   display: flex;
   position: relative;
   align-items: center;
@@ -121,26 +121,45 @@ export const CellButton = styled.button<{status: CellStatus, selected: boolean}>
   font-weight: bold;
   aspect-ratio: 1;
   width: 60px;
-  transition: background 0.3s, opacity .3s, filter .2s ease;
+  transition: ${props => props.enableMotion !== false ? 'background 0.3s, opacity .3s, filter .2s ease' : 'none'};
   font-size: 12px;
   cursor: pointer;
 
-  ${(props) => props.selected && css`
+  ${(props) => props.selected && props.enableMotion !== false && css`
     animation: ${tickingAnimation} .5s ease infinite;
     z-index: 10;
     opacity: 1!important;
   `}
 
-  ${(props) => props.status === 'gold' && css`
+  ${(props) => props.status === 'gold' && props.enableMotion !== false && css`
     color: white;
     animation: ${goldReveal} .5s ease;
     opacity: 1;
   `}
 
-  ${(props) => props.status === 'mine' && css`
+  ${(props) => props.status === 'mine' && props.enableMotion !== false && css`
     background: #ff5252;
     z-index: 10;
     animation: ${mineReveal} .3s ease;
+    opacity: 1;
+  `}
+  
+  /* Static styles when motion is disabled */
+  ${(props) => props.selected && props.enableMotion === false && css`
+    z-index: 10;
+    opacity: 1!important;
+    background: #BBBBFF; /* Highlighted static color */
+  `}
+
+  ${(props) => props.status === 'gold' && props.enableMotion === false && css`
+    color: white;
+    opacity: 1;
+    background: #FFD700; /* Gold static color */
+  `}
+
+  ${(props) => props.status === 'mine' && props.enableMotion === false && css`
+    background: #ff5252;
+    z-index: 10;
     opacity: 1;
   `}
 

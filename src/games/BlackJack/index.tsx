@@ -5,7 +5,8 @@ import React from 'react'
 import { BLACKJACK_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import { CARD_VALUES, RANKS, RANK_SYMBOLS, SUIT_COLORS, SUIT_SYMBOLS, SUITS, SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledBlackjackBackground } from './BlackjackBackground.enhanced.styles'
 
@@ -39,6 +40,12 @@ export default function Blackjack(props: BlackjackConfig) {
   const [claiming, setClaiming] = React.useState(false)
   const [showBetToken, setShowBetToken] = React.useState(false)
   const [isDealing, setIsDealing] = React.useState(false)
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Effects system for enhanced blackjack feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -160,6 +167,31 @@ export default function Blackjack(props: BlackjackConfig) {
     setProfit(result.payout)
     setIsDealing(false)
 
+    // Enhanced blackjack effects based on outcome
+    if (effectsRef.current) {
+      if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
+        // Special blackjack win effects (21)
+        effectsRef.current.winFlash('#fbbf24', 3.5)
+        setTimeout(() => {
+          effectsRef.current?.particleBurst(undefined, undefined, '#fbbf24', 100)
+          effectsRef.current?.screenShake(4.5, 1800)
+        }, 500)
+      } else if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerWin) {
+        // Regular win effects
+        effectsRef.current.winFlash('#22c55e', 2.5)
+        setTimeout(() => {
+          effectsRef.current?.particleBurst(undefined, undefined, '#22c55e', 70)
+          effectsRef.current?.screenShake(3, 1200)
+        }, 300)
+      } else {
+        // Lose effects (bust or dealer wins)
+        effectsRef.current.loseFlash('#ef4444', 2)
+        setTimeout(() => {
+          effectsRef.current?.screenShake(2, 1000)
+        }, 200)
+      }
+    }
+
     // Play the appropriate sound based on the result
     if (payoutMultiplier === BLACKJACK_CONFIG.outcomes.playerBlackjack) {
       // Do nothing; jackpot sound already played
@@ -181,7 +213,7 @@ export default function Blackjack(props: BlackjackConfig) {
   }
 
   return (
-    <>
+    <GameplayFrame ref={effectsRef}>
       <GambaUi.Portal target="screen">
         <StyledBlackjackBackground>
           {/* Casino table background elements */}
@@ -189,17 +221,14 @@ export default function Blackjack(props: BlackjackConfig) {
           <div className="smoke-overlay" />
           <div className="tension-indicator" />
           
-          <GameScreenFrame 
-            {...(useGameMeta('blackjack') && { title: useGameMeta('blackjack')!.name, description: useGameMeta('blackjack')!.description })}
-          >
-            <GambaUi.Responsive>
-              <div className="casino-table">
+          <GambaUi.Responsive>
+            <div className="casino-table">
 
-                {/* Dealer Section */}
-                <div className="dealer-area">
-                  <div className="dealer-label">
-                    <span className="dealer-icon">🎩</span>
-                    <span>DEALER</span>
+              {/* Dealer Section */}
+              <div className="dealer-area">
+                <div className="dealer-label">
+                  <span className="dealer-icon">🎩</span>
+                  <span>DEALER</span>
                     <div className="dealer-score">
                       {dealerCards.length > 0 ? (
                         <span className={getHandValue(dealerCards) > 21 ? 'bust' : ''}>
@@ -233,7 +262,10 @@ export default function Blackjack(props: BlackjackConfig) {
                         </>
                       ) : (
                         dealerCards.map((card, index) => (
-                          <div key={card.key} className="casino-card" style={{ animationDelay: `${index * 0.3}s` }}>
+                          <div key={card.key} className="casino-card" style={{ 
+                            animationDelay: settings.enableMotion ? `${index * 0.3}s` : '0s',
+                            animation: settings.enableMotion ? undefined : 'none'
+                          }}>
                             <div 
                               className="playing-card dealer-card" 
                               style={{ color: SUIT_COLORS[card.suit] }}
@@ -311,7 +343,10 @@ export default function Blackjack(props: BlackjackConfig) {
                           </>
                         ) : (
                           playerCards.map((card, index) => (
-                            <div key={card.key} className="casino-card" style={{ animationDelay: `${(index + 2) * 0.3}s` }}>
+                            <div key={card.key} className="casino-card" style={{ 
+                              animationDelay: settings.enableMotion ? `${(index + 2) * 0.3}s` : '0s',
+                              animation: settings.enableMotion ? undefined : 'none'
+                            }}>
                               <div 
                                 className="playing-card player-card" 
                                 style={{ color: SUIT_COLORS[card.suit] }}
@@ -357,12 +392,11 @@ export default function Blackjack(props: BlackjackConfig) {
                     <div className="waiting-banner">
                       <span className="waiting-icon">🎲</span>
                       <span className="waiting-text">Place Your Bet and Deal</span>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </GambaUi.Responsive>
-          </GameScreenFrame>
+            </div>
+          </GambaUi.Responsive>
         </StyledBlackjackBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
@@ -381,6 +415,6 @@ export default function Blackjack(props: BlackjackConfig) {
           </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
-    </>
+    </GameplayFrame>
   )
 }

@@ -6,11 +6,12 @@ import { MINES_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
 import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { generateGrid, revealAllMines, revealGold } from './utils'
 import { StyledMinesBackground } from './MinesBackground.enhanced.styles'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 
 // Enhanced styles for Mines info display (similar to ProgressiveInfo)
 const pulseFade = keyframes`
@@ -19,7 +20,7 @@ const pulseFade = keyframes`
   100% { opacity: 0.3; }
 `
 
-const MinesInfo = styled.div<{ visible: boolean }>`
+const MinesInfo = styled.div<{ visible: boolean, enableMotion?: boolean }>`
   text-align: center;
   background: rgba(147, 88, 255, 0.1);
   border: 1px solid rgba(147, 88, 255, 0.3);
@@ -28,14 +29,16 @@ const MinesInfo = styled.div<{ visible: boolean }>`
   margin: 0;
   min-height: 60px;
   display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
   gap: 15px;
   opacity: ${props => props.visible ? 1 : 0};
   visibility: ${props => props.visible ? 'visible' : 'hidden'};
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: ${props => props.enableMotion !== false ? 'opacity 0.3s ease, visibility 0.3s ease' : 'none'};
+
+  ${props => props.visible && props.enableMotion !== false && css`
+    animation: ${pulseFade} 1.6s infinite;
+  `}
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -159,6 +162,12 @@ function Mines() {
     explode: SOUND_EXPLODE,
   })
   const pool = useCurrentPool()
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Effects system for enhanced visual feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const [grid, setGrid] = React.useState(generateGrid(GRID_SIZE))
   const [currentLevel, setLevel] = React.useState(0)
@@ -256,6 +265,11 @@ function Mines() {
         setStarted(false)
         setGrid(revealAllMines(grid, cellIndex, mines))
         sounds.play('explode')
+        
+        // 💥 TRIGGER MINE EXPLOSION EFFECTS
+        console.log('💥 MINE HIT! Triggering explosion effects')
+        effectsRef.current?.loseFlash() // Use theme's loseGlow color
+        effectsRef.current?.screenShake(2, 800) // Strong shake for mine explosion
         return
       }
 
@@ -266,10 +280,21 @@ function Mines() {
 
       if (nextLevel < GRID_SIZE - mines) {
         sounds.play('win', { playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) })
+        
+        // ✨ TRIGGER LEVEL UP EFFECTS
+        console.log('✨ LEVEL UP! Safe cell found')
+        effectsRef.current?.particleBurst(50, 50, undefined, 5) // Small burst for level up
+        effectsRef.current?.screenShake(0.3, 200) // Very light shake for feedback
       } else {
-        // No more squares
+        // No more squares - game completed!
         sounds.play('win', { playbackRate: .9 })
         sounds.play('finish')
+        
+        // 🎉 TRIGGER GAME COMPLETION EFFECTS
+        console.log('🎉 MINES COMPLETED! All safe cells found')
+        effectsRef.current?.winFlash() // Use theme's winGlow color
+        effectsRef.current?.particleBurst(50, 40, undefined, 15) // Large burst for completion
+        effectsRef.current?.screenShake(1.5, 1000) // Medium shake for completion
       }
     } finally {
       setLoading(false)
@@ -288,7 +313,10 @@ function Mines() {
           <div className="seductive-overlay" />
           <div className="lovers-test-indicator" />
           
-          <GameScreenFrame {...(useGameMeta('mines') && { title: useGameMeta('mines')!.name, description: useGameMeta('mines')!.description })}>
+          <GameplayFrame 
+            ref={effectsRef}
+            {...(useGameMeta('mines') && { title: useGameMeta('mines')!.name, description: useGameMeta('mines')!.description })}
+          >
             <div className="mines-content">
               <Container2 className="lovers-labyrinth">
                 <div className="danger-header">
@@ -312,7 +340,7 @@ function Mines() {
                 </EnhancedLevels>
 
                 {/* Always show mines info - always visible like poker */}
-                <MinesInfo visible={true}>
+                <MinesInfo visible={true} enableMotion={settings.enableMotion}>
                   {started ? (
                     <>
                       <InfoItem>
@@ -388,6 +416,7 @@ function Mines() {
                     selected={selected === index}
                     onClick={() => play(index)}
                     disabled={!canPlay || cell.status !== 'hidden'}
+                    enableMotion={settings.enableMotion}
                   >
                     {cell.status === 'mine' && (
                       <div style={{ fontSize: '24px' }}>
@@ -406,7 +435,7 @@ function Mines() {
                 </GambaUi.Responsive>
               </Container2>
             </div>
-          </GameScreenFrame>
+          </GameplayFrame>
         </StyledMinesBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">

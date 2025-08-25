@@ -8,7 +8,8 @@ import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls
 import Slider from './Slider'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import { Container, Result, RollUnder, Stats } from './styles'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledDiceBackground } from './DiceBackground.enhanced.styles'
 
@@ -23,6 +24,13 @@ export default function Dice() {
   const pool = useCurrentPool()
   const [resultIndex, setResultIndex] = React.useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(100 / 2))
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Add ref for gameplay effects
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  
   const sounds = useSound({
     win: SOUND_WIN,
     play: SOUND_PLAY,
@@ -65,11 +73,30 @@ export default function Dice() {
       const value = Math.floor(rng() * span) // 0 .. rollUnderIndex-1
       setResultIndex(value)
       sounds.play('win')
+      
+      // 🎉 TRIGGER WIN EFFECTS
+      console.log('🎉 WIN! Triggering visual effects')
+      effectsRef.current?.winFlash('#00ff00', 1.5) // Green win flash
+      effectsRef.current?.particleBurst(50, 30, '#ffd700', 15) // Gold particles from center-top
+      
+      // Bigger wins get more intense effects
+      if (result.multiplier > 5) {
+        effectsRef.current?.screenShake(2, 800) // Strong shake for big wins
+        effectsRef.current?.particleBurst(25, 50, '#ff6b6b', 8) // Red particles from left
+        effectsRef.current?.particleBurst(75, 50, '#4ecdc4', 8) // Cyan particles from right
+      } else if (result.multiplier > 2) {
+        effectsRef.current?.screenShake(1, 600) // Medium shake
+      }
     } else {
       const span = 100 - rollUnderIndex
       const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. 99
       setResultIndex(value)
       sounds.play('lose')
+      
+      // 💥 TRIGGER LOSE EFFECTS
+      console.log('💥 LOSE! Triggering lose effects')
+      effectsRef.current?.flash('#ff4444', 400) // Red lose flash
+      effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
     }
   }
 
@@ -81,7 +108,13 @@ export default function Dice() {
           <div className="mystical-bg-elements" />
           <div className="sacred-overlay" />
           
-          <GameScreenFrame {...(useGameMeta('dice') && { title: useGameMeta('dice')!.name, description: useGameMeta('dice')!.description })}>
+          <GameplayFrame 
+            ref={effectsRef}
+            {...(useGameMeta('dice') && { 
+              title: useGameMeta('dice')!.name, 
+              description: useGameMeta('dice')!.description 
+            })}
+          >
             <GambaUi.Responsive>
               <div className="dice-redesign">
                 {/* Header Stats */}
@@ -170,7 +203,7 @@ export default function Dice() {
                 </div>
               </div>
             </GambaUi.Responsive>
-          </GameScreenFrame>
+          </GameplayFrame>
         </StyledDiceBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">

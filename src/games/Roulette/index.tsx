@@ -5,6 +5,9 @@ import React from 'react'
 import { RouletteTable, RouletteWheel } from 'react-casino-roulette'
 import 'react-casino-roulette/dist/index.css'
 import styled from 'styled-components'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
+import { useGameMeta } from '../useGameMeta'
 import { Chip } from './Chip'
 import { StyledResults } from './Roulette.styles'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
@@ -20,10 +23,10 @@ const Wrapper = styled.div`
   -webkit-user-select: none;
   color: white;
 `
-function Results() {
+function Results({ enableMotion = true }: { enableMotion?: boolean }) {
   const _results = computed(() => [...results.value].reverse())
   return (
-    <StyledResults>
+    <StyledResults enableMotion={enableMotion}>
       {_results.value.map((index, i) => {
         return (
           <div key={i}>
@@ -86,11 +89,17 @@ export default function Roulette() {
   const balance = useUserBalance()
   const gamba = useGamba()
   
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
   // Phase management for multi-phase roulette
   const [phase, setPhase] = React.useState<'betting' | 'spinning' | 'result'>('betting')
   const [winningNumber, setWinningNumber] = React.useState<string>('0')
   const [wheelSpinning, setWheelSpinning] = React.useState(false)
   const [gameResult, setGameResult] = React.useState<any>(null)
+  
+  // Effects system for enhanced visual feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -192,24 +201,38 @@ export default function Roulette() {
     if (gameResult && gameResult.payout > 0) {
       sounds.play('win')
       
-      // Show visual feedback for the actual payout from Gamba
+      // 🎉 TRIGGER ROULETTE WIN EFFECTS
       console.log(`🎉 WIN! Gamba payout: ${gameResult.payout}, multiplier: ${gameResult.multiplier}`)
+      effectsRef.current?.winFlash() // Use theme's winGlow color
+      effectsRef.current?.particleBurst(50, 50) // Use theme's particleWin color
       
       // Visual celebration based on actual result.multiplier from Gamba
       if (gameResult.multiplier >= 35) {
         console.log('🎆 HUGE WIN! Straight up bet!')
+        effectsRef.current?.screenShake(2.5, 1200) // Massive shake for straight up
+        effectsRef.current?.particleBurst(25, 25, undefined, 15) // Extra particles
+        effectsRef.current?.particleBurst(75, 75, undefined, 15) // More particles
       } else if (gameResult.multiplier >= 17) {
         console.log('💰 BIG WIN! Split bet!')
+        effectsRef.current?.screenShake(2, 1000) // Strong shake for split
+        effectsRef.current?.particleBurst(30, 30, undefined, 10) // Additional particles
       } else if (gameResult.multiplier >= 5) {
         console.log('✨ NICE WIN! Inside bet!')
+        effectsRef.current?.screenShake(1.5, 800) // Medium shake for inside bets
       } else if (gameResult.multiplier >= 2) {
         console.log('🎊 Good win! Outside bet!')
+        effectsRef.current?.screenShake(1, 600) // Light shake for outside bets
       } else {
         console.log('🙂 Small win!')
+        effectsRef.current?.screenShake(0.7, 400) // Minimal shake for small wins
       }
     } else {
       sounds.play('lose')
       console.log('💔 No payout from Gamba.result')
+      
+      // 💥 TRIGGER ROULETTE LOSE EFFECTS
+      effectsRef.current?.loseFlash() // Use theme's loseGlow color
+      effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
     }
     
     // Return to betting phase after showing result
@@ -223,29 +246,36 @@ export default function Roulette() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          {phase === 'betting' && (
-            <Wrapper onContextMenu={(e) => e.preventDefault()}>
-              <Stats wager={actualWager} />
-              <Results />
-              <RouletteTable
-                onBet={handleRouletteTableBet}
-                bets={rouletteBets}
-              />
-            </Wrapper>
-          )}
-          
-          {(phase === 'spinning' || phase === 'result') && (
-            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <RouletteWheel
-                start={wheelSpinning}
-                winningBet={winningNumber}
-                onSpinningEnd={handleWheelSpinEnd}
-                withAnimation={true}
-              />
-            </div>
-          )}
-        </GambaUi.Responsive>
+        <GameplayFrame 
+          ref={effectsRef}
+          title={useGameMeta('roulette')?.name}
+          description={useGameMeta('roulette')?.description}
+          gameState={phase === 'betting' ? 'playing' : phase === 'spinning' ? 'loading' : 'finished'}
+        >
+          <GambaUi.Responsive>
+            {phase === 'betting' && (
+              <Wrapper onContextMenu={(e) => e.preventDefault()}>
+                <Stats wager={actualWager} />
+                <Results enableMotion={settings.enableMotion} />
+                <RouletteTable
+                  onBet={handleRouletteTableBet}
+                  bets={rouletteBets}
+                />
+              </Wrapper>
+            )}
+            
+            {(phase === 'spinning' || phase === 'result') && (
+              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <RouletteWheel
+                  start={wheelSpinning}
+                  winningBet={winningNumber}
+                  onSpinningEnd={handleWheelSpinEnd}
+                  withAnimation={settings.enableMotion}
+                />
+              </div>
+            )}
+          </GambaUi.Responsive>
+        </GameplayFrame>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls

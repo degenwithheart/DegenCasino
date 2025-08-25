@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import rocketAnimation from './rocket.gif'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
@@ -27,22 +27,26 @@ export const animStar = keyframes`
   }
 `
 
-export const StarsLayer = styled.div`
+export const StarsLayer = styled.div<{ enableMotion?: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: transparent;
-  animation: ${animStar} linear infinite;
+  ${props => props.enableMotion !== false && css`
+    animation: ${animStar} linear infinite;
+  `}
 `
 
 export const StarsLayer1 = styled(StarsLayer)`
   width: 1px;
   height: 1px;
-  animation-duration: 150s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 150s;
+  `}
   opacity: 1;
-  transition: opacity 12s;
+  transition: ${props => props.enableMotion !== false ? 'opacity 12s' : 'none'};
   box-shadow: ${shadowsSmall};
 `
 
@@ -50,16 +54,20 @@ export const LineLayer1 = styled(StarsLayer)`
   width: 1px;
   height: 12px;
   top: -12px;
-  animation-duration: 75s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 75s;
+  `}
   opacity: 0;
-  transition: opacity 2s;
+  transition: ${props => props.enableMotion !== false ? 'opacity 2s' : 'none'};
   box-shadow: ${shadowsSmall};
 `
 
 export const StarsLayer2 = styled(StarsLayer)`
   width: 2px;
   height: 2px;
-  animation-duration: 100s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 100s;
+  `}
   box-shadow: ${shadowsMedium};
 `
 
@@ -67,16 +75,20 @@ export const LineLayer2 = styled(StarsLayer)`
   width: 2px;
   height: 25px;
   top: -25px;
-  animation-duration: 6s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 6s;
+  `}
   opacity: 0;
-  transition: opacity 1s;
+  transition: ${props => props.enableMotion !== false ? 'opacity 1s' : 'none'};
   box-shadow: ${shadowsMedium};
 `
 
 export const StarsLayer3 = styled(StarsLayer)`
   width: 3px;
   height: 3px;
-  animation-duration: 50s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 50s;
+  `}
   box-shadow: ${shadowsBig};
 `
 
@@ -84,9 +96,11 @@ export const LineLayer3 = styled(StarsLayer)`
   width: 2px;
   height: 50px;
   top: -50px;
-  animation-duration: 3s;
+  ${props => props.enableMotion !== false && css`
+    animation-duration: 3s;
+  `}
   opacity: 0;
-  transition: opacity 1s;
+  transition: ${props => props.enableMotion !== false ? 'opacity 1s' : 'none'};
   box-shadow: ${shadowsBig};
 `
 

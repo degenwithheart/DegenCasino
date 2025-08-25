@@ -127,6 +127,7 @@ export const StyledFlipBackground = styled.div`
     transition: all 0.3s ease;
     cursor: pointer;
     min-width: 80px;
+    position: relative;
 
     img {
       width: 48px;
@@ -144,24 +145,78 @@ export const StyledFlipBackground = styled.div`
       letter-spacing: 0.5px;
     }
 
-    &.active {
-      background: rgba(16, 185, 129, 0.2);
-      border: 2px solid rgba(16, 185, 129, 0.5);
-      transform: scale(1.05);
+    &.selected {
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid rgba(59, 130, 246, 0.5);
+      transform: scale(1.02);
 
       img {
-        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
-        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+      }
+
+      span {
+        color: #3b82f6;
+      }
+    }
+
+    &.winner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(52, 211, 153, 0.2));
+      border: 2px solid #10B981;
+      transform: scale(1.1);
+      animation: winnerPulse 2s ease-in-out infinite;
+
+      img {
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+        transform: scale(1.15);
       }
 
       span {
         color: #10B981;
+        font-weight: 700;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
       }
     }
 
-    &:not(.active):hover {
+    &:not(.selected):not(.winner):hover {
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
+    }
+  }
+
+  .result-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(45deg, #10B981, #34D399);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    animation: badgeBounce 0.6s ease-out;
+  }
+
+  @keyframes winnerPulse {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+    }
+  }
+
+  @keyframes badgeBounce {
+    0% { 
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% { 
+      transform: scale(1.2) rotate(-90deg);
+    }
+    100% { 
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
     }
   }
 
@@ -201,8 +256,8 @@ export const StyledFlipBackground = styled.div`
   }
 
   .coin-container {
-    width: 280px;
-    height: 280px;
+    width: 350px;
+    height: 350px;
     border-radius: 50%;
     background: transparent;
     box-shadow: 

@@ -5,7 +5,8 @@ import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
 import SOUND from './music.mp3'
 import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapper, StarsLayer1, StarsLayer2, StarsLayer3 } from './styles'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { CRASH_CONFIG } from '../rtpConfig'
 import WIN_SOUND from './win.mp3'
@@ -18,6 +19,12 @@ export default function CrashGame() {
   const [rocketState, setRocketState] = React.useState<'idle' | 'win' | 'crash'>('idle')
   const game = GambaUi.useGame()
   const sound = useSound({ music: SOUND, crash: CRASH_SOUND, win: WIN_SOUND })
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Effects system for enhanced visual feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const getRocketStyle = () => {
     const maxMultiplier = 1
@@ -53,6 +60,19 @@ export default function CrashGame() {
       sound.play(win ? 'win' : 'crash')
       setRocketState(win ? 'win' : 'crash')
       setCurrentMultiplier(targetMultiplier)
+      
+      // ✨ TRIGGER CRASH GAME EFFECTS
+      if (win) {
+        console.log('🚀 CRASH WIN! Rocket reached target')
+        effectsRef.current?.winFlash() // Use theme's winGlow color
+        effectsRef.current?.particleBurst(70, 30, undefined, 12) // Rocket trail particles
+        effectsRef.current?.screenShake(1, 600) // Medium shake for win
+      } else {
+        console.log('💥 CRASH! Rocket exploded')
+        effectsRef.current?.loseFlash() // Use theme's loseGlow color
+        effectsRef.current?.particleBurst(70, 30, undefined, 20) // Explosion particles
+        effectsRef.current?.screenShake(2, 800) // Strong shake for crash
+      }
       return
     }
 
@@ -105,20 +125,23 @@ export default function CrashGame() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameScreenFrame {...(useGameMeta('crash') && { title: useGameMeta('crash')!.name, description: useGameMeta('crash')!.description })}>
+        <GameplayFrame 
+          ref={effectsRef}
+          {...(useGameMeta('crash') && { title: useGameMeta('crash')!.name, description: useGameMeta('crash')!.description })}
+        >
         <ScreenWrapper>
-          <StarsLayer1 style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
-          <LineLayer1 style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
-          <StarsLayer2 style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
-          <LineLayer2 style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
-          <StarsLayer3 style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
-          <LineLayer3 style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
+          <StarsLayer1 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
+          <LineLayer1 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
+          <StarsLayer2 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 2 ? 0 : 1 }} />
+          <LineLayer2 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 2 ? 1 : 0 }} />
+          <StarsLayer3 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 1 ? 0 : 1 }} />
+          <LineLayer3 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 1 ? 1 : 0 }} />
           <MultiplierText color={multiplierColor}>
             {currentMultiplier.toFixed(2)}x
           </MultiplierText>
           <Rocket style={getRocketStyle()} />
         </ScreenWrapper>
-        </GameScreenFrame>
+        </GameplayFrame>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls

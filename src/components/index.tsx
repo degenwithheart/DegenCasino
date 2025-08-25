@@ -2,6 +2,8 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 export * from './GameSplashScreen'
+export { default as GameplayFrame } from './GameplayFrame'
+export { useGameplayEffects } from '../hooks/useGameplayEffects'
 
 export const SelectableButton = styled.button<{selected?: boolean}>`
   all: unset;

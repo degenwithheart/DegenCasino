@@ -51,16 +51,16 @@ export const Option = styled.button<{ selected?: boolean }>`
   opacity: var(--opacity);
 `
 
-export const Profit = styled.div`
-  font-size: 18px;
-  color: #005400;
-  position: absolute;
-  right: 0px;
-  bottom: -100px;
+export const Token = styled.div`
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
   border-radius: 50px;
   background: #69ff6d;
   padding: 5px;
-  animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  /* Animation will be conditionally applied via class or props */
 `
 
 export const CardPreview = styled.div`
@@ -75,8 +75,8 @@ export const CardPreview = styled.div`
   }
 `
 
-export const CardsContainer = styled.div`
-  transition: transform .2s ease;
+export const CardsContainer = styled.div<{ enableMotion?: boolean }>`
+  transition: ${props => props.enableMotion !== false ? 'transform .2s ease' : 'none'};
   perspective: 500px;
   display: flex;
   position: relative;
@@ -84,15 +84,17 @@ export const CardsContainer = styled.div`
   align-items: center;
 `
 
-export const CardContainer = styled.div`
+export const CardContainer = styled.div<{ enableMotion?: boolean }>`
   position: absolute;
   bottom: 0;
-  transition: transform .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity .25s ease;
+  transition: ${props => props.enableMotion !== false ? 'transform .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity .25s ease' : 'none'};
   filter: drop-shadow(-10px 10px 0px #00000011);
   transform-origin: bottom;
   perspective: 500px;
   & > div {
-    animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
+    ${props => props.enableMotion !== false && css`
+      animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
+    `}
   }
 `
 
@@ -136,8 +138,10 @@ const float = keyframes`
   50% { transform: translateY(-10px); }
 `
 
-export const WarningMessage = styled.div`
-  animation: ${float} 2s ease-in-out infinite;
+export const WarningMessage = styled.div<{ enableMotion?: boolean }>`
+  ${props => props.enableMotion !== false && css`
+    animation: ${float} 2s ease-in-out infinite;
+  `}
   position: absolute;
   right: 0;
   top: 50%;
@@ -150,4 +154,17 @@ export const WarningMessage = styled.div`
   color: black;
   white-space: nowrap;
   pointer-events: none;
+`
+
+export const Profit = styled.div<{ enableMotion?: boolean }>`
+  font-size: 18px;
+  color: #005400;
+  margin-top: 20px;
+  border-radius: 50px;
+  background: #69ff6d;
+  padding: 5px 10px;
+  ${props => props.enableMotion !== false && css`
+    animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  `}
+  cursor: pointer;
 `
