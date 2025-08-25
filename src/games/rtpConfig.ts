@@ -227,7 +227,7 @@ plinko: {
         // Player bets next card will be lower
         const winningCards = currentRank;
         if (winningCards > 0) {
-          const winProbability = winningCards / RANKS; // corrected denominator
+          const winProbability = winningCards / RANKS;
           const fairMultiplier = 1 / winProbability;
           const houseMultiplier = fairMultiplier * RTP_TARGETS.hilo;
           // Set winning outcomes for lower cards
@@ -490,18 +490,19 @@ plinko: {
       'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
     ],
     // Payouts optimized for 96% RTP, ULTRA HIGH VOLATILITY - fewer wins, bigger payouts
-    // [High Card Bust, High Card Bust, Low Pair Bust, Pair, Two Pair, Three Kind, Straight, High Hands]
+    // Mathematical calculation: target_RTP = sum(probability_i * payout_i)
+    // 96% = 8.35*P1 + 4.57*P2 + 2.03*P3 + 1.25*P4 + 0.37*P5 (where P1-P5 are non-zero payouts)
     betArray: [
-      0,    // 0: High Card (Bust) - 30.11% chance, 0x payout
-      0,    // 1: High Card (Bust) - 20.01% chance, 0x payout
-      0,    // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
-      2.0,  // 3: Jacks+ Pair - 8.35% chance, 2.0x payout (reduced from 2.5x)
-      4.0,  // 4: Two Pair - 4.57% chance, 4.0x payout (reduced from 4.5x)
-      5.5,  // 5: Three of a Kind - 2.03% chance, 5.5x payout (reduced from 6x)
-      6.5,  // 6: Straight - 1.25% chance, 6.5x payout (reduced from 7x)
-      15,   // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 15x payout (increased from 12x)
+      0,      // 0: High Card (Bust) - 30.11% chance, 0x payout
+      0,      // 1: High Card (Bust) - 20.01% chance, 0x payout
+      0,      // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
+      3.6959, // 3: Jacks+ Pair - 8.35% chance, 3.6959x payout
+      5.5438, // 4: Two Pair - 4.57% chance, 5.5438x payout  
+      7.3917, // 5: Three of a Kind - 2.03% chance, 7.3917x payout
+      11.0876,// 6: Straight - 1.25% chance, 11.0876x payout
+      29.5669,// 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 29.5669x payout
     ],
-    // Actual RTP: (8.35*2.0 + 4.57*4.0 + 2.03*5.5 + 1.25*6.5 + 0.37*15) / 100 = 96.01%
+    // Actual RTP: (8.35*3.6959 + 4.57*5.5438 + 2.03*7.3917 + 1.25*11.0876 + 0.37*29.5669) / 100 = 96.000%
     // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)
     
     // PROBABILITIES: Ultra high volatility - 83.4% bust rate, rare but meaningful wins
