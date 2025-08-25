@@ -68,17 +68,33 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
     case 'mines':
       game.MINE_SELECT.forEach((mineCount: number) => {
         for (let revealed = 0; revealed <= Math.min(game.GRID_SIZE - mineCount, 15); revealed++) {
-          scenarios.push({
-            scenario: `mines=${mineCount}_revealed=${revealed}`,
-            betArray: game.generateBetArray(mineCount, revealed)
-          });
+          const betArray = game.generateBetArray(mineCount, revealed);
+          // Only add scenario if it has at least one winning outcome
+          if (betArray.some(bet => bet > 0)) {
+            scenarios.push({
+              scenario: `mines=${mineCount}_revealed=${revealed}`,
+              betArray
+            });
+          }
         }
       });
       break;
     case 'hilo':
       for (let rank = 0; rank < game.RANKS; rank++) {
-        scenarios.push({ scenario: `hi_rank=${rank}`, betArray: game.calculateBetArray(rank, true) });
-        scenarios.push({ scenario: `lo_rank=${rank}`, betArray: game.calculateBetArray(rank, false) });
+        // Only test HI if there are cards higher than current rank
+        if (rank < game.RANKS - 1) {
+          const hiBetArray = game.calculateBetArray(rank, true);
+          if (hiBetArray.some(bet => bet > 0)) {
+            scenarios.push({ scenario: `hi_rank=${rank}`, betArray: hiBetArray });
+          }
+        }
+        // Only test LO if there are cards lower than current rank
+        if (rank > 0) {
+          const loBetArray = game.calculateBetArray(rank, false);
+          if (loBetArray.some(bet => bet > 0)) {
+            scenarios.push({ scenario: `lo_rank=${rank}`, betArray: loBetArray });
+          }
+        }
       }
       break;
     case 'dice':

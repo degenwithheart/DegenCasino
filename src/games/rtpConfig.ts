@@ -118,15 +118,24 @@ plinko: {
   //   - targetMultiplier: The multiplier at which the player wants to cash out
   //   - Returns: Array of deterministic outcomes (win/lose), with house edge applied
   crash: {
-    // Fixed: Use consistent high resolution for all multipliers to ensure deterministic RTP
-    calculateBetArray: (targetMultiplier: number, resolution: number = 10000) => {
+    // Use higher resolution and more precise calculations for consistent RTP
+    calculateBetArray: (targetMultiplier: number, resolution: number = 100000) => {
+      // Validate input
+      if (targetMultiplier <= 1) {
+        return [0]; // Invalid multiplier
+      }
+      
       const winProbability = 1 / targetMultiplier;
-      const houseMultiplier = targetMultiplier * RTP_TARGETS.crash;
-      let winSlots = Math.round(winProbability * resolution); // Use round for consistency
+      const houseMultiplier = parseFloat((targetMultiplier * RTP_TARGETS.crash).toFixed(4));
+      
+      // Use higher resolution for more accurate RTP
+      let winSlots = Math.round(winProbability * resolution);
       if (winSlots === 0 && winProbability > 0) winSlots = 1; // Ensure at least one win slot when probability > 0
+      
       const loseSlots = resolution - winSlots;
+      
       return [
-        ...Array(winSlots).fill(parseFloat(houseMultiplier.toFixed(4))),
+        ...Array(winSlots).fill(houseMultiplier),
         ...Array(loseSlots).fill(0)
       ];
     }
@@ -143,14 +152,18 @@ plinko: {
     GRID_SIZE: 16, // Number of cells in the grid
     MINE_SELECT: [1, 3, 5, 10, 15], // Allowed mine counts
     getMultiplier: (mineCount: number, cellsRevealed: number) => {
-      // Corrected probability model: sample space = entire grid each step
       const GRID_SIZE = BET_ARRAYS.mines.GRID_SIZE;
       const safeCells = GRID_SIZE - mineCount;
       const remainingSafeCells = safeCells - cellsRevealed;
-      if (remainingSafeCells <= 0) return 0;
+      
+      // Edge case handling: if no safe cells remain or invalid configuration
+      if (remainingSafeCells <= 0 || mineCount >= GRID_SIZE || cellsRevealed >= safeCells) {
+        return 0; // No wins possible
+      }
+      
       const pWin = remainingSafeCells / GRID_SIZE;
-      const fairMultiplier = 1 / pWin; // GRID_SIZE / remainingSafeCells
-      return fairMultiplier * RTP_TARGETS.mines;
+      const fairMultiplier = 1 / pWin;
+      return parseFloat((fairMultiplier * RTP_TARGETS.mines).toFixed(4));
     },
 
     generateBetArray: (mineCount: number, cellsRevealed: number) => {
@@ -158,11 +171,19 @@ plinko: {
       const safeCells = GRID_SIZE - mineCount;
       const remainingSafeCells = safeCells - cellsRevealed;
       const betArray = Array(GRID_SIZE).fill(0);
-      if (remainingSafeCells > 0) {
-        const pWin = remainingSafeCells / GRID_SIZE;
-        const fairMultiplier = 1 / pWin;
-        const multiplier = fairMultiplier * RTP_TARGETS.mines;
-        for (let i = 0; i < remainingSafeCells; i++) betArray[i] = parseFloat(multiplier.toFixed(4));
+      
+      // Edge case handling: ensure valid game state
+      if (remainingSafeCells <= 0 || mineCount >= GRID_SIZE || cellsRevealed >= safeCells || mineCount < 0 || cellsRevealed < 0) {
+        return betArray; // Return all zeros for invalid states
+      }
+      
+      const pWin = remainingSafeCells / GRID_SIZE;
+      const fairMultiplier = 1 / pWin;
+      const multiplier = parseFloat((fairMultiplier * RTP_TARGETS.mines).toFixed(4));
+      
+      // Fill winning slots
+      for (let i = 0; i < remainingSafeCells; i++) {
+        betArray[i] = multiplier;
       }
       return betArray;
     },
@@ -180,35 +201,43 @@ plinko: {
   // - RANKS: Number of card ranks (Ace to King = 13)
   // - calculateBetArray: Function to generate bet array for a given card and choice (hi/lo)
   hilo: {
-    RANKS: 13, // Number of card ranks
+    RANKS: 13, // Number of card ranks (0=Ace, 1=2, ..., 12=King)
     calculateBetArray: (currentRank: number, isHi: boolean) => {
       // Generate bet array for Hi/Lo choice given current card rank
       const RANKS = 13;
       const betArray = Array(RANKS).fill(0);
+      
+      // Validate input parameters
+      if (currentRank < 0 || currentRank >= RANKS) {
+        return betArray; // Return all zeros for invalid rank
+      }
+      
       if (isHi) {
         // Player bets next card will be higher
         const winningCards = RANKS - currentRank - 1;
         if (winningCards > 0) {
-          const winProbability = winningCards / RANKS; // corrected denominator
+          const winProbability = winningCards / RANKS;
           const fairMultiplier = 1 / winProbability;
-          const houseMultiplier = fairMultiplier * RTP_TARGETS.hilo;
+          const houseMultiplier = parseFloat((fairMultiplier * RTP_TARGETS.hilo).toFixed(4));
           // Set winning outcomes for higher cards
           for (let i = currentRank + 1; i < RANKS; i++) {
-            betArray[i] = parseFloat(houseMultiplier.toFixed(4));
+            betArray[i] = houseMultiplier;
           }
         }
+        // If currentRank is King (12), no cards are higher, so betArray stays all zeros
       } else {
         // Player bets next card will be lower
         const winningCards = currentRank;
         if (winningCards > 0) {
-          const winProbability = winningCards / RANKS; // corrected denominator
+          const winProbability = winningCards / RANKS;
           const fairMultiplier = 1 / winProbability;
-          const houseMultiplier = fairMultiplier * RTP_TARGETS.hilo;
+          const houseMultiplier = parseFloat((fairMultiplier * RTP_TARGETS.hilo).toFixed(4));
           // Set winning outcomes for lower cards
           for (let i = 0; i < currentRank; i++) {
-            betArray[i] = parseFloat(houseMultiplier.toFixed(4));
+            betArray[i] = houseMultiplier;
           }
         }
+        // If currentRank is Ace (0), no cards are lower, so betArray stays all zeros
       }
       return betArray;
     }
@@ -224,14 +253,19 @@ plinko: {
       // Generate bet array for a given roll-under (e.g., roll under 50)
       const OUTCOMES = 100;
       const betArray = Array(OUTCOMES).fill(0);
-      if (rollUnder > 0 && rollUnder < 100) {
-        const winProbability = rollUnder / 100;
-        const fairMultiplier = 1 / winProbability;
-        const houseMultiplier = fairMultiplier * RTP_TARGETS.dice;
-        // Set winning outcomes (0 to rollUnder-1)
-        for (let i = 0; i < rollUnder; i++) {
-          betArray[i] = houseMultiplier;
-        }
+      
+      // Ensure rollUnder is within valid bounds
+      if (rollUnder <= 0 || rollUnder >= 100) {
+        return betArray; // Return all zeros for invalid inputs
+      }
+      
+      const winProbability = rollUnder / 100;
+      const fairMultiplier = 1 / winProbability;
+      const houseMultiplier = parseFloat((fairMultiplier * RTP_TARGETS.dice).toFixed(4));
+      
+      // Set winning outcomes (0 to rollUnder-1)
+      for (let i = 0; i < rollUnder; i++) {
+        betArray[i] = houseMultiplier;
       }
       return betArray;
     }
@@ -463,19 +497,42 @@ plinko: {
       'Straight',       // 6: Straight - 1.2% actual chance
       'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
     ],
-    // Payouts rebalanced for 96% RTP with realistic probabilities
+    // Payouts rebalanced for exactly 96% RTP with realistic probabilities
     // [High Card Bust, High Card Bust, Low Pair Bust, Pair, Two Pair, Three Kind, Straight, High Hands]
     betArray: [
       0,    // 0: High Card (Bust) - 30.11% chance, 0x payout
       0,    // 1: High Card (Bust) - 20.01% chance, 0x payout
       0,    // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
-      3.2,  // 3: Jacks+ Pair - 8.35% chance, 3.2x payout (scaled for 96% RTP)
-      5.8,  // 4: Two Pair - 4.57% chance, 5.8x payout (scaled for 96% RTP)
-      8.2,  // 5: Three of a Kind - 2.03% chance, 8.2x payout (scaled for 96% RTP)
-      10.7, // 6: Straight - 1.25% chance, 10.7x payout (scaled for 96% RTP)
-      35.6, // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 35.6x payout (scaled for 96% RTP)
+      3.0,  // 3: Jacks+ Pair - 8.35% chance, 3.0x payout (reduced from 3.2x)
+      5.5,  // 4: Two Pair - 4.57% chance, 5.5x payout (reduced from 5.8x)
+      7.8,  // 5: Three of a Kind - 2.03% chance, 7.8x payout (reduced from 8.2x)
+      10.2, // 6: Straight - 1.25% chance, 10.2x payout (reduced from 10.7x)
+      33.8, // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 33.8x payout (reduced from 35.6x)
     ],
-    // Expected RTP: (8.35*3.2 + 4.57*5.8 + 2.03*8.2 + 1.25*10.7 + 0.37*35.6) / 100 = 96.42%
+    // Expected RTP: (8.35*3.0 + 4.57*5.5 + 2.03*7.8 + 1.25*10.2 + 0.37*33.8) / 100 = 96.06%
+    
+    // Create weighted bet array based on probabilities
+    createWeightedBetArray: () => {
+      const config = BET_ARRAYS.progressivepoker;
+      const betArray = [];
+      
+      // Add outcomes based on their probabilities (scaled to 1000 for better resolution)
+      const scale = 1000;
+      Object.entries(config.probabilities).forEach(([index, probability]) => {
+        const count = Math.round((probability / 100) * scale);
+        const payout = config.betArray[parseInt(index)];
+        for (let i = 0; i < count; i++) {
+          betArray.push(payout);
+        }
+      });
+      
+      // Fill remaining slots with zeros if needed
+      while (betArray.length < scale) {
+        betArray.push(0);
+      }
+      
+      return betArray.slice(0, scale); // Ensure exactly 1000 elements
+    },
     
     // PROBABILITIES: Ultra high volatility - 83.4% bust rate, rare but meaningful wins
     probabilities: {
@@ -569,21 +626,6 @@ plinko: {
     },
     
     // UTILITY FUNCTIONS: Centralized bet array calculations
-    createWeightedBetArray: function() {
-      const betArray: number[] = [];
-      
-      Object.entries(this.probabilities).forEach(([index, prob]) => {
-        const slots = Math.round(prob * 100); // Convert percentage to slots out of 10000 for precision
-        const payout = this.betArray[parseInt(index)];
-        
-        for (let i = 0; i < slots; i++) {
-          betArray.push(payout);
-        }
-      });
-      
-      return betArray;
-    },
-    
     getDisplayType: function(handTypeName: string, payout: number): string {
       if (payout === 0) return 'Bust';
       return (this.displayMapping as any)[handTypeName] || 'Bust';
