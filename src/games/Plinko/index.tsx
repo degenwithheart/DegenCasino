@@ -326,7 +326,7 @@ export default function Plinko() {
 
   const bet = degen ? DEGEN_BET : BET
   const rows = degen ? ROWS.degen : ROWS.normal
-  const multipliers = React.useMemo(() => Array.from(new Set(bet)), [bet])
+  const multipliers = bet // Use exact bet array - no duplicate removal!
 
   const plinko = usePlinko({
     rows,
