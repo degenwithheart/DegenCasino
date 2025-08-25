@@ -38,7 +38,7 @@ export const RollUnder = styled.div`
   }
 `
 
-export const Result = styled.div`
+export const Result = styled.div<{ enableMotion?: boolean }>`
   @keyframes result-appear {
     from {
       transform: scale(0);
@@ -60,10 +60,12 @@ export const Result = styled.div`
   transform: translateX(-50%);
   position: absolute;
   top: -50px;
-  transition: left .3s ease;
+  transition: ${props => props.enableMotion !== false ? 'left .3s ease' : 'none'};
 
   & > div {
-    animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), mystical-result-glow 2s ease-in-out infinite;
+    ${props => props.enableMotion !== false ? `
+      animation: result-appear .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), mystical-result-glow 2s ease-in-out infinite;
+    ` : ''}
     transform-origin: bottom;
     background: linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.9) 100%);
     backdrop-filter: blur(50px);

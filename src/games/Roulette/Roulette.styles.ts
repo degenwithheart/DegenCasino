@@ -5,7 +5,7 @@ const resultFlash = keyframes`
   to { background-color: #292a307d;}
 `
 
-export const StyledResults = styled.div`
+export const StyledResults = styled.div<{ enableMotion?: boolean }>`
   border-radius: 10px;
   background: #191c2fa1;
   margin: 0 auto;
@@ -28,7 +28,9 @@ export const StyledResults = styled.div`
     width: 60px;
     justify-content: center;
     background: #FFFFFF11;
-    animation: ${resultFlash} 1s;
+    ${props => props.enableMotion !== false && css`
+      animation: ${resultFlash} 1s;
+    `}
   }
 `
 

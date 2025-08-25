@@ -26,15 +26,18 @@ export const CardArea = styled.div`
   align-items: center;
 `
 
-export const CardsContainer = styled.div`
+export const CardsContainer = styled.div<{ enableMotion?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: ${props => props.enableMotion !== false ? 'transform .2s ease' : 'none'};
 `
 
-export const CardContainer = styled.div`
+export const CardContainer = styled.div<{ enableMotion?: boolean }>`
   margin: 0 5px;
-  animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
+  ${props => props.enableMotion !== false && css`
+    animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
+  `}
 `
 
 export const Card = styled.div<{ color: string }>`
@@ -62,13 +65,15 @@ export const Card = styled.div<{ color: string }>`
   }
 `
 
-export const Profit = styled.div`
+export const Profit = styled.div<{ enableMotion?: boolean }>`
   font-size: 18px;
   color: #005400;
   margin-top: 20px;
   border-radius: 50px;
   background: #69ff6d;
   padding: 5px 10px;
-  animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  ${props => props.enableMotion !== false && css`
+    animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  `}
   cursor: pointer;
 `

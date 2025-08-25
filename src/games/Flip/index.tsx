@@ -3,7 +3,8 @@ import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { FLIP_CONFIG } from '../rtpConfig'
@@ -28,8 +29,23 @@ function Flip() {
   const [flipping, setFlipping] = React.useState(false)
   const [win, setWin] = React.useState(false)
   const [resultIndex, setResultIndex] = React.useState(0)
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
   const [side, setSide] = React.useState<Side>('heads')
   const [wager, setWager] = useWagerInput()
+  
+  console.log('🎯 FLIP MAIN DEBUG:', {
+    flipping,
+    win,
+    resultIndex,
+    enableMotion: settings.enableMotion,
+    side,
+    wager
+  })
+  
+  // Add effects ref for visual effects
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const sounds = useSound({
     coin: SOUND_COIN,
@@ -68,8 +84,17 @@ function Flip() {
 
       if (win) {
         sounds.play('win')
+        // 🎉 TRIGGER WIN EFFECTS
+        console.log('🎉 FLIP WIN! Triggering visual effects')
+        effectsRef.current?.winFlash('#ffd700', 1.2) // Gold win flash
+        effectsRef.current?.particleBurst(50, 50, '#ffd700', 12) // Gold particles from center
+        effectsRef.current?.screenShake(1, 500) // Medium shake for win
       } else {
         sounds.play('lose')
+        // 💥 TRIGGER LOSE EFFECTS
+        console.log('💥 FLIP LOSE! Triggering lose effects')
+        effectsRef.current?.flash('#ff6b6b', 300) // Red lose flash
+        effectsRef.current?.screenShake(0.5, 250) // Light shake for loss
       }
     } finally {
       setFlipping(false)
@@ -85,19 +110,28 @@ function Flip() {
           <div className="crystal-overlay" />
           <div className="destiny-indicator" />
           
-          <GameScreenFrame {...(useGameMeta('flip') && { title: useGameMeta('flip')!.name, description: useGameMeta('flip')!.description })}>
+          <GameplayFrame 
+            ref={effectsRef}
+            disableContainerTransforms={true}
+            {...(useGameMeta('flip') && { 
+              title: useGameMeta('flip')!.name, 
+              description: useGameMeta('flip')!.description 
+            })}
+          >
             <div className="flip-redesign">
               {/* Header Section */}
               <div className="flip-header">
                 <div className="side-indicator">
-                  <div className={`side-option ${side === 'heads' ? 'active' : ''}`}>
+                  <div className={`side-option ${resultIndex === 0 && !flipping ? 'active winner' : side === 'heads' ? 'selected' : ''}`}>
                     <img src={TEXTURE_HEADS} alt="Heads" />
                     <span>HEADS</span>
+                    {resultIndex === 0 && !flipping && <div className="result-badge">WINNER!</div>}
                   </div>
                   <div className="vs-divider">VS</div>
-                  <div className={`side-option ${side === 'tails' ? 'active' : ''}`}>
+                  <div className={`side-option ${resultIndex === 1 && !flipping ? 'active winner' : side === 'tails' ? 'selected' : ''}`}>
                     <img src={TEXTURE_TAILS} alt="Tails" />
                     <span>TAILS</span>
+                    {resultIndex === 1 && !flipping && <div className="result-badge">WINNER!</div>}
                   </div>
                 </div>
                 <div className="win-multiplier">{FLIP_CONFIG.heads[0]}x</div>
@@ -105,60 +139,56 @@ function Flip() {
 
               {/* Main Coin Area */}
               <div className="coin-arena">
-                <Canvas
-                  linear
-                  flat
-                  orthographic
-                  gl={{ 
-                    alpha: true, 
-                    antialias: true, 
-                    premultipliedAlpha: false,
-                    preserveDrawingBuffer: false
-                  }}
-                  onCreated={({ gl }) => {
-                    gl.setClearColor(0x000000, 0); // Set clear color to transparent
-                  }}
-                  camera={{
-                    zoom: 250,
-                    position: [0, 0, 100],
-                  }}
-                  style={{
-                    width: '2000px',
-                    height: '2000px',
-                    position: 'absolute',
-                    top: '41%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    background: 'transparent',
-                    backgroundColor: 'transparent',
-                    pointerEvents: 'none',
-                    zIndex: 10
-                  }}
-                >
-                  <React.Suspense fallback={null}>
-                    <Coin result={resultIndex} flipping={flipping} />
-                  </React.Suspense>
-                  <Effect color="white" />
-                  {flipping && <Effect color="white" />}
-                  {win && <Effect color="#10B981" />}
-                  <ambientLight intensity={3} />
-                  <directionalLight
-                    position-z={1}
-                    position-y={1}
-                    castShadow
-                    color="#CCCCCC"
-                  />
-                  <hemisphereLight
-                    intensity={.5}
-                    position={[0, 1, 0]}
-                    scale={[1, 1, 1]}
-                    color="#ffadad"
-                    groundColor="#6666fe"
-                  />
-                </Canvas>
-                
                 <div className="coin-container">
-                  {/* Visual container for styling only */}
+                  <Canvas
+                    linear
+                    flat
+                    orthographic
+                    gl={{ 
+                      alpha: true, 
+                      antialias: true, 
+                      premultipliedAlpha: false,
+                      preserveDrawingBuffer: false
+                    }}
+                    onCreated={({ gl, size }) => {
+                      gl.setClearColor(0x000000, 0)
+                      console.log('🪙 Flip Canvas created', { size })
+                    }}
+                    camera={{
+                      zoom: 250,
+                      position: [0, 0, 100],
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      background: 'transparent',
+                      backgroundColor: 'transparent',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                      display: 'block'
+                    }}
+                  >
+                    <React.Suspense fallback={null}>
+                      <Coin result={resultIndex} flipping={flipping} enableMotion={settings.enableMotion} />
+                    </React.Suspense>
+                    <Effect color="white" />
+                    {flipping && <Effect color="white" />}
+                    {win && <Effect color="#10B981" />}
+                    <ambientLight intensity={3} />
+                    <directionalLight
+                      position-z={1}
+                      position-y={1}
+                      castShadow
+                      color="#CCCCCC"
+                    />
+                    <hemisphereLight
+                      intensity={.5}
+                      position={[0, 1, 0]}
+                      scale={[1, 1, 1]}
+                      color="#ffadad"
+                      groundColor="#6666fe"
+                    />
+                  </Canvas>
                 </div>
                 
                 {/* Coin Shadow/Base */}
@@ -192,7 +222,7 @@ function Flip() {
                 </div>
               </div>
             </div>
-          </GameScreenFrame>
+          </GameplayFrame>
         </StyledFlipBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">

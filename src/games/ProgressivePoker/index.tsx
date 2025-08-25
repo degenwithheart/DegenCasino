@@ -1,13 +1,16 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
+// import { calculateExpectedValue, analyzeWinProbability } from './analytics'
+import { useGameMeta } from '../useGameMeta'
 import { PROGRESSIVE_POKER_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
 import { SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { PokerCard } from './PokerCard'
 import { StyledProgressivePokerBackground } from './ProgressiveBackground.enhanced.styles'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 
 // Add pulsing animation for placeholder text
 const pulseFade = keyframes`
@@ -71,10 +74,10 @@ const CardsContainer = styled.div`
   }
 `
 
-const HandResult = styled.div<{ type: string; visible: boolean }>`
+const HandResult = styled.div<{ visible: boolean; type: string; enableMotion?: boolean }>`
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
+  background: rgba(0, 150, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
   border-radius: 8px;
   height: 280px;
   width: 100%;
@@ -84,7 +87,7 @@ const HandResult = styled.div<{ type: string; visible: boolean }>`
   align-items: center;
   opacity: ${props => props.visible ? 1 : 0};
   visibility: ${props => props.visible ? 'visible' : 'hidden'};
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: ${props => props.enableMotion !== false ? 'opacity 0.3s ease, visibility 0.3s ease' : 'none'};
   background: ${props => {
     if (!props.visible) return 'transparent';
     switch (props.type) {
@@ -124,10 +127,12 @@ const HandResult = styled.div<{ type: string; visible: boolean }>`
     if (props.type === 'Bust') return '0 2px 8px rgba(244, 67, 54, 0.1)'; // Subtle shadow for bust
     return '0 4px 20px rgba(0, 0, 0, 0.3)';
   }};
-  animation: ${props => props.visible && props.type !== 'Bust' ? pulseFade : 'none'} 1.6s infinite;
+  ${props => props.visible && props.type !== 'Bust' && props.enableMotion !== false && css`
+    animation: ${pulseFade} 1.6s infinite;
+  `}
 `
 
-const ProgressiveInfo = styled.div<{ visible: boolean }>`
+const ProgressiveInfo = styled.div<{ visible: boolean; enableMotion?: boolean }>`
   text-align: center;
   background: rgba(0, 150, 0, 0.1);
   border: 1px solid rgba(0, 255, 0, 0.3);
@@ -143,7 +148,7 @@ const ProgressiveInfo = styled.div<{ visible: boolean }>`
   gap: 25px;
   opacity: ${props => props.visible ? 1 : 0};
   visibility: ${props => props.visible ? 'visible' : 'hidden'};
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: ${props => props.enableMotion !== false ? 'opacity 0.3s ease, visibility 0.3s ease' : 'none'};
   box-shadow: 0 2px 10px rgba(0, 255, 0, 0.1);
   overflow-x: auto;
 
@@ -249,12 +254,14 @@ const ButtonGroup = styled.div`
   align-items: center;
 `
 
-const PlaceholderText = styled.div`
+const PlaceholderText = styled.div<{ enableMotion?: boolean }>`
   text-align: center;
   font-size: 18px;
   color: rgba(255, 255, 255, 0.6);
   margin: 40px 0;
-  animation: ${pulseFade} 1.6s infinite;
+  ${props => props.enableMotion !== false && css`
+    animation: ${pulseFade} 1.6s infinite;
+  `}
 `
 
 // Map the hand types from rtpConfig to display types
@@ -289,6 +296,13 @@ export default function ProgressivePowerPoker() {
   const gamba = useGamba()
   const pool = useCurrentPool()
   const [initialWager, setInitialWager] = useWagerInput()
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  // Effects system for enhanced poker feedback
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  
   const sounds = useSound({
     win: SOUND_WIN,
     lose: SOUND_LOSE,
@@ -371,6 +385,45 @@ export default function ProgressivePowerPoker() {
         // WIN: Use exact Gamba result.multiplier and result.payout
         console.log(`🎉 WIN! Gamba multiplier: ${result.multiplier}x, payout: ${result.payout}`);
         
+        // Enhanced progressive poker effects
+        if (effectsRef.current) {
+          if (result.multiplier >= 16) {
+            // Royal Flush / Straight Flush - ultimate jackpot effects
+            effectsRef.current.winFlash('#ffd700', 4)
+            setTimeout(() => {
+              effectsRef.current?.particleBurst(undefined, undefined, '#ffd700', 120)
+              effectsRef.current?.screenShake(5, 2000)
+            }, 600)
+          } else if (result.multiplier >= 8) {
+            // Four of a Kind - major win effects
+            effectsRef.current.winFlash('#e53935', 3.5)
+            setTimeout(() => {
+              effectsRef.current?.particleBurst(undefined, undefined, '#e53935', 90)
+              effectsRef.current?.screenShake(4, 1500)
+            }, 400)
+          } else if (result.multiplier >= 6) {
+            // Full House/Flush - good win effects
+            effectsRef.current.winFlash('#8e24aa', 3)
+            setTimeout(() => {
+              effectsRef.current?.particleBurst(undefined, undefined, '#8e24aa', 70)
+              effectsRef.current?.screenShake(3, 1200)
+            }, 300)
+          } else if (result.multiplier >= 3) {
+            // Pairs/Two Pair - modest win effects
+            effectsRef.current.winFlash('#43a047', 2.5)
+            setTimeout(() => {
+              effectsRef.current?.particleBurst(undefined, undefined, '#43a047', 50)
+              effectsRef.current?.screenShake(2.5, 1000)
+            }, 200)
+          } else {
+            // Small win
+            effectsRef.current.winFlash('#1976d2', 2)
+            setTimeout(() => {
+              effectsRef.current?.particleBurst(undefined, undefined, '#1976d2', 30)
+            }, 150)
+          }
+        }
+        
         // Visual feedback based on exact result.multiplier from rtpConfig
         if (result.multiplier >= 16) {
           console.log('🎆 ROYAL/FLUSH! 16x multiplier from rtpConfig!');
@@ -397,6 +450,15 @@ export default function ProgressivePowerPoker() {
       } else {
         // BUST: result.multiplier = 0, no payout
         console.log('💔 BUST! Gamba multiplier: 0x');
+        
+        // Enhanced bust effects for progressive poker
+        if (effectsRef.current) {
+          effectsRef.current.loseFlash('#f44336', 2.5)
+          setTimeout(() => {
+            effectsRef.current?.screenShake(2.5, 1200)
+          }, 300)
+        }
+        
         setCurrentBalance(0);
         setTotalProfit(-initialWager);
         setInProgress(false);
@@ -447,13 +509,18 @@ export default function ProgressivePowerPoker() {
           <div className="floating-cards" />
           <div className="jackpot-symbols" />
           
-          <GameScreenFrame>
-            <GambaUi.Responsive>
-              <Container>
-                <GameArea>
+          <GameplayFrame 
+            ref={effectsRef}
+            title={useGameMeta('progressivepoker')?.name}
+            description={useGameMeta('progressivepoker')?.description}
+          >
+          
+          <GambaUi.Responsive>
+            <Container>
+              <GameArea>
 
               {/* Always show placeholder text */}
-              <PlaceholderText>
+              <PlaceholderText enableMotion={settings.enableMotion}>
                 Build winning poker hands and keep your streak alive!<br />
                 Cash out anytime or risk it all for bigger wins.
               </PlaceholderText>
@@ -466,6 +533,7 @@ export default function ProgressivePowerPoker() {
                       rank={card.rank}
                       suit={card.suit}
                       revealed={cardRevealed[index]}
+                      enableMotion={settings.enableMotion}
                     />
                   ))
                 ) : (
@@ -475,13 +543,14 @@ export default function ProgressivePowerPoker() {
                       rank={0}
                       suit={0}
                       revealed={false}
+                      enableMotion={settings.enableMotion}
                     />
                   ))
                 )}
               </CardsContainer>
 
               {/* Progressive Info - always visible with Mines-style layout */}
-              <ProgressiveInfo visible={true}>
+              <ProgressiveInfo visible={true} enableMotion={settings.enableMotion}>
                 {inProgress ? (
                   <>
                     <InfoItem>
@@ -548,52 +617,52 @@ export default function ProgressivePowerPoker() {
                 )}
               </ProgressiveInfo>
 
-              </GameArea>
-            </Container>
-          </GambaUi.Responsive>
-        </GameScreenFrame>
+          </GameArea>
+        </Container>
+            </GambaUi.Responsive>
+          </GameplayFrame>
         </StyledProgressivePokerBackground>
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">
-        <MobileControls
-          wager={initialWager}
-          setWager={setInitialWager}
-          onPlay={inProgress && canContinue ? handleContinue : handleStart}
-          playDisabled={revealing || !pool || (inProgress && !canContinue && !gameEnded)}
-          playText={
-            inProgress && canContinue ? "Continue" : 
-            gameEnded ? "Play" : 
-            "Start"
-          }
-        />
-        
-        <DesktopControls>
-          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={inProgress} />
-          
-          <EnhancedPlayButton 
-            onClick={
-              inProgress && canContinue ? handleContinue : 
-              gameEnded ? handleStart :
-              handleStart
-            }
-            disabled={revealing || !pool || (inProgress && !canContinue && !gameEnded)}
-            wager={initialWager}
-          >
-            {inProgress && canContinue ? "Continue" : 
-             gameEnded ? "Play" : 
-             "Start"}
-          </EnhancedPlayButton>
-        </DesktopControls>
-        
-        {/* Cash Out button - always visible, enabled only during streak */}
-        <EnhancedButton 
-          variant="danger"
-          onClick={handleCashOut}
-          disabled={!canCashOut}
-        >
-          Cash Out
-        </EnhancedButton>
+    <MobileControls
+      wager={initialWager}
+      setWager={setInitialWager}
+      onPlay={inProgress && canContinue ? handleContinue : handleStart}
+      playDisabled={revealing || !pool || (inProgress && !canContinue && !gameEnded)}
+      playText={
+        inProgress && canContinue ? "Continue" : 
+        gameEnded ? "Play" : 
+        "Start"
+      }
+    />
+    
+    <DesktopControls>
+      <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={inProgress} />
+      
+      <EnhancedPlayButton 
+        onClick={
+          inProgress && canContinue ? handleContinue : 
+          gameEnded ? handleStart :
+          handleStart
+        }
+        disabled={revealing || !pool || (inProgress && !canContinue && !gameEnded)}
+        wager={initialWager}
+      >
+        {inProgress && canContinue ? "Continue" : 
+         gameEnded ? "Play" : 
+         "Start"}
+      </EnhancedPlayButton>
+    </DesktopControls>
+    
+    {/* Cash Out button - always visible, enabled only during streak */}
+    <EnhancedButton 
+      variant="danger"
+      onClick={handleCashOut}
+      disabled={!canCashOut}
+    >
+      Cash Out
+    </EnhancedButton>
       </GambaUi.Portal>
     </>
   )

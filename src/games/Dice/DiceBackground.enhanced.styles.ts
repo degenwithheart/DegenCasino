@@ -3,24 +3,14 @@ import styled from 'styled-components'
 export const StyledDiceBackground = styled.div`
   perspective: 100px;
   user-select: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #92400e 0%, #d97706 15%, #f59e0b 30%, #fbbf24 45%, #fcd34d 60%, #fde68a 75%, #fffbeb 90%, #fbbf24 100%);
-  border-radius: 24px;
-  border: 3px solid rgba(251, 191, 36, 0.4);
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.6),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(251, 191, 36, 0.3);
+  /* Remove redundant background - GameScreenFrame handles this now */
+  border-radius: 12px;
   overflow: hidden;
   
-  /* Floating dice background elements - Ancient mystical style */
+  /* Keep only decorative dice icons - remove background colors */
   &::before {
     content: '⚃';
     position: absolute;
@@ -30,7 +20,7 @@ export const StyledDiceBackground = styled.div`
     opacity: 0.08;
     transform: rotate(-15deg);
     pointer-events: none;
-    color: #92400e;
+    color: rgba(255, 255, 255, 0.1); /* Use neutral color that works with any theme */
     z-index: 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
@@ -44,21 +34,13 @@ export const StyledDiceBackground = styled.div`
     opacity: 0.09;
     transform: rotate(25deg);
     pointer-events: none;
-    color: #d97706;
+    color: rgba(255, 255, 255, 0.1); /* Use neutral color that works with any theme */
     z-index: 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  /* Override GameScreenFrame's dark background */
-  & .absolute.inset-\\[2px\\].rounded-\\[0\\.65rem\\].bg-\\[\\#0c0c11\\] {
-    background: transparent !important;
-  }
-
-  /* General override for any dark background in the frame */
-  & [class*="bg-[#0c0c11]"] {
-    background: transparent !important;
-  }
-
+  /* Remove background overrides - GameScreenFrame handles theming now */
+  
   & > * {
     position: relative;
     z-index: 1;

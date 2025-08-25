@@ -17,21 +17,33 @@ interface PokerCardProps {
   suit: number // 0 = ♠, 1 = ♥, 2 = ♦, 3 = ♣
   revealed?: boolean
   onClick?: () => void
+  enableMotion?: boolean
 }
 
-const CardContainer = styled.div<{ revealed: boolean }>`
+const CardContainer = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   width: 130px;
   height: 200px;
   margin: 5px;
   border-radius: 8px;
   position: relative;
   cursor: pointer;
-  transition: transform 0.6s;
+  transition: ${props => props.enableMotion !== false ? 'transform 0.6s' : 'none'};
   transform-style: preserve-3d;
-  transform: ${props => props.revealed ? 'rotateY(0deg)' : 'rotateY(180deg)'};
+  transform: ${props => {
+    if (props.enableMotion === false) {
+      // In static mode, just show/hide without rotation
+      return props.revealed ? 'rotateY(0deg)' : 'rotateY(0deg)';
+    }
+    return props.revealed ? 'rotateY(0deg)' : 'rotateY(180deg)';
+  }};
 
   &:hover {
-    transform: ${props => props.revealed ? 'rotateY(0deg) scale(1.05)' : 'rotateY(180deg) scale(1.05)'};
+    transform: ${props => {
+      if (props.enableMotion === false) {
+        return props.revealed ? 'scale(1.05)' : 'scale(1.05)';
+      }
+      return props.revealed ? 'rotateY(0deg) scale(1.05)' : 'rotateY(180deg) scale(1.05)';
+    }};
   }
 `
 
@@ -56,7 +68,7 @@ const CardFace = styled.div<{ color: string }>`
   user-select: none;
 `
 
-const CardBack = styled.div`
+const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -64,7 +76,13 @@ const CardBack = styled.div`
   border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 2px 8px #0005;
-  display: flex;
+  display: ${props => {
+    if (props.enableMotion === false) {
+      // In static mode, hide the back when revealed
+      return props.revealed ? 'none' : 'flex';
+    }
+    return 'flex';
+  }};
   align-items: center;
   justify-content: center;
   transform: rotateY(180deg);
@@ -98,19 +116,20 @@ export const PokerCard: React.FC<PokerCardProps> = ({
   rank, 
   suit, 
   revealed = false,
-  onClick 
+  onClick,
+  enableMotion = true
 }) => {
   const suitObj = SUITS[suit % 4]
   const rankStr = RANKS[rank % 13]
 
   return (
-    <CardContainer revealed={revealed} onClick={onClick}>
+    <CardContainer revealed={revealed} enableMotion={enableMotion} onClick={onClick}>
       <CardFace color={suitObj.color}>
         <RankTop>{rankStr}</RankTop>
         <SuitCenter>{suitObj.symbol}</SuitCenter>
         <RankBottom>{rankStr}</RankBottom>
       </CardFace>
-      <CardBack />
+      <CardBack revealed={revealed} enableMotion={enableMotion} />
     </CardContainer>
   )
 }

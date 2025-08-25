@@ -8,6 +8,7 @@ interface ReelProps {
   reelIndex: number
   items: SlotItem[]
   isSpinning: boolean
+  enableMotion?: boolean // Add motion control
 }
 
 // Define specific sequences for each column to prevent matching top rows
@@ -46,91 +47,78 @@ const revealReel = keyframes`
   }
 `
 
-const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean}>`
+const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enableMotion: boolean}>`
   position: relative;
   width: 100%;
   height: 300px; /* Height for 2 slots */
   overflow: hidden;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
-  transform: rotateX(12deg); /* 3D perspective tilt */
+  transform: none; /* Let parent container handle 3D transforms */
   transform-style: preserve-3d;
   box-shadow: 
     inset 0 0 20px rgba(0, 0, 0, 0.5),
     0 4px 15px rgba(0, 0, 0, 0.3);
 `
 
-const ReelStrip = styled.div<{$isSpinning: boolean, $reelIndex: number}>`
+const ReelStrip = styled.div<{$isSpinning: boolean, $reelIndex: number, $enableMotion: boolean}>`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  opacity: ${props => props.$isSpinning ? 1 : 0};
-  transition: opacity 0.3s ease;
+  opacity: ${props => {
+    if (!props.$enableMotion) {
+      // In static mode, never show spinning strip
+      return 0;
+    }
+    return props.$isSpinning ? 1 : 0;
+  }};
+  transition: ${props => props.$enableMotion ? 'opacity 0.3s ease' : 'none'};
 
-  ${(props) => props.$isSpinning && css`
+  ${(props) => props.$isSpinning && props.$enableMotion && css`
     animation: ${props.$reelIndex === 1 ? continuousScrollDown : continuousScrollUp} 0.6s linear infinite;
     filter: blur(1px);
   `}
 `
 
-const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?: 'top' | 'bottom'}>`
+const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?: 'top' | 'bottom', $enableMotion: boolean}>`
   width: 100%;
-  height: 150px; /* Height of one slot - aligned with reel height of 300px for 2 slots */
+  height: 150px; /* Fixed slot cell height */
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 4px; /* Reduced padding for better centering */
-  
-  /* Apply 3D perspective scaling - top symbols appear smaller (further away) */
-  ${(props) => props.$position === 'top' && css`
-    transform: scale(0.7) !important;
-    transform-origin: center center;
-    opacity: 0.85;
-  `}
-  
-  ${(props) => props.$position === 'bottom' && css`
-    transform: scale(1.0) !important;
-    transform-origin: center center;
-    opacity: 1.0;
-  `}
+  padding: 0;
+  /* Replace scale trick with simple opacity depth cue to avoid reflow/centering issues */
+  ${(p) => p.$enableMotion && p.$position === 'top' && css`opacity: .88;`}
+  ${(p) => p.$enableMotion && p.$position === 'bottom' && css`opacity: 1;`}
 
-  ${(props) => props.$good && props.$revealed && css`
+  ${(p) => p.$good && p.$revealed && p.$enableMotion && css`
     animation: slotWin 1.8s ease-in-out infinite alternate;
   `}
+  ${(p) => p.$good && p.$revealed && !p.$enableMotion && css`filter: brightness(1.3) saturate(1.4);`}
 
   @keyframes slotWin {
-    0% { 
-      filter: brightness(1) saturate(1);
-    }
-    100% { 
-      filter: brightness(1.3) saturate(1.4);
-    }
+    0% { filter: brightness(1) saturate(1); }
+    100% { filter: brightness(1.3) saturate(1.4); }
   }
 
   & img {
-    width: 100px; /* Fixed size for all images */
-    height: 100px; /* Fixed size for all images */
+    width: 100px;
+    height: 100px;
     object-fit: contain;
-    object-position: center center; /* Ensure centered positioning */
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.4));
     border-radius: 12px;
-    transition: all 0.4s ease;
-    display: block;
-    /* Perfect centering */
+    transition: ${p => p.$enableMotion ? 'filter .4s ease' : 'none'};
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    ${(props) => props.$good && props.$revealed && css`
-      filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
-    `}
+    ${(p) => p.$good && p.$revealed && css`filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 20px rgba(255,215,0,.7));`}
   }
 `
 
-const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean}>`
+const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $enableMotion: boolean}>`
   width: 100%;
   height: 150px; /* Height of one slot */
   display: flex;
@@ -177,7 +165,7 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean}>`
     object-position: center center; /* Ensure centered positioning */
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
     border-radius: 12px;
-    transition: all 0.4s ease;
+    transition: ${props => props.$enableMotion ? 'all 0.4s ease' : 'none'};
     display: block;
     /* Perfect centering */
     position: absolute;
@@ -187,7 +175,7 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean}>`
   }
 `
 
-const FinalSlot = styled.div<{$good: boolean, $revealed: boolean}>`
+const FinalSlot = styled.div<{$good: boolean, $revealed: boolean, $enableMotion: boolean}>`
   position: absolute;
   top: 0;
   left: 0;
@@ -195,15 +183,24 @@ const FinalSlot = styled.div<{$good: boolean, $revealed: boolean}>`
   height: 100%;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease-out;
+  opacity: ${props => {
+    // When motion is disabled, always show the final slots
+    if (!props.$enableMotion) {
+      return 1;
+    }
+    // When motion is enabled, only show when revealed
+    return props.$revealed ? 1 : 0;
+  }};
+  transform: ${props => {
+    // When motion is disabled, no transform needed
+    if (!props.$enableMotion) {
+      return 'translateY(0px)';
+    }
+    // When motion is enabled, keep position stable but use opacity for reveal
+    return 'translateY(0px)';
+  }};
+  transition: ${props => props.$enableMotion ? 'opacity 0.5s ease-out' : 'none'};
   z-index: 5;
-
-  ${(props) => props.$revealed && css`
-    opacity: 1;
-    transform: translateY(0px);
-  `}
 
   /* Add gradient line for idle/revealed state - positioned at center between two slots */
   &::after {
@@ -225,7 +222,7 @@ const FinalSlot = styled.div<{$good: boolean, $revealed: boolean}>`
   }
 `
 
-export function Reel({ revealed, good, reelIndex, items, isSpinning }: ReelProps) {
+export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotion = true }: ReelProps) {
   // Create column-specific symbol sequences for strategic gameplay
   const spinItems = React.useMemo(() => {
     const columnSequence = COLUMN_SEQUENCES[reelIndex as keyof typeof COLUMN_SEQUENCES] || COLUMN_SEQUENCES[0]
@@ -264,18 +261,18 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning }: ReelProps
   }, [reelIndex])
 
   return (
-    <StyledReel $revealed={revealed} $isSpinning={isSpinning}>
+    <StyledReel $revealed={revealed} $isSpinning={isSpinning} $enableMotion={enableMotion}>
       {/* Spinning strip with column-specific sequences */}
-      <ReelStrip $isSpinning={isSpinning} $reelIndex={reelIndex}>
+      <ReelStrip $isSpinning={isSpinning} $reelIndex={reelIndex} $enableMotion={enableMotion}>
         {spinItems.map((item, index) => (
-          <SpinningSlotContainer key={index} $good={false} $revealed={false}>
+          <SpinningSlotContainer key={index} $good={false} $revealed={false} $enableMotion={enableMotion}>
             <img src={item.image} alt="" />
           </SpinningSlotContainer>
         ))}
       </ReelStrip>
 
       {/* Final revealed slots */}
-      <FinalSlot $good={false} $revealed={revealed}>
+      <FinalSlot $good={false} $revealed={revealed} $enableMotion={enableMotion}>
         {items.map((item, slotIndex) => {
           const position = slotIndex === 0 ? 'top' : 'bottom'
           return (
@@ -284,6 +281,7 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning }: ReelProps
               $good={good[slotIndex]} 
               $revealed={revealed}
               $position={position}
+              $enableMotion={enableMotion}
             >
               <img src={item.image} alt="" />
             </SlotContainer>

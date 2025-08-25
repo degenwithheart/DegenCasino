@@ -2,10 +2,10 @@ import { GameResult } from 'gamba-core-v2'
 import { EffectTest, GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React, { useEffect, useRef } from 'react'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
+import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { ItemPreview } from './ItemPreview'
-import { Slot } from './Slot'
 import { Reel } from './Reel'
 import { StyledSlots } from './Slots.styles'
 import { StyledSlotsBackground } from './SlotsBackground.enhanced.styles'
@@ -41,6 +41,21 @@ export default function Slots() {
   )
   const [winningPaylines, setWinningPaylines] = React.useState<{ payline: number[], symbol: SlotItem }[]>([])
   const [winningSymbol, setWinningSymbol] = React.useState<SlotItem | null>(null)
+  
+  // Get graphics settings to check if motion is enabled
+  const { settings } = useGraphics()
+  
+  console.log('🎰 SLOTS MAIN DEBUG:', {
+    spinning,
+    result: !!result,
+    good,
+    revealedSlots,
+    wager,
+    enableMotion: settings.enableMotion,
+    combination: combination.map(c => c.multiplier),
+    winningPaylines: winningPaylines.length
+  })
+  
   const sounds = useSound({
     win: SOUND_WIN,
     lose: SOUND_LOSE,
@@ -59,6 +74,9 @@ export default function Slots() {
     [pool.maxPayout, wager],
   )
   const timeout = useRef<any>()
+  
+  // Add ref for gameplay effects
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
   const isValid = bet.some((x: number) => x > 1)
 
@@ -114,10 +132,31 @@ export default function Slots() {
           setGood(true)
           setWinningSymbol(finalWinningLines[0].symbol)
           sounds.play('win')
+          
+          // 🎉 TRIGGER SLOTS WIN EFFECTS
+          console.log('🎰 SLOTS WIN! Triggering visual effects')
+          effectsRef.current?.winFlash() // Use theme's winGlow color
+          effectsRef.current?.particleBurst(50, 40) // Use theme's particleWin color
+          
+          // Check for legendary wins (multiple winning lines)
+          if (finalWinningLines.length >= 3) {
+            effectsRef.current?.screenShake(2, 1000) // Strong shake for legendary wins
+            effectsRef.current?.particleBurst(25, 60, undefined, 10) // Additional particles from left
+            effectsRef.current?.particleBurst(75, 60, undefined, 10) // Additional particles from right
+          } else if (finalWinningLines.length >= 2) {
+            effectsRef.current?.screenShake(1.5, 700) // Medium shake for double wins
+          } else {
+            effectsRef.current?.screenShake(1, 500) // Light shake for single wins
+          }
         } else {
           setGood(false)
           setWinningSymbol(null)
           sounds.play('lose')
+          
+          // 💥 TRIGGER SLOTS LOSE EFFECTS
+          console.log('💥 SLOTS LOSE! Triggering lose effects')
+          effectsRef.current?.loseFlash() // Use theme's loseGlow color
+          effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
         }
       }, FINAL_DELAY)
     }
@@ -180,8 +219,13 @@ const result = await game.result()
           <div className="decorative-overlay" />
           
           <StyledSlots>
-            <GameScreenFrame 
-              {...(useGameMeta('slots') && { title: useGameMeta('slots')!.name, description: useGameMeta('slots')!.description })}
+            <GameplayFrame 
+              ref={effectsRef}
+              {...(useGameMeta('slots') && { 
+                title: useGameMeta('slots')!.name, 
+                description: useGameMeta('slots')!.description 
+              })}
+              disableContainerTransforms={true}
             >
               {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
               <GambaUi.Responsive>
@@ -194,7 +238,7 @@ const result = await game.result()
                         isWinning={good}
                       />
                     </div>
-                    <div className="slots-reels">
+                    <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
                       {/* Left Arrow */}
                       <div className="winning-line-arrow winning-line-arrow-left">
                         <div className="arrow-icon">▶</div>
@@ -213,6 +257,14 @@ const result = await game.result()
                         
                         const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
                         
+                        console.log(`🎰 RENDERING REEL ${reelIndex}:`, {
+                          reelRevealed,
+                          isSpinning: spinning && !reelRevealed,
+                          enableMotion: settings.enableMotion,
+                          reelItems: reelItems.map(i => i.multiplier),
+                          reelGoodSlots
+                        })
+                        
                         return (
                           <Reel
                             key={reelIndex}
@@ -221,6 +273,7 @@ const result = await game.result()
                             good={reelGoodSlots}
                             items={reelItems}
                             isSpinning={spinning && !reelRevealed}
+                            enableMotion={settings.enableMotion}
                           />
                         )
                       })}
@@ -233,7 +286,7 @@ const result = await game.result()
                   </div>
                 </div>
               </GambaUi.Responsive>
-            </GameScreenFrame>
+            </GameplayFrame>
           </StyledSlots>
         </StyledSlotsBackground>
       </GambaUi.Portal>

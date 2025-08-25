@@ -26,6 +26,7 @@ export interface PlinkoProps {
   multipliers: number[];
   onContact: (contact: PlinkoContactEvent) => void;
   rows: number;
+  enableMotion?: boolean; // Add motion control
 }
 
 interface SimulationResult {
@@ -417,6 +418,40 @@ export class Plinko {
     Matter.Runner.stop(this.runner);
     Matter.Composite.clear(this.ballComposite, false);
     Matter.Events.on(this.engine, "collisionStart", this.collisionHandler);
+    
+    // If motion is disabled, show final result immediately instead of animating
+    if (this.props.enableMotion === false) {
+      console.log('🎮 STATIC MODE: Ball will teleport to final position instantly')
+      
+      // Create a ball just to trigger the physics simulation
+      const tempBall = this.makePlinko(Matter.Common.random(-SPAWN_OFFSET_RANGE, SPAWN_OFFSET_RANGE), 0)
+      Matter.Composite.add(this.ballComposite, tempBall)
+      
+      // Run simulation to completion instantly without animation
+      let steps = 0
+      const maxSteps = 1000
+      while (this.activeBalls.length === 0 && steps < maxSteps) {
+        Matter.Engine.update(this.engine, 16) // Simulate physics
+        steps++
+      }
+      
+      // Fast-forward to final position if ball exists
+      if (this.activeBalls.length > 0) {
+        const ball = this.activeBalls[0]
+        while (!ball.done && steps < maxSteps * 2) {
+          Matter.Engine.update(this.engine, 16)
+          steps++
+          
+          // Check if ball settled
+          if (tempBall.position.y > HEIGHT - 100 && Math.abs(tempBall.velocity.x) < 0.1 && Math.abs(tempBall.velocity.y) < 0.1) {
+            ball.done = true
+            break
+          }
+        }
+      }
+      
+      return
+    }
     Matter.Composite.add(
       this.ballComposite,
       this.startPositions.map(this.makePlinko)

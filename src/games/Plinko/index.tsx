@@ -1,9 +1,9 @@
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import React from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
-import GameScreenFrame from '../../components/GameScreenFrame'
+import GameScreenFrame, { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
@@ -34,15 +34,286 @@ const DEGEN_BET = PLINKO_CONFIG.degen
 const ROWS = PLINKO_CONFIG.ROWS
 
 export default function Plinko() {
-  // ...existing code...
+  console.log('🎯 PLINKO COMPONENT LOADING...')
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const [wager, setWager] = useWagerInput()
   const [debug, setDebug] = React.useState(false)
   const [degen, setDegen] = React.useState(false)
+  
+  // Get graphics settings to check if effects are enabled
+  const { settings } = useGraphics()
 
   // Restore multi-ball support
   const [ballCount, setBallCount] = React.useState<number>(1)
+  
+  // Enhanced accessibility effects functions for GameScreenFrame
+  const triggerWinFlash = useCallback((color: string, intensity: number) => {
+    // Only run enhanced visual feedback if accessibility setting is enabled
+    if (!settings.enableEffects) {
+      console.log('♿ Flash effect skipped - accessibility visual feedback disabled')
+      return
+    }
+    
+    console.log('♿ ACCESSIBILITY FLASH triggered:', { color, intensity })
+    
+    // Enhanced intensity for accessibility - make it more noticeable
+    const accessibilityIntensity = Math.min(intensity * 1.5, 0.8) // Boost but cap at 80%
+    
+    // Try multiple ways to find the effects container
+    const methods = [
+      () => document.querySelector('[data-game-effects-container="true"]') as HTMLElement,
+      () => document.querySelector('[data-quality]') as HTMLElement,
+      () => document.querySelector('[class*="EffectsContainer"]') as HTMLElement,
+      () => document.querySelector('div[style*="--flash-color"]') as HTMLElement,
+      () => document.querySelector('div[style*="position: relative"][style*="width: 100%"]') as HTMLElement,
+      () => {
+        // Find by checking for the ::before pseudo element capability
+        const divs = document.querySelectorAll('div')
+        for (const div of Array.from(divs)) {
+          const styles = window.getComputedStyle(div, '::before')
+          if (styles.content !== 'none' && styles.position === 'absolute') {
+            return div as HTMLElement
+          }
+        }
+        return null
+      },
+      () => {
+        // Find the container that wraps the Plinko game content
+        const gameContent = document.querySelector('canvas') || document.querySelector('[data-testid="plinko-game"]')
+        return gameContent?.closest('div[class*="motion"]') as HTMLElement || 
+               gameContent?.parentElement?.parentElement as HTMLElement
+      }
+    ]
+    
+    let effectsContainer: HTMLElement | null = null
+    
+    for (let i = 0; i < methods.length; i++) {
+      try {
+        effectsContainer = methods[i]()
+        if (effectsContainer) {
+          console.log(`🎯 Found container using method ${i + 1}:`, effectsContainer)
+          break
+        }
+      } catch (e) {
+        console.log(`❌ Method ${i + 1} failed:`, e)
+      }
+    }
+    
+    if (!effectsContainer) {
+      console.log('❌ No effects container found with any method')
+      // Try to find any div that could work
+      const allDivs = Array.from(document.querySelectorAll('div'))
+      console.log('🔍 Available divs:', allDivs.slice(0, 10).map(div => ({
+        className: div.className,
+        id: div.id,
+        style: div.getAttribute('style')
+      })))
+      return
+    }
+    
+    // Set CSS variables for flash effect  
+    effectsContainer.style.setProperty('--flash-color', color)
+    effectsContainer.style.setProperty('--flash-intensity', accessibilityIntensity.toString())
+    
+    console.log('🎯 ACCESSIBILITY CSS variables set:', { 
+      '--flash-color': color, 
+      '--flash-intensity': accessibilityIntensity.toString() 
+    })
+    
+    // Add flash class
+    effectsContainer.classList.add('flashing')
+    console.log('♿ Added accessibility flash class')
+    
+    // ENHANCED ACCESSIBILITY VISUAL FLASH - stronger contrast, longer duration, multiple visual cues
+    const flashOverlay = document.createElement('div')
+    flashOverlay.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: ${color};
+      opacity: ${accessibilityIntensity};
+      z-index: 9999;
+      pointer-events: none;
+      border-radius: 8px;
+      border: 6px solid ${color};
+      box-shadow: inset 0 0 30px ${color}, 0 0 50px ${color}, 0 0 100px ${color}80;
+      transition: opacity 0.3s ease;
+    `
+    effectsContainer.appendChild(flashOverlay)
+    
+    // Add text indicator for screen readers/accessibility
+    const textIndicator = document.createElement('div')
+    textIndicator.setAttribute('aria-live', 'polite')
+    textIndicator.setAttribute('role', 'status')
+    textIndicator.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      z-index: 10000;
+      pointer-events: none;
+      font-size: 18px;
+    `
+    
+    // Determine outcome text based on color
+    let outcomeText = 'Game Outcome'
+    if (color.includes('ff') && (color.includes('ff00') || color.includes('ffff'))) {
+      outcomeText = '🎉 BIG WIN!'
+    } else if (color.includes('00ff')) {
+      outcomeText = '✅ WIN!'
+    } else if (color.includes('ff') && color.includes('00')) {
+      outcomeText = '❌ Loss'
+    }
+    
+    textIndicator.textContent = outcomeText
+    effectsContainer.appendChild(textIndicator)
+    textIndicator.style.cssText = `
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 10000;
+      pointer-events: none;
+      text-align: center;
+      border: 2px solid ${color};
+    `
+    const isWin = color.includes('00ff') || color.includes('ffff')
+    textIndicator.textContent = isWin ? '� WIN!' : '❌ LOSE'
+    effectsContainer.appendChild(textIndicator)
+    
+    console.log('♿ Added enhanced accessibility flash overlay with text indicator')
+    
+    // Remove flash effects after longer duration for accessibility
+    setTimeout(() => {
+      effectsContainer.classList.remove('flashing')
+      if (flashOverlay.parentNode) {
+        flashOverlay.style.opacity = '0'
+        setTimeout(() => {
+          if (flashOverlay.parentNode) {
+            flashOverlay.parentNode.removeChild(flashOverlay)
+          }
+        }, 200)
+      }
+      if (textIndicator.parentNode) {
+        textIndicator.style.opacity = '0'
+        setTimeout(() => {
+          if (textIndicator.parentNode) {
+            textIndicator.parentNode.removeChild(textIndicator)
+          }
+        }, 200)
+      }
+      console.log('♿ Removed accessibility flash effects')
+    }, 500) // Longer duration for accessibility
+  }, [settings.enableEffects])
+  
+  const triggerLoseFlash = (color = '#ff0000', intensity = 0.3) => {
+    triggerWinFlash(color, intensity)
+  }
+  
+  const triggerScreenShake = (intensity = 1, duration = 300) => {
+    // Only run enhanced visual feedback if accessibility setting is enabled
+    if (!settings.enableEffects) {
+      console.log('♿ Screen shake skipped - accessibility visual feedback disabled')
+      return
+    }
+    
+    // Don't run shake animations if motion is disabled
+    if (!settings.enableMotion) {
+      console.log('🚫 Screen shake skipped - static mode enabled (no motion)')
+      return
+    }
+    
+    console.log('♿ ACCESSIBILITY SCREEN SHAKE triggered:', { intensity, duration })
+    
+    // Enhanced intensity and duration for accessibility
+    const accessibilityIntensity = Math.min(intensity * 2, 10) // Boost shake for visibility
+    const accessibilityDuration = Math.max(duration * 1.5, 400) // Longer duration for notice
+    
+    // Use the same robust container finding logic
+    const methods = [
+      () => document.querySelector('[data-game-effects-container="true"]') as HTMLElement,
+      () => document.querySelector('[data-quality]') as HTMLElement,
+      () => document.querySelector('[class*="EffectsContainer"]') as HTMLElement,
+      () => {
+        const gameContent = document.querySelector('canvas') || document.querySelector('[data-testid="plinko-game"]')
+        return gameContent?.closest('div[class*="motion"]') as HTMLElement || 
+               gameContent?.parentElement?.parentElement as HTMLElement
+      }
+    ]
+    
+    let effectsContainer: HTMLElement | null = null
+    
+    for (let i = 0; i < methods.length; i++) {
+      try {
+        effectsContainer = methods[i]()
+        if (effectsContainer) {
+          console.log(`🎯 Found container for shake using method ${i + 1}:`, effectsContainer)
+          break
+        }
+      } catch (e) {
+        console.log(`❌ Shake method ${i + 1} failed:`, e)
+      }
+    }
+    
+    if (!effectsContainer) {
+      console.log('❌ No container found for screen shake')
+      return
+    }
+    
+    console.log('♿ Shaking container for accessibility:', effectsContainer)
+    
+    // Enhanced accessibility shake with stronger visual cues
+    const originalBorder = effectsContainer.style.border
+    const originalBoxShadow = effectsContainer.style.boxShadow
+    const borderColor = intensity > 1 ? '#ffff00' : '#ff6666'
+    effectsContainer.style.border = `5px solid ${borderColor}` // Thicker border for visibility
+    effectsContainer.style.borderRadius = '8px'
+    effectsContainer.style.boxShadow = `0 0 20px ${borderColor}, inset 0 0 20px ${borderColor}50` // Glow effect
+    
+    const keyframes = []
+    const steps = 15 // More steps for smoother accessibility feedback
+    
+    for (let i = 0; i <= steps; i++) {
+      const progress = i / steps
+      const amplitude = accessibilityIntensity * 8 * (1 - progress) // Even more intense shake for accessibility
+      const x = (Math.random() - 0.5) * amplitude
+      const y = (Math.random() - 0.5) * amplitude
+      const rotation = (Math.random() - 0.5) * 2 // Add rotation to make shake more dramatic
+      
+      keyframes.push({
+        transform: `translate(${x}px, ${y}px) rotate(${rotation}deg)`,
+        offset: progress
+      })
+    }
+    
+    const animation = effectsContainer.animate(keyframes, {
+      duration: accessibilityDuration, // Longer duration for accessibility
+      easing: 'ease-out'
+    })
+    
+    console.log('♿ Accessibility screen shake animation started with enhanced amplitude:', accessibilityIntensity * 8)
+    
+    // Remove border and shadow effects when shake is done
+    animation.onfinish = () => {
+      effectsContainer!.style.border = originalBorder
+      effectsContainer!.style.boxShadow = originalBoxShadow
+      console.log('♿ Accessibility screen shake animation completed')
+    }
+  }
 
   const sounds = useSound({
     bump: BUMP,
@@ -60,11 +331,15 @@ export default function Plinko() {
   const plinko = usePlinko({
     rows,
     multipliers,
+    enableMotion: settings.enableMotion, // Pass motion setting to physics engine
     onContact(contact) {
       const baseSeed = `${contact.peg?.plugin?.pegIndex ?? 'n'}:${contact.bucket?.plugin?.bucketIndex ?? 'n'}:${contact.barrier ? 'b' : ''}:${Math.floor(Date.now()/250)}`
       const rng = makeDeterministicRng(baseSeed)
       if (contact.peg && contact.plinko) {
-        pegAnimations.current[contact.peg.plugin.pegIndex] = 1
+        // Only animate pegs if motion is enabled
+        if (settings.enableMotion) {
+          pegAnimations.current[contact.peg.plugin.pegIndex] = 1
+        }
         const rate = 1 + rng() * .05
         sounds.play('bump', { playbackRate: rate })
       }
@@ -73,11 +348,39 @@ export default function Plinko() {
         sounds.play('bump', { playbackRate: rate })
       }
       if (contact.bucket && contact.plinko) {
-        bucketAnimations.current[contact.bucket.plugin.bucketIndex] = 1
-        sounds.play(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall')
+        // Only animate buckets if motion is enabled
+        if (settings.enableMotion) {
+          bucketAnimations.current[contact.bucket.plugin.bucketIndex] = 1
+        }
+        const isWin = contact.bucket.plugin.bucketMultiplier >= 1
+        sounds.play(isWin ? 'win' : 'fall')
+        
+        // 🏀 TRIGGER PLINKO EFFECTS
+        if (isWin) {
+          const multiplier = contact.bucket.plugin.bucketMultiplier
+          console.log(`🏀 PLINKO WIN! Ball landed in ${multiplier}x bucket`)
+          
+          if (multiplier >= 10) {
+            // Huge win
+            triggerWinFlash('#ffff00', 0.5)
+            triggerScreenShake(2, 500)
+          } else if (multiplier >= 3) {
+            // Big win
+            triggerWinFlash('#00ff00', 0.4)
+            triggerScreenShake(1.5, 400)
+          } else {
+            // Small win
+            triggerWinFlash('#00ff88', 0.3)
+            triggerScreenShake(0.8, 300)
+          }
+        } else {
+          console.log('🏀 PLINKO LOSE! Ball landed in 0x bucket')
+          triggerLoseFlash('#ff4444', 0.3)
+          triggerScreenShake(0.5, 200)
+        }
       }
     },
-  }, [rows, multipliers])
+  }, [rows, multipliers, settings.enableMotion])
 
   // Multi-ball play: launch N results, deduct wager per ball
   const play = async () => {
@@ -105,12 +408,14 @@ export default function Plinko() {
           <div className="melody-overlay" />
           <div className="inevitability-indicator" />
           
-  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-  <GameScreenFrame {...(useGameMeta('plinko') && { title: useGameMeta('plinko')!.name, description: useGameMeta('plinko')!.description })}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-            <GambaUi.Canvas
-              style={{ flex: 1, width: '100%', height: '100%' }}
-              render={({ ctx, size }, clock) => {
+                    <GameScreenFrame
+            title={game.game.meta?.name}
+            description={game.game.meta?.description}
+          >
+            <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
+              <GambaUi.Canvas
+                style={{ flex: 1, width: '100%', height: '100%' }}
+                render={({ ctx, size }, clock) => {
                 if (!plinko) return
 
                 const bodies = plinko.getBodies()
@@ -149,13 +454,18 @@ export default function Plinko() {
                     if (pegAnimations.current[body.plugin.pegIndex]) {
                       pegAnimations.current[body.plugin.pegIndex] *= .9
                     }
-                    ctx.scale(1 + animation * .4, 1 + animation * .4)
+                    // Only apply scale animation if motion is enabled
+                    if (settings.enableMotion) {
+                      ctx.scale(1 + animation * .4, 1 + animation * .4)
+                    }
                     const pegHue = (position.y + position.x + Date.now() * .05) % 360
-                    ctx.fillStyle = 'hsla(' + pegHue + ', 75%, 60%, ' + (1 + animation * 2) * .2 + ')'
+                    // Only apply animation effects if motion is enabled, otherwise use static values
+                    const animationEffect = settings.enableMotion ? animation : 0
+                    ctx.fillStyle = 'hsla(' + pegHue + ', 75%, 60%, ' + (1 + animationEffect * 2) * .2 + ')'
                     ctx.beginPath()
                     ctx.arc(0, 0, PEG_RADIUS + 4, 0, Math.PI * 2)
                     ctx.fill()
-                    const light = 75 + animation * 25
+                    const light = 75 + animationEffect * 25
                     ctx.fillStyle = 'hsla(' + pegHue + ', 85%, ' + light + '%, 1)'
                     ctx.beginPath()
                     ctx.arc(0, 0, PEG_RADIUS, 0, Math.PI * 2)
@@ -188,7 +498,9 @@ export default function Plinko() {
                     ctx.translate(position.x, position.y)
                     // Enhanced bucket styling with cyan theme
                     const bucketMultiplier = body.plugin.bucketMultiplier
-                    const bucketAlpha = 0.8 + animation * 0.2
+                    // Only apply animation effect if motion is enabled, otherwise use static values
+                    const animationEffect = settings.enableMotion ? animation : 0
+                    const bucketAlpha = 0.8 + animationEffect * 0.2
                     // Create gradient for bucket background
                     const gradient = ctx.createLinearGradient(-25, -bucketHeight, 25, 0)
                     // Different colors based on multiplier value
@@ -242,9 +554,8 @@ export default function Plinko() {
                 ctx.restore()
               }}
             />
-          </div>
-  </GameScreenFrame>
-  </div>
+            </div>
+          </GameScreenFrame>
         </StyledPlinkoBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
