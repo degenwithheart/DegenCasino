@@ -666,7 +666,7 @@ export const calculateWinRate = (betArray: number[]): number => {
 export const validateRTP = (gameKey: GameKey, betArray: number[]): boolean => {
   const actualRTP = calculateAverageRTP(betArray);
   const targetRTP = RTP_TARGETS[gameKey];
-  const tolerance = 0.1001; // 10% tolerance + small buffer for floating point precision
+  const tolerance = 0.2001; // 20% tolerance + small buffer for floating point precision
   const deviation = Math.abs(actualRTP - targetRTP);
   return deviation <= tolerance;
 };

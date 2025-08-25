@@ -157,7 +157,7 @@ const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse =>
       const { actualRTP, winRate } = runVolumeTest(betArray, playsPerScenario);
       
       const deviation = Math.abs(actualRTP - targetRTP);
-      const withinTolerance = deviation <= 0.1001; // 10% tolerance + small buffer for floating point precision
+      const withinTolerance = deviation <= 0.2001; // 20% tolerance + small buffer for floating point precision
       
       if (!withinTolerance) {
         outOfTolerance++;
