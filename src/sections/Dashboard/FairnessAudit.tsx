@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
@@ -6,12 +6,10 @@ import { Link } from 'react-router-dom'
 import { FLIP_CONFIG } from '../../games/rtpConfig'
 import { DICE_CONFIG } from '../../games/rtpConfig'
 import { CRASH_CONFIG } from '../../games/rtpConfig'
-import { SLOTS_CONFIG } from '../../games/rtpConfig'
 import { PLINKO_CONFIG } from '../../games/rtpConfig'
 import { MINES_CONFIG } from '../../games/rtpConfig'
 import { HILO_CONFIG } from '../../games/rtpConfig'
 import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
-import { PROGRESSIVE_POKER_CONFIG } from '../../games/rtpConfig'
 import { ROULETTE_CONFIG } from '../../games/rtpConfig'
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
 import { getBetArray as getProgressivePokerBetArray } from '../../games/ProgressivePoker/betArray'
@@ -22,17 +20,39 @@ import { getBetArray as getProgressivePokerBetArray } from '../../games/Progress
 
 interface RtpResult { rtp: number; houseEdge: number; note?: string }
 
+// Types for Edge Case API response
+interface EdgeCaseResult {
+  game: string;
+  scenario: string;
+  targetRTP: number;
+  actualRTP: number;
+  winRate: number;
+  withinTolerance: boolean;
+  deviation: number;
+  status: 'pass' | 'fail';
+}
+
+interface EdgeCaseResponse {
+  results: EdgeCaseResult[];
+  summary: Record<string, {
+    avgRTP: number;
+    minRTP: number;
+    maxRTP: number;
+    avgWinRate: number;
+    outOfTolerance: number;
+    totalScenarios: number;
+  }>;
+  timestamp: string;
+  totalTests: number;
+  totalFailures: number;
+  overallStatus: 'healthy' | 'warning' | 'critical';
+}
+
 // Helper to calculate RTP from any bet array
 const calculateRtp = (betArray: readonly number[] | number[], note: string = ''): RtpResult => {
   const arr = Array.isArray(betArray) ? betArray : [...betArray]
   const avg = arr.reduce((a, b) => a + b, 0) / arr.length
   return { rtp: avg, houseEdge: 1 - avg, note }
-}
-
-// Crash RTP calculation (using real game implementation)
-const crashRtp = (m: number): RtpResult => {
-  const betArray = CRASH_CONFIG.calculateBetArray(m)
-  return calculateRtp(betArray, `target=${m}x, len=${betArray.length}`)
 }
 
 // Generate real bet arrays using actual game implementations
@@ -621,6 +641,122 @@ const Footer = styled.div`
   }
 `
 
+const EdgeStressTest = styled(SectionCard)`
+  &::before {
+    background: radial-gradient(circle, #ff006655 0%, transparent 80%);
+  }
+`
+
+const LoadingSpinner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #ffd700;
+  font-size: 1.2rem;
+
+  &::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 215, 0, 0.3);
+    border-top: 3px solid #ffd700;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 1rem;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+
+const StatusHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(24, 24, 24, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+`
+
+const StatusBadge = styled.div<{ status: 'healthy' | 'warning' | 'critical' }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+  background: ${p => 
+    p.status === 'healthy' ? 'linear-gradient(135deg, #10b981, #059669)' :
+    p.status === 'warning' ? 'linear-gradient(135deg, #f59e0b, #d97706)' :
+    'linear-gradient(135deg, #ef4444, #dc2626)'
+  };
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  &::before {
+    content: ${p => 
+      p.status === 'healthy' ? '"✓"' :
+      p.status === 'warning' ? '"⚠"' :
+      '"✗"'
+    };
+  }
+`
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  font-size: 14px;
+
+  .stat-item {
+    text-align: center;
+
+    .stat-value {
+      display: block;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 8px #ffd700;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+`
+
+const FailingRow = styled(Td)<{ isFailing?: boolean }>`
+  background: ${p => p.isFailing ? 'rgba(255, 0, 0, 0.15)' : 'transparent'};
+  border-left: ${p => p.isFailing ? '3px solid #ef4444' : 'none'};
+  padding-left: ${p => p.isFailing ? '11px' : '14px'};
+
+  ${p => p.isFailing && `
+    animation: pulse-red 2s infinite;
+    
+    @keyframes pulse-red {
+      0%, 100% { background: rgba(255, 0, 0, 0.15); }
+      50% { background: rgba(255, 0, 0, 0.25); }
+    }
+  `}
+`
+
 interface Row { game:string; onChain:boolean; noLocalRng:boolean; rtp?:RtpResult; note:string; status:'ok'|'warn'|'na'; betVector?: readonly number[] | number[]; targetRtp?: number }
 
 interface SampleStats { plays:number; wins:number; totalWager:number; totalPayout:number }
@@ -647,8 +783,38 @@ const runSample = (bet: readonly number[] | number[], plays: number, wager = 1):
 export default function FairnessAudit() {
   const [seed, setSeed] = useState(0)
   const [ltaMode, setLtaMode] = useState(false)
-  const refresh = useCallback(()=> setSeed(Date.now()), [])
+  const [edgeCaseData, setEdgeCaseData] = useState<EdgeCaseResponse | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
   const samplePlays = ltaMode ? LTA_PLAYS : LIVE_SAMPLE_PLAYS
+
+  // Fetch edge case data from API
+  const fetchEdgeCaseData = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/audit/edgeCases')
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
+      setEdgeCaseData(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load edge case data')
+      console.error('Edge case data fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(()=> {
+    setSeed(Date.now())
+    fetchEdgeCaseData()
+  }, [fetchEdgeCaseData])
+
+  // Load edge case data on mount and when seed changes
+  useEffect(() => {
+    fetchEdgeCaseData()
+  }, [fetchEdgeCaseData, seed])
   
   const rows: Row[] = useMemo(()=>{
     // Generate real bet arrays using actual game logic
@@ -682,8 +848,6 @@ export default function FairnessAudit() {
       }
     })
   }, [rows, samplePlays])
-
-  const crashSamples = [1.25,1.5,1.75,2,2.5,3,5,10].map(m=>({ m, ...crashRtp(m) }))
 
   return (
     <Wrap>
@@ -816,32 +980,255 @@ export default function FairnessAudit() {
         })}
       </TableContainer>
 
-      <SectionCard>
-        <SectionTitle>Crash Game Examples</SectionTitle>
-        <TableWrapper>
-          <Table>
-            <thead>
-              <tr>
-                <Th>Cash Out Target</Th>
-                <Th>Repeat Count</Th>
-                <Th>Array Length</Th>
-                <Th>Payout %</Th>
-                <Th>House Advantage</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {crashSamples.map(s => (
-                <tr key={s.m}>
-                  <Td><DataValue type="multiplier">{s.m.toFixed(2)}x</DataValue></Td>
-                  <Td>{s.note?.match(/repeat=(\d+)/)?.[1] || '—'}</Td>
-                  <Td>{s.note?.match(/len=(\d+)/)?.[1] || '—'}</Td>
-                  <Td><DataValue type="percentage">{(s.rtp * 100).toFixed(3)}%</DataValue></Td>
-                  <Td>{(s.houseEdge * 100).toFixed(3)}%</Td>
-                </tr>
+      <EdgeStressTest>
+        <SectionTitle>🚨 Edge Case Stress Test</SectionTitle>
+        
+        {loading && <LoadingSpinner>Loading comprehensive edge case validation...</LoadingSpinner>}
+        
+        {error && (
+          <div style={{ 
+            padding: '2rem', 
+            background: 'rgba(255, 0, 0, 0.1)', 
+            border: '1px solid #ef4444', 
+            borderRadius: '12px', 
+            color: '#ef4444',
+            textAlign: 'center' 
+          }}>
+            <strong>Error:</strong> {error}
+            <br />
+            <button 
+              onClick={fetchEdgeCaseData}
+              style={{ 
+                marginTop: '1rem', 
+                padding: '8px 16px', 
+                background: '#ef4444', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '6px', 
+                cursor: 'pointer' 
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {edgeCaseData && !loading && (
+          <>
+            <StatusHeader>
+              <StatusBadge status={edgeCaseData.overallStatus}>
+                {edgeCaseData.overallStatus} System
+              </StatusBadge>
+              <StatsGrid>
+                <div className="stat-item">
+                  <span className="stat-value">{edgeCaseData.totalTests}</span>
+                  <span className="stat-label">Total Tests</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{edgeCaseData.totalFailures}</span>
+                  <span className="stat-label">Failures</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">
+                    {((1 - edgeCaseData.totalFailures / edgeCaseData.totalTests) * 100).toFixed(1)}%
+                  </span>
+                  <span className="stat-label">Pass Rate</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{Object.keys(edgeCaseData.summary).length}</span>
+                  <span className="stat-label">Games Tested</span>
+                </div>
+              </StatsGrid>
+            </StatusHeader>
+
+            <TableContainer>
+              <DesktopTable>
+                <TableWrapper>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Game</Th>
+                        <Th>Scenario</Th>
+                        <Th>Target RTP</Th>
+                        <Th>Actual RTP</Th>
+                        <Th>Deviation</Th>
+                        <Th>Win Rate</Th>
+                        <Th>Status</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {edgeCaseData.results
+                        .filter(result => !result.withinTolerance) // Show failures first
+                        .map((result, i) => (
+                        <tr key={`fail-${i}`}>
+                          <FailingRow isFailing><strong>{result.game}</strong></FailingRow>
+                          <FailingRow isFailing>{result.scenario}</FailingRow>
+                          <FailingRow isFailing>
+                            <DataValue type="percentage">{(result.targetRTP * 100).toFixed(2)}%</DataValue>
+                          </FailingRow>
+                          <FailingRow isFailing>
+                            <DataValue type="percentage">{(result.actualRTP * 100).toFixed(2)}%</DataValue>
+                          </FailingRow>
+                          <FailingRow isFailing>
+                            <DataValue type="percentage">±{(result.deviation * 100).toFixed(3)}%</DataValue>
+                          </FailingRow>
+                          <FailingRow isFailing>
+                            <DataValue type="percentage">{(result.winRate * 100).toFixed(2)}%</DataValue>
+                          </FailingRow>
+                          <FailingRow isFailing>
+                            <Badge tone="warn">FAIL</Badge>
+                          </FailingRow>
+                        </tr>
+                      ))}
+                      
+                      {edgeCaseData.results
+                        .filter(result => result.withinTolerance) // Show passes after failures
+                        .slice(0, 50) // Limit displayed passing tests for performance
+                        .map((result, i) => (
+                        <tr key={`pass-${i}`}>
+                          <Td><strong>{result.game}</strong></Td>
+                          <Td>{result.scenario}</Td>
+                          <Td>
+                            <DataValue type="percentage">{(result.targetRTP * 100).toFixed(2)}%</DataValue>
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">{(result.actualRTP * 100).toFixed(2)}%</DataValue>
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">±{(result.deviation * 100).toFixed(3)}%</DataValue>
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">{(result.winRate * 100).toFixed(2)}%</DataValue>
+                          </Td>
+                          <Td>
+                            <Badge tone="ok">PASS</Badge>
+                          </Td>
+                        </tr>
+                      ))}
+                      
+                      {edgeCaseData.results.filter(r => r.withinTolerance).length > 50 && (
+                        <tr>
+                          <Td colSpan={7} style={{ textAlign: 'center', fontStyle: 'italic', color: '#94a3b8' }}>
+                            ... and {edgeCaseData.results.filter(r => r.withinTolerance).length - 50} more passing tests
+                          </Td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </TableWrapper>
+              </DesktopTable>
+
+              {/* Mobile Cards for Edge Cases */}
+              {edgeCaseData.results
+                .filter(result => !result.withinTolerance) // Show only failures on mobile
+                .map((result, i) => (
+                <MobileCard key={`mobile-fail-${i}`} style={{ 
+                  background: 'rgba(255, 0, 0, 0.1)', 
+                  borderColor: '#ef4444' 
+                }}>
+                  <div className="game-title">
+                    {result.game} - {result.scenario}
+                    <Badge tone="warn">FAIL</Badge>
+                  </div>
+                  <div className="data-grid">
+                    <div className="data-item">
+                      <span className="label">Target RTP</span>
+                      <span className="value">
+                        <DataValue type="percentage">{(result.targetRTP * 100).toFixed(2)}%</DataValue>
+                      </span>
+                    </div>
+                    <div className="data-item">
+                      <span className="label">Actual RTP</span>
+                      <span className="value">
+                        <DataValue type="percentage">{(result.actualRTP * 100).toFixed(2)}%</DataValue>
+                      </span>
+                    </div>
+                    <div className="data-item">
+                      <span className="label">Deviation</span>
+                      <span className="value">
+                        <DataValue type="percentage">±{(result.deviation * 100).toFixed(3)}%</DataValue>
+                      </span>
+                    </div>
+                    <div className="data-item">
+                      <span className="label">Win Rate</span>
+                      <span className="value">
+                        <DataValue type="percentage">{(result.winRate * 100).toFixed(2)}%</DataValue>
+                      </span>
+                    </div>
+                  </div>
+                </MobileCard>
               ))}
-            </tbody>
-          </Table>
-        </TableWrapper>
+            </TableContainer>
+
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1rem', 
+              background: 'rgba(24, 24, 24, 0.8)', 
+              borderRadius: '12px', 
+              fontSize: '13px', 
+              color: '#94a3b8',
+              textAlign: 'center' 
+            }}>
+              <strong>Last Updated:</strong> {new Date(edgeCaseData.timestamp).toLocaleString()}
+              <br />
+              Edge case validation covers {edgeCaseData.totalTests} scenarios across all games.
+              Failures are highlighted for immediate attention.
+            </div>
+          </>
+        )}
+      </EdgeStressTest>
+
+      <SectionCard>
+        <SectionTitle>Summary by Game</SectionTitle>
+        {edgeCaseData && (
+          <TableWrapper>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>Game</Th>
+                  <Th>Scenarios Tested</Th>
+                  <Th>Failures</Th>
+                  <Th>Pass Rate</Th>
+                  <Th>Avg RTP</Th>
+                  <Th>RTP Range</Th>
+                  <Th>Avg Win Rate</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(edgeCaseData.summary).map(([game, data]) => {
+                  const passRate = ((data.totalScenarios - data.outOfTolerance) / data.totalScenarios) * 100;
+                  return (
+                    <tr key={game}>
+                      <Td><strong>{game}</strong></Td>
+                      <Td>{data.totalScenarios}</Td>
+                      <Td>
+                        {data.outOfTolerance > 0 ? (
+                          <span style={{ color: '#ef4444', fontWeight: 'bold' }}>{data.outOfTolerance}</span>
+                        ) : (
+                          <span style={{ color: '#10b981' }}>0</span>
+                        )}
+                      </Td>
+                      <Td>
+                        <DataValue type="percentage">
+                          {passRate.toFixed(1)}%
+                        </DataValue>
+                      </Td>
+                      <Td>
+                        <DataValue type="percentage">{(data.avgRTP * 100).toFixed(2)}%</DataValue>
+                      </Td>
+                      <Td>
+                        <Mono>{(data.minRTP * 100).toFixed(2)}% - {(data.maxRTP * 100).toFixed(2)}%</Mono>
+                      </Td>
+                      <Td>
+                        <DataValue type="percentage">{(data.avgWinRate * 100).toFixed(2)}%</DataValue>
+                      </Td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+          </TableWrapper>
+        )}
       </SectionCard>
 
       <SectionCard>
