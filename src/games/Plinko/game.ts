@@ -107,11 +107,8 @@ export class Plinko {
   }
 
   private makeBuckets() {
-    const unique = Array.from(new Set(this.props.multipliers));
-    const secondHalf = unique.slice(1);
-    const firstHalf = [...secondHalf].reverse();
-    const center = [unique[0], unique[0], unique[0]];
-    const layout = [...firstHalf, ...center, ...secondHalf];
+    // Use the exact multiplier array from RTP configuration - no modification!
+    const layout = this.props.multipliers;
     const w = this.width / layout.length;
 
     const barriers = Array.from({ length: layout.length + 1 }).map((_, i) =>
