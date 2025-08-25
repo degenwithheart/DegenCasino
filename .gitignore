@@ -16,6 +16,8 @@ test_scripts/targeted-mismatch-detector.cjs
 **/gamba_integration_guide.txt
 .DS_Store
 **/.DS_Store
+.venv
+# Ignore build and dependency directories
 .vercel
 .vite
 dist
