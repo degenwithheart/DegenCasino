@@ -38,6 +38,7 @@ type EdgeCaseResponse = {
   totalTests: number;
   totalFailures: number;
   overallStatus: 'healthy' | 'warning' | 'critical';
+  playsPerScenario: number;
 };
 
 const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArray: number[] }[] => {
@@ -102,7 +103,29 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
   return scenarios;
 };
 
-const validateAllGames = (): EdgeCaseResponse => {
+// Volume testing function - same logic as client-side sample testing
+const runVolumeTest = (betArray: number[], plays: number, wager: number = 1) => {
+  let totalWager = 0, totalPayout = 0, wins = 0;
+  
+  for (let i = 0; i < plays; i++) {
+    totalWager += wager;
+    const randomIndex = Math.floor(Math.random() * betArray.length);
+    const payout = betArray[randomIndex] * wager;
+    totalPayout += payout;
+    if (payout > 0) wins++;
+  }
+  
+  return {
+    actualRTP: totalWager > 0 ? totalPayout / totalWager : 0,
+    winRate: wins / plays,
+    totalWager,
+    totalPayout,
+    wins,
+    plays
+  };
+};
+
+const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse => {
   const results: ValidationResult[] = [];
   const summary: Record<string, SummaryData> = {};
   let totalFailures = 0;
@@ -114,8 +137,9 @@ const validateAllGames = (): EdgeCaseResponse => {
     let totalRTP = 0, totalWinRate = 0, minRTP = Infinity, maxRTP = -Infinity, outOfTolerance = 0;
 
     scenarios.forEach(({ scenario, betArray }) => {
-      const actualRTP = calculateAverageRTP(betArray);
-      const winRate = calculateWinRate(betArray);
+      // Run volume testing using the same logic as client-side sample testing
+      const { actualRTP, winRate } = runVolumeTest(betArray, playsPerScenario);
+      
       const deviation = Math.abs(actualRTP - targetRTP);
       const withinTolerance = deviation <= 0.01;
       
@@ -163,9 +187,10 @@ const validateAllGames = (): EdgeCaseResponse => {
     results,
     summary,
     timestamp: new Date().toISOString(),
-    totalTests: results.length,
+    totalTests: results.length * playsPerScenario, // Total individual game plays
     totalFailures,
-    overallStatus
+    overallStatus,
+    playsPerScenario
   };
 };
 
@@ -190,7 +215,26 @@ export default async function handler(request: Request): Promise<Response> {
   }
 
   try {
-    const auditData = validateAllGames()
+    // Parse query parameters
+    const url = new URL(request.url);
+    const playsParam = url.searchParams.get('plays');
+    const playsPerScenario = playsParam ? parseInt(playsParam, 10) : 10000;
+    
+    // Validate plays parameter
+    if (isNaN(playsPerScenario) || playsPerScenario < 1 || playsPerScenario > 10000000) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid plays parameter',
+        message: 'Plays must be a number between 1 and 10,000,000'
+      }), {
+        status: 400,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+    
+    const auditData = validateAllGames(playsPerScenario)
     
     return new Response(JSON.stringify(auditData), {
       status: 200,
