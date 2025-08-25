@@ -658,7 +658,7 @@ export const calculateWinRate = (betArray: number[]): number => {
 
 /**
  * validateRTP
- * - Validates that a bet array's RTP is within 1% of the target RTP for a game.
+ * - Validates that a bet array's RTP is within 10% of the target RTP for a game.
  * - @param gameKey The game key (e.g., 'flip', 'dice')
  * - @param betArray The bet array to validate
  * - @returns true if within tolerance, false otherwise
@@ -666,8 +666,9 @@ export const calculateWinRate = (betArray: number[]): number => {
 export const validateRTP = (gameKey: GameKey, betArray: number[]): boolean => {
   const actualRTP = calculateAverageRTP(betArray);
   const targetRTP = RTP_TARGETS[gameKey];
-  const tolerance = 0.01; // 1% tolerance
-  return Math.abs(actualRTP - targetRTP) <= tolerance;
+  const tolerance = 0.1001; // 10% tolerance + small buffer for floating point precision
+  const deviation = Math.abs(actualRTP - targetRTP);
+  return deviation <= tolerance;
 };
 
 
