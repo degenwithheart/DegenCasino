@@ -46,6 +46,7 @@ interface EdgeCaseResponse {
   totalTests: number;
   totalFailures: number;
   overallStatus: 'healthy' | 'warning' | 'critical';
+  playsPerScenario: number;
 }
 
 // Helper to calculate RTP from any bet array
@@ -1338,7 +1339,8 @@ export default function FairnessAudit() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/audit/edgeCases')
+      const plays = ltaMode ? LTA_PLAYS : LIVE_SAMPLE_PLAYS
+      const response = await fetch(`/api/audit/edgeCases?plays=${plays}`)
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
       setEdgeCaseData(data)
@@ -1348,7 +1350,7 @@ export default function FairnessAudit() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [ltaMode])
 
   const refresh = useCallback(()=> {
     setSeed(Date.now())
@@ -1585,8 +1587,12 @@ export default function FairnessAudit() {
               </StatusBadge>
               <StatsGrid>
                 <div className="stat-item">
-                  <span className="stat-value">{edgeCaseData.totalTests}</span>
+                  <span className="stat-value">{edgeCaseData.totalTests.toLocaleString()}</span>
                   <span className="stat-label">Total Tests</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{edgeCaseData.playsPerScenario.toLocaleString()}</span>
+                  <span className="stat-label">Plays per Scenario</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-value">{edgeCaseData.totalFailures}</span>
@@ -1735,7 +1741,7 @@ export default function FairnessAudit() {
             }}>
               <strong>Last Updated:</strong> {new Date(edgeCaseData.timestamp).toLocaleString()}
               <br />
-              Edge case validation covers {edgeCaseData.totalTests} scenarios across all games.
+              Edge case validation runs {edgeCaseData.playsPerScenario.toLocaleString()} plays per scenario, totaling {edgeCaseData.totalTests.toLocaleString()} individual game tests across all scenarios.
               Failures are highlighted for immediate attention.
             </div>
           </>
