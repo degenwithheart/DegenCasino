@@ -1,5 +1,6 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
+import { SLOTS_CONFIG } from '../rtpConfig'
 import styled, { css, keyframes } from 'styled-components'
 
 interface ReelProps {
@@ -11,11 +12,11 @@ interface ReelProps {
   enableMotion?: boolean // Add motion control
 }
 
-// Define specific sequences for each column to prevent matching top rows
+// Define specific sequences for each column to prevent matching top rows - using actual RTP config symbols
 const COLUMN_SEQUENCES = {
-  0: ['UNICORN', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
-  1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'UNICORN'], // Column 2 (reverse)
-  2: ['UNICORN', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 3
+  0: ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
+  1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY', 'MYTHICAL'], // Column 2 (reverse)
+  2: ['SOL', 'JUP', 'WOJAK', 'MYTHICAL', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
 }
 
 const continuousScrollUp = keyframes`
@@ -227,21 +228,23 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
   const spinItems = React.useMemo(() => {
     const columnSequence = COLUMN_SEQUENCES[reelIndex as keyof typeof COLUMN_SEQUENCES] || COLUMN_SEQUENCES[0]
     
-    // Map symbol names to actual SlotItem objects
+    // Map symbol names to actual SlotItem objects using RTP config
     const sequenceItems = columnSequence.map(symbolName => {
-      return SLOT_ITEMS.find(item => {
-        // Find by matching multiplier (since we don't have direct name mapping)
-        const symbolConfig = {
-          'UNICORN': 50.0,
-          'DGHRT': 20.0, 
-          'SOL': 7.0,
-          'USDC': 3.0,
-          'JUP': 1.5,
-          'BONK': 1.2,
-          'WOJAK': 0
-        }
-        return item.multiplier === symbolConfig[symbolName as keyof typeof symbolConfig]
-      }) || SLOT_ITEMS[0]
+      // Get the actual multiplier from RTP config symbols
+      const symbolFromConfig = SLOTS_CONFIG.symbols.find(s => s.name === symbolName)
+      if (!symbolFromConfig) {
+        console.error('Symbol not found in config during spinning:', symbolName)
+        return SLOT_ITEMS[0] // fallback to first item
+      }
+      
+      // Find the corresponding SLOT_ITEM with the exact multiplier
+      const slotItem = SLOT_ITEMS.find(item => Math.abs(item.multiplier - symbolFromConfig.multiplier) < 0.001)
+      if (!slotItem) {
+        console.error('SlotItem not found for multiplier during spinning:', symbolFromConfig.multiplier)
+        return SLOT_ITEMS[0] // fallback to first item
+      }
+      
+      return slotItem
     })
     
     // Create a longer unique sequence to minimize visible duplicates during spinning

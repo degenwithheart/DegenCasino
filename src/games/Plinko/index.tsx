@@ -7,7 +7,7 @@ import GameScreenFrame, { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
-import { PLINKO_CONFIG } from '../rtpConfig'
+import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
 
 import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
@@ -31,7 +31,8 @@ function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
 // Use centralized bet arrays from rtpConfig
 const BET = PLINKO_CONFIG.normal
 const DEGEN_BET = PLINKO_CONFIG.degen
-const ROWS = PLINKO_CONFIG.ROWS
+const PEGS = PLINKO_CONFIG.PEGS
+const BUCKETS = PLINKO_CONFIG.BUCKETS
 
 export default function Plinko() {
   console.log('🎯 PLINKO COMPONENT LOADING...')
@@ -325,11 +326,13 @@ export default function Plinko() {
   const bucketAnimations = React.useRef<Record<number, number>>({})
 
   const bet = degen ? DEGEN_BET : BET
-  const rows = degen ? ROWS.degen : ROWS.normal
+  const rows = degen ? PEGS.degen : PEGS.normal
+  const buckets = degen ? BUCKETS.degen : BUCKETS.normal
   const multipliers = bet // Use exact bet array - no duplicate removal!
 
   const plinko = usePlinko({
     rows,
+    buckets,
     multipliers,
     enableMotion: settings.enableMotion, // Pass motion setting to physics engine
     onContact(contact) {
@@ -496,27 +499,21 @@ export default function Plinko() {
                     }
                     ctx.save()
                     ctx.translate(position.x, position.y)
-                    // Enhanced bucket styling with cyan theme
+                    // Enhanced bucket styling with dynamic colors based on multiplier
                     const bucketMultiplier = body.plugin.bucketMultiplier
                     // Only apply animation effect if motion is enabled, otherwise use static values
                     const animationEffect = settings.enableMotion ? animation : 0
                     const bucketAlpha = 0.8 + animationEffect * 0.2
+                    
+                    // Get dynamic colors based on multiplier value
+                    const colors = getBucketColor(bucketMultiplier)
+                    
                     // Create gradient for bucket background
                     const gradient = ctx.createLinearGradient(-25, -bucketHeight, 25, 0)
-                    // Different colors based on multiplier value
-                    if (bucketMultiplier >= 3) {
-                      gradient.addColorStop(0, `rgba(34, 211, 238, ${bucketAlpha})`)
-                      gradient.addColorStop(0.5, `rgba(103, 232, 249, ${bucketAlpha * 0.9})`)
-                      gradient.addColorStop(1, `rgba(165, 243, 252, ${bucketAlpha})`)
-                    } else if (bucketMultiplier >= 1.5) {
-                      gradient.addColorStop(0, `rgba(6, 182, 212, ${bucketAlpha})`)
-                      gradient.addColorStop(0.5, `rgba(34, 211, 238, ${bucketAlpha * 0.9})`)
-                      gradient.addColorStop(1, `rgba(103, 232, 249, ${bucketAlpha})`)
-                    } else {
-                      gradient.addColorStop(0, `rgba(12, 74, 110, ${bucketAlpha})`)
-                      gradient.addColorStop(0.5, `rgba(14, 116, 144, ${bucketAlpha * 0.9})`)
-                      gradient.addColorStop(1, `rgba(8, 145, 178, ${bucketAlpha})`)
-                    }
+                    gradient.addColorStop(0, colors.primary.replace('0.9)', `${bucketAlpha})`))
+                    gradient.addColorStop(0.5, colors.secondary.replace('0.85)', `${bucketAlpha * 0.9})`))
+                    gradient.addColorStop(1, colors.tertiary.replace('0.9)', `${bucketAlpha})`))
+                    
                     ctx.save()
                     ctx.translate(0, bucketHeight / 2)
                     ctx.scale(1, 1 + animation * 2)
@@ -539,8 +536,6 @@ export default function Plinko() {
                     // Main text
                     ctx.fillStyle = `rgba(255, 255, 255, ${0.95 + animation * 0.05})`
                     ctx.fillText('x' + bucketMultiplier, 0, 0)
-                    ctx.fillText('x' + body.plugin.bucketMultiplier, 0, 0)
-                    ctx.fill()
                     ctx.restore()
                   }
                   if (label === 'Barrier') {
