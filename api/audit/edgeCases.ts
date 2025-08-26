@@ -119,13 +119,34 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
   return scenarios;
 };
 
+// Generate binomial random index for Plinko (matches actual game physics)
+const generateBinomialIndex = (rows: number, buckets: number): number => {
+  // Each row is a coin flip, sum gives us the bucket index
+  let successes = 0;
+  for (let i = 0; i < rows; i++) {
+    if (Math.random() < 0.5) successes++;
+  }
+  return successes;
+};
+
 // Volume testing function - same logic as client-side sample testing
-const runVolumeTest = (betArray: number[], plays: number, wager: number = 1) => {
+const runVolumeTest = (betArray: number[], plays: number, wager: number = 1, gameKey?: GameKey, scenario?: string) => {
   let totalWager = 0, totalPayout = 0, wins = 0;
   
   for (let i = 0; i < plays; i++) {
     totalWager += wager;
-    const randomIndex = Math.floor(Math.random() * betArray.length);
+    
+    let randomIndex: number;
+    
+    // Special handling for Plinko - use binomial distribution instead of uniform
+    if (gameKey === 'plinko') {
+      const rows = scenario?.includes('degen') ? 12 : 14; // degen uses 12 rows, normal uses 14
+      randomIndex = generateBinomialIndex(rows, betArray.length);
+    } else {
+      // For all other games, use uniform random selection
+      randomIndex = Math.floor(Math.random() * betArray.length);
+    }
+    
     const payout = betArray[randomIndex] * wager;
     totalPayout += payout;
     if (payout > 0) wins++;
@@ -154,7 +175,7 @@ const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse =>
 
     scenarios.forEach(({ scenario, betArray }) => {
       // Run volume testing using the same logic as client-side sample testing
-      const { actualRTP, winRate } = runVolumeTest(betArray, playsPerScenario);
+      const { actualRTP, winRate } = runVolumeTest(betArray, playsPerScenario, 1, gameKey, scenario);
       
       const deviation = Math.abs(actualRTP - targetRTP);
       const withinTolerance = deviation <= 0.2001; // 20% tolerance + small buffer for floating point precision
