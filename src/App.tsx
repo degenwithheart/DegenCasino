@@ -80,27 +80,10 @@ function WelcomeBanner() {
     }
   }, [wallet.connecting]);
 
-  const shouldShow = autoConnectAttempted && !wallet.connected && !wallet.connecting;
   const isLoading = !autoConnectAttempted || wallet.connecting;
 
-  if (!shouldShow) return null;
+  if (!isLoading) return null;
 
-  return (
-    <div style={{
-      width: '100%',
-      margin: '2rem 0',
-      padding: '1.5rem',
-      background: 'rgba(34,34,34,0.95)',
-      borderRadius: '1.5rem',
-      textAlign: 'center',
-      color: '#ffd700',
-      fontFamily: "'Luckiest Guy', cursive, sans-serif",
-      fontSize: '1.5rem',
-      boxShadow: '0 0 24px #ffd70044',
-    }}>
-      Welcome to the casino of chaos! Please connect your wallet to play.
-    </div>
-  );
 }
 
 export default function App() {

@@ -1506,6 +1506,7 @@ export default function FairnessAudit() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showDetailedResults, setShowDetailedResults] = useState(false)
+  const [showSummaryByGame, setShowSummaryByGame] = useState(false)
   
   const samplePlays = ltaMode ? LTA_PLAYS : LIVE_SAMPLE_PLAYS
 
@@ -1832,20 +1833,28 @@ export default function FairnessAudit() {
               </StatsGrid>
             </StatusHeader>
 
-            {/* Toggle button for detailed Edge Case results */}
-            <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+            {/* Toggle buttons for detailed results and summary */}
+            <div style={{ 
+              margin: '1.5rem 0', 
+              textAlign: 'center',
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
               <button
                 onClick={() => setShowDetailedResults(!showDetailedResults)}
                 style={{
                   background: 'rgba(239, 68, 68, 0.2)',
                   border: '1px solid rgba(239, 68, 68, 0.4)',
                   borderRadius: '8px',
-                  padding: '12px 24px',
+                  padding: '12px 20px',
                   color: '#ef4444',
                   cursor: 'pointer',
                   fontSize: '14px',
                   fontWeight: '500',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '200px'
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)'
@@ -1856,13 +1865,41 @@ export default function FairnessAudit() {
                   e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)'
                 }}
               >
-                {showDetailedResults ? '🔼 Hide' : '🔽 Show'} Detailed Scenario Results
+                {showDetailedResults ? '🔼 Hide' : '🔽 Show'} Detailed Scenarios
+              </button>
+              
+              <button
+                onClick={() => setShowSummaryByGame(!showSummaryByGame)}
+                style={{
+                  background: 'rgba(251, 191, 36, 0.2)',
+                  border: '1px solid rgba(251, 191, 36, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 20px',
+                  color: '#fbbf24',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                  minWidth: '200px'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)'
+                }}
+              >
+                {showSummaryByGame ? '🔼 Hide' : '🔽 Show'} Summary by Game
               </button>
             </div>
 
-            {showDetailedResults && (
-            <>
-            <TableContainer>
+            {/* Detailed Scenario Results */}
+            {showDetailedResults && edgeCaseData && (
+            <div>
+              <h4 style={{ margin: '0 0 1rem', color: '#ef4444', fontSize: '1.1rem' }}>📊 Detailed Scenario Results</h4>
+              <TableContainer>
               <DesktopTable>
                 <TableWrapper>
                   <Table>
@@ -1995,62 +2032,63 @@ export default function FairnessAudit() {
               Edge case validation runs {edgeCaseData.playsPerScenario.toLocaleString()} plays per scenario, totaling {edgeCaseData.totalTests.toLocaleString()} individual game tests across all scenarios.
               Failures are highlighted for immediate attention.
             </div>
-            </>
+            </div>
+            )}
+
+            {/* Summary by Game */}
+            {showSummaryByGame && edgeCaseData && (
+            <div style={{ marginTop: '2rem' }}>
+              <h4 style={{ margin: '0 0 1.5rem', color: '#fbbf24', fontSize: '1.1rem' }}>📈 Summary by Game</h4>
+              <TableWrapper>
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>Game</Th>
+                      <Th>Scenarios Tested</Th>
+                      <Th>Failures</Th>
+                      <Th>Pass Rate</Th>
+                      <Th>Avg RTP</Th>
+                      <Th>RTP Range</Th>
+                      <Th>Avg Win Rate</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(edgeCaseData.summary).map(([game, data]) => {
+                      const passRate = ((data.totalScenarios - data.outOfTolerance) / data.totalScenarios) * 100;
+                      return (
+                        <tr key={game}>
+                          <Td><strong>{game}</strong></Td>
+                          <Td>{data.totalScenarios}</Td>
+                          <Td>
+                            {data.outOfTolerance > 0 ? (
+                              <span style={{ color: '#ef4444', fontWeight: 'bold' }}>{data.outOfTolerance}</span>
+                            ) : (
+                              <span style={{ color: '#10b981' }}>0</span>
+                            )}
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">
+                              {passRate.toFixed(1)}%
+                            </DataValue>
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">{(data.avgRTP * 100).toFixed(2)}%</DataValue>
+                          </Td>
+                          <Td>
+                            <Mono>{(data.minRTP * 100).toFixed(2)}% - {(data.maxRTP * 100).toFixed(2)}%</Mono>
+                          </Td>
+                          <Td>
+                            <DataValue type="percentage">{(data.avgWinRate * 100).toFixed(2)}%</DataValue>
+                          </Td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </Table>
+              </TableWrapper>
+            </div>
             )}
           </>
-        )}
-            </Card>
-
-      <Card variant="secondary">
-        <h3 style={{ margin: '0 0 1.5rem', color: '#ffd700', fontSize: '1.3rem' }}>Summary by Game</h3>
-        {edgeCaseData && (
-          <TableWrapper>
-            <Table>
-              <thead>
-                <tr>
-                  <Th>Game</Th>
-                  <Th>Scenarios Tested</Th>
-                  <Th>Failures</Th>
-                  <Th>Pass Rate</Th>
-                  <Th>Avg RTP</Th>
-                  <Th>RTP Range</Th>
-                  <Th>Avg Win Rate</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(edgeCaseData.summary).map(([game, data]) => {
-                  const passRate = ((data.totalScenarios - data.outOfTolerance) / data.totalScenarios) * 100;
-                  return (
-                    <tr key={game}>
-                      <Td><strong>{game}</strong></Td>
-                      <Td>{data.totalScenarios}</Td>
-                      <Td>
-                        {data.outOfTolerance > 0 ? (
-                          <span style={{ color: '#ef4444', fontWeight: 'bold' }}>{data.outOfTolerance}</span>
-                        ) : (
-                          <span style={{ color: '#10b981' }}>0</span>
-                        )}
-                      </Td>
-                      <Td>
-                        <DataValue type="percentage">
-                          {passRate.toFixed(1)}%
-                        </DataValue>
-                      </Td>
-                      <Td>
-                        <DataValue type="percentage">{(data.avgRTP * 100).toFixed(2)}%</DataValue>
-                      </Td>
-                      <Td>
-                        <Mono>{(data.minRTP * 100).toFixed(2)}% - {(data.maxRTP * 100).toFixed(2)}%</Mono>
-                      </Td>
-                      <Td>
-                        <DataValue type="percentage">{(data.avgWinRate * 100).toFixed(2)}%</DataValue>
-                      </Td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </Table>
-          </TableWrapper>
         )}
             </Card>
           </MainContent>
