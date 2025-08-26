@@ -2,46 +2,46 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
-import * as JavaScriptObfuscator from 'javascript-obfuscator';
+// Note: javascript-obfuscator will be required dynamically due to typing issues
 
 const ENV_PREFIX = ['VITE_'];
 
-// Safe obfuscation options - much lighter to avoid breaking code
+// Improved obfuscation options - balanced protection and stability
 const obfuscationOptions = {
   compact: true,
-  controlFlowFlattening: false, // Disabled - can break complex code
-  controlFlowFlatteningThreshold: 0,
-  deadCodeInjection: false, // Disabled - can break functionality
-  deadCodeInjectionThreshold: 0,
-  debugProtection: false, // Disabled - too aggressive
+  controlFlowFlattening: true, // Re-enabled with low threshold
+  controlFlowFlatteningThreshold: 0.2, // Very conservative
+  deadCodeInjection: true, // Re-enabled with low threshold
+  deadCodeInjectionThreshold: 0.1, // Very conservative
+  debugProtection: false, // Keep disabled for now
   debugProtectionInterval: 0,
   disableConsoleOutput: false, // Keep console for debugging
-  // domainLock: [], // Disabled for now
+  domainLock: ['degenheart.casino', 'www.degenheart.casino'], // Re-enable domain lock
   identifierNamesGenerator: 'hexadecimal',
-  numbersToExpressions: false, // Disabled - can break arithmetic
+  numbersToExpressions: true, // Re-enabled - usually safe
   optionsPreset: 'default',
-  renameGlobals: false, // Don't rename globals
-  renameProperties: false, // Don't rename properties
+  renameGlobals: false, // Keep disabled
+  renameProperties: false, // Keep disabled
   seed: 0,
-  selfDefending: false, // Disabled - too aggressive
+  selfDefending: false, // Keep disabled for now
   simplify: true,
   sourceMap: false,
-  splitStrings: false, // Disabled - can break string operations
-  splitStringsChunkLength: 10,
-  stringArray: true, // Basic string obfuscation only
-  stringArrayCallsTransform: false, // Disabled - can break function calls
-  stringArrayCallsTransformThreshold: 0,
-  stringArrayEncoding: [], // No encoding for now
-  stringArrayIndexShift: false,
-  stringArrayRotate: false,
-  stringArrayShuffle: false,
-  stringArrayWrappersCount: 1,
-  stringArrayWrappersChainedCalls: false,
+  splitStrings: true, // Re-enabled with conservative settings
+  splitStringsChunkLength: 5, // Smaller chunks for safety
+  stringArray: true,
+  stringArrayCallsTransform: true, // Re-enabled carefully
+  stringArrayCallsTransformThreshold: 0.3, // Conservative
+  stringArrayEncoding: ['base64'], // Single encoding method for safety
+  stringArrayIndexShift: true,
+  stringArrayRotate: true,
+  stringArrayShuffle: true,
+  stringArrayWrappersCount: 1, // Reduced for safety
+  stringArrayWrappersChainedCalls: false, // Keep disabled
   stringArrayWrappersParametersMaxCount: 2,
-  stringArrayWrappersType: 'variable',
-  stringArrayThreshold: 0.3, // Very light string array usage
+  stringArrayWrappersType: 'variable', // Safer than function
+  stringArrayThreshold: 0.5, // Moderate usage
   target: 'browser',
-  transformObjectKeys: false, // Don't transform object keys
+  transformObjectKeys: false, // Keep disabled
   unicodeEscapeSequence: false
 };
 
@@ -152,7 +152,9 @@ export default defineConfig(() => ({
       name: 'safe-obfuscate-js',
       closeBundle() {
         try {
-          if (!JavaScriptObfuscator) {
+          const JavaScriptObfuscator = require('javascript-obfuscator');
+          
+          if (!JavaScriptObfuscator || !JavaScriptObfuscator.obfuscate) {
             console.warn('⚠️ Could not load javascript-obfuscator, skipping obfuscation');
             return;
           }
@@ -169,45 +171,71 @@ export default defineConfig(() => ({
               const filePath = path.join(dir, file);
               const code = fs.readFileSync(filePath, 'utf8');
 
-              if (code.length < 2000) { // Increased threshold to avoid small critical files
+              if (code.length < 1500) { // Reasonable threshold
                 console.log(`⏭️ Skipped: ${file} (too small)`);
                 return;
               }
 
-              // Only apply light obfuscation to non-critical files
+              // Categorize files for different obfuscation levels
               const isVendorFile = file.includes('vendor');
-              const isCriticalFile = file.includes('main') || file.includes('app') || file.includes('core');
-              
-              if (isCriticalFile) {
-                console.log(`⏭️ Skipped: ${file} (critical file - avoiding obfuscation)`);
-                return;
-              }
+              const isMainFile = file.includes('main') || file.includes('app');
+              const isGameFile = file.includes('game') || file.includes('Game');
+              const isUtilFile = file.includes('util') || file.includes('hook') || file.includes('component');
 
               let options = { ...obfuscationOptions };
+              let obfuscationType = 'standard';
+
               if (isVendorFile) {
-                // Extra light settings for vendor files
+                // Minimal obfuscation for vendor files (external libraries)
                 options = {
                   ...obfuscationOptions,
-                  stringArray: false, // Disable even string array for vendor
-                  stringArrayThreshold: 0,
-                  compact: true,
-                  simplify: false
+                  controlFlowFlattening: false,
+                  deadCodeInjection: false,
+                  stringArrayCallsTransform: false,
+                  stringArrayThreshold: 0.2,
+                  splitStrings: false,
+                  stringArrayEncoding: []
                 };
+                obfuscationType = 'minimal';
                 console.log(`🔧 Applying minimal obfuscation to vendor: ${file}`);
+              } else if (isMainFile) {
+                // Enhanced obfuscation for main app files
+                options = {
+                  ...obfuscationOptions,
+                  controlFlowFlatteningThreshold: 0.3,
+                  deadCodeInjectionThreshold: 0.15,
+                  stringArrayThreshold: 0.7,
+                  stringArrayCallsTransformThreshold: 0.5,
+                  splitStringsChunkLength: 3
+                };
+                obfuscationType = 'enhanced';
+                console.log(`🎯 Applying enhanced obfuscation to main: ${file}`);
+              } else if (isGameFile) {
+                // Moderate obfuscation for game logic files
+                options = {
+                  ...obfuscationOptions,
+                  controlFlowFlatteningThreshold: 0.25,
+                  deadCodeInjectionThreshold: 0.12,
+                  stringArrayThreshold: 0.6,
+                  stringArrayCallsTransformThreshold: 0.4
+                };
+                obfuscationType = 'moderate';
+                console.log(`🎮 Applying moderate obfuscation to game: ${file}`);
               } else {
-                console.log(`🔧 Applying light obfuscation to: ${file}`);
+                // Standard obfuscation for utility files
+                console.log(`🔧 Applying standard obfuscation to: ${file}`);
               }
 
               try {
                 const obfuscated = JavaScriptObfuscator.obfuscate(code, options);
                 const obfuscatedCode = obfuscated.getObfuscatedCode();
 
-                if (obfuscatedCode && obfuscatedCode.length > 0) {
+                if (obfuscatedCode && obfuscatedCode.length > 0 && obfuscatedCode !== code) {
                   fs.writeFileSync(filePath, obfuscatedCode, 'utf8');
-                  console.log(`✅ Obfuscated: ${file}`);
+                  console.log(`✅ Obfuscated (${obfuscationType}): ${file}`);
                   obfuscatedCount++;
                 } else {
-                  console.warn(`⚠️ Empty obfuscation result for ${file}, keeping original`);
+                  console.warn(`⚠️ Obfuscation produced no changes for ${file}, keeping original`);
                 }
               } catch (error) {
                 console.warn(`⚠️ Could not obfuscate ${file}:`, error.message);
