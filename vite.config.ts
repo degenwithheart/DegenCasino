@@ -33,7 +33,7 @@ export default defineConfig(() => ({
     },
   },
   optimizeDeps: {
-    include: ['buffer','crypto-browserify','stream-browserify','util'],
+    include: ['react', 'react-dom', 'buffer','crypto-browserify','stream-browserify','util'],
     esbuildOptions: { define: { global: 'globalThis' } }
   },
   build: {
@@ -46,29 +46,18 @@ export default defineConfig(() => ({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Keep core app files together for better obfuscation
-          if (id.includes('src/App.tsx') || id.includes('src/index.tsx')) {
-            return 'app-core';
-          }
           if (id.includes('node_modules')) {
             return 'vendor';
           }
-        },
-        // Ensure consistent naming for obfuscation detection
-        entryFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId;
-          if (facadeModuleId && (facadeModuleId.includes('index.tsx') || facadeModuleId.includes('main'))) {
-            return 'assets/main-[hash].js';
-          }
-          return 'assets/[name]-[hash].js';
-        },
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        }
       }
     }
   },
   plugins: [
-    react({ jsxRuntime: 'automatic' }),
+    react({ 
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react'
+    }),
     {
       name: 'ignore-api-routes',
       configureServer(server) {
