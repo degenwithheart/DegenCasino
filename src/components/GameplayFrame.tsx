@@ -182,7 +182,8 @@ const GameplayFrame = React.forwardRef<GameplayEffectsRef, GameplayFrameProps>((
         enableMotion={enableMotion}
         {...rest}  // Forward any additional props
       >
-        {children}
+        {/* Only render children if not used as an overlay (when style prop contains position: absolute) */}
+        {!rest.style?.position && children}
       </GameScreenFrame>
     </div>
   )
