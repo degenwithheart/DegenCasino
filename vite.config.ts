@@ -85,10 +85,10 @@ export default defineConfig(() => ({
     sourcemap: false,
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console logs
+        drop_console: false, // Keep console logs for debugging
         drop_debugger: true, // Remove debugger statements
-        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
-        passes: 3, // Multiple compression passes
+        pure_funcs: [], // Don't remove any functions
+        passes: 2, // Reduce compression passes
         reduce_vars: true,
         reduce_funcs: true,
         conditionals: true,
@@ -97,20 +97,18 @@ export default defineConfig(() => ({
         if_return: true,
         join_vars: true,
         loops: true,
-        properties: true,
+        properties: false, // Don't optimize properties to avoid breaking code
         sequences: true,
         unused: true,
         hoist_funs: true,
-        hoist_props: true,
+        hoist_props: false, // Don't optimize property hoisting
         hoist_vars: false,
-        inline: 3
+        inline: 1 // Reduce inline level
       },
       mangle: {
-        toplevel: true,
+        toplevel: false, // Don't mangle top-level names
         safari10: true,
-        properties: {
-          regex: /^_/ // Mangle properties starting with underscore
-        }
+        properties: false // Don't mangle properties to avoid breaking code
       },
       format: {
         comments: true, // Remove all comments
@@ -149,7 +147,9 @@ export default defineConfig(() => ({
           res.end('API routes not available in development');
         });
       }
-    },
+    }
+    // Obfuscation plugin temporarily disabled to fix runtime errors
+    /*
     {
       name: 'safe-obfuscate-js',
       closeBundle() {
@@ -227,5 +227,6 @@ export default defineConfig(() => ({
         }
       }
     }
+    */
   ]
 }));
