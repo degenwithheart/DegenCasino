@@ -10,34 +10,28 @@ const ENV_PREFIX = ['VITE_'];
 
 const obfuscationOptions = {
   compact: true,
-  controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.75,
-  deadCodeInjection: true,
-  deadCodeInjectionThreshold: 0.4,
-  debugProtection: true,
-  debugProtectionInterval: 4000,
+  controlFlowFlattening: false, // Disabled - breaks React
+  deadCodeInjection: false, // Disabled - can break React components
   disableConsoleOutput: true,
   identifierNamesGenerator: 'hexadecimal',
   log: false,
-  numbersToExpressions: true,
-  renameGlobals: false,
-  selfDefending: true,
+  renameGlobals: false, // Critical - keeps React globals intact
+  selfDefending: false, // Disabled - can interfere with React
   simplify: true,
-  splitStrings: true,
-  splitStringsChunkLength: 5,
   stringArray: true,
-  stringArrayCallsTransform: true,
-  stringArrayEncoding: ['base64'],
-  stringArrayIndexShift: true,
-  stringArrayRotate: true,
-  stringArrayShuffle: true,
-  stringArrayWrappersCount: 5,
-  stringArrayWrappersChainedCalls: true,
-  stringArrayWrappersParametersMaxCount: 5,
-  stringArrayWrappersType: 'function',
-  stringArrayThreshold: 0.75,
-  transformObjectKeys: true,
-  unicodeEscapeSequence: false
+  stringArrayEncoding: ['base64', 'rc4'],
+  stringArrayThreshold: 0.5, // Reduced to avoid breaking JSX
+  transformObjectKeys: false, // Disabled - breaks React props
+  unicodeEscapeSequence: false,
+  // React-safe reserved names
+  reservedNames: [
+    'React', 'ReactDOM', 'createElement', 'Component', 'PureComponent',
+    'Fragment', 'StrictMode', 'Suspense', 'useState', 'useEffect', 
+    'useContext', 'useReducer', 'useCallback', 'useMemo', 'useRef',
+    'useImperativeHandle', 'useLayoutEffect', 'useDebugValue',
+    'createRoot', 'render', 'unmountComponentAtNode', 'findDOMNode',
+    'jsx', 'jsxs', 'jsxDEV', 'div', 'span', 'p', 'h1', 'h2', 'h3', 'button', 'input'
+  ]
 };
 
 export default defineConfig(() => ({
@@ -115,15 +109,19 @@ export default defineConfig(() => ({
     },
     {
       name: 'obfuscate-js',
-      async closeBundle() {
-        // Dynamic import to avoid ES module issues
+      closeBundle() {
+        // Temporarily disabled to fix React issues
+        console.log('⚠️ Obfuscation temporarily disabled for debugging');
+        return;
+        
+        // TODO: Re-enable with React-safe settings
+        /*
+        const obfuscator = await import('javascript-obfuscator');
+        JavaScriptObfuscator = obfuscator.default;
+        
         if (!JavaScriptObfuscator) {
-          try {
-            JavaScriptObfuscator = (await import('javascript-obfuscator')).default;
-          } catch (error) {
-            console.warn('⚠️ javascript-obfuscator not available, skipping obfuscation');
-            return;
-          }
+          console.warn('⚠️ Could not load javascript-obfuscator');
+          return;
         }
 
         const dir = path.resolve(__dirname, 'dist/assets');
@@ -134,26 +132,18 @@ export default defineConfig(() => ({
             const filePath = path.join(dir, file);
             const code = fs.readFileSync(filePath, 'utf8');
             
-            // Enhanced obfuscation for main app files
-            const isMainFile = file.includes('index') || file.includes('main') || code.includes('ReactDOM') || code.includes('App');
-            const options = isMainFile ? {
-              ...obfuscationOptions,
-              debugProtection: true,
-              debugProtectionInterval: 2000,
-              selfDefending: true,
-              controlFlowFlatteningThreshold: 0.9,
-              stringArrayThreshold: 0.9,
-            } : obfuscationOptions;
-            
+            // Use React-safe obfuscation for all files
             try {
-              const obfuscated = JavaScriptObfuscator.obfuscate(code, options);
+              const obfuscated = JavaScriptObfuscator.obfuscate(code, obfuscationOptions);
               fs.writeFileSync(filePath, obfuscated.getObfuscatedCode(), 'utf8');
-              console.log(`✅ Obfuscated: ${file} ${isMainFile ? '(enhanced)' : ''}`);
+              console.log(`✅ Obfuscated: ${file}`);
             } catch (error) {
               console.warn(`⚠️ Could not obfuscate ${file}:`, error.message);
+              // If obfuscation fails, keep the original file
             }
           }
         });
+        */
       }
     }
   ]
