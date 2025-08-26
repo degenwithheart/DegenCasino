@@ -95,7 +95,7 @@ export default function App() {
 
   // Anti-debugging protection (will be obfuscated)
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.GAMBA_ENV === 'production') {
       const devtools = { open: false, orientation: null };
       setInterval(() => {
         if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
