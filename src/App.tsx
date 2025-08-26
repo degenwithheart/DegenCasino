@@ -93,6 +93,23 @@ export default function App() {
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
   const [showGamesModal, setShowGamesModal] = useState(false);
 
+  // Anti-debugging protection (will be obfuscated)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      const devtools = { open: false, orientation: null };
+      setInterval(() => {
+        if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+          if (!devtools.open) {
+            devtools.open = true;
+            console.clear();
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+    }
+  }, []);
+
   useEffect(() => {
     if (!connecting) {
       setAutoConnectAttempted(true);

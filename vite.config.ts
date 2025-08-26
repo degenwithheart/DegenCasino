@@ -9,18 +9,33 @@ const ENV_PREFIX = ['VITE_'];
 const obfuscationOptions = {
   compact: true,
   controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.9,
+  controlFlowFlatteningThreshold: 0.75,
   deadCodeInjection: true,
   deadCodeInjectionThreshold: 0.4,
-  stringArray: true,
-  stringArrayEncoding: ['base64'],
-  stringArrayThreshold: 0.9,
-  rotateStringArray: true,
-  shuffleStringArray: true,
-  simplify: true,
-  transformObjectKeys: true,
-  renameGlobals: false,
+  debugProtection: true,
+  debugProtectionInterval: 4000,
   disableConsoleOutput: true,
+  identifierNamesGenerator: 'hexadecimal',
+  log: false,
+  numbersToExpressions: true,
+  renameGlobals: false,
+  selfDefending: true,
+  simplify: true,
+  splitStrings: true,
+  splitStringsChunkLength: 5,
+  stringArray: true,
+  stringArrayCallsTransform: true,
+  stringArrayEncoding: ['base64'],
+  stringArrayIndexShift: true,
+  stringArrayRotate: true,
+  stringArrayShuffle: true,
+  stringArrayWrappersCount: 5,
+  stringArrayWrappersChainedCalls: true,
+  stringArrayWrappersParametersMaxCount: 5,
+  stringArrayWrappersType: 'function',
+  stringArrayThreshold: 0.75,
+  transformObjectKeys: true,
+  unicodeEscapeSequence: false
 };
 
 export default defineConfig(() => ({
@@ -64,8 +79,24 @@ export default defineConfig(() => ({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) return 'vendor';
-        }
+          // Keep core app files together for better obfuscation
+          if (id.includes('src/App.tsx') || id.includes('src/index.tsx')) {
+            return 'app-core';
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+        // Ensure consistent naming for obfuscation detection
+        entryFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId;
+          if (facadeModuleId && (facadeModuleId.includes('index.tsx') || facadeModuleId.includes('main'))) {
+            return 'assets/main-[hash].js';
+          }
+          return 'assets/[name]-[hash].js';
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
   },
@@ -84,12 +115,31 @@ export default defineConfig(() => ({
       name: 'obfuscate-js',
       closeBundle() {
         const dir = path.resolve(__dirname, 'dist/assets');
+        if (!fs.existsSync(dir)) return;
+        
         fs.readdirSync(dir).forEach(file => {
           if (file.endsWith('.js')) {
             const filePath = path.join(dir, file);
             const code = fs.readFileSync(filePath, 'utf8');
-            const obfuscated = JavaScriptObfuscator.obfuscate(code, obfuscationOptions);
-            fs.writeFileSync(filePath, obfuscated.getObfuscatedCode(), 'utf8');
+            
+            // Enhanced obfuscation for main app files
+            const isMainFile = file.includes('index') || file.includes('main') || code.includes('ReactDOM') || code.includes('App');
+            const options = isMainFile ? {
+              ...obfuscationOptions,
+              debugProtection: true,
+              debugProtectionInterval: 2000,
+              selfDefending: true,
+              controlFlowFlatteningThreshold: 0.9,
+              stringArrayThreshold: 0.9,
+            } : obfuscationOptions;
+            
+            try {
+              const obfuscated = JavaScriptObfuscator.obfuscate(code, options);
+              fs.writeFileSync(filePath, obfuscated.getObfuscatedCode(), 'utf8');
+              console.log(`✅ Obfuscated: ${file} ${isMainFile ? '(enhanced)' : ''}`);
+            } catch (error) {
+              console.warn(`⚠️ Could not obfuscate ${file}:`, error.message);
+            }
           }
         });
       }
