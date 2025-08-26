@@ -1,13 +1,13 @@
 {
-  "name": "Gamba Play",
-  "short_name": "Gamba",
+  "name": "Degen Heart",
+  "short_name": "DegenHeart",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
   "lang": "en",
   "scope": "/",
   "theme_color": "#FF5555",
-  "description": "",
+  "description": "Degen Heart Casino brings fast, fair, and transparent blockchain gaming to the Solana network.",
   "icons": [
     {
       "src": "/icon-512.png",
