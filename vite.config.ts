@@ -12,14 +12,14 @@ const obfuscationOptions = {
   deadCodeInjection: false, // Keep false - can break React
   debugProtection: false, // Keep false for now
   disableConsoleOutput: true,
-  identifierNamesGenerator: 'mangled-shuffled',
+  identifierNamesGenerator: 'hexadecimal',
   log: false,
   renameGlobals: false, // Keep false - React needs globals
   selfDefending: false, // Keep false - can break in production
   simplify: true,
   splitStrings: false, // Keep false - can break JSX
   stringArray: true,
-  stringArrayEncoding: ['base64'],
+  stringArrayEncoding: ['base64', 'rc4'],
   stringArrayIndexShift: true,
   stringArrayRotate: true,
   stringArrayShuffle: true,
