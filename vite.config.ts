@@ -1,35 +1,40 @@
-import fs from 'fs-extra';
-import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-
-// Existing config preserved, enhancements for mobile/dev experience and performance below
+import fs from 'fs';
+import path from 'path';
+const JavaScriptObfuscator = require('javascript-obfuscator');
 
 const ENV_PREFIX = ['VITE_'];
+
+const obfuscationOptions = {
+  compact: true,
+  controlFlowFlattening: true,
+  controlFlowFlatteningThreshold: 0.9,
+  deadCodeInjection: true,
+  deadCodeInjectionThreshold: 0.4,
+  stringArray: true,
+  stringArrayEncoding: ['base64'],
+  stringArrayThreshold: 0.9,
+  rotateStringArray: true,
+  shuffleStringArray: true,
+  simplify: true,
+  transformObjectKeys: true,
+  renameGlobals: false,
+  disableConsoleOutput: true,
+};
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
   server: { 
-    port: 4001, 
-    host: true, // Enable LAN/mobile device testing
-    middlewareMode: false,
-    hmr: {
-      overlay: false,
-    },
+    port: 4001,
+    host: true,
+    hmr: { overlay: false },
     open: false,
-    // Use polling instead of fsevents to avoid compatibility issues
-    watch: {
-      usePolling: true,
-      interval: 100,
-    },
-    // CORS enabled for mobile device/dev tools testing
+    watch: { usePolling: true, interval: 100 },
     cors: {
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-    },
-    proxy: {
-      '/api': 'http://localhost:5000',
+      allowedHeaders: ['Content-Type','Authorization'],
     },
   },
   assetsInclude: ["**/*.glb"],
@@ -46,20 +51,23 @@ export default defineConfig(() => ({
     },
   },
   optimizeDeps: {
-    include: ['buffer', 'crypto-browserify', 'stream-browserify', 'util'],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
-    }
+    include: ['buffer','crypto-browserify','stream-browserify','util'],
+    esbuildOptions: { define: { global: 'globalThis' } }
   },
   build: {
     outDir: 'dist',
     chunkSizeWarningLimit: 4096,
-    target: 'es2017', // Modern JS output for improved mobile perf
-    cssTarget: 'chrome61', // Improved mobile CSS support
-    minify: 'esbuild', // Faster/minimal JS for mobile
-    sourcemap: true, // Helpful for debugging on real devices
+    target: 'es2017',
+    cssTarget: 'chrome61',
+    minify: 'esbuild',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) return 'vendor';
+        }
+      }
+    }
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
@@ -67,9 +75,23 @@ export default defineConfig(() => ({
       name: 'ignore-api-routes',
       configureServer(server) {
         server.middlewares.use('/api', (req, res, next) => {
-          res.statusCode = 404
-          res.end('API routes not available in development')
-        })
+          res.statusCode = 404;
+          res.end('API routes not available in development');
+        });
+      }
+    },
+    {
+      name: 'obfuscate-js',
+      closeBundle() {
+        const dir = path.resolve(__dirname, 'dist/assets');
+        fs.readdirSync(dir).forEach(file => {
+          if (file.endsWith('.js')) {
+            const filePath = path.join(dir, file);
+            const code = fs.readFileSync(filePath, 'utf8');
+            const obfuscated = JavaScriptObfuscator.obfuscate(code, obfuscationOptions);
+            fs.writeFileSync(filePath, obfuscated.getObfuscatedCode(), 'utf8');
+          }
+        });
       }
     }
   ]
