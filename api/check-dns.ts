@@ -180,7 +180,7 @@ export default async function handler(req: Request): Promise<Response> {
   }, 30000); // 30s TTL
 
     // Summarize results into a single status string
-    const onlineCount = results.filter(r => r.status === 'online').length;
+    const onlineCount = results.filter((r: any) => r.status === 'online').length;
     let status: 'Online' | 'Issues' | 'Offline' = 'Offline';
     if (onlineCount === results.length) {
       status = 'Online';
