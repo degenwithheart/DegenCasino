@@ -40,7 +40,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'plinkorace',
-    live: 'down',
+    live: 'new',
     meta: {
       name: 'PlinkoRace',
       background: '#000000CC',
@@ -105,7 +105,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'plinko',
-    live: 'down',
+    live: 'up',
     meta: {
       name: 'Plinko',
       background: '#000000CC',

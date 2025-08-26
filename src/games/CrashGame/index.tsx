@@ -1,6 +1,7 @@
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React from 'react'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl, DesktopControls } from '../../components'
+import styled from 'styled-components'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl } from '../../components'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
 import SOUND from './music.mp3'
@@ -11,6 +12,17 @@ import { useGameMeta } from '../useGameMeta'
 import { CRASH_CONFIG } from '../rtpConfig'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
+
+// Custom desktop controls for crash game
+const CrashDesktopControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  
+  @media (max-width: 800px) {
+    display: none;
+  }
+`
 
 export default function CrashGame() {
   const [wager, setWager] = useWagerInput()
@@ -125,10 +137,6 @@ export default function CrashGame() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GameplayFrame 
-          ref={effectsRef}
-          {...(useGameMeta('crash') && { title: useGameMeta('crash')!.name, description: useGameMeta('crash')!.description })}
-        >
         <ScreenWrapper>
           <StarsLayer1 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 3 ? 0 : 1 }} />
           <LineLayer1 enableMotion={settings.enableMotion} style={{ opacity: currentMultiplier > 3 ? 1 : 0 }} />
@@ -141,7 +149,19 @@ export default function CrashGame() {
           </MultiplierText>
           <Rocket style={getRocketStyle()} />
         </ScreenWrapper>
-        </GameplayFrame>
+        <GameplayFrame 
+          ref={effectsRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: 'none',
+            zIndex: 1000
+          }}
+          {...(useGameMeta('crash') && { title: useGameMeta('crash')!.name, description: useGameMeta('crash')!.description })}
+        />
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls
@@ -162,16 +182,19 @@ export default function CrashGame() {
           </SliderControl>
         </MobileControls>
         
-        <DesktopControls>
+        {/* Desktop controls: Custom layout for crash game */}
+        <CrashDesktopControls>
           <EnhancedWagerInput value={wager} onChange={setWager} />
-          <CustomSlider
-            value={multiplierTarget}
-            onChange={setMultiplierTarget}
-          />
+          <div style={{ flex: 1, maxWidth: '200px' }}>
+            <CustomSlider
+              value={multiplierTarget}
+              onChange={setMultiplierTarget}
+            />
+          </div>
           <EnhancedPlayButton onClick={play}>
             Play
           </EnhancedPlayButton>
-        </DesktopControls>
+        </CrashDesktopControls>
       </GambaUi.Portal>
     </>
   )
