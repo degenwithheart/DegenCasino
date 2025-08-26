@@ -15,8 +15,8 @@ const obfuscationOptions = {
   deadCodeInjectionThreshold: 0.2,
   debugProtection: true,
   debugProtectionInterval: 4000,
-  disableConsoleOutput: true,
-  domainLock: ['degenheart.casino'],
+  disableConsoleOutput: false, // Temporarily enable console for debugging
+  // domainLock: ['degenheart.casino', 'www.degenheart.casino', 'localhost', '127.0.0.1'], // Temporarily disabled for debugging
   identifierNamesGenerator: 'hexadecimal',
   numbersToExpressions: true,
   optionsPreset: 'default',
