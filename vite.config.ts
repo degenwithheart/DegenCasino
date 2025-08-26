@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
-// Note: javascript-obfuscator will be required dynamically due to typing issues
+import JavaScriptObfuscator from 'javascript-obfuscator';
 
 const ENV_PREFIX = ['VITE_'];
 
@@ -152,9 +152,10 @@ export default defineConfig(() => ({
       name: 'safe-obfuscate-js',
       closeBundle() {
         try {
-          const JavaScriptObfuscator = require('javascript-obfuscator');
+          // Type assertion to bypass TypeScript typing issues
+          const obfuscator = JavaScriptObfuscator as any;
           
-          if (!JavaScriptObfuscator || !JavaScriptObfuscator.obfuscate) {
+          if (!obfuscator || !obfuscator.obfuscate) {
             console.warn('⚠️ Could not load javascript-obfuscator, skipping obfuscation');
             return;
           }
@@ -227,7 +228,7 @@ export default defineConfig(() => ({
               }
 
               try {
-                const obfuscated = JavaScriptObfuscator.obfuscate(code, options);
+                const obfuscated = obfuscator.obfuscate(code, options);
                 const obfuscatedCode = obfuscated.getObfuscatedCode();
 
                 if (obfuscatedCode && obfuscatedCode.length > 0 && obfuscatedCode !== code) {
