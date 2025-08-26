@@ -1670,7 +1670,7 @@ export default function FairnessAudit() {
                         checked={ltaMode} 
                         onChange={e => setLtaMode(e.target.checked)} 
                       />
-                      <span>Show <b>Long-Term Results</b> (10,000 test plays)</span>
+                      <span>Enable <b>High-Volume Testing</b> (1M plays per game)</span>
                     </CheckboxLabel>
                   </ControlGroup>
                   <StatusInfo>
