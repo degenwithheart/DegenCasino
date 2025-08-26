@@ -1755,136 +1755,8 @@ export default function FairnessAudit() {
                 ))}
               </div>
 
-              {/* Toggle for detailed table */}
-              <div style={{ margin: '2rem 0', textAlign: 'center' }}>
-                <button
-                  onClick={() => setShowDetailedResults(!showDetailedResults)}
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    border: '1px solid rgba(59, 130, 246, 0.4)',
-                    borderRadius: '8px',
-                    padding: '0.75rem 1.5rem',
-                    color: '#60a5fa',
-                    cursor: 'pointer',
-                    fontSize: '1rem',
-                    fontWeight: '500',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
-                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)'
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
-                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)'
-                  }}
-                >
-                  {showDetailedResults ? '🔼 Hide' : '🔽 Show'} Detailed Test Results
-                </button>
-              </div>
 
-      {showDetailedResults && (
-      <TableContainer>
-        {/* Desktop Table */}
-        <DesktopTable>
-          <TableWrapper>
-            <Table>
-              <thead>
-                <tr>
-                  <Th>Game</Th>
-                  <Th>Status</Th>
-                  <Th>Blockchain Verified</Th>
-                  <Th>Truly Random</Th>
-                  <Th>Target Payout %</Th>
-                  <Th>Actual Payout %</Th>
-                  <Th>House Advantage</Th>
-                  <Th>Test Results ({samplePlays} games)</Th>
-                  <Th>Win Rate ({samplePlays} games)</Th>
-                  <Th>Technical Details</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => {
-                  const sample = samples[i]
-                  return (
-                    <tr key={r.game}>
-                      <Td><strong>{r.game}</strong></Td>
-                      <Td><Badge tone={r.status}>{r.status}</Badge></Td>
-                      <Td>{r.onChain ? 'Yes' : 'No'}</Td>
-                      <Td>{r.noLocalRng ? 'Yes' : 'No'}</Td>
-                      <Td><DataValue type="percentage">{r.targetRtp ? (r.targetRtp * 100).toFixed(2) + '%' : '—'}</DataValue></Td>
-                      <Td><DataValue type="percentage">{r.rtp ? (r.rtp.rtp * 100).toFixed(2) + '%' : '—'}</DataValue></Td>
-                      <Td>{r.rtp ? (r.rtp.houseEdge * 100).toFixed(2) + '%' : (r.targetRtp ? ((1 - r.targetRtp) * 100).toFixed(2) + '%' : '—')}</Td>
-                      <Td><DataValue type="percentage">{sample.sampleRtp}</DataValue></Td>
-                      <Td><DataValue type="percentage">{sample.winRatio}</DataValue></Td>
-                      <Td>
-                        {r.note} {r.rtp?.note && <Mono>{r.rtp.note}</Mono>}
-                      </Td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </Table>
-          </TableWrapper>
-        </DesktopTable>
 
-        {/* Mobile Cards */}
-        {rows.map((r, i) => {
-          const sample = samples[i]
-          return (
-            <MobileCard key={`mobile-${r.game}`}>
-              <div className="game-title">
-                {r.game}
-                <Badge tone={r.status}>{r.status}</Badge>
-              </div>
-              <div className="data-grid">
-                <div className="data-item">
-                  <span className="label">Target Payout %</span>
-                  <span className="value">
-                    <DataValue type="percentage">
-                      {r.targetRtp ? (r.targetRtp * 100).toFixed(2) + '%' : '—'}
-                    </DataValue>
-                  </span>
-                </div>
-                <div className="data-item">
-                  <span className="label">Actual Payout %</span>
-                  <span className="value">
-                    <DataValue type="percentage">
-                      {r.rtp ? (r.rtp.rtp * 100).toFixed(2) + '%' : '—'}
-                    </DataValue>
-                  </span>
-                </div>
-                <div className="data-item">
-                  <span className="label">Test Results</span>
-                  <span className="value">
-                    <DataValue type="percentage">{sample.sampleRtp}</DataValue>
-                  </span>
-                </div>
-                <div className="data-item">
-                  <span className="label">Win Rate</span>
-                  <span className="value">
-                    <DataValue type="percentage">{sample.winRatio}</DataValue>
-                  </span>
-                </div>
-                <div className="data-item">
-                  <span className="label">Blockchain Verified</span>
-                  <span className="value">{r.onChain ? 'Yes' : 'No'}</span>
-                </div>
-                <div className="data-item">
-                  <span className="label">Truly Random</span>
-                  <span className="value">{r.noLocalRng ? 'Yes' : 'No'}</span>
-                </div>
-              </div>
-              {(r.note || r.rtp?.note) && (
-                <div className="notes">
-                  {r.note} {r.rtp?.note && <Mono>{r.rtp.note}</Mono>}
-                </div>
-              )}
-            </MobileCard>
-          )
-        })}
-      </TableContainer>
-      )}
             </Card>
 
             <Card variant="danger">
@@ -1960,6 +1832,36 @@ export default function FairnessAudit() {
               </StatsGrid>
             </StatusHeader>
 
+            {/* Toggle button for detailed Edge Case results */}
+            <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+              <button
+                onClick={() => setShowDetailedResults(!showDetailedResults)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)'
+                }}
+              >
+                {showDetailedResults ? '🔼 Hide' : '🔽 Show'} Detailed Scenario Results
+              </button>
+            </div>
+
+            {showDetailedResults && (
+            <>
             <TableContainer>
               <DesktopTable>
                 <TableWrapper>
@@ -2093,6 +1995,8 @@ export default function FairnessAudit() {
               Edge case validation runs {edgeCaseData.playsPerScenario.toLocaleString()} plays per scenario, totaling {edgeCaseData.totalTests.toLocaleString()} individual game tests across all scenarios.
               Failures are highlighted for immediate attention.
             </div>
+            </>
+            )}
           </>
         )}
             </Card>
