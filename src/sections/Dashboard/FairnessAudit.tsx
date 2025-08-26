@@ -13,6 +13,7 @@ import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
 import { ROULETTE_CONFIG } from '../../games/rtpConfig'
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
 import { getBetArray as getProgressivePokerBetArray } from '../../games/ProgressivePoker/betArray'
+import { ALL_GAMES } from '../../games/allGames'
 
 // NOTE: This audit tests the actual game implementations that players experience,
 // importing directly from the games' source code to ensure 1:1 accuracy.
@@ -1398,6 +1399,64 @@ const StatsGrid = styled.div`
   }
 `
 
+const StatCard = styled.div`
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:nth-child(1) .stat-value { color: #22c55e; text-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
+  &:nth-child(2) .stat-value { color: #3b82f6; text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+  &:nth-child(3) .stat-value { color: #8b5cf6; text-shadow: 0 0 12px rgba(139, 92, 246, 0.5); }
+  &:nth-child(4) .stat-value { color: #f59e0b; text-shadow: 0 0 12px rgba(245, 158, 11, 0.5); }
+  &:nth-child(5) .stat-value { color: #ef4444; text-shadow: 0 0 12px rgba(239, 68, 68, 0.5); }
+`
+
+const StatValue = styled.span`
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  margin-bottom: 0.5rem;
+  font-family: 'Inter', monospace;
+`
+
+const StatLabel = styled.span`
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  line-height: 1.2;
+`
+
 interface Row { game:string; onChain:boolean; noLocalRng:boolean; rtp?:RtpResult; note:string; status:'ok'|'warn'|'na'; betVector?: readonly number[] | number[]; targetRtp?: number }
 
 interface SampleStats { plays:number; wins:number; totalWager:number; totalPayout:number }
@@ -1446,6 +1505,7 @@ export default function FairnessAudit() {
   const [edgeCaseData, setEdgeCaseData] = useState<EdgeCaseResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showDetailedResults, setShowDetailedResults] = useState(false)
   
   const samplePlays = ltaMode ? LTA_PLAYS : LIVE_SAMPLE_PLAYS
 
@@ -1510,6 +1570,64 @@ export default function FairnessAudit() {
     })
   }, [rows, samplePlays])
 
+  // Simplified game summary for new layout
+  const gameSummary = useMemo(() => {
+    // Map game names to their identifiers in allGames
+    const gameMapping: Record<string, string> = {
+      'Flip Duel': 'flip',
+      'Dice (50%)': 'dice', 
+      'Mines (sample step)': 'mines',
+      'HiLo (HI mid-rank)': 'hilo',
+      'Crash (1.5x sample)': 'crash',
+      'Plinko Standard': 'plinko',
+      'Plinko Degen': 'plinko', // Both plinko variants map to same game
+      'Slots (dynamic)': 'slots',
+      'Blackjack (solo)': 'blackjack',
+      'Blackjack Duel': 'blackjack', // Both blackjack variants map to same game
+      'Progressive Poker': 'progressivepoker',
+      'Roulette (Red bet)': 'roulette'
+    }
+
+    return rows.map(row => {
+      const gameId = gameMapping[row.game]
+      const gameData = ALL_GAMES.find((g: any) => g.id === gameId)
+      const isLive = gameData?.live === 'up'
+      
+      return {
+        name: row.game.split(' (')[0], // Remove parenthetical details
+        onChain: row.onChain,
+        noLocalRng: row.noLocalRng,
+        isLive,
+        status: row.status
+      }
+    })
+  }, [rows])
+
+  // Count stats for summary
+  const summaryStats = useMemo(() => {
+    const uniqueGames = new Set()
+    let liveGames = 0
+    let onChainGames = 0
+    let trulyRandomGames = 0
+
+    gameSummary.forEach(game => {
+      const baseName = game.name
+      if (!uniqueGames.has(baseName)) {
+        uniqueGames.add(baseName)
+        if (game.isLive) liveGames++
+        if (game.onChain) onChainGames++
+        if (game.noLocalRng) trulyRandomGames++
+      }
+    })
+
+    return {
+      totalGames: uniqueGames.size,
+      liveGames,
+      onChainGames,
+      trulyRandomGames
+    }
+  }, [gameSummary])
+
   return (
     <Wrap>
       <Container>
@@ -1559,6 +1677,113 @@ export default function FairnessAudit() {
                 </ControlRow>
               </ControlPanel>
 
+              {/* Simplified Game Summary - styled like Edge Case Stress Test */}
+              <StatusHeader status="success" style={{ marginTop: '2rem' }}>
+                <div className="status-info">
+                  <span className="status-icon">🎮</span>
+                  <span className="status-text">Game Status Overview</span>
+                </div>
+              </StatusHeader>
+
+              <StatsGrid>
+                <StatCard>
+                  <StatValue>{summaryStats.totalGames}</StatValue>
+                  <StatLabel>Total Games</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue>{summaryStats.liveGames}</StatValue>
+                  <StatLabel>Live Games</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue>{summaryStats.onChainGames}</StatValue>
+                  <StatLabel>On-Chain Verified</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue>{summaryStats.trulyRandomGames}</StatValue>
+                  <StatLabel>Truly Random</StatLabel>
+                </StatCard>
+              </StatsGrid>
+
+              {/* Game Details Grid */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                gap: '1rem', 
+                marginTop: '1rem' 
+              }}>
+                {gameSummary.filter((game, index, self) => 
+                  self.findIndex(g => g.name === game.name) === index
+                ).map(game => (
+                  <div key={game.name} style={{
+                    background: 'rgba(40, 40, 60, 0.4)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    border: `1px solid rgba(${game.isLive ? '34, 197, 94' : '156, 163, 175'}, 0.3)`
+                  }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <span style={{ 
+                        fontSize: '1.1rem', 
+                        fontWeight: 'bold',
+                        color: game.isLive ? '#22c55e' : '#9ca3af'
+                      }}>
+                        {game.name}
+                      </span>
+                      <span style={{ 
+                        fontSize: '0.8rem',
+                        background: game.isLive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                        color: game.isLive ? '#22c55e' : '#9ca3af',
+                        padding: '2px 6px',
+                        borderRadius: '4px'
+                      }}>
+                        {game.isLive ? 'LIVE' : 'OFFLINE'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem' }}>
+                      <span style={{ color: game.onChain ? '#22c55e' : '#ef4444' }}>
+                        {game.onChain ? '✓' : '✗'} On-Chain
+                      </span>
+                      <span style={{ color: game.noLocalRng ? '#22c55e' : '#ef4444' }}>
+                        {game.noLocalRng ? '✓' : '✗'} Truly Random
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Toggle for detailed table */}
+              <div style={{ margin: '2rem 0', textAlign: 'center' }}>
+                <button
+                  onClick={() => setShowDetailedResults(!showDetailedResults)}
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.2)',
+                    border: '1px solid rgba(59, 130, 246, 0.4)',
+                    borderRadius: '8px',
+                    padding: '0.75rem 1.5rem',
+                    color: '#60a5fa',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)'
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)'
+                  }}
+                >
+                  {showDetailedResults ? '🔼 Hide' : '🔽 Show'} Detailed Test Results
+                </button>
+              </div>
+
+      {showDetailedResults && (
       <TableContainer>
         {/* Desktop Table */}
         <DesktopTable>
@@ -1659,6 +1884,7 @@ export default function FairnessAudit() {
           )
         })}
       </TableContainer>
+      )}
             </Card>
 
             <Card variant="danger">
