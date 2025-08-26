@@ -1,3 +1,7 @@
+// Import polyfills first
+import './utils/polyfills'
+import './utils/audioManager'
+
 import * as ReactRoot from 'react'
 console.log('🏷️ App React identity:', ReactRoot)
 
