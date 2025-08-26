@@ -52,6 +52,26 @@ interface EdgeCaseResponse {
 // Helper to calculate RTP from any bet array
 const calculateRtp = (betArray: readonly number[] | number[], note: string = ''): RtpResult => {
   const arr = Array.isArray(betArray) ? betArray : [...betArray]
+  
+  // Special handling for Plinko - use binomial distribution probabilities
+  if (note.includes('mode')) {
+    const rows = note.includes('standard') ? 14 : 12
+    let rtp = 0
+    
+    // Calculate binomial probabilities and weighted RTP
+    for (let i = 0; i < arr.length; i++) {
+      let coeff = 1
+      for (let j = 1; j <= i; j++) {
+        coeff = coeff * (rows - (i - j)) / j
+      }
+      const prob = coeff / Math.pow(2, rows)
+      rtp += arr[i] * prob
+    }
+    
+    return { rtp, houseEdge: 1 - rtp, note }
+  }
+  
+  // For all other games, use uniform distribution
   const avg = arr.reduce((a, b) => a + b, 0) / arr.length
   return { rtp: avg, houseEdge: 1 - avg, note }
 }
