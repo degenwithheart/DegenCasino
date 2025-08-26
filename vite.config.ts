@@ -171,7 +171,7 @@ export default defineConfig(() => ({
               const filePath = path.join(dir, file);
               const code = fs.readFileSync(filePath, 'utf8');
 
-              if (code.length < 1000) {
+              if (code.length < 100) {
                 console.log(`⏭️ Skipped: ${file} (too small)`);
                 return;
               }
