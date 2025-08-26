@@ -807,7 +807,7 @@ export default function Game() {
     )
   }
 
-  // Support custom .env variable for environment, fallback to GAMBA_ENV
+  // Support custom .env variable for environment, fallback to NODE_ENV
   const env = import.meta.env.VITE_GAMBA_ENV || import.meta.env.MODE || '';
   const isProd = env === 'production';
 

@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Custom properties for theme colors and border radius */
 :root {
   --background-color: #0b0b0e;
