@@ -373,26 +373,39 @@ const QuickStats = styled.div`
 
 const StatusHeader = styled.div<{ status: string }>`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  border-bottom: 2px solid rgba(255, 215, 0, 0.15);
+  flex-direction: column;
+  gap: 0;
+  border-radius: 12px 12px 0 0;
   background: ${p => {
     switch (p.status) {
       case 'loading':
-        return 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.05) 100%)';
+        return 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)';
       case 'error':
-        return 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%)';
+        return 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%)';
       default:
-        return 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(21, 128, 61, 0.05) 100%)';
+        return 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(21, 128, 61, 0.1) 100%)';
     }
   }};
+  border: 1px solid ${p => {
+    switch (p.status) {
+      case 'loading': return 'rgba(59, 130, 246, 0.3)';
+      case 'error': return 'rgba(239, 68, 68, 0.3)';
+      default: return 'rgba(34, 197, 94, 0.3)';
+    }
+  }};
+  overflow: hidden;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    text-align: center;
+  .status-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 768px) {
+      padding: 0.75rem 1rem;
+    }
   }
 
   .status-info {
@@ -406,8 +419,8 @@ const StatusHeader = styled.div<{ status: string }>`
     }
 
     .status-text {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
       color: ${p => {
         switch (p.status) {
           case 'loading': return '#3b82f6';
@@ -417,7 +430,15 @@ const StatusHeader = styled.div<{ status: string }>`
       }};
       text-shadow: ${p => {
         switch (p.status) {
-          case 'loading': return '0 0 8px #3b82f6';
+          case 'loading': return '0 0 12px rgba(59, 130, 246, 0.6)';
+          case 'error': return '0 0 12px rgba(239, 68, 68, 0.6)';
+          default: return '0 0 12px rgba(34, 197, 94, 0.6)';
+        }
+      }};
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
           case 'error': return '0 0 8px #ef4444';
           default: return '0 0 8px #22c55e';
         }
@@ -1298,27 +1319,82 @@ const StatusBadge = styled.div<{ status: 'healthy' | 'warning' | 'critical' }>`
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  font-size: 14px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(20, 20, 30, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  margin: 1rem 0;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
 
   .stat-item {
     text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ffd700, transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 215, 0, 0.3);
+      transform: translateY(-2px);
+
+      &::before {
+        opacity: 1;
+      }
+    }
 
     .stat-value {
       display: block;
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
       color: #ffd700;
-      text-shadow: 0 0 8px #ffd700;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+      margin-bottom: 0.5rem;
+      font-family: 'Inter', monospace;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: #94a3b8;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
+      font-weight: 500;
+      line-height: 1.2;
     }
+
+    &:nth-child(1) .stat-value { color: #22c55e; text-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
+    &:nth-child(2) .stat-value { color: #3b82f6; text-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+    &:nth-child(3) .stat-value { color: #8b5cf6; text-shadow: 0 0 12px rgba(139, 92, 246, 0.5); }
+    &:nth-child(4) .stat-value { color: #f59e0b; text-shadow: 0 0 12px rgba(245, 158, 11, 0.5); }
+    &:nth-child(5) .stat-value { color: #ef4444; text-shadow: 0 0 12px rgba(239, 68, 68, 0.5); }
   }
 `
 
@@ -1621,9 +1697,17 @@ export default function FairnessAudit() {
         {edgeCaseData && !loading && (
           <>
             <StatusHeader status={edgeCaseData.overallStatus === 'healthy' ? 'success' : edgeCaseData.overallStatus === 'critical' ? 'error' : 'loading'}>
-              <StatusBadge status={edgeCaseData.overallStatus}>
-                {edgeCaseData.overallStatus} System
-              </StatusBadge>
+              <div className="status-banner">
+                <div className="status-info">
+                  <span className="status-icon">
+                    {edgeCaseData.overallStatus === 'healthy' ? '✅' : 
+                     edgeCaseData.overallStatus === 'critical' ? '🚨' : '⏳'}
+                  </span>
+                  <span className="status-text">
+                    {edgeCaseData.overallStatus} System
+                  </span>
+                </div>
+              </div>
               <StatsGrid>
                 <div className="stat-item">
                   <span className="stat-value">{edgeCaseData.totalTests.toLocaleString()}</span>
