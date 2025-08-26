@@ -16,7 +16,7 @@ const obfuscationOptions = {
   debugProtection: false, // Keep disabled for now
   debugProtectionInterval: 0,
   disableConsoleOutput: false, // Keep console for debugging
-  domainLock: ['degenheart.casino', 'www.degenheart.casino'], // Re-enable domain lock
+  domainLock: ['degenheart.casino', 'www.degenheart.casino'], // Temporarily disabled - domain assignment issue
   identifierNamesGenerator: 'hexadecimal',
   numbersToExpressions: true, // Re-enabled - usually safe
   optionsPreset: 'default',

@@ -458,30 +458,22 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        // Check if this is an old version where effects/motion defaulted to true
-        // If so, reset to new defaults while preserving user's quality choice
-        const hasOldDefaults = parsed.enableEffects === true || parsed.enableMotion === true
-        if (hasOldDefaults) {
-          console.log('🔄 Migrating to new graphics defaults (effects/motion OFF)')
-          const newDefaults = {
-            quality: parsed.quality || (performanceMode ? 'low' : 'high'),
-            enableEffects: false,  // New default: OFF (accessibility feature)
-            enableMotion: false,   // New default: OFF  
-            performanceMode,
-            customTheme: parsed.customTheme
-          }
-          // Save the migrated settings
-          localStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newDefaults))
-          return newDefaults
-        }
+        console.log('📱 Loading saved graphics settings:', parsed)
         
-        // Use existing settings but ensure performance mode is detected
-        return { ...parsed, performanceMode }
+        // Always preserve user's explicit choices
+        return { 
+          quality: parsed.quality || (performanceMode ? 'low' : 'high'),
+          enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : false,
+          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : false,
+          performanceMode,
+          customTheme: parsed.customTheme
+        }
       } catch (e) {
         console.warn('Failed to parse saved graphics settings, using defaults')
       }
     }
     
+    console.log('📱 Using default graphics settings (new user)')
     return {
       quality: performanceMode ? 'low' : 'high',
       enableEffects: false,  // Default to OFF - accessibility feature for enhanced visual feedback
@@ -492,11 +484,16 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
   
   const updateSettings = (updates: Partial<GraphicsSettings>) => {
     const newSettings = { ...settings, ...updates }
-    console.log('🔧 Global Graphics Settings Update:', { old: settings, new: newSettings, updates })
+    console.log('🔧 Graphics Settings Update:', { 
+      previous: settings, 
+      updates, 
+      final: newSettings 
+    })
     setSettings(newSettings)
     
     // Save globally with a consistent key
     localStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newSettings))
+    console.log('💾 Saved to localStorage:', JSON.stringify(newSettings))
     
     // Also trigger a custom event so other components can listen
     window.dispatchEvent(new CustomEvent('graphicsSettingsChanged', { 
@@ -658,6 +655,8 @@ export default function GameScreenFrame({
     enableMotion: settings.enableMotion,
     shouldShowEffects,
     shouldAnimate,
+    disableContainerTransforms,
+    qualityEffectsDisabled: disableContainerTransforms,
     theme: theme?.name || 'default'
   })
   
@@ -708,13 +707,16 @@ export default function GameScreenFrame({
     })()
     
     // Override with effects settings
+    // IMPORTANT: Also disable all effects when container transforms are disabled (like for Slots)
+    const effectsEnabled = shouldShowEffects && !disableContainerTransforms
     return {
       ...baseSettings,
-      showGlow: baseSettings.showGlow && shouldShowEffects,
-      showScanline: baseSettings.showScanline && shouldShowEffects,
-      showParticles: baseSettings.showParticles && shouldShowEffects
+      showBorder: baseSettings.showBorder && effectsEnabled,
+      showGlow: baseSettings.showGlow && effectsEnabled,
+      showScanline: baseSettings.showScanline && effectsEnabled,
+      showParticles: baseSettings.showParticles && effectsEnabled
     }
-  }, [settings.quality, shouldShowEffects])
+  }, [settings.quality, shouldShowEffects, disableContainerTransforms])
   
   // State-based styling for visual feedback
   const stateStyles = useMemo(() => {
@@ -778,37 +780,54 @@ export default function GameScreenFrame({
     `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}20, ${theme.secondary}15, ${backgroundColor})` : 
     `linear-gradient(135deg, ${backgroundColor}, #1a1a2e, ${backgroundColor})`)
 
+  // Use regular div when transforms are disabled to avoid layout conflicts
+  const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer
+
+  const containerProps = disableContainerTransforms ? {
+    className: "relative w-full h-full group",
+    style: {
+      background: backgroundGradient,
+      '--flash-color': 'transparent',
+      '--flash-intensity': '0',
+      ...stateStyles
+    } as any,
+    'data-game-state': gameState,
+    'data-quality': settings.quality,
+    'data-enable-motion': shouldAnimate.toString(),
+    'data-game-effects-container': "true"
+  } : {
+    className: "relative w-full h-full group",
+    style: {
+      background: backgroundGradient,
+      '--flash-color': 'transparent',
+      '--flash-intensity': '0',
+      ...stateStyles
+    } as any,
+    'data-game-state': gameState,
+    'data-quality': settings.quality,
+    'data-enable-motion': shouldAnimate.toString(),
+    'data-game-effects-container': "true",
+    // Enhanced motion effects - completely disabled in static mode or when transforms disabled
+    animate: shouldAnimate ? {
+      x: 0,
+      y: 0,
+      rotate: 0,
+      backgroundPosition: ['0% 0%', '100% 100%', '0% 0%']
+    } : false,
+    transition: shouldAnimate ? {
+      x: { type: "spring", stiffness: 500, damping: 30 },
+      y: { type: "spring", stiffness: 500, damping: 30 },
+      rotate: { type: "spring", stiffness: 500, damping: 30 },
+      backgroundPosition: {
+        duration: 20,
+        repeat: Infinity,
+        ease: "linear"
+      }
+    } : { duration: 0 }
+  }
+
   return (
-    <EffectsContainer
-      className="relative w-full h-full group"
-      style={{
-        background: backgroundGradient,
-        '--flash-color': 'transparent',
-        '--flash-intensity': '0',
-        ...stateStyles
-      } as any}
-      data-game-state={gameState}
-      data-quality={settings.quality}
-      data-enable-motion={shouldAnimate.toString()}
-      data-game-effects-container="true"
-      // Enhanced motion effects - completely disabled in static mode or when transforms disabled
-      animate={shouldAnimate && !disableContainerTransforms ? {
-        x: 0,
-        y: 0,
-        rotate: 0,
-        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%']
-      } : false}
-      transition={shouldAnimate && !disableContainerTransforms ? {
-        x: { type: "spring", stiffness: 500, damping: 30 },
-        y: { type: "spring", stiffness: 500, damping: 30 },
-        rotate: { type: "spring", stiffness: 500, damping: 30 },
-        backgroundPosition: {
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }
-      } : { duration: 0 }}
-    >
+    <ContainerComponent {...containerProps}>
       {/* Performance warning for low-end devices */}
       {settings.performanceMode && settings.quality !== ('low' as GraphicsQuality) && (
         <div className="absolute top-2 right-2 z-50 bg-orange-600 text-white px-2 py-1 rounded text-xs opacity-75">
@@ -994,6 +1013,6 @@ export default function GameScreenFrame({
           {children}
         </div>
       </div>
-    </EffectsContainer>
+    </ContainerComponent>
   )
 }

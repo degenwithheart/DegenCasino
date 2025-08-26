@@ -94,10 +94,12 @@ slots: {
 
 
 // PLINKO: Plinko game configuration
-// - ROWS: Number of rows for each mode
+// - PEGS: Number of rows of pegs for each mode
+// - BUCKETS: Number of buckets at the bottom for each mode
 // - normal/degen: Arrays of bucket multipliers for each mode
 plinko: {
-    ROWS: { normal: 14, degen: 12 }, // Number of rows for each mode
+    PEGS: { normal: 14, degen: 16 }, // Number of rows of pegs
+    BUCKETS: { normal: 8, degen: 10 }, // Number of buckets at bottom
     _binomialProb(n: number, k: number) {
       let coeff = 1;
       for (let i = 1; i <= k; i++) {
@@ -121,17 +123,17 @@ plinko: {
       if (volatility === 'degen') raw[raw.length - 1] *= 2.5;
       const expectedRaw = raw.reduce((s, w, i) => s + w * probs[i], 0);
       const scale = targetRTP / expectedRaw;
-      return raw.map(w => parseFloat((w * scale).toFixed(4)));
+      return raw.map(w => parseFloat((w * scale).toFixed(2)));
     },
     get normal() {
       if (!(this as any)._normalCache) {
-        (this as any)._normalCache = this._createMultipliers(this.ROWS.normal, RTP_TARGETS.plinko, 'normal');
+        (this as any)._normalCache = this._createMultipliers(this.BUCKETS.normal, RTP_TARGETS.plinko, 'normal');
       }
       return (this as any)._normalCache as number[];
     },
     get degen() {
       if (!(this as any)._degenCache) {
-        (this as any)._degenCache = this._createMultipliers(this.ROWS.degen, RTP_TARGETS.plinko, 'degen');
+        (this as any)._degenCache = this._createMultipliers(this.BUCKETS.degen, RTP_TARGETS.plinko, 'degen');
       }
       return (this as any)._degenCache as number[];
     }
@@ -684,3 +686,37 @@ export const DICE_CONFIG = BET_ARRAYS.dice;
 export const BLACKJACK_CONFIG = BET_ARRAYS.blackjack;
 export const PROGRESSIVE_POKER_CONFIG = BET_ARRAYS.progressivepoker;
 export const ROULETTE_CONFIG = BET_ARRAYS.roulette;
+
+
+// Utility function to determine bucket color based on multiplier value
+export const getBucketColor = (multiplier: number): { primary: string; secondary: string; tertiary: string } => {
+  if (multiplier <= 0.99) {
+    // Red for low/loss multipliers
+    return {
+      primary: 'rgba(239, 68, 68, 0.9)',   // red-500
+      secondary: 'rgba(220, 38, 38, 0.85)', // red-600
+      tertiary: 'rgba(185, 28, 28, 0.9)'    // red-700
+    };
+  } else if (multiplier >= 1.00 && multiplier <= 3.99) {
+    // Yellow for moderate multipliers
+    return {
+      primary: 'rgba(245, 158, 11, 0.9)',   // amber-500
+      secondary: 'rgba(217, 119, 6, 0.85)', // amber-600
+      tertiary: 'rgba(180, 83, 9, 0.9)'     // amber-700
+    };
+  } else if (multiplier >= 4.00 && multiplier <= 6.99) {
+    // Green for good multipliers
+    return {
+      primary: 'rgba(34, 197, 94, 0.9)',    // green-500
+      secondary: 'rgba(22, 163, 74, 0.85)', // green-600
+      tertiary: 'rgba(21, 128, 61, 0.9)'    // green-700
+    };
+  } else {
+    // Blue for high multipliers (7.00+)
+    return {
+      primary: 'rgba(59, 130, 246, 0.9)',   // blue-500
+      secondary: 'rgba(37, 99, 235, 0.85)', // blue-600
+      tertiary: 'rgba(29, 78, 216, 0.9)'    // blue-700
+    };
+  }
+}

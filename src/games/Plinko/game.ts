@@ -26,6 +26,7 @@ export interface PlinkoProps {
   multipliers: number[];
   onContact: (contact: PlinkoContactEvent) => void;
   rows: number;
+  buckets: number; // Explicit bucket count
   enableMotion?: boolean; // Add motion control
 }
 
@@ -107,11 +108,11 @@ export class Plinko {
   }
 
   private makeBuckets() {
-    // Use the exact multiplier array from RTP configuration - no modification!
-    const layout = this.props.multipliers;
-    const w = this.width / layout.length;
+    // Use explicit bucket count from configuration, not multipliers length
+    const bucketCount = this.props.buckets;
+    const w = this.width / bucketCount;
 
-    const barriers = Array.from({ length: layout.length + 1 }).map((_, i) =>
+    const barriers = Array.from({ length: bucketCount + 1 }).map((_, i) =>
       Matter.Bodies.rectangle(i * w, this.height - barrierHeight / 2, barrierWidth, barrierHeight, {
         isStatic: true,
         label: "Barrier",
@@ -119,7 +120,7 @@ export class Plinko {
       })
     );
 
-    const sensors = layout.map((m, idx) =>
+    const sensors = Array.from({ length: bucketCount }).map((_, idx) =>
       Matter.Bodies.rectangle(
         idx * w + w / 2,
         this.height - bucketHeight / 2,
@@ -129,7 +130,10 @@ export class Plinko {
           isStatic: true,
           isSensor: true,
           label: "Bucket",
-          plugin: { bucketIndex: idx, bucketMultiplier: m },
+          plugin: { 
+            bucketIndex: idx, 
+            bucketMultiplier: this.props.multipliers[idx] || 0 // Use multiplier from props, fallback to 0
+          },
         }
       )
     );

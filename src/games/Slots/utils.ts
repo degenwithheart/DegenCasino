@@ -1,4 +1,5 @@
 import { SLOT_ITEMS, SlotItem, NUM_REELS, NUM_ROWS, NUM_PAYLINES } from './constants'
+import { SLOTS_CONFIG } from '../rtpConfig'
 
 /**
  * Very small deterministic hash-based PRNG (not cryptographic) used ONLY for
@@ -25,7 +26,6 @@ const pickDeterministic = <T>(arr: T[], rng: () => number) => arr[Math.floor(rng
 /**
  * Creates a bet array for given wager amount and max payout
  */
-import { SLOTS_CONFIG } from '../rtpConfig'
 
 export const generateBetArray = (
   maxPayout: number,
@@ -102,26 +102,30 @@ export const getSlotCombination = (
 ) => {
   const rng = makeDeterministicRng(`${seed}:${multiplier}:${bet.length}:${count}`)
 
-    // Define column sequences (must match Reel.tsx)
+    // Define column sequences (must match Reel.tsx) - using actual RTP config symbols
   const COLUMN_SEQUENCES = {
-    0: ['UNICORN', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
-    1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'UNICORN'], // Column 2 (reverse)
-    2: ['SOL', 'JUP', 'WOJAK', 'UNICORN', 'BONK', 'USDC', 'DGHRT'], // Column 3 (offset)
+    0: ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
+    1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY', 'MYTHICAL'], // Column 2 (reverse)
+    2: ['SOL', 'JUP', 'WOJAK', 'MYTHICAL', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
   }
   
-  // Helper to get SlotItem by symbol name
+  // Helper to get SlotItem by symbol name - using actual RTP config multipliers
   const getSymbolByName = (symbolName: string): SlotItem => {
-    const symbolConfig = {
-      'UNICORN': 50.0,
-      'DGHRT': 20.0, 
-      'SOL': 7.0,
-      'USDC': 3.0,
-      'JUP': 1.5,
-      'BONK': 1.2,
-      'WOJAK': 0
+    // Get the actual multiplier from RTP config symbols
+    const symbolFromConfig = SLOTS_CONFIG.symbols.find(s => s.name === symbolName)
+    if (!symbolFromConfig) {
+      console.error('Symbol not found in config:', symbolName)
+      return SLOT_ITEMS[0] // fallback to first item
     }
-    const targetMultiplier = symbolConfig[symbolName as keyof typeof symbolConfig]
-    return SLOT_ITEMS.find(item => item.multiplier === targetMultiplier) || SLOT_ITEMS[0]
+    
+    // Find the corresponding SLOT_ITEM with the exact multiplier
+    const slotItem = SLOT_ITEMS.find(item => Math.abs(item.multiplier - symbolFromConfig.multiplier) < 0.001)
+    if (!slotItem) {
+      console.error('SlotItem not found for multiplier:', symbolFromConfig.multiplier)
+      return SLOT_ITEMS[0] // fallback to first item
+    }
+    
+    return slotItem
   }
   
   // Helper to get random position in column sequence
