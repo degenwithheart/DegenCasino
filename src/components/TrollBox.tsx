@@ -526,8 +526,8 @@ export default function TrollBox() {
     }
   }
 
-  const toggleMinimize = () => setIsMinimized(v => !v)
-  const toggleMaximize = () => setIsMaximized(v => !v)
+  const toggleMinimize = () => setIsMinimized((v: boolean) => !v)
+  const toggleMaximize = () => setIsMaximized((v: boolean) => !v)
   // If minimized, un-maximize
   useEffect(() => {
     if (isMinimized && isMaximized) setIsMaximized(false)

@@ -601,7 +601,7 @@ plinko: {
       const betArray: number[] = [];
       
       Object.entries(this.probabilities).forEach(([index, prob]) => {
-        const slots = Math.round(prob * 10); // Convert percentage to slots out of 1000
+        const slots = Math.round((prob as number) * 10); // Convert percentage to slots out of 1000
         const payout = this.betArray[parseInt(index)];
         
         for (let i = 0; i < slots; i++) {

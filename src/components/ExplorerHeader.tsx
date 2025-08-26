@@ -79,11 +79,11 @@ export function ExplorerHeader() {
   const isCompact = useIsCompact()
   
   return (
-    <ExplorerHeaderContainer $compact={isCompact}>
+    <ExplorerHeaderContainer $compact={!!isCompact}>
       <CasinoSparkles>✨🎰✨</CasinoSparkles>
-      <ExplorerTitle $compact={isCompact}>🔍 DegenCasino Explorer</ExplorerTitle>
-      <AccentBar $compact={isCompact} />
-      <ExplorerSubtitle $compact={isCompact}>
+      <ExplorerTitle $compact={!!isCompact}>🔍 DegenCasino Explorer</ExplorerTitle>
+      <AccentBar $compact={!!isCompact} />
+      <ExplorerSubtitle $compact={!!isCompact}>
         Explore transactions, players, and platform statistics
       </ExplorerSubtitle>
     </ExplorerHeaderContainer>
