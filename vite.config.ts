@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
+import JavaScriptObfuscator from 'javascript-obfuscator';
+
 const ENV_PREFIX = ['VITE_'];
 
 // Enhanced obfuscation options
@@ -60,71 +62,27 @@ export default defineConfig(() => ({
   assetsInclude: ["**/*.glb"],
   define: {
     'process.env.ANCHOR_BROWSER': true,
-    'process.env.GAMBA_ENV': JSON.stringify(process.env.GAMBA_ENV || 'development'),
     global: 'globalThis',
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    'process.env': {},
-    'process.version': JSON.stringify(''),
-    'process.versions': JSON.stringify({}),
   },
   resolve: {
     alias: {
-      'buffer': 'buffer',
-      'crypto': 'crypto-browserify', 
-      'stream': 'stream-browserify',
-      'util': 'util',
-      'events': 'events',
-      'process': 'process',
-      // Fix Solana Web3.js compatibility issues
-      'bn.js': 'bn.js',
-      'bigint-buffer': 'bigint-buffer',
+      buffer: 'buffer',
+      crypto: 'crypto-browserify',
+      stream: 'stream-browserify',
+      util: 'util',
     },
-    dedupe: ['buffer', 'bn.js', '@solana/web3.js'],
   },
   optimizeDeps: {
-    include: [
-      'react', 
-      'react-dom', 
-      'buffer',
-      'crypto-browserify',
-      'stream-browserify',
-      'util',
-      'events',
-      'process/browser',
-      'bn.js',
-      '@solana/web3.js',
-      '@solana/wallet-adapter-base',
-      '@solana/wallet-adapter-react',
-      'tone'
-    ],
-    esbuildOptions: { 
-      define: { 
-        global: 'globalThis',
-        'process.env.GAMBA_ENV': JSON.stringify(process.env.GAMBA_ENV || 'development'),
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-        'process.version': JSON.stringify(''),
-        'process.versions': JSON.stringify({})
-      },
-      target: 'esnext'
-    }
+    include: ['react', 'react-dom', 'buffer','crypto-browserify','stream-browserify','util'],
+    esbuildOptions: { define: { global: 'globalThis' } }
   },
   build: {
     outDir: 'dist',
     chunkSizeWarningLimit: 4096,
-    target: 'es2020',
+    target: 'es2017',
     cssTarget: 'chrome61',
     minify: 'terser', // Switch to terser for more aggressive minification
     sourcemap: false,
-    commonjsOptions: {
-      transformMixedEsModules: true,
-      include: [/node_modules/],
-      strictRequire: false,
-      defaultIsModuleExports: 'auto',
-      namedExports: {
-        buffer: ['Buffer'],
-        'node_modules/buffer/index.js': ['Buffer'],
-      }
-    },
     terserOptions: {
       compress: {
         drop_console: true, // Remove console logs
@@ -161,31 +119,8 @@ export default defineConfig(() => ({
         shebang: false
       }
     },
-    cssMinify: true, // Use standard CSS minification instead of Lightning CSS for Tailwind compatibility
+    cssMinify: 'lightningcss', // Use Lightning CSS for faster CSS minification
     rollupOptions: {
-      plugins: [
-        {
-          name: 'buffer-fix',
-          resolveId(id) {
-            if (id === 'buffer') {
-              return { id: 'buffer', external: false }
-            }
-          },
-          load(id) {
-            if (id === 'buffer') {
-              return `
-                export { Buffer } from 'buffer';
-                export default { Buffer };
-              `
-            }
-          }
-        }
-      ],
-      external: (id) => {
-        // Don't bundle problematic dependencies
-        if (id.includes('rpc-websockets/node_modules/eventemitter3')) return true
-        return false
-      },
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
@@ -198,14 +133,6 @@ export default defineConfig(() => ({
           constBindings: true,
           objectShorthand: true
         }
-      },
-      onwarn(warning, warn) {
-        // Suppress specific warnings
-        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
-        if (warning.code === 'EVAL') return
-        if (warning.message?.includes('circular dependency')) return
-        if (warning.message?.includes('annotation that Rollup cannot interpret')) return
-        warn(warning)
       }
     },
     reportCompressedSize: false, // Skip gzip size reporting for faster builds
@@ -213,41 +140,6 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
-
-    // Browser compatibility fixes
-    {
-      name: 'browser-compatibility',
-      config(config, { command }) {
-        if (command === 'build') {
-          // Ensure proper handling of Node.js modules in browser
-          config.define = {
-            ...config.define,
-            'process.env.NODE_DEBUG': 'false',
-            'process.platform': JSON.stringify('browser'),
-            'process.version': JSON.stringify('v16.0.0'),
-          }
-        }
-      },
-      transformIndexHtml: {
-        order: 'pre',
-        handler(html) {
-          // Inject polyfills early
-          return html.replace(
-            '<head>',
-            `<head>
-            <script>
-              // Early polyfills for compatibility
-              if (typeof global === 'undefined') {
-                window.global = window;
-              }
-              if (typeof process === 'undefined') {
-                window.process = { env: {}, browser: true, version: 'v16.0.0', platform: 'browser' };
-              }
-            </script>`
-          )
-        }
-      }
-    },
 
     {
       name: 'ignore-api-routes',
@@ -262,7 +154,6 @@ export default defineConfig(() => ({
       name: 'safe-obfuscate-js',
       closeBundle() {
         try {
-          const JavaScriptObfuscator = require('javascript-obfuscator');
           if (!JavaScriptObfuscator) {
             console.warn('⚠️ Could not load javascript-obfuscator, skipping obfuscation');
             return;

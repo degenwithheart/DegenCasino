@@ -89,7 +89,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ open, onClose, title = '
   const stackOrMessage = error.stack || error.message;
   const errorCode = getErrorCode(stackOrMessage);
   const errorMessage = getErrorMessageForCode(errorCode);
-  const isDev = process.env.GAMBA_ENV === 'development';
+  const isDev = process.env.NODE_ENV === 'development';
 
   return ReactDOM.createPortal(
     <ModalOverlay onClick={onClose}>

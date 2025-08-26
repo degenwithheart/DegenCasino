@@ -18,8 +18,6 @@ import Game from './sections/Game/Game';
 import Header from './sections/Header';
 import AllGamesModalContent from './components/AllGamesModalContent';
 import Toasts from './sections/Toasts';
-// Import audio manager to initialize early
-import './utils/audioManager';
 import TrollBox from './components/TrollBox';
 import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
@@ -97,7 +95,7 @@ export default function App() {
 
   // Anti-debugging protection (will be obfuscated)
   useEffect(() => {
-    if (process.env.GAMBA_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production') {
       const devtools = { open: false, orientation: null };
       setInterval(() => {
         if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
