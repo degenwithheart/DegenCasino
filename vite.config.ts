@@ -2,7 +2,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
-const JavaScriptObfuscator = require('javascript-obfuscator');
+
+// Dynamic import for javascript-obfuscator to avoid ES module issues
+let JavaScriptObfuscator: any;
 
 const ENV_PREFIX = ['VITE_'];
 
@@ -113,7 +115,17 @@ export default defineConfig(() => ({
     },
     {
       name: 'obfuscate-js',
-      closeBundle() {
+      async closeBundle() {
+        // Dynamic import to avoid ES module issues
+        if (!JavaScriptObfuscator) {
+          try {
+            JavaScriptObfuscator = (await import('javascript-obfuscator')).default;
+          } catch (error) {
+            console.warn('⚠️ javascript-obfuscator not available, skipping obfuscation');
+            return;
+          }
+        }
+
         const dir = path.resolve(__dirname, 'dist/assets');
         if (!fs.existsSync(dir)) return;
         
