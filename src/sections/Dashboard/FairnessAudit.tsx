@@ -1332,12 +1332,31 @@ const LIVE_SAMPLE_PLAYS = 10000 // lightweight quick sample
 const LTA_PLAYS = 1000000 // long-term approximation (kept moderate for UI responsiveness)
 
 // Utility to simulate selecting an index uniformly from a bet vector (Gamba model)
-const runSample = (bet: readonly number[] | number[], plays: number, wager = 1): SampleStats => {
+const runSample = (bet: readonly number[] | number[], plays: number, wager = 1, gameName?: string): SampleStats => {
   const betArray = Array.isArray(bet) ? bet : [...bet]
   if (!betArray.length) return { plays:0, wins:0, totalWager:0, totalPayout:0 }
   let wins = 0, payout = 0
+  
+  // Special handling for Plinko - use binomial distribution instead of uniform
+  const isPlinko = gameName?.includes('Plinko')
+  const isStandardPlinko = gameName?.includes('Standard')
+  
   for (let i = 0; i < plays; i++) {
-    const idx = Math.floor(Math.random() * betArray.length)
+    let idx: number
+    
+    if (isPlinko) {
+      // Use binomial distribution for Plinko (matches actual game physics)
+      const rows = isStandardPlinko ? 14 : 12
+      let sum = 0
+      for (let trial = 0; trial < rows; trial++) {
+        sum += Math.random() < 0.5 ? 1 : 0
+      }
+      idx = sum // This gives us the binomial distribution index
+    } else {
+      // Use uniform distribution for all other games
+      idx = Math.floor(Math.random() * betArray.length)
+    }
+    
     const m = betArray[idx] || 0
     if (m > 0) wins++
     payout += m * wager
@@ -1406,7 +1425,7 @@ export default function FairnessAudit() {
   const samples = useMemo(()=> {
     return rows.map(r => {
       if (!r.betVector) return { winRatio: '—', sampleRtp: '—' }
-      const s = runSample(r.betVector, samplePlays, 1)
+      const s = runSample(r.betVector, samplePlays, 1, r.game)
       const rtp = s.totalWager ? (s.totalPayout / s.totalWager) : 0
       return {
         winRatio: ((s.wins / s.plays) * 100).toFixed(2) + '%',
