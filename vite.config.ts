@@ -2,8 +2,6 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
-import ViteMinifyPlugin from 'vite-plugin-minify';
-import createHtmlPlugin from 'vite-plugin-html-minifier-terser';
 
 const ENV_PREFIX = ['VITE_'];
 
@@ -82,38 +80,65 @@ export default defineConfig(() => ({
     chunkSizeWarningLimit: 4096,
     target: 'es2017',
     cssTarget: 'chrome61',
-    minify: 'esbuild',
+    minify: 'terser', // Switch to terser for more aggressive minification
     sourcemap: false,
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console logs
+        drop_debugger: true, // Remove debugger statements
+        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
+        passes: 3, // Multiple compression passes
+        reduce_vars: true,
+        reduce_funcs: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+        if_return: true,
+        join_vars: true,
+        loops: true,
+        properties: true,
+        sequences: true,
+        unused: true,
+        hoist_funs: true,
+        hoist_props: true,
+        hoist_vars: false,
+        inline: 3
+      },
+      mangle: {
+        toplevel: true,
+        safari10: true,
+        properties: {
+          regex: /^_/ // Mangle properties starting with underscore
+        }
+      },
+      format: {
+        comments: true, // Remove all comments
+        beautify: false,
+        semicolons: false,
+        shebang: false
+      }
+    },
+    cssMinify: 'lightningcss', // Use Lightning CSS for faster CSS minification
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
             return 'vendor';
           }
+        },
+        compact: true, // Minimize output size
+        generatedCode: {
+          arrowFunctions: true,
+          constBindings: true,
+          objectShorthand: true
         }
       }
-    }
+    },
+    reportCompressedSize: false, // Skip gzip size reporting for faster builds
+    assetsInlineLimit: 8192 // Inline assets smaller than 8KB
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
-
-    // HTML Minifier
-    createHtmlPlugin({
-      minify: {
-        collapseWhitespace: true,
-        removeComments: true,
-        removeRedundantAttributes: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        useShortDoctype: true,
-        minifyCSS: true,
-        minifyJS: true,
-        keepClosingSlash: true
-      },
-    }),
-
-    // CSS/JS Minify (extra pass)
-    ViteMinifyPlugin({}),
 
     {
       name: 'ignore-api-routes',
