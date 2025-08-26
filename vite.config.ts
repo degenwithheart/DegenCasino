@@ -2,43 +2,37 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
+import ViteMinifyPlugin from 'vite-plugin-minify';
+import createHtmlPlugin from 'vite-plugin-html-minifier-terser';
 
 const ENV_PREFIX = ['VITE_'];
 
-// Enhanced obfuscation options - higher intensity while React-safe
+// Enhanced obfuscation options
 const obfuscationOptions = {
   compact: true,
-  controlFlowFlattening: true, // Enable with low threshold
-  controlFlowFlatteningThreshold: 0.3, // Conservative threshold
-  deadCodeInjection: true, // Enable with low threshold
-  deadCodeInjectionThreshold: 0.2, // Conservative threshold
+  controlFlowFlattening: true,
+  controlFlowFlatteningThreshold: 0.3,
+  deadCodeInjection: true,
+  deadCodeInjectionThreshold: 0.2,
   debugProtection: true,
   debugProtectionInterval: 4000,
   disableConsoleOutput: true,
-  domainLock: ['degenheart.casino'], // Lock to your domain for extra security
+  domainLock: ['degenheart.casino'],
   identifierNamesGenerator: 'hexadecimal',
-  identifiersPrefix: '',
-  inputFileName: '',
-  log: false,
-  numbersToExpressions: true, // Enable for more obfuscation
+  numbersToExpressions: true,
   optionsPreset: 'default',
-  renameGlobals: false, // Keep false - React needs globals
-  renameProperties: false, // Keep false - can break React
-  reservedNames: [], // Can add React reserved names if needed
-  reservedStrings: [], // Can add strings to preserve
+  renameGlobals: false,
+  renameProperties: false,
   seed: 0,
-  selfDefending: true, // Enable for anti-tampering
+  selfDefending: true,
   simplify: true,
   sourceMap: false,
-  sourceMapBaseUrl: '',
-  sourceMapFileName: '',
-  sourceMapMode: 'separate',
-  splitStrings: true, // Enable with safe length
-  splitStringsChunkLength: 10, // Longer chunks for safety
+  splitStrings: true,
+  splitStringsChunkLength: 10,
   stringArray: true,
   stringArrayCallsTransform: true,
   stringArrayCallsTransformThreshold: 0.7,
-  stringArrayEncoding: ['base64', 'rc4'], // Multiple encodings
+  stringArrayEncoding: ['base64', 'rc4'],
   stringArrayIndexShift: true,
   stringArrayRotate: true,
   stringArrayShuffle: true,
@@ -46,9 +40,9 @@ const obfuscationOptions = {
   stringArrayWrappersChainedCalls: true,
   stringArrayWrappersParametersMaxCount: 4,
   stringArrayWrappersType: 'function',
-  stringArrayThreshold: 0.8, // Higher threshold for more obfuscation
+  stringArrayThreshold: 0.8,
   target: 'browser',
-  transformObjectKeys: false, // Keep false - can break React props
+  transformObjectKeys: false,
   unicodeEscapeSequence: false
 };
 
@@ -102,6 +96,25 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
+
+    // HTML Minifier
+    createHtmlPlugin({
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true,
+        minifyCSS: true,
+        minifyJS: true,
+        keepClosingSlash: true
+      },
+    }),
+
+    // CSS/JS Minify (extra pass)
+    ViteMinifyPlugin({}),
+
     {
       name: 'ignore-api-routes',
       configureServer(server) {
@@ -115,9 +128,7 @@ export default defineConfig(() => ({
       name: 'safe-obfuscate-js',
       closeBundle() {
         try {
-          // Use require for javascript-obfuscator to avoid ES module issues
           const JavaScriptObfuscator = require('javascript-obfuscator');
-          
           if (!JavaScriptObfuscator) {
             console.warn('⚠️ Could not load javascript-obfuscator, skipping obfuscation');
             return;
@@ -128,31 +139,28 @@ export default defineConfig(() => ({
             console.warn('⚠️ Assets directory not found, skipping obfuscation');
             return;
           }
-          
+
           let obfuscatedCount = 0;
           fs.readdirSync(dir).forEach(file => {
             if (file.endsWith('.js')) {
               const filePath = path.join(dir, file);
               const code = fs.readFileSync(filePath, 'utf8');
-              
-              // Skip very small files (likely just imports)
+
               if (code.length < 1000) {
                 console.log(`⏭️ Skipped: ${file} (too small)`);
                 return;
               }
-              
-              // Determine if this is a main app file or vendor file
+
               const isMainFile = file.includes('main') || file.includes('app-core') || file.includes('index');
               const isVendorFile = file.includes('vendor');
-              
-              // Use enhanced settings for main files, conservative for vendor
+
               let options = obfuscationOptions;
               if (isMainFile) {
                 options = {
                   ...obfuscationOptions,
-                  controlFlowFlatteningThreshold: 0.5, // Higher for main files
+                  controlFlowFlatteningThreshold: 0.5,
                   deadCodeInjectionThreshold: 0.3,
-                  stringArrayThreshold: 0.9, // Very aggressive for main files
+                  stringArrayThreshold: 0.9,
                   stringArrayCallsTransformThreshold: 0.8,
                   selfDefending: true,
                   debugProtection: true,
@@ -162,19 +170,18 @@ export default defineConfig(() => ({
               } else if (isVendorFile) {
                 options = {
                   ...obfuscationOptions,
-                  controlFlowFlattening: false, // Conservative for vendor
+                  controlFlowFlattening: false,
                   deadCodeInjection: false,
                   selfDefending: false,
-                  stringArrayThreshold: 0.3 // Light obfuscation for vendor
+                  stringArrayThreshold: 0.3
                 };
                 console.log(`🔧 Applying light obfuscation to vendor: ${file}`);
               }
-              
+
               try {
                 const obfuscated = JavaScriptObfuscator.obfuscate(code, options);
                 const obfuscatedCode = obfuscated.getObfuscatedCode();
-                
-                // Verify the obfuscated code is valid
+
                 if (obfuscatedCode && obfuscatedCode.length > 0) {
                   fs.writeFileSync(filePath, obfuscatedCode, 'utf8');
                   console.log(`✅ Obfuscated: ${file}`);
@@ -184,11 +191,10 @@ export default defineConfig(() => ({
                 }
               } catch (error) {
                 console.warn(`⚠️ Could not obfuscate ${file}:`, error.message);
-                // Keep the original file if obfuscation fails
               }
             }
           });
-          
+
           console.log(`🎯 Successfully obfuscated ${obfuscatedCount} files`);
         } catch (error) {
           console.warn('⚠️ Obfuscation plugin failed:', error.message);
