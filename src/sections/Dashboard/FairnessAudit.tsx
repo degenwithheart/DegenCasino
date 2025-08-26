@@ -1625,7 +1625,8 @@ export default function FairnessAudit() {
       totalGames: uniqueGames.size,
       liveGames,
       onChainGames,
-      trulyRandomGames
+      trulyRandomGames,
+      offlineGames: uniqueGames.size - liveGames
     }
   }, [gameSummary])
 
@@ -1694,6 +1695,10 @@ export default function FairnessAudit() {
                 <StatCard>
                   <StatValue>{summaryStats.liveGames}</StatValue>
                   <StatLabel>Live Games</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue>{summaryStats.offlineGames}</StatValue>
+                  <StatLabel>Offline Games</StatLabel>
                 </StatCard>
                 <StatCard>
                   <StatValue>{summaryStats.onChainGames}</StatValue>
