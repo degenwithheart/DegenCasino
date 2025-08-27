@@ -20,7 +20,10 @@ export default defineConfig(() => ({
   assetsInclude: ["**/*.glb"],
   define: {
     'process.env.ANCHOR_BROWSER': true,
+    'process.env.NODE_ENV': '"production"',
     global: 'globalThis',
+    // Remove development-only code
+    __DEV__: false,
   },
   resolve: {
     alias: {
@@ -31,29 +34,82 @@ export default defineConfig(() => ({
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'buffer','crypto-browserify','stream-browserify','util'],
-    esbuildOptions: { define: { global: 'globalThis' } }
+    include: [
+      'react', 
+      'react-dom', 
+      'buffer',
+      'crypto-browserify',
+      'stream-browserify',
+      'util'
+    ],
+    exclude: [
+      // Exclude large packages from pre-bundling to enable better tree-shaking
+      '@solana/web3.js',
+      '@coral-xyz/anchor',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'matter-js',
+      'tone'
+    ],
+    esbuildOptions: { 
+      define: { global: 'globalThis' },
+      // Enable tree-shaking during pre-bundling
+      treeShaking: true,
+      // Optimize for size
+      minify: true,
+    }
   },
   build: {
     outDir: 'dist',
     chunkSizeWarningLimit: 2048,
-    target: 'es2020', // More modern and stable
-    cssTarget: 'chrome80',
-    minify: false, // Keep disabled to prevent hoisting issues
+    target: 'es2020', 
+    minify: 'terser',
     sourcemap: false,
-    cssMinify: 'lightningcss', // Re-enable CSS minification (safer)
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      mangle: true,
+    },
     rollupOptions: {
       output: {
-        // Simple, safe chunking - just vendor and main
+        // Aggressive chunking for better caching and parallel loading
         manualChunks(id) {
+          // Large blockchain libraries - separate chunk
+          if (id.includes('@solana/') || id.includes('gamba-') || id.includes('@coral-xyz/anchor')) {
+            return 'blockchain'
+          }
+          // UI and styling libraries - separate chunk
+          if (id.includes('react') || id.includes('@radix-ui') || id.includes('styled-components') || id.includes('framer-motion')) {
+            return 'ui'
+          }
+          // 3D libraries - separate chunk (heavy)
+          if (id.includes('three') || id.includes('@react-three/')) {
+            return 'three'
+          }
+          // Physics and audio libraries - separate chunk (heavy)
+          if (id.includes('matter-js') || id.includes('tone')) {
+            return 'physics-audio'
+          }
+          // Utility libraries
+          if (id.includes('html2canvas') || id.includes('zustand') || id.includes('swr')) {
+            return 'utils'
+          }
+          // Wallet libraries - separate chunk
+          if (id.includes('wallet')) {
+            return 'wallet'
+          }
+          // Other vendor packages
           if (id.includes('node_modules')) {
             return 'vendor'
           }
         },
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
       }
     },
-    reportCompressedSize: false,
-    assetsInlineLimit: 4096 // Small assets can be inlined safely
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
