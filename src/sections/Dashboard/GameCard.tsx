@@ -14,6 +14,7 @@ function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
     return src;
   });
   const [hasWebP, setHasWebP] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleError = () => {
     if (hasWebP && imageSrc.includes('.webp')) {
@@ -23,17 +24,31 @@ function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
     }
   };
 
+  const handleLoad = () => {
+    setImageLoaded(true);
+  };
+
   return (
-    <div 
-      className="image" 
-      style={{ 
-        backgroundImage: `url(${imageSrc})`,
-        backgroundSize: '100% auto',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      onError={handleError}
-    />
+    <>
+      {/* Hidden img element to handle loading/error events */}
+      <img
+        src={imageSrc}
+        alt={alt}
+        onError={handleError}
+        onLoad={handleLoad}
+        style={{ display: 'none' }}
+      />
+      {/* Visible div with background image */}
+      <div 
+        className="image" 
+        style={{ 
+          backgroundImage: imageLoaded ? `url(${imageSrc})` : 'none',
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+    </>
   );
 }
 
