@@ -1,4 +1,4 @@
-import { cacheOnTheFly } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
 
 // api/chat.ts
 
@@ -55,7 +55,7 @@ async function getMessages(): Promise<Msg[]> {
     // @ts-ignore
     const { kv } = await import('@vercel/kv');
   // Cache trollbox messages for 2s
-  return await cacheOnTheFly('chat:trollbox', async () => (await kv.lrange(KEY, 0, 19)) ?? [], 2000);
+  return await cacheOnTheFly('chat:trollbox', async () => (await kv.lrange(KEY, 0, 19)) ?? [], { ttl: 2000 });
   } else {
     const msgs = await getLocalMessages();
     return msgs.slice(-20).reverse();

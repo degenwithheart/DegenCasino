@@ -263,11 +263,25 @@ const CUSTOM_RPC =
   "REDACTED_SYNDICA_KEY";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
-// --- DNS Check Hook with caching ---
-function useDnsStatus() {
+// --- DNS Check Hook with caching (only when triggered) ---
+function useDnsStatus(shouldCheck = false) {
   const [dnsStatus, setDnsStatus] = useState<"Online" | "Issues" | "Offline" | "Loading">("Loading");
 
   useEffect(() => {
+    if (!shouldCheck) {
+      // If not checking, try to use cached data
+      const cachedData = localStorage.getItem('dns-status-cache');
+      const cacheTime = localStorage.getItem('dns-status-cache-time');
+      const now = Date.now();
+      
+      if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) { // 5 min cache
+        setDnsStatus(JSON.parse(cachedData));
+      } else {
+        setDnsStatus("Loading"); // Default to loading if no cache
+      }
+      return;
+    }
+
     let cancelled = false;
     
     // Check if we have cached status (5 minutes cache)
@@ -280,6 +294,7 @@ function useDnsStatus() {
       return;
     }
     
+    console.log('🌐 Checking DNS status on-demand');
     setDnsStatus("Loading");
     const checkDnsStatus = async () => {
       try {
@@ -310,7 +325,7 @@ function useDnsStatus() {
     
     checkDnsStatus();
     return () => { cancelled = true; };
-  }, []);
+  }, [shouldCheck]);
 
   return dnsStatus;
 }
@@ -329,8 +344,8 @@ export default function ConnectionStatus() {
   const pool = useCurrentPool();
   const token = useCurrentToken();
 
-  // Use DNS hook
-  const dnsStatus = useDnsStatus();
+  // Use DNS hook - only check when modal is open
+  const dnsStatus = useDnsStatus(showModal);
 
   // --- Throttle delay ---
   const THROTTLE_MS = 10000; // 10 seconds

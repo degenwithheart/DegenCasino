@@ -1,4 +1,4 @@
-import { cacheOnTheFly } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
 
 export const config = {
   runtime: 'edge',
@@ -28,7 +28,7 @@ export default async function handler(req: Request): Promise<Response> {
       }
       
       return await response.json()
-    }, 120000) // 2 minute cache
+    }, { ttl: CacheTTL.FIVE_MINUTES }) // Enhanced cache with 5 min TTL for better price accuracy
     
     return new Response(JSON.stringify(prices), {
       headers: {
