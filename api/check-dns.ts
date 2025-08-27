@@ -2,12 +2,13 @@ import { cacheOnTheFly } from './xcacheOnTheFly'
 
 // Simple in-memory rate limiter (per process, not per user)
 let lastCall = 0;
-const THROTTLE_MS = 2000; // 2 seconds (less aggressive)
+const THROTTLE_MS = 50000; // 50 seconds - more aggressive throttling
 
 export const config = {
   runtime: 'edge',
 }
 
+// Simplified: Only check key locations to reduce API calls
 const LOCATIONS = [
   { location: "Atlanta", country: "United States", code: "US" },
   { location: "New York", country: "United States", code: "US" },
@@ -44,17 +45,29 @@ const LOCATIONS = [
 
 export default async function handler(req: Request): Promise<Response> {
   const now = Date.now();
-  if (now - lastCall < THROTTLE_MS) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429 });
-  }
-  lastCall = now;
   const { searchParams } = new URL(req.url)
   const domain = searchParams.get('domain') || 'degenheart.casino';
-
-  // If no domain provided, default to degenheart.casino for ConnectionStatus
-
-  // Cache per domain for 30s
+  
+  // Rate limiting check
+  if (now - lastCall < THROTTLE_MS) {
+    return new Response(JSON.stringify({ 
+      error: 'Rate limit exceeded', 
+      status: 'Issues', // Default to Issues when rate limited
+      retryAfter: Math.ceil((THROTTLE_MS - (now - lastCall)) / 1000)
+    }), { 
+      status: 429,
+      headers: {
+        'Retry-After': Math.ceil((THROTTLE_MS - (now - lastCall)) / 1000).toString(),
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+  lastCall = now;
+  
+  // Cache per domain for 5 minutes (much longer cache)
   const cacheKey = `dns:${domain}`;
+  
+  // Simplified: Only use the most reliable DNS providers
   const DNS_PROVIDERS = [
     {
       name: 'Google',
@@ -71,48 +84,6 @@ export default async function handler(req: Request): Promise<Response> {
     {
       name: 'Quad9',
       url: (domain: string) => `https://dns.quad9.net/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'NextDNS',
-      url: (domain: string) => `https://dns.nextdns.io/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'OpenDNS',
-      url: (domain: string) => `https://doh.opendns.com/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'CleanBrowsing',
-      url: (domain: string) => `https://doh.cleanbrowsing.org/doh/family-filter/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'AdGuard',
-      url: (domain: string) => `https://dns.adguard.com/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'Neustar',
-      url: (domain: string) => `https://dns.neustar.biz/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'Yandex',
-      url: (domain: string) => `https://dns.yandex.net/dns-query?name=${domain}&type=A`,
-      options: { headers: { 'accept': 'application/dns-json' } },
-      parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
-    },
-    {
-      name: 'PowerDNS',
-      url: (domain: string) => `https://doh.powerdns.org/dns-query?name=${domain}&type=A`,
       options: { headers: { 'accept': 'application/dns-json' } },
       parse: (data: any) => data.Answer ? data.Answer.map((a: any) => a.data) : undefined
     },
@@ -177,7 +148,7 @@ export default async function handler(req: Request): Promise<Response> {
       })
     );
     return locationResults;
-  }, 30000); // 30s TTL
+  }, 300000); // 5 minutes TTL - much longer cache
 
     // Summarize results into a single status string
     const onlineCount = results.filter((r: any) => r.status === 'online').length;
@@ -188,6 +159,9 @@ export default async function handler(req: Request): Promise<Response> {
       status = 'Issues';
     }
     return new Response(JSON.stringify({ status, results }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300' // 5 min browser cache
+      },
     });
   }

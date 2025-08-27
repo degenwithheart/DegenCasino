@@ -263,19 +263,43 @@ const CUSTOM_RPC =
   "REDACTED_SYNDICA_KEY";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
-// --- DNS Check Hook ---
+// --- DNS Check Hook with caching ---
 function useDnsStatus() {
   const [dnsStatus, setDnsStatus] = useState<"Online" | "Issues" | "Offline" | "Loading">("Loading");
 
   useEffect(() => {
     let cancelled = false;
+    
+    // Check if we have cached status (5 minutes cache)
+    const cachedData = localStorage.getItem('dns-status-cache');
+    const cacheTime = localStorage.getItem('dns-status-cache-time');
+    const now = Date.now();
+    
+    if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) { // 5 min cache
+      setDnsStatus(JSON.parse(cachedData));
+      return;
+    }
+    
     setDnsStatus("Loading");
     const checkDnsStatus = async () => {
       try {
         const res = await fetch("/api/check-dns");
+        if (res.status === 429) {
+          // Rate limited - use cached data or default to Issues
+          if (cachedData) {
+            setDnsStatus(JSON.parse(cachedData));
+          } else {
+            setDnsStatus("Issues");
+          }
+          return;
+        }
+        
         const data = await res.json();
         if (!cancelled && data && data.status) {
           setDnsStatus(data.status);
+          // Cache the result
+          localStorage.setItem('dns-status-cache', JSON.stringify(data.status));
+          localStorage.setItem('dns-status-cache-time', now.toString());
         } else if (!cancelled) {
           setDnsStatus("Issues");
         }
@@ -283,6 +307,7 @@ function useDnsStatus() {
         if (!cancelled) setDnsStatus("Offline");
       }
     };
+    
     checkDnsStatus();
     return () => { cancelled = true; };
   }, []);
