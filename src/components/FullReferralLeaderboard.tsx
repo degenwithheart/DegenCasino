@@ -6,10 +6,10 @@ import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useRe
 import { truncateString } from '../utils'
 import { formatFeePercentage, getReferralTierInfo } from '../utils/referralTier'
 import { generateUsernameFromWallet } from '../sections/userProfileUtils'
+import { useUserStore } from '../hooks/useUserStore'
 
 const Container = styled.div`
   width: 100%;
-  max-width: 800px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 16px;
@@ -222,6 +222,14 @@ export function FullReferralLeaderboard() {
   const currentUser = useWalletAddress()
   const leaderboard = useReferralLeaderboard()
   const token = useCurrentToken()
+  const user = useUserStore()
+
+  const openInviteModal = () => {
+    user.set({ 
+      userModal: true, 
+      userModalInitialTab: 'invite' 
+    })
+  }
 
   if (!leaderboard || leaderboard.length === 0) {
     return (
@@ -238,10 +246,7 @@ export function FullReferralLeaderboard() {
           </EmptyDescription>
           <GambaUi.Button 
             main 
-            onClick={() => {
-              // Could trigger referral modal or scroll to referral section
-              console.log('Start referring friends!')
-            }}
+            onClick={openInviteModal}
           >
             Start Referring Friends
           </GambaUi.Button>

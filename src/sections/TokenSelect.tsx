@@ -158,9 +158,10 @@ function TokenSelectItem({ mint }: { mint: PublicKey }) {
   )
 }
 
-export default function TokenSelect({ setSelectedMint, selectedMint }: {
+export default function TokenSelect({ setSelectedMint, selectedMint, initialTab }: {
   setSelectedMint?: (mint: PublicKey) => void,
   selectedMint?: PublicKey,
+  initialTab?: 'free' | 'live' | 'fees' | 'invite',
 }) {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
@@ -169,7 +170,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
   const tierInfo = getReferralTierInfo(referralCount)
   const referralsToNext = getReferralsToNextTier(referralCount)
 
-  const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>('live')
+  const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>(initialTab || 'live')
   const referral = useReferral()
   const [removing, setRemoving] = React.useState(false)
   const toast = useToast()
