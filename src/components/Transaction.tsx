@@ -1,12 +1,14 @@
 import React from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
-import { Connection } from '@solana/web3.js'
+import { Connection, PublicKey } from '@solana/web3.js'
+import { useWallet } from '@solana/wallet-adapter-react'
 import styled from 'styled-components'
-import { GambaTransaction } from 'gamba-core-v2'
+import { GambaTransaction, parseGambaTransaction } from 'gamba-core-v2'
 import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { ExplorerHeader } from './ExplorerHeader'
 import { useWalletToast } from '../utils/solanaWalletToast'
+import { ALL_GAMES } from '../games/allGames'
 
 const TransactionContainer = styled.div`
   max-width: 1200px;
@@ -197,6 +199,25 @@ const OutcomeButton = styled.div<{$active: boolean, $multiplier: number}>`
   border: ${props => props.$active ? '1px solid currentColor' : '1px solid transparent'};
 `
 
+const GameImage = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+`
+
+const GameLink = styled(Link)`
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    color: #6ee7b7;
+    text-decoration: underline;
+  }
+`
+
 const LoadingState = styled.div`
   text-align: center;
   padding: 40px;
@@ -298,82 +319,66 @@ const CopyButton = styled.button`
 
 async function fetchGambaTransaction(txId: string, userAddress?: string) {
   try {
-    console.log('Fetching transaction:', txId, 'for user:', userAddress)
+    console.log('Fetching transaction:', txId)
     
-    // Try multiple API endpoints to find the transaction
-    const endpoints = [
-      `https://api.gamba.so/events/settledGames?signature=${txId}`,
-      `https://api.gamba.so/events/settledGames?itemsPerPage=100&page=0`,
-      `https://api.gamba.so/events?signature=${txId}`,
-      `https://api.gamba.so/transaction/${txId}`,
-    ]
+    // Use the same method as Gamba explorer - fetch directly from blockchain and parse
+    const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
     
-    // If we have a user address, add user-specific searches
-    if (userAddress) {
-      endpoints.unshift(
-        `https://api.gamba.so/events/settledGames?user=${userAddress}&itemsPerPage=100&page=0`,
-        `https://api.gamba.so/events?user=${userAddress}&limit=100`
-      )
+    const transaction = await connection.getParsedTransaction(txId, { 
+      commitment: "confirmed", 
+      maxSupportedTransactionVersion: 0 
+    })
+
+    if (!transaction) {
+      console.log('Transaction not found on blockchain')
+      return null
     }
+
+    console.log('Raw transaction found:', transaction)
+
+    // Parse the transaction to extract Gamba events using parseGambaTransaction
+    const [parsed] = parseGambaTransaction(transaction)
     
-    for (const endpoint of endpoints) {
-      try {
-        console.log('Trying endpoint:', endpoint)
-        const response = await fetch(endpoint)
-        
-        if (response.ok) {
-          const data = await response.json()
-          console.log('API response from', endpoint, ':', data)
-          
-          let transaction = null
-          
-          // Check different response structures
-          if (data.results && Array.isArray(data.results)) {
-            transaction = data.results.find((tx: any) => tx.signature === txId)
-          } else if (Array.isArray(data)) {
-            transaction = data.find((tx: any) => tx.signature === txId)
-          } else if (data.signature === txId) {
-            transaction = data
-          }
-          
-          if (transaction) {
-            console.log('Found transaction:', transaction)
-            
-            // Transform the transaction data
-            return {
-              id: transaction.signature,
-              signature: transaction.signature,
-              user: transaction.user,
-              creator: transaction.creator,
-              platform: transaction.creator,
-              player: transaction.user,
-              token: transaction.token,
-              wager: parseFloat(transaction.wager) || 0,
-              payout: parseFloat(transaction.payout) || 0,
-              profit: parseFloat(transaction.profit) || (parseFloat(transaction.payout) - parseFloat(transaction.wager)) || 0,
-              multiplier: transaction.multiplier_bps ? transaction.multiplier_bps / 10000 : transaction.multiplier || 0,
-              jackpot: transaction.jackpot || 0,
-              time: transaction.block_time ? new Date(transaction.block_time * 1000).toLocaleString() : 
-                    transaction.time ? new Date(transaction.time).toLocaleString() : 
-                    new Date().toLocaleString(),
-              usd_wager: transaction.usd_wager || 0,
-              usd_profit: transaction.usd_profit || 0,
-              block_time: transaction.block_time,
-              outcomes: transaction.outcomes || [],
-              resultIndex: transaction.resultIndex || transaction.result_index || 0,
-              dataAvailable: true
-            }
-          }
-        } else {
-          console.warn('API endpoint failed:', endpoint, response.status)
-        }
-      } catch (endpointError) {
-        console.warn('Error with endpoint:', endpoint, endpointError)
-      }
+    if (!parsed || parsed.name !== 'GameSettled') {
+      console.log('Transaction found but no GameSettled event parsed:', parsed)
+      return null
     }
-    
-    console.log('Transaction not found in any API endpoint')
-    return null
+
+    console.log('Parsed Gamba transaction:', parsed)
+
+    // Cast to GameSettled transaction type
+    const gameTransaction = parsed as GambaTransaction<'GameSettled'>
+    const gameData = gameTransaction.data
+
+    // Transform the parsed data to match our display format  
+    const wager = Number(gameData.wager) / 1e9 // Convert from lamports to SOL
+    const payout = Number(gameData.payout) / 1e9 // Convert from lamports to SOL
+    const multiplier = Number(gameData.multiplierBps) / 10000
+
+    return {
+      id: gameTransaction.signature,
+      signature: gameTransaction.signature,
+      user: gameData.user.toString(),
+      creator: gameData.creator.toString(),
+      platform: gameData.creator.toString(),
+      player: gameData.user.toString(),
+      token: gameData.tokenMint.toString(),
+      wager: wager,
+      payout: payout,
+      profit: payout - wager,
+      multiplier: multiplier,
+      jackpot: Number(gameData.jackpotPayoutToUser) / 1e9,
+      time: new Date(gameTransaction.time).toLocaleString(),
+      block_time: Math.floor(gameTransaction.time / 1000),
+      outcomes: gameData.bet || [],
+      resultIndex: 0, // We'd need to calculate this from the seeds
+      nonce: Number(gameData.nonce),
+      clientSeed: gameData.clientSeed,
+      rngSeed: gameData.rngSeed,
+      nextRngSeedHashed: gameData.nextRngSeedHashed,
+      metadata: gameData.metadata,
+      dataAvailable: true
+    }
     
   } catch (error) {
     console.error('Failed to fetch transaction:', error)
@@ -402,9 +407,39 @@ async function fetchTransactionLogs(txId: string) {
     console.warn('Helius API failed, trying fallback:', error)
   }
 
-  // Fallback to standard Solana RPC
+  // Fallback to Helius RPC instead of mainnet-beta
   try {
-    const connection = new Connection('https://api.mainnet-beta.solana.com')
+    const heliusRpcResponse = await fetch('https://api.helius.xyz/v0/transactions/parsed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        apiKey: '3bda9312-99fc-4ff4-9561-958d62a4a22c',
+        transactions: [txId]
+      })
+    })
+    
+    if (heliusRpcResponse.ok) {
+      const heliusRpcData = await heliusRpcResponse.json()
+      if (heliusRpcData && heliusRpcData[0]?.meta?.logMessages) {
+        return heliusRpcData[0].meta.logMessages.map((log: string, index: number) => ({
+          index,
+          message: log,
+          level: log.includes('Error') ? 'ERROR' : 
+                 log.includes('Warning') ? 'WARN' :
+                 log.includes('success') || log.includes('Success') ? 'SUCCESS' : 'INFO',
+          timestamp: new Date().toISOString()
+        }))
+      }
+    }
+  } catch (heliusRpcError) {
+    console.warn('Helius RPC fallback failed:', heliusRpcError)
+  }
+
+  // Final fallback to standard Solana RPC if Helius fails
+  try {
+    const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
     const tx = await connection.getTransaction(txId, { 
       commitment: 'confirmed',
       maxSupportedTransactionVersion: 0 
@@ -487,6 +522,7 @@ export default function TransactionView() {
   const { txId } = useParams<{txId: string}>()
   const [searchParams] = useSearchParams()
   const userParam = searchParams.get('user')
+  const { publicKey } = useWallet()
   const [transaction, setTransaction] = React.useState<any>(null)
   const [logs, setLogs] = React.useState<any[]>([])
   const [proofData, setProofData] = React.useState<any>(null)
@@ -504,7 +540,7 @@ export default function TransactionView() {
           // Fetch transaction data
           const result = await fetchGambaTransaction(txId, userParam || undefined)
           
-          if (result) {
+          if (result && result.dataAvailable) {
             setTransaction(result)
             
             // Only generate proof data if we have real transaction data
@@ -521,6 +557,9 @@ export default function TransactionView() {
               console.warn('fetchTransactionLogs returned non-array:', transactionLogs)
               setLogs([])
             }
+            
+            // Clear any previous error since we found game data
+            setError(null)
           } else {
             // Create basic transaction structure with txId but mark data as unavailable
             setTransaction({
@@ -711,6 +750,94 @@ export default function TransactionView() {
                         <DetailValue>{transaction.time}</DetailValue>
                       </DetailItem>
                     )}
+
+                    {/* Financial Information */}
+                    {transaction.wager !== undefined && (
+                      <DetailItem>
+                        <DetailLabel>Wager</DetailLabel>
+                        <DetailValue>
+                          <TokenDisplay>
+                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            {transaction.wager.toFixed(5)} SOL
+                            {transaction.usd_wager && (
+                              <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
+                                (${transaction.usd_wager.toFixed(2)})
+                              </span>
+                            )}
+                          </TokenDisplay>
+                        </DetailValue>
+                      </DetailItem>
+                    )}
+
+                    {transaction.payout !== undefined && (
+                      <DetailItem>
+                        <DetailLabel>Payout</DetailLabel>
+                        <DetailValue>
+                          <TokenDisplay>
+                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            {transaction.payout.toFixed(5)} SOL
+                            {transaction.wager !== undefined && (
+                              <span style={{ 
+                                color: transaction.payout > transaction.wager ? '#10b981' : '#ef4444', 
+                                fontSize: '12px', 
+                                marginLeft: '8px' 
+                              }}>
+                                {transaction.payout > transaction.wager ? '+' : ''}{(((transaction.payout - transaction.wager) / transaction.wager) * 100).toFixed(1)}%
+                              </span>
+                            )}
+                          </TokenDisplay>
+                        </DetailValue>
+                      </DetailItem>
+                    )}
+
+                    {transaction.profit !== undefined && (
+                      <DetailItem>
+                        <DetailLabel>Profit</DetailLabel>
+                        <DetailValue>
+                          <TokenDisplay>
+                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            <span style={{ color: transaction.profit >= 0 ? '#10b981' : '#ef4444' }}>
+                              {transaction.profit >= 0 ? '+' : ''}{transaction.profit.toFixed(5)} SOL
+                            </span>
+                            {transaction.usd_profit && (
+                              <span style={{ 
+                                color: transaction.profit >= 0 ? '#10b981' : '#ef4444', 
+                                fontSize: '12px', 
+                                marginLeft: '8px' 
+                              }}>
+                                ({transaction.usd_profit >= 0 ? '+' : ''}${transaction.usd_profit.toFixed(2)})
+                              </span>
+                            )}
+                          </TokenDisplay>
+                        </DetailValue>
+                      </DetailItem>
+                    )}
+
+                    {transaction.multiplier !== undefined && (
+                      <DetailItem>
+                        <DetailLabel>Multiplier</DetailLabel>
+                        <DetailValue>
+                          <span style={{ 
+                            color: transaction.multiplier > 1 ? '#10b981' : '#ef4444',
+                            fontWeight: '600'
+                          }}>
+                            {transaction.multiplier === 0 ? '0x (Loss)' : `${transaction.multiplier.toFixed(4)}x`}
+                          </span>
+                        </DetailValue>
+                      </DetailItem>
+                    )}
+
+                    {transaction.jackpot !== undefined && transaction.jackpot > 0 && (
+                      <DetailItem>
+                        <DetailLabel>Jackpot</DetailLabel>
+                        <DetailValue>
+                          <TokenDisplay>
+                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            {(transaction.jackpot / 1e9).toFixed(5)} SOL
+                          </TokenDisplay>
+                        </DetailValue>
+                      </DetailItem>
+                    )}
                   </>
                 )}
 
@@ -728,92 +855,65 @@ export default function TransactionView() {
               <DetailSection>
                 <SectionTitle>Game Information</SectionTitle>
 
-                {hasRealData && transaction.wager !== undefined && (
-                  <DetailItem>
-                    <DetailLabel>Wager</DetailLabel>
-                    <DetailValue>
-                      <TokenDisplay>
-                        <TokenIcon src="/favicon.png" alt="SOL" />
-                        {transaction.wager.toFixed(5)} SOL
-                        {transaction.usd_wager && (
-                          <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
-                            (${transaction.usd_wager.toFixed(2)})
-                          </span>
-                        )}
-                      </TokenDisplay>
-                    </DetailValue>
-                  </DetailItem>
-                )}
+                {hasRealData && (() => {
+                  // Find the game from allGames based on metadata
+                  const gameMetadata = transaction.metadata?.toLowerCase() || ''
+                  const game = ALL_GAMES.find(g => 
+                    g.id.toLowerCase() === gameMetadata ||
+                    g.meta.name.toLowerCase() === gameMetadata ||
+                    g.meta.name.toLowerCase().includes(gameMetadata) ||
+                    gameMetadata.includes(g.id.toLowerCase())
+                  )
 
-                {hasRealData && transaction.payout !== undefined && (
-                  <DetailItem>
-                    <DetailLabel>Payout</DetailLabel>
-                    <DetailValue>
-                      <TokenDisplay>
-                        <TokenIcon src="/favicon.png" alt="SOL" />
-                        {transaction.payout.toFixed(5)} SOL
-                        {transaction.wager !== undefined && (
+                  return (
+                    <>
+                      {game && (
+                        <DetailItem>
+                          <DetailLabel>Game Image</DetailLabel>
+                          <DetailValue>
+                            <GameImage src={game.meta.image} alt={game.meta.name} />
+                          </DetailValue>
+                        </DetailItem>
+                      )}
+
+                      <DetailItem>
+                        <DetailLabel>🎮 Game Type</DetailLabel>
+                        <DetailValue>
                           <span style={{ 
-                            color: transaction.payout > transaction.wager ? '#10b981' : '#ef4444', 
-                            fontSize: '12px', 
-                            marginLeft: '8px' 
+                            color: '#10b981',
+                            fontWeight: '600'
                           }}>
-                            {transaction.payout > transaction.wager ? '+' : ''}{(((transaction.payout - transaction.wager) / transaction.wager) * 100).toFixed(1)}%
+                            {game?.meta.name || transaction.metadata || 'Unknown Game'}
                           </span>
-                        )}
-                      </TokenDisplay>
-                    </DetailValue>
-                  </DetailItem>
-                )}
+                        </DetailValue>
+                      </DetailItem>
 
-                {hasRealData && transaction.profit !== undefined && (
-                  <DetailItem>
-                    <DetailLabel>Profit</DetailLabel>
-                    <DetailValue>
-                      <TokenDisplay>
-                        <TokenIcon src="/favicon.png" alt="SOL" />
-                        <span style={{ color: transaction.profit >= 0 ? '#10b981' : '#ef4444' }}>
-                          {transaction.profit >= 0 ? '+' : ''}{transaction.profit.toFixed(5)} SOL
-                        </span>
-                        {transaction.usd_profit && (
+                      <DetailItem>
+                        <DetailLabel>🎉 Game Outcome</DetailLabel>
+                        <DetailValue>
                           <span style={{ 
-                            color: transaction.profit >= 0 ? '#10b981' : '#ef4444', 
-                            fontSize: '12px', 
-                            marginLeft: '8px' 
+                            color: transaction.profit >= 0 ? '#10b981' : '#ef4444',
+                            fontWeight: '600',
+                            fontSize: '16px'
                           }}>
-                            ({transaction.usd_profit >= 0 ? '+' : ''}${transaction.usd_profit.toFixed(2)})
+                            {transaction.profit >= 0 ? '🎉 WIN' : '💸 LOSS'}
                           </span>
-                        )}
-                      </TokenDisplay>
-                    </DetailValue>
-                  </DetailItem>
-                )}
+                        </DetailValue>
+                      </DetailItem>
 
-                {hasRealData && transaction.multiplier !== undefined && (
-                  <DetailItem>
-                    <DetailLabel>Multiplier</DetailLabel>
-                    <DetailValue>
-                      <span style={{ 
-                        color: transaction.multiplier > 1 ? '#10b981' : '#ef4444',
-                        fontWeight: '600'
-                      }}>
-                        {transaction.multiplier === 0 ? '0x (Loss)' : `${transaction.multiplier.toFixed(4)}x`}
-                      </span>
-                    </DetailValue>
-                  </DetailItem>
-                )}
-
-                {hasRealData && transaction.jackpot !== undefined && transaction.jackpot > 0 && (
-                  <DetailItem>
-                    <DetailLabel>Jackpot</DetailLabel>
-                    <DetailValue>
-                      <TokenDisplay>
-                        <TokenIcon src="/favicon.png" alt="SOL" />
-                        {(transaction.jackpot / 1e9).toFixed(5)} SOL
-                      </TokenDisplay>
-                    </DetailValue>
-                  </DetailItem>
-                )}
+                      {game && (
+                        <DetailItem>
+                          <DetailLabel>Game Link</DetailLabel>
+                          <DetailValue>
+                            <GameLink to={`/game/${publicKey?.toBase58() || 'demo'}/${game.id}`}>
+                              ▶️ Play {game.meta.name}
+                            </GameLink>
+                          </DetailValue>
+                        </DetailItem>
+                      )}
+                    </>
+                  )
+                })()}
               </DetailSection>
             </DetailsGrid>
           )}
@@ -830,7 +930,7 @@ export default function TransactionView() {
                     </p>
                     
                     <VerificationStep>
-                      <StepLabel>Client Seed (Your Input)</StepLabel>
+                      <StepLabel>Client Seed (Your Secret)</StepLabel>
                       <StepValue>
                         {proofData.clientSeed}
                         <CopyButton onClick={() => copyToClipboard(proofData.clientSeed, showWalletToast)}>
@@ -1145,7 +1245,7 @@ export default function TransactionView() {
 {`Transaction Signature: ${txId}
 Blockchain: Solana Mainnet-Beta
 Status: ${hasRealData ? 'Confirmed with Game Data' : 'Confirmed (Game Data Unavailable)'}
-Network: https://api.mainnet-beta.solana.com
+Network: https://mainnet.helius-rpc.com (Helius Enhanced RPC)
 ${hasRealData ? `Game Platform: ${transaction.platform || 'Unknown'}
 Player: ${transaction.player || 'Unknown'}
 Timestamp: ${transaction.time || 'Unknown'}` : 'Game-specific data not accessible through current API endpoints.'}
