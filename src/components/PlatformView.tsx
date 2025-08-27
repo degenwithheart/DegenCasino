@@ -182,6 +182,62 @@ const ChartPlaceholder = styled.div`
   font-size: 14px;
 `
 
+// Game Status Overview Components
+const GameStatusContainer = styled.div`
+  background: rgba(34, 34, 34, 0.9);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+`
+
+const GameStatusHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 16px;
+`
+
+const StatusGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const StatusCard = styled.div`
+  background: rgba(45, 45, 45, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+`
+
+const StatusValue = styled.div`
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 8px;
+`
+
+const StatusLabel = styled.div`
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`
+
 const LeaderboardHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -255,7 +311,7 @@ const RecentPlaysTable = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -266,7 +322,7 @@ const TableHeader = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -350,17 +406,24 @@ const DetailValue = styled.div`
   font-size: 14px;
 `
 
-function TimeDiff({ time }: { time: number }) {
-  const diff = Date.now() - time
-  const sec = Math.floor(diff / 1000)
-  const min = Math.floor(sec / 60)
-  const hrs = Math.floor(min / 60)
-  const days = Math.floor(hrs / 24)
+function formatTimestamp({ time }: { time: number }) {
+  const date = new Date(time)
   
-  if (days >= 1) return <span>{days}d ago</span>
-  if (hrs >= 1) return <span>{hrs}h ago</span>
-  if (min >= 1) return <span>{min}m ago</span>
-  return <span>Just now</span>
+  // Format as HH:MM:SS MM/DD/YYYY
+  const timeString = date.toLocaleTimeString('en-US', { 
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+  
+  const dateString = date.toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric'
+  })
+  
+  return <span>{timeString} {dateString}</span>
 }
 
 function RecentPlayRow({ play, platformName }: { play: any; platformName: string }) {
@@ -389,10 +452,6 @@ function RecentPlayRow({ play, platformName }: { play: any; platformName: string
 
   return (
     <TableRow onClick={handleClick}>
-      <PlatformCell>
-        <PlatformIcon>🎰</PlatformIcon>
-        {platformName}
-      </PlatformCell>
       <PlayerCell>{play.user.slice(0, 4)}...{play.user.slice(-4)}</PlayerCell>
       <TokenCell>
         <TokenIcon src={token.image} alt={token.symbol} />
@@ -404,7 +463,7 @@ function RecentPlayRow({ play, platformName }: { play: any; platformName: string
         {isWin && <MultiplierBadge $isWin={isWin}>{multiplier.toFixed(2)}x</MultiplierBadge>}
       </PayoutCell>
       <TimeCell>
-        <TimeDiff time={play.time || Date.now()} />
+        {formatTimestamp({ time: play.time || Date.now() })}
       </TimeCell>
     </TableRow>
   )
@@ -450,9 +509,15 @@ export function PlatformView() {
           
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
+            
+            // Log the raw API response to see what we're getting
+            console.log('Raw API response:', playsData)
 
             // Check if the response has the expected structure
             if (playsData && Array.isArray(playsData.results)) {
+              // Log first few plays to see the data structure
+              console.log('First 3 plays from API:', playsData.results.slice(0, 3))
+              
               // Filter to only include plays where creator matches exactly
               const filteredPlays = playsData.results.filter((play: any) => play.creator === creator)
 
@@ -463,6 +528,31 @@ export function PlatformView() {
                 const multiplierBps = play.multiplier_bps || 0
                 const multiplier = multiplierBps > 0 ? multiplierBps / BPS_PER_WHOLE : (payout > 0 && wager > 0 ? payout / wager : 0)
 
+                // Log all time-related fields from the API
+                console.log('Time fields for play:', {
+                  signature: play.signature,
+                  block_time: play.block_time,
+                  time: play.time,
+                  timestamp: play.timestamp,
+                  created_at: play.created_at,
+                  updated_at: play.updated_at,
+                  all_fields: Object.keys(play)
+                })
+
+                // Try different timestamp fields that might be in the response
+                let timestamp = play.block_time || play.time || play.timestamp || play.created_at
+                if (timestamp) {
+                  // Handle different timestamp formats
+                  if (typeof timestamp === 'string') {
+                    timestamp = new Date(timestamp).getTime()
+                  } else {
+                    timestamp = timestamp < 1e12 ? timestamp * 1000 : timestamp
+                  }
+                } else {
+                  console.warn('No timestamp found for play:', play)
+                  timestamp = Date.now()
+                }
+
                 return {
                   signature: play.signature,
                   user: play.user,
@@ -470,7 +560,7 @@ export function PlatformView() {
                   token: play.token,
                   wager,
                   payout,
-                  time: play.block_time * 1000, // Convert to milliseconds
+                  time: timestamp,
                   multiplier
                 }
               })
@@ -488,16 +578,33 @@ export function PlatformView() {
                 if (Array.isArray(altData)) {
                   const transformedAltPlays = altData
                     .filter((play: any) => play.creator === creator)
-                    .map((play: any) => ({
-                      signature: play.signature || 'unknown',
-                      user: play.user || play.player || 'unknown',
-                      creator: play.creator,
-                      token: play.token || play.mint,
-                      wager: parseFloat(play.wager) || parseFloat(play.amount) || 0,
-                      payout: parseFloat(play.payout) || parseFloat(play.winnings) || 0,
-                      time: (play.block_time || play.time || play.timestamp) * 1000,
-                      multiplier: play.multiplier || (play.payout && play.wager ? parseFloat(play.payout) / parseFloat(play.wager) : 0)
-                    }))
+                    .map((play: any) => {
+                      // Handle various timestamp formats from alternative API
+                      let timestamp = play.block_time || play.time || play.timestamp
+                      if (timestamp) {
+                        timestamp = timestamp < 1e12 ? timestamp * 1000 : timestamp
+                      } else {
+                        timestamp = Date.now()
+                      }
+
+                      console.log('Alt play data:', {
+                        signature: play.signature,
+                        original_time: play.block_time || play.time || play.timestamp,
+                        converted_time: timestamp,
+                        date: new Date(timestamp).toISOString()
+                      })
+
+                      return {
+                        signature: play.signature || 'unknown',
+                        user: play.user || play.player || 'unknown',
+                        creator: play.creator,
+                        token: play.token || play.mint,
+                        wager: parseFloat(play.wager) || parseFloat(play.amount) || 0,
+                        payout: parseFloat(play.payout) || parseFloat(play.winnings) || 0,
+                        time: timestamp,
+                        multiplier: play.multiplier || (play.payout && play.wager ? parseFloat(play.payout) / parseFloat(play.wager) : 0)
+                      }
+                    })
                   
                   setRecentPlays(transformedAltPlays)
                 }
@@ -540,100 +647,37 @@ export function PlatformView() {
   return (
     <PlatformContainer>
       <ExplorerHeader />
-      <Header>
-        <PlatformImage src="/casino.png" alt="Platform" />
-        <PlatformInfo>
-          <PlatformName>
-            <PlatformIcon>🎰</PlatformIcon>
-            {platformName}
-          </PlatformName>
-          <PlatformAddress>{creator}</PlatformAddress>
-        </PlatformInfo>
-      </Header>
 
-      <TopStatsRow>
-        <TopStat>
-          <TopStatLabel>Volume</TopStatLabel>
-          <TopStatValue>${volume.toFixed(2)}</TopStatValue>
-        </TopStat>
-        <TopStat>
-          <TopStatLabel>Estimated Fees</TopStatLabel>
-          <TopStatValue>${estimatedFees.toFixed(2)}</TopStatValue>
-        </TopStat>
-        <TopStat>
-          <TopStatLabel>Plays</TopStatLabel>
-          <TopStatValue>{plays}</TopStatValue>
-        </TopStat>
-        <TopStat>
-          <TopStatLabel>Players</TopStatLabel>
-          <TopStatValue>{players}</TopStatValue>
-        </TopStat>
-      </TopStatsRow>
+      {/* Game Status Overview */}
+      <GameStatusContainer>
+        <GameStatusHeader>
+          📊 PLATFORM STATISTICS
+        </GameStatusHeader>
+        <StatusGrid>
+          <StatusCard>
+            <StatusValue>${volume.toFixed(2)}</StatusValue>
+            <StatusLabel>VOLUME</StatusLabel>
+          </StatusCard>
+          <StatusCard>
+            <StatusValue>${estimatedFees.toFixed(2)}</StatusValue>
+            <StatusLabel>ESTIMATED FEES</StatusLabel>
+          </StatusCard>
+          <StatusCard>
+            <StatusValue>{recentPlays.length}</StatusValue>
+            <StatusLabel>PLAYS</StatusLabel>
+          </StatusCard>
+          <StatusCard>
+            <StatusValue>{new Set(recentPlays.map(play => play.user)).size}</StatusValue>
+            <StatusLabel>PLAYERS</StatusLabel>
+          </StatusCard>
+        </StatusGrid>
+      </GameStatusContainer>
 
-      <MainContent>
-        <div>
-          <Section>
-            <SectionTitle>7d Volume</SectionTitle>
-            <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white', marginBottom: '16px' }}>
-              ${volume.toFixed(1)}
-            </div>
-            <ChartContainer>
-              <ChartPlaceholder>Volume chart visualization would go here</ChartPlaceholder>
-            </ChartContainer>
-          </Section>
-
-          <Section style={{ marginTop: '24px' }}>
-            <SectionTitle>Volume by token</SectionTitle>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <TokenIcon src="/favicon.png" alt="SOL" />
-              <span style={{ color: 'white' }}>Solana</span>
-              <span style={{ marginLeft: 'auto', color: '#888' }}>{plays} / ${volume.toFixed(2)}</span>
-            </div>
-            <ChartContainer style={{ height: '120px' }}>
-              <ChartPlaceholder>Token distribution chart would go here</ChartPlaceholder>
-            </ChartContainer>
-          </Section>
-        </div>
-
-        <div>
-          <Section>
-            <LeaderboardHeader>
-              <SectionTitle style={{ margin: 0 }}>7d Leaderboard</SectionTitle>
-              <ViewAllLink to="#" onClick={(e) => e.preventDefault()}>View all</ViewAllLink>
-            </LeaderboardHeader>
-            <LeaderboardList>
-              {(leaderboard || []).slice(0, 5).map((player, index) => (
-                <LeaderboardItem 
-                  key={player.user}
-                  onClick={() => window.location.href = `/explorer/player/${player.user}`}
-                >
-                  <PlayerInfo>
-                    <Rank>{index + 1}</Rank>
-                    <PlayerAddress>{player.user.slice(0, 4)}...{player.user.slice(-4)}</PlayerAddress>
-                  </PlayerInfo>
-                  <VolumeAmount>${player.usd_volume.toLocaleString()}</VolumeAmount>
-                </LeaderboardItem>
-              ))}
-            </LeaderboardList>
-          </Section>
-        </div>
-      </MainContent>
-
-      <DetailsSection>
-        <Section>
-          <SectionTitle>Details</SectionTitle>
-          <DetailItem>
-            <DetailLabel>Creator</DetailLabel>
-            <DetailValue>{creator}</DetailValue>
-          </DetailItem>
-        </Section>
-      </DetailsSection>
-
+      {/* All Plays Section */}
       <RecentPlaysTable>
         <Section>
-          <SectionTitle>Recent plays</SectionTitle>
+          <SectionTitle>All Plays</SectionTitle>
           <TableHeader>
-            <div>Platform</div>
             <div>Player</div>
             <div>Wager</div>
             <div>Payout</div>
@@ -648,12 +692,12 @@ export function PlatformView() {
           ))}
           {loading && (
             <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-              Loading recent plays...
+              Loading games...
             </div>
           )}
           {!loading && recentPlays.length === 0 && (
             <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-              No recent plays found
+              No games found
             </div>
           )}
         </Section>
