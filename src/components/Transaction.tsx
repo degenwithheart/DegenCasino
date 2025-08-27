@@ -298,136 +298,83 @@ const CopyButton = styled.button`
 
 async function fetchGambaTransaction(txId: string, userAddress?: string) {
   try {
-    // If we have a user address, try searching by user first (more reliable)
+    console.log('Fetching transaction:', txId, 'for user:', userAddress)
+    
+    // Try multiple API endpoints to find the transaction
+    const endpoints = [
+      `https://api.gamba.so/events/settledGames?signature=${txId}`,
+      `https://api.gamba.so/events/settledGames?itemsPerPage=100&page=0`,
+      `https://api.gamba.so/events?signature=${txId}`,
+      `https://api.gamba.so/transaction/${txId}`,
+    ]
+    
+    // If we have a user address, add user-specific searches
     if (userAddress) {
+      endpoints.unshift(
+        `https://api.gamba.so/events/settledGames?user=${userAddress}&itemsPerPage=100&page=0`,
+        `https://api.gamba.so/events?user=${userAddress}&limit=100`
+      )
+    }
+    
+    for (const endpoint of endpoints) {
       try {
-        const userResponse = await fetch(`https://api.gamba.so/events/settledGames?user=${userAddress}&itemsPerPage=50&page=0`)
-        if (userResponse.ok) {
-          const userData = await userResponse.json()
+        console.log('Trying endpoint:', endpoint)
+        const response = await fetch(endpoint)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('API response from', endpoint, ':', data)
           
-          const userTransaction = userData.results?.find((tx: any) => tx.signature === txId)
-          if (userTransaction) {
+          let transaction = null
+          
+          // Check different response structures
+          if (data.results && Array.isArray(data.results)) {
+            transaction = data.results.find((tx: any) => tx.signature === txId)
+          } else if (Array.isArray(data)) {
+            transaction = data.find((tx: any) => tx.signature === txId)
+          } else if (data.signature === txId) {
+            transaction = data
+          }
+          
+          if (transaction) {
+            console.log('Found transaction:', transaction)
+            
+            // Transform the transaction data
             return {
-              id: userTransaction.signature,
-              signature: userTransaction.signature,
-              user: userTransaction.user,
-              creator: userTransaction.creator,
-              platform: userTransaction.creator,
-              player: userTransaction.user,
-              token: userTransaction.token,
-              wager: userTransaction.wager / 1e9,
-              payout: userTransaction.payout / 1e9,
-              profit: userTransaction.profit / 1e9,
-              multiplier: userTransaction.multiplier,
-              jackpot: userTransaction.jackpot,
-              time: new Date(userTransaction.time).toLocaleString(),
-              usd_wager: userTransaction.usd_wager,
-              usd_profit: userTransaction.usd_profit,
+              id: transaction.signature,
+              signature: transaction.signature,
+              user: transaction.user,
+              creator: transaction.creator,
+              platform: transaction.creator,
+              player: transaction.user,
+              token: transaction.token,
+              wager: parseFloat(transaction.wager) || 0,
+              payout: parseFloat(transaction.payout) || 0,
+              profit: parseFloat(transaction.profit) || (parseFloat(transaction.payout) - parseFloat(transaction.wager)) || 0,
+              multiplier: transaction.multiplier_bps ? transaction.multiplier_bps / 10000 : transaction.multiplier || 0,
+              jackpot: transaction.jackpot || 0,
+              time: transaction.block_time ? new Date(transaction.block_time * 1000).toLocaleString() : 
+                    transaction.time ? new Date(transaction.time).toLocaleString() : 
+                    new Date().toLocaleString(),
+              usd_wager: transaction.usd_wager || 0,
+              usd_profit: transaction.usd_profit || 0,
+              block_time: transaction.block_time,
+              outcomes: transaction.outcomes || [],
+              resultIndex: transaction.resultIndex || transaction.result_index || 0,
               dataAvailable: true
             }
-          } else {
-            // Try a few more pages for the user
-            for (let page = 1; page <= 3; page++) {
-              const pageResponse = await fetch(`https://api.gamba.so/events/settledGames?user=${userAddress}&itemsPerPage=50&page=${page}`)
-              if (pageResponse.ok) {
-                const pageData = await pageResponse.json()
-                const pageTransaction = pageData.results?.find((tx: any) => tx.signature === txId)
-                if (pageTransaction) {
-                  return {
-                    id: pageTransaction.signature,
-                    signature: pageTransaction.signature,
-                    user: pageTransaction.user,
-                    creator: pageTransaction.creator,
-                    platform: pageTransaction.creator,
-                    player: pageTransaction.user,
-                    token: pageTransaction.token,
-                    wager: pageTransaction.wager / 1e9,
-                    payout: pageTransaction.payout / 1e9,
-                    profit: pageTransaction.profit / 1e9,
-                    multiplier: pageTransaction.multiplier,
-                    jackpot: pageTransaction.jackpot,
-                    time: new Date(pageTransaction.time).toLocaleString(),
-                    usd_wager: pageTransaction.usd_wager,
-                    usd_profit: pageTransaction.usd_profit,
-                    dataAvailable: true
-                  }
-                }
-              }
-            }
           }
+        } else {
+          console.warn('API endpoint failed:', endpoint, response.status)
         }
-      } catch (userError) {
-        // Silent fallback to signature search
+      } catch (endpointError) {
+        console.warn('Error with endpoint:', endpoint, endpointError)
       }
     }
     
-    // Try the signature search as fallback
-    const response = await fetch(`https://api.gamba.so/events/settledGames?signature=${txId}`)
-    if (!response.ok) throw new Error('Transaction not found')
-    
-    const data = await response.json()
-    
-    // Check if we found the transaction in results
-    if (data.results && data.results.length > 0) {
-      // Find the exact match by signature
-      const transaction = data.results.find((tx: any) => tx.signature === txId)
-      
-      if (transaction) {
-        return {
-          id: transaction.signature,
-          signature: transaction.signature,
-          user: transaction.user,
-          creator: transaction.creator,
-          platform: transaction.creator,
-          player: transaction.user,
-          token: transaction.token,
-          wager: transaction.wager / 1e9,
-          payout: transaction.payout / 1e9,
-          profit: transaction.profit / 1e9,
-          multiplier: transaction.multiplier,
-          jackpot: transaction.jackpot,
-          time: new Date(transaction.time).toLocaleString(),
-          usd_wager: transaction.usd_wager,
-          usd_profit: transaction.usd_profit,
-          dataAvailable: true
-        }
-      }
-    }
-    
-    // Final fallback: search through recent transactions
-    try {
-      const fallbackResponse = await fetch(`https://api.gamba.so/events/settledGames?itemsPerPage=100&page=0`)
-      
-      if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json()
-        const fallbackTransaction = fallbackData.results?.find((tx: any) => tx.signature === txId)
-        
-        if (fallbackTransaction) {
-          return {
-            id: fallbackTransaction.signature,
-            signature: fallbackTransaction.signature,
-            user: fallbackTransaction.user,
-            creator: fallbackTransaction.creator,
-            platform: fallbackTransaction.creator,
-            player: fallbackTransaction.user,
-            token: fallbackTransaction.token,
-            wager: fallbackTransaction.wager / 1e9,
-            payout: fallbackTransaction.payout / 1e9,
-            profit: fallbackTransaction.profit / 1e9,
-            multiplier: fallbackTransaction.multiplier,
-            jackpot: fallbackTransaction.jackpot,
-            time: new Date(fallbackTransaction.time).toLocaleString(),
-            usd_wager: fallbackTransaction.usd_wager,
-            usd_profit: fallbackTransaction.usd_profit,
-            dataAvailable: true
-          }
-        }
-      }
-    } catch (fallbackError) {
-      // Silent fail
-    }
-    
+    console.log('Transaction not found in any API endpoint')
     return null
+    
   } catch (error) {
     console.error('Failed to fetch transaction:', error)
     return null
