@@ -4,7 +4,6 @@ import { PublicKey } from '@solana/web3.js'
 import styled from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
-import { useGambaEvents } from 'gamba-react-v2'
 import { useLeaderboardData } from '../hooks/useLeaderboardData'
 import { extractMetadata } from '../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
@@ -419,6 +418,8 @@ export function PlatformView() {
   const [error, setError] = React.useState<string | null>(null)
   
   const { data: leaderboard = [] } = useLeaderboardData('weekly', creator || '')
+  
+  // Only use real Gamba API data - no fallbacks or fake data
 
   React.useEffect(() => {
     if (creator) {
@@ -427,48 +428,89 @@ export function PlatformView() {
       const fetchData = async () => {
         try {
           setLoading(true)
+          setError(null)
           
           // Fetch platform stats
-          const statsResponse = await fetch(`https://api.gamba.so/stats?creator=${creator}&startTime=${startTime}`)
+          const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
+          
+          const statsResponse = await fetch(statsUrl)
+          
           if (statsResponse.ok) {
             const statsData = await statsResponse.json()
             setStats(statsData)
+          } else {
+            const errorText = await statsResponse.text()
+            console.warn('Failed to fetch stats:', statsResponse.status, errorText)
           }
           
           // Fetch recent plays for this platform
-          const playsResponse = await fetch(`https://api.gamba.so/events/settledGames?creator=${creator}&itemsPerPage=10&page=0`)
+          const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=20&page=0`
+          
+          const playsResponse = await fetch(playsUrl)
+          
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
 
-            // Filter to only include plays where creator matches exactly
-            const filteredPlays = (playsData.results || []).filter((play: any) => play.creator === creator)
+            // Check if the response has the expected structure
+            if (playsData && Array.isArray(playsData.results)) {
+              // Filter to only include plays where creator matches exactly
+              const filteredPlays = playsData.results.filter((play: any) => play.creator === creator)
 
-            // Transform the API data to match our display format
-            const transformedPlays = filteredPlays.map((play: any) => {
-              const wager = parseFloat(play.wager) || 0
-              const payout = parseFloat(play.payout) || 0
-              const multiplier = play.multiplier || 0
+              // Transform the API data to match our display format
+              const transformedPlays = filteredPlays.map((play: any) => {
+                const wager = parseFloat(play.wager) || 0
+                const payout = parseFloat(play.payout) || 0
+                const multiplierBps = play.multiplier_bps || 0
+                const multiplier = multiplierBps > 0 ? multiplierBps / BPS_PER_WHOLE : (payout > 0 && wager > 0 ? payout / wager : 0)
 
-              return {
-                signature: play.signature,
-                user: play.user,
-                creator: play.creator,
-                token: play.token,
-                wager,
-                payout,
-                time: play.time,
-                multiplier
+                return {
+                  signature: play.signature,
+                  user: play.user,
+                  creator: play.creator,
+                  token: play.token,
+                  wager,
+                  payout,
+                  time: play.block_time * 1000, // Convert to milliseconds
+                  multiplier
+                }
+              })
+
+              setRecentPlays(transformedPlays)
+            } else {
+              console.warn('Unexpected plays data structure:', playsData)
+              // Try alternative API endpoint format
+              const altPlaysUrl = `${API_ENDPOINT}/events?creator=${creator}&limit=20`
+              
+              const altResponse = await fetch(altPlaysUrl)
+              if (altResponse.ok) {
+                const altData = await altResponse.json()
+                
+                if (Array.isArray(altData)) {
+                  const transformedAltPlays = altData
+                    .filter((play: any) => play.creator === creator)
+                    .map((play: any) => ({
+                      signature: play.signature || 'unknown',
+                      user: play.user || play.player || 'unknown',
+                      creator: play.creator,
+                      token: play.token || play.mint,
+                      wager: parseFloat(play.wager) || parseFloat(play.amount) || 0,
+                      payout: parseFloat(play.payout) || parseFloat(play.winnings) || 0,
+                      time: (play.block_time || play.time || play.timestamp) * 1000,
+                      multiplier: play.multiplier || (play.payout && play.wager ? parseFloat(play.payout) / parseFloat(play.wager) : 0)
+                    }))
+                  
+                  setRecentPlays(transformedAltPlays)
+                }
               }
-            })
-
-            setRecentPlays(transformedPlays)
+            }
           } else {
             const errorText = await playsResponse.text()
             console.warn('Failed to fetch recent plays:', playsResponse.status, errorText)
           }
+          
         } catch (err) {
           console.error('Failed to fetch platform data:', err)
-          setError('Failed to load platform data')
+          setError(`Failed to load platform data: ${err instanceof Error ? err.message : 'Unknown error'}`)
         } finally {
           setLoading(false)
         }
