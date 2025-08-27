@@ -42,22 +42,8 @@ export default defineConfig(() => ({
       'stream-browserify',
       'util'
     ],
-    exclude: [
-      // Exclude large packages from pre-bundling to enable better tree-shaking
-      '@solana/web3.js',
-      '@coral-xyz/anchor',
-      'three',
-      '@react-three/fiber',
-      '@react-three/drei',
-      'matter-js',
-      'tone'
-    ],
     esbuildOptions: { 
       define: { global: 'globalThis' },
-      // Enable tree-shaking during pre-bundling
-      treeShaking: true,
-      // Optimize for size
-      minify: true,
     }
   },
   build: {
@@ -71,40 +57,22 @@ export default defineConfig(() => ({
         drop_console: true,
         drop_debugger: true,
       },
-      mangle: true,
+      mangle: {
+        safari10: true,
+      }
     },
     rollupOptions: {
       output: {
-        // Aggressive chunking for better caching and parallel loading
-        manualChunks(id) {
-          // Large blockchain libraries - separate chunk
-          if (id.includes('@solana/') || id.includes('gamba-') || id.includes('@coral-xyz/anchor')) {
-            return 'blockchain'
-          }
-          // UI and styling libraries - separate chunk
-          if (id.includes('react') || id.includes('@radix-ui') || id.includes('styled-components') || id.includes('framer-motion')) {
-            return 'ui'
-          }
-          // 3D libraries - separate chunk (heavy)
-          if (id.includes('three') || id.includes('@react-three/')) {
-            return 'three'
-          }
-          // Physics and audio libraries - separate chunk (heavy)
-          if (id.includes('matter-js') || id.includes('tone')) {
-            return 'physics-audio'
-          }
-          // Utility libraries
-          if (id.includes('html2canvas') || id.includes('zustand') || id.includes('swr')) {
-            return 'utils'
-          }
-          // Wallet libraries - separate chunk
-          if (id.includes('wallet')) {
-            return 'wallet'
-          }
-          // Other vendor packages
-          if (id.includes('node_modules')) {
-            return 'vendor'
-          }
+        // More conservative chunking to avoid circular dependencies
+        manualChunks: {
+          // Core React libraries
+          'react-vendor': ['react', 'react-dom'],
+          // Large blockchain libraries
+          'blockchain': ['@solana/web3.js', '@coral-xyz/anchor'],
+          // 3D libraries (separate due to size)
+          'three': ['three', '@react-three/fiber', '@react-three/drei'],
+          // Physics and audio (separate due to size)
+          'physics-audio': ['matter-js', 'tone'],
         },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
