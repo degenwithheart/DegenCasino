@@ -492,14 +492,27 @@ export function PlatformView() {
           // Fetch platform stats
           const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
           
+          console.log('Fetching stats from:', statsUrl)
           const statsResponse = await fetch(statsUrl)
           
           if (statsResponse.ok) {
             const statsData = await statsResponse.json()
+            console.log('Stats API response:', statsData)
             setStats(statsData)
           } else {
             const errorText = await statsResponse.text()
             console.warn('Failed to fetch stats:', statsResponse.status, errorText)
+            
+            // Try alternative stats endpoint
+            const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
+            console.log('Trying alternative stats URL:', altStatsUrl)
+            
+            const altStatsResponse = await fetch(altStatsUrl)
+            if (altStatsResponse.ok) {
+              const altStatsData = await altStatsResponse.json()
+              console.log('Alternative stats API response:', altStatsData)
+              setStats(altStatsData)
+            }
           }
           
           // Fetch recent plays for this platform
@@ -639,10 +652,27 @@ export function PlatformView() {
     ? 'DegenCasino' 
     : `6o1i...8ocZ`
 
-  const volume = stats?.usd_volume || 0
-  const estimatedFees = stats?.revenue_usd || 0
-  const plays = stats?.plays || 0
-  const players = stats?.players || 0
+  // Only use fees from API, but calculate volume properly from platform plays
+  const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
+
+  // Calculate volume from recent plays, but convert from lamports to actual token amount
+  const calculatedVolume = recentPlays.reduce((total, play) => {
+    // The wager should already be in the correct decimal format from TokenValue
+    // If it's showing huge numbers, the API might be returning lamports
+    const wagerAmount = play.wager || 0
+    // Convert from lamports to SOL (divide by 1e9) if the number seems too large
+    const adjustedWager = wagerAmount > 1000000 ? wagerAmount / 1e9 : wagerAmount
+    return total + adjustedWager
+  }, 0)
+
+  console.log('Fixed volume calculation:', {
+    platformCreator: creator,
+    recentPlaysCount: recentPlays.length,
+    rawWagers: recentPlays.map(p => p.wager),
+    calculatedVolume,
+    estimatedFeesFromAPI: estimatedFees,
+    apiStats: stats
+  })
 
   return (
     <PlatformContainer>
@@ -655,7 +685,7 @@ export function PlatformView() {
         </GameStatusHeader>
         <StatusGrid>
           <StatusCard>
-            <StatusValue>${volume.toFixed(2)}</StatusValue>
+            <StatusValue>${calculatedVolume.toFixed(2)}</StatusValue>
             <StatusLabel>VOLUME</StatusLabel>
           </StatusCard>
           <StatusCard>
