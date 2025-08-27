@@ -1,4 +1,4 @@
-import { cacheOnTheFly } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
 
 // Simple in-memory rate limiter (per process, not per user)
 let lastCall = 0;
@@ -122,7 +122,7 @@ export default async function handler(req: Request): Promise<Response> {
       })
     );
     return locationResults;
-  }, 300000); // 5 minutes TTL - much longer cache
+  }, { ttl: CacheTTL.FIVE_MINUTES }); // Enhanced cache with TTL
 
     // Summarize results into a single status string
     const onlineCount = results.filter((r: any) => r.status === 'online').length;

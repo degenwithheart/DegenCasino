@@ -1,4 +1,4 @@
-import { cacheOnTheFly } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
 export const config = { runtime: 'edge' };
 
 export default async function handler(req: Request) {
@@ -22,7 +22,7 @@ export default async function handler(req: Request) {
       body,
     });
     return await heliusRes.json();
-  }, 10000); // 10s TTL
+  }, { ttl: CacheTTL.MINUTE }); // Enhanced cache with 1 min TTL
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },

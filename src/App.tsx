@@ -28,6 +28,7 @@ import Propagation from './pages/propagation';
 import Transaction from './components/Transaction';
 import EmbeddedTransaction from './components/EmbeddedTransaction';
 import { PlayerView } from './components/PlayerView';
+import { CacheDebugWrapper } from './components/CacheDebugPanel';
 import { PlatformView } from './components/PlatformView';
 import ExplorerIndex from './components/ExplorerIndex';
 import { GraphicsProvider } from './components/GameScreenFrame';
@@ -251,6 +252,7 @@ export default function App() {
       </MainContent>
       <Footer />
       {ENABLE_TROLLBOX && connected && <TrollBox />}
+      <CacheDebugWrapper />
     </GamesModalContext.Provider>
     </GraphicsProvider>
   );
