@@ -433,6 +433,14 @@ function CustomRenderer() {
                       }}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
+                        // Try WebP version first, then fallback to original
+                        if (!target.src.includes('.webp')) {
+                          const webpSrc = target.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')
+                          if (webpSrc.includes('/games/')) {
+                            target.src = webpSrc
+                            return
+                          }
+                        }
                         target.style.display = 'none'
                         const container = target.parentElement
                         if (container) {
