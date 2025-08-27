@@ -11,9 +11,10 @@ import { WelcomeBanner } from "./WelcomeBanner";
 import RecentPlays from "../RecentPlays/RecentPlays";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
-import { TOKEN_METADATA, updateTokenPrices } from "../../constants";
+import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../constants";
 import EnhancedTickerTape from "../../components/EnhancedTickerTape";
 import { useIsCompact } from "../../hooks/useIsCompact";
+import { FullReferralLeaderboard } from "../../components/FullReferralLeaderboard";
 
 // Remove hook call at module scope. Use inside Dashboard instead.
 
@@ -323,7 +324,7 @@ export function Dashboard() {
   const handleWalletConnect = useHandleWalletConnect();
   const { openGamesModal } = useContext(GamesModalContext);
 
-  const [showAllGames, setShowAllGames] = useState(true);
+  const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
   // Filtered game lists
   const singleplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'new');
@@ -339,9 +340,15 @@ export function Dashboard() {
       {connected && (
         <>
           {/* Toggle Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', margin: '2rem 0' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: compact ? '0.8rem' : '1.5rem', 
+            margin: '2rem 0',
+            flexWrap: 'wrap'
+          }}>
             <button
-              onClick={() => setShowAllGames(true)}
+              onClick={() => setActiveSection('games')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -349,8 +356,8 @@ export function Dashboard() {
                 margin: 0,
                 fontFamily: "'Luckiest Guy', cursive, sans-serif",
                 fontSize: compact ? '1.1rem' : '1.3rem',
-                color: showAllGames ? '#ffd700' : '#fff2',
-                textShadow: showAllGames
+                color: activeSection === 'games' ? '#ffd700' : '#fff2',
+                textShadow: activeSection === 'games'
                   ? '0 0 8px #ffd700, 0 0 24px #a259ff'
                   : '0 0 4px #ffd70044',
                 letterSpacing: '1px',
@@ -358,16 +365,16 @@ export function Dashboard() {
                 fontWeight: 700,
                 transition: 'all 0.2s',
                 outline: 'none',
-                filter: showAllGames ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
-                opacity: showAllGames ? 1 : 0.5,
-                borderBottom: showAllGames ? '3px solid #ffd700' : '3px solid transparent',
+                filter: activeSection === 'games' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
+                opacity: activeSection === 'games' ? 1 : 0.5,
+                borderBottom: activeSection === 'games' ? '3px solid #ffd700' : '3px solid transparent',
                 paddingBottom: '0.2em',
               }}
             >
               🃏 All Games
             </button>
             <button
-              onClick={() => setShowAllGames(false)}
+              onClick={() => setActiveSection('plays')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -375,8 +382,8 @@ export function Dashboard() {
                 margin: 0,
                 fontFamily: "'Luckiest Guy', cursive, sans-serif",
                 fontSize: compact ? '1.1rem' : '1.3rem',
-                color: !showAllGames ? '#ffd700' : '#fff2',
-                textShadow: !showAllGames
+                color: activeSection === 'plays' ? '#ffd700' : '#fff2',
+                textShadow: activeSection === 'plays'
                   ? '0 0 8px #ffd700, 0 0 24px #a259ff'
                   : '0 0 4px #ffd70044',
                 letterSpacing: '1px',
@@ -384,24 +391,53 @@ export function Dashboard() {
                 fontWeight: 700,
                 transition: 'all 0.2s',
                 outline: 'none',
-                filter: !showAllGames ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
-                opacity: !showAllGames ? 1 : 0.5,
-                borderBottom: !showAllGames ? '3px solid #ffd700' : '3px solid transparent',
+                filter: activeSection === 'plays' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
+                opacity: activeSection === 'plays' ? 1 : 0.5,
+                borderBottom: activeSection === 'plays' ? '3px solid #ffd700' : '3px solid transparent',
                 paddingBottom: '0.2em',
               }}
             >
               🕹️ Recent Plays
             </button>
+            {ENABLE_LEADERBOARD && (
+              <button
+                onClick={() => setActiveSection('referrals')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  margin: 0,
+                  fontFamily: "'Luckiest Guy', cursive, sans-serif",
+                  fontSize: compact ? '1.1rem' : '1.3rem',
+                  color: activeSection === 'referrals' ? '#ffd700' : '#fff2',
+                  textShadow: activeSection === 'referrals'
+                    ? '0 0 8px #ffd700, 0 0 24px #a259ff'
+                    : '0 0 4px #ffd70044',
+                  letterSpacing: '1px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  transition: 'all 0.2s',
+                  outline: 'none',
+                  filter: activeSection === 'referrals' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
+                  opacity: activeSection === 'referrals' ? 1 : 0.5,
+                  borderBottom: activeSection === 'referrals' ? '3px solid #ffd700' : '3px solid transparent',
+                  paddingBottom: '0.2em',
+                }}
+              >
+                🏆 Referral Leaders
+              </button>
+            )}
           </div>
 
           {/* Toggle Content */}
-          {showAllGames ? (
+          {activeSection === 'games' && (
             <>
               <AccentBar />
               <SectionWrapper $compact={compact}>
                 <h2>Featured Games</h2>
                 <GameSlider compact={compact} />
               </SectionWrapper>
+              
               <AccentBar />
               <SectionWrapper $compact={compact}>
                 <h2>Singleplayer Games</h2>
@@ -437,10 +473,22 @@ export function Dashboard() {
               </SectionWrapper>
               <AccentBar />
             </>
-          ) : (
+          )}
+
+          {activeSection === 'plays' && (
             <SectionWrapper $compact={compact}>
               <RecentPlays showAllPlatforms={false} />
             </SectionWrapper>
+          )}
+
+          {activeSection === 'referrals' && ENABLE_LEADERBOARD && (
+            <>
+              <AccentBar />
+              <SectionWrapper $compact={compact}>
+                <FullReferralLeaderboard />
+              </SectionWrapper>
+              <AccentBar />
+            </>
           )}
         </>
       )}

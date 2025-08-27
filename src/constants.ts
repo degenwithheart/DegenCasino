@@ -37,6 +37,14 @@ export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
+// Referral Tiers: [{ minReferrals, fee }]
+export const REFERRAL_TIERS = [
+  { min: 0,   fee: 0.0025 }, // 0.25% default
+  { min: 5,   fee: 0.0035 }, // 0.35% for 5+
+  { min: 10,  fee: 0.0050 }, // 0.5% for 10+
+  { min: 25,  fee: 0.0075 }, // 0.75% for 25+
+] as const
+
 // Just a helper function
 const lp = (tokenMint: PublicKey | string, poolAuthority?: PublicKey | string): PoolToken => ({
   token: new PublicKey(tokenMint),

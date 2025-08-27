@@ -10,6 +10,8 @@ import {
 } from '../constants';
 import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-react-ui-v2";
 import { generateUsernameFromWallet, generateDegenStoryFromWallet } from './userProfileUtils';
+import { ReferralDashboard } from '../components/ReferralDashboard';
+import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../components/ReferralLeaderboardModal';
 
 // Casino animations
 const neonPulse = keyframes`
@@ -241,6 +243,7 @@ export function Profile() {
   const currentToken = useCurrentToken();
   const referral = useReferral();
   const [removing, setRemoving] = useState(false);
+  const leaderboardModal = useReferralLeaderboardModal();
   const disconnectWallet = () => wallet.disconnect();
   const publicKey = wallet.publicKey?.toBase58();
   const avatarUrl = publicKey
@@ -299,7 +302,8 @@ export function Profile() {
   };
 
   return (
-    <ProfileContainer>
+    <>
+      <ProfileContainer>
       <ProfileHeader>
         <h1>👤 User Profile 🎰</h1>
       </ProfileHeader>
@@ -444,9 +448,14 @@ export function Profile() {
           </div>
         </SectionBox>
         
-        {/* Referral Section */}
+        {/* Enhanced Referral Dashboard */}
         <SectionBox visible={mounted}>
-          <label>🎁 Referral</label>
+          <ReferralDashboard />
+        </SectionBox>
+
+        {/* Referral Connection Status */}
+        <SectionBox visible={mounted}>
+          <label>🔗 Referral Connection</label>
           <div
             style={{
               display: 'flex',
@@ -476,18 +485,22 @@ export function Profile() {
                   <>Removing invite...</>
                 )
               ) : (
-                <span>No referral yet.</span>
+                <span>No referral connection yet.</span>
               )}
             </div>
 
-            {/* Right: Remove invite button */}
-            {PLATFORM_ALLOW_REFERRER_REMOVAL && referral.referrerAddress && (
-              <div style={{ flex: '0 0 auto' }}>
+            {/* Right: Action buttons */}
+            <div style={{ flex: '0 0 auto', display: 'flex', gap: '8px' }}>
+              <GambaUi.Button onClick={leaderboardModal.openModal}>
+                🏆 Leaderboard
+              </GambaUi.Button>
+              
+              {PLATFORM_ALLOW_REFERRER_REMOVAL && referral.referrerAddress && (
                 <GambaUi.Button disabled={removing} onClick={removeInvite}>
                   Remove invite
                 </GambaUi.Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </SectionBox>
         
@@ -500,7 +513,9 @@ export function Profile() {
           </p>
           <p><b>Bonus Balance:</b> {(bonusBalance / Math.pow(10, currentToken?.decimals ?? 0)).toFixed(2)}</p>
         </SectionBox>
-    </ProfileContainer>
+      </ProfileContainer>
+      {leaderboardModal.Modal}
+    </>
   );
 }
 
