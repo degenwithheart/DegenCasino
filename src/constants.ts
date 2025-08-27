@@ -37,12 +37,23 @@ export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
-// Referral Tiers: [{ minReferrals, fee }]
+// Referral Tiers: [{ minReferrals, fee }] - 15 tier progression system with meaningful rewards
 export const REFERRAL_TIERS = [
-  { min: 0,   fee: 0.0025 }, // 0.25% default
-  { min: 5,   fee: 0.0035 }, // 0.35% for 5+
-  { min: 10,  fee: 0.0050 }, // 0.5% for 10+
-  { min: 25,  fee: 0.0075 }, // 0.75% for 25+
+  { min: 0,    fee: 0.0025 }, // 0.25% - Tier 1 (Starter)
+  { min: 3,    fee: 0.0035 }, // 0.35% - Tier 2 (Bronze I)
+  { min: 7,    fee: 0.0050 }, // 0.50% - Tier 3 (Bronze II)
+  { min: 15,   fee: 0.0075 }, // 0.75% - Tier 4 (Bronze III)
+  { min: 25,   fee: 0.0100 }, // 1.00% - Tier 5 (Silver I)
+  { min: 40,   fee: 0.0125 }, // 1.25% - Tier 6 (Silver II)
+  { min: 60,   fee: 0.0150 }, // 1.50% - Tier 7 (Silver III)
+  { min: 85,   fee: 0.0175 }, // 1.75% - Tier 8 (Gold I)
+  { min: 115,  fee: 0.0200 }, // 2.00% - Tier 9 (Gold II)
+  { min: 150,  fee: 0.0225 }, // 2.25% - Tier 10 (Gold III)
+  { min: 200,  fee: 0.0250 }, // 2.50% - Tier 11 (Platinum I)
+  { min: 275,  fee: 0.0300 }, // 3.00% - Tier 12 (Platinum II)
+  { min: 375,  fee: 0.0350 }, // 3.50% - Tier 13 (Diamond I)
+  { min: 500,  fee: 0.0400 }, // 4.00% - Tier 14 (Diamond II)
+  { min: 750,  fee: 0.0500 }, // 5.00% - Tier 15 (Legend)
 ] as const
 
 // Just a helper function
