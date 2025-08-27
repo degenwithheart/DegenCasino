@@ -11,6 +11,7 @@ import {
   useTokenBalance,
   useReferral,
 } from 'gamba-react-ui-v2'
+import { useWalletAddress } from 'gamba-react-v2'
 import styled from 'styled-components'
 import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
 import { truncateString } from '../utils'
@@ -18,6 +19,8 @@ import { generateUsernameFromWallet } from './userProfileUtils'
 import { useToast } from '../hooks/useToast'
 import { useWalletToast } from '../utils/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { useReferralCount } from '../hooks/useReferralAnalytics'
+import { getReferralTierInfo, formatFeePercentage, getReferralsToNextTier } from '../utils/referralTier'
 
 const GridContainer = styled.div<{ $isSingleToken: boolean }>`
   display: grid;
@@ -161,6 +164,10 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
 }) {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
+  const userAddress = useWalletAddress()
+  const referralCount = useReferralCount(userAddress?.toBase58())
+  const tierInfo = getReferralTierInfo(referralCount)
+  const referralsToNext = getReferralsToNextTier(referralCount)
 
   const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>('live')
   const referral = useReferral()
@@ -232,8 +239,8 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
 
       {mode === 'invite' ? (
         <div>
-          <SectionHeading>🎁 Referral</SectionHeading>
-          {/* Info box styled like Fees tab */}
+          <SectionHeading>🎁 Referral System</SectionHeading>
+          {/* Enhanced info box with tier information */}
           <div
             style={{
               background: 'rgba(120, 80, 255, 0.13)',
@@ -254,10 +261,63 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
             }}
           >
             <span style={{fontSize:20,marginRight:8,marginTop:2,opacity:0.85}}>🎁</span>
-            <span>
-              <span style={{color:'#ffd700',fontWeight:700}}>Referral Bonus:</span> Invite friends and earn <span style={{color:'#00ff88',fontWeight:700}}>0.25%</span> of every bet your friends make!
-            </span>
+            <div style={{ flex: 1 }}>
+              <div style={{ marginBottom: '8px' }}>
+                <span style={{color:'#ffd700',fontWeight:700}}>Current Rate:</span> <span style={{color:'#00ff88',fontWeight:700}}>{formatFeePercentage(tierInfo.currentFee)}</span> of every bet your friends make!
+              </div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
+                You have <span style={{color:'#ffd700', fontWeight: 600}}>{referralCount}</span> referrals
+                {tierInfo.nextTier && (
+                  <span> • {referralsToNext} more for <span style={{color:'#00ff88', fontWeight: 600}}>{formatFeePercentage(tierInfo.nextFee!)}</span></span>
+                )}
+              </div>
+            </div>
           </div>
+          
+          {/* Tier Progress Bar */}
+          {tierInfo.nextTier && (
+            <div
+              style={{
+                background: 'rgba(24,24,24,0.5)',
+                borderRadius: 10,
+                padding: '12px 14px',
+                margin: '0 0 12px 0',
+                maxWidth: 440,
+                width: '100%',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '6px',
+                fontSize: '13px'
+              }}>
+                <span style={{color:'#ffd700',fontWeight:600}}>
+                  Tier Progress
+                </span>
+                <span style={{color:'rgba(255,255,255,0.7)'}}>
+                  {referralCount}/{tierInfo.nextTier}
+                </span>
+              </div>
+              <div style={{
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: '4px',
+                height: '6px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(90deg, #00ff88, #ffd700)',
+                  height: '100%',
+                  width: `${tierInfo.progress * 100}%`,
+                  transition: 'width 0.3s ease',
+                  borderRadius: '4px'
+                }} />
+              </div>
+            </div>
+          )}
           {/* Invite Link row styled like Transaction Priority Fee row */}
           <div
             style={{
@@ -267,7 +327,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
               background: 'rgba(24,24,24,0.5)',
               borderRadius: 10,
               padding: '10px 14px',
-              margin: '0 0 10px 0',
+              margin: '0 0 18px 0',
               maxWidth: 440,
               width: '100%',
               marginLeft: 'auto',
@@ -291,6 +351,125 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
               </GambaUi.Button>
             </div>
           </div>
+
+          {/* Social sharing buttons */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 12, 
+            maxWidth: 440,
+            width: '100%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
+            <button
+              style={{
+                background: 'rgba(66,165,245,0.16)', 
+                border: 'none',
+                borderRadius: 12,
+                padding: '12px 16px',
+                color: '#66B3FF',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(66,165,245,0.24)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(66,165,245,0.16)'
+                e.currentTarget.style.transform = 'translateY(0px)'
+              }}
+              onClick={() => {
+                if (userAddress) {
+                  const shareText = `🎰 I'm earning ${formatFeePercentage(tierInfo.currentFee)} from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(`https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
+                  window.open(shareUrl, '_blank', 'width=500,height=400')
+                }
+              }}
+            >
+              <span>🐦</span>
+              Share on Twitter
+            </button>
+
+            <button
+              style={{
+                background: 'rgba(76,175,80,0.16)',
+                border: 'none',
+                borderRadius: 12,
+                padding: '12px 16px',
+                color: '#81C784',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(76,175,80,0.24)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(76,175,80,0.16)'
+                e.currentTarget.style.transform = 'translateY(0px)'
+              }}
+              onClick={() => {
+                if (userAddress) {
+                  const shareText = `🎰 I'm earning ${formatFeePercentage(tierInfo.currentFee)} from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                  const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ` https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
+                  window.open(shareUrl, '_blank')
+                }
+              }}
+            >
+              <span>📱</span>
+              Share on WhatsApp
+            </button>
+
+            <button
+              style={{
+                background: 'rgba(255,193,7,0.16)',
+                border: 'none',
+                borderRadius: 12,
+                padding: '12px 16px',
+                color: '#FFD54F',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,193,7,0.24)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,193,7,0.16)'
+                e.currentTarget.style.transform = 'translateY(0px)'
+              }}
+              onClick={() => {
+                if (userAddress) {
+                  navigator.clipboard.writeText(`https://degencasino.to/?ref=${userAddress.toBase58()}`)
+                  showWalletToast('REFERRAL_COPY_SUCCESS')
+                }
+              }}
+            >
+              <span>📋</span>
+              Copy Referral Link
+            </button>
+          </div>
+
           {/* Subtle share info row styled like token price row */}
           <div
             style={{
@@ -298,7 +477,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
               color: '#bdbdbd',
               fontSize: 13,
               fontWeight: 400,
-              margin: '0 0 0 0',
+              margin: '18px 0 0 0',
               maxWidth: 440,
               width: '100%',
               marginLeft: 'auto',
@@ -306,7 +485,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint }: {
               letterSpacing: 0.1,
             }}
           >
-            Share your link for <span style={{color:'#ffd700',fontWeight:600}}>0.25%</span> of every bet!
+            Share your link and earn rewards as your friends play! 🎯
           </div>
         </div>
       ) : mode === 'fees' ? (

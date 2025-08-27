@@ -413,7 +413,7 @@ export function PlayerView() {
       <PlayerSection>
         <PlayerHeader>
           <PlayerAvatar>🎮</PlayerAvatar>
-          <PlayerName>iyot1Wei...y2o8n1MX</PlayerName>
+          <PlayerName>{address ? `${address.slice(0, 6)}...${address.slice(-6)}` : 'Unknown Player'}</PlayerName>
         </PlayerHeader>
         
         <AddressSection>
