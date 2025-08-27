@@ -24,6 +24,7 @@ interface GameplayFrameProps {
 
 // Create a ref type for effect methods that games can access
 export interface GameplayEffectsRef {
+  [x: string]: any
   screenShake: (intensity?: number, duration?: number) => void
   winFlash: (color?: string, intensity?: number) => void
   loseFlash: (color?: string, intensity?: number) => void
