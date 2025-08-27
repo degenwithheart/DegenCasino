@@ -20,7 +20,7 @@ import { useToast } from '../hooks/useToast'
 import { useWalletToast } from '../utils/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useReferralCount } from '../hooks/useReferralAnalytics'
-import { getReferralTierInfo, formatFeePercentage, getReferralsToNextTier } from '../utils/referralTier'
+import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/referralTier'
 
 const GridContainer = styled.div<{ $isSingleToken: boolean }>`
   display: grid;
@@ -264,12 +264,23 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
             <span style={{fontSize:20,marginRight:8,marginTop:2,opacity:0.85}}>🎁</span>
             <div style={{ flex: 1 }}>
               <div style={{ marginBottom: '8px' }}>
-                <span style={{color:'#ffd700',fontWeight:700}}>Current Rate:</span> <span style={{color:'#00ff88',fontWeight:700}}>{formatFeePercentage(tierInfo.currentFee)}</span> of every bet your friends make!
+                <span style={{color:'#ffd700',fontWeight:700}}>
+                  {tierInfo.isFinancialMode ? 'Current Rate:' : 'Current Status:'}
+                </span>{' '}
+                <span style={{color:'#00ff88',fontWeight:700}}>
+                  {tierInfo.isFinancialMode 
+                    ? `${tierInfo.currentFee}% of every bet`
+                    : `${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name} Badge`
+                  }
+                </span>
+                {tierInfo.isFinancialMode && ' your friends make!'}
               </div>
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
                 You have <span style={{color:'#ffd700', fontWeight: 600}}>{referralCount}</span> referrals
                 {tierInfo.nextTier && (
-                  <span> • {referralsToNext} more for <span style={{color:'#00ff88', fontWeight: 600}}>{formatFeePercentage(tierInfo.nextFee!)}</span></span>
+                  <span> • {referralsToNext} more for <span style={{color:'#00ff88', fontWeight: 600}}>
+                    {tierInfo.nextTierData?.badge} {tierInfo.nextTierData?.name} {tierInfo.isFinancialMode ? `${tierInfo.nextFee}%` : 'Badge'}
+                  </span></span>
                 )}
               </div>
             </div>
@@ -389,7 +400,9 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
               }}
               onClick={() => {
                 if (userAddress) {
-                  const shareText = `🎰 I'm earning ${formatFeePercentage(tierInfo.currentFee)} from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                  const shareText = tierInfo.isFinancialMode 
+                    ? `🎰 I'm earning ${tierInfo.currentFee}% from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                    : `🎰 I'm a ${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name} at Degen Casino! Join me and let's climb the ranks together! 🚀`
                   const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(`https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
                   window.open(shareUrl, '_blank', 'width=500,height=400')
                 }
@@ -425,7 +438,9 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
               }}
               onClick={() => {
                 if (userAddress) {
-                  const shareText = `🎰 I'm earning ${formatFeePercentage(tierInfo.currentFee)} from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                  const shareText = tierInfo.isFinancialMode 
+                    ? `🎰 I'm earning ${tierInfo.currentFee}% from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
+                    : `🎰 I'm a ${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name} at Degen Casino! Join me and let's climb the ranks together! 🚀`
                   const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ` https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
                   window.open(shareUrl, '_blank')
                 }

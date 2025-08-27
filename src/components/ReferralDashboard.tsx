@@ -4,7 +4,7 @@ import { GambaUi, TokenValue, useCurrentToken, useReferral } from 'gamba-react-u
 import { useWalletAddress } from 'gamba-react-v2'
 import { truncateString } from '../utils'
 import { useReferralAnalytics, useReferralCount } from '../hooks/useReferralAnalytics'
-import { getReferralTierInfo, formatFeePercentage, getReferralsToNextTier } from '../utils/referralTier'
+import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/referralTier'
 import { useWalletToast } from '../utils/solanaWalletToast'
 import { generateUsernameFromWallet } from '../sections/userProfileUtils'
 
@@ -238,8 +238,15 @@ ${referral.referralLink}`,
           <StatLabel>Total Referrals</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue>{formatFeePercentage(tierInfo.currentFee)}</StatValue>
-          <StatLabel>Current Rate</StatLabel>
+          <StatValue>
+            {tierInfo.isFinancialMode 
+              ? `${tierInfo.currentFee}%`
+              : `${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name}`
+            }
+          </StatValue>
+          <StatLabel>
+            {tierInfo.isFinancialMode ? 'Current Rate' : 'Current Badge'}
+          </StatLabel>
         </StatCard>
         <StatCard>
           <StatValue>
@@ -257,11 +264,11 @@ ${referral.referralLink}`,
       <TierProgress>
         <TierInfo>
           <CurrentTier>
-            Tier {tierInfo.currentTier} • {formatFeePercentage(tierInfo.currentFee)}
+            {formatTierDisplay(tierInfo)}
           </CurrentTier>
           {tierInfo.nextTier && (
             <NextTier>
-              Next: Tier {tierInfo.nextTier} • {formatFeePercentage(tierInfo.nextFee!)} ({referralsToNext} more)
+              Next: {tierInfo.nextTierData?.badge} {tierInfo.nextTierData?.name} • {tierInfo.isFinancialMode ? `${tierInfo.nextFee}% target` : 'Badge'} ({referralsToNext} more)
             </NextTier>
           )}
         </TierInfo>

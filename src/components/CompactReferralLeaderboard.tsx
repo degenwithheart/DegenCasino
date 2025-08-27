@@ -4,7 +4,7 @@ import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
 import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useReferralAnalytics'
 import { truncateString } from '../utils'
-import { formatFeePercentage, getReferralTierInfo } from '../utils/referralTier'
+import { getReferralTierInfo, formatTierDisplay } from '../utils/referralTier'
 import { useReferralLeaderboardModal } from './ReferralLeaderboardModal'
 import { generateUsernameFromWallet } from '../sections/userProfileUtils'
 
@@ -241,7 +241,7 @@ export function CompactReferralLeaderboard() {
                       {isCurrentUser ? 'You' : `${username} (${truncateString(entry.address, 6, 4)})`}
                     </PlayerAddress>
                     <PlayerTier>
-                      {entry.referralCount} referrals • {formatFeePercentage(tierInfo.currentFee)}
+                      {entry.referralCount} referrals • {tierInfo.currentTierData.badge} {tierInfo.currentTierData.name}
                     </PlayerTier>
                   </PlayerInfo>
                   

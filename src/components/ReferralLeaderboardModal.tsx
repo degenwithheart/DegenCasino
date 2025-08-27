@@ -5,7 +5,7 @@ import { useWalletAddress } from 'gamba-react-v2'
 import { Modal } from './Modal'
 import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useReferralAnalytics'
 import { truncateString } from '../utils'
-import { formatFeePercentage, getReferralTierInfo } from '../utils/referralTier'
+import { formatTierDisplay, getReferralTierInfo } from '../utils/referralTier'
 import { generateUsernameFromWallet } from '../sections/userProfileUtils'
 
 const ModalContent = styled.div`
@@ -294,7 +294,7 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
                       {isCurrentUser ? 'You' : `${username} (${truncateString(entry.address, 6, 4)})`}
                     </PlayerAddress>
                     <PlayerTier>
-                      {formatFeePercentage(tierInfo.currentFee)} rate
+                      {formatTierDisplay(tierInfo)}
                     </PlayerTier>
                   </PlayerInfo>
                   
