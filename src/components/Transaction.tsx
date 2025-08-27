@@ -486,18 +486,23 @@ async function fetchTransactionLogs(txId: string) {
 }
 
 async function generateProofData(txId: string, transaction: any) {
-  // Generate provably fair proof data
+  // Only generate proof data if we have real transaction data
+  if (!transaction || transaction.dataAvailable === false) {
+    return null
+  }
+  
+  // Generate provably fair proof data based on real transaction
   const clientSeed = txId.slice(0, 8)
   const serverSeed = 'gamba_server_seed_' + txId.slice(-8)
-  const nonce = Math.floor(Math.random() * 1000000)
+  const nonce = transaction.nonce || 0 // Use real nonce if available
   
   return {
     clientSeed,
     serverSeed,
     hashedServerSeed: await hashString(serverSeed),
     nonce,
-    resultIndex: transaction?.resultIndex || Math.floor(Math.random() * 10),
-    outcomes: transaction?.outcomes || [],
+    resultIndex: transaction.resultIndex || 0, // Use real result index
+    outcomes: transaction.outcomes || [],
     algorithm: 'HMAC-SHA256',
     verification: {
       step1: `Client Seed: ${clientSeed}`,
@@ -505,7 +510,7 @@ async function generateProofData(txId: string, transaction: any) {
       step3: `Nonce: ${nonce}`,
       step4: `Combined: ${clientSeed}:${serverSeed}:${nonce}`,
       step5: `HMAC-SHA256 Hash: ${await hashString(clientSeed + ':' + serverSeed + ':' + nonce)}`,
-      step6: `Result Index: ${transaction?.resultIndex || 0}`
+      step6: `Result Index: ${transaction.resultIndex || 0}`
     }
   }
 }
@@ -555,7 +560,8 @@ export default function TransactionView() {
           if (result) {
             setTransaction(result)
             
-            // Fetch proof data for real transaction
+            // Only generate proof data if we have real transaction data
+            // Don't generate fake proof data when API data is unavailable
             const proof = await generateProofData(txId, result)
             setProofData(proof)
             
@@ -572,12 +578,25 @@ export default function TransactionView() {
             // Create basic transaction structure with txId but mark data as unavailable
             setTransaction({
               id: txId,
+              signature: txId,
               dataAvailable: false
             })
-            setError('Transaction data is currently unavailable from the API')
+            // Don't generate fake proof data or logs when real data is unavailable
+            setProofData(null)
+            setLogs([])
+            setError('Transaction not found in Gamba API - only basic blockchain data available')
           }
         } catch (error) {
           console.error('Failed to fetch transaction data:', error)
+          // Set basic transaction info but mark data as unavailable
+          setTransaction({
+            id: txId,
+            signature: txId,
+            dataAvailable: false
+          })
+          setProofData(null)
+          setLogs([])
+          setError('Unable to fetch transaction data - API temporarily unavailable')
         } finally {
           setLoading(false)
         }
@@ -609,17 +628,21 @@ export default function TransactionView() {
   return (
     <TransactionContainer>
       <ExplorerHeader />
-      {/* Show error message if data is unavailable */}
+      {/* Show info message if game data is unavailable */}
       {error && (
         <div style={{ 
-          background: 'rgba(245, 158, 11, 0.1)', 
-          border: '1px solid rgba(245, 158, 11, 0.3)', 
+          background: 'rgba(59, 130, 246, 0.1)', 
+          border: '1px solid rgba(59, 130, 246, 0.3)', 
           borderRadius: '8px', 
           padding: '16px', 
           marginBottom: '24px',
-          color: '#f59e0b'
+          color: '#60a5fa'
         }}>
-          ⚠️ {error}
+          <div style={{ fontWeight: '600', marginBottom: '8px' }}>ℹ️ Game Data Status</div>
+          <div>{error}</div>
+          <div style={{ fontSize: '14px', marginTop: '8px', opacity: 0.8 }}>
+            You can still view the raw blockchain transaction details using the explorer links below.
+          </div>
         </div>
       )}
 
