@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "src/pages/api/**/*.js": {
-      "maxDuration": 60
-    }
-  },
   "headers": [
     {
       "source": "/assets/(.*)",
