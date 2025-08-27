@@ -50,16 +50,10 @@ export default defineConfig(() => ({
     outDir: 'dist',
     chunkSizeWarningLimit: 2048,
     target: 'es2020', 
-    minify: 'terser',
+    minify: 'esbuild',
     sourcemap: false,
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-      mangle: {
-        safari10: true,
-      }
+    esbuildOptions: {
+      drop: ['console', 'debugger'],
     },
     rollupOptions: {
       output: {
