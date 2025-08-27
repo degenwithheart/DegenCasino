@@ -7,9 +7,11 @@ import { useWallet } from '@solana/wallet-adapter-react'
 // WebP-aware image component for game cards
 function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
   const [imageSrc, setImageSrc] = useState(() => {
-    // Try WebP first if it's a PNG/JPG
+    // Try WebP first if it's a PNG/JPG from games directory
     if (src.match(/\.(png|jpg|jpeg)$/i)) {
-      return src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+      // Convert /games/image.png to /webp/games/image.webp
+      const webpPath = src.replace(/\/(games\/[^/]+)\.(png|jpg|jpeg)$/i, '/webp/$1.webp');
+      return webpPath;
     }
     return src;
   });

@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "src/pages/api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -12,32 +17,6 @@
     {
       "source": "/(.*).(js|css|woff2|png|jpg|svg|webp|glb)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*).(gz)",
-      "headers": [
-        {
-          "key": "Content-Encoding",
-          "value": "gzip"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*).(br)",
-      "headers": [
-        {
-          "key": "Content-Encoding",
-          "value": "br"
-        },
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
