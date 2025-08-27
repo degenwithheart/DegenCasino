@@ -7,13 +7,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:compress": "vite build && node scripts/compress-build.mjs",
+    "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "test:games": "node quick-game-test.js",
-    "test:games:enhanced": "node comprehensive-game-test-js.js",
-    "test:games:quick": "node quick-game-test.js",
-    "test:games:extensive": "node comprehensive-game-test-js.js",
-    "test:fairness": "npm run test:games && npm run test:games:enhanced"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
@@ -60,11 +57,17 @@
     "@types/three": "^0.161.2",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
+    "imagemin-webp": "^8.0.0",
     "javascript-obfuscator": "^4.1.1",
+    "rollup-plugin-gzip": "^4.1.1",
+    "sharp": "^0.34.3",
     "tailwindcss": "^4.1.12",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "unplugin-fonts": "^1.0.3",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-compression2": "^2.2.0",
+    "vite-plugin-imagemin": "^0.6.1"
   }
 }

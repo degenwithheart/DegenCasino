@@ -8,6 +8,7 @@ import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/useToast';
 import { useWalletToast } from './utils/solanaWalletToast';
 import { useUserStore } from './hooks/useUserStore';
+import { useServiceWorker, preloadCriticalAssets } from './hooks/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 import AboutMe from './sections/Dashboard/AboutMe';
 import TermsPage from './sections/Dashboard/Terms';
@@ -120,6 +121,14 @@ export default function App() {
     const handler = () => setShowGamesModal(true);
     window.addEventListener('openGamesModal', handler);
     return () => window.removeEventListener('openGamesModal', handler);
+  }, []);
+
+  // Initialize service worker
+  useServiceWorker();
+  
+  useEffect(() => {
+    // Preload critical assets for better performance
+    preloadCriticalAssets();
   }, []);
 
   return (

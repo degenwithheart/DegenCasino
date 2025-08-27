@@ -1,8 +1,41 @@
 import type { GameBundle } from '../../games/types'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import styled, { keyframes, css } from 'styled-components'
 import { useWallet } from '@solana/wallet-adapter-react'
+
+// WebP-aware image component for game cards
+function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
+  const [imageSrc, setImageSrc] = useState(() => {
+    // Try WebP first if it's a PNG/JPG
+    if (src.match(/\.(png|jpg|jpeg)$/i)) {
+      return src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+    }
+    return src;
+  });
+  const [hasWebP, setHasWebP] = useState(true);
+
+  const handleError = () => {
+    if (hasWebP && imageSrc.includes('.webp')) {
+      // Fallback to original image
+      setHasWebP(false);
+      setImageSrc(src);
+    }
+  };
+
+  return (
+    <div 
+      className="image" 
+      style={{ 
+        backgroundImage: `url(${imageSrc})`,
+        backgroundSize: '100% auto',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      onError={handleError}
+    />
+  );
+}
 
 
 const tileAnimation = keyframes`
@@ -219,7 +252,7 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
         <Tag>{game.meta.tag}</Tag>
       )}
       <div className="background" />
-      <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
+      <OptimizedGameImage src={game.meta.image} alt={game.meta.name} />
       {game.maintenance && (
         <div style={{
           position: 'absolute',
