@@ -141,15 +141,12 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
 
 /** HTML to display to user that they need to accept in order to continue */
 export const TOS_HTML = `
-  <p><b>1. Age Requirement:</b> Must be at least 18 years old.</p>
-  <p><b>2. Legal Compliance:</b> Follow local laws responsibly.</p>
-  <p><b>3. Risk Acknowledgement:</b> Games involve risk; no guaranteed winnings.</p>
-  <p><b>4. No Warranty:</b> Games provided "as is"; operate randomly.</p>
-  <p><b>5. Limitation of Liability:</b> We're not liable for damages.</p>
-  <p><b>6. Licensing Disclaimer:</b> Not a licensed casino; for simulation only.</p>
-  <p><b>7. Fair Play:</b> Games are conducted fairly and transparently.</p>
-  <p><b>8. Data Privacy:</b> Your privacy is important to us.</p>
-  <p><b>9. Responsible Gaming:</b> Play responsibly; seek help if needed.</p>
+<p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
+<p><b>2. Legal Compliance:</b> Ensure online gambling is legal where you live before playing.</p>
+<p><b>3. Risk Acknowledgement:</b> On-chain games involve real financial risk; wins are never guaranteed.</p>
+<p><b>4. No Warranty & Liability:</b> Games are provided "as is" using provably fair randomness. We are not responsible for losses or damages.</p>
+<p><b>5. Licensing Disclaimer:</b> This is not a licensed casino; it’s a decentralized dApp powered by the Gamba protocol.</p>
+<p><b>6. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem.</p>
 `
 
 /**
