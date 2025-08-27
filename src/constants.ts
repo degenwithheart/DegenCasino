@@ -37,23 +37,32 @@ export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
-// Referral Tiers: [{ minReferrals, fee }] - 15 tier progression system with meaningful rewards
+/** 
+ * Referral Tier Mode:
+ * false = Badge/Status rewards only (safe, no financial promises)
+ * true = Actual financial tier rewards (requires custom implementation)
+ */
+export const REFERRAL_TIERS_FINANCIAL_MODE = false
+
+// Referral Tiers: [{ minReferrals, fee }] - 15 tier progression system
+// When REFERRAL_TIERS_FINANCIAL_MODE = false: fees shown as badges/status only
+// When REFERRAL_TIERS_FINANCIAL_MODE = true: fees would be actual rewards (needs custom implementation)
 export const REFERRAL_TIERS = [
-  { min: 0,    fee: 0.0025 }, // 0.25% - Tier 1 (Starter)
-  { min: 3,    fee: 0.0035 }, // 0.35% - Tier 2 (Bronze I)
-  { min: 7,    fee: 0.0050 }, // 0.50% - Tier 3 (Bronze II)
-  { min: 15,   fee: 0.0075 }, // 0.75% - Tier 4 (Bronze III)
-  { min: 25,   fee: 0.0100 }, // 1.00% - Tier 5 (Silver I)
-  { min: 40,   fee: 0.0125 }, // 1.25% - Tier 6 (Silver II)
-  { min: 60,   fee: 0.0150 }, // 1.50% - Tier 7 (Silver III)
-  { min: 85,   fee: 0.0175 }, // 1.75% - Tier 8 (Gold I)
-  { min: 115,  fee: 0.0200 }, // 2.00% - Tier 9 (Gold II)
-  { min: 150,  fee: 0.0225 }, // 2.25% - Tier 10 (Gold III)
-  { min: 200,  fee: 0.0250 }, // 2.50% - Tier 11 (Platinum I)
-  { min: 275,  fee: 0.0300 }, // 3.00% - Tier 12 (Platinum II)
-  { min: 375,  fee: 0.0350 }, // 3.50% - Tier 13 (Diamond I)
-  { min: 500,  fee: 0.0400 }, // 4.00% - Tier 14 (Diamond II)
-  { min: 750,  fee: 0.0500 }, // 5.00% - Tier 15 (Legend)
+  { min: 0,    fee: 0.0025, name: 'Starter',     badge: '🌱' }, // 0.25% - Tier 1
+  { min: 3,    fee: 0.0035, name: 'Bronze I',    badge: '🥉' }, // 0.35% - Tier 2
+  { min: 7,    fee: 0.0050, name: 'Bronze II',   badge: '🥉' }, // 0.50% - Tier 3
+  { min: 15,   fee: 0.0075, name: 'Bronze III',  badge: '🥉' }, // 0.75% - Tier 4
+  { min: 25,   fee: 0.0100, name: 'Silver I',    badge: '🥈' }, // 1.00% - Tier 5
+  { min: 40,   fee: 0.0125, name: 'Silver II',   badge: '🥈' }, // 1.25% - Tier 6
+  { min: 60,   fee: 0.0150, name: 'Silver III',  badge: '🥈' }, // 1.50% - Tier 7
+  { min: 85,   fee: 0.0175, name: 'Gold I',      badge: '🥇' }, // 1.75% - Tier 8
+  { min: 115,  fee: 0.0200, name: 'Gold II',     badge: '🥇' }, // 2.00% - Tier 9
+  { min: 150,  fee: 0.0225, name: 'Gold III',    badge: '🥇' }, // 2.25% - Tier 10
+  { min: 200,  fee: 0.0250, name: 'Platinum I',  badge: '💎' }, // 2.50% - Tier 11
+  { min: 275,  fee: 0.0300, name: 'Platinum II', badge: '💎' }, // 3.00% - Tier 12
+  { min: 375,  fee: 0.0350, name: 'Diamond I',   badge: '💍' }, // 3.50% - Tier 13
+  { min: 500,  fee: 0.0400, name: 'Diamond II',  badge: '💍' }, // 4.00% - Tier 14
+  { min: 750,  fee: 0.0500, name: 'Legend',      badge: '👑' }, // 5.00% - Tier 15
 ] as const
 
 // Just a helper function
