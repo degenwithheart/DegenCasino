@@ -154,11 +154,13 @@ export async function updateTokenPrices() {
     'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 'bonk',
   };
 
-  // Build CoinGecko URL
+  // Build CoinGecko IDs list
   const ids = Object.values(coingeckoMap).join(',');
-  const coingeckoUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
+  
+  // Build proxy API URL (avoids CORS issues)
+  const coingeckoUrl = `/api/coingecko?ids=${ids}&vs_currencies=usd`;
 
-  // Promise for CoinGecko fetch
+  // Promise for CoinGecko fetch via proxy
   const coingeckoPromise = fetch(coingeckoUrl)
     .then(res => res.json())
     .then(data => {
