@@ -298,10 +298,14 @@ const InfoText = styled.div`
     const isFreeToken = selectedMint && POOLS[0].token && selectedMint.equals(POOLS[0].token)
 
     return (
-      <Modal onClose={() => user.set({ userModal: false })}>
+      <Modal onClose={() => user.set({ userModal: false, userModalInitialTab: undefined })}>
         <Container>
           <Header>Select a Token</Header>
-          <TokenSelect setSelectedMint={setSelectedMint} selectedMint={selectedMint} />
+          <TokenSelect 
+            setSelectedMint={setSelectedMint} 
+            selectedMint={selectedMint} 
+            initialTab={user.userModalInitialTab}
+          />
           {/* ✅ Invite section removed — now handled inside Invite tab */}
         </Container>
       </Modal>

@@ -7,6 +7,8 @@ export interface UserStore {
   newcomer: boolean
   /** User Modal */
   userModal: boolean
+  /** Initial tab for TokenSelect modal */
+  userModalInitialTab?: 'free' | 'live' | 'fees' | 'invite'
   /** A list of games played. The first time a game is opened we can display info */
   gamesPlayed: Array<string>
   /** The last pool a user had selected */
@@ -23,6 +25,7 @@ export const useUserStore = create(
     (set, get) => ({
       newcomer: true,
       userModal: false,
+      userModalInitialTab: undefined,
       lastSelectedPool: null,
       gamesPlayed: [],
       markGameAsPlayed: (gameId, played) => {
