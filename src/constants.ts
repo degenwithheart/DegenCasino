@@ -142,11 +142,11 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
 /** HTML to display to user that they need to accept in order to continue */
 export const TOS_HTML = `
 <p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
-<p><b>2. Legal Compliance:</b> Ensure online gambling is legal where you live before playing.</p>
-<p><b>3. Risk Acknowledgement:</b> On-chain games involve real financial risk; wins are never guaranteed.</p>
+<p><b>2. Legal Compliance:</b> Ensure online gambling and crypto gaming are legal where you live before playing.</p>
+<p><b>3. Risk Acknowledgement:</b> On-chain gambling on Solana involves real financial risk; wins are never guaranteed.</p>
 <p><b>4. No Warranty & Liability:</b> Games are provided "as is" using provably fair randomness. We are not responsible for losses or damages.</p>
-<p><b>5. Licensing Disclaimer:</b> This is not a licensed casino; it’s a decentralized dApp powered by the Gamba protocol.</p>
-<p><b>6. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem.</p>
+<p><b>5. Licensing Disclaimer:</b> This is not a licensed casino; it’s a decentralized dApp powered by the Gamba protocol. Crypto trading is separate and not considered gambling on this platform.</p>
+<p><b>6. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank">BeGambleAware.org</a>.</p>
 `
 
 /**
