@@ -108,7 +108,7 @@ export const Level = styled.div<{$active: boolean}>`
   `}
 `
 
-export const CellButton = styled.button<{status: CellStatus, selected: boolean, enableMotion?: boolean}>`
+export const CellButton = styled.button<{$status: CellStatus, selected: boolean, enableMotion?: boolean}>`
   display: flex;
   position: relative;
   align-items: center;
@@ -131,13 +131,13 @@ export const CellButton = styled.button<{status: CellStatus, selected: boolean, 
     opacity: 1!important;
   `}
 
-  ${(props) => props.status === 'gold' && props.enableMotion !== false && css`
+  ${(props) => props.$status === 'gold' && props.enableMotion !== false && css`
     color: white;
     animation: ${goldReveal} .5s ease;
     opacity: 1;
   `}
 
-  ${(props) => props.status === 'mine' && props.enableMotion !== false && css`
+  ${(props) => props.$status === 'mine' && props.enableMotion !== false && css`
     background: #ff5252;
     z-index: 10;
     animation: ${mineReveal} .3s ease;
@@ -151,19 +151,19 @@ export const CellButton = styled.button<{status: CellStatus, selected: boolean, 
     background: #BBBBFF; /* Highlighted static color */
   `}
 
-  ${(props) => props.status === 'gold' && props.enableMotion === false && css`
+  ${(props) => props.$status === 'gold' && props.enableMotion === false && css`
     color: white;
     opacity: 1;
     background: #FFD700; /* Gold static color */
   `}
 
-  ${(props) => props.status === 'mine' && props.enableMotion === false && css`
+  ${(props) => props.$status === 'mine' && props.enableMotion === false && css`
     background: #ff5252;
     z-index: 10;
     opacity: 1;
   `}
 
-  ${(props) => props.status === 'hidden' && css`
+  ${(props) => props.$status === 'hidden' && css`
     &:disabled {
       opacity: .5;
     }

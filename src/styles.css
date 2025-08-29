@@ -41,12 +41,11 @@ main {
 /* Tablet layout - sidebar becomes bottom nav, remove left padding */
 @media (max-width: 900px) {
   body {
-    padding-left: 0;
     padding-bottom: 150px; /* Space for bottom nav + footer */
   }
   
   main {
-    margin: 0 1rem;
+    margin: 0 auto;
     max-width: calc(100vw - 2rem);
   }
 }
@@ -54,7 +53,6 @@ main {
 /* Mobile layout - sidebar hidden, full width available */
 @media (max-width: 700px) {
   body {
-    padding-left: 0;
     padding-bottom: 80px; /* Just footer space */
   }
   

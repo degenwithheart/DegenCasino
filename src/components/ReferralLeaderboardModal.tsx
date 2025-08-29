@@ -21,11 +21,14 @@ const ModalContent = styled.div`
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.3),
     0 0 60px rgba(255, 215, 0, 0.1);
+  margin: auto;
   
   @media (max-width: 600px) {
     margin: 1rem;
     padding: 1.5rem;
     max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
   }
 `
 

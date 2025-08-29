@@ -412,7 +412,7 @@ function Mines() {
                 {grid.map((cell, index) => (
                   <CellButton
                     key={index}
-                    status={cell.status}
+                    $status={cell.status}
                     selected={selected === index}
                     onClick={() => play(index)}
                     disabled={!canPlay || cell.status !== 'hidden'}

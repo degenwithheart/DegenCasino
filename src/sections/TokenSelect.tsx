@@ -519,7 +519,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
               <TokenCard
                 key={i}
                 onClick={() => selectPool(pool)}
-                $selected={selectedMint ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
+                $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
               >
                 <TokenSelectItem mint={pool.token} />
               </TokenCard>

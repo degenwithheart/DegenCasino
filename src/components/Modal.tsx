@@ -13,16 +13,20 @@ const Container = styled.div`
   min-height: calc(100vh - 6rem);
   align-items: center;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 600px) {
-  /* Center modal on small screens with consistent insets */
-  padding: 16px;
-  padding-left: max(16px, env(safe-area-inset-left));
-  padding-right: max(16px, env(safe-area-inset-right));
-  padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 72px)); /* leave space above mobile nav */
-  min-height: 100vh;
-  align-items: center;
-  justify-content: center;
+    /* Center modal on small screens with consistent insets */
+    padding: 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 72px)); /* leave space above mobile nav */
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
   }
 `
 

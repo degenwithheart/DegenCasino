@@ -15,6 +15,8 @@ const ModalOverlay = styled.div`
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(6px);
+  padding: 1rem;
+  box-sizing: border-box;
 `;
 
 const ModalContent = styled.div`
@@ -23,12 +25,20 @@ const ModalContent = styled.div`
   padding: 40px 32px 28px 32px;
   min-width: 340px;
   max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 8px 40px 0 rgba(0,0,0,0.55), 0 1.5px 0 rgba(255,255,255,0.04) inset;
   font-family: 'JetBrains Mono', 'Fira Mono', 'monospace';
   color: #eaf6fb;
   position: relative;
   border: 1.5px solid rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
+
+  @media (max-width: 600px) {
+    padding: 24px 20px 20px 20px;
+    min-width: 300px;
+    border-radius: 16px;
+  }
 `;
 
 const CloseButton = styled.button`
