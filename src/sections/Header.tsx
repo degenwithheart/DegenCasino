@@ -7,7 +7,7 @@ import {
   useUserBalance,
 } from 'gamba-react-ui-v2'
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from '../components/Modal'
 import LeaderboardsModal from '../sections/LeaderBoard/LeaderboardsModal'
@@ -228,7 +228,8 @@ export default function Header() {
   const pool = useCurrentPool()
   const context = useGambaPlatformContext()
   const balance = useUserBalance()
-  const { compact: isCompact } = useIsCompact()
+  const { compact: isCompact, mobile } = useIsCompact()
+  const navigate = useNavigate()
 
   const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
@@ -266,7 +267,7 @@ export default function Header() {
 
         <RightGroup $isCompact={isCompact}>
           {pool.jackpotBalance > 0 && (
-            <JackpotBonus onClick={() => setJackpotHelp(true)} aria-label="Jackpot info">
+            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info">
               💰
               {!isCompact && <TokenValue amount={pool.jackpotBalance} />}
             </JackpotBonus>
@@ -280,7 +281,7 @@ export default function Header() {
           )}
 
           {/* Leaderboard trigger */}
-          <GambaUi.Button onClick={() => setShowLeaderboard(true)} aria-label="Show Leaderboard">
+          <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
             🏆
             {!isCompact && ' Leaderboard'}
           </GambaUi.Button>

@@ -91,34 +91,47 @@ const StatusModal = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  z-index: 9999;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(162, 89, 255, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
 const ModalContentStyled = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
   background: rgba(24, 24, 24, 0.95);
   backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 0;
+  border: none;
   padding: 2rem;
-  max-width: 600px;
-  width: 95vw;
-  max-height: 90vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+
   @media (max-width: 600px) {
-    padding: 1rem 0.5rem;
-    max-width: 99vw;
-    border-radius: 12px;
-    font-size: 1rem;
+    padding: 1rem 0.75rem;
+    top: 70px;
   }
-  position: relative;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
 
   &::before {
     content: '';
@@ -127,12 +140,11 @@ const ModalContentStyled = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
       radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
-    border-radius: 24px;
   }
 
   &::after {
@@ -145,40 +157,53 @@ const ModalContentStyled = styled.div`
     background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
     background-size: 300% 100%;
     animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
+    z-index: 1;
   }
+`;
+
+const ModalHeader = styled.header`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const ModalTitle = styled.h2`
   font-family: 'Luckiest Guy', cursive;
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #ffd700;
-  text-align: center;
-  margin-bottom: 1.5rem;
+  margin: 0;
   text-shadow: 
     0 0 10px #ffd700,
     0 0 20px #ffd700,
     2px 2px 4px rgba(0, 0, 0, 0.8);
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &::before {
     content: '🔌';
-    position: absolute;
-    left: -2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     animation: ${sparkle} 2s ease-in-out infinite;
   }
 
   &::after {
     content: '⚡';
-    position: absolute;
-    right: -2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     animation: ${sparkle} 2s ease-in-out infinite 0.5s;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1.2rem;
   }
 `;
 
@@ -256,6 +281,38 @@ const CloseButton = styled.button`
     background: rgba(255, 215, 0, 0.2);
     border-color: #ffd700;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  }
+`;
+
+const BackButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 600px) {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -460,19 +517,21 @@ export default function ConnectionStatus() {
       role="dialog"
       aria-modal="true"
     >
-      <ModalContentStyled
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      >
+      <ModalHeader>
+        <BackButton onClick={() => setShowModal(false)}>
+          ← Back
+        </BackButton>
+        <ModalTitle>Connection Status</ModalTitle>
         <CloseButton
           onClick={() => setShowModal(false)}
         >
           ×
         </CloseButton>
-        
-        <ModalTitle>
-          Connection Status
-        </ModalTitle>
+      </ModalHeader>
 
+      <ModalContentStyled
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      >
         <StatusItem status={transactionStatus || "Loading"}>
           <span className="label">🔒 Transactions:</span>
           <span className="status">{transactionStatus}</span>
@@ -531,7 +590,6 @@ export default function ConnectionStatus() {
             <span className="status">{token.name}</span>
           </StatusItem>
         )}
-
       </ModalContentStyled>
     </StatusModal>
   );

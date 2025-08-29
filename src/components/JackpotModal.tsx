@@ -39,7 +39,7 @@ const jackpotGlow = keyframes`
 
 const ModalContent = styled.div`
   max-width: 380px;
-  margin: 100px auto 0 auto;
+  margin: auto;
   padding: 1.1rem 1rem;
   border-radius: 18px;
   backdrop-filter: blur(20px);
@@ -79,8 +79,8 @@ const ModalContent = styled.div`
 
   @media (max-width: 600px) {
     padding: 0.75rem 0.5rem;
-    margin: 60px 0.25rem 0.25rem 0.25rem;
-    max-width: 98vw;
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
     border-radius: 10px;
   }
 `
@@ -264,7 +264,7 @@ const ControlSubtitle = styled.span`
   color: #c0c0c0;
 `
 
-const StatusBadge = styled.span<{ enabled: boolean }>`
+const StatusBadge = styled.span<{ $enabled: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -274,7 +274,7 @@ const StatusBadge = styled.span<{ enabled: boolean }>`
   font-weight: 600;
   border: 2px solid;
   
-  ${({ enabled }) => enabled ? `
+  ${({ $enabled }) => $enabled ? `
     background: rgba(16, 185, 129, 0.2);
     color: #6ee7b7;
     border-color: rgba(16, 185, 129, 0.5);
@@ -285,7 +285,7 @@ const StatusBadge = styled.span<{ enabled: boolean }>`
   `}
 
   &::before {
-    content: '${({ enabled }) => enabled ? '✅' : '❌'}';
+    content: '${({ $enabled }) => $enabled ? '✅' : '❌'}';
     font-size: 1rem;
   }
 `
@@ -345,25 +345,25 @@ interface JackpotModalProps {
   onClose: () => void
 }
 
-const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
+const JackpotInner: React.FC = () => {
   const pool = useCurrentPool()
   const context = useGambaPlatformContext()
   const token = useCurrentToken()
   const meta = useTokenMeta(token?.mint)
-  
+
   // Calculate minimum wager in token amount ($1 USD for real tokens)
   const getMinimumWager = () => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
       return meta?.baseWager ?? 0 // For free tokens, use base wager
     }
-    
+
     // For real tokens, minimum is $1 USD
     const tokenPrice = meta?.usdPrice ?? 0
     if (tokenPrice > 0) {
       const tokenAmount = 1 / tokenPrice // $1 worth of tokens
       return tokenAmount * (meta?.baseWager ?? Math.pow(10, meta?.decimals ?? 9))
     }
-    
+
     return meta?.baseWager ?? 0
   }
 
@@ -371,80 +371,88 @@ const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
   const poolFeePercentage = (PLATFORM_CREATOR_FEE * 100).toFixed(3)
 
   return (
+    <ModalContent>
+      <HeaderSection>
+        <Title>Jackpot 💰</Title>
+      </HeaderSection>
+
+      <FeatureList>
+        <li>Jackpot grows with every bet placed</li>
+        <li>Winner takes all - jackpot resets after win</li>
+      </FeatureList>
+
+      <PoolStatsContainer>
+        <PoolStatsTitle>Pool Statistics</PoolStatsTitle>
+        <PoolStatsGrid>
+          <PoolStatItem>
+            <PoolStatLabel>Pool Fee:</PoolStatLabel>
+            <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
+          </PoolStatItem>
+
+          <PoolStatItem>
+            <PoolStatLabel>Jackpot:</PoolStatLabel>
+            <PoolStatValue>
+              <TokenValue amount={pool.jackpotBalance} />
+            </PoolStatValue>
+          </PoolStatItem>
+
+          <PoolStatItem>
+            <PoolStatLabel>Minimum Wager:</PoolStatLabel>
+            <PoolStatValue>
+              {token?.mint?.equals?.(FAKE_TOKEN_MINT) ? (
+                <TokenValue amount={minimumWager} />
+              ) : (
+                "$1.00"
+              )}
+            </PoolStatValue>
+          </PoolStatItem>
+
+          <PoolStatItem>
+            <PoolStatLabel>Maximum Payout:</PoolStatLabel>
+            <PoolStatValue>
+              <TokenValue amount={pool.maxPayout} />
+            </PoolStatValue>
+          </PoolStatItem>
+        </PoolStatsGrid>
+      </PoolStatsContainer>
+
+      <ControlSection>
+        <ControlLabel>
+          <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
+            <ControlTitle>Jackpot Participation</ControlTitle>
+            <ControlSubtitle>
+              {context.defaultJackpotFee === 0 
+                ? "Currently disabled – you won't contribute and are not eligible to win"
+                : 'Currently enabled – you contribute and are eligible to win'}
+            </ControlSubtitle>
+          </ControlText>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+            <StatusBadge $enabled={context.defaultJackpotFee > 0}>
+              {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
+            </StatusBadge>
+            <GambaUi.Switch
+              checked={context.defaultJackpotFee > 0}
+              onChange={(checked) =>
+                context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
+              }
+            />
+          </div>
+        </ControlLabel>
+      </ControlSection>
+
+      <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
+        Good luck and may the odds be ever in your favor! 🍀
+      </InfoText>
+    </ModalContent>
+  )
+}
+
+export const JackpotContent = JackpotInner
+
+const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
+  return (
     <Modal onClose={onClose}>
-      <ModalContent>
-        <HeaderSection>
-          <Title>Jackpot 💰</Title>
-        </HeaderSection>
-
-        <FeatureList>
-          <li>Jackpot grows with every bet placed</li>
-          <li>Winner takes all - jackpot resets after win</li>
-        </FeatureList>
-
-        <PoolStatsContainer>
-          <PoolStatsTitle>Pool Statistics</PoolStatsTitle>
-          <PoolStatsGrid>
-            <PoolStatItem>
-              <PoolStatLabel>Pool Fee:</PoolStatLabel>
-              <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
-            </PoolStatItem>
-            
-            <PoolStatItem>
-              <PoolStatLabel>Jackpot:</PoolStatLabel>
-              <PoolStatValue>
-                <TokenValue amount={pool.jackpotBalance} />
-              </PoolStatValue>
-            </PoolStatItem>
-            
-            <PoolStatItem>
-              <PoolStatLabel>Minimum Wager:</PoolStatLabel>
-              <PoolStatValue>
-                {token?.mint?.equals?.(FAKE_TOKEN_MINT) ? (
-                  <TokenValue amount={minimumWager} />
-                ) : (
-                  "$1.00"
-                )}
-              </PoolStatValue>
-            </PoolStatItem>
-            
-            <PoolStatItem>
-              <PoolStatLabel>Maximum Payout:</PoolStatLabel>
-              <PoolStatValue>
-                <TokenValue amount={pool.maxPayout} />
-              </PoolStatValue>
-            </PoolStatItem>
-          </PoolStatsGrid>
-        </PoolStatsContainer>
-
-        <ControlSection>
-          <ControlLabel>
-            <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
-              <ControlTitle>Jackpot Participation</ControlTitle>
-              <ControlSubtitle>
-                {context.defaultJackpotFee === 0 
-                  ? "Currently disabled – you won't contribute and are not eligible to win"
-                  : 'Currently enabled – you contribute and are eligible to win'}
-              </ControlSubtitle>
-            </ControlText>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-              <StatusBadge enabled={context.defaultJackpotFee > 0}>
-                {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
-              </StatusBadge>
-              <GambaUi.Switch
-                checked={context.defaultJackpotFee > 0}
-                onChange={(checked) =>
-                  context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
-                }
-              />
-            </div>
-          </ControlLabel>
-        </ControlSection>
-
-        <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
-          Good luck and may the odds be ever in your favor! 🍀
-        </InfoText>
-      </ModalContent>
+      <JackpotContent />
     </Modal>
   )
 }

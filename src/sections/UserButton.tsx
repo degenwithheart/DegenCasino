@@ -11,6 +11,8 @@ import {
   PLATFORM_REFERRAL_FEE,
 } from '../constants'
 import TokenSelect from './TokenSelect'
+import { useIsCompact } from '../hooks/useIsCompact'
+import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../hooks/useUserStore'
 import { useToast } from '../hooks/useToast'
 import { truncateString } from '../utils'
@@ -346,6 +348,8 @@ export function UserButton() {
   const wallet = useWallet()
   const user = useUserStore()
   const handleWalletConnect = useHandleWalletConnect();
+  const { mobile } = useIsCompact()
+  const navigate = useNavigate()
 
 
 
@@ -355,7 +359,7 @@ export function UserButton() {
 
       {wallet.connected ? (
         <WalletButtonWrapper>
-          <GambaUi.Button onClick={() => user.set({ userModal: true })}>
+          <GambaUi.Button onClick={() => (mobile ? navigate('/select-token') : user.set({ userModal: true }))}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TokenIconAndBalance />
             </div>

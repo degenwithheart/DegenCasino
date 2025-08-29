@@ -32,22 +32,24 @@ import { CacheDebugWrapper } from './components/CacheDebugPanel';
 import { PlatformView } from './components/PlatformView';
 import ExplorerIndex from './components/ExplorerIndex';
 import { GraphicsProvider } from './components/GameScreenFrame';
+import JackpotPage from './pages/JackpotPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import SelectTokenPage from './pages/SelectTokenPage';
 
 const SIDEBAR_WIDTH = 80;
 
 const MainContent = styled.main`
   min-height: calc(100vh - 140px);
+  margin: 0 1.5rem 0 auto;
   padding-top: 1rem;
-  padding-left: ${SIDEBAR_WIDTH}px;
-  padding-right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-bottom: 80px;
   transition: padding 0.3s ease;
   @media (max-width: 900px) {
-    padding-left: 0;
     padding-bottom: 150px;
   }
   @media (max-width: 700px) {
-    padding-left: 0;
     padding-bottom: 80px;
   }
 `;
@@ -136,10 +138,7 @@ export default function App() {
     <GraphicsProvider>
       <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
         {showGamesModal && (
-          <Modal onClose={() => setShowGamesModal(false)}>
-            <h2 style={{ textAlign: 'center', marginBottom: 16 }}>All Games</h2>
-            <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
-          </Modal>
+          <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} onClose={() => setShowGamesModal(false)} />
         )}
       {newcomer && (
         <Modal>
@@ -237,8 +236,9 @@ export default function App() {
         {autoConnectAttempted && !connected && <WelcomeBanner />}
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/:wallet/profile" element={<UserProfile />} />
-          <Route path="/game/:wallet/:gameId" element={<Game />} />
+          <Route path="/jackpot" element={<JackpotPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/select-token" element={<SelectTokenPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/whitepaper" element={<Whitepaper />} />
           <Route path="/aboutme" element={<AboutMe />} />
@@ -248,6 +248,8 @@ export default function App() {
           <Route path="/explorer/platform/:creator" element={<PlatformView />} />
           <Route path="/explorer/player/:address" element={<PlayerView />} />
           <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+          <Route path="/:wallet/profile" element={<UserProfile />} />
+          <Route path="/game/:wallet/:gameId" element={<Game />} />
         </Routes>
       </MainContent>
       <Footer />

@@ -1,6 +1,7 @@
 //useUserStore.ts
 import { StoreApi, create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { PublicKey } from '@solana/web3.js'
 
 export interface UserStore {
   /** Show disclaimer if first time user */

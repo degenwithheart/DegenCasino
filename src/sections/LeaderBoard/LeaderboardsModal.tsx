@@ -36,8 +36,11 @@ interface LeaderboardsModalProps {
   creator: string
 }
 
-const LeaderboardsModal: React.FC<LeaderboardsModalProps> = ({
-  onClose,
+interface LeaderboardsContentProps {
+  creator: string
+}
+
+export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   creator,
 }) => {
   const [period, setPeriod] = useState<Period>('weekly') // default
@@ -49,64 +52,73 @@ const LeaderboardsModal: React.FC<LeaderboardsModalProps> = ({
   } = useLeaderboardData(period, creator)
 
   return (
+    <ModalContent>
+      {/* ────── header ────── */}
+      <HeaderSection>
+        <Title>Leaderboard</Title>
+        <Subtitle>
+          Top players by volume{' '}
+          {period === 'weekly' ? 'this week' : 'this month'} (USD)
+        </Subtitle>
+      </HeaderSection>
+
+      {/* ────── tabs ────── */}
+      <TabRow>
+        <TabButton
+          $selected={period === 'weekly'}
+          onClick={() => setPeriod('weekly')}
+          disabled={loading}
+        >
+          Weekly
+        </TabButton>
+
+        <TabButton
+          $selected={period === 'monthly'}
+          onClick={() => setPeriod('monthly')}
+          disabled={loading}
+        >
+          Monthly
+        </TabButton>
+      </TabRow>
+
+      {/* ────── body ────── */}
+      {loading ? (
+        <LoadingText>Loading...</LoadingText>
+      ) : error ? (
+        <ErrorText>{error}</ErrorText>
+      ) : leaderboard && leaderboard.length > 0 ? (
+        <LeaderboardList>
+          <ListHeader>
+            <HeaderRank>Rank</HeaderRank>
+            <HeaderPlayer>Player</HeaderPlayer>
+            <HeaderVolume>Volume&nbsp;(USD)</HeaderVolume>
+          </ListHeader>
+
+          {leaderboard.map((entry: Player, index) => {
+            const rank = index + 1
+            return (
+              <RankItem key={entry.user} $isTop3={rank <= 3}>
+                <RankNumber rank={rank}>{rank > 3 ? rank : ''}</RankNumber>
+                <PlayerInfo title={entry.user}>{entry.user}</PlayerInfo>
+                <VolumeAmount>{formatVolume(entry.usd_volume)}</VolumeAmount>
+              </RankItem>
+            )
+          })}
+        </LeaderboardList>
+      ) : (
+        <EmptyStateText>Coming soon.</EmptyStateText>
+      )}
+    </ModalContent>
+  )
+}
+
+const LeaderboardsModal: React.FC<LeaderboardsModalProps> = ({
+  onClose,
+  creator,
+}) => {
+  return (
     <Modal onClose={onClose}>
-      <ModalContent>
-        {/* ────── header ────── */}
-        <HeaderSection>
-          <Title>Leaderboard</Title>
-          <Subtitle>
-            Top players by volume{' '}
-            {period === 'weekly' ? 'this week' : 'this month'} (USD)
-          </Subtitle>
-        </HeaderSection>
-
-        {/* ────── tabs ────── */}
-        <TabRow>
-          <TabButton
-            $selected={period === 'weekly'}
-            onClick={() => setPeriod('weekly')}
-            disabled={loading}
-          >
-            Weekly
-          </TabButton>
-
-          <TabButton
-            $selected={period === 'monthly'}
-            onClick={() => setPeriod('monthly')}
-            disabled={loading}
-          >
-            Monthly
-          </TabButton>
-        </TabRow>
-
-        {/* ────── body ────── */}
-        {loading ? (
-          <LoadingText>Loading...</LoadingText>
-        ) : error ? (
-          <ErrorText>{error}</ErrorText>
-        ) : leaderboard && leaderboard.length > 0 ? (
-          <LeaderboardList>
-            <ListHeader>
-              <HeaderRank>Rank</HeaderRank>
-              <HeaderPlayer>Player</HeaderPlayer>
-              <HeaderVolume>Volume&nbsp;(USD)</HeaderVolume>
-            </ListHeader>
-
-            {leaderboard.map((entry: Player, index) => {
-              const rank = index + 1
-              return (
-                <RankItem key={entry.user} $isTop3={rank <= 3}>
-                  <RankNumber rank={rank}>{rank > 3 ? rank : ''}</RankNumber>
-                  <PlayerInfo title={entry.user}>{entry.user}</PlayerInfo>
-                  <VolumeAmount>{formatVolume(entry.usd_volume)}</VolumeAmount>
-                </RankItem>
-              )
-            })}
-          </LeaderboardList>
-        ) : (
-          <EmptyStateText>Coming soon.</EmptyStateText>
-        )}
-      </ModalContent>
+      <LeaderboardsContent creator={creator} />
     </Modal>
   )
 }
