@@ -2,6 +2,7 @@ import React from 'react'
 import { Icon } from './Icon'
 import useOutsideClick from '../hooks/useOnClickOutside'
 import styled from 'styled-components'
+import { useTheme } from '../themes/ThemeContext'
 
 interface Props extends React.PropsWithChildren {
   onClose?: () => void
@@ -9,28 +10,27 @@ interface Props extends React.PropsWithChildren {
 
 const Container = styled.div`
   display: flex;
-  padding: 20px;
-  min-height: calc(100vh - 6rem);
+  padding: 10vh 20px 10vh 20px; /* 10% from top and bottom */
+  min-height: calc(80vh); /* 100vh - 20vh (10% top + 10% bottom) */
   align-items: center;
   justify-content: center;
-  width: 100%;
   box-sizing: border-box;
 
   @media (max-width: 600px) {
     /* Center modal on small screens with consistent insets */
-    padding: 16px;
+    padding: 10vh 16px 10vh 16px; /* 10% from top and bottom on mobile */
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
-    padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 72px)); /* leave space above mobile nav */
-    min-height: 100vh;
+    padding-bottom: max(calc(10vh + 24px), calc(10vh + env(safe-area-inset-bottom) + 72px)); /* leave space above mobile nav */
+    min-height: 80vh; /* 100vh - 20vh (10% top + 10% bottom) */
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 80vh;
     overflow-y: auto;
   }
 `
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ $theme?: any }>`
   @keyframes wrapper-appear2 {
     0% {
       transform: scale(0.9);
@@ -46,16 +46,30 @@ const Wrapper = styled.div`
   align-items: center;
   flex-direction: column;
   z-index: 100;
-  max-width: min(100%, 460px);
+  max-height: 80vh;
+  max-width: 780px;
+  width: 100%;
   border-radius: 10px;
-  flex: 1;
   padding-bottom: 20px;
   animation: wrapper-appear2 0.3s;
-  color: white;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  
+  /* Desktop styles - more transparent/light */
+  background: transparent;
+  border: 0px solid rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+  
+  /* Mobile/Tablet styles - solid background with defined colors */
+  @media (max-width: 1024px) {
+    background: ${({ $theme }) => $theme?.colors?.surface || '#1a1a2e'};
+    border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 4px 24px rgba(0, 0, 0, 0.2)'};
   }
+  
+  overflow-y: auto; /* Enable scrolling if content exceeds max-height */
 `
 
-const StyledModal = styled.div`
+const StyledModal = styled.div<{ $theme?: any }>`
   @keyframes appear {
     0% {
       opacity: 0;
@@ -81,6 +95,7 @@ const StyledModal = styled.div`
     text-align: center;
     padding: 40px 0 20px 0;
     font-size: 24px;
+    color: ${({ $theme }) => $theme?.colors?.text || 'white'};
     @media (max-width: 600px) {
       padding: 24px 0 12px 0;
       font-size: 20px;
@@ -90,6 +105,7 @@ const StyledModal = styled.div`
   & p {
     padding: 0 30px;
     text-align: center;
+    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#ccc'};
     @media (max-width: 600px) {
       padding: 0 10px;
       font-size: 0.98rem;
@@ -101,7 +117,7 @@ const StyledModal = styled.div`
 
     &:hover {
       opacity: 1;
-      background: #ffffff22;
+      background: ${({ $theme }) => $theme?.colors?.modal?.background || '#ffffff22'};
     }
 
     & svg {
@@ -132,6 +148,8 @@ const StyledModal = styled.div`
 `
 
 export function Modal({ children, onClose }: Props) {
+  const { currentTheme } = useTheme();
+
   React.useEffect(() => {
     const oldOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -147,9 +165,9 @@ export function Modal({ children, onClose }: Props) {
   })
 
   return (
-    <StyledModal>
+    <StyledModal $theme={currentTheme}>
       <Container>
-        <Wrapper ref={ref}>
+        <Wrapper $theme={currentTheme} ref={ref}>
           {onClose && (
             <button className="close" onClick={onClose} aria-label="Close modal">
               <Icon.Close2 />

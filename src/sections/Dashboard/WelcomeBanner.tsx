@@ -11,6 +11,7 @@ const floatAnimation = keyframes`
 `;
 
 import styled, { keyframes } from "styled-components";
+import { useTheme } from "../../themes/ThemeContext";
 
 const neonPulse = keyframes`
   0% {
@@ -27,14 +28,12 @@ const neonPulse = keyframes`
   }
 `;
 
-const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean }>`
-  width: 100%;
-  max-width: none; /* Let main handle max-width */
+const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
   margin: ${({ $isVisible, $isLoading }) => 
-    $isLoading || $isVisible ? '0 0 2rem 0' : '0'
+    $isLoading || $isVisible ? '1.5rem 0' : '0'
   };
   padding: ${({ $isVisible, $isLoading }) => 
-    $isLoading || $isVisible ? '1rem' : '0'
+    $isLoading || $isVisible ? '1.25rem' : '0'
   };
   height: ${({ $isVisible, $isLoading }) => 
     $isLoading || $isVisible ? 'auto' : '0'
@@ -52,55 +51,89 @@ const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean }>`
   pointer-events: ${({ $isVisible, $isLoading }) => 
     $isLoading || !$isVisible ? 'none' : 'auto'
   };
-  margin-top: ${({ $isVisible, $isLoading }) => 
-    $isLoading || $isVisible ? '0.1rem' : '0'
+  background: ${({ $isVisible, $isLoading, $theme }) => 
+    $isLoading || $isVisible ? ($theme?.colors?.background || '#0f0f23') : 'transparent'
   };
-  gap: 2rem;
-  
-  @media (max-width: 1200px) {
-    padding: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0.75rem' : '0'
-    };
+  border-radius: ${({ $isVisible, $isLoading }) => 
+    $isLoading || $isVisible ? '12px' : '0'
+  };
+  border: ${({ $isVisible, $isLoading, $theme }) => 
+    $isLoading || $isVisible ? `1px solid ${$theme?.colors?.border || '#2a2a4a'}` : 'none'
+  };
+  position: relative;
+
+  ${({ $isVisible, $isLoading, $theme }) => ($isLoading || $isVisible) && `
+    &:hover {
+      border-color: ${$theme?.colors?.primary || '#ffd700'};
+      box-shadow: 0 0 24px ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
+      transform: translateY(-2px);
+    }
+  `}
+
+  @media (max-width: 900px) {
     margin: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0 0 1.5rem 0' : '0'
+      $isLoading || $isVisible ? '1rem 0' : '0'
+    };
+    padding: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '1rem 0.75rem' : '0'
     };
   }
   
   @media (max-width: 700px) {
-    padding: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0.5rem 0.25rem' : '0'
-    };
     margin: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0 auto 1rem' : '0'
+      $isLoading || $isVisible ? '0.75rem 0' : '0'
     };
-    gap: 1rem;
+    padding: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '1rem 0.5rem' : '0'
+    };
+    border-radius: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '12px' : '0'
+    };
   }
   
   @media (max-width: 480px) {
-    padding: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0.25rem' : '0'
-    };
     margin: ${({ $isVisible, $isLoading }) => 
-      $isLoading || $isVisible ? '0 auto 0.75rem' : '0'
+      $isLoading || $isVisible ? '0.5rem 0' : '0'
     };
-    gap: 0.75rem;
+    padding: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '0.75rem 0.5rem' : '0'
+    };
+    border-radius: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '12px' : '0'
+    };
+  }
+  
+  @media (max-width: 400px) {
+    margin: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '0.25rem 0' : '0'
+    };
+    padding: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '0.5rem 0.4rem' : '0'
+    };
+    border-radius: ${({ $isVisible, $isLoading }) => 
+      $isLoading || $isVisible ? '8px' : '0'
+    };
   }
 `;
 
-const Banner = styled.div`
+const Banner = styled.div<{ $theme?: any }>`
   position: relative;
-  border-radius: 24px;
+  border-radius: 12px;
   width: 100%;
-  height: 300px;
+  /* switch to min-height so surrounding frames control overall layout */
+  min-height: 180px;
   overflow: hidden;
-  aspect-ratio: 15 / 5;
-  background: linear-gradient(180deg, rgba(91, 33, 182, 0.8) 0%, #22003a 80%, #22003a 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 0 32px #a259ff, 0 0 64px #ffd70044;
-  border: 2px solid #ffd70044;
-  margin-bottom: 2rem;
-  animation: ${neonPulse} 3s infinite alternate;
+  background: linear-gradient(180deg, ${({ $theme }) => $theme?.colors?.surface || 'rgba(91, 33, 182, 0.8)'} 0%, ${({ $theme }) => $theme?.colors?.background || '#22003a'} 80%, ${({ $theme }) => $theme?.colors?.background || '#22003a'} 100%);
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
+    transform: translateY(-2px);
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -108,68 +141,71 @@ const Banner = styled.div`
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+    background: radial-gradient(circle, ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.1)'} 0%, transparent 50%);
     animation: ${floatAnimation} 6s infinite ease-in-out;
     pointer-events: none;
   }
-  
+
   @media (max-width: 1200px) {
-    height: 250px;
-    border-radius: 20px;
-    margin-bottom: 1.5rem;
-  }
-  
-  @media (max-width: 768px) {
-    border-radius: 16px;
-    height: 200px;
+    min-height: 160px;
     margin-bottom: 1rem;
   }
-  
-  @media (max-width: 480px) {
-    border-radius: 12px;
-    height: 150px;
+
+  @media (max-width: 768px) {
+    min-height: 140px;
     margin-bottom: 0.75rem;
   }
-  
+
+  @media (max-width: 480px) {
+    min-height: 120px;
+    margin-bottom: 0.5rem;
+  }
+
   @media (max-width: 400px) {
-    border-radius: 8px;
-    height: 120px;
+    min-height: 100px;
     margin-bottom: 0.5rem;
   }
 `;
 
-const BannerBottomBar = styled.div`
+const BannerBottomBar = styled.div<{ $theme?: any }>`
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 80px;
-  background: transparent;
+  height: 64px;
+  background: linear-gradient(180deg, transparent 0%, ${({ $theme }) => $theme?.colors?.background || 'rgba(0, 0, 0, 0.7)'} 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
   pointer-events: none;
-  padding-bottom: 12px;
+  padding: 0 1rem;
+  backdrop-filter: blur(8px);
+
   @media (max-width: 768px) {
+    height: 56px;
+    padding: 0 0.75rem;
+  }
+
+  @media (max-width: 480px) {
     height: 48px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    padding-bottom: 4px;
+    padding: 0 0.5rem;
   }
 `;
 
-const Heading = styled.h2`
-  color: #ffd700;
+const Heading = styled.h2<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
+  text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 2px;
   margin-bottom: 0.5rem;
+  line-height: 1.2;
+
   &::after {
     content: " — where every flip flirts with fate.";
     font-weight: 400;
@@ -177,12 +213,12 @@ const Heading = styled.h2`
     display: block;
     margin-top: 0.25rem;
     opacity: 0.9;
-    color: #ffffff;
-    text-shadow: 0 0 8px #a259ff;
+    color: ${({ $theme }) => $theme?.colors?.text || '#ffffff'};
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
     font-family: 'Arial', sans-serif;
     letter-spacing: 1px;
   }
-  
+
   @media (max-width: 1200px) {
     font-size: 2.2rem;
     letter-spacing: 1.5px;
@@ -190,7 +226,7 @@ const Heading = styled.h2`
       font-size: 1.1rem;
     }
   }
-  
+
   @media (max-width: 768px) {
     font-size: 1.8rem;
     letter-spacing: 1px;
@@ -198,7 +234,7 @@ const Heading = styled.h2`
       font-size: 1rem;
     }
   }
-  
+
   @media (max-width: 480px) {
     font-size: 1.4rem;
     letter-spacing: 0.5px;
@@ -206,7 +242,7 @@ const Heading = styled.h2`
       font-size: 0.9rem;
     }
   }
-  
+
   @media (max-width: 400px) {
     font-size: 1.2rem;
     &::after {
@@ -237,26 +273,37 @@ const fadeInOut = keyframes`
   90% { opacity: 1; transform: translateY(0);}
   100% { opacity: 0; transform: translateY(-10px);}
 `;
-const JackpotTicker = styled.div`
+const JackpotTicker = styled.div<{ $theme?: any }>`
   width: 100%;
   min-height: 48px;
   display: flex;
-  align-items: center;    /* vertical center */
-  justify-content: center;/* horizontal center */
+  align-items: center;
+  justify-content: center;
   text-align: center;
   font-size: 1.25rem;
   font-weight: bold;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   background: transparent;
   border-radius: 1rem;
-  padding: 1.25rem 1.5rem 1.5rem 1.5rem; /* more vertical padding, especially bottom */
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
   box-shadow: none;
   transition: background 0.3s;
   gap: 1rem;
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 0.5px;
+
   @media (max-width: 768px) {
-    padding: 0.5rem 0.25rem;
+    padding: 0.75rem 1rem;
     margin: 0 auto 1rem;
-    gap: 1rem;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -287,84 +334,85 @@ const sparkle = keyframes`
 `;
 
   
-const HeroOverlay = styled.div`
+const HeroOverlay = styled.div<{ $theme?: any }>`
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* vertical center */
-  align-items: center;    /* horizontal center */
+  justify-content: center;
+  align-items: center;
   min-height: 32px;
   z-index: 1;
 
   &::before {
     content: '🎰';
     position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 2rem;
-    padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+    top: 16px;
+    right: 16px;
+    font-size: 1.6rem;
+    padding: 0.35rem 1rem;
+    opacity: 0.85;
   }
 
   &::after {
     content: '🎲';
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-    font-size: 2rem;
+    bottom: 16px;
+    left: 16px;
+    font-size: 1.6rem;
     animation: ${sparkle} 2s infinite 1s;
+    opacity: 0.85;
   }
 
   @media (max-width: 768px) {
-    padding: 1rem;
-  }
-  @media (max-width: 768px) {
+    padding: 1rem 0.75rem;
     &::before {
-      font-size: 1.25rem;
-      top: 10px;
-      right: 10px;
-      padding: 0.25rem 0.75rem 0.25rem 0.75rem;
+      font-size: 1.3rem;
+      top: 12px;
+      right: 12px;
+      padding: 0.25rem 0.75rem;
     }
     &::after {
-      font-size: 1.25rem;
-      left: 10px;
-      bottom: 10px;
-      padding: 0.25rem 0.75rem 0.25rem 0.75rem;
+      font-size: 1.3rem;
+      left: 12px;
+      bottom: 12px;
+      padding: 0.25rem 0.75rem;
     }
   }
+
   @media (max-width: 480px) {
-    padding: 0.5rem;
-  }
-  @media (max-width: 480px) {
+    padding: 0.75rem 0.5rem;
     &::before, &::after {
       display: none;
     }
   }
 `;
 
-const FeatureGrid = styled.div`
+const FeatureGrid = styled.div<{ $theme?: any }>`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 
   @media (max-width: 768px) {
     display: flex;
     overflow-x: auto;
     gap: 1rem;
     padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
 
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    scrollbar-color: ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'} transparent;
 
     &::-webkit-scrollbar {
       height: 6px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
       border-radius: 3px;
     }
 
@@ -375,54 +423,46 @@ const FeatureGrid = styled.div`
   }
 `;
 
-const FeatureCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255, 215, 0, 0.2);
-  border-radius: 16px;
+const FeatureCard = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  border-radius: 12px;
   padding: 1.5rem;
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   text-align: center;
   transition: all 0.3s ease;
   position: relative;
 
   &:hover {
-    transform: translateY(-6px) scale(1.04);
-    box-shadow: 0 0 24px #ffd700cc, 0 0 48px #a259ff88;
-    border: 1.5px solid #ffd700;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    border-radius: 16px;
-    opacity: 0;
-    z-index: -1;
-    transition: opacity 0.3s ease-in-out;
-  }
-
-  &:hover::before {
-    opacity: 0.3;
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   }
 
   h3 {
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
-    color: #ffd700;
-    text-shadow: 0 0 8px #ffd700;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    font-weight: 600;
   }
 
   p {
     margin: 0;
     font-size: 1rem;
     opacity: 0.9;
+    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#c0c0c0'};
+    line-height: 1.4;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+    h3 {
+      font-size: 1.1rem;
+    }
+    p {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -430,6 +470,7 @@ const FeatureCard = styled.div`
 export function WelcomeBanner() {
   const wallet = useWallet();
   const quote = useRandomQuote();
+  const { currentTheme } = useTheme();
 
   // Track if wallet auto-connect attempt has finished to prevent flash
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
@@ -451,16 +492,16 @@ export function WelcomeBanner() {
   if (!shouldShow) return null;
 
   return (
-    <Container $isVisible={true} $isLoading={false}>
-      <Banner>
-        <HeroOverlay>
-          <Heading>Welcome to the casino of chaos</Heading>
+    <Container $isVisible={true} $isLoading={false} $theme={currentTheme}>
+      <Banner $theme={currentTheme}>
+        <HeroOverlay $theme={currentTheme}>
+          <Heading $theme={currentTheme}>Welcome to the casino of chaos</Heading>
         </HeroOverlay>
-        <BannerBottomBar>
-          <JackpotTicker key={quote}>{quote}</JackpotTicker>
+        <BannerBottomBar $theme={currentTheme}>
+          <JackpotTicker $theme={currentTheme} key={quote}>{quote}</JackpotTicker>
         </BannerBottomBar>
       </Banner>
-      <FeatureGrid>
+      <FeatureGrid $theme={currentTheme}>
         {[
           {
             title: "🔒 No Registration",
@@ -479,7 +520,7 @@ export function WelcomeBanner() {
             text: "Winnings go straight to wallet.",
           },
         ].map(({ title, text }) => (
-          <FeatureCard key={title}>
+          <FeatureCard $theme={currentTheme} key={title}>
             <h3>{title}</h3>
             <p>{text}</p>
           </FeatureCard>

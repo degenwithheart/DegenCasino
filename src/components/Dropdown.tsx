@@ -1,14 +1,15 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
+import { useTheme } from '../themes/ThemeContext'
 
-const Wrapper = styled.div<{$visible: boolean, $anchor: 'top' | 'bottom'}>`
+const Wrapper = styled.div<{ $visible: boolean; $anchor: 'top' | 'bottom'; $theme?: any }>`
   opacity: 0;
   transition: transform .2s ease, opacity .2s;
   position: absolute;
   visibility: hidden;
   z-index: 1000;
   right: 0;
-  color: white;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   min-width: 100%;
   white-space: nowrap;
   min-width: max-content;
@@ -29,7 +30,7 @@ const Wrapper = styled.div<{$visible: boolean, $anchor: 'top' | 'bottom'}>`
   `}
   & > div {
     display: grid;
-    background: #15151f;
+    background: ${({ $theme }) => $theme?.colors?.surface || '#15151f'};
     border-radius: 10px;
     overflow: hidden;
     padding: 5px;
@@ -38,6 +39,7 @@ const Wrapper = styled.div<{$visible: boolean, $anchor: 'top' | 'bottom'}>`
 `
 
 export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWithChildren<{visible: boolean, anchor?: 'bottom' | 'top'}>) {
+  const { currentTheme } = useTheme()
   const ref = React.useRef<HTMLDivElement>(null!)
 
   const anchor = React.useMemo(
@@ -54,6 +56,7 @@ export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWith
       ref={ref}
       $anchor={anchor}
       $visible={visible}
+      $theme={currentTheme}
     >
       <div>
         {children}

@@ -2,21 +2,14 @@ import React from 'react'
 import { Connection } from '@solana/web3.js'
 import styled, { css } from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
+import { useTheme } from '../themes/ThemeContext'
 
 /**
  * Embedded Transaction Component for displaying transaction details inline
  */
 
-const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
-  --rank-0: #ff293b;
-  --rank-1: #ff7142;
-  --rank-2: #ffa557;
-  --rank-3: #ffa557;
-  --rank-4: #ffd166;
-  --rank-5: #fff875;
-  --rank-6: #e1ff80;
-  --rank-7: #60ff9b;
-  background-color: var(--slate-2);
+const StyledOutcome = styled.div<{$rank: number, $active: boolean, $theme?: any}>`
+  background-color: ${({ $theme }) => $theme?.colors?.surface || 'var(--slate-2)'};
 
   padding: 5px 10px;
   min-width: 2em;
@@ -42,15 +35,27 @@ const StyledOutcome = styled.div<{$rank: number, $active: boolean}>`
     }
   `}
 
-  ${props => css`
-    color: var(--rank-${props.$rank});
-    &:before {
-      background-color: var(--rank-${props.$rank});
-    }
-  `}
+  ${props => {
+    const rankColors = [
+      props.$theme?.colors?.error || '#ff293b',
+      props.$theme?.colors?.warning || '#ff7142', 
+      props.$theme?.colors?.warning || '#ffa557',
+      props.$theme?.colors?.warning || '#ffa557',
+      props.$theme?.colors?.primary || '#ffd166',
+      props.$theme?.colors?.primary || '#fff875',
+      props.$theme?.colors?.success || '#e1ff80',
+      props.$theme?.colors?.success || '#60ff9b'
+    ];
+    return css`
+      color: ${rankColors[props.$rank] || props.$theme?.colors?.text || '#666'};
+      &:before {
+        background-color: ${rankColors[props.$rank] || props.$theme?.colors?.text || '#666'};
+      }
+    `;
+  }}
 `
 
-function Outcomes({bet, resultIndex}: {bet: number[], resultIndex: number}) {
+function Outcomes({bet, resultIndex, theme}: {bet: number[], resultIndex: number, theme?: any}) {
   const uniqueOutcomes = Array.from(new Set(bet)).sort((a, b) => a > b ? 1 : -1)
   return (
     <div style={{display: 'flex', gap: '2px', flexWrap: 'wrap'}}>
@@ -62,6 +67,7 @@ function Outcomes({bet, resultIndex}: {bet: number[], resultIndex: number}) {
             key={index}
             $rank={rank}
             $active={isWinning}
+            $theme={theme}
           >
             {multiplier}x
           </StyledOutcome>
@@ -71,21 +77,21 @@ function Outcomes({bet, resultIndex}: {bet: number[], resultIndex: number}) {
   )
 }
 
-function VerificationSection({ parsed }: { parsed: GambaTransaction<"GameSettled">}) {
+function VerificationSection({ parsed, theme }: { parsed: GambaTransaction<"GameSettled">; theme?: any }) {
   const data = parsed.data
   
   return (
-    <div style={{fontSize: '12px', color: '#666'}}>
+    <div style={{fontSize: '12px', color: theme?.colors?.textSecondary || '#666'}}>
       <span>Verified</span>
     </div>
   )
 }
 
-function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">}) {
+function TransactionDetails({ parsed, theme }: {parsed: GambaTransaction<"GameSettled">; theme?: any}) {
   const data = parsed.data
 
   return (
-    <div style={{padding: '10px', border: '1px solid #333', borderRadius: '8px', fontSize: '14px'}}>
+    <div style={{padding: '10px', border: `1px solid ${theme?.colors?.border || '#333'}`, borderRadius: '8px', fontSize: '14px'}}>
       <div style={{marginBottom: '8px'}}>
         <strong>Player:</strong> {data.user.toString().slice(0, 8)}...
       </div>
@@ -96,9 +102,9 @@ function TransactionDetails({ parsed }: {parsed: GambaTransaction<"GameSettled">
         <strong>Payout:</strong> {data.payout.toString()}
       </div>
       <div>
-        <Outcomes bet={data.bet} resultIndex={data.resultIndex} />
+        <Outcomes bet={data.bet} resultIndex={data.resultIndex} theme={theme} />
       </div>
-      <VerificationSection parsed={parsed} />
+      <VerificationSection parsed={parsed} theme={theme} />
     </div>
   )
 }
@@ -122,6 +128,7 @@ interface EmbeddedTransactionProps {
 export default function EmbeddedTransactionView({ txId, onLoad }: EmbeddedTransactionProps) {
   const [transaction, setTransaction] = React.useState<GambaTransaction<"GameSettled"> | null>(null)
   const [loading, setLoading] = React.useState(true)
+  const { currentTheme } = useTheme()
 
   React.useEffect(() => {
     if (txId) {
@@ -139,8 +146,8 @@ export default function EmbeddedTransactionView({ txId, onLoad }: EmbeddedTransa
   }
 
   if (!transaction) {
-    return <div style={{padding: '10px', color: '#666'}}>Transaction not found</div>
+    return <div style={{padding: '10px', color: currentTheme?.colors?.textSecondary || '#666'}}>Transaction not found</div>
   }
 
-  return <TransactionDetails parsed={transaction} />
+  return <TransactionDetails parsed={transaction} theme={currentTheme} />
 }

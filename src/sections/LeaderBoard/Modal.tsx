@@ -37,15 +37,13 @@ const Wrapper = styled.div`
   align-items: center;
   flex-direction: column;
   z-index: 100;
-  max-width: min(100%, 460px);
   border-radius: 10px;
-  flex: 1;
   padding-bottom: 20px;
   animation: wrapper-appear2 0.3s;
   color: white;
 
   @media (max-width: 600px) {
-    max-width: 100vw;
+    max-width: calc(100vw - 16px);
     min-width: 0;
     border-radius: 0;
     padding-left: 0;

@@ -23,7 +23,7 @@ const sparkle = keyframes`
   50% { opacity: 1; transform: scale(1.2); }
 `;
 
-export const ModalContent = styled.div`
+export const ModalContent = styled.div<{ $theme?: any }>`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -36,11 +36,11 @@ export const ModalContent = styled.div`
   position: relative;
 
   /* Enhanced glassmorphism */
-  background: rgba(24, 24, 24, 0.8);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.15)'};
   border-radius: 20px;
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.4);
+  box-shadow: 0 12px 40px 0 ${({ $theme }) => $theme?.colors?.shadow || 'rgba(31, 38, 135, 0.4)'};
   
   /* Casino gradient border effect */
   &::before {
@@ -50,7 +50,7 @@ export const ModalContent = styled.div`
     left: -3px;
     right: -3px;
     bottom: -3px;
-    background: linear-gradient(45deg, #ffd700, #a259ff, #ff00cc, #ffd700);
+    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     background-size: 300% 100%;
     border-radius: 20px;
     opacity: 0.3;
@@ -68,8 +68,8 @@ export const ModalContent = styled.div`
     bottom: 0;
     border-radius: 20px;
     background: 
-      radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 70% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 30% 20%, ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.05)'} 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, ${({ $theme }) => $theme?.colors?.secondary || 'rgba(162, 89, 255, 0.05)'} 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
@@ -81,18 +81,18 @@ export const ModalContent = styled.div`
 
   &::-webkit-scrollbar { width: 8px; }
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #ffd700, #a259ff);
+    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'});
     border-radius: 4px;
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.3)'};
   }
   &::-webkit-scrollbar-track { 
-    background: rgba(255, 255, 255, 0.05);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
     border-radius: 4px;
   }
 
   @media (max-width: 600px) {
     padding: 0.75rem 0.5rem;
-    max-width: 98vw;
+    max-width: calc(100vw - 2rem);
     max-height: calc(98vh - 1rem);
     font-size: 0.98rem;
     border-radius: 12px;
@@ -104,13 +104,13 @@ export const HeaderSection = styled.div`
   position: relative;
 `
 
-export const Title = styled.h1`
+export const Title = styled.h1<{ $theme?: any }>`
   font-size: 2rem;
   font-weight: 700;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   margin-bottom: 0.5rem;
   font-family: 'Luckiest Guy', cursive, sans-serif;
-  text-shadow: 0 0 12px #ffd700, 0 0 24px #a259ff;
+  text-shadow: 0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -120,39 +120,39 @@ export const Title = styled.h1`
   &::before {
     content: '🏆';
     font-size: 1.2em;
-    filter: drop-shadow(0 0 8px #ffd700);
+    filter: drop-shadow(0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     animation: ${sparkle} 2s infinite;
   }
 `
 
-export const Subtitle = styled.p`
+export const Subtitle = styled.p<{ $theme?: any }>`
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: ${({ $theme }) => $theme?.colors?.text || 'rgba(255, 255, 255, 0.8)'};
   margin: 0;
   font-weight: 500;
 `
 
-export const TabRow = styled.div`
+export const TabRow = styled.div<{ $theme?: any }>`
   display: flex;
   gap: 8px;
-  background: rgba(24, 24, 24, 0.6);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.6)'};
   border-radius: 16px;
   padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   margin: 1rem 0 1.5rem;
   backdrop-filter: blur(15px);
 `
 
-export const TabButton = styled.button<{ $selected: boolean }>`
+export const TabButton = styled.button<{ $selected: boolean; $theme?: any }>`
   flex: 1;
   padding: 0.75rem 1rem;
   border: none;
-  background: ${({ $selected }) => 
+  background: ${({ $selected, $theme }) => 
     $selected 
-      ? 'linear-gradient(90deg, #ffd700, #a259ff)' 
-      : 'rgba(24, 24, 24, 0.6)'
+      ? `linear-gradient(90deg, ${$theme?.colors?.primary || '#ffd700'}, ${$theme?.colors?.secondary || '#a259ff'})` 
+      : $theme?.colors?.surface || 'rgba(24, 24, 24, 0.6)'
   };
-  color: ${({ $selected }) => ($selected ? '#222' : '#ffffff')};
+  color: ${({ $selected, $theme }) => ($selected ? ($theme?.colors?.background || '#222') : ($theme?.colors?.text || '#ffffff'))};
   font-size: 1rem;
   font-weight: 600;
   border-radius: 12px;
@@ -161,15 +161,15 @@ export const TabButton = styled.button<{ $selected: boolean }>`
   backdrop-filter: blur(10px);
 
   &:hover:not(:disabled) {
-    ${({ $selected }) => !$selected && css`
-      background: rgba(255, 215, 0, 0.1);
-      color: #ffd700;
+    ${({ $selected, $theme }) => !$selected && css`
+      background: ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.1)'};
+      color: ${$theme?.colors?.primary || '#ffd700'};
       transform: scale(1.02);
     `}
   }
 
-  ${({ $selected }) => $selected && css`
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  ${({ $selected, $theme }) => $selected && css`
+    box-shadow: 0 0 20px ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.3)'};
     animation: ${neonPulse} 2s infinite alternate;
   `}
 
@@ -185,18 +185,18 @@ export const LeaderboardList = styled.div`
   gap: 0.75rem;
 `
 
-export const ListHeader = styled.div`
+export const ListHeader = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
   font-size: 0.9rem;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
-  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  border-bottom: 2px solid ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.3)'};
   margin-bottom: 0.75rem;
-  background: rgba(255, 215, 0, 0.05);
+  background: ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.05)'};
   border-radius: 12px;
 `
 
@@ -204,89 +204,89 @@ export const HeaderRank = styled.div`flex: 0 0 60px; text-align: center;`
 export const HeaderPlayer = styled.div`flex: 1; padding-left: 0.5rem;`
 export const HeaderVolume = styled.div`flex: 0 0 120px; text-align: right;`
 
-export const RankItem = styled.div<{ $isTop3?: boolean }>`
+export const RankItem = styled.div<{ $isTop3?: boolean; $theme?: any }>`
   display: flex;
   align-items: center;
   padding: 1rem;
-  background: rgba(24, 24, 24, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.6)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 16px;
   transition: all 0.3s ease;
   backdrop-filter: blur(15px);
   position: relative;
 
   &:hover {
-    background: rgba(255, 215, 0, 0.1);
-    border-color: rgba(255, 215, 0, 0.3);
+    background: ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.1)'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.3)'};
     transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 20px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
   }
 
-  ${({ $isTop3 }) => $isTop3 && css`
-    border-color: rgba(255, 215, 0, 0.4);
-    background: rgba(255, 215, 0, 0.05);
-    box-shadow: 0 0 16px rgba(255, 215, 0, 0.2);
+  ${({ $isTop3, $theme }) => $isTop3 && css`
+    border-color: ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.4)'};
+    background: ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.05)'};
+    box-shadow: 0 0 16px ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
   `}
 `
 
-export const RankNumber = styled.div<{ rank: number }>`
+export const RankNumber = styled.div<{ rank: number; $theme?: any }>`
   flex: 0 0 60px;
   font-weight: 700;
   font-size: 1.1rem;
-  color: #fff;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  ${({ rank }) => rank === 1 && css`
+  ${({ rank, $theme }) => rank === 1 && css`
     &:before { content: '🥇'; margin-right: 0.5em; font-size: 1.3em; }
-    color: #ffd700;
-    text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+    color: ${$theme?.colors?.primary || '#ffd700'};
+    text-shadow: 0 0 12px ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.6)'};
     font-size: 1.2rem;
   `}
-  ${({ rank }) => rank === 2 && css`
+  ${({ rank, $theme }) => rank === 2 && css`
     &:before { content: '🥈'; margin-right: 0.5em; font-size: 1.3em; }
-    color: #c0c0c0;
-    text-shadow: 0 0 12px rgba(192, 192, 192, 0.5);
+    color: ${$theme?.colors?.secondary || '#c0c0c0'};
+    text-shadow: 0 0 12px ${$theme?.colors?.secondary || 'rgba(192, 192, 192, 0.5)'};
     font-size: 1.1rem;
   `}
-  ${({ rank }) => rank === 3 && css`
+  ${({ rank, $theme }) => rank === 3 && css`
     &:before { content: '🥉'; margin-right: 0.5em; font-size: 1.3em; }
-    color: #cd7f32;
-    text-shadow: 0 0 12px rgba(205, 127, 50, 0.5);
+    color: ${$theme?.colors?.accent || '#cd7f32'};
+    text-shadow: 0 0 12px ${$theme?.colors?.accent || 'rgba(205, 127, 50, 0.5)'};
     font-size: 1.1rem;
   `}
 `
 
-export const PlayerInfo = styled.div`
+export const PlayerInfo = styled.div<{ $theme?: any }>`
   flex: 1;
   padding-left: 0.75rem;
   font-size: 1rem;
-  color: #ffffff;
+  color: ${({ $theme }) => $theme?.colors?.text || '#ffffff'};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.text || 'rgba(255, 255, 255, 0.3)'};
 `
 
-export const VolumeAmount = styled.div`
+export const VolumeAmount = styled.div<{ $theme?: any }>`
   flex: 0 0 120px;
   text-align: right;
   font-size: 1rem;
   font-weight: 700;
-  color: #00ff88;
-  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+  color: ${({ $theme }) => $theme?.colors?.success || '#00ff88'};
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.success || 'rgba(0, 255, 136, 0.5)'};
 `
 
-export const LoadingText = styled.p`
+export const LoadingText = styled.p<{ $theme?: any }>`
   text-align: center;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   padding: 3rem 0;
   font-size: 1.2rem;
   font-weight: 600;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.5)'};
   
   &::before {
     content: '⏳';
@@ -296,13 +296,13 @@ export const LoadingText = styled.p`
   }
 `
 
-export const ErrorText = styled.p`
+export const ErrorText = styled.p<{ $theme?: any }>`
   text-align: center;
-  color: #ff6b6b;
+  color: ${({ $theme }) => $theme?.colors?.error || '#ff6b6b'};
   padding: 3rem 0;
   font-size: 1.1rem;
   font-weight: 600;
-  text-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.error || 'rgba(255, 107, 107, 0.5)'};
   
   &::before {
     content: '⚠️';
@@ -311,10 +311,10 @@ export const ErrorText = styled.p`
   }
 `
 
-export const EmptyStateText = styled.div`
+export const EmptyStateText = styled.div<{ $theme?: any }>`
   text-align: center;
   padding: 3rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.6)'};
   font-size: 1.1rem;
   font-weight: 500;
   

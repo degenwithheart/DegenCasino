@@ -11,6 +11,7 @@ function useThrottle(callback: () => void, delay: number) {
   }, [callback, delay]);
 }
 import styled, { keyframes } from 'styled-components'
+import { useTheme } from '../themes/ThemeContext'
 
 type ProviderResult = {
   provider: string;
@@ -32,12 +33,12 @@ type Status = {
 // Casino animations
 const neonPulse = keyframes`
   0% { 
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
-    border-color: #ffd70044;
+    box-shadow: 0 0 24px var(--secondary-color, #a259ff88), 0 0 48px var(--primary-color, #ffd70044);
+    border-color: var(--primary-color, #ffd70044);
   }
   100% { 
-    box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
-    border-color: #ffd700aa;
+    box-shadow: 0 0 48px var(--primary-color, #ffd700cc), 0 0 96px var(--secondary-color, #a259ff88);
+    border-color: var(--primary-color, #ffd700aa);
   }
 `;
 
@@ -51,9 +52,9 @@ const moveGradient = keyframes`
   100% { background-position: 100% 50%; }
 `;
 
-const PageContainer = styled.div`
+const PageContainer = styled.div<{ $theme?: any }>`
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(24, 24, 24, 0.95), rgba(47, 32, 82, 0.9), rgba(66, 32, 66, 0.85));
+  background: linear-gradient(135deg, ${({ $theme }) => $theme?.colors?.background || 'rgba(24, 24, 24, 0.95)'}, ${({ $theme }) => $theme?.colors?.surface || 'rgba(47, 32, 82, 0.9)'}, ${({ $theme }) => $theme?.colors?.border || 'rgba(66, 32, 66, 0.85)'});
   padding: 1.5rem;
   position: relative;
 
@@ -65,15 +66,15 @@ const PageContainer = styled.div`
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(255, 0, 204, 0.05) 0%, transparent 70%);
+      radial-gradient(circle at 20% 20%, ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.08)'} 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, ${({ $theme }) => $theme?.colors?.secondary || 'rgba(162, 89, 255, 0.08)'} 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, ${({ $theme }) => $theme?.colors?.accent || 'rgba(255, 0, 204, 0.05)'} 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
   }
 `
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled.div<{ $theme?: any }>`
   max-width: 112rem;
   margin: 0 auto;
   position: relative;
@@ -85,7 +86,7 @@ const ContentWrapper = styled.div`
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
+    background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     background-size: 300% 100%;
     animation: ${moveGradient} 4s linear infinite;
     border-radius: 2px;
@@ -117,12 +118,12 @@ const HeaderSection = styled.div`
   }
 `
 
-const MainTitle = styled.h1`
+const MainTitle = styled.h1<{ $theme?: any }>`
   font-size: 2.25rem;
   font-weight: 700;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   margin-bottom: 1rem;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
+  text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 2px;
   position: relative;
@@ -139,36 +140,38 @@ const MainTitle = styled.h1`
     transform: translateX(-50%);
     width: 200px;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #ffd700, #a259ff, #ffd700, transparent);
+    background: linear-gradient(90deg, transparent, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, transparent);
     background-size: 200% 100%;
     animation: ${moveGradient} 3s linear infinite;
     border-radius: 2px;
   }
 `
 
-const DomainBox = styled.div`
+const DomainBox = styled.div<{ $theme?: any }>`
   font-size: 1.25rem;
-  color: #ffd700;
-  background: rgba(24, 24, 24, 0.8);
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   backdrop-filter: blur(20px);
   border-radius: 12px;
   padding: 1rem 2rem;
   display: inline-block;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
+  box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
   transition: all 0.3s ease;
   animation: ${neonPulse} 2s ease-in-out infinite alternate;
+  --primary-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  --secondary-color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 32px rgba(255, 215, 0, 0.4);
-    border-color: rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 32px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.4)'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.6)'};
   }
   
   code {
-    color: #a259ff;
+    color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
     font-weight: 600;
-    text-shadow: 0 0 8px #a259ff;
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   }
 `
 
@@ -179,17 +182,19 @@ const LoadingSection = styled.div`
   padding: 5rem 0;
 `
 
-const LoadingBox = styled.div`
-  background: rgba(24, 24, 24, 0.8);
+const LoadingBox = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 2.5rem;
-  border: 2px solid rgba(255, 215, 0, 0.2);
-  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  box-shadow: 0 0 32px ${({ $theme }) => $theme?.colors?.shadow || 'rgba(0, 0, 0, 0.4)'};
   animation: ${neonPulse} 2s ease-in-out infinite alternate;
+  --primary-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  --secondary-color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
 `
 
-const LoadingContent = styled.div`
+const LoadingContent = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -197,11 +202,11 @@ const LoadingContent = styled.div`
   .spinner {
     width: 3rem;
     height: 3rem;
-    border: 3px solid rgba(255, 215, 0, 0.2);
-    border-top: 3px solid #ffd700;
+    border: 3px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+    border-top: 3px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    box-shadow: 0 0 16px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.3)'};
   }
   
   @keyframes spin {
@@ -210,10 +215,10 @@ const LoadingContent = styled.div`
   }
   
   p {
-    color: #ffd700;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     font-size: 1.125rem;
     font-weight: 600;
-    text-shadow: 0 0 8px #ffd700;
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   }
 `
 
@@ -235,7 +240,7 @@ const CardsGrid = styled.div`
   }
 `
 
-const StatusCard = styled.div<{ $isOnline: boolean }>`
+const StatusCard = styled.div<{ $isOnline: boolean; $theme?: any }>`
   position: relative;
   padding: 2rem;
   border-radius: 16px;
@@ -245,20 +250,15 @@ const StatusCard = styled.div<{ $isOnline: boolean }>`
   cursor: pointer;
   overflow: hidden;
   
-  background: ${props => props.$isOnline 
-    ? 'rgba(24, 24, 24, 0.8)'
-    : 'rgba(24, 24, 24, 0.8)'
-  };
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   
-  border-color: ${props => props.$isOnline 
-    ? 'rgba(16, 185, 129, 0.4)'
-    : 'rgba(220, 38, 127, 0.4)'
-  };
+  border-color: ${({ $isOnline, $theme }) => $isOnline 
+    ? $theme?.colors?.success || 'rgba(16, 185, 129, 0.4)'
+    : $theme?.colors?.error || 'rgba(220, 38, 127, 0.4)'};
 
-  box-shadow: ${props => props.$isOnline 
-    ? '0 0 24px rgba(16, 185, 129, 0.2)'
-    : '0 0 24px rgba(220, 38, 127, 0.2)'
-  };
+  box-shadow: ${({ $isOnline, $theme }) => $isOnline 
+    ? `0 0 24px ${$theme?.colors?.success || 'rgba(16, 185, 129, 0.2)'}`
+    : `0 0 24px ${$theme?.colors?.error || 'rgba(220, 38, 127, 0.2)'}`};
 
   &::before {
     content: '';
@@ -267,10 +267,9 @@ const StatusCard = styled.div<{ $isOnline: boolean }>`
     left: 0;
     width: 100%;
     height: 100%;
-    background: ${props => props.$isOnline 
-      ? 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 70%)'
-      : 'radial-gradient(circle at 50% 50%, rgba(220, 38, 127, 0.1) 0%, transparent 70%)'
-    };
+    background: ${({ $isOnline, $theme }) => $isOnline 
+      ? `radial-gradient(circle at 50% 50%, ${$theme?.colors?.success || 'rgba(16, 185, 129, 0.1)'} 0%, transparent 70%)`
+      : `radial-gradient(circle at 50% 50%, ${$theme?.colors?.error || 'rgba(220, 38, 127, 0.1)'} 0%, transparent 70%)`};
     pointer-events: none;
     z-index: -1;
   }
@@ -282,10 +281,9 @@ const StatusCard = styled.div<{ $isOnline: boolean }>`
     left: 0;
     right: 0;
     height: 3px;
-    background: ${props => props.$isOnline 
-      ? 'linear-gradient(90deg, #10b981, #34d399, #10b981)'
-      : 'linear-gradient(90deg, #dc2626, #f87171, #dc2626)'
-    };
+    background: ${({ $isOnline, $theme }) => $isOnline 
+      ? `linear-gradient(90deg, ${$theme?.colors?.success || '#10b981'}, ${$theme?.colors?.primary || '#34d399'}, ${$theme?.colors?.success || '#10b981'})`
+      : `linear-gradient(90deg, ${$theme?.colors?.error || '#dc2626'}, ${$theme?.colors?.secondary || '#f87171'}, ${$theme?.colors?.error || '#dc2626'})`};
     background-size: 200% 100%;
     animation: ${moveGradient} 3s linear infinite;
     z-index: 1;
@@ -293,11 +291,10 @@ const StatusCard = styled.div<{ $isOnline: boolean }>`
   
   &:hover {
     transform: scale(1.05) rotate(1deg);
-    box-shadow: ${props => props.$isOnline 
-      ? '0 0 48px rgba(16, 185, 129, 0.4)'
-      : '0 0 48px rgba(220, 38, 127, 0.4)'
-    };
-    border-color: ${props => props.$isOnline ? '#10b981' : '#dc2626'};
+    box-shadow: ${({ $isOnline, $theme }) => $isOnline 
+      ? `0 0 48px ${$theme?.colors?.success || 'rgba(16, 185, 129, 0.4)'}`
+      : `0 0 48px ${$theme?.colors?.error || 'rgba(220, 38, 127, 0.4)'}`};
+    border-color: ${({ $isOnline, $theme }) => $isOnline ? ($theme?.colors?.success || '#10b981') : ($theme?.colors?.error || '#dc2626')};
   }
 `
 
@@ -500,6 +497,7 @@ export default function PropagationPage() {
   const [domain, setDomain] = useState('')
   const [statusList, setStatusList] = useState<Status[]>([])
   const [loading, setLoading] = useState(false)
+  const theme = useTheme()
 
   // Throttle DNS API call to once per 60 seconds, singular, only when page is mounted
   const THROTTLE_MS = 60000; // 60 seconds
@@ -590,18 +588,18 @@ export default function PropagationPage() {
   }
 
   return (
-    <PageContainer>
-      <ContentWrapper>
+    <PageContainer $theme={theme}>
+      <ContentWrapper $theme={theme}>
         <HeaderSection>
-          <MainTitle>
+          <MainTitle $theme={theme}>
             🌍 Server Status
           </MainTitle>
         </HeaderSection>
 
         {loading && (
           <LoadingSection>
-            <LoadingBox>
-              <LoadingContent>
+            <LoadingBox $theme={theme}>
+              <LoadingContent $theme={theme}>
                 <div className="spinner"></div>
                 <p>Checking server status...</p>
               </LoadingContent>
@@ -612,7 +610,7 @@ export default function PropagationPage() {
         {!loading && (
           <CardsGrid>
             {statusList.map(({ location, country, code, status, providers }) => (
-              <StatusCard key={`${location}-${code}`} $isOnline={status === 'online'}>
+              <StatusCard key={`${location}-${code}`} $isOnline={status === 'online'} $theme={theme}>
                 <CardHeader>
                   <FlagEmoji $isOnline={status === 'online'}>
                     {getFlag(code)}
