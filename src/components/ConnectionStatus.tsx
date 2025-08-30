@@ -109,7 +109,7 @@ const ModalContentStyled = styled.div`
   padding: 2rem;
   max-width: 600px;
   width: 95vw;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   @media (max-width: 600px) {
     padding: 1rem 0.5rem;

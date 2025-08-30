@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components';
 
 const CasinoModalContent = styled.div`
-  width: 100vw;
-  max-width: 80vw;
+  width: 100%;
+  max-width: 600px;
   min-width: 0;
   min-height: 350px;
   max-height: 500px;
@@ -52,7 +52,7 @@ const CasinoModalContent = styled.div`
     min-height: 200px;
     padding: 0.25rem;
     border-radius: 10px;
-    max-width: 98vw;
+    max-width: calc(100vw - 2rem);
   }
 `;
 

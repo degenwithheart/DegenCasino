@@ -9,6 +9,7 @@ import { extractMetadata } from '../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../constants'
 import { ExplorerHeader } from './ExplorerHeader'
+import { useTheme } from '../themes/ThemeContext'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
@@ -47,10 +48,11 @@ interface ApiResponse {
   total: number
 }
 
-const PlatformContainer = styled.div`
+const PlatformContainer = styled.div<{ $theme?: any }>`
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
 `
 
 const Header = styled.div`
@@ -60,43 +62,43 @@ const Header = styled.div`
   margin-bottom: 32px;
 `
 
-const PlatformImage = styled.img`
+const PlatformImage = styled.img<{ $theme?: any }>`
   width: 64px;
   height: 64px;
   border-radius: 12px;
-  border: 2px solid #ff4444;
+  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ff4444'};
 `
 
 const PlatformInfo = styled.div`
   flex: 1;
 `
 
-const PlatformName = styled.h1`
+const PlatformName = styled.h1<{ $theme?: any }>`
   margin: 0 0 8px 0;
   font-size: 2rem;
-  color: white;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   display: flex;
   align-items: center;
   gap: 8px;
 `
 
-const PlatformIcon = styled.span`
-  color: #ff4444;
+const PlatformIcon = styled.span<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ff4444'};
   font-size: 1.5rem;
 `
 
-const PlatformAddress = styled.div`
+const PlatformAddress = styled.div<{ $theme?: any }>`
   font-family: monospace;
   font-size: 14px;
-  color: #888;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
 `
 
-const TopStatsRow = styled.div`
+const TopStatsRow = styled.div<{ $theme?: any }>`
   display: flex;
   gap: 32px;
   margin-bottom: 32px;
   font-size: 14px;
-  color: #888;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
 `
 
 const TopStat = styled.div`
@@ -105,12 +107,12 @@ const TopStat = styled.div`
   gap: 4px;
 `
 
-const TopStatLabel = styled.div`
-  color: #888;
+const TopStatLabel = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
 `
 
-const TopStatValue = styled.div`
-  color: white;
+const TopStatValue = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   font-size: 16px;
   font-weight: 500;
 `
@@ -122,24 +124,24 @@ const StatsGrid = styled.div`
   margin-bottom: 32px;
 `
 
-const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+const StatCard = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 12px;
   padding: 20px;
   text-align: center;
 `
 
-const StatLabel = styled.div`
+const StatLabel = styled.div<{ $theme?: any }>`
   font-size: 14px;
-  color: #888;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
   margin-bottom: 8px;
 `
 
-const StatValue = styled.div`
+const StatValue = styled.div<{ $theme?: any }>`
   font-size: 24px;
   font-weight: bold;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
 `
 
 const MainContent = styled.div`
@@ -153,23 +155,23 @@ const MainContent = styled.div`
   }
 `
 
-const Section = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+const Section = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 12px;
   padding: 24px;
 `
 
-const SectionTitle = styled.h3`
+const SectionTitle = styled.h3<{ $theme?: any }>`
   margin: 0 0 20px 0;
-  color: white;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   font-size: 18px;
   font-weight: 500;
 `
 
-const ChartContainer = styled.div`
+const ChartContainer = styled.div<{ $theme?: any }>`
   height: 200px;
-  background: rgba(0, 0, 0, 0.2);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(0, 0, 0, 0.2)'};
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -177,26 +179,26 @@ const ChartContainer = styled.div`
   margin-bottom: 24px;
 `
 
-const ChartPlaceholder = styled.div`
-  color: #666;
+const ChartPlaceholder = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#666'};
   font-size: 14px;
 `
 
 // Game Status Overview Components
-const GameStatusContainer = styled.div`
-  background: rgba(34, 34, 34, 0.9);
-  border: 1px solid rgba(76, 175, 80, 0.3);
+const GameStatusContainer = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(34, 34, 34, 0.9)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.success || 'rgba(76, 175, 80, 0.3)'};
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 32px;
 `
 
-const GameStatusHeader = styled.div`
+const GameStatusHeader = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  color: #4caf50;
+  color: ${({ $theme }) => $theme?.colors?.success || '#4caf50'};
   font-weight: 600;
   font-size: 16px;
 `
@@ -216,24 +218,24 @@ const StatusGrid = styled.div`
   }
 `
 
-const StatusCard = styled.div`
-  background: rgba(45, 45, 45, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+const StatusCard = styled.div<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(45, 45, 45, 0.8)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 8px;
   padding: 16px;
   text-align: center;
 `
 
-const StatusValue = styled.div`
+const StatusValue = styled.div<{ $theme?: any }>`
   font-size: 28px;
   font-weight: bold;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   margin-bottom: 8px;
 `
 
-const StatusLabel = styled.div`
+const StatusLabel = styled.div<{ $theme?: any }>`
   font-size: 12px;
-  color: #888;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `
@@ -245,8 +247,8 @@ const LeaderboardHeader = styled.div`
   margin-bottom: 16px;
 `
 
-const ViewAllLink = styled(Link)`
-  color: #ffd700;
+const ViewAllLink = styled(Link)<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   text-decoration: none;
   font-size: 14px;
   
@@ -261,17 +263,17 @@ const LeaderboardList = styled.div`
   gap: 12px;
 `
 
-const LeaderboardItem = styled.div`
+const LeaderboardItem = styled.div<{ $theme?: any }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(0, 0, 0, 0.2)'};
   border-radius: 8px;
   cursor: pointer;
   
   &:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(0, 0, 0, 0.3)'};
   }
 `
 
@@ -281,12 +283,12 @@ const PlayerInfo = styled.div`
   gap: 12px;
 `
 
-const Rank = styled.div`
+const Rank = styled.div<{ $theme?: any }>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #ffd700;
-  color: #000;
+  background: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  color: ${({ $theme }) => $theme?.colors?.background || '#000'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -294,14 +296,14 @@ const Rank = styled.div`
   font-size: 12px;
 `
 
-const PlayerAddress = styled.div`
+const PlayerAddress = styled.div<{ $theme?: any }>`
   font-family: monospace;
   font-size: 14px;
-  color: #ff6666;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
 `
 
-const VolumeAmount = styled.div`
-  color: white;
+const VolumeAmount = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   font-weight: 500;
 `
 
@@ -309,49 +311,49 @@ const RecentPlaysTable = styled.div`
   margin-top: 32px;
 `
 
-const TableHeader = styled.div`
+const TableHeader = styled.div<{ $theme?: any }>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   font-size: 14px;
-  color: #888;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
   font-weight: 500;
 `
 
-const TableRow = styled.div`
+const TableRow = styled.div<{ $theme?: any }>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.05)'};
   cursor: pointer;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.02)'};
   }
 `
 
-const PlatformCell = styled.div`
+const PlatformCell = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #ff6666;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
   font-size: 14px;
 `
 
-const PlayerCell = styled.div`
-  color: #ff6666;
+const PlayerCell = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
   font-family: monospace;
   font-size: 14px;
 `
 
-const TokenCell = styled.div`
+const TokenCell = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: white;
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   font-size: 14px;
 `
 
@@ -361,25 +363,25 @@ const TokenIcon = styled.img`
   border-radius: 50%;
 `
 
-const PayoutCell = styled.div<{$isWin: boolean}>`
+const PayoutCell = styled.div<{ $isWin: boolean; $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${props => props.$isWin ? '#4ade80' : 'white'};
+  color: ${props => props.$isWin ? (props.$theme?.colors?.success || '#4ade80') : (props.$theme?.colors?.text || 'white')};
   font-size: 14px;
 `
 
-const MultiplierBadge = styled.span<{$isWin: boolean}>`
-  background: ${props => props.$isWin ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.$isWin ? '#4ade80' : '#888'};
+const MultiplierBadge = styled.span<{ $isWin: boolean; $theme?: any }>`
+  background: ${props => props.$isWin ? 'rgba(74, 222, 128, 0.2)' : (props.$theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)')};
+  color: ${props => props.$isWin ? (props.$theme?.colors?.success || '#4ade80') : (props.$theme?.colors?.textSecondary || '#888')};
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
 `
 
-const TimeCell = styled.div`
-  color: #888;
+const TimeCell = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
   font-size: 14px;
 `
 
@@ -387,21 +389,21 @@ const DetailsSection = styled.div`
   margin-top: 32px;
 `
 
-const DetailItem = styled.div`
+const DetailItem = styled.div<{ $theme?: any }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.05)'};
 `
 
-const DetailLabel = styled.div`
-  color: #888;
+const DetailLabel = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
   font-size: 14px;
 `
 
-const DetailValue = styled.div`
-  color: white;
+const DetailValue = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
   font-family: monospace;
   font-size: 14px;
 `
@@ -426,7 +428,7 @@ function formatTimestamp({ time }: { time: number }) {
   return <span>{timeString} {dateString}</span>
 }
 
-function RecentPlayRow({ play, platformName }: { play: any; platformName: string }) {
+function RecentPlayRow({ play, platformName, theme }: { play: any; platformName: string; theme?: any }) {
   const navigate = useNavigate()
   
   // Create PublicKey objects for proper component usage
@@ -451,18 +453,18 @@ function RecentPlayRow({ play, platformName }: { play: any; platformName: string
   }
 
   return (
-    <TableRow onClick={handleClick}>
-      <PlayerCell>{play.user.slice(0, 4)}...{play.user.slice(-4)}</PlayerCell>
-      <TokenCell>
+    <TableRow $theme={theme} onClick={handleClick}>
+      <PlayerCell $theme={theme}>{play.user.slice(0, 4)}...{play.user.slice(-4)}</PlayerCell>
+      <TokenCell $theme={theme}>
         <TokenIcon src={token.image} alt={token.symbol} />
         <TokenValue amount={wager} mint={tokenMint} />
       </TokenCell>
-      <PayoutCell $isWin={isWin}>
+      <PayoutCell $theme={theme} $isWin={isWin}>
         <TokenIcon src={token.image} alt={token.symbol} />
         <TokenValue amount={payout} mint={tokenMint} />
-        {isWin && <MultiplierBadge $isWin={isWin}>{multiplier.toFixed(2)}x</MultiplierBadge>}
+        {isWin && <MultiplierBadge $theme={theme} $isWin={isWin}>{multiplier.toFixed(2)}x</MultiplierBadge>}
       </PayoutCell>
-      <TimeCell>
+      <TimeCell $theme={theme}>
         {formatTimestamp({ time: play.time || Date.now() })}
       </TimeCell>
     </TableRow>
@@ -470,6 +472,7 @@ function RecentPlayRow({ play, platformName }: { play: any; platformName: string
 }
 
 export function PlatformView() {
+  const { currentTheme } = useTheme()
   const { creator } = useParams<{creator: string}>()
   const [stats, setStats] = React.useState<any>(null)
   const [recentPlays, setRecentPlays] = React.useState<any[]>([])
@@ -675,39 +678,39 @@ export function PlatformView() {
   })
 
   return (
-    <PlatformContainer>
+    <PlatformContainer $theme={currentTheme}>
       <ExplorerHeader />
 
       {/* Game Status Overview */}
-      <GameStatusContainer>
-        <GameStatusHeader>
+      <GameStatusContainer $theme={currentTheme}>
+        <GameStatusHeader $theme={currentTheme}>
           📊 PLATFORM STATISTICS
         </GameStatusHeader>
         <StatusGrid>
-          <StatusCard>
-            <StatusValue>${calculatedVolume.toFixed(2)}</StatusValue>
-            <StatusLabel>VOLUME</StatusLabel>
+          <StatusCard $theme={currentTheme}>
+            <StatusValue $theme={currentTheme}>${calculatedVolume.toFixed(2)}</StatusValue>
+            <StatusLabel $theme={currentTheme}>VOLUME</StatusLabel>
           </StatusCard>
-          <StatusCard>
-            <StatusValue>${estimatedFees.toFixed(2)}</StatusValue>
-            <StatusLabel>ESTIMATED FEES</StatusLabel>
+          <StatusCard $theme={currentTheme}>
+            <StatusValue $theme={currentTheme}>${estimatedFees.toFixed(2)}</StatusValue>
+            <StatusLabel $theme={currentTheme}>ESTIMATED FEES</StatusLabel>
           </StatusCard>
-          <StatusCard>
-            <StatusValue>{recentPlays.length}</StatusValue>
-            <StatusLabel>PLAYS</StatusLabel>
+          <StatusCard $theme={currentTheme}>
+            <StatusValue $theme={currentTheme}>{recentPlays.length}</StatusValue>
+            <StatusLabel $theme={currentTheme}>PLAYS</StatusLabel>
           </StatusCard>
-          <StatusCard>
-            <StatusValue>{new Set(recentPlays.map(play => play.user)).size}</StatusValue>
-            <StatusLabel>PLAYERS</StatusLabel>
+          <StatusCard $theme={currentTheme}>
+            <StatusValue $theme={currentTheme}>{new Set(recentPlays.map(play => play.user)).size}</StatusValue>
+            <StatusLabel $theme={currentTheme}>PLAYERS</StatusLabel>
           </StatusCard>
         </StatusGrid>
       </GameStatusContainer>
 
       {/* All Plays Section */}
       <RecentPlaysTable>
-        <Section>
-          <SectionTitle>All Plays</SectionTitle>
-          <TableHeader>
+        <Section $theme={currentTheme}>
+          <SectionTitle $theme={currentTheme}>All Plays</SectionTitle>
+          <TableHeader $theme={currentTheme}>
             <div>Player</div>
             <div>Wager</div>
             <div>Payout</div>
@@ -718,15 +721,16 @@ export function PlatformView() {
               key={play.signature || index}
               play={play}
               platformName={creator === PLATFORM_CREATOR_ADDRESS.toString() ? 'DegenCasino' : '6o1i...8ocZ'}
+              theme={currentTheme}
             />
           ))}
           {loading && (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+            <div style={{ padding: '20px', textAlign: 'center', color: currentTheme?.colors?.textSecondary || '#666' }}>
               Loading games...
             </div>
           )}
           {!loading && recentPlays.length === 0 && (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+            <div style={{ padding: '20px', textAlign: 'center', color: currentTheme?.colors?.textSecondary || '#666' }}>
               No games found
             </div>
           )}

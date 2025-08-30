@@ -19,18 +19,19 @@ import TokenSelect from './TokenSelect'
 import { UserButton } from './UserButton'
 import { ENABLE_LEADERBOARD } from '../constants'
 import { useIsCompact } from '../hooks/useIsCompact'
-// import ConnectionStatus from '../components/ConnectionStatus'
+import { ThemeSelector } from '../components/ThemeSelector'
+import { useTheme } from '../themes/ThemeContext'
 
 /* ─────── Casino Animations ───────────────────────────────────────────── */
 
 const neonPulse = keyframes`
   0% { 
-    box-shadow: 0 0 12px #a259ff88, 0 0 24px #ffd70044;
-    text-shadow: 0 0 8px #ffd700;
+    box-shadow: 0 0 12px var(--secondary-color-88), 0 0 24px var(--primary-color-44);
+    text-shadow: 0 0 8px var(--primary-color);
   }
   100% { 
-    box-shadow: 0 0 24px #ffd700cc, 0 0 48px #a259ff88;
-    text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
+    box-shadow: 0 0 24px var(--primary-color-cc), 0 0 48px var(--secondary-color-88);
+    text-shadow: 0 0 16px var(--primary-color), 0 0 32px var(--secondary-color);
   }
 `;
 
@@ -41,7 +42,7 @@ const sparkle = keyframes`
 
 /* ─────── styled ───────────────────────────────────────────── */
 
-const StyledHeader = styled.div<{ offset?: number }>`
+const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
   position: fixed;
   top: ${({ offset }) => offset ?? 0}px;
   left: 0;
@@ -80,7 +81,7 @@ const StyledHeader = styled.div<{ offset?: number }>`
   }
 `
 
-const Logo = styled(NavLink)`
+const Logo = styled(NavLink)<{ $theme?: any }>`
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -101,18 +102,18 @@ const Logo = styled(NavLink)`
   img {
     height: 42px;
     transition: all 0.3s ease-in-out;
-    filter: drop-shadow(0 0 8px #ffd700);
+    filter: drop-shadow(0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     border-radius: 8px;
   }
 
   span {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #ffd700;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     white-space: nowrap;
     user-select: none;
     font-family: 'Luckiest Guy', cursive, sans-serif;
-    text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
+    text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
     letter-spacing: 1px;
     animation: ${neonPulse} 2s infinite alternate;
     /* Remove any background or box-shadow here as well */
@@ -123,7 +124,7 @@ const Logo = styled(NavLink)`
   &:hover {
     img {
       transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 0 16px #ffd700);
+      filter: drop-shadow(0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     }
     
     span {
@@ -148,61 +149,92 @@ const Logo = styled(NavLink)`
   }
 `
 
-const Bonus = styled.button<{ noBackground?: boolean }>`
-  background: ${({ noBackground }) => (noBackground ? 'transparent' : 'linear-gradient(135deg, rgba(162, 89, 255, 0.8), rgba(255, 215, 0, 0.6))')};
-  color: #fff;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 12px;
-  padding: 8px 14px;
-  font-size: 13px;
+const Bonus = styled.button<{ $theme?: any }>`
+  /* flat transparent button to match GambaUi.Button */
+  background: transparent;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  border: none;
+  padding: 8px 10px;
+  font-size: 14px;
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 12px rgba(162, 89, 255, 0.3);
-  backdrop-filter: blur(10px);
+  transition: color 0.12s ease, transform 0.12s ease;
+  box-shadow: none;
+  backdrop-filter: none;
 
   &:hover,
   &:focus {
-    background: ${({ noBackground }) => (noBackground ? 'rgba(255, 215, 0, 0.1)' : 'linear-gradient(135deg, rgba(255, 215, 0, 0.8), rgba(162, 89, 255, 0.6))')};
-    transform: translateY(-2px) scale(1.05);
-    border-color: rgba(255, 215, 0, 0.6);
+    transform: translateY(-2px);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    outline: none;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+`
+
+const JackpotBonus = styled.button<{ $theme?: any }>`
+  /* flat transparent button to match GambaUi.Button */
+  background: transparent;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  border: none;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: color 0.12s ease, transform 0.12s ease;
+  box-shadow: none;
+  backdrop-filter: none;
+
+  &:hover,
+  &:focus {
+    transform: translateY(-2px);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    outline: none;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+`;
+
+const ThemeButton = styled.button<{ $theme?: any }>`
+  /* flat transparent button to match GambaUi.Button */
+  background: transparent;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  border: none;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: color 0.12s ease, transform 0.12s ease;
+  box-shadow: none;
+  backdrop-filter: none;
+
+  &:hover,
+  &:focus {
+    transform: translateY(-2px);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     outline: none;
   }
 
   @media (max-width: 600px) {
     padding: 5px 8px;
     font-size: 11px;
-    border-radius: 8px;
   }
-`
-
-const JackpotBonus = styled(Bonus)`
-  font-size: 16px;
-  padding: 10px 18px;
-  font-weight: 700;
-  color: #222;
-  background: linear-gradient(135deg, #ffd700, #ff9500);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 215, 0, 0.8);
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 1px;
-
-  &:hover,
-  &:focus {
-    background: linear-gradient(135deg, #ff9500, #ffd700);
-    transform: translateY(-3px) scale(1.08);
-    outline: none;
-  }
-
-  @media (max-width: 1024px) {
-    font-size: 13px;
-    padding: 7px 10px;
-    border-radius: 8px;
-  }
-`
+`;
 
 const RightGroup = styled.div<{ $isCompact: boolean }>`
   display: flex;
@@ -230,10 +262,12 @@ export default function Header() {
   const balance = useUserBalance()
   const { compact: isCompact, mobile } = useIsCompact()
   const navigate = useNavigate()
+  const { currentTheme } = useTheme()
 
   const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
   const [showLeaderboard, setShowLeaderboard] = React.useState(false)
+  const [showThemeSelector, setShowThemeSelector] = React.useState(false)
 
   return (
     <>
@@ -255,9 +289,16 @@ export default function Header() {
         />
       )}
 
+      {/* Theme selector modal */}
+      {showThemeSelector && (
+        <Modal onClose={() => setShowThemeSelector(false)}>
+          <ThemeSelector />
+        </Modal>
+      )}
+
       {/* Header bar */}
       <StyledHeader>
-        <Logo to="/">
+        <Logo to="/" $theme={currentTheme}>
           {!isCompact ? (
             <span>DegenHeart.casino</span>
           ) : (
@@ -267,24 +308,28 @@ export default function Header() {
 
         <RightGroup $isCompact={isCompact}>
           {pool.jackpotBalance > 0 && (
-            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info">
+            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
               💰
-              {!isCompact && <TokenValue amount={pool.jackpotBalance} />}
+              {!isCompact && 'Jackpot'}
             </JackpotBonus>
           )}
 
-          {balance.bonusBalance > 0 && (
-            <Bonus onClick={() => setBonusHelp(true)} aria-label="Bonus info">
-              ✨
-              {!isCompact && <TokenValue amount={balance.bonusBalance} />}
-            </Bonus>
-          )}
+          <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
+            ✨
+            {!isCompact && 'Bonus'}
+          </Bonus>
 
           {/* Leaderboard trigger */}
           <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
             🏆
             {!isCompact && ' Leaderboard'}
           </GambaUi.Button>
+
+          {/* Theme selector trigger */}
+          <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
+            🎨
+            {!isCompact && ' Theme'}
+          </ThemeButton>
 
           {/* Pass isCompact to UserButton to hide text on small */}
           <UserButton />

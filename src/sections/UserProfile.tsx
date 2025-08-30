@@ -12,6 +12,7 @@ import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-re
 import { generateUsernameFromWallet, generateDegenStoryFromWallet } from './userProfileUtils';
 import { ReferralDashboard } from '../components/ReferralDashboard';
 import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../components/ReferralLeaderboardModal';
+import { useTheme } from '../themes/ThemeContext';
 
 // Casino animations
 const neonPulse = keyframes`
@@ -44,19 +45,19 @@ interface ProfileContainerProps {
   $compact?: boolean;
 }
 
-const ProfileContainer = styled.div<ProfileContainerProps>`
+const ProfileContainer = styled.div<ProfileContainerProps & { $theme?: any }>`
   max-width: none; /* Let main handle max-width */
   padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
   margin: 2rem 0; /* Only vertical margins */
-  background: #0f0f23;
+  background: ${({ $theme }) => $theme?.colors?.background || '#0f0f23'};
   border-radius: 12px;
-  border: 1px solid #2a2a4a;
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
   position: relative;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #ffd700;
-    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 24px rgba(255, 215, 0, 0.2)'};
     transform: translateY(-2px);
   }
 
@@ -77,14 +78,14 @@ const ProfileContainer = styled.div<ProfileContainerProps>`
   }
 `;
 
-const ProfileHeader = styled.div`
+const ProfileHeader = styled.div<{ $theme?: any }>`
   text-align: center;
   margin-bottom: 4rem;
   
   h1 {
     font-family: 'Luckiest Guy', cursive;
     font-size: 3rem;
-    color: #ffd700;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     margin-bottom: 1rem;
   }
 
@@ -235,6 +236,7 @@ const DefaultAvatar = styled.div`
 export function Profile() {
   const wallet = useWallet();
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
   const [username, setUsername] = useState("Guest");
   const [bio, setBio] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -303,10 +305,10 @@ export function Profile() {
 
   return (
     <>
-      <ProfileContainer>
-      <ProfileHeader>
-        <h1>👤 User Profile 🎰</h1>
-      </ProfileHeader>
+      <ProfileContainer $theme={currentTheme}>
+        <ProfileHeader $theme={currentTheme}>
+          <h1>👤 User Profile 🎰</h1>
+        </ProfileHeader>
       
       {/* Banner container */}
       <div

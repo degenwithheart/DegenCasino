@@ -15,18 +15,19 @@ import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../con
 import EnhancedTickerTape from "../../components/EnhancedTickerTape";
 import { useIsCompact } from "../../hooks/useIsCompact";
 import { FullReferralLeaderboard } from "../../components/FullReferralLeaderboard";
+import { useTheme } from "../../themes/ThemeContext";
 
 // Remove hook call at module scope. Use inside Dashboard instead.
 
 // Keyframe animations
-const neonPulse = keyframes`
+const neonPulse = keyframes<{ $theme?: any }>`
   0% { 
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
-    border-color: #ffd70044;
+    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88, 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
   }
   100% { 
-    box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
-    border-color: #ffd700aa;
+    box-shadow: 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc, 0 0 96px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}aa;
   }
 `;
 
@@ -41,14 +42,12 @@ const sparkle = keyframes`
 `;
 
 // Animated accent bar
-const AccentBar = styled.div`
+const AccentBar = styled.div<{ $theme?: any }>`
   height: 6px;
   width: 100%;
   border-radius: 3px;
   margin: 0.5rem 0 1.5rem;
-  background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-  background-size: 300% 100%;
-  animation: ${moveGradient} 3s linear infinite;
+  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
 `;
 
 // Casino sparkle decoration
@@ -64,16 +63,23 @@ const CasinoSparkles = styled.div`
 // Global Dashboard wrapper with enhanced casino styling
 interface CompactDivProps {
   $compact?: boolean;
+  $theme?: any;
 }
 const DashboardWrapper = styled.div<CompactDivProps>`
-  max-width: 100%;
+  max-width: none; /* Let main handle max-width */
   margin: 2rem 0; /* Only vertical margins */
-  padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
-  background: rgba(24, 24, 24, 0.6);
-  border-radius: ${({ $compact }) => ($compact ? '0.8rem' : '1.2rem')};
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
+  background: ${({ $theme }) => $theme?.colors?.background || '#0f0f23'};
+  border-radius: 12px;
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
   position: relative;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 24px rgba(255, 215, 0, 0.2)'};
+    transform: translateY(-2px);
+  }
 
   &::before {
     content: '';
@@ -83,36 +89,36 @@ const DashboardWrapper = styled.div<CompactDivProps>`
     width: 100vw;
     height: 100vh;
     background: 
-      radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 80%, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}11 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}11 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }
 
   @media (max-width: 1200px) {
     margin: 1.5rem 0;
-    padding: ${({ $compact }) => ($compact ? '0.8rem' : '1.5rem')};
+    padding: ${({ $compact }) => ($compact ? '1.5rem' : '2rem')};
   }
   @media (max-width: 900px) {
-    margin: 0.5rem 0;
-    padding: ${({ $compact }) => ($compact ? '0.4rem' : '0.8rem')};
+    margin: 1rem 0;
+    padding: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
   }
   @media (max-width: 700px) {
-    margin: 0.25rem 0;
-    padding: ${({ $compact }) => ($compact ? '0.3rem' : '0.5rem')};
-    border-radius: ${({ $compact }) => ($compact ? '0.6rem' : '0.8rem')};
+    margin: 0.5rem 0;
+    padding: ${({ $compact }) => ($compact ? '0.8rem' : '1rem')};
+    border-radius: ${({ $compact }) => ($compact ? '0.8rem' : '1rem')};
     max-width: 100vw;
   }
   @media (max-width: 480px) {
     margin: 0;
-    padding: ${({ $compact }) => ($compact ? '0.2rem' : '0.3rem')};
-    border-radius: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
+    padding: ${({ $compact }) => ($compact ? '0.6rem' : '0.8rem')};
+    border-radius: 0.8rem;
     max-width: 100vw;
   }
   @media (max-width: 400px) {
     margin: 0;
-    padding: ${({ $compact }) => ($compact ? '0.1rem' : '0.2rem')};
-    border-radius: 0.3rem;
+    padding: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
+    border-radius: 0.6rem;
     max-width: 100vw;
   }
 `;
@@ -122,7 +128,7 @@ type CompactProps = {
   $compact?: boolean;
 };
 
-const GameSliderWrapper = styled.div`
+const GameSliderWrapper = styled.div<{ $theme?: any }>`
   width: 100%;
   display: flex;
   gap: 1.5rem;
@@ -133,7 +139,7 @@ const GameSliderWrapper = styled.div`
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: ${({ $theme }) => `rgba(255, 255, 255, 0.1) ${$theme?.colors?.surface || 'transparent'}`};
   scroll-behavior: smooth;
 
   /* Ensure minimum touch target size */
@@ -147,17 +153,17 @@ const GameSliderWrapper = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #ffd700;
+    background-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: #a259ff;
+    background-color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
     border-radius: 4px;
   }
 
@@ -193,7 +199,7 @@ const GameSliderWrapper = styled.div`
 `;
 
 // Glassy wrapper for game cards in slider with neon effects
-const GameCardWrapper = styled.div<CompactProps>`
+const GameCardWrapper = styled.div<CompactProps & { $theme?: any }>`
   width: ${({ $compact }) => ($compact ? '180px' : '200px')};
   height: ${({ $compact }) => ($compact ? '162px' : '180px')};
   max-width: 220px;
@@ -216,8 +222,8 @@ const GameCardWrapper = styled.div<CompactProps>`
 
   &:hover {
     transform: scale(1.03) rotate(-1deg);
-    box-shadow: 0 0 32px #ffd700cc, 0 0 64px #a259ff88;
-    border: 2px solid #ffd700;
+    box-shadow: 0 0 32px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc, 0 0 64px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
+    border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
     z-index: 10;
   }
 
@@ -228,7 +234,7 @@ const GameCardWrapper = styled.div<CompactProps>`
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(45deg, #ffd700, #a259ff, #ff00cc, #ffd700);
+    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     border-radius: 1rem;
     opacity: 0;
     z-index: -1;
@@ -284,54 +290,67 @@ const Grid = styled.div<CompactDivProps>`
 `;
 
 const SectionWrapper = styled.div<CompactDivProps>`
-  max-width: 100vw;
+  max-width: none; /* Let main handle max-width */
   margin-bottom: 3rem;
   margin-top: 3rem;
-  padding: ${({ $compact }) => ($compact ? '0.7rem 1rem' : '1.5rem 2rem')};
-  background: rgba(24, 24, 24, 0.6);
-  backdrop-filter: blur(15px);
-  border-radius: ${({ $compact }) => ($compact ? '0.7rem' : '1rem')};
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
+  background: #0f0f23;
+  border-radius: 12px;
+  border: 1px solid #2a2a4a;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}22;
+    transform: translateY(-2px);
+  }
 
   /* Ensure game cards don't overflow outside section */
   overflow: hidden;
-  position: relative;
 
   h2 {
     text-align: center;
     margin-bottom: 1.5rem;
     font-family: 'Luckiest Guy', cursive, sans-serif;
     font-size: ${({ $compact }) => ($compact ? '1.2rem' : '2rem')};
-    color: #ffd700;
-    text-shadow: 0 0 8px #ffd700, 0 0 24px #a259ff;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
     letter-spacing: 1px;
   }
 
   @media (max-width: 900px) {
     margin-bottom: 1rem;
     margin-top: 1rem;
-    padding: ${({ $compact }) => ($compact ? '0.2rem 0.5rem' : '0.5rem 1rem')};
-    border-radius: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
-    h2 {
-      font-size: ${({ $compact }) => ($compact ? '0.95rem' : '1.1rem')};
-    }
+    padding: ${({ $compact }) => ($compact ? '0.5rem' : '1rem')};
+    border-radius: 12px;
   }
   @media (max-width: 700px) {
     margin-left: 0;
+    border-radius: 12px;
+  }
+  @media (max-width: 480px) {
+    margin: 0.5rem 0;
+    padding: ${({ $compact }) => ($compact ? '0.5rem' : '0.75rem')};
+    border-radius: 12px;
+  }
+  @media (max-width: 400px) {
+    margin: 0.25rem 0;
+    padding: ${({ $compact }) => ($compact ? '0.25rem' : '0.5rem')};
+    border-radius: 8px;
   }
 `;
 
-const ConnectButton = styled.button<CompactDivProps>`
+const ConnectButton = styled.button<CompactDivProps & { $theme?: any }>`
   margin: 2rem auto 0;
   display: block;
   padding: ${({ $compact }) => ($compact ? '0.7rem 1.2rem' : '1rem 2.5rem')};
   font-size: ${({ $compact }) => ($compact ? '1rem' : '1.3rem')};
   font-weight: 700;
   border-radius: ${({ $compact }) => ($compact ? '1.2rem' : '2rem')};
-  background: linear-gradient(90deg, #ffd700, #a259ff);
-  color: #222;
-  box-shadow: 0 0 24px #ffd70088;
+  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'});
+  color: ${({ $theme }) => $theme?.colors?.background || '#222'};
+  box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}88;
   border: none;
   cursor: pointer;
   animation: ${neonPulse} 1.5s infinite alternate;
@@ -341,7 +360,35 @@ const ConnectButton = styled.button<CompactDivProps>`
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 48px #ffd700cc;
+    box-shadow: 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc;
+  }
+`;
+
+const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $theme?: any }>`
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'Luckiest Guy', cursive, sans-serif;
+  font-size: ${({ $compact }) => ($compact ? '1.1rem' : '1.3rem')};
+  color: ${({ $active, $theme }) => $active ? ($theme?.colors?.primary || '#ffd700') : 'rgba(255, 255, 255, 0.7)'};
+  text-shadow: ${({ $active, $theme }) => $active
+    ? `0 0 8px ${$theme?.colors?.primary || '#ffd700'}, 0 0 24px ${$theme?.colors?.secondary || '#a259ff'}`
+    : `0 0 4px ${$theme?.colors?.primary || '#ffd700'}44`
+  };
+  letter-spacing: 1px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+  outline: none;
+  filter: ${({ $active, $theme }) => $active ? `drop-shadow(0 0 8px ${$theme?.colors?.primary || '#ffd700'})` : 'none'};
+  opacity: ${({ $active }) => $active ? 1 : 0.5};
+  border-bottom: ${({ $active, $theme }) => $active ? `3px solid ${$theme?.colors?.primary || '#ffd700'}` : '3px solid transparent'};
+  padding-bottom: 0.2em;
+
+  &:hover {
+    opacity: 0.8;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   }
 `;
 
@@ -362,6 +409,7 @@ export function Dashboard() {
   const { compact, screenTooSmall } = useIsCompact();
   const handleWalletConnect = useHandleWalletConnect();
   const { openGamesModal } = useContext(GamesModalContext);
+  const { currentTheme } = useTheme();
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
@@ -371,7 +419,7 @@ export function Dashboard() {
   const liveNewGames = GAMES().filter(g => g.live === 'new');
 
   return (
-    <DashboardWrapper $compact={compact}>
+    <DashboardWrapper $compact={compact} $theme={currentTheme}>
       <CasinoSparkles>✨</CasinoSparkles>
       <WelcomeBanner />
       <EnhancedTickerTape />
@@ -386,85 +434,31 @@ export function Dashboard() {
             margin: '2rem 0',
             flexWrap: 'wrap'
           }}>
-            <button
+            <ToggleButton
+              $active={activeSection === 'games'}
+              $compact={compact}
+              $theme={currentTheme}
               onClick={() => setActiveSection('games')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                margin: 0,
-                fontFamily: "'Luckiest Guy', cursive, sans-serif",
-                fontSize: compact ? '1.1rem' : '1.3rem',
-                color: activeSection === 'games' ? '#ffd700' : '#fff2',
-                textShadow: activeSection === 'games'
-                  ? '0 0 8px #ffd700, 0 0 24px #a259ff'
-                  : '0 0 4px #ffd70044',
-                letterSpacing: '1px',
-                cursor: 'pointer',
-                fontWeight: 700,
-                transition: 'all 0.2s',
-                outline: 'none',
-                filter: activeSection === 'games' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
-                opacity: activeSection === 'games' ? 1 : 0.5,
-                borderBottom: activeSection === 'games' ? '3px solid #ffd700' : '3px solid transparent',
-                paddingBottom: '0.2em',
-              }}
             >
               🃏 All Games
-            </button>
-            <button
+            </ToggleButton>
+            <ToggleButton
+              $active={activeSection === 'plays'}
+              $compact={compact}
+              $theme={currentTheme}
               onClick={() => setActiveSection('plays')}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                margin: 0,
-                fontFamily: "'Luckiest Guy', cursive, sans-serif",
-                fontSize: compact ? '1.1rem' : '1.3rem',
-                color: activeSection === 'plays' ? '#ffd700' : '#fff2',
-                textShadow: activeSection === 'plays'
-                  ? '0 0 8px #ffd700, 0 0 24px #a259ff'
-                  : '0 0 4px #ffd70044',
-                letterSpacing: '1px',
-                cursor: 'pointer',
-                fontWeight: 700,
-                transition: 'all 0.2s',
-                outline: 'none',
-                filter: activeSection === 'plays' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
-                opacity: activeSection === 'plays' ? 1 : 0.5,
-                borderBottom: activeSection === 'plays' ? '3px solid #ffd700' : '3px solid transparent',
-                paddingBottom: '0.2em',
-              }}
             >
               🕹️ Recent Plays
-            </button>
+            </ToggleButton>
             {ENABLE_LEADERBOARD && (
-              <button
+              <ToggleButton
+                $active={activeSection === 'referrals'}
+                $compact={compact}
+                $theme={currentTheme}
                 onClick={() => setActiveSection('referrals')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  margin: 0,
-                  fontFamily: "'Luckiest Guy', cursive, sans-serif",
-                  fontSize: compact ? '1.1rem' : '1.3rem',
-                  color: activeSection === 'referrals' ? '#ffd700' : '#fff2',
-                  textShadow: activeSection === 'referrals'
-                    ? '0 0 8px #ffd700, 0 0 24px #a259ff'
-                    : '0 0 4px #ffd70044',
-                  letterSpacing: '1px',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  transition: 'all 0.2s',
-                  outline: 'none',
-                  filter: activeSection === 'referrals' ? 'drop-shadow(0 0 8px #ffd700)' : 'none',
-                  opacity: activeSection === 'referrals' ? 1 : 0.5,
-                  borderBottom: activeSection === 'referrals' ? '3px solid #ffd700' : '3px solid transparent',
-                  paddingBottom: '0.2em',
-                }}
               >
                 🏆 Referral Leaders
-              </button>
+              </ToggleButton>
             )}
           </div>
 

@@ -6,11 +6,11 @@ const casinoMoveGradient = keyframes`
 `;
 
 const CasinoModalContent = styled.div`
-  width: 100vw;
-  max-width: 80vw;
+  width: 100%;
+  max-width: 600px;
   min-width: 0;
   min-height: 350px;
-  max-height: 500px;
+  max-height: 80vh;
   margin-bottom: 4rem;
   margin-top: 4rem;
   padding: 4rem;
@@ -20,6 +20,7 @@ const CasinoModalContent = styled.div`
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   position: relative;
   color: white;
+  overflow-y: auto;
   &::before {
     content: '';
     position: absolute;
@@ -57,7 +58,7 @@ const CasinoModalContent = styled.div`
     min-height: 200px;
     padding: 0.25rem;
     border-radius: 10px;
-    max-width: 98vw;
+    max-width: calc(100vw - 2rem);
   }
 `;
 import { decodeGame, getGameAddress, getPlayerUnderlyingAta, getUserUnderlyingAta } from 'gamba-core-v2'

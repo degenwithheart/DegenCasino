@@ -8,6 +8,7 @@ import {
   Period,
   Player,            // exported from the hook
 } from '../../hooks/useLeaderboardData'
+import { useTheme } from '../../themes/ThemeContext'
 
 import {
   ModalContent,
@@ -44,6 +45,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   creator,
 }) => {
   const [period, setPeriod] = useState<Period>('weekly') // default
+  const theme = useTheme()
 
   const {
     data: leaderboard,
@@ -52,20 +54,21 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   } = useLeaderboardData(period, creator)
 
   return (
-    <ModalContent>
+    <ModalContent $theme={theme}>
       {/* ────── header ────── */}
       <HeaderSection>
-        <Title>Leaderboard</Title>
-        <Subtitle>
+        <Title $theme={theme}>Leaderboard</Title>
+        <Subtitle $theme={theme}>
           Top players by volume{' '}
           {period === 'weekly' ? 'this week' : 'this month'} (USD)
         </Subtitle>
       </HeaderSection>
 
       {/* ────── tabs ────── */}
-      <TabRow>
+      <TabRow $theme={theme}>
         <TabButton
           $selected={period === 'weekly'}
+          $theme={theme}
           onClick={() => setPeriod('weekly')}
           disabled={loading}
         >
@@ -74,6 +77,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
 
         <TabButton
           $selected={period === 'monthly'}
+          $theme={theme}
           onClick={() => setPeriod('monthly')}
           disabled={loading}
         >
@@ -83,12 +87,12 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
 
       {/* ────── body ────── */}
       {loading ? (
-        <LoadingText>Loading...</LoadingText>
+        <LoadingText $theme={theme}>Loading...</LoadingText>
       ) : error ? (
-        <ErrorText>{error}</ErrorText>
+        <ErrorText $theme={theme}>{error}</ErrorText>
       ) : leaderboard && leaderboard.length > 0 ? (
         <LeaderboardList>
-          <ListHeader>
+          <ListHeader $theme={theme}>
             <HeaderRank>Rank</HeaderRank>
             <HeaderPlayer>Player</HeaderPlayer>
             <HeaderVolume>Volume&nbsp;(USD)</HeaderVolume>
@@ -97,16 +101,16 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
           {leaderboard.map((entry: Player, index) => {
             const rank = index + 1
             return (
-              <RankItem key={entry.user} $isTop3={rank <= 3}>
-                <RankNumber rank={rank}>{rank > 3 ? rank : ''}</RankNumber>
-                <PlayerInfo title={entry.user}>{entry.user}</PlayerInfo>
-                <VolumeAmount>{formatVolume(entry.usd_volume)}</VolumeAmount>
+              <RankItem key={entry.user} $isTop3={rank <= 3} $theme={theme}>
+                <RankNumber rank={rank} $theme={theme}>{rank > 3 ? rank : ''}</RankNumber>
+                <PlayerInfo $theme={theme} title={entry.user}>{entry.user}</PlayerInfo>
+                <VolumeAmount $theme={theme}>{formatVolume(entry.usd_volume)}</VolumeAmount>
               </RankItem>
             )
           })}
         </LeaderboardList>
       ) : (
-        <EmptyStateText>Coming soon.</EmptyStateText>
+        <EmptyStateText $theme={theme}>Coming soon.</EmptyStateText>
       )}
     </ModalContent>
   )

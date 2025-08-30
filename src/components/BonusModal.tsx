@@ -223,37 +223,45 @@ interface BonusModalProps {
   onClose: () => void
 }
 
-const BonusModal: React.FC<BonusModalProps> = ({ onClose }) => {
+const BonusInner: React.FC = () => {
   const balance = useUserBalance()
 
   return (
+    <ModalContent>
+      <HeaderSection>
+        <Title>Bonus ✨</Title>
+      </HeaderSection>
+
+      <BonusAmount>
+        <TokenValue amount={balance.bonusBalance} />
+        <span>FREE PLAYS</span>
+      </BonusAmount>
+
+      <InfoText>
+        You have <strong><TokenValue amount={balance.bonusBalance} /></strong> worth of free plays available!
+      </InfoText>
+
+      <FeatureList>
+        <li>Bonus applies automatically when you play</li>
+        <li>Small wallet fee still required for transactions</li>
+        <li>No expiration on bonus funds</li>
+        <li>Use on any game in the casino</li>
+      </FeatureList>
+
+      <InfoText>
+        Start playing any game and your bonus will be applied automatically. 
+        The house edge works in your favor with these free plays!
+      </InfoText>
+    </ModalContent>
+  )
+}
+
+export const BonusContent = BonusInner
+
+const BonusModal: React.FC<BonusModalProps> = ({ onClose }) => {
+  return (
     <Modal onClose={onClose}>
-      <ModalContent>
-        <HeaderSection>
-          <Title>Bonus ✨</Title>
-        </HeaderSection>
-
-        <BonusAmount>
-          <TokenValue amount={balance.bonusBalance} />
-          <span>FREE PLAYS</span>
-        </BonusAmount>
-
-        <InfoText>
-          You have <strong><TokenValue amount={balance.bonusBalance} /></strong> worth of free plays available!
-        </InfoText>
-
-        <FeatureList>
-          <li>Bonus applies automatically when you play</li>
-          <li>Small wallet fee still required for transactions</li>
-          <li>No expiration on bonus funds</li>
-          <li>Use on any game in the casino</li>
-        </FeatureList>
-
-        <InfoText>
-          Start playing any game and your bonus will be applied automatically. 
-          The house edge works in your favor with these free plays!
-        </InfoText>
-      </ModalContent>
+      <BonusContent />
     </Modal>
   )
 }

@@ -34,7 +34,7 @@ const SliderButton = styled.button`
   }
 `
 
-const StyledContent = styled.div`
+const StyledContent = styled.div<{ $theme?: any }>`
   display: flex;
   gap: 15px;
   width: 100%;
@@ -47,7 +47,7 @@ const StyledContent = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #cccccc33;
+    background-color: ${({ $theme }) => $theme?.colors?.border || '#cccccc'}33;
   }
 
   & > * {
