@@ -3,6 +3,7 @@ import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurren
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../constants'
+import { useWallet } from '@solana/wallet-adapter-react'
 
 // Casino animations
 const neonPulse = keyframes`
@@ -349,6 +350,7 @@ const JackpotInner: React.FC = () => {
   const pool = useCurrentPool()
   const context = useGambaPlatformContext()
   const token = useCurrentToken()
+  const { connected } = useWallet()
   const meta = useTokenMeta(token?.mint)
 
   // Calculate minimum wager in token amount ($1 USD for real tokens)
@@ -416,29 +418,31 @@ const JackpotInner: React.FC = () => {
         </PoolStatsGrid>
       </PoolStatsContainer>
 
-      <ControlSection>
-        <ControlLabel>
-          <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
-            <ControlTitle>Jackpot Participation</ControlTitle>
-            <ControlSubtitle>
-              {context.defaultJackpotFee === 0 
-                ? "Currently disabled – you won't contribute and are not eligible to win"
-                : 'Currently enabled – you contribute and are eligible to win'}
-            </ControlSubtitle>
-          </ControlText>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-            <StatusBadge $enabled={context.defaultJackpotFee > 0}>
-              {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
-            </StatusBadge>
-            <GambaUi.Switch
-              checked={context.defaultJackpotFee > 0}
-              onChange={(checked) =>
-                context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
-              }
-            />
-          </div>
-        </ControlLabel>
-      </ControlSection>
+      {connected && (
+        <ControlSection>
+          <ControlLabel>
+            <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
+              <ControlTitle>Jackpot Participation</ControlTitle>
+              <ControlSubtitle>
+                {context.defaultJackpotFee === 0 
+                  ? "Currently disabled – you won't contribute and are not eligible to win"
+                  : 'Currently enabled – you contribute and are eligible to win'}
+              </ControlSubtitle>
+            </ControlText>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              <StatusBadge $enabled={context.defaultJackpotFee > 0}>
+                {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
+              </StatusBadge>
+              <GambaUi.Switch
+                checked={context.defaultJackpotFee > 0}
+                onChange={(checked) =>
+                  context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
+                }
+              />
+            </div>
+          </ControlLabel>
+        </ControlSection>
+      )}
 
       <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
         Good luck and may the odds be ever in your favor! 🍀
