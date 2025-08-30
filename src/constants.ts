@@ -313,7 +313,7 @@ export const MOBILE_FOOTER_LINKS_CONNECTED = [
 export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
   {
     href: '/',
-    title: 'Home',
+    title: 'Welcome',
   },
   {
     href: '/audit',
