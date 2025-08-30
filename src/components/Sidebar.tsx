@@ -20,20 +20,8 @@ const SidebarContainer = styled.nav`
 	align-items: center;
 	z-index: 200;
 	
-	/* Midscreen: convert vertical sidebar into bottom nav */
+	/* Hide sidebar on tablets and below */
 	@media (max-width: 900px) {
-		flex-direction: row;
-		width: 100vw;
-		height: 70px;
-		left: 0;
-		top: auto;
-		bottom: 0;
-		box-shadow: 0 -2px 16px #ffd70044;
-		padding: 0 1rem;
-	}
-
-	/* Small mobile: hide sidebar so burger menu footer can take over */
-	@media (max-width: 600px) {
 		display: none;
 	}
 `;
@@ -47,20 +35,6 @@ const SidebarList = styled.ul`
 	flex-direction: column;
 	gap: 1.5rem;
 	width: 100%;
-
-	/* Midscreen bottom nav layout */
-	@media (max-width: 900px) {
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-around;
-		gap: 0.5rem;
-		flex: 1;
-		margin: 0;
-	}
-	
-	@media (max-width: 480px) {
-		gap: 0.25rem;
-	}
 `;
 
 const SidebarItem = styled.li<{ $active?: boolean }>`
@@ -94,10 +68,6 @@ const SidebarItem = styled.li<{ $active?: boolean }>`
 
 const CasinoLogo = styled.div`
 	margin: 1.5rem 0 2rem;
-	@media (max-width: 900px) {
-		/* Hide logo to save vertical space in bottom nav variant */
-		display: none;
-	}
 	img {
 		width: 48px;
 		height: 48px;

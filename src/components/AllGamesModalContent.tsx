@@ -15,14 +15,21 @@ const moveGradient = keyframes`
 
 
 const ModalContent = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  z-index: 9999;
-  overflow: hidden;
+  /* Desktop/base: cap at 700px while respecting dynamic viewport (handles mobile browser UI) */
+  width: min(700px, 96dvw);
+  min-width: 0;
+  min-height: 200px;
+  max-height: 500px;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding: 2rem;
+  background: rgba(24, 24, 24, 0.95);
+  border-radius: 1rem;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+  color: white;
+  animation: ${moveGradient} 3s ease-in-out;
 
   &::before {
     content: '';
@@ -31,11 +38,12 @@ const ModalContent = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.03) 0%, transparent 50%);
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
+    border-radius: 24px;
   }
 
   &::after {
@@ -48,23 +56,27 @@ const ModalContent = styled.div`
     background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
     background-size: 300% 100%;
     animation: ${moveGradient} 4s linear infinite;
+    border-radius: 24px 24px 0 0;
     z-index: 1;
   }
-`;
 
-const ModalHeader = styled.header`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background: rgba(24, 24, 24, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @media (max-width: 1200px) {
+    padding: 1rem;
+  }
+  @media (max-width: 800px) {
+    padding: 0.5rem;
+  }
+  @media (max-width: 600px) {
+    min-height: 200px;
+    padding: 0.9rem 1rem 1.15rem;
+    border-radius: 16px;
+    /* Fill viewport minus margins; narrower upper bound keeps cards readable */
+    width: 400px;
+    margin: 12px auto 16px;
+    box-sizing: border-box;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
 `;
 
 const HeaderSection = styled.div`
@@ -95,7 +107,7 @@ const Title = styled.h1`
   font-size: 2.2rem;
   font-weight: 700;
   color: #ffd700;
-  margin: 0;
+  margin-bottom: 0.5rem;
   text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   letter-spacing: 2px;
@@ -117,57 +129,7 @@ const Title = styled.h1`
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
-  }
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  color: #ffd700;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  z-index: 10;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 215, 0, 0.5);
-  }
-`;
-
-const ContentWrapper = styled.div`
-  position: absolute;
-  top: 80px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  padding: 2rem;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  box-sizing: border-box;
-
-  @media (max-width: 600px) {
-    padding: 1rem 0.75rem;
-    top: 70px;
+    margin-bottom: 0.25rem;
   }
 `;
 
@@ -180,18 +142,6 @@ const HorizontalScroll = styled.div`
   max-width: 100%;
   scrollbar-width: thin;
   scrollbar-color: #ffd700 #181818;
-  scroll-behavior: smooth;
-
-  /* Hide scrollbar on mobile but keep functionality */
-  @media (max-width: 600px) {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
   &::-webkit-scrollbar {
     height: 6px;
     background: #181818;
@@ -199,17 +149,7 @@ const HorizontalScroll = styled.div`
   &::-webkit-scrollbar-thumb {
     background: #ffd700;
     border-radius: 4px;
-    &:hover {
-      background: #a259ff;
-    }
   }
-
-  /* Ensure proper scrolling on all devices */
-  scroll-snap-type: x mandatory;
-
-  /* Prevent content from being cut off */
-  padding-bottom: 1rem;
-  margin-bottom: -0.5rem;
 `;
 
 // Card wrapper to match StyledGameCard sizing
@@ -221,60 +161,41 @@ const MenuCardWrapper = styled.div`
   max-height: 100px;
   display: flex;
   align-items: stretch;
-  flex-shrink: 0;
-
-  /* Add scroll snap for better UX */
-  scroll-snap-align: start;
-
-  /* Ensure cards don't get compressed */
-  @media (max-width: 600px) {
-    width: 140px;
-    min-width: 140px;
-    max-width: 140px;
-  }
 `;
 
 
 type AllGamesModalContentProps = {
   onGameClick?: (game: typeof ALL_GAMES[0]) => void;
-  onClose?: () => void;
 };
 
 
-const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick, onClose }) => {
+const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick }) => {
   return (
-    <>
-      <ModalOverlay onClick={onClose} />
-      <ModalContent>
-        <ModalHeader>
-          <Title>All Games</Title>
-          <CloseButton onClick={onClose}>×</CloseButton>
-        </ModalHeader>
-
-        <ContentWrapper>
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ color: '#ffd700', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Singleplayer</h2>
-            <HorizontalScroll>
-              {SINGLEPLAYER_GAMES.map(game => (
-                <MenuCardWrapper key={game.id}>
-                  <GameCard game={game} onClick={() => onGameClick?.(game)} />
-                </MenuCardWrapper>
-              ))}
-            </HorizontalScroll>
-          </div>
-          <div>
-            <h2 style={{ color: '#a259ff', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Multiplayer</h2>
-            <HorizontalScroll>
-              {MULTIPLAYER_GAMES.map(game => (
-                <MenuCardWrapper key={game.id}>
-                  <GameCard game={game} onClick={() => onGameClick?.(game)} />
-                </MenuCardWrapper>
-              ))}
-            </HorizontalScroll>
-          </div>
-        </ContentWrapper>
-      </ModalContent>
-    </>
+    <ModalContent>
+      <HeaderSection>
+        <Title>All Games</Title>
+      </HeaderSection>
+      <div style={{ marginBottom: '2rem' }}>
+        <h2 style={{ color: '#ffd700', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Singleplayer</h2>
+        <HorizontalScroll>
+          {SINGLEPLAYER_GAMES.map(game => (
+            <MenuCardWrapper key={game.id}>
+              <GameCard game={game} onClick={() => onGameClick?.(game)} />
+            </MenuCardWrapper>
+          ))}
+        </HorizontalScroll>
+      </div>
+      <div>
+        <h2 style={{ color: '#a259ff', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Multiplayer</h2>
+        <HorizontalScroll>
+          {MULTIPLAYER_GAMES.map(game => (
+            <MenuCardWrapper key={game.id}>
+              <GameCard game={game} onClick={() => onGameClick?.(game)} />
+            </MenuCardWrapper>
+          ))}
+        </HorizontalScroll>
+      </div>
+    </ModalContent>
   );
 };
 

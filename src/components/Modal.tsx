@@ -52,14 +52,6 @@ const Wrapper = styled.div`
   padding-bottom: 20px;
   animation: wrapper-appear2 0.3s;
   color: white;
-
-  @media (max-width: 600px) {
-  max-width: 480px;
-  width: 100%;
-  border-radius: 16px;
-  padding: 12px 12px 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px #ffffff10;
-  background: rgba(24, 24, 24, 0.98);
   }
 `
 
@@ -105,19 +97,7 @@ const StyledModal = styled.div`
   }
 
   & button.close {
-    margin: 0;
-    position: absolute;
-    cursor: pointer;
-    right: 15px;
-    top: 25px;
-    border: none;
-    z-index: 11;
-    opacity: 0.75;
-    transition: opacity 0.2s, background 0.2s;
-    background: transparent;
-    border-radius: 50%;
-    width: 2em;
-    height: 2em;
+    display: none;
 
     &:hover {
       opacity: 1;
@@ -126,12 +106,24 @@ const StyledModal = styled.div`
 
     & svg {
       color: white;
-      vertical-align: middle;
+      width: 1em;
+      height: 1em;
     }
 
     @media (max-width: 600px) {
-      right: 8px;
-      top: 8px;
+      margin: 0;
+      border: none;
+      z-index: 11;
+      opacity: 0.75;
+      transition: opacity 0.2s, background 0.2s;
+      background: transparent;
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      right: 35px;
+      top: 15px;
       width: 2.2em;
       height: 2.2em;
       background: rgba(0,0,0,0.1);
