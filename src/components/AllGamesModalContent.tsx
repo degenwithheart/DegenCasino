@@ -8,6 +8,12 @@ import { GameCard } from '../sections/Dashboard/GameCard';
 const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Singleplayer');
 const MULTIPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Multiplayer');
 
+// Quantum animations
+const sparkle = keyframes`
+  0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.8); }
+  50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
+`;
+
 const moveGradient = keyframes`
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
@@ -23,13 +29,13 @@ const ModalContent = styled.div`
   margin-bottom: 1rem;
   margin-top: 1rem;
   padding: 2rem;
-  background: rgba(24, 24, 24, 0.95);
-  border-radius: 1rem;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  background: rgba(20, 30, 60, 0.92);
+  border-radius: 18px;
+  border: 2px solid rgba(111, 250, 255, 0.3);
+  box-shadow: 0 0 32px rgba(111, 250, 255, 0.2);
   position: relative;
-  color: white;
-  animation: ${moveGradient} 3s ease-in-out;
+  color: #eaf6fb;
+  font-family: 'JetBrains Mono', 'Orbitron', monospace;
 
   &::before {
     content: '';
@@ -39,11 +45,11 @@ const ModalContent = styled.div`
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 20% 20%, rgba(111, 250, 255, 0.08) 0%, transparent 50%),
       radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
-    border-radius: 24px;
+    border-radius: 18px;
   }
 
   &::after {
@@ -53,10 +59,10 @@ const ModalContent = styled.div`
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
+    background: linear-gradient(90deg, #6ffaff, #a259ff, #6ffaff);
     background-size: 300% 100%;
     animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
+    border-radius: 18px 18px 0 0;
     z-index: 1;
   }
 
@@ -85,47 +91,24 @@ const HeaderSection = styled.div`
   position: relative;
 
   &::before {
-    content: '✨';
+    content: '⚛️';
     position: absolute;
-    top: -10px;
-    right: 20%;
-    font-size: 2rem;
-    animation: ${moveGradient} 3s infinite;
-  }
-
-  &::after {
-    content: '🎮';
-    position: absolute;
-    top: 10px;
-    left: 15%;
-    font-size: 1.5rem;
-    animation: ${moveGradient} 2s infinite reverse;
+    top: -15px;
+    right: 15%;
+    font-size: 2.5rem;
+    animation: ${sparkle} 4s infinite;
+    filter: drop-shadow(0 0 8px #6ffaff);
   }
 `;
 
 const Title = styled.h1`
+  color: #6ffaff;
   font-size: 2.2rem;
   font-weight: 700;
-  color: #ffd700;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 2px;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #ffd700, #a259ff, #ffd700, transparent);
-    background-size: 200% 100%;
-    animation: ${moveGradient} 3s linear infinite;
-    border-radius: 2px;
-  }
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 16px #6ffaffcc, 0 0 4px #fff;
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
@@ -141,14 +124,15 @@ const HorizontalScroll = styled.div`
   padding: 0.5rem 0 1rem 0;
   max-width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: #ffd700 #181818;
+  scrollbar-color: #6ffaff #181818;
   &::-webkit-scrollbar {
     height: 6px;
     background: #181818;
   }
   &::-webkit-scrollbar-thumb {
-    background: #ffd700;
+    background: #6ffaff;
     border-radius: 4px;
+    box-shadow: 0 0 8px rgba(111, 250, 255, 0.5);
   }
 `;
 
@@ -173,10 +157,17 @@ const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick
   return (
     <ModalContent>
       <HeaderSection>
-        <Title>All Games</Title>
+        <Title>ALL GAMES</Title>
       </HeaderSection>
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ color: '#ffd700', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Singleplayer</h2>
+        <h2 style={{ 
+          color: '#6ffaff', 
+          fontSize: '1.2rem', 
+          margin: '0 0 0.5rem 0', 
+          fontWeight: 600,
+          fontFamily: "'JetBrains Mono', monospace",
+          textShadow: '0 0 8px #6ffaff88'
+        }}>Singleplayer</h2>
         <HorizontalScroll>
           {SINGLEPLAYER_GAMES.map(game => (
             <MenuCardWrapper key={game.id}>
@@ -186,7 +177,14 @@ const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick
         </HorizontalScroll>
       </div>
       <div>
-        <h2 style={{ color: '#a259ff', fontSize: '1.2rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>Multiplayer</h2>
+        <h2 style={{ 
+          color: '#a259ff', 
+          fontSize: '1.2rem', 
+          margin: '0 0 0.5rem 0', 
+          fontWeight: 600,
+          fontFamily: "'JetBrains Mono', monospace",
+          textShadow: '0 0 8px #a259ff88'
+        }}>Multiplayer</h2>
         <HorizontalScroll>
           {MULTIPLAYER_GAMES.map(game => (
             <MenuCardWrapper key={game.id}>

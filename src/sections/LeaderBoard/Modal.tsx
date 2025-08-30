@@ -1,85 +1,125 @@
 import React from 'react'
 import { Icon } from './Icon'
 import useOutsideClick from '../../hooks/useOutsideClick'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 interface Props extends React.PropsWithChildren {
   onClose?: () => void
 }
 
+// Quantum portal animations
+const quantumDissolve = keyframes`
+  0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-10deg); }
+  60% { opacity: 1; filter: blur(2px); transform: scale(1.05) rotate(2deg); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1) rotate(0deg); }
+`;
+
+const portalRing = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
 const Container = styled.div`
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0a0a1a 60%, #1a0033 100%);
+  z-index: 9999;
   display: flex;
-  padding: 20px;
-  min-height: calc(100vh - 6rem);
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  animation: ${quantumDissolve} 0.8s cubic-bezier(0.7,0.2,0.2,1);
+`
+
+const Portal = styled.div`
+  position: relative;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a0033 60%, #0a0a1a 100%);
+  box-shadow: 0 0 80px 20px rgba(111, 250, 255, 0.3), 0 0 0 8px rgba(46, 26, 77, 0.6);
 
   @media (max-width: 600px) {
-    padding: 8px 0;
-    min-height: 100vh;
-    align-items: flex-start;
+    width: 98vw;
+    height: 98vw;
+    max-width: 98vw;
+    max-height: 98vw;
   }
 `
 
-const Wrapper = styled.div`
-  @keyframes wrapper-appear2 {
-    0% {
-      transform: scale(0.9);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
+const EnergyRing = styled.div`
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  border: 6px solid rgba(111, 250, 255, 0.8);
+  box-shadow: 0 0 32px 8px rgba(111, 250, 255, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  animation: ${portalRing} 4s linear infinite;
+`
 
-  box-sizing: border-box;
+const EnergyRing2 = styled(EnergyRing)`
+  border: 3px dashed rgba(162, 89, 255, 0.8);
+  box-shadow: 0 0 24px 4px rgba(162, 89, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation-duration: 7s;
+  animation-direction: reverse;
+`
+
+const HoloText = styled.div`
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(111, 250, 255, 0.9);
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 12px rgba(111, 250, 255, 0.8), 0 0 2px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  user-select: none;
+`
+
+const Wrapper = styled.div`
   position: relative;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  z-index: 100;
-  border-radius: 10px;
-  padding-bottom: 20px;
-  animation: wrapper-appear2 0.3s;
-  color: white;
+  z-index: 2;
+  background: rgba(20, 30, 60, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 0 32px rgba(111, 250, 255, 0.2), 0 0 0 2px rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  min-height: 120px;
+  color: #eaf6fb;
+  font-family: 'JetBrains Mono', 'Orbitron', 'monospace';
+  animation: ${quantumDissolve} 0.8s cubic-bezier(0.7,0.2,0.2,1);
+  box-sizing: border-box;
 
   @media (max-width: 600px) {
-    max-width: calc(100vw - 16px);
     min-width: 0;
-    border-radius: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 12px;
-    box-shadow: none;
-    background: rgba(24, 24, 24, 1);
+    max-width: 90vw;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
   }
 `
 
 const StyledModal = styled.div`
-  @keyframes appear {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  transition: opacity linear 150ms;
-  background: rgba(0, 0, 0, 0.5);
+  background: radial-gradient(ellipse at center, #0a0a1a 60%, #1a0033 100%);
   z-index: 100;
   overflow-y: auto;
   height: 100vh;
-  animation: appear 0.3s;
+  animation: ${quantumDissolve} 0.8s cubic-bezier(0.7,0.2,0.2,1);
 
   & h1 {
     text-align: center;
     padding: 40px 0 20px 0;
     font-size: 24px;
+    color: #6ffaff;
+    text-shadow: 0 0 16px rgba(111, 250, 255, 0.8);
+    font-family: 'Orbitron', monospace;
     @media (max-width: 600px) {
       padding: 24px 0 12px 0;
       font-size: 20px;
@@ -89,6 +129,8 @@ const StyledModal = styled.div`
   & p {
     padding: 0 30px;
     text-align: center;
+    color: #eaf6fb;
+    font-family: 'JetBrains Mono', monospace;
     @media (max-width: 600px) {
       padding: 0 10px;
       font-size: 0.98rem;
@@ -99,24 +141,30 @@ const StyledModal = styled.div`
     margin: 0;
     position: absolute;
     cursor: pointer;
-    right: 15px;
-    top: 25px;
+    right: 18px;
+    top: 18px;
     border: none;
     z-index: 11;
-    opacity: 0.75;
-    transition: opacity 0.2s, background 0.2s;
-    background: transparent;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, rgba(111, 250, 255, 0.2), rgba(162, 89, 255, 0.1));
     border-radius: 50%;
-    width: 2em;
-    height: 2em;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(111, 250, 255, 0.2);
 
     &:hover {
       opacity: 1;
-      background: #ffffff22;
+      background: linear-gradient(135deg, rgba(162, 89, 255, 0.4), rgba(111, 250, 255, 0.4));
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(111, 250, 255, 0.4);
     }
 
     & svg {
-      color: white;
+      color: #eaf6fb;
       vertical-align: middle;
     }
 
@@ -146,8 +194,11 @@ export function Modal({ children, onClose }: Props) {
   })
 
   return (
-    <StyledModal>
-      <Container>
+    <Container>
+      <Portal>
+        <EnergyRing />
+        <EnergyRing2 />
+        <HoloText>QUANTUM PORTAL</HoloText>
         <Wrapper ref={ref}>
           {onClose && (
             <button className="close" onClick={onClose} aria-label="Close modal">
@@ -156,7 +207,7 @@ export function Modal({ children, onClose }: Props) {
           )}
           {children}
         </Wrapper>
-      </Container>
-    </StyledModal>
+      </Portal>
+    </Container>
   )
 }

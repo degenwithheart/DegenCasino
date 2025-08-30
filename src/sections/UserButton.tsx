@@ -3,6 +3,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useHandleWalletConnect } from './walletConnect';
 import { PublicKey } from '@solana/web3.js'
 import React, { useState } from 'react'
+import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from '../components/Modal'
 import {
@@ -355,7 +356,9 @@ export function UserButton() {
 
   return (
     <>
-      {wallet.connected && user.userModal && <TokenSelectionModal />}
+      {wallet.connected && user.userModal &&
+        ReactDOM.createPortal(<TokenSelectionModal />, document.body)
+      }
 
       {wallet.connected ? (
         <WalletButtonWrapper>

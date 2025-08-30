@@ -2,157 +2,68 @@ import React from 'react'
 import { TokenValue, useUserBalance } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
-
-// Casino animations
-const neonPulse = keyframes`
-  0% { 
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
-    border-color: #ffd70044;
-  }
-  100% { 
-    box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
-    border-color: #ffd700aa;
-  }
-`;
-
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.8); }
-  50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
-`;
-
-const moveGradient = keyframes`
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-`;
-
-const ModalContent = styled.div`
-  max-width: 360px;
-  margin: auto;
-  padding: 1.5rem 1.25rem;
-  border-radius: 18px;
-  background: rgba(24, 24, 24, 0.95);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 48px rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  color: white;
-  position: relative;
-  animation: ${neonPulse} 3s ease-in-out infinite alternate;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-  }
-
-  @media (max-width: 600px) {
-    padding: 0.75rem 0.5rem;
-    margin: 1rem;
-    max-width: calc(100vw - 2rem);
-    border-radius: 10px;
-  }
-`
+import { sparkle } from '../themes/globalThemes'
 
 const HeaderSection = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   position: relative;
 
   &::before {
-    content: '✨';
+    content: '⚛️';
     position: absolute;
-    top: -10px;
-    right: 20%;
-    font-size: 2rem;
-    animation: ${sparkle} 3s infinite;
-  }
-
-  &::after {
-    content: '🎁';
-    position: absolute;
-    top: 10px;
-    left: 15%;
-    font-size: 1.5rem;
-    animation: ${sparkle} 2s infinite reverse;
+    top: -15px;
+    right: 15%;
+    font-size: 2.5rem;
+    animation: ${sparkle} 4s infinite;
+    filter: drop-shadow(0 0 8px #6ffaff);
   }
 `
 
-const Title = styled.h1`
-  font-size: 2.5rem;
+const Title = styled.h2`
+  color: #6ffaff;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #ffd700;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #a259ff;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 2px;
-  position: relative;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 16px #6ffaffcc, 0 0 4px #fff;
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+`
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #ffd700, #a259ff, #ffd700, transparent);
-    background-size: 200% 100%;
-    animation: ${moveGradient} 3s linear infinite;
-    border-radius: 2px;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 1.6rem;
-    margin-bottom: 0.25rem;
-  }
+const Subtitle = styled.p`
+  color: #a259ff;
+  font-size: 0.9rem;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 8px #a259ff88;
+  font-family: 'JetBrains Mono', monospace;
 `
 
 const BonusAmount = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 215, 0, 0.1);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 16px;
+  background: rgba(111, 250, 255, 0.08);
+  border: 2px solid rgba(111, 250, 255, 0.3);
+  border-radius: 12px;
   padding: 1rem 1.5rem;
   margin: 1.5rem 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0 0 8px #ffd700;
-  box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
+  color: #6ffaff;
+  text-shadow: 0 0 8px #6ffaff;
+  box-shadow: 0 0 16px rgba(111, 250, 255, 0.15);
   transition: all 0.3s ease;
+  font-family: 'JetBrains Mono', monospace;
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 32px rgba(255, 215, 0, 0.4);
-    border-color: rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 24px rgba(111, 250, 255, 0.25);
+    border-color: rgba(111, 250, 255, 0.5);
   }
 
   &::before {
-    content: '💰';
+    content: '⚛️';
     font-size: 1.5rem;
   }
 
@@ -165,51 +76,56 @@ const BonusAmount = styled.div`
 `
 
 const InfoText = styled.p`
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #e0e0e0;
-  margin-bottom: 1rem;
+  color: #eaf6fb;
+  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
   text-align: center;
+  margin: 1rem 0;
+  line-height: 1.5;
+  opacity: 0.9;
 
   strong, b {
-    color: #ffd700;
+    color: #6ffaff;
     font-weight: 700;
-    text-shadow: 0 0 8px #ffd700;
+    text-shadow: 0 0 6px #6ffaff88;
   }
 `
 
 const FeatureList = styled.ul`
+  background: rgba(111, 250, 255, 0.08);
+  border: 1px solid rgba(111, 250, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
   list-style: none;
-  padding: 0;
-  margin: 1.5rem 0;
 
   li {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    color: #c0c0c0;
-    font-size: 1rem;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    color: #eaf6fb;
+    font-size: 0.95rem;
+    font-family: 'JetBrains Mono', monospace;
 
     &::before {
-      content: '✓';
-      color: #10b981;
-      font-weight: bold;
+      content: '⚛️';
       font-size: 1.2rem;
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(111, 250, 255, 0.15);
       border-radius: 50%;
       width: 24px;
       height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 8px rgba(111, 250, 255, 0.25);
+      filter: drop-shadow(0 0 4px #6ffaff);
     }
 
     @media (max-width: 600px) {
-      font-size: 0.95rem;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      gap: 0.4rem;
+      padding: 0.3rem 0;
       &::before {
         width: 20px;
         height: 20px;
@@ -227,9 +143,16 @@ const BonusInner: React.FC = () => {
   const balance = useUserBalance()
 
   return (
-    <ModalContent>
+    <div style={{ 
+      maxWidth: '420px', 
+      margin: '0 auto',
+      padding: '1.5rem',
+      color: '#eaf6fb',
+      fontFamily: "'JetBrains Mono', 'Orbitron', 'monospace'"
+    }}>
       <HeaderSection>
-        <Title>Bonus ✨</Title>
+        <Title>BONUS SYSTEM</Title>
+        <Subtitle>Free Play Quantum Mechanics</Subtitle>
       </HeaderSection>
 
       <BonusAmount>
@@ -252,7 +175,7 @@ const BonusInner: React.FC = () => {
         Start playing any game and your bonus will be applied automatically. 
         The house edge works in your favor with these free plays!
       </InfoText>
-    </ModalContent>
+    </div>
   )
 }
 
