@@ -1,6 +1,6 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
-import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS } from '../constants'
+import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../constants'
 import ConnectionStatus from '../components/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
@@ -219,9 +219,9 @@ function Footer() {
       </StyledFooter>
 
       <MobileFooter>
-        {MOBILE_FOOTER_LINKS.map((link) => {
-          // Special handling for Games modal trigger
-          if (link.label === 'Games') {
+        {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
+          // Special handling for Games modal trigger (only available when connected)
+          if ('label' in link && link.label === 'Games') {
             return (
               <button
                 key={link.title}
@@ -247,10 +247,14 @@ function Footer() {
           }
           
           // Regular navigation links
+          const href = typeof link.href === 'string' && link.href.includes('${base58}') 
+            ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
+            : link.href;
+            
           return (
             <a
-              key={link.href}
-              href={link.href}
+              key={link.title}
+              href={href}
               rel="noopener noreferrer"
               style={{
                 color: '#ffd700',
