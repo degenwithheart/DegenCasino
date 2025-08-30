@@ -12,6 +12,7 @@ import {
   useReferral,
 } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
+import { PLATFORM_SHARABLE_URL } from '../constants'
 import styled from 'styled-components'
 import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
 import { truncateString } from '../utils'
@@ -403,7 +404,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
                   const shareText = tierInfo.isFinancialMode 
                     ? `🎰 I'm earning ${tierInfo.currentFee}% from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
                     : `🎰 I'm a ${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name} at Degen Casino! Join me and let's climb the ranks together! 🚀`
-                  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(`https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
+                  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(`https://${PLATFORM_SHARABLE_URL}/?ref=${userAddress.toBase58()}`)}`
                   window.open(shareUrl, '_blank', 'width=500,height=400')
                 }
               }}
@@ -441,7 +442,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
                   const shareText = tierInfo.isFinancialMode 
                     ? `🎰 I'm earning ${tierInfo.currentFee}% from every bet my friends make at Degen Casino! Join me and let's win together! 🚀`
                     : `🎰 I'm a ${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name} at Degen Casino! Join me and let's climb the ranks together! 🚀`
-                  const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ` https://degencasino.to/?ref=${userAddress.toBase58()}`)}`
+                  const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ` https://${PLATFORM_SHARABLE_URL}/?ref=${userAddress.toBase58()}`)}`
                   window.open(shareUrl, '_blank')
                 }
               }}
@@ -476,7 +477,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
               }}
               onClick={() => {
                 if (userAddress) {
-                  navigator.clipboard.writeText(`https://degencasino.to/?ref=${userAddress.toBase58()}`)
+                  navigator.clipboard.writeText(`https://${PLATFORM_SHARABLE_URL}/?ref=${userAddress.toBase58()}`)
                   showWalletToast('REFERRAL_COPY_SUCCESS')
                 }
               }}

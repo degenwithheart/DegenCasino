@@ -5,26 +5,10 @@ import { Modal } from './Modal'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../constants'
 import { useWallet } from '@solana/wallet-adapter-react'
 
-// Casino animations
-const neonPulse = keyframes`
-  0% { 
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
-    border-color: #ffd70044;
-  }
-  100% { 
-    box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
-    border-color: #ffd700aa;
-  }
-`;
-
+// Quantum animations
 const sparkle = keyframes`
   0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.8); }
   50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
-`;
-
-const moveGradient = keyframes`
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
 `;
 
 const jackpotGlow = keyframes`
@@ -38,196 +22,81 @@ const jackpotGlow = keyframes`
   }
 `;
 
-const ModalContent = styled.div`
-  max-width: 380px;
-  margin: auto;
-  padding: 1.1rem 1rem;
-  border-radius: 18px;
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  color: white;
-  position: relative;
-  animation: ${neonPulse} 3s ease-in-out infinite alternate;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(255, 149, 0, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 24px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #ff9500, #ffd700);
-    background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
-    border-radius: 24px 24px 0 0;
-    z-index: 1;
-  }
-
-  @media (max-width: 600px) {
-    padding: 0.75rem 0.5rem;
-    margin: 1rem;
-    max-width: calc(100vw - 2rem);
-    border-radius: 10px;
-  }
-`
-
 const HeaderSection = styled.div`
   text-align: center;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.5rem;
   position: relative;
 
   &::before {
-    content: '💰';
+    content: '⚛️';
     position: absolute;
-    top: -10px;
-    right: 20%;
-    font-size: 2rem;
-    animation: ${sparkle} 3s infinite;
-  }
-
-  &::after {
-    content: '🎰';
-    position: absolute;
-    top: 10px;
-    left: 15%;
-    font-size: 1.5rem;
-    animation: ${sparkle} 2s infinite reverse;
+    top: -15px;
+    right: 15%;
+    font-size: 2.5rem;
+    animation: ${sparkle} 4s infinite;
+    filter: drop-shadow(0 0 8px #6ffaff);
   }
 `
 
-const Title = styled.h1`
-  font-size: 2rem;
+const Title = styled.h2`
+  color: #6ffaff;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #ffd700;
-  margin-bottom: 0.2rem;
-  text-shadow: 0 0 16px #ffd700, 0 0 32px #ff9500;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 2px;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 180px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #ffd700, #ff9500, #ffd700, transparent);
-    background-size: 200% 100%;
-    animation: ${moveGradient} 3s linear infinite;
-    border-radius: 2px;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 1.3rem;
-    margin-bottom: 0.1rem;
-  }
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 16px #6ffaffcc, 0 0 4px #fff;
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
 `
 
-const JackpotAmount = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 149, 0, 0.08));
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 14px;
-  padding: 0.75rem 1rem;
-  margin: 0.7rem 0 0.8rem 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0 0 8px #ffd700;
-  box-shadow: 0 0 16px rgba(255, 215, 0, 0.18);
-  transition: all 0.2s ease;
-  animation: ${jackpotGlow} 2s ease-in-out infinite alternate;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 0.5px;
-  width: 100%;
-  justify-content: center;
-
-  &:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 24px rgba(255, 215, 0, 0.3);
-    border-color: rgba(255, 215, 0, 0.6);
-  }
-
-  &::before {
-    content: '🏆';
-    font-size: 1.3rem;
-    animation: ${sparkle} 3s infinite;
-  }
-
-  @media (max-width: 600px) {
-    padding: 0.5rem 0.5rem;
-    font-size: 0.95rem;
-    border-radius: 8px;
-  }
-`
-
-const InfoText = styled.p`
-  font-size: 0.93rem;
-  line-height: 1.32;
-  color: #e0e0e0;
-  margin-bottom: 0.4rem;
-  text-align: center;
-
-  strong {
-    color: #ffd700;
-    font-weight: 700;
-    text-shadow: 0 0 6px #ffd700;
-  }
+const Subtitle = styled.p`
+  color: #a259ff;
+  font-size: 0.9rem;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 8px #a259ff88;
+  font-family: 'JetBrains Mono', monospace;
 `
 
 const FeatureList = styled.ul`
+  background: rgba(111, 250, 255, 0.08);
+  border: 1px solid rgba(111, 250, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
   list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0.7rem 0;
 
   li {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.28rem 0;
-    color: #c0c0c0;
-    font-size: 0.91rem;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    color: #eaf6fb;
+    font-size: 0.95rem;
+    font-family: 'JetBrains Mono', monospace;
 
     &::before {
-      content: '🎯';
-      font-size: 1rem;
-      background: rgba(255, 215, 0, 0.13);
+      content: '⚛️';
+      font-size: 1.2rem;
+      background: rgba(111, 250, 255, 0.15);
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 5px rgba(255, 215, 0, 0.18);
+      box-shadow: 0 0 8px rgba(111, 250, 255, 0.25);
+      filter: drop-shadow(0 0 4px #6ffaff);
     }
   }
 `
 
 const ControlSection = styled.div`
-  background: rgba(255, 215, 0, 0.05);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  border-radius: 16px;
-  padding: 0.8rem 1rem;
-  margin-top: 1.1rem;
+  background: rgba(111, 250, 255, 0.08);
+  border: 1px solid rgba(111, 250, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.2rem;
+  box-shadow: 0 0 16px rgba(111, 250, 255, 0.15);
 `
 
 const ControlLabel = styled.label`
@@ -235,88 +104,98 @@ const ControlLabel = styled.label`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
+  gap: 0.8rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 8px;
 
   &:hover {
-    background: rgba(255, 215, 0, 0.1);
-    border-radius: 12px;
-    padding: 0.5rem;
-    margin: -0.5rem;
+    background: rgba(111, 250, 255, 0.12);
+    box-shadow: 0 0 12px rgba(111, 250, 255, 0.2);
   }
 `
 
 const ControlText = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.3rem;
 `
 
 const ControlTitle = styled.span`
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #ffd700;
-  text-shadow: 0 0 8px #ffd700;
+  color: #6ffaff;
+  text-shadow: 0 0 8px #6ffaff;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 0.05em;
 `
 
 const ControlSubtitle = styled.span`
-  font-size: 0.85rem;
-  color: #c0c0c0;
+  font-size: 0.9rem;
+  color: #eaf6fb;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  line-height: 1.4;
 `
 
 const StatusBadge = styled.span<{ $enabled: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
   border: 2px solid;
   
   ${({ $enabled }) => $enabled ? `
     background: rgba(16, 185, 129, 0.2);
-    color: #6ee7b7;
-    border-color: rgba(16, 185, 129, 0.5);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
   ` : `
-    background: rgba(220, 38, 127, 0.2);
-    color: #fca5a5;
-    border-color: rgba(220, 38, 127, 0.5);
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
   `}
 
   &::before {
-    content: '${({ $enabled }) => $enabled ? '✅' : '❌'}';
+    content: '${({ $enabled }) => $enabled ? '🟢' : '🔴'}';
     font-size: 1rem;
   }
 `
 
 const PoolStatsContainer = styled.div`
-  background: rgba(255, 215, 0, 0.05);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  border-radius: 16px;
-  padding: 0.8rem 1rem;
-  margin: 1rem 0;
+  background: rgba(162, 89, 255, 0.08);
+  border: 1px solid rgba(162, 89, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1.2rem 0;
+  box-shadow: 0 0 16px rgba(162, 89, 255, 0.15);
 `
 
 const PoolStatsTitle = styled.h4`
-  color: #ffd700;
-  font-size: 1rem;
+  color: #a259ff;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin: 0 0 12px 0;
+  margin: 0 0 1rem 0;
   text-align: center;
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 8px #ffd700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 8px #a259ff88;
+  font-family: 'Orbitron', monospace;
 `
 
 const PoolStatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 0.8rem;
   
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 0.6rem;
   }
 `
 
@@ -324,22 +203,43 @@ const PoolStatItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 0.8rem;
+  background: rgba(20, 30, 60, 0.6);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(111, 250, 255, 0.2);
+  box-shadow: 0 0 8px rgba(111, 250, 255, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(20, 30, 60, 0.8);
+    border-color: rgba(111, 250, 255, 0.4);
+    box-shadow: 0 0 12px rgba(111, 250, 255, 0.2);
+  }
 `
 
 const PoolStatLabel = styled.span`
-  color: #c0c0c0;
-  font-size: 0.85rem;
+  color: #eaf6fb;
+  font-size: 0.9rem;
   font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
 `
 
 const PoolStatValue = styled.span`
-  color: #ffd700;
-  font-size: 0.85rem;
+  color: #6ffaff;
+  font-size: 0.95rem;
   font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 0 6px #6ffaff88;
+`
+
+const InfoText = styled.p`
+  color: #eaf6fb;
+  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  margin: 1rem 0;
+  line-height: 1.5;
+  opacity: 0.9;
 `
 
 interface JackpotModalProps {
@@ -373,18 +273,25 @@ const JackpotInner: React.FC = () => {
   const poolFeePercentage = (PLATFORM_CREATOR_FEE * 100).toFixed(3)
 
   return (
-    <ModalContent>
+    <div style={{ 
+      maxWidth: '420px', 
+      margin: '0 auto',
+      padding: '1.5rem',
+      color: '#eaf6fb',
+      fontFamily: "'JetBrains Mono', 'Orbitron', 'monospace'"
+    }}>
       <HeaderSection>
-        <Title>Jackpot 💰</Title>
+        <Title>💰 JACKPOT SYSTEM</Title>
+        <Subtitle>Quantum Pool Mechanics</Subtitle>
       </HeaderSection>
 
       <FeatureList>
         <li>Jackpot grows with every bet placed</li>
-        <li>Winner takes all - jackpot resets after win</li>
+        <li>Pool fees contribute to the quantum accumulation</li>
       </FeatureList>
 
       <PoolStatsContainer>
-        <PoolStatsTitle>Pool Statistics</PoolStatsTitle>
+        <PoolStatsTitle>POOL STATISTICS</PoolStatsTitle>
         <PoolStatsGrid>
           <PoolStatItem>
             <PoolStatLabel>Pool Fee:</PoolStatLabel>
@@ -444,10 +351,10 @@ const JackpotInner: React.FC = () => {
         </ControlSection>
       )}
 
-      <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
-        Good luck and may the odds be ever in your favor! 🍀
+      <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem', textAlign: 'center' }}>
+        May the odds be ever in your favor! 🍀
       </InfoText>
-    </ModalContent>
+    </div>
   )
 }
 

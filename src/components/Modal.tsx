@@ -1,181 +1,209 @@
-import React from 'react'
-import { Icon } from './Icon'
-import useOutsideClick from '../hooks/useOnClickOutside'
-import styled from 'styled-components'
-import { useTheme } from '../themes/ThemeContext'
+import React, { useRef, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
 interface Props extends React.PropsWithChildren {
-  onClose?: () => void
+  onClose?: () => void;
 }
 
-const Container = styled.div`
+// Quantum foam dissolve animation
+const quantumDissolve = keyframes`
+  0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-10deg); }
+  60% { opacity: 1; filter: blur(2px); transform: scale(1.05) rotate(2deg); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1) rotate(0deg); }
+`;
+
+// Portal ring animation
+const rotateRing = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0a0a1a 60%, #1a0033 100%);
+  z-index: 9999;
   display: flex;
-  padding: 10vh 20px 10vh 20px; /* 10% from top and bottom */
-  min-height: calc(80vh); /* 100vh - 20vh (10% top + 10% bottom) */
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
+  overflow: hidden;
+`;
 
-  @media (max-width: 600px) {
-    /* Center modal on small screens with consistent insets */
-    padding: 10vh 16px 10vh 16px; /* 10% from top and bottom on mobile */
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
-    padding-bottom: max(calc(10vh + 24px), calc(10vh + env(safe-area-inset-bottom) + 72px)); /* leave space above mobile nav */
-    min-height: 80vh; /* 100vh - 20vh (10% top + 10% bottom) */
-    align-items: center;
-    justify-content: center;
-    height: 80vh;
-    overflow-y: auto;
-  }
-`
+const ParticleField = styled.canvas`
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+`;
 
-const Wrapper = styled.div<{ $theme?: any }>`
-  @keyframes wrapper-appear2 {
-    0% {
-      transform: scale(0.9);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  box-sizing: border-box;
+const Portal = styled.div`
   position: relative;
+  width: 500px;
+  height: 500px;
   display: flex;
   align-items: center;
-  flex-direction: column;
-  z-index: 100;
-  max-height: 80vh;
-  max-width: 780px;
-  width: 100%;
-  border-radius: 10px;
-  padding-bottom: 20px;
-  animation: wrapper-appear2 0.3s;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
-  
-  /* Desktop styles - more transparent/light */
-  background: transparent;
-  border: 0px solid rgba(255, 215, 0, 0.1);
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-  
-  /* Mobile/Tablet styles - solid background with defined colors */
-  @media (max-width: 1024px) {
-    background: ${({ $theme }) => $theme?.colors?.surface || '#1a1a2e'};
-    border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 4px 24px rgba(0, 0, 0, 0.2)'};
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a0033 60%, #0a0a1a 100%);
+  box-shadow: 0 0 80px 20px #6ffaff44, 0 0 0 8px #2e1a4d99;
+  animation: ${quantumDissolve} 0.8s cubic-bezier(0.7,0.2,0.2,1);
+  overflow: visible;
+  @media (max-width: 600px) {
+    width: 98vw;
+    height: 98vw;
+    max-width: 98vw;
+    max-height: 98vw;
   }
-  
-  overflow-y: auto; /* Enable scrolling if content exceeds max-height */
-`
+`;
 
-const StyledModal = styled.div<{ $theme?: any }>`
-  @keyframes appear {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+const EnergyRing = styled.div`
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  border: 6px solid #6ffaffcc;
+  box-shadow: 0 0 32px 8px #6ffaff99, 0 0 0 2px #fff2;
+  pointer-events: none;
+  animation: ${rotateRing} 4s linear infinite;
+`;
+
+const EnergyRing2 = styled(EnergyRing)`
+  border: 3px dashed #a259ffcc;
+  box-shadow: 0 0 24px 4px #a259ff66, 0 0 0 1px #fff1;
+  animation-duration: 7s;
+  animation-direction: reverse;
+`;
+
+const HoloText = styled.div`
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #6ffaff;
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 12px #6ffaffcc, 0 0 2px #fff;
+  pointer-events: none;
+  user-select: none;
+`;
+
+const Content = styled.div`
+  position: relative;
+  z-index: 2;
+  background: rgba(20, 30, 60, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 0 32px #6ffaff33, 0 0 0 2px #fff2;
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-height: 120px;
+  color: #eaf6fb;
+  font-family: 'JetBrains Mono', 'Orbitron', 'monospace';
+  animation: ${quantumDissolve} 0.8s cubic-bezier(0.7,0.2,0.2,1);
+  box-sizing: border-box;
+  @media (max-width: 600px) {
+    min-width: 0;
+    max-width: 90vw;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
   }
+`;
 
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: opacity linear 150ms;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  overflow-y: auto;
-  height: 100vh;
-  animation: appear 0.3s;
-
-  & h1 {
-    text-align: center;
-    padding: 40px 0 20px 0;
-    font-size: 24px;
-    color: ${({ $theme }) => $theme?.colors?.text || 'white'};
-    @media (max-width: 600px) {
-      padding: 24px 0 12px 0;
-      font-size: 20px;
-    }
+const CloseButton = styled.button`
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: linear-gradient(135deg, #6ffaff44, #a259ff33);
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #6ffaff33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, transform 0.18s;
+  z-index: 10;
+  &:hover {
+    background: linear-gradient(135deg, #a259ff88, #6ffaff88);
+    transform: scale(1.08);
   }
+`;
 
-  & p {
-    padding: 0 30px;
-    text-align: center;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#ccc'};
-    @media (max-width: 600px) {
-      padding: 0 10px;
-      font-size: 0.98rem;
+// Particle system for quantum foam
+function useQuantumParticles(canvasRef: React.RefObject<HTMLCanvasElement>) {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let frame: number;
+    let particles = Array.from({ length: 120 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.8 + 0.7,
+      dx: (Math.random() - 0.5) * 0.002,
+      dy: (Math.random() - 0.5) * 0.002,
+      a: Math.random() * Math.PI * 2,
+    }));
+    function draw() {
+      if (!ctx || !canvas) return;
+      const w = canvas.width = window.innerWidth;
+      const h = canvas.height = window.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.x += p.dx;
+        p.y += p.dy;
+        p.a += 0.01 + Math.random() * 0.01;
+        if (p.x < 0 || p.x > 1) p.dx *= -1;
+        if (p.y < 0 || p.y > 1) p.dy *= -1;
+        const px = p.x * w;
+        const py = p.y * h;
+        ctx.save();
+        ctx.globalAlpha = 0.18 + 0.18 * Math.sin(p.a);
+        ctx.beginPath();
+        ctx.arc(px, py, p.r + Math.sin(p.a) * 0.7, 0, Math.PI * 2);
+        ctx.fillStyle = '#6ffaff';
+        ctx.shadowColor = '#6ffaff';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
+      }
+      frame = requestAnimationFrame(draw);
     }
-  }
+    draw();
+    return () => cancelAnimationFrame(frame);
+  }, [canvasRef]);
+}
 
-  & button.close {
-    display: none;
+export const Modal: React.FC<Props> = ({ children, onClose }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useQuantumParticles(canvasRef);
 
-    &:hover {
-      opacity: 1;
-      background: ${({ $theme }) => $theme?.colors?.modal?.background || '#ffffff22'};
-    }
-
-    & svg {
-      color: white;
-      width: 1em;
-      height: 1em;
-    }
-
-    @media (max-width: 600px) {
-      margin: 0;
-      border: none;
-      z-index: 11;
-      opacity: 0.75;
-      transition: opacity 0.2s, background 0.2s;
-      background: transparent;
-      border-radius: 50%;
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      right: 35px;
-      top: 15px;
-      width: 2.2em;
-      height: 2.2em;
-      background: rgba(0,0,0,0.1);
-    }
-  }
-`
-
-export function Modal({ children, onClose }: Props) {
-  const { currentTheme } = useTheme();
-
-  React.useEffect(() => {
-    const oldOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = oldOverflow
-    }
-  }, [])
-
-  const ref = React.useRef<HTMLDivElement>(null!)
-
-  useOutsideClick(ref, () => {
-    if (onClose) onClose()
-  })
+  // Close on ESC
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   return (
-    <StyledModal $theme={currentTheme}>
-      <Container>
-        <Wrapper $theme={currentTheme} ref={ref}>
+    <Overlay>
+      <ParticleField ref={canvasRef} />
+      <Portal>
+        <EnergyRing />
+        <EnergyRing2 />
+        <HoloText>QUANTUM PORTAL</HoloText>
+        <Content>
           {onClose && (
-            <button className="close" onClick={onClose} aria-label="Close modal">
-              <Icon.Close2 />
-            </button>
+            <CloseButton onClick={onClose} aria-label="Close modal">×</CloseButton>
           )}
           {children}
-        </Wrapper>
-      </Container>
-    </StyledModal>
-  )
-}
+        </Content>
+      </Portal>
+    </Overlay>
+  );
+};

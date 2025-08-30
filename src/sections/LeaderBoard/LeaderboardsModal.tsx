@@ -1,8 +1,7 @@
 // src/components/LeaderboardsModal.tsx
 import React, { useState } from 'react'
-// If Modal exists elsewhere, update the import path accordingly, for example:
-import { Modal } from './Modal'
-// Or, if Modal should be defined locally, create a Modal.tsx file in the same directory with a basic Modal component.
+// Use the main Modal component with full quantum portal effects
+import { Modal } from '../../components/Modal'
 import {
   useLeaderboardData,
   Period,
