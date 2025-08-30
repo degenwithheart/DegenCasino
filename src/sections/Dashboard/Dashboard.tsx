@@ -122,53 +122,80 @@ type CompactProps = {
   $compact?: boolean;
 };
 
-const GameSliderWrapper = styled.div<{ $hasMany?: boolean }>`
+const GameSliderWrapper = styled.div`
   width: 100%;
   display: flex;
   gap: 1.5rem;
-  justify-content: ${({ $hasMany }) => $hasMany ? 'flex-start' : 'center'};
+  justify-content: flex-start;
   flex-wrap: nowrap;
-  padding: 1rem 0;
+  padding-bottom: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scroll-behavior: smooth;
+
+  /* Ensure minimum touch target size */
+  min-height: 200px;
+
+  /* Prevent games from extending outside container */
+  contain: layout style paint;
 
   &::-webkit-scrollbar {
     height: 8px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--gamba-ui-primary-color);
+    background-color: #ffd700;
     border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #a259ff;
   }
 
   &::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
   }
 
   & > * {
     flex: 0 0 auto;
+    min-width: 0; /* Allow flex items to shrink below their minimum content size */
+    /* Ensure hover effects don't break out of container */
+    transform-origin: center;
   }
 
+  /* Ensure all games are accessible by making the container scrollable */
   @media (max-width: 768px) {
     gap: 1rem;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.5rem 1.5rem 1.5rem;
+    justify-content: flex-start; /* Always left-align for better scrolling */
   }
 
   @media (max-width: 480px) {
     gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 1rem 1rem 1rem;
 
     &::-webkit-scrollbar {
       height: 6px;
     }
+  }
+
+  /* Add scroll snap for better UX */
+  scroll-snap-type: x mandatory;
+
+  & > * {
+    scroll-snap-align: start;
   }
 `;
 
 // Glassy wrapper for game cards in slider with neon effects
 const GameCardWrapper = styled.div<CompactProps>`
   width: ${({ $compact }) => ($compact ? '180px' : '200px')};
+  height: ${({ $compact }) => ($compact ? '162px' : '180px')};
   max-width: 220px;
   min-width: 160px;
   display: flex;
@@ -183,10 +210,15 @@ const GameCardWrapper = styled.div<CompactProps>`
   transition: all 0.3s ease-in-out;
   position: relative;
 
+  /* Ensure hover effects stay within container bounds */
+  transform-origin: center;
+  will-change: transform;
+
   &:hover {
-    transform: scale(1.06) rotate(-2deg);
+    transform: scale(1.03) rotate(-1deg);
     box-shadow: 0 0 32px #ffd700cc, 0 0 64px #a259ff88;
     border: 2px solid #ffd700;
+    z-index: 10;
   }
 
   &::before {
@@ -209,6 +241,7 @@ const GameCardWrapper = styled.div<CompactProps>`
 
   @media (max-width: 768px) {
     width: ${({ $compact }) => ($compact ? '160px' : '180px')};
+    height: ${({ $compact }) => ($compact ? '144px' : '162px')};
     min-width: 140px;
     max-width: 200px;
     padding: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
@@ -216,6 +249,7 @@ const GameCardWrapper = styled.div<CompactProps>`
 
   @media (max-width: 480px) {
     width: 140px;
+    height: 126px;
     min-width: 120px;
     max-width: 160px;
     padding: 0.3rem;
@@ -224,6 +258,7 @@ const GameCardWrapper = styled.div<CompactProps>`
 
   @media (max-width: 400px) {
     width: 120px;
+    height: 108px;
     min-width: 100px;
     max-width: 140px;
   }
@@ -252,12 +287,16 @@ const SectionWrapper = styled.div<CompactDivProps>`
   max-width: 100vw;
   margin-bottom: 3rem;
   margin-top: 3rem;
-  padding: ${({ $compact }) => ($compact ? '0.7rem 0.2rem' : '1.5rem')};
+  padding: ${({ $compact }) => ($compact ? '0.7rem 1rem' : '1.5rem 2rem')};
   background: rgba(24, 24, 24, 0.6);
   backdrop-filter: blur(15px);
   border-radius: ${({ $compact }) => ($compact ? '0.7rem' : '1rem')};
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+
+  /* Ensure game cards don't overflow outside section */
+  overflow: hidden;
+  position: relative;
 
   h2 {
     text-align: center;
@@ -272,7 +311,7 @@ const SectionWrapper = styled.div<CompactDivProps>`
   @media (max-width: 900px) {
     margin-bottom: 1rem;
     margin-top: 1rem;
-    padding: ${({ $compact }) => ($compact ? '0.2rem 0.05rem' : '0.5rem')};
+    padding: ${({ $compact }) => ($compact ? '0.2rem 0.5rem' : '0.5rem 1rem')};
     border-radius: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
     h2 {
       font-size: ${({ $compact }) => ($compact ? '0.95rem' : '1.1rem')};
@@ -441,7 +480,7 @@ export function Dashboard() {
               <AccentBar />
               <SectionWrapper $compact={compact}>
                 <h2>Singleplayer Games</h2>
-                <GameSliderWrapper $hasMany={singleplayerGames.length >= 4}>
+                <GameSliderWrapper>
                   {singleplayerGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
                       <GameCard game={game} />
@@ -452,7 +491,7 @@ export function Dashboard() {
               <AccentBar />
               <SectionWrapper $compact={compact}>
                 <h2>Multiplayer Games</h2>
-                <GameSliderWrapper $hasMany={multiplayerGames.length >= 4}>
+                <GameSliderWrapper>
                   {multiplayerGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
                       <GameCard game={game} />
@@ -463,7 +502,7 @@ export function Dashboard() {
               <AccentBar />
               <SectionWrapper $compact={compact}>
                 <h2>Coming Soon</h2>
-                <GameSliderWrapper $hasMany={liveNewGames.length >= 4}>
+                <GameSliderWrapper>
                   {liveNewGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
                       <GameCard game={game} />

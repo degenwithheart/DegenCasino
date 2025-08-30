@@ -288,6 +288,30 @@ export const FOOTER_LINKS = [
   },
 ]
 
+// Mobile-only footer links (not shown on desktop)
+export const MOBILE_FOOTER_LINKS = [
+  {
+    href: '/',
+    title: 'Home',
+  },
+  {
+    href: '/${base58}/profile',
+    title: 'Profile',
+  },
+  {
+    label: 'Games',
+    title: 'Games',
+  },
+  {
+    href: '/audit',
+    title: 'Audit',
+  },
+  {
+    href: '/explorer',
+    title: 'Explorer',
+  },
+]
+
 export const ENABLE_LEADERBOARD = true 
 export const ENABLE_TROLLBOX = true // Requires setup in vercel (check tutorial in discord)
 

@@ -76,11 +76,6 @@ const flip = keyframes`
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 `
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
-`
 const shake = keyframes`
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-5px); }
@@ -91,13 +86,12 @@ const effectAnimations = {
   bounce,
   spin,
   flip,
-  pulse,
   shake,
 }
 
 const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effect?: string }>`
   width: 100%;
-  aspect-ratio: ${(props) => (props.$small ? '1/.9' : '1/.9')};
+  height: 100%;
   background-size: cover;
   border-radius: 10px;
   color: white;
@@ -105,13 +99,11 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
   transition: all 0.3s ease;
   position: relative;
   background: ${(props) => props.$background};
-  max-height: 100%;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-grow: 0;
-  flex-shrink: 0;
+  flex-grow: 1;
   background-size: 100% auto;
   background-position: center;
   font-weight: bold;
@@ -169,36 +161,6 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
     z-index: 1;
   }
 
-  &:hover {
-    transform: scale(1.06) rotate(-1deg);
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 32px #ffd700cc, 0 0 64px #a259ff88;
-
-    .image {
-      transform: scale(1.1);
-      ${(props) => {
-        const effect = props.$effect as keyof typeof effectAnimations;
-        return effect && effectAnimations[effect]
-          ? css`
-              animation: ${effectAnimations[effect]} 0.6s;
-            `
-          : '';
-      }}
-      z-index: 1;
-    }
-
-    .background {
-      opacity: 0.4;
-      z-index: 2;
-    }
-
-    .play {
-      opacity: 1;
-      transform: scale(1.05);
-      box-shadow: 0 0 24px #ffd700cc;
-    }
-  }
-
   &::before {
     content: '';
     position: absolute;
@@ -211,10 +173,6 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
     opacity: 0;
     z-index: -1;
     transition: opacity 0.3s ease-in-out;
-  }
-
-  &:hover::before {
-    opacity: 0.3;
   }
 
   @media (max-width: 600px) {

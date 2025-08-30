@@ -40,16 +40,17 @@ const SIDEBAR_WIDTH = 80;
 
 const MainContent = styled.main`
   min-height: calc(100vh - 140px);
-  margin: 0 1.5rem 0 auto;
   padding-top: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: ${SIDEBAR_WIDTH}px;
+  padding-right: 0;
   padding-bottom: 80px;
   transition: padding 0.3s ease;
   @media (max-width: 900px) {
-    padding-bottom: 150px;
+    padding-left: 0;
+    padding-bottom: 80px;
   }
   @media (max-width: 700px) {
+    padding-left: 0;
     padding-bottom: 80px;
   }
 `;
@@ -138,7 +139,9 @@ export default function App() {
     <GraphicsProvider>
       <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
         {showGamesModal && (
-          <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} onClose={() => setShowGamesModal(false)} />
+          <Modal onClose={() => setShowGamesModal(false)}>
+            <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
+          </Modal>
         )}
       {newcomer && (
         <Modal>

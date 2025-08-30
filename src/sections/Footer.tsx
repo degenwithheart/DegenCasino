@@ -1,89 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled, { keyframes } from 'styled-components'
-import { FOOTER_LINKS, SIDEBAR_LINKS } from '../constants'
-// import { useLocation } from 'react-router-dom' // (moved below)
-import ConnectionStatus from '../components/ConnectionStatus' // Keep if still used elsewhere
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS } from '../constants'
+import ConnectionStatus from '../components/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Link, useLocation } from 'react-router-dom';
-// Mobile sidebar drawer styles
-const DrawerOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.55);
-  z-index: 2002;
-  display: flex;
-`;
-
-const Drawer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 80vw;
-  max-width: 320px;
-  background: linear-gradient(180deg, #222 0%, #a259ff 100%);
-  box-shadow: 2px 0 16px #ffd70044;
-  z-index: 2003;
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem 1rem 1rem 1rem;
-  animation: slideInDrawer 0.25s cubic-bezier(.4,1.3,.6,1) both;
-
-  @keyframes slideInDrawer {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-  }
-`;
-
-const DrawerClose = styled.button`
-  align-self: flex-end;
-  background: none;
-  border: none;
-  color: #ffd700;
-  font-size: 2rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-`;
-
-const DrawerLinks = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const DrawerItem = styled.li<{ $active?: boolean }>`
-  a, button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    color: ${({ $active }) => ($active ? '#ffd700' : '#fff')};
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    font-family: 'Luckiest Guy', cursive, sans-serif;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding: 0.5rem 0.2rem;
-    border-radius: 8px;
-    &:hover {
-      color: #ffd700;
-      text-shadow: 0 0 8px #a259ff;
-      background: rgba(255,215,0,0.07);
-    }
-    svg {
-      font-size: 1.5rem;
-      margin-right: 0.7rem;
-    }
-  }
-`;
-
+import { useLocation } from 'react-router-dom';
 // ––––– Animations ––––– //
 
 const liveGlow = keyframes`
@@ -175,7 +95,7 @@ const MobileFooter = styled.footer`
   font-size: 0.98rem;
   padding: 0 4px;
 
-  @media (min-width: 601px) {
+  @media (min-width: 901px) {
     display: none;
   }
 `;
@@ -279,7 +199,6 @@ const StyledConnectionStatus = styled.div`
 `
 
 function Footer() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { connected, publicKey } = useWallet();
   const location = useLocation();
   return (
@@ -300,101 +219,53 @@ function Footer() {
       </StyledFooter>
 
       <MobileFooter>
-        {/* Burger menu icon and status */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <button
-            aria-label="Open menu"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffd700',
-              fontSize: 28,
-              marginRight: 12,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <FiMenu />
-          </button>
-          <StyledConnectionStatus>
-            <ConnectionStatus />
-          </StyledConnectionStatus>
-        </div>
-        {FOOTER_LINKS.slice(0, 3).map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            rel="noopener noreferrer"
-            style={{
-              color: '#ffd700',
-              textDecoration: 'none',
-              fontWeight: 700,
-              fontSize: '1.05rem',
-              padding: '0 8px',
-              borderRadius: '6px',
-            }}
-          >
-            {link.title}
-          </a>
-        ))}
+        {MOBILE_FOOTER_LINKS.map((link) => {
+          // Special handling for Games modal trigger
+          if (link.label === 'Games') {
+            return (
+              <button
+                key={link.title}
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('openGamesModal'));
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ffd700',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: '1.05rem',
+                  padding: '0 8px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                {link.title}
+              </button>
+            );
+          }
+          
+          // Regular navigation links
+          return (
+            <a
+              key={link.href}
+              href={link.href}
+              rel="noopener noreferrer"
+              style={{
+                color: '#ffd700',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: '1.05rem',
+                padding: '0 8px',
+                borderRadius: '6px',
+              }}
+            >
+              {link.title}
+            </a>
+          );
+        })}
       </MobileFooter>
-
-      {/* Mobile sidebar drawer/modal */}
-      {mobileMenuOpen && (
-        <DrawerOverlay onClick={() => setMobileMenuOpen(false)}>
-          <Drawer onClick={e => e.stopPropagation()}>
-            <DrawerClose aria-label="Close menu" onClick={() => setMobileMenuOpen(false)}>
-              <FiX />
-            </DrawerClose>
-            <DrawerLinks>
-              {SIDEBAR_LINKS.filter(link =>
-                typeof link.showWhen === 'function' ? link.showWhen(connected) : true
-              ).map((link, i) => {
-                const to = typeof link.to === 'function'
-                  ? link.to(publicKey?.toBase58() ?? null)
-                  : link.to;
-                const isActive = to && typeof to === 'string' ? location.pathname === to : false;
-                if (link.external) {
-                  return (
-                    <DrawerItem key={i}>
-                      <a href={to as string} target="_blank" rel="noopener noreferrer">
-                        <link.icon />
-                        <span>{link.label}</span>
-                      </a>
-                    </DrawerItem>
-                  );
-                }
-                if (link.label === 'Games') {
-                  return (
-                    <DrawerItem key={i}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          window.dispatchEvent(new CustomEvent('openGamesModal'));
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <link.icon />
-                        <span>{link.label}</span>
-                      </button>
-                    </DrawerItem>
-                  );
-                }
-                return (
-                  <DrawerItem key={i} $active={isActive}>
-                    <Link to={to as string} onClick={() => setMobileMenuOpen(false)}>
-                      <link.icon />
-                      <span>{link.label}</span>
-                    </Link>
-                  </DrawerItem>
-                );
-              })}
-            </DrawerLinks>
-          </Drawer>
-        </DrawerOverlay>
-      )}
     </>
   );
 }
