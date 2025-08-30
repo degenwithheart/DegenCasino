@@ -288,6 +288,54 @@ export const FOOTER_LINKS = [
   },
 ]
 
+// Mobile-only footer links for connected users
+export const MOBILE_FOOTER_LINKS_CONNECTED = [
+  {
+    href: '/',
+    title: 'Home',
+  },
+  {
+    href: '/${base58}/profile',
+    title: 'Profile',
+  },
+  {
+    label: 'Games',
+    title: 'Games',
+  },
+  {
+    href: '/audit',
+    title: 'Audit',
+  },
+  {
+    href: '/explorer',
+    title: 'Explorer',
+  },
+]
+
+// Mobile-only footer links for disconnected users
+export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
+  {
+    href: '/',
+    title: 'Home',
+  },
+  {
+    href: '/audit',
+    title: 'Audit',
+  },
+  {
+    href: '/explorer',
+    title: 'Explorer',
+  },
+  {
+    href: 'https://github.com/degenwithheart',
+    title: 'GitHub',
+  },
+  {
+    href: 'https://x.com/DegenWithHeart',
+    title: 'X',
+  },
+]
+
 // Mobile-only footer links (not shown on desktop)
 export const MOBILE_FOOTER_LINKS = [
   {
