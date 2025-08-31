@@ -30,6 +30,13 @@ const root = ReactDOM.createRoot(document.getElementById('root')!)
 
 // Define getInitialPool function to return the default pool value
 function getInitialPool() {
+  try {
+    const savedMint = localStorage.getItem('selectedTokenMint')
+    if (savedMint) {
+      const found = POOLS.find(pool => pool.token.toBase58() === savedMint)
+      if (found) return found
+    }
+  } catch {}
   return DEFAULT_POOL
 }
 
@@ -41,18 +48,6 @@ function Root() {
     ],
     [],
   )
-
-// --- Helper: Get initial pool selection from localStorage or fallback ---
-function getInitialPool() {
-  try {
-    const savedMint = localStorage.getItem('selectedTokenMint')
-    if (savedMint) {
-      const found = POOLS.find(pool => pool.token.toBase58() === savedMint)
-      if (found) return found
-    }
-  } catch {}
-  return DEFAULT_POOL
-}
 
 // --- PersistSelectedToken: Save selected token to localStorage on change ---
 function PersistSelectedToken() {
