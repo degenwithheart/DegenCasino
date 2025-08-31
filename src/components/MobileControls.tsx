@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled, { keyframes, css } from 'styled-components';
 
@@ -16,6 +16,38 @@ const glow = keyframes`
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
+`;
+
+const popupSlideIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+`;
+
+const popupSlideOut = keyframes`
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+`;
+
+const fadeIn = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+`;
+
+const fadeOut = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 0; }
 `;
 
 // Main mobile controls container - completely redesigned for mobile-first
@@ -408,6 +440,252 @@ const SliderLabel = styled.div`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 `;
 
+// Popup overlay
+const PopupOverlay = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+  transition: all 0.3s ease;
+  animation: ${props => props.$isOpen ? fadeIn : fadeOut} 0.3s ease;
+`;
+
+// Popup container
+const PopupContainer = styled.div<{ $isOpen: boolean }>`
+  background: linear-gradient(145deg, 
+    rgba(18, 18, 28, 0.98) 0%, 
+    rgba(25, 25, 40, 0.98) 50%, 
+    rgba(20, 20, 35, 0.98) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 20px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 215, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  animation: ${props => props.$isOpen ? popupSlideIn : popupSlideOut} 0.3s ease;
+  transform-origin: center;
+`;
+
+// Compact wager trigger button (devtools style: inner black rounded input with caret)
+const CompactWagerTrigger = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  min-width: 160px;
+  justify-content: center;
+
+  /* inner value box to match devtools black rounded input */
+  .value-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: #0b0b0f; /* dark inner */
+    border-radius: 12px;
+    border: 2px solid rgba(0,0,0,0.6);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 6px 18px rgba(0,0,0,0.45);
+  }
+
+  .value {
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    line-height: 1;
+    min-width: 48px;
+    text-align: right;
+    padding-right: 2px;
+  }
+
+  .symbol {
+    color: rgba(255,215,0,0.95);
+    font-weight: 800;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  .caret {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.9);
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+
+  &:hover .value-box {
+    border-color: rgba(255,215,0,0.12);
+  }
+`;
+
+// Popup close button
+const PopupCloseButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 71, 87, 0.2);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  color: #ff4757;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 71, 87, 0.3);
+    border-color: rgba(255, 71, 87, 0.6);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+// Enhanced wager input for popup
+const PopupWagerInput = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  
+  input {
+    flex: 1;
+    width: 100%;
+    padding: 16px 12px;
+    background: linear-gradient(145deg, 
+      rgba(8, 8, 15, 0.9) 0%, 
+      rgba(12, 12, 20, 0.9) 100%
+    );
+    border: 2px solid rgba(255, 215, 0, 0.4);
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+    }
+    
+    &:focus {
+      border-color: #ffd700;
+      box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba(255, 215, 0, 0.3);
+      animation: ${glow} 2s infinite;
+    }
+  }
+`;
+
+const ConfirmButton = styled.button`
+  min-width: 88px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid rgba(34,197,94,0.15);
+  background: linear-gradient(145deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(5,150,105,0.18);
+  transition: transform .12s ease, box-shadow .12s ease;
+
+  &:hover { transform: translateY(-2px); }
+  &:active { transform: translateY(0); }
+`;
+
+// Enhanced preset buttons for popup
+const PopupPresetButtons = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+const PopupPresetButton = styled.button`
+  padding: 14px 20px;
+  background: linear-gradient(145deg, 
+    rgba(0, 255, 225, 0.2) 0%, 
+    rgba(0, 200, 180, 0.2) 100%
+  );
+  border: 2px solid rgba(0, 255, 225, 0.4);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(145deg, 
+      rgba(0, 255, 225, 0.3) 0%, 
+      rgba(0, 200, 180, 0.3) 100%
+    );
+    border-color: rgba(0, 255, 225, 0.6);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 255, 225, 0.4);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// Popup title
+const PopupTitle = styled.h3`
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 20px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
 // Component interfaces
 interface MobileControlsProps {
   wager: number;
@@ -449,11 +727,45 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   children
 }) => {
   const token = useCurrentToken();
-  const presetAmounts = [0.1, 0.5, 1.0, 5.0];
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [popupInput, setPopupInput] = useState<string>('');
+  const presetAmounts = [0.1, 0.5, 1.0, 5.0, 10.0, 25.0]; // Added more preset options
   
+  // Handle click outside to close popup
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        setIsPopupOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsPopupOpen(false);
+      }
+    };
+
+    if (isPopupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      // Prevent body scroll when popup is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isPopupOpen]);
+
   const handlePresetClick = (amount: number) => {
     const wagerAmount = amount * token.baseWager;
     setWager(wagerAmount);
+    setIsPopupOpen(false); // Close popup after selection
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -467,6 +779,36 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     }
   };
 
+  const handlePopupInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    if (v === '' || /^\d*\.?\d*$/.test(v)) {
+      setPopupInput(v);
+    }
+  };
+
+  const confirmPopup = () => {
+    // If the popup input is empty, just close the popup — don't reset the wager to 0
+    if (popupInput.trim() === '') {
+      setIsPopupOpen(false);
+      return;
+    }
+
+    const numericValue = parseFloat(popupInput);
+    if (!isNaN(numericValue)) {
+      const wagerAmount = numericValue * token.baseWager;
+      setWager(wagerAmount);
+    }
+
+    setIsPopupOpen(false);
+    // keep popupInput so reopening the popup preserves what the user typed
+  };
+
+  const handlePopupKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      confirmPopup();
+    }
+  };
+
   const handlePlayClick = () => {
     if (wager <= 0) {
       console.log('❌ BLOCKED: Cannot play with zero wager');
@@ -476,45 +818,81 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   };
 
   const displayValue = wager / token.baseWager;
-  
+  // Format as crypto value: use token.decimals when available, fallback to 6
+  const decimals = (token && typeof token.decimals === 'number') ? token.decimals : 6;
+  const factor = Math.pow(10, Math.min(decimals, 8)); // cap at 8 for UI
+  const rounded = Math.round(displayValue * factor) / factor;
+
+  const formattedDisplayValue = (() => {
+    if (!rounded) return '0';
+    // Convert to string with up to `decimals` places, then trim unnecessary zeros
+    const s = rounded.toFixed(Math.min(decimals, 8));
+    return s.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+  })();
+
   return (
-    <MobileControlsWrapper>
-      <TopRow>
-        <WagerSection>
-          <WagerLabel>💰 Bet Amount</WagerLabel>
-          <WagerInputRow>
+    <>
+      <MobileControlsWrapper>
+        <TopRow>
+          <WagerSection>
+            <WagerLabel>💰 Bet Amount</WagerLabel>
+            <CompactWagerTrigger onClick={() => setIsPopupOpen(true)}>
+              <div className="value-box">
+                <div className="value">{formattedDisplayValue}</div>
+                <div className="symbol">{token?.symbol ?? ''}</div>
+                <div className="caret">▼</div>
+              </div>
+            </CompactWagerTrigger>
+          </WagerSection>
+          
+          <PlaySection>
+            <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
+              {playText}
+            </PlayButton>
+          </PlaySection>
+        </TopRow>
+        
+        {children && (
+          <GameOptionsSection>
+            {children}
+          </GameOptionsSection>
+        )}
+      </MobileControlsWrapper>
+
+      {/* Popup Overlay */}
+      <PopupOverlay $isOpen={isPopupOpen}>
+        <PopupContainer $isOpen={isPopupOpen} ref={popupRef}>
+          <PopupCloseButton onClick={() => setIsPopupOpen(false)}>
+            ×
+          </PopupCloseButton>
+          
+          <PopupTitle>💰 Set Bet Amount</PopupTitle>
+          
+          <PopupWagerInput>
             <input
               type="text"
-              value={displayValue === 0 ? '' : displayValue.toString()}
-              onChange={handleInputChange}
-              placeholder="0.00"
+              value={popupInput === '' ? (displayValue === 0 ? '' : displayValue.toString()) : popupInput}
+              onChange={handlePopupInputChange}
+              onKeyDown={handlePopupKey}
+              placeholder="Enter amount..."
+              autoFocus
             />
-            <PresetButtonsRow>
-              {presetAmounts.map((amount) => (
-                <PresetButton
-                  key={amount}
-                  onClick={() => handlePresetClick(amount)}
-                >
-                  {amount}
-                </PresetButton>
-              ))}
-            </PresetButtonsRow>
-          </WagerInputRow>
-        </WagerSection>
-        
-        <PlaySection>
-          <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
-            {playText}
-          </PlayButton>
-        </PlaySection>
-      </TopRow>
-      
-      {children && (
-        <GameOptionsSection>
-          {children}
-        </GameOptionsSection>
-      )}
-    </MobileControlsWrapper>
+            <ConfirmButton onClick={confirmPopup}>Confirm</ConfirmButton>
+          </PopupWagerInput>
+          
+          <PopupPresetButtons>
+            {presetAmounts.map((amount) => (
+              <PopupPresetButton
+                key={amount}
+                onClick={() => handlePresetClick(amount)}
+              >
+                {amount}
+              </PopupPresetButton>
+            ))}
+          </PopupPresetButtons>
+        </PopupContainer>
+      </PopupOverlay>
+    </>
   );
 };
 
