@@ -1,5 +1,5 @@
 import styled, { keyframes, css } from 'styled-components'
-import rocketAnimation from './rocket.gif'
+import rocketAnimation from './rocket.webp'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
 const generateMultipleBoxShadows = (n: number, seed: string) => {
