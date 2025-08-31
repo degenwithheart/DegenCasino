@@ -3,7 +3,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { MINES_CONFIG } from '../rtpConfig'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls, SwitchControl } from '../../components'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
 import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
@@ -178,6 +178,7 @@ function Mines() {
 
   const [initialWager, setInitialWager] = useWagerInput()
   const [mines, setMines] = React.useState(MINE_SELECT[2])
+  const [progressive, setProgressive] = React.useState(false) // Toggle between normal and progressive modes
 
   // Use centralized mines configuration
   const getMultiplierForLevel = (level: number) => {
@@ -319,9 +320,6 @@ function Mines() {
           >
             <div className="mines-content">
               <Container2 className="lovers-labyrinth">
-                <div className="danger-header">
-                  <h2>💎 A Lover's Test of Courage & Restraint</h2>
-                </div>
 
                 <EnhancedLevels className="dangerous-seduction">
                   {levels
@@ -397,11 +395,6 @@ function Mines() {
                       <InfoItem>
                         <InfoLabel>Mines Count</InfoLabel>
                         <InfoValue>{mines}</InfoValue>
-                      </InfoItem>
-                      
-                      <InfoItem>
-                        <InfoLabel>Game Type</InfoLabel>
-                        <InfoValue>Mines</InfoValue>
                       </InfoItem>
                     </>
                   )}

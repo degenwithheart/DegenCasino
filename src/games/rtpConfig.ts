@@ -491,18 +491,18 @@ plinko: {
       'Straight',       // 6: Straight - 1.2% actual chance
       'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
     ],
-    // Payouts reduced by 93.75% total (75% + 75% of remainder) while maintaining 96% RTP
+    // Payouts for 96% RTP
     // Mathematical calculation: target_RTP = sum(probability_i * payout_i)
     // 96% = 8.35*P1 + 4.57*P2 + 2.03*P3 + 1.25*P4 + 0.37*P5 (where P1-P5 are non-zero payouts)
     betArray: [
-      0,      // 0: High Card (Bust) - 30.11% chance, 0x payout
-      0,      // 1: High Card (Bust) - 20.01% chance, 0x payout
-      0,      // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
-      0.231,  // 3: Jacks+ Pair - 8.35% chance, 0.231x payout (93.75% total reduction)
-      0.347,  // 4: Two Pair - 4.57% chance, 0.347x payout (93.75% total reduction)
-      0.462,  // 5: Three of a Kind - 2.03% chance, 0.462x payout (93.75% total reduction)
-      0.693,  // 6: Straight - 1.25% chance, 0.693x payout (93.75% total reduction)
-      1.848,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 1.848x payout (93.75% total reduction)
+      0,        // 0: High Card (Bust) - 30.11% chance, 0x payout
+      0,        // 1: High Card (Bust) - 20.01% chance, 0x payout
+      0,        // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
+      3.6959,   // 3: Jacks+ Pair - 8.35% chance, 3.6959x payout
+      5.5438,   // 4: Two Pair - 4.57% chance, 5.5438x payout
+      7.3917,   // 5: Three of a Kind - 2.03% chance, 7.3917x payout
+      11.0876,  // 6: Straight - 1.25% chance, 11.0876x payout
+      29.5669,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 29.5669x payout
     ],
     // Actual RTP: (8.35*3.6959 + 4.57*5.5438 + 2.03*7.3917 + 1.25*11.0876 + 0.37*29.5669) / 100 = 96.000%
     // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)

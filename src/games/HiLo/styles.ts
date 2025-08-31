@@ -105,7 +105,7 @@ export const Card = styled.div<{$small?: boolean}>`
     padding: 5px;
     border-radius: 4px;
   ` : css`
-    height: 160px;
+    height: 100px;
     font-size: 70px;
     padding: 10px;
     border-radius: 8px;

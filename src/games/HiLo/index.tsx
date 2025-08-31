@@ -1,7 +1,8 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import styled, { keyframes, css } from 'styled-components'
+import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
@@ -10,6 +11,130 @@ import { useGameMeta } from '../useGameMeta'
 import { StyledHiLoBackground } from './HiLoBackground.enhanced.styles'
 
 const BPS_PER_WHOLE = 10000
+
+// Add pulsing animation for placeholder text
+const pulseFade = keyframes`
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+`
+
+// Progressive Info component (similar to Mines/ProgressivePoker)
+const ProgressiveInfo = styled.div<{ visible: boolean; enableMotion?: boolean }>`
+  text-align: center;
+  background: rgba(0, 150, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  min-height: 80px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 25px;
+  opacity: ${props => props.visible ? 1 : 0};
+  visibility: ${props => props.visible ? 'visible' : 'hidden'};
+  transition: ${props => props.enableMotion !== false ? 'opacity 0.3s ease, visibility 0.3s ease' : 'none'};
+  box-shadow: 0 2px 10px rgba(0, 255, 0, 0.1);
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    margin: 15px 0;
+    gap: 15px;
+    min-height: 60px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 8px;
+    gap: 8px;
+    min-height: 50px;
+  }
+  
+  ${props => props.visible && props.enableMotion !== false && css`
+    animation: ${pulseFade} 1.6s infinite;
+  `}
+`
+
+const InfoItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  max-width: 140px;
+  padding: 8px 6px;
+  flex: 1;
+  
+  @media (max-width: 768px) {
+    min-width: 60px;
+    max-width: 100px;
+    padding: 6px 4px;
+  }
+  
+  @media (max-width: 480px) {
+    min-width: 50px;
+    max-width: 80px;
+    padding: 4px 2px;
+  }
+`
+
+const InfoLabel = styled.div`
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 9px;
+    margin-bottom: 2px;
+    letter-spacing: 0.2px;
+  }
+`
+
+const InfoValue = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
+`
+
+const ProfitDisplay = styled.div<{ profit: number }>`
+  font-size: 18px;
+  font-weight: bold;
+  color: ${props => props.profit > 0 ? '#4caf50' : props.profit < 0 ? '#f44336' : '#fff'};
+  line-height: 1.2;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+`
 
 // Deterministic helper: given a seed string and offset, derive a rank.
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -53,6 +178,13 @@ export default function HiLo(props: HiLoConfig) {
   const [option, setOption] = React.useState<'hi' | 'lo'>(currentRank > RANKS / 2 ? 'lo' : 'hi')
   const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
   
+  // Progressive state
+  const [inProgress, setInProgress] = React.useState(false)
+  const [currentBalance, setCurrentBalance] = React.useState(0)
+  const [totalProfit, setTotalProfit] = React.useState(0)
+  const [handCount, setHandCount] = React.useState(0)
+  const [progressive, setProgressive] = React.useState(true) // Toggle between normal and progressive modes
+  
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
   
@@ -94,11 +226,29 @@ export default function HiLo(props: HiLoConfig) {
     }
   }
 
+  const handleStart = () => {
+    setCurrentBalance(initialWager)
+    setTotalProfit(0)
+    setHandCount(0)
+    setInProgress(true)
+    sounds.play('play')
+    play()
+  }
+
+  const handleCashOut = () => {
+    setInProgress(false)
+    setCurrentBalance(0)
+    setTotalProfit(0)
+    setHandCount(0)
+    setProfit(0)
+    resetGame()
+  }
+
   const bet = _bet
 
   const multipler = Math.max(...bet)
   const maxWagerForBet = pool.maxPayout / multipler
-  const wager = Math.min(maxWagerForBet, profit || initialWager)
+  const wager = inProgress ? currentBalance : initialWager
 
   const play = async () => {
     // CRITICAL SECURITY: Prevent zero wager gameplay
@@ -119,25 +269,53 @@ export default function HiLo(props: HiLoConfig) {
     sounds.play('card', { playbackRate: .8 })
     const win = result.payout > 0
 
+    // Delay state updates slightly to allow reveal animations and avoid flashing UI
     setTimeout(() => {
-      setProfit(result.payout)
       if (win) {
         sounds.play('win')
-        
+
         // 🃏 TRIGGER HILO WIN EFFECTS
         console.log('🃏 HILO WIN! Correct prediction')
         effectsRef.current?.winFlash() // Use theme's winGlow color
         effectsRef.current?.particleBurst(50, 60, undefined, 8) // Card flip particles
         effectsRef.current?.screenShake(0.8, 500) // Light shake for win
+
+        // Progressive: Update balance and profit after reveal
+        setCurrentBalance(result.payout)
+        setTotalProfit(result.payout - initialWager)
+        setHandCount(prev => prev + 1)
+        // update profit for the panel but avoid immediate reset elsewhere
+        setProfit(result.payout)
+        
+        // In normal mode, reset after each win
+        if (!progressive) {
+          setTimeout(() => {
+            setInProgress(false)
+            setCurrentBalance(0)
+            setTotalProfit(0)
+            setHandCount(0)
+            setProfit(0)
+          }, 150)
+        }
+        
       } else {
         sounds.play('lose')
-        
+
         // 💔 TRIGGER HILO LOSE EFFECTS
         console.log('💔 HILO LOSE! Wrong prediction')
         effectsRef.current?.loseFlash() // Use theme's loseGlow color
         effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
+
+        // Progressive: Reset on loss after animations
+        setTimeout(() => {
+          setInProgress(false)
+          setCurrentBalance(0)
+          setTotalProfit(-initialWager)
+          setHandCount(0)
+          setProfit(0)
+        }, 150)
       }
-    }, 300)
+    }, 450)
   }
 
   return (
@@ -156,9 +334,57 @@ export default function HiLo(props: HiLoConfig) {
             <GambaUi.Responsive>
               <div className="hilo-content">
                 <Container $disabled={claiming || gamba.isPlaying}>
-                  <div className="romance-header">
-                    <h2 style={{ marginBottom: '100px' }}>🃏 Cards Are Honest in Ways People Never Are</h2>
-                  </div>
+                  
+                  {/* Progressive Info - always visible */}
+                  <ProgressiveInfo visible={true} enableMotion={settings.enableMotion}>
+                    {inProgress ? (
+                      <>
+                        <InfoItem>
+                          <InfoLabel>Current Balance</InfoLabel>
+                          <ProfitDisplay profit={currentBalance}>
+                            <TokenValue amount={currentBalance} />
+                          </ProfitDisplay>
+                        </InfoItem>
+                        
+                        <InfoItem>
+                          <InfoLabel>Total Profit</InfoLabel>
+                          <InfoValue style={{ color: totalProfit > 0 ? '#4caf50' : '#f44336' }}>
+                            <TokenValue amount={totalProfit} />
+                          </InfoValue>
+                        </InfoItem>
+                        
+                        <InfoItem>
+                          <InfoLabel>Hands Played</InfoLabel>
+                          <InfoValue>{handCount}</InfoValue>
+                        </InfoItem>
+                      </>
+                    ) : (
+                      <>
+                        <InfoItem>
+                          <InfoLabel>Game Status</InfoLabel>
+                          <InfoValue>Ready to Play</InfoValue>
+                        </InfoItem>
+                        
+                        <InfoItem>
+                          <InfoLabel>Game Type</InfoLabel>
+                          <InfoValue>{progressive ? 'Progressive HiLo' : 'Classic HiLo'}</InfoValue>
+                        </InfoItem>
+                        
+                        <InfoItem>
+                          <InfoLabel>Starting Wager</InfoLabel>
+                          <InfoValue>
+                            <TokenValue amount={initialWager} />
+                          </InfoValue>
+                        </InfoItem>
+                        
+                        <InfoItem>
+                          <InfoLabel>Mode</InfoLabel>
+                          <InfoValue>Progressive</InfoValue>
+                        </InfoItem>
+                      </>
+                    )}
+                  </ProgressiveInfo>
+                  
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
                     <CardsContainer enableMotion={settings.enableMotion}>
                       {cards.map((card, i) => {
@@ -217,26 +443,6 @@ export default function HiLo(props: HiLoConfig) {
                 )
               })}
             </CardPreview>
-            <div className="romance-result-area">
-              {profit > 0 ? (
-                <Profit key={profit} onClick={resetGame} enableMotion={settings.enableMotion}>
-                  💕 Love wins: <TokenValue amount={profit} /> +{Math.round(profit / initialWager * 100 - 100).toLocaleString()}%
-                </Profit>
-              ) : (
-                <div style={{ 
-                  color: '#fecaca', 
-                  fontSize: '18px', 
-                  textAlign: 'center', 
-                  opacity: 0.6,
-                  minHeight: '60px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  🎭 Balance greed with grace...
-                </div>
-              )}
-                  </div>
                 </Container>
               </div>
             </GambaUi.Responsive>
@@ -244,23 +450,35 @@ export default function HiLo(props: HiLoConfig) {
         </StyledHiLoBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
-        {!profit ? (
+        {!inProgress ? (
           <>
             <MobileControls
               wager={initialWager}
               setWager={setInitialWager}
-              onPlay={play}
+              onPlay={handleStart}
               playDisabled={!option || initialWager > maxWagerForBet}
-              playText="Deal card"
-            />
+              playText={progressive ? "Start Progressive" : "Start"}
+            >
+              <SwitchControl
+                label="Progressive Mode"
+                checked={progressive}
+                onChange={setProgressive}
+                disabled={false}
+              />
+            </MobileControls>
             
             <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
               />
-              <EnhancedPlayButton disabled={!option || initialWager > maxWagerForBet} onClick={play}>
-                Deal card
+              <div>Progressive:</div>
+              <GambaUi.Switch
+                checked={progressive}
+                onChange={setProgressive}
+              />
+              <EnhancedPlayButton disabled={!option || initialWager > maxWagerForBet} onClick={handleStart}>
+                {progressive ? "Start Progressive" : "Start"}
               </EnhancedPlayButton>
               {initialWager > maxWagerForBet && (
                 <EnhancedButton onClick={() => setInitialWager(maxWagerForBet)}>
@@ -271,13 +489,30 @@ export default function HiLo(props: HiLoConfig) {
           </>
         ) : (
           <>
-            <TokenValue amount={wager} />
-            <EnhancedButton disabled={gamba.isPlaying} onClick={resetGame}>
-              Finish
-            </EnhancedButton>
-            <EnhancedPlayButton disabled={!option} onClick={play}>
-              Deal card
-            </EnhancedPlayButton>
+            <MobileControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={progressive ? play : handleStart}
+              playDisabled={progressive ? !option : false}
+              playText={progressive ? "Continue" : "Play Again"}
+            />
+            
+            <DesktopControls>
+              <EnhancedWagerInput
+                value={initialWager}
+                onChange={setInitialWager}
+                disabled={true}
+              />
+              <TokenValue amount={currentBalance} />
+              {progressive && (
+                <EnhancedButton disabled={gamba.isPlaying} onClick={handleCashOut}>
+                  Cash Out
+                </EnhancedButton>
+              )}
+              <EnhancedPlayButton disabled={progressive ? !option : false} onClick={progressive ? play : handleStart}>
+                {progressive ? "Continue" : "Play Again"}
+              </EnhancedPlayButton>
+            </DesktopControls>
           </>
         )}
       </GambaUi.Portal>

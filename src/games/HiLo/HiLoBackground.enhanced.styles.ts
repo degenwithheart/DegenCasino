@@ -78,7 +78,9 @@ export const StyledHiLoBackground = styled.div`
     padding: 40px 30px;
     max-width: 1200px;
     margin: 0 auto;
-    min-height: 100%;
+    /* Allow content to size naturally so decorative bands don't stretch the whole viewport */
+    min-height: auto;
+    box-sizing: border-box;
   }
 
   /* Additional romance elements */
@@ -222,6 +224,10 @@ export const StyledHiLoBackground = styled.div`
 
   /* Result area for consistent layout */
   .romance-result-area {
+    /* Keep the result area visually prominent but constrained so it appears as a panel/border, not a full band */
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
     background: 
       linear-gradient(135deg, 
         rgba(124, 45, 18, 0.9) 0%,
@@ -235,7 +241,7 @@ export const StyledHiLoBackground = styled.div`
       0 10px 35px rgba(0, 0, 0, 0.4),
       inset 0 2px 4px rgba(255, 255, 255, 0.12),
       0 0 20px rgba(239, 68, 68, 0.3);
-    padding: 25px;
+    padding: 18px 25px;
     color: #fef2f2;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     min-height: 60px;

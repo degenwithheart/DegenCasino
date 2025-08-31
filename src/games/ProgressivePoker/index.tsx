@@ -4,7 +4,7 @@ import React from 'react'
 // import { calculateExpectedValue, analyzeWinProbability } from './analytics'
 import { useGameMeta } from '../useGameMeta'
 import { PROGRESSIVE_POKER_CONFIG } from '../rtpConfig'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
 import { useGraphics } from '../../components/GameScreenFrame'
@@ -319,6 +319,7 @@ export default function ProgressivePowerPoker() {
   const [inProgress, setInProgress] = React.useState(false)
   const [cardRevealed, setCardRevealed] = React.useState<boolean[]>([false, false, false, false, false])
   const [handCount, setHandCount] = React.useState(0) // Track number of hands played
+  const [progressive, setProgressive] = React.useState(true) // Toggle between normal and progressive modes
 
   const play = async () => {
     // Calculate wager: initial wager for first hand, full balance for subsequent hands
@@ -447,6 +448,11 @@ export default function ProgressivePowerPoker() {
         setTotalProfit(result.payout - initialWager);
         setHandCount(prev => prev + 1);
         
+        // In normal mode, reset after each hand (win or lose)
+        if (!progressive) {
+          setInProgress(false);
+        }
+        
       } else {
         // BUST: result.multiplier = 0, no payout
         console.log('💔 BUST! Gamba multiplier: 0x');
@@ -487,17 +493,19 @@ export default function ProgressivePowerPoker() {
   }
 
   const handleCashOut = () => {
+    sounds.play('win')
     setInProgress(false)
     setHand(null)
     setCurrentBalance(0)
-    setTotalProfit(0)
+    // Keep totalProfit to show the profit from the session
+    // setTotalProfit(0)
     setHandCount(0)
     setCards([])
     setCardRevealed([false, false, false, false, false])
   }
 
-  const canContinue = inProgress && hand && hand.payout > 0 && !revealing
-  const canCashOut = inProgress && totalProfit > 0 && !revealing
+  const canContinue = progressive && inProgress && hand && hand.payout > 0 && !revealing
+  const canCashOut = progressive && inProgress && totalProfit > 0 && !revealing
   const gameEnded = inProgress && hand && hand.payout === 0
 
   return (
@@ -611,7 +619,7 @@ export default function ProgressivePowerPoker() {
                     
                     <InfoItem>
                       <InfoLabel>Game Type</InfoLabel>
-                      <InfoValue>Progressive Poker</InfoValue>
+                      <InfoValue>{progressive ? 'Progressive Poker' : 'Classic Poker'}</InfoValue>
                     </InfoItem>
                   </>
                 )}
@@ -635,10 +643,24 @@ export default function ProgressivePowerPoker() {
         gameEnded ? "Play" : 
         "Start"
       }
-    />
+    >
+      <SwitchControl
+        label="Progressive Mode"
+        checked={progressive}
+        onChange={setProgressive}
+        disabled={inProgress || revealing}
+      />
+    </MobileControls>
     
     <DesktopControls>
       <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={inProgress} />
+      
+      <div>Progressive:</div>
+      <GambaUi.Switch
+        disabled={inProgress || revealing}
+        checked={progressive}
+        onChange={setProgressive}
+      />
       
       <EnhancedPlayButton 
         onClick={
