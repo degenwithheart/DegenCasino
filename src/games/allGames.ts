@@ -77,7 +77,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'HiLo',
       background: '#000000CC',
-      image: '/games/hilo.png',
+      image: '/webp/games/hilo.webp',
       description: `Cards are honest in ways that people never are. HiLo is a game of small lies and greater truths, of choices balanced on the razor’s edge. Each card turned is a question whispered by fate: higher, lower, more, less, risk, retreat? One guess leads to another, streaks build like fragile romances — beautiful in their ascent, tragic in their ending. The tension grows, the temptation deepens, and with every step the promise of reward dances just out of reach. But the secret is not in winning forever; it is in knowing when enough is enough, when to walk away before the story betrays you. HiLo is a reminder that all streaks, like all loves, must someday end.`,
       tag: 'Singleplayer',
     },
@@ -89,7 +89,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'Mines',
       background: '#000000CC',
-      image: '/games/mines.png',
+      image: '/webp/games/mines.webp',
       description: `The board lies still, but beneath it sleeps chaos. Each tile you touch could be a kiss of fortune or the sting of betrayal. Twenty-five choices stretch before you, each one daring you deeper into the labyrinth. With every reveal, the silence grows heavier, your breath shorter. Push forward and your winnings blossom, but so too does the shadow of loss. Mines is not just a puzzle — it is a lover’s test, demanding courage yet punishing recklessness. To succeed, you must balance greed with grace, bravery with restraint. And even when you fall, you’ll find yourself drawn back, because danger, like desire, is impossible to resist.`,
       tag: 'Singleplayer',
     },
@@ -101,7 +101,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'Plinko',
       background: '#000000CC',
-      image: '/games/plinko.png',
+      image: '/webp/games/plinko.webp',
       description: `Drop your heart into the abyss and let gravity compose its melody. Each peg struck is a note, each bounce a stanza, until the ball finds its final resting place. The edges whisper wildness and chaos, the center hums with safety, but beauty lies always in the descent. To play Plinko is to surrender to inevitability, to watch your fate unfold in slow, delicate poetry. Whether you send one ball or a hundred, each fall feels unique, a brief story of physics and chance written before your eyes. The journey, not the destination, is what keeps you coming back.`,
       tag: 'Singleplayer',
     },
@@ -113,7 +113,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'Crash',
       background: '#000000CC',
-      image: '/games/crash.png',
+      image: '/webp/games/crash.webp',
       description: `The rocket lights, and your pulse ignites with it. The climb is swift, intoxicating, and it feels as though it could rise forever. But nothing rises without end. The art is not in the ascent, but in the exit — in knowing when to let go, when to secure your fortune before the inevitable collapse. Leave too soon, and you taste regret. Wait too long, and you burn with the wreckage. Crash is a love story written in fire, where every launch is both promise and tragedy. It teaches you not just how to win, but how to leave before everything you love falls apart.`,
       tag: 'Singleplayer',
     },
@@ -125,7 +125,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'BlackJack',
       background: '#000000CC',
-      image: '/games/blackjack.png',
+      image: '/webp/games/blackjack.webp',
       description: `Beneath the low light, you and the dealer engage in a silent war dressed as civility. Twenty-one is the dream, the edge of perfection, but each card is both weapon and wound. Will you hit, risking everything for one more breath of hope, or will you stand, daring fate to favor restraint? Bluff with your eyes, calculate with your heart, and pray the dealer falters before you do. Blackjack is not just arithmetic; it is intimacy, tension, and duel woven into velvet and smoke. Every hand is a heartbeat. Every choice, a confession. And every victory, no matter how small, feels like seduction.`,
       tag: 'Singleplayer',
     },
@@ -137,7 +137,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     meta: {
       name: 'Progressive Poker',
       background: '#000000CC',
-      image: '/games/progressive-poker.png',
+      image: '/webp/games/progressive-poker.webp',
       description: `Five cards hold your fate, but here fortune favors the bold. Each hand dealt is a whispered promise — will you find the pair that starts your climb, the straight that lifts your spirit, or the royal flush that crowns you king? This is not just poker; it is progression itself, where each win becomes the seed of the next dream. Continue playing and watch your fortune blossom, or cash out and hold what you've earned. But beware — one bust hand and all returns to dust. In Progressive Poker, every decision is a love letter to risk, every hand a chance to rise or fall in the most beautiful way possible.`,
       tag: 'Singleplayer',
     },
