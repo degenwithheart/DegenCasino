@@ -3,8 +3,8 @@ import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import { Group } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
-import TEXTURE_HEADS from './heads.png'
-import TEXTURE_TAILS from './tails.png'
+import TEXTURE_HEADS from './heads.webp'
+import TEXTURE_TAILS from './tails.webp'
 
 export { TEXTURE_HEADS, TEXTURE_TAILS }
 

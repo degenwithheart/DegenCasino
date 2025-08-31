@@ -302,7 +302,7 @@ export default function Header() {
           {!isCompact ? (
             <span>DegenHeart.casino</span>
           ) : (
-            <img alt="DegenHeart.casino logo" src="/$DGHRT.png" />
+            <img alt="DegenHeart.casino logo" src="/webp/$DGHRT.webp" />
           )}
         </Logo>
 
