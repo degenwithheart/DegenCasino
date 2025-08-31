@@ -383,7 +383,7 @@ const useJackpotWinners = () => {
   const pool = useCurrentPool()
   
   const events = useGambaEvents<'GameSettled'>('GameSettled', {
-    address: pool?.address,
+    address: pool?.publicKey,
     signatureLimit: 200, // Fetch more transactions to find jackpot winners
   })
 
