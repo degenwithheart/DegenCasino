@@ -25,10 +25,22 @@ export const Container = styled.div`
   display: grid;
   gap: 5px;
   
-  /* Tablet and up */
+  /* Small tablets (640px - 767px) */
+  @media (min-width: 640px) {
+    margin: 0 1.5rem;
+    max-width: calc(100vw - 3rem);
+  }
+  
+  /* Tablets (768px - 899px) */
   @media (min-width: 768px) {
     margin: 0 2rem;
     max-width: calc(100vw - 4rem);
+  }
+  
+  /* Large tablets/small laptops (900px - 1023px) */
+  @media (min-width: 900px) {
+    margin: 0 2.5rem;
+    max-width: calc(100vw - 5rem);
   }
   
   /* Desktop and up */
@@ -91,14 +103,19 @@ export const Screen = styled.div`
   /* Mobile-first: Start with mobile viewport optimized height */
   height: clamp(320px, calc(100vh - 180px), 500px);
   
-  /* Small tablets */
+  /* Small tablets (640px - 767px) */
   @media (min-width: 640px) {
     height: clamp(380px, calc(100vh - 220px), 600px);
   }
   
-  /* Tablets */
+  /* Tablets (768px - 899px) */
   @media (min-width: 768px) {
     height: clamp(420px, calc(100vh - 260px), 720px);
+  }
+  
+  /* Large tablets/small laptops (900px - 1023px) */
+  @media (min-width: 900px) {
+    height: clamp(450px, calc(100vh - 280px), 800px);
   }
   
   /* Desktop */
@@ -144,11 +161,12 @@ export const IconButton = styled.button`
     box-shadow: 0 1px 6px #ffd70066;
   }
   
-  /* Hide the play button portal on mobile since games have their own play buttons */
+  /* Hide the play button portal on mobile and tablets since games have their own play buttons */
   &.play-button-portal {
     display: none;
     
-    @media (min-width: 800px) {
+    /* Show on large tablets/small laptops and up */
+    @media (min-width: 900px) {
       display: flex;
     }
   }
@@ -207,9 +225,28 @@ export const Controls = styled.div`
     z-index: 1;
   }
   
-  /* Tablet and up: Switch to row layout */
-  @media (min-width: 800px) {
+  /* Small tablets: Still column layout but with more padding */
+  @media (min-width: 640px) {
+    padding: 16px 12px;
+    gap: 20px;
+  }
+  
+  /* Tablets: Still column layout but optimized for tablets */
+  @media (min-width: 768px) {
+    padding: 18px 16px;
+    gap: 22px;
+  }
+  
+  /* Large tablets/small laptops: Transition to hybrid layout */
+  @media (min-width: 900px) {
     flex-direction: row;
+    gap: 20px;
+    height: 80px;
+    padding: 20px 24px;
+  }
+  
+  /* Desktop and up: Full desktop layout */
+  @media (min-width: 1024px) {
     gap: 24px;
     height: 70px;
     padding: 22px 28px;
@@ -223,12 +260,30 @@ export const Controls = styled.div`
     align-items: center;
     flex: 1;
     
-    /* Tablet and up: Better spacing for single-tier layout */
-    @media (min-width: 801px) {
+    /* Small tablets: Better spacing */
+    @media (min-width: 640px) {
+      gap: 20px;
+    }
+    
+    /* Tablets: More spacing */
+    @media (min-width: 768px) {
+      gap: 22px;
+    }
+    
+    /* Large tablets/small laptops: Start transitioning to desktop layout */
+    @media (min-width: 900px) {
       justify-content: flex-start;
-      gap: 24px;
+      gap: 20px;
       
       /* Give more space to wager controls */
+      > *:first-child {
+        margin-right: 10px;
+      }
+    }
+    
+    /* Desktop: Full desktop spacing */
+    @media (min-width: 1024px) {
+      gap: 24px;
       > *:first-child {
         margin-right: 12px;
       }
@@ -255,11 +310,23 @@ export const MetaControls = styled.div`
     justify-content: center;
   }
   
-  /* Tablet and up: More compact desktop layout */
-  @media (min-width: 800px) {
+  /* Small tablets: Better spacing */
+  @media (min-width: 640px) {
+    gap: 16px;
+    padding: 6px 6px 10px;
+  }
+  
+  /* Tablets: More spacing and start transitioning */
+  @media (min-width: 768px) {
+    gap: 18px;
+    padding: 8px 8px 12px;
+  }
+  
+  /* Large tablets/small laptops: Start desktop-style layout */
+  @media (min-width: 900px) {
     width: auto;
-    gap: 12px;
-    padding: 10px 14px;
+    gap: 14px;
+    padding: 10px 16px;
     border: 2px solid #333;
     border-radius: 16px;
     background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
@@ -268,12 +335,19 @@ export const MetaControls = styled.div`
     justify-content: flex-start;
   }
   
+  /* Desktop and up: Full desktop layout */
+  @media (min-width: 1024px) {
+    gap: 12px;
+    padding: 10px 14px;
+  }
+  
   /* Subtle separation when many buttons */
   & > * { 
     /* Mobile-first: Equal flex for mobile */
     flex: 1 1 0;
     
-    @media (min-width: 800px) {
+    /* Large tablets/small laptops: Start transitioning */
+    @media (min-width: 900px) {
       flex: 0 0 auto;
     }
   }
@@ -293,19 +367,32 @@ export const MetaControls = styled.div`
     transition: transform .25s, box-shadow .25s;
     padding: 0;
     
-    /* Tablet and up: Reset to default button styles */
-    @media (min-width: 800px) {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ffd700 0%, #ff0066 100%);
-      font-size: 18px;
+    /* Small tablets: Slightly smaller buttons */
+    @media (min-width: 640px) {
+      height: 52px;
+      font-size: 20px;
     }
     
+    /* Tablets: More refined buttons */
+    @media (min-width: 768px) {
+      height: 50px;
+      font-size: 19px;
+    }
+    
+    /* Large tablets/small laptops: Start desktop-style buttons */
+    @media (min-width: 900px) {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700 0%, #ff0066 100%);
+      font-size: 17px;
+    }
+    
+    /* Desktop and up: Full desktop button styles */
     @media (min-width: 1024px) {
-      width: 54px;
-      height: 54px;
-      font-size: 20px;
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
     }
   }
   
@@ -313,7 +400,8 @@ export const MetaControls = styled.div`
     transform: translateY(-2px);
     box-shadow: 0 6px 26px -6px #ff0066aa, 0 3px 14px -2px #ffd70088;
     
-    @media (min-width: 800px) {
+    /* Large tablets/small laptops: Start desktop hover effects */
+    @media (min-width: 900px) {
       transform: scale(1.08);
       box-shadow: 0 4px 24px #ffd70099, 0 0px 0px #ff0066cc;
     }
@@ -322,7 +410,8 @@ export const MetaControls = styled.div`
   & > button:active, & > div > button:active {
     transform: translateY(0);
     
-    @media (min-width: 800px) {
+    /* Large tablets/small laptops: Desktop active effects */
+    @media (min-width: 900px) {
       transform: scale(0.98);
     }
   }

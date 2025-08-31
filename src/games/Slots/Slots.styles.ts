@@ -437,36 +437,95 @@ export const StyledSlots = styled.div`
   }
 
   /* Mobile responsive adjustments for arrows */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .slots-reels {
-      gap: 10px;
-      padding: 30px 20px;
+      gap: 8px;
+      padding: 25px 15px;
     }
 
     .winning-line-arrow {
-      width: 40px;
+      width: 35px;
     }
 
     .winning-line-arrow-left {
-      margin-right: 5px;
+      margin-right: 3px;
     }
 
     .winning-line-arrow-right {
-      margin-left: 5px;
+      margin-left: 3px;
     }
 
     .arrow-icon {
-      font-size: 28px;
+      font-size: 26px;
     }
   }
 
-  @media (max-width: 480px) {
+  @media (min-width: 641px) and (max-width: 768px) {
+    .slots-reels {
+      gap: 12px;
+      padding: 32px 22px;
+    }
+
     .winning-line-arrow {
-      width: 30px;
+      width: 42px;
+    }
+
+    .winning-line-arrow-left {
+      margin-right: 6px;
+    }
+
+    .winning-line-arrow-right {
+      margin-left: 6px;
     }
 
     .arrow-icon {
-      font-size: 24px;
+      font-size: 30px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 899px) {
+    .slots-reels {
+      gap: 15px;
+      padding: 35px 25px;
+    }
+
+    .winning-line-arrow {
+      width: 45px;
+    }
+
+    .winning-line-arrow-left {
+      margin-right: 7px;
+    }
+
+    .winning-line-arrow-right {
+      margin-left: 7px;
+    }
+
+    .arrow-icon {
+      font-size: 32px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .slots-reels {
+      gap: 18px;
+      padding: 40px 30px;
+    }
+
+    .winning-line-arrow {
+      width: 48px;
+    }
+
+    .winning-line-arrow-left {
+      margin-right: 8px;
+    }
+
+    .winning-line-arrow-right {
+      margin-left: 8px;
+    }
+
+    .arrow-icon {
+      font-size: 34px;
     }
   }
 `

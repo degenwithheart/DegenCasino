@@ -343,4 +343,148 @@ export const StyledPlinkoBackground = styled.div`
       transform: translateX(100%);
     }
   }
+
+  /* Responsive Design for Plinko */
+  @media (max-width: 640px) {
+    .plinko-content {
+      padding: 20px 15px;
+      gap: 15px;
+    }
+
+    .gravity-board-area {
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .falling-display {
+      padding: 18px;
+      border-radius: 16px;
+    }
+
+    .physics-container {
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .gravity-result-area {
+      padding: 18px;
+      border-radius: 12px;
+      min-height: 50px;
+    }
+
+    .plinko-bucket {
+      margin: 0 1px;
+      min-height: 35px;
+      font-size: 12px;
+    }
+
+    .inevitability-indicator {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    .plinko-content {
+      padding: 25px 18px;
+      gap: 18px;
+    }
+
+    .gravity-board-area {
+      padding: 18px;
+    }
+
+    .falling-display {
+      padding: 22px;
+    }
+
+    .physics-container {
+      padding: 18px;
+    }
+
+    .gravity-result-area {
+      padding: 22px;
+      min-height: 55px;
+    }
+
+    .plinko-bucket {
+      margin: 0 1.5px;
+      min-height: 38px;
+      font-size: 13px;
+    }
+
+    .inevitability-indicator {
+      width: 350px;
+      height: 350px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 899px) {
+    .plinko-content {
+      padding: 28px 20px;
+      gap: 20px;
+    }
+
+    .gravity-board-area {
+      padding: 20px;
+    }
+
+    .falling-display {
+      padding: 24px;
+    }
+
+    .physics-container {
+      padding: 20px;
+    }
+
+    .gravity-result-area {
+      padding: 24px;
+      min-height: 58px;
+    }
+
+    .plinko-bucket {
+      margin: 0 2px;
+      min-height: 40px;
+      font-size: 14px;
+    }
+
+    .inevitability-indicator {
+      width: 380px;
+      height: 380px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .plinko-content {
+      padding: 30px 20px;
+      gap: 20px;
+    }
+
+    .gravity-board-area {
+      padding: 20px;
+    }
+
+    .falling-display {
+      padding: 25px;
+    }
+
+    .physics-container {
+      padding: 20px;
+    }
+
+    .gravity-result-area {
+      padding: 25px;
+      min-height: 60px;
+    }
+
+    .plinko-bucket {
+      margin: 0 2px;
+      min-height: 40px;
+    }
+
+    .inevitability-indicator {
+      width: 400px;
+      height: 400px;
+    }
+  }
 `

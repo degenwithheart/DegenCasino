@@ -49,6 +49,39 @@ export const Option = styled.button<{ selected?: boolean }>`
   `}
 
   opacity: var(--opacity);
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    font-size: 16px;
+    & > div:first-child {
+      font-size: 36px;
+      margin-right: 8px;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    font-size: 18px;
+    & > div:first-child {
+      font-size: 42px;
+      margin-right: 9px;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    font-size: 19px;
+    & > div:first-child {
+      font-size: 45px;
+      margin-right: 9px;
+    }
+  }
+  
+  @media (min-width: 900px) {
+    font-size: 20px;
+    & > div:first-child {
+      font-size: 48px;
+      margin-right: 10px;
+    }
+  }
 `
 
 export const Token = styled.div`
@@ -72,6 +105,31 @@ export const CardPreview = styled.div`
   justify-content: center;
   & > div {
     transition: opacity .2s;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    gap: 3px;
+    padding: 3px;
+    margin-top: 20px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    gap: 4px;
+    padding: 4px;
+    margin-top: 25px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    gap: 4px;
+    padding: 4px;
+    margin-top: 28px;
+  }
+  
+  @media (min-width: 900px) {
+    gap: 5px;
+    padding: 5px;
+    margin-top: 30px;
   }
 `
 
@@ -132,6 +190,60 @@ export const Card = styled.div<{$small?: boolean}>`
     font-size: 128px;
     opacity: .9;
   }
+  
+  /* Responsive adjustments for large cards */
+  ${(props) => !props.$small && css`
+    @media (max-width: 640px) {
+      height: 80px;
+      font-size: 56px;
+      padding: 8px;
+    }
+    
+    @media (min-width: 641px) and (max-width: 768px) {
+      height: 90px;
+      font-size: 63px;
+      padding: 9px;
+    }
+    
+    @media (min-width: 769px) and (max-width: 899px) {
+      height: 95px;
+      font-size: 66px;
+      padding: 9px;
+    }
+    
+    @media (min-width: 900px) {
+      height: 100px;
+      font-size: 70px;
+      padding: 10px;
+    }
+  `}
+  
+  /* Responsive adjustments for small cards */
+  ${(props) => props.$small && css`
+    @media (max-width: 640px) {
+      height: 28px;
+      font-size: 12px;
+      padding: 4px;
+    }
+    
+    @media (min-width: 641px) and (max-width: 768px) {
+      height: 31px;
+      font-size: 13px;
+      padding: 4px;
+    }
+    
+    @media (min-width: 769px) and (max-width: 899px) {
+      height: 33px;
+      font-size: 14px;
+      padding: 4px;
+    }
+    
+    @media (min-width: 900px) {
+      height: 35px;
+      font-size: 15px;
+      padding: 5px;
+    }
+  `}
 `
 const float = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -167,4 +279,29 @@ export const Profit = styled.div<{ enableMotion?: boolean }>`
     animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   `}
   cursor: pointer;
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    font-size: 14px;
+    margin-top: 16px;
+    padding: 4px 8px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    font-size: 16px;
+    margin-top: 18px;
+    padding: 4px 9px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    font-size: 17px;
+    margin-top: 19px;
+    padding: 5px 9px;
+  }
+  
+  @media (min-width: 900px) {
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 5px 10px;
+  }
 `

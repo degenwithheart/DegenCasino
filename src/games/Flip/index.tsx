@@ -194,33 +194,6 @@ function Flip() {
                 {/* Coin Shadow/Base */}
                 <div className="coin-shadow"></div>
               </div>
-
-              {/* Status Display */}
-              <div className="status-display">
-                <div className="status-card">
-                  {flipping ? (
-                    <>
-                      <div className="status-icon spinning">⚡</div>
-                      <div className="status-text">Flipping...</div>
-                    </>
-                  ) : win ? (
-                    <>
-                      <div className="status-icon win">🎉</div>
-                      <div className="status-text win">You Won!</div>
-                    </>
-                  ) : resultIndex !== null ? (
-                    <>
-                      <div className="status-icon lose">💸</div>
-                      <div className="status-text lose">Better Luck Next Time</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="status-icon">🪙</div>
-                      <div className="status-text">Choose Your Side</div>
-                    </>
-                  )}
-                </div>
-              </div>
             </div>
           </GameplayFrame>
         </StyledFlipBackground>

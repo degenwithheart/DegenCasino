@@ -66,6 +66,27 @@ export const Container = styled.div`
   font-size: 14px;
   user-select: none;
   backdrop-filter: blur(20px);
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    gap: 8px;
+    font-size: 12px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    gap: 9px;
+    font-size: 13px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    gap: 9px;
+    font-size: 14px;
+  }
+  
+  @media (min-width: 900px) {
+    gap: 10px;
+    font-size: 14px;
+  }
 `
 
 export const Grid = styled.div`
@@ -73,6 +94,23 @@ export const Grid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: 8px;
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    gap: 6px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    gap: 7px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    gap: 7px;
+  }
+  
+  @media (min-width: 900px) {
+    gap: 8px;
+  }
 `
 
 export const Levels = styled.div`
@@ -85,6 +123,23 @@ export const Levels = styled.div`
   align-items: center;
   overflow: hidden;
   height: 50px;
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    height: 42px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    height: 46px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    height: 48px;
+  }
+  
+  @media (min-width: 900px) {
+    height: 50px;
+  }
 `
 
 export const Level = styled.div<{$active: boolean}>`
@@ -176,6 +231,31 @@ export const CellButton = styled.button<{$status: CellStatus, selected: boolean,
   &:hover:not(:disabled) {
     filter: brightness(1.5);
   }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    width: 50px;
+    font-size: 10px;
+    border-bottom: 4px solid #00000055;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    width: 55px;
+    font-size: 11px;
+    border-bottom: 4px solid #00000055;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    width: 58px;
+    font-size: 11px;
+    border-bottom: 5px solid #00000055;
+  }
+  
+  @media (min-width: 900px) {
+    width: 60px;
+    font-size: 12px;
+    border-bottom: 5px solid #00000055;
+  }
 `
 
 export const StatusBar = styled.div`
@@ -187,5 +267,31 @@ export const StatusBar = styled.div`
     display: flex;
     color: #ffffffCC;
     gap: 20px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    & > div:first-child {
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    & > div:first-child {
+      gap: 16px;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    & > div:first-child {
+      gap: 18px;
+    }
+  }
+  
+  @media (min-width: 900px) {
+    & > div:first-child {
+      gap: 20px;
+    }
   }
 `
