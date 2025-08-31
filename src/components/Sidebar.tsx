@@ -87,7 +87,7 @@ export default function Sidebar() {
 	return (
 		<SidebarContainer $theme={currentTheme}>
 			<CasinoLogo $theme={currentTheme}>
-				<img src="/fakemoney.png" alt="Casino Logo" />
+				<img src="/webp/fakemoney.webp" alt="Casino Logo" />
 			</CasinoLogo>
 			<SidebarList>
 				{SIDEBAR_LINKS.filter(link =>

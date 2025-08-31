@@ -117,7 +117,7 @@ const StyledGameCard = styled.div<{ $small: boolean; $background: string; $effec
     top: 0;
     width: 100%;
     height: 100%;
-    background-image: url(/stuff.png);
+    background-image: url(/webp/stuff.webp);
     background-size: 100%;
     background-position: center;
     background-repeat: repeat;

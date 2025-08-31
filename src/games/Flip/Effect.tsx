@@ -3,7 +3,7 @@ import { useTexture } from '@react-three/drei'
 import React from 'react'
 import * as THREE from 'three'
 
-import TEXTURE_STAR from './star.png'
+import TEXTURE_STAR from './star.webp'
 
 const tmp = new THREE.Object3D
 

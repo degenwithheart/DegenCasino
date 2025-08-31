@@ -720,7 +720,7 @@ export default function TransactionView() {
                       <DetailItem>
                         <DetailLabel>Pool</DetailLabel>
                         <DetailValue>
-                          <TokenIcon src="/favicon.png" alt="SOL" />
+                          <TokenIcon src="/webp/favicon.webp" alt="SOL" />
                           {transaction.pool}
                         </DetailValue>
                       </DetailItem>
@@ -757,7 +757,7 @@ export default function TransactionView() {
                         <DetailLabel>Wager</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
                             {transaction.wager.toFixed(5)} SOL
                             {transaction.usd_wager && (
                               <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
@@ -774,7 +774,7 @@ export default function TransactionView() {
                         <DetailLabel>Payout</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
                             {transaction.payout.toFixed(5)} SOL
                             {transaction.wager !== undefined && (
                               <span style={{ 
@@ -795,7 +795,7 @@ export default function TransactionView() {
                         <DetailLabel>Profit</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
                             <span style={{ color: transaction.profit >= 0 ? '#10b981' : '#ef4444' }}>
                               {transaction.profit >= 0 ? '+' : ''}{transaction.profit.toFixed(5)} SOL
                             </span>
@@ -832,7 +832,7 @@ export default function TransactionView() {
                         <DetailLabel>Jackpot</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/favicon.png" alt="SOL" />
+                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
                             {(transaction.jackpot / 1e9).toFixed(5)} SOL
                           </TokenDisplay>
                         </DetailValue>

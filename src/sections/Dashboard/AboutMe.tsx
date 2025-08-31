@@ -271,7 +271,7 @@ const AboutMe: React.FC = () => {
   return (
     <Container visible={visible}>
       <HeaderSection>
-        <ProfileImage src="/pfp.png" alt="Degen Serenade PFP" />
+        <ProfileImage src="/webp/pfp.webp" alt="Degen Serenade PFP" />
         <TextInfo>
           <h1>Degen Serenade</h1>
           <p>Heart on-chain, soul in code. Updated July 2025</p>

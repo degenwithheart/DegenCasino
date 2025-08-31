@@ -356,7 +356,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
             </div>
 
             <BrandingSection $theme={currentTheme}>
-              <img src="/$DGHRT.png" alt="DegenHeart" />
+              <img src="/webp/$DGHRT.webp" alt="DegenHeart" />
               <div>
                 play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
               </div>
