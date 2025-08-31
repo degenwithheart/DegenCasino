@@ -11,7 +11,12 @@
     <link rel="apple-touch-icon" href="/icon-512.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/webp/casino.webp" as="image" type="image/webp">
+    <link rel="preload" href="/webp/favicon.webp" as="image" type="image/webp">
+    <link rel="preload" href="/favicon.png" as="image" type="image/png">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="DegenHeart.casino - Solana On-chain Web3 casino" />

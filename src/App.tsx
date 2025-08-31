@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
@@ -10,12 +10,13 @@ import { useWalletToast } from './utils/solanaWalletToast';
 import { useUserStore } from './hooks/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
-import AboutMe from './sections/Dashboard/AboutMe';
-import TermsPage from './sections/Dashboard/Terms';
-import Whitepaper from './sections/Dashboard/Whitepaper';
-import FairnessAudit from './sections/Dashboard/FairnessAudit';
-import UserProfile from './sections/UserProfile';
-import Game from './sections/Game/Game';
+// Lazy load non-critical pages
+const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe'));
+const TermsPage = lazy(() => import('./sections/Dashboard/Terms'));
+const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper'));
+const FairnessAudit = lazy(() => import('./sections/Dashboard/FairnessAudit'));
+const UserProfile = lazy(() => import('./sections/UserProfile'));
+const Game = lazy(() => import('./sections/Game/Game'));
 import Header from './sections/Header';
 import AllGamesModalContent from './components/AllGamesModalContent';
 import Toasts from './sections/Toasts';
@@ -24,21 +25,36 @@ import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
-import Propagation from './pages/propagation';
-import Transaction from './components/Transaction';
-import EmbeddedTransaction from './components/EmbeddedTransaction';
-import { PlayerView } from './components/PlayerView';
+// Lazy load pages and components
+const Propagation = lazy(() => import('./pages/propagation'));
+const Transaction = lazy(() => import('./components/Transaction'));
+const EmbeddedTransaction = lazy(() => import('./components/EmbeddedTransaction'));
+const PlayerView = lazy(() => import('./components/PlayerView').then(module => ({ default: module.PlayerView })));
 import { CacheDebugWrapper } from './components/CacheDebugPanel';
-import { PlatformView } from './components/PlatformView';
-import ExplorerIndex from './components/ExplorerIndex';
+const PlatformView = lazy(() => import('./components/PlatformView').then(module => ({ default: module.PlatformView })));
+const ExplorerIndex = lazy(() => import('./components/ExplorerIndex'));
 import { GraphicsProvider } from './components/GameScreenFrame';
-import JackpotPage from './pages/JackpotPage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import SelectTokenPage from './pages/SelectTokenPage';
-import BonusPage from './pages/BonusPage';
+// Lazy load pages
+const JackpotPage = lazy(() => import('./pages/JackpotPage'));
+const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
+const SelectTokenPage = lazy(() => import('./pages/SelectTokenPage'));
+const BonusPage = lazy(() => import('./pages/BonusPage'));
 import { ThemeProvider } from './themes/ThemeContext';
 
+// Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
+
+const LoadingSpinner = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '200px',
+    color: '#FF5555'
+  }}>
+    <div>Loading...</div>
+  </div>
+);
 
 const MainContent = styled.main`
   min-height: calc(100vh - 140px);
@@ -240,24 +256,26 @@ export default function App() {
           <Toasts />
           {/* Only show WelcomeBanner after auto-connect attempt */}
           {autoConnectAttempted && !connected && <WelcomeBanner />}
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/jackpot" element={<JackpotPage />} />
-            <Route path="/bonus" element={<BonusPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/select-token" element={<SelectTokenPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/whitepaper" element={<Whitepaper />} />
-            <Route path="/aboutme" element={<AboutMe />} />
-            <Route path="/audit" element={<FairnessAudit />} />
-            <Route path="/propagation" element={<Propagation />} />
-            <Route path="/explorer" element={<ExplorerIndex />} />
-            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-            <Route path="/explorer/player/:address" element={<PlayerView />} />
-            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-            <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<Game />} />
-          </Routes>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/jackpot" element={<JackpotPage />} />
+              <Route path="/bonus" element={<BonusPage />} />
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/select-token" element={<SelectTokenPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/whitepaper" element={<Whitepaper />} />
+              <Route path="/aboutme" element={<AboutMe />} />
+              <Route path="/audit" element={<FairnessAudit />} />
+              <Route path="/propagation" element={<Propagation />} />
+              <Route path="/explorer" element={<ExplorerIndex />} />
+              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+              <Route path="/explorer/player/:address" element={<PlayerView />} />
+              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+              <Route path="/:wallet/profile" element={<UserProfile />} />
+              <Route path="/game/:wallet/:gameId" element={<Game />} />
+            </Routes>
+          </Suspense>
         </MainContent>
         <Footer />
         {ENABLE_TROLLBOX && connected && <TrollBox />}
