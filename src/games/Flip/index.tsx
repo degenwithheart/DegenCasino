@@ -1,4 +1,5 @@
 import { Canvas } from '@react-three/fiber'
+import { Text } from '@react-three/drei'
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
@@ -7,7 +8,7 @@ import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFram
 import { useGraphics } from '../../components/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
-import { FLIP_CONFIG } from '../rtpConfig'
+import { FLIP_CONFIG, probAtLeast, computeMultiplier } from '../rtpConfig'
 import { Effect } from './Effect'
 import { StyledFlipBackground } from './FlipBackground.enhanced.styles'
 
@@ -16,12 +17,7 @@ import SOUND_LOSE from './lose.mp3'
 import SOUND_WIN from './win.mp3'
 
 // Use centralized bet arrays from rtpConfig
-const SIDES = {
-  heads: FLIP_CONFIG.heads,
-  tails: FLIP_CONFIG.tails,
-}
-
-type Side = keyof typeof SIDES
+type Side = 'heads' | 'tails'
 
 function Flip() {
   const game = GambaUi.useGame()
@@ -32,8 +28,38 @@ function Flip() {
   
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
-  const [side, setSide] = React.useState<Side>('heads')
+  const [side, setSide] = React.useState<'heads' | 'tails'>('heads')
   const [wager, setWager] = useWagerInput()
+  const [n, setN] = React.useState(1) // number of coins
+  const [k, setK] = React.useState(1) // target at least k
+  const [hasPlayed, setHasPlayed] = React.useState(false)
+  const coinContainerRef = React.useRef<HTMLDivElement | null>(null)
+  const [containerSize, setContainerSize] = React.useState({ width: 800, height: 360 })
+
+  // Observe container size for responsive coin scaling (store width and height)
+  React.useEffect(() => {
+    const el = coinContainerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const r = entry.contentRect
+        setContainerSize({ width: r.width, height: r.height })
+      }
+    })
+    ro.observe(el)
+    // initial
+    setContainerSize({ width: el.clientWidth, height: el.clientHeight })
+    return () => ro.disconnect()
+  }, [])
+  
+  // Compute probability and multiplier
+  const prob = React.useMemo(() => {
+    return probAtLeast(n, k);
+  }, [n, k, side]);
+  
+  const multiplier = React.useMemo(() => computeMultiplier(prob, 0.04), [prob]);
+  
+  const bet = React.useMemo(() => FLIP_CONFIG.calculateBetArray(n, k, side), [n, k, side]);
   
   console.log('🎯 FLIP MAIN DEBUG:', {
     flipping,
@@ -67,20 +93,22 @@ function Flip() {
       sounds.play('coin', { playbackRate: .5 })
 
       await game.play({
-        bet: [...SIDES[side]],
+        bet,
         wager,
-        metadata: [side],
+        metadata: [side, n, k],
       })
 
       sounds.play('coin')
 
       const result = await game.result()
 
-      const win = result.payout > 0
+      const win = side === 'heads' ? result.resultIndex >= k : result.resultIndex <= n - k;
 
       setResultIndex(result.resultIndex)
 
       setWin(win)
+
+      setHasPlayed(true)
 
       if (win) {
         sounds.play('win')
@@ -122,24 +150,25 @@ function Flip() {
               {/* Header Section */}
               <div className="flip-header">
                 <div className="side-indicator">
-                  <div className={`side-option ${resultIndex === 0 && !flipping ? 'active winner' : side === 'heads' ? 'selected' : ''}`}>
+                  <div className={`side-option ${!flipping && win && side === 'heads' ? 'active winner' : side === 'heads' ? 'selected' : ''}`}>
                     <img src={TEXTURE_HEADS} alt="Heads" />
-                    <span>HEADS</span>
-                    {resultIndex === 0 && !flipping && <div className="result-badge">WINNER!</div>}
+                    <span>HEADS: {flipping || hasPlayed ? resultIndex : 'Ready'}</span>
+                    {!flipping && win && side === 'heads' && <div className="result-badge">WINNER!</div>}
                   </div>
                   <div className="vs-divider">VS</div>
-                  <div className={`side-option ${resultIndex === 1 && !flipping ? 'active winner' : side === 'tails' ? 'selected' : ''}`}>
+                  <div className={`side-option ${!flipping && win && side === 'tails' ? 'active winner' : side === 'tails' ? 'selected' : ''}`}>
                     <img src={TEXTURE_TAILS} alt="Tails" />
-                    <span>TAILS</span>
-                    {resultIndex === 1 && !flipping && <div className="result-badge">WINNER!</div>}
+                    <span>TAILS: {flipping || hasPlayed ? n - resultIndex : 'Ready'}</span>
+                    {!flipping && win && side === 'tails' && <div className="result-badge">WINNER!</div>}
                   </div>
                 </div>
-                <div className="win-multiplier">{FLIP_CONFIG.heads[0]}x</div>
+                <div className="win-multiplier">{multiplier.toFixed(2)}x</div>
+                <div className="coins-count">Coins: {n}</div>
               </div>
 
               {/* Main Coin Area */}
               <div className="coin-arena">
-                <div className="coin-container">
+                <div className="coin-container" ref={coinContainerRef}>
                   <Canvas
                     linear
                     flat
@@ -154,8 +183,10 @@ function Flip() {
                       gl.setClearColor(0x000000, 0)
                       console.log('🪙 Flip Canvas created', { size })
                     }}
+                    // Camera zoom derived from container height so coins scale vertically across devices
                     camera={{
-                      zoom: 250,
+                      // camera zoom tied to container height but clamped for stability
+                      zoom: Math.max(110, Math.min(420, Math.round((containerSize.height || 300) * 0.7) - (n - 1) * 30)),
                       position: [0, 0, 100],
                     }}
                     style={{
@@ -169,7 +200,50 @@ function Flip() {
                     }}
                   >
                     <React.Suspense fallback={null}>
-                      <Coin result={resultIndex} flipping={flipping} enableMotion={settings.enableMotion} />
+                      {n === 1 ? (
+                        <Coin
+                          result={resultIndex}
+                          n={n}
+                          showResult={flipping || hasPlayed}
+                          flipping={flipping}
+                          enableMotion={settings.enableMotion}
+                          // single coin scales with container height (more prominent)
+                          sizeScale={Math.max(0.75, Math.min(1.6, (containerSize.height || 300) / 320))}
+                        />
+                      ) : (
+                        <>
+                          {Array.from({ length: n }, (_, i) => {
+                            // multi-coin sizing: scale by available width per coin, fallback to height
+                            const perCoinW = (containerSize.width || 600) / Math.max(1, n)
+                            const perCoinH = (containerSize.height || 300)
+                            // keep coins visible on small screens by preferring height and raising min scale
+                            const rawScale = Math.min(perCoinW / 340, perCoinH / 260)
+                            const coinScale = Math.max(0.6, Math.min(1.2, rawScale))
+                            const spacing = 2.2 / coinScale
+                            return (
+                              <group key={i} position={[(i - (n - 1) / 2) * spacing, 0, 0]}>
+                                <Coin
+                                  result={i < resultIndex ? 0 : 1}
+                                  n={1}
+                                  showResult={false}
+                                  flipping={flipping}
+                                  enableMotion={settings.enableMotion}
+                                  sizeScale={coinScale}
+                                />
+                              </group>
+                            )
+                          })}
+                          <Text
+                            position={[0, 0, 0.02]}
+                            fontSize={0.5}
+                            color="white"
+                            anchorX="center"
+                            anchorY="middle"
+                          >
+                            {flipping || hasPlayed ? `${resultIndex}/${n}` : ''}
+                          </Text>
+                        </>
+                      )}
                     </React.Suspense>
                     <Effect color="white" />
                     {flipping && <Effect color="white" />}
@@ -216,6 +290,38 @@ function Flip() {
             onSelect={setSide}
             disabled={gamba.isPlaying}
           />
+          <div style={{ margin: '10px 0' }}>
+            <label>Coins: {n}</label>
+            <input
+              type="range"
+              min="1"
+              max="2"
+              value={n}
+              onChange={(e) => {
+                const newN = parseInt(e.target.value);
+                setN(newN);
+                if (k > newN) setK(newN);
+              }}
+              disabled={gamba.isPlaying}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div style={{ margin: '10px 0' }}>
+            <label>At least {k} {side}</label>
+            <input
+              type="range"
+              min="0"
+              max={n}
+              value={k}
+              onChange={(e) => setK(parseInt(e.target.value))}
+              disabled={gamba.isPlaying}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div style={{ margin: '10px 0' }}>
+            Probability: {(prob * 100).toFixed(2)}%<br/>
+            Multiplier: {multiplier.toFixed(2)}x
+          </div>
         </MobileControls>
         
         {/* Desktop Layout */}
@@ -230,6 +336,40 @@ function Flip() {
               {side === 'heads' ? 'Heads' : 'Tails' }
             </div>
           </EnhancedButton>
+          <div style={{ margin: '10px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <label>Coins: {n}</label>
+              <input
+                type="range"
+                min="1"
+                max="2"
+                value={n}
+                onChange={(e) => {
+                  const newN = parseInt(e.target.value);
+                  setN(newN);
+                  if (k > newN) setK(newN);
+                }}
+                disabled={gamba.isPlaying}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label>At least {k} {side}</label>
+              <input
+                type="range"
+                min="0"
+                max={n}
+                value={k}
+                onChange={(e) => setK(parseInt(e.target.value))}
+                disabled={gamba.isPlaying}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              Probability: {(prob * 100).toFixed(2)}%<br/>
+              Multiplier: {multiplier.toFixed(2)}x
+            </div>
+          </div>
           <EnhancedPlayButton onClick={play}>
             Flip
           </EnhancedPlayButton>

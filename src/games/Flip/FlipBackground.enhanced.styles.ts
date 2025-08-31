@@ -85,25 +85,27 @@ export const StyledFlipBackground = styled.div`
 
   /* Modern Flip Redesign */
   .flip-redesign {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    gap: 32px;
-    padding: 24px;
-    height: 100%;
-    min-height: 500px;
-    position: relative;
-    z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  height: 100%;
+  /* Mobile-first: leave space for bottom controls */
+  min-height: calc(100vh - 180px);
+  position: relative;
+  z-index: 2;
   }
 
   .flip-header {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
   }
 
   .side-indicator {
@@ -242,36 +244,53 @@ export const StyledFlipBackground = styled.div`
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
+  .coins-count {
+  margin-top: 4px;
+  color: rgba(255,255,255,0.9);
+  font-size: 12px;
+  }
+
   .coin-arena {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
-    width: 100%;
-    max-width: 500px;
-    position: relative;
-    overflow: visible;
-    min-height: 350px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* lift the coins closer to the header on mobile */
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  position: relative;
+  overflow: visible;
+  padding-top: 12px;
+  /* Smaller min-height on mobile so the controls remain reachable */
+  min-height: 44vh;
   }
 
   .coin-container {
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
+  /* responsive canvas container - mobile-first sizing */
+  width: 100%;
+  max-width: 980px;
+  /* cap height on mobile so controls at bottom remain visible */
+  height: min(40vh, calc(100vh - 260px));
+    border-radius: 12px;
     background: transparent;
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.4),
       inset 0 4px 20px rgba(255, 255, 255, 0.1),
       0 0 40px rgba(148, 163, 184, 0.2);
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: visible;
     z-index: 1;
     pointer-events: none;
 
-    /* Force canvas transparency */
+    /* Force canvas to fill the container */
     canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
       background: transparent !important;
       background-color: transparent !important;
     }
@@ -398,8 +417,8 @@ export const StyledFlipBackground = styled.div`
     }
 
     .coin-container {
-      width: 180px;
-      height: 180px;
+      width: 90%;
+      height: 40vh;
     }
 
     .side-option {
@@ -429,8 +448,8 @@ export const StyledFlipBackground = styled.div`
     }
 
     .coin-container {
-      width: 220px;
-      height: 220px;
+      width: 90%;
+      height: 45vh;
     }
 
     .side-option {
@@ -460,8 +479,8 @@ export const StyledFlipBackground = styled.div`
     }
 
     .coin-container {
-      width: 260px;
-      height: 260px;
+      width: 80%;
+      height: 55vh;
     }
 
     .side-option {
@@ -491,8 +510,8 @@ export const StyledFlipBackground = styled.div`
     }
 
     .coin-container {
-      width: 300px;
-      height: 300px;
+      width: 70%;
+      height: 60vh;
     }
 
     .side-option {

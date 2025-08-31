@@ -1,4 +1,4 @@
-import { useTexture } from '@react-three/drei'
+import { useTexture, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import { Group } from 'three'
@@ -32,10 +32,13 @@ function CoinModel() {
 interface CoinFlipProps {
   flipping: boolean
   result: number
+  n: number
+  showResult: boolean
   enableMotion?: boolean
+  sizeScale?: number
 }
 
-export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
+export function Coin({ flipping, result, n, showResult, enableMotion = true, sizeScale = 1 }: CoinFlipProps) {
   const group = React.useRef<Group>(null!)
   const target = React.useRef(0)
   const [initialized, setInitialized] = React.useState(false)
@@ -53,7 +56,7 @@ export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
     if (group.current && !initialized) {
       console.log('🪙 INITIALIZING COIN:', { result, enableMotion })
       // Always ensure coin is visible and properly positioned
-      group.current.scale.setScalar(1)
+      group.current.scale.setScalar(sizeScale)
       group.current.rotation.y = result * Math.PI
       console.log('🪙 COIN INITIALIZED:', {
         scale: group.current.scale.x,
@@ -71,14 +74,14 @@ export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
       if (!enableMotion) {
         // For static mode, show final result immediately
         group.current.rotation.y = result * Math.PI
-        group.current.scale.setScalar(1)
+        group.current.scale.setScalar(sizeScale)
         console.log('🪙 STATIC MODE SET:', {
           rotationY: group.current.rotation.y,
           scale: group.current.scale.x
         })
       } else {
         // For motion mode, ensure scale is correct
-        group.current.scale.setScalar(1)
+        group.current.scale.setScalar(sizeScale)
         console.log('🪙 MOTION MODE SET:', { scale: group.current.scale.x })
       }
     }
@@ -103,7 +106,7 @@ export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
     if (!enableMotion) {
       // Set final position immediately in static mode
       group.current.rotation.y = result * Math.PI
-      group.current.scale.setScalar(1)
+      group.current.scale.setScalar(sizeScale)
       return
     }
     
@@ -112,9 +115,11 @@ export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
     } else {
       group.current.rotation.y += clamp((target.current - group.current.rotation.y) * 10 * dt, 0, 1)
     }
-    const scale = flipping ? 1.25 : 1
-    group.current.scale.y += (scale - group.current.scale.y) * .1
-    group.current.scale.setScalar(group.current.scale.y)
+    const targetScale = flipping ? sizeScale * 1.25 : sizeScale
+    // smooth scale transition
+    const current = group.current.scale.x
+    const next = current + (targetScale - current) * 0.12
+    group.current.scale.setScalar(next)
   })
 
   console.log('🪙 RENDER COIN:', {
@@ -125,8 +130,21 @@ export function Coin({ flipping, result, enableMotion = true }: CoinFlipProps) {
   })
 
   return (
-    <group ref={group}>
-      <CoinModel />
-    </group>
+    <>
+      <group ref={group}>
+        <CoinModel />
+      </group>
+      {showResult && (
+        <Text
+          position={[0, 0, 0.02]}
+          fontSize={0.5}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {result}/{n}
+        </Text>
+      )}
+    </>
   )
 }
