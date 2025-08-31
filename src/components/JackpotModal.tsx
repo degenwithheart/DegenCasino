@@ -381,11 +381,24 @@ interface JackpotModalProps {
 // Hook to fetch jackpot winners
 const useJackpotWinners = () => {
   const pool = useCurrentPool()
+  const [hasLoaded, setHasLoaded] = useState(false)
   
   const events = useGambaEvents<'GameSettled'>('GameSettled', {
     address: pool?.publicKey,
     signatureLimit: 200, // Fetch more transactions to find jackpot winners
   })
+
+  // Use effect to track when events have been loaded
+  useEffect(() => {
+    if (pool && events.length >= 0) {
+      // Wait a bit to ensure events are loaded
+      const timer = setTimeout(() => {
+        setHasLoaded(true)
+      }, 2000) // 2 second timeout
+      
+      return () => clearTimeout(timer)
+    }
+  }, [pool, events.length])
 
   const jackpotWinners = events
     .filter(event => {
@@ -400,7 +413,7 @@ const useJackpotWinners = () => {
 
   return {
     winners: jackpotWinners,
-    loading: !pool || events.length === 0,
+    loading: !pool || !hasLoaded,
   }
 }
 
