@@ -5,7 +5,7 @@ import { Modal } from '../../components/Modal'
 import {
   useLeaderboardData,
   Period,
-  Player,            // exported from the hook
+  Player,
 } from '../../hooks/useLeaderboardData'
 import { useTheme } from '../../themes/ThemeContext'
 
