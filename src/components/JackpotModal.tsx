@@ -391,13 +391,13 @@ const useJackpotWinners = () => {
       try {
         setLoading(true)
 
-        // Fetch recent settled games from the gamba API using the pool token
+        // Fetch recent settled games for the public pool (all platforms using this token)
         const response = await fetch(`https://api.gamba.so/events/settledGames?token=${pool.token.toBase58()}&itemsPerPage=100&page=0`)
 
         if (response.ok) {
           const data = await response.json()
 
-          // Filter for games with jackpot payouts
+          // Filter for games with jackpot payouts (from any platform using this public pool)
           const jackpotWinners = (data.results || [])
             .filter((game: any) => {
               const jackpotPayout = parseFloat(game.jackpotPayout || '0')
@@ -406,6 +406,7 @@ const useJackpotWinners = () => {
             .map((game: any) => ({
               signature: game.signature,
               user: game.user,
+              creator: game.creator, // Include creator to show which platform
               tokenMint: game.token,
               jackpotPayoutToUser: parseFloat(game.jackpotPayout || '0'),
               time: game.time * 1000, // Convert to milliseconds
@@ -418,6 +419,8 @@ const useJackpotWinners = () => {
             .sort((a: any, b: any) => b.time - a.time) // Sort by most recent first
             .slice(0, 50) // Limit to 50 most recent winners
 
+          console.log('Public pool jackpot winners found:', jackpotWinners.length)
+          console.log('Sample winners:', jackpotWinners.slice(0, 3))
           setWinners(jackpotWinners)
         } else {
           console.warn('Failed to fetch jackpot winners:', response.status)
