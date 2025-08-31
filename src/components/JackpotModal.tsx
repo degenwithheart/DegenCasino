@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurrentToken, useTokenMeta, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
-import { useGambaEvents } from 'gamba-react-v2'
-import { GambaTransaction } from 'gamba-core-v2'
-import { PublicKey } from '@solana/web3.js'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
-import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_CREATOR_ADDRESS, POOLS } from '../constants'
+import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../constants'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 // Quantum animations
@@ -245,262 +242,16 @@ const InfoText = styled.p`
   opacity: 0.9;
 `
 
-// Tab Components
-const TabContainer = styled.div`
-  background: rgba(111, 250, 255, 0.08);
-  border: 1px solid rgba(111, 250, 255, 0.3);
-  border-radius: 12px;
-  margin: 1.2rem 0;
-  overflow: hidden;
-  box-shadow: 0 0 16px rgba(111, 250, 255, 0.15);
-`
-
-const TabHeader = styled.div`
-  display: flex;
-  border-bottom: 1px solid rgba(111, 250, 255, 0.2);
-`
-
-const TabButton = styled.button<{ $active: boolean }>`
-  flex: 1;
-  background: ${({ $active }) => $active ? 'rgba(111, 250, 255, 0.15)' : 'transparent'};
-  border: none;
-  color: ${({ $active }) => $active ? '#6ffaff' : '#eaf6fb'};
-  padding: 0.8rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  transition: all 0.3s ease;
-  text-shadow: ${({ $active }) => $active ? '0 0 8px #6ffaff' : 'none'};
-
-  &:hover {
-    background: rgba(111, 250, 255, 0.12);
-    color: #6ffaff;
-  }
-
-  &:first-child {
-    border-right: 1px solid rgba(111, 250, 255, 0.2);
-  }
-`
-
-const TabContent = styled.div`
-  padding: 1rem;
-`
-
-// Winners List Components
-const WinnersList = styled.div`
-  max-height: 300px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(111, 250, 255, 0.3) transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(111, 250, 255, 0.3);
-    border-radius: 3px;
-  }
-`
-
-const WinnerItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem;
-  background: rgba(20, 30, 60, 0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(111, 250, 255, 0.2);
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(20, 30, 60, 0.8);
-    border-color: rgba(111, 250, 255, 0.4);
-    box-shadow: 0 0 12px rgba(111, 250, 255, 0.2);
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`
-
-const WinnerInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  flex: 1;
-`
-
-const WinnerHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`
-
-const WinnerAddress = styled.span`
-  color: #eaf6fb;
-  font-size: 0.8rem;
-  font-weight: 500;
-  font-family: 'JetBrains Mono', monospace;
-`
-
-const WinnerToken = styled.span`
-  color: #6ffaff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  background: rgba(111, 250, 255, 0.1);
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  border: 1px solid rgba(111, 250, 255, 0.3);
-`
-
-const WinnerTime = styled.span`
-  color: #a259ff;
-  font-size: 0.7rem;
-  font-family: 'JetBrains Mono', monospace;
-`
-
-const WinnerAmount = styled.span`
-  color: #ffd700;
-  font-size: 0.9rem;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  text-shadow: 0 0 6px #ffd70088;
-`
-
-const NoWinnersText = styled.div`
-  text-align: center;
-  color: #eaf6fb;
-  font-size: 0.9rem;
-  font-family: 'JetBrains Mono', monospace;
-  padding: 2rem;
-  opacity: 0.7;
-`
-
-const LoadingText = styled.div`
-  text-align: center;
-  color: #6ffaff;
-  font-size: 0.9rem;
-  font-family: 'JetBrains Mono', monospace;
-  padding: 2rem;
-`
-
 interface JackpotModalProps {
   onClose: () => void
 }
 
-// Hook to fetch jackpot winners from all pools
-const useJackpotWinners = () => {
-  const [winners, setWinners] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchWinnersFromAllPools = async () => {
-      try {
-        setLoading(true)
-
-        // Get all real token pools (exclude fake token for now)
-        const realPools = POOLS.filter(pool =>
-          !pool.token.equals(FAKE_TOKEN_MINT)
-        )
-
-        console.log('Fetching jackpot winners from', realPools.length, 'pools')
-
-        // Fetch winners from all pools concurrently
-        const poolPromises = realPools.map(async (pool) => {
-          try {
-            // Gamba API approach for each pool
-            const gambaResponse = await fetch(`https://api.gamba.so/events/settledGames?token=${pool.token.toBase58()}&itemsPerPage=50&page=0`)
-
-            if (gambaResponse.ok) {
-              const gambaData = await gambaResponse.json()
-              const poolWinners = (gambaData.results || [])
-                .filter((game: any) => {
-                  const jackpotPayout = parseFloat(game.jackpotPayout || '0')
-                  return jackpotPayout > 0
-                })
-                .map((game: any) => ({
-                  ...game,
-                  source: 'gamba-api',
-                  poolToken: pool.token.toBase58(),
-                  jackpotPayoutToUser: parseFloat(game.jackpotPayout || '0'),
-                  time: game.time * 1000,
-                }))
-
-              console.log(`Pool ${pool.token.toBase58().slice(0, 8)}...: ${poolWinners.length} jackpot winners`)
-              return poolWinners
-            }
-            return []
-          } catch (error) {
-            console.error(`Error fetching winners for pool ${pool.token.toBase58()}:`, error)
-            return []
-          }
-        })
-
-        // Wait for all pool fetches to complete
-        const allPoolWinners = await Promise.all(poolPromises)
-        const combinedWinners = allPoolWinners.flat()
-
-        // Sort by most recent first and limit to 100 total winners
-        const sortedWinners = combinedWinners
-          .sort((a, b) => b.time - a.time)
-          .slice(0, 100)
-
-        console.log('Total jackpot winners from all pools:', sortedWinners.length)
-        console.log('Winners by pool:', realPools.map((pool, index) => ({
-          token: pool.token.toBase58().slice(0, 8) + '...',
-          winners: allPoolWinners[index].length
-        })))
-
-        // Transform for component compatibility
-        setWinners(sortedWinners.map(winner => ({
-          signature: winner.signature,
-          user: winner.user,
-          creator: winner.creator,
-          tokenMint: winner.token,
-          poolToken: winner.poolToken,
-          jackpotPayoutToUser: winner.jackpotPayoutToUser,
-          time: winner.time,
-          source: winner.source,
-          data: {
-            user: new PublicKey(winner.user),
-            tokenMint: new PublicKey(winner.token),
-            jackpotPayoutToUser: { toNumber: () => winner.jackpotPayoutToUser }
-          }
-        })))
-
-      } catch (error) {
-        console.error('Error fetching jackpot winners from all pools:', error)
-        setWinners([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchWinnersFromAllPools()
-  }, [])
-
-  return {
-    winners,
-    loading,
-  }
-}
-
 const JackpotInner: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'current' | 'winners'>('current')
   const pool = useCurrentPool()
   const context = useGambaPlatformContext()
   const token = useCurrentToken()
   const { connected } = useWallet()
   const meta = useTokenMeta(token?.mint)
-  const { winners, loading } = useJackpotWinners()
 
   // Calculate minimum wager in token amount ($1 USD for real tokens)
   const getMinimumWager = () => {
@@ -521,22 +272,9 @@ const JackpotInner: React.FC = () => {
   const minimumWager = getMinimumWager()
   const poolFeePercentage = (PLATFORM_CREATOR_FEE * 100).toFixed(3)
 
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffDays = Math.floor(diffHours / 24)
-
-    if (diffHours < 1) return 'Just now'
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
-  }
-
   return (
     <div style={{ 
-      maxWidth: '480px', 
+      maxWidth: '420px', 
       margin: '0 auto',
       padding: '1.5rem',
       color: '#eaf6fb',
@@ -547,134 +285,71 @@ const JackpotInner: React.FC = () => {
         <Subtitle>Quantum Pool Mechanics</Subtitle>
       </HeaderSection>
 
-      <TabContainer>
-        <TabHeader>
-          <TabButton 
-            $active={activeTab === 'current'} 
-            onClick={() => setActiveTab('current')}
-          >
-            Current Pool
-          </TabButton>
-          <TabButton 
-            $active={activeTab === 'winners'} 
-            onClick={() => setActiveTab('winners')}
-          >
-            Winners
-          </TabButton>
-        </TabHeader>
+      <FeatureList>
+        <li>Jackpot grows with every bet placed</li>
+        <li>Pool fees contribute to the quantum accumulation</li>
+      </FeatureList>
 
-        <TabContent>
-          {activeTab === 'current' ? (
-            <>
-              <FeatureList>
-                <li>Jackpot grows with every bet placed</li>
-                <li>Pool fees contribute to the quantum accumulation</li>
-              </FeatureList>
+      <PoolStatsContainer>
+        <PoolStatsTitle>POOL STATISTICS</PoolStatsTitle>
+        <PoolStatsGrid>
+          <PoolStatItem>
+            <PoolStatLabel>Pool Fee:</PoolStatLabel>
+            <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
+          </PoolStatItem>
 
-              <PoolStatsContainer>
-                <PoolStatsTitle>POOL STATISTICS</PoolStatsTitle>
-                <PoolStatsGrid>
-                  <PoolStatItem>
-                    <PoolStatLabel>Pool Fee:</PoolStatLabel>
-                    <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
-                  </PoolStatItem>
+          <PoolStatItem>
+            <PoolStatLabel>Jackpot:</PoolStatLabel>
+            <PoolStatValue>
+              <TokenValue amount={pool.jackpotBalance} />
+            </PoolStatValue>
+          </PoolStatItem>
 
-                  <PoolStatItem>
-                    <PoolStatLabel>Jackpot:</PoolStatLabel>
-                    <PoolStatValue>
-                      <TokenValue amount={pool.jackpotBalance} />
-                    </PoolStatValue>
-                  </PoolStatItem>
-
-                  <PoolStatItem>
-                    <PoolStatLabel>Minimum Wager:</PoolStatLabel>
-                    <PoolStatValue>
-                      {token?.mint?.equals?.(FAKE_TOKEN_MINT) ? (
-                        <TokenValue amount={minimumWager} />
-                      ) : (
-                        "$1.00"
-                      )}
-                    </PoolStatValue>
-                  </PoolStatItem>
-
-                  <PoolStatItem>
-                    <PoolStatLabel>Maximum Payout:</PoolStatLabel>
-                    <PoolStatValue>
-                      <TokenValue amount={pool.maxPayout} />
-                    </PoolStatValue>
-                  </PoolStatItem>
-                </PoolStatsGrid>
-              </PoolStatsContainer>
-
-              {connected && (
-                <ControlSection>
-                  <ControlLabel>
-                    <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
-                      <ControlTitle>Jackpot Participation</ControlTitle>
-                      <ControlSubtitle>
-                        {context.defaultJackpotFee === 0 
-                          ? "Currently disabled – you won't contribute and are not eligible to win"
-                          : 'Currently enabled – you contribute and are eligible to win'}
-                      </ControlSubtitle>
-                    </ControlText>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                      <StatusBadge $enabled={context.defaultJackpotFee > 0}>
-                        {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
-                      </StatusBadge>
-                      <GambaUi.Switch
-                        checked={context.defaultJackpotFee > 0}
-                        onChange={(checked) =>
-                          context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
-                        }
-                      />
-                    </div>
-                  </ControlLabel>
-                </ControlSection>
-              )}
-            </>
-          ) : (
-            <>
-              <PoolStatsTitle>🏆 JACKPOT WINNERS</PoolStatsTitle>
-              {loading ? (
-                <LoadingText>Loading winners...</LoadingText>
-              ) : winners.length > 0 ? (
-                <WinnersList>
-                  {winners.map((winner, index) => (
-                    <WinnerItem key={`${winner.signature}-${index}`}>
-                      <WinnerInfo>
-                        <WinnerHeader>
-                          <WinnerAddress>
-                            {winner.data.user.toBase58().slice(0, 8)}...{winner.data.user.toBase58().slice(-4)}
-                          </WinnerAddress>
-                          <WinnerToken>
-                            {winner.poolToken === 'So11111111111111111111111111111111111111112' ? 'SOL' :
-                             winner.poolToken === 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' ? 'USDC' :
-                             winner.poolToken === 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' ? 'JUP' :
-                             winner.poolToken === 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263' ? 'BONK' :
-                             winner.poolToken?.slice(0, 4) + '...' || 'UNKNOWN'}
-                          </WinnerToken>
-                        </WinnerHeader>
-                        <WinnerTime>{formatTime(winner.time)}</WinnerTime>
-                      </WinnerInfo>
-                      <WinnerAmount>
-                        <TokenValue 
-                          amount={winner.data.jackpotPayoutToUser.toNumber()} 
-                          mint={winner.data.tokenMint}
-                        />
-                      </WinnerAmount>
-                    </WinnerItem>
-                  ))}
-                </WinnersList>
+          <PoolStatItem>
+            <PoolStatLabel>Minimum Wager:</PoolStatLabel>
+            <PoolStatValue>
+              {token?.mint?.equals?.(FAKE_TOKEN_MINT) ? (
+                <TokenValue amount={minimumWager} />
               ) : (
-                <NoWinnersText>
-                  No jackpot winners found yet.<br />
-                  Be the first to hit the quantum jackpot! ⚛️
-                </NoWinnersText>
+                "$1.00"
               )}
-            </>
-          )}
-        </TabContent>
-      </TabContainer>
+            </PoolStatValue>
+          </PoolStatItem>
+
+          <PoolStatItem>
+            <PoolStatLabel>Maximum Payout:</PoolStatLabel>
+            <PoolStatValue>
+              <TokenValue amount={pool.maxPayout} />
+            </PoolStatValue>
+          </PoolStatItem>
+        </PoolStatsGrid>
+      </PoolStatsContainer>
+
+      {connected && (
+        <ControlSection>
+          <ControlLabel>
+            <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
+              <ControlTitle>Jackpot Participation</ControlTitle>
+              <ControlSubtitle>
+                {context.defaultJackpotFee === 0 
+                  ? "Currently disabled – you won't contribute and are not eligible to win"
+                  : 'Currently enabled – you contribute and are eligible to win'}
+              </ControlSubtitle>
+            </ControlText>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              <StatusBadge $enabled={context.defaultJackpotFee > 0}>
+                {context.defaultJackpotFee === 0 ? 'DISABLED' : 'ENABLED'}
+              </StatusBadge>
+              <GambaUi.Switch
+                checked={context.defaultJackpotFee > 0}
+                onChange={(checked) =>
+                  context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
+                }
+              />
+            </div>
+          </ControlLabel>
+        </ControlSection>
+      )}
 
       <InfoText style={{ marginTop: '1.5rem', fontSize: '0.95rem', textAlign: 'center' }}>
         May the odds be ever in your favor! 🍀
