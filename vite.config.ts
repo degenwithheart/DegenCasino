@@ -50,73 +50,35 @@ export default defineConfig(() => ({
     outDir: 'dist',
     chunkSizeWarningLimit: 2048,
     target: 'es2020', 
-    minify: 'terser',
+    minify: 'esbuild',
     sourcemap: false,
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
-        passes: 2,
-        reduce_vars: true,
-        reduce_funcs: true,
-        conditionals: true,
-        dead_code: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true,
-        loops: true,
-        sequences: true,
-        unused: true,
-        hoist_funs: true,
-        hoist_props: false,
-        hoist_vars: false,
-        inline: 1
-      },
-      mangle: {
-        toplevel: false,
-        safari10: true,
-        properties: false
-      }
+    esbuildOptions: {
+      drop: ['console', 'debugger'],
     },
     cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          // Vendor chunks - split large libraries
-          if (id.includes('node_modules')) {
-            if (id.includes('@solana') || id.includes('@coral-xyz/anchor')) return 'solana'
-            if (id.includes('react') || id.includes('react-dom')) return 'react'
-            if (id.includes('three') || id.includes('@react-three')) return 'three'
-            if (id.includes('matter-js') || id.includes('tone')) return 'physics'
-            if (id.includes('gamba')) return 'gamba'
-            if (id.includes('@radix-ui') || id.includes('framer-motion')) return 'ui'
-            if (id.includes('@walletconnect') || id.includes('@reown')) return 'wallet'
-            return 'vendor'
-          }
-          
-          // Game-specific chunks - each game gets its own chunk
-          if (id.includes('/games/')) {
-            const gameMatch = id.match(/\/games\/([^\/]+)\//)
-            if (gameMatch) return `game-${gameMatch[1].toLowerCase()}`
-          }
-          
-          // Component chunks
-          if (id.includes('/components/')) return 'components'
-          if (id.includes('/hooks/')) return 'hooks'
-          if (id.includes('/utils/')) return 'utils'
-          if (id.includes('/pages/')) return 'pages'
+        // More conservative chunking to avoid circular dependencies
+        manualChunks: {
+          // Core React libraries
+          'react-vendor': ['react', 'react-dom'],
+          // Large blockchain libraries
+          'blockchain': ['@solana/web3.js', '@coral-xyz/anchor'],
+          // 3D libraries (separate due to size)
+          'three': ['three', '@react-three/fiber', '@react-three/drei'],
+          // Physics and audio (separate due to size)
+          'physics-audio': ['matter-js', 'tone'],
         },
         compact: true,
         generatedCode: {
           arrowFunctions: true,
           constBindings: true,
           objectShorthand: true
-        }
+        },
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
       }
     },
-    reportCompressedSize: false,
-    assetsInlineLimit: 4096 // Inline smaller assets
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
