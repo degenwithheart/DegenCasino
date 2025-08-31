@@ -32,6 +32,63 @@ export const StyledResults = styled.div<{ enableMotion?: boolean }>`
       animation: ${resultFlash} 1s;
     `}
   }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    height: 42px;
+    
+    & > div {
+      padding: 8px;
+      width: 35px;
+    }
+    
+    & > div:first-child {
+      font-size: 20px;
+      width: 50px;
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    height: 46px;
+    
+    & > div {
+      padding: 9px;
+      width: 38px;
+    }
+    
+    & > div:first-child {
+      font-size: 22px;
+      width: 55px;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    height: 48px;
+    
+    & > div {
+      padding: 9px;
+      width: 39px;
+    }
+    
+    & > div:first-child {
+      font-size: 23px;
+      width: 58px;
+    }
+  }
+  
+  @media (min-width: 900px) {
+    height: 50px;
+    
+    & > div {
+      padding: 10px;
+      width: 40px;
+    }
+    
+    & > div:first-child {
+      font-size: 24px;
+      width: 60px;
+    }
+  }
 `
 
 export const StyledBetButton = styled.div<{$highlighted?: boolean, $color?: 'black' | 'red'}>`
@@ -80,11 +137,53 @@ export const StyledBetButton = styled.div<{$highlighted?: boolean, $color?: 'bla
       mix-blend-mode:screen;
     }
   `}
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    width: 50px;
+    padding: 8px 6px;
+    font-size: 14px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    width: 55px;
+    padding: 9px 8px;
+    font-size: 15px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    width: 58px;
+    padding: 9px 9px;
+    font-size: 16px;
+  }
+  
+  @media (min-width: 900px) {
+    width: 60px;
+    padding: 10px 10px;
+    font-size: 16px;
+  }
 `
 
 export const StyledTable = styled.div`
   display: grid;
   gap: 10px;
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    gap: 6px;
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    gap: 8px;
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    gap: 9px;
+  }
+  
+  @media (min-width: 900px) {
+    gap: 10px;
+  }
 `
 
 export const ChipContainer = styled.div`
@@ -93,4 +192,21 @@ export const ChipContainer = styled.div`
   top: 0;
   right: 0;
   transform: translate(25%, -25%);
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    transform: translate(20%, -20%);
+  }
+  
+  @media (min-width: 641px) and (max-width: 768px) {
+    transform: translate(22%, -22%);
+  }
+  
+  @media (min-width: 769px) and (max-width: 899px) {
+    transform: translate(24%, -24%);
+  }
+  
+  @media (min-width: 900px) {
+    transform: translate(25%, -25%);
+  }
 `

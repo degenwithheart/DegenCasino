@@ -98,6 +98,7 @@ export const StyledFlipBackground = styled.div`
   }
 
   .flip-header {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -309,9 +310,15 @@ export const StyledFlipBackground = styled.div`
   }
 
   .status-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
     width: 100%;
     display: flex;
     justify-content: center;
+    pointer-events: none;
   }
 
   .status-card {
@@ -319,14 +326,15 @@ export const StyledFlipBackground = styled.div`
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 215, 0, 0.5);
     border-radius: 20px;
-    padding: 24px 32px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    min-width: 200px;
+    padding: 20px 28px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    min-width: 180px;
     transition: all 0.3s ease;
+    pointer-events: auto;
   }
 
   .status-icon {
@@ -383,7 +391,38 @@ export const StyledFlipBackground = styled.div`
   }
 
   /* Responsive Design */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
+    .flip-redesign {
+      padding: 12px;
+      gap: 20px;
+    }
+
+    .coin-container {
+      width: 180px;
+      height: 180px;
+    }
+
+    .side-option {
+      min-width: 50px;
+      padding: 10px;
+
+      img {
+        width: 30px;
+        height: 30px;
+      }
+
+      span {
+        font-size: 11px;
+      }
+    }
+
+    .status-card {
+      padding: 16px 20px;
+      min-width: 140px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
     .flip-redesign {
       padding: 16px;
       gap: 24px;
@@ -411,6 +450,68 @@ export const StyledFlipBackground = styled.div`
     .status-card {
       padding: 20px 24px;
       min-width: 160px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 899px) {
+    .flip-redesign {
+      padding: 20px;
+      gap: 28px;
+    }
+
+    .coin-container {
+      width: 260px;
+      height: 260px;
+    }
+
+    .side-option {
+      min-width: 70px;
+      padding: 14px;
+
+      img {
+        width: 40px;
+        height: 40px;
+      }
+
+      span {
+        font-size: 13px;
+      }
+    }
+
+    .status-card {
+      padding: 22px 26px;
+      min-width: 180px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .flip-redesign {
+      padding: 24px;
+      gap: 32px;
+    }
+
+    .coin-container {
+      width: 300px;
+      height: 300px;
+    }
+
+    .side-option {
+      min-width: 80px;
+      padding: 16px;
+
+      img {
+        width: 44px;
+        height: 44px;
+      }
+
+      span {
+        font-size: 14px;
+      }
+    }
+
+    .status-card {
+      padding: 24px 32px;
+      min-width: 200px;
     }
   }
 

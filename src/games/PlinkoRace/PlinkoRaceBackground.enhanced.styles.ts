@@ -223,45 +223,174 @@ export const StyledPlinkoRaceBackground = styled.div`
   }
 
   /* Responsive adjustments */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     &::before {
-      font-size: 100px;
+      font-size: 80px;
       top: 5%;
       left: 3%;
     }
-    
+
     &::after {
-      font-size: 90px;
+      font-size: 70px;
       bottom: 5%;
       right: 3%;
     }
 
     .velocity-bg-elements {
       &::before {
-        font-size: 80px;
+        font-size: 60px;
         top: 15%;
         right: 10%;
       }
 
       &::after {
-        font-size: 70px;
+        font-size: 50px;
         bottom: 20%;
         left: 8%;
       }
     }
 
     .lightning-speed-indicator {
-      width: 150px;
-      height: 150px;
+      width: 120px;
+      height: 120px;
 
       &::before {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
       }
 
       &::after {
-        width: 70px;
-        height: 70px;
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    &::before {
+      font-size: 90px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 80px;
+      bottom: 5%;
+      right: 3%;
+    }
+
+    .velocity-bg-elements {
+      &::before {
+        font-size: 70px;
+        top: 15%;
+        right: 10%;
+      }
+
+      &::after {
+        font-size: 60px;
+        bottom: 20%;
+        left: 8%;
+      }
+    }
+
+    .lightning-speed-indicator {
+      width: 140px;
+      height: 140px;
+
+      &::before {
+        width: 90px;
+        height: 90px;
+      }
+
+      &::after {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 899px) {
+    &::before {
+      font-size: 110px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 95px;
+      bottom: 5%;
+      right: 3%;
+    }
+
+    .velocity-bg-elements {
+      &::before {
+        font-size: 85px;
+        top: 15%;
+        right: 10%;
+      }
+
+      &::after {
+        font-size: 75px;
+        bottom: 20%;
+        left: 8%;
+      }
+    }
+
+    .lightning-speed-indicator {
+      width: 160px;
+      height: 160px;
+
+      &::before {
+        width: 110px;
+        height: 110px;
+      }
+
+      &::after {
+        width: 75px;
+        height: 75px;
+      }
+    }
+  }
+
+  @media (min-width: 900px) {
+    &::before {
+      font-size: 120px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 100px;
+      bottom: 5%;
+      right: 3%;
+    }
+
+    .velocity-bg-elements {
+      &::before {
+        font-size: 90px;
+        top: 15%;
+        right: 10%;
+      }
+
+      &::after {
+        font-size: 80px;
+        bottom: 20%;
+        left: 8%;
+      }
+    }
+
+    .lightning-speed-indicator {
+      width: 180px;
+      height: 180px;
+
+      &::before {
+        width: 120px;
+        height: 120px;
+      }
+
+      &::after {
+        width: 80px;
+        height: 80px;
       }
     }
   }

@@ -217,46 +217,175 @@ export const StyledProgressivePokerBackground = styled.div`
   }
 
   /* Mobile responsiveness */
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .poker-content {
-      padding: 30px 20px;
-      gap: 20px;
+      padding: 20px 15px;
+      gap: 15px;
     }
 
     &::before {
-      font-size: 100px;
+      font-size: 80px;
       top: 5%;
       left: 3%;
     }
 
     &::after {
-      font-size: 80px;
+      font-size: 60px;
       bottom: 8%;
       right: 5%;
     }
 
     .progressive-bg-elements::before {
-      font-size: 70px;
-    }
-
-    .progressive-bg-elements::after {
-      font-size: 60px;
-    }
-
-    .floating-cards::before {
       font-size: 50px;
     }
 
-    .floating-cards::after {
+    .progressive-bg-elements::after {
       font-size: 45px;
+    }
+
+    .floating-cards::before {
+      font-size: 35px;
+    }
+
+    .floating-cards::after {
+      font-size: 30px;
     }
 
     .jackpot-symbols::before {
-      font-size: 40px;
+      font-size: 30px;
     }
 
     .jackpot-symbols::after {
+      font-size: 35px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    .poker-content {
+      padding: 25px 18px;
+      gap: 18px;
+    }
+
+    &::before {
+      font-size: 90px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 70px;
+      bottom: 8%;
+      right: 5%;
+    }
+
+    .progressive-bg-elements::before {
+      font-size: 60px;
+    }
+
+    .progressive-bg-elements::after {
+      font-size: 55px;
+    }
+
+    .floating-cards::before {
       font-size: 45px;
+    }
+
+    .floating-cards::after {
+      font-size: 40px;
+    }
+
+    .jackpot-symbols::before {
+      font-size: 35px;
+    }
+
+    .jackpot-symbols::after {
+      font-size: 40px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 899px) {
+    .poker-content {
+      padding: 35px 25px;
+      gap: 25px;
+    }
+
+    &::before {
+      font-size: 110px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 90px;
+      bottom: 8%;
+      right: 5%;
+    }
+
+    .progressive-bg-elements::before {
+      font-size: 75px;
+    }
+
+    .progressive-bg-elements::after {
+      font-size: 65px;
+    }
+
+    .floating-cards::before {
+      font-size: 55px;
+    }
+
+    .floating-cards::after {
+      font-size: 50px;
+    }
+
+    .jackpot-symbols::before {
+      font-size: 45px;
+    }
+
+    .jackpot-symbols::after {
+      font-size: 50px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .poker-content {
+      padding: 40px 30px;
+      gap: 30px;
+    }
+
+    &::before {
+      font-size: 120px;
+      top: 5%;
+      left: 3%;
+    }
+
+    &::after {
+      font-size: 100px;
+      bottom: 8%;
+      right: 5%;
+    }
+
+    .progressive-bg-elements::before {
+      font-size: 80px;
+    }
+
+    .progressive-bg-elements::after {
+      font-size: 70px;
+    }
+
+    .floating-cards::before {
+      font-size: 60px;
+    }
+
+    .floating-cards::after {
+      font-size: 55px;
+    }
+
+    .jackpot-symbols::before {
+      font-size: 50px;
+    }
+
+    .jackpot-symbols::after {
+      font-size: 55px;
     }
   }
 `
