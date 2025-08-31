@@ -381,52 +381,62 @@ interface JackpotModalProps {
 // Hook to fetch jackpot winners
 const useJackpotWinners = () => {
   const pool = useCurrentPool()
-  const [hasLoaded, setHasLoaded] = useState(false)
-  
-  const events = useGambaEvents<'GameSettled'>('GameSettled', {
-    address: pool?.token,
-    signatureLimit: 200, // Fetch more transactions to find jackpot winners
-  })
+  const [winners, setWinners] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Debug logging
   useEffect(() => {
-    console.log('Pool:', pool)
-    console.log('Pool token:', pool?.token?.toBase58())
-    console.log('Events count:', events.length)
-    console.log('First few events:', events.slice(0, 3))
-  }, [pool, events])
+    const fetchWinners = async () => {
+      if (!pool?.token) return
 
-  // Use effect to track when events have been loaded
-  useEffect(() => {
-    if (pool && events.length >= 0) {
-      // Wait a bit to ensure events are loaded
-      const timer = setTimeout(() => {
-        setHasLoaded(true)
-      }, 2000) // 2 second timeout
-      
-      return () => clearTimeout(timer)
-    }
-  }, [pool, events.length])
-
-  const jackpotWinners = events
-    .filter(event => {
       try {
-        const payout = event.data.jackpotPayoutToUser.toNumber()
-        console.log('Event jackpot payout:', payout)
-        return payout > 0
-      } catch (error) {
-        console.log('Error checking jackpot payout:', error)
-        return false
-      }
-    })
-    .sort((a, b) => b.time - a.time) // Sort by most recent first
-    .slice(0, 50) // Limit to 50 most recent winners
+        setLoading(true)
 
-  console.log('Jackpot winners found:', jackpotWinners.length)
+        // Fetch recent settled games from the gamba API using the pool token
+        const response = await fetch(`https://api.gamba.so/events/settledGames?token=${pool.token.toBase58()}&itemsPerPage=100&page=0`)
+
+        if (response.ok) {
+          const data = await response.json()
+
+          // Filter for games with jackpot payouts
+          const jackpotWinners = (data.results || [])
+            .filter((game: any) => {
+              const jackpotPayout = parseFloat(game.jackpotPayout || '0')
+              return jackpotPayout > 0
+            })
+            .map((game: any) => ({
+              signature: game.signature,
+              user: game.user,
+              tokenMint: game.token,
+              jackpotPayoutToUser: parseFloat(game.jackpotPayout || '0'),
+              time: game.time * 1000, // Convert to milliseconds
+              data: {
+                user: new PublicKey(game.user),
+                tokenMint: new PublicKey(game.token),
+                jackpotPayoutToUser: { toNumber: () => parseFloat(game.jackpotPayout || '0') }
+              }
+            }))
+            .sort((a: any, b: any) => b.time - a.time) // Sort by most recent first
+            .slice(0, 50) // Limit to 50 most recent winners
+
+          setWinners(jackpotWinners)
+        } else {
+          console.warn('Failed to fetch jackpot winners:', response.status)
+          setWinners([])
+        }
+      } catch (error) {
+        console.error('Error fetching jackpot winners:', error)
+        setWinners([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchWinners()
+  }, [pool?.token])
 
   return {
-    winners: jackpotWinners,
-    loading: !pool || !hasLoaded,
+    winners,
+    loading,
   }
 }
 
