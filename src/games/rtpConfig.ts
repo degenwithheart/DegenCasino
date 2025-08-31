@@ -47,12 +47,46 @@ export type GameKey = keyof typeof RTP_TARGETS
 // - When adding a new game, define its bet array logic here.
 export const BET_ARRAYS = {
   // FLIP: Coin Flip game configuration
-  // - SIDES: Possible choices
-  // - heads/tails: Payout arrays for each side (index 0: heads, index 1: tails)
+  // - calculateBetArray: Function to generate bet array for given n (coins), k (target), face ('heads' or 'tails')
   flip: {
-    SIDES: ['heads', 'tails'],
-    heads: [1.92, 0],     // If player picks heads: 1.92x payout for heads, 0 for tails (96% RTP)
-    tails: [0, 1.92],     // If player picks tails: 0 for heads, 1.92x payout for tails (96% RTP)
+    calculateBetArray: (n: number, k: number, face: 'heads' | 'tails') => {
+      const outcomes = n + 1;
+      const betArray = Array(outcomes).fill(0);
+      // Binomial coefficient
+      const binomial = (n: number, k: number): number => {
+        if (k < 0 || k > n) return 0;
+        k = Math.min(k, n - k);
+        let c = 1;
+        for (let i = 0; i < k; i++) {
+          c = c * (n - i) / (i + 1);
+        }
+        return c;
+      };
+      // Probability of exactly m heads
+      const probExact = (m: number) => binomial(n, m) * Math.pow(0.5, n);
+      // Probability of at least k heads
+      let p = 0;
+      for (let m = k; m <= n; m++) {
+        p += probExact(m);
+      }
+      if (p === 0) return betArray; // impossible
+      const fairMultiplier = 1 / p;
+      const houseMultiplier = fairMultiplier * RTP_TARGETS.flip;
+      // For 'heads', winning if at least k heads (indices k to n)
+      // For 'tails', winning if at least k tails, i.e., at most n-k heads (indices 0 to n-k)
+      if (face === 'heads') {
+        for (let m = k; m <= n; m++) {
+          const probM = probExact(m);
+          betArray[m] = houseMultiplier * outcomes * probM;
+        }
+      } else {
+        for (let m = 0; m <= n - k; m++) {
+          const probM = probExact(m);
+          betArray[m] = houseMultiplier * outcomes * probM;
+        }
+      }
+      return betArray;
+    }
   },
 
 
@@ -719,4 +753,28 @@ export const getBucketColor = (multiplier: number): { primary: string; secondary
       tertiary: 'rgba(29, 78, 216, 0.9)'    // blue-700
     };
   }
+}
+
+// Binomial helpers for Flip game
+export function binomialCoefficient(n: number, k: number): number {
+  if (k < 0 || k > n) return 0;
+  k = Math.min(k, n - k);
+  let c = 1;
+  for (let i = 0; i < k; i++) {
+    c = c * (n - i) / (i + 1);
+  }
+  return c;
+}
+
+export function probAtLeast(n: number, k: number, p = 0.5): number {
+  let sum = 0;
+  for (let i = k; i <= n; i++) {
+    sum += binomialCoefficient(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+  }
+  return sum;
+}
+
+export function computeMultiplier(prob: number, houseEdge = 0.04): number {
+  if (prob <= 0) return 0;
+  return (1 - houseEdge) / prob;
 }
