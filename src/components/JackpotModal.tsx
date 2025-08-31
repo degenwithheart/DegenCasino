@@ -384,9 +384,17 @@ const useJackpotWinners = () => {
   const [hasLoaded, setHasLoaded] = useState(false)
   
   const events = useGambaEvents<'GameSettled'>('GameSettled', {
-    address: pool?.publicKey,
+    address: pool?.token,
     signatureLimit: 200, // Fetch more transactions to find jackpot winners
   })
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Pool:', pool)
+    console.log('Pool token:', pool?.token?.toBase58())
+    console.log('Events count:', events.length)
+    console.log('First few events:', events.slice(0, 3))
+  }, [pool, events])
 
   // Use effect to track when events have been loaded
   useEffect(() => {
@@ -403,13 +411,18 @@ const useJackpotWinners = () => {
   const jackpotWinners = events
     .filter(event => {
       try {
-        return event.data.jackpotPayoutToUser.toNumber() > 0
-      } catch {
+        const payout = event.data.jackpotPayoutToUser.toNumber()
+        console.log('Event jackpot payout:', payout)
+        return payout > 0
+      } catch (error) {
+        console.log('Error checking jackpot payout:', error)
         return false
       }
     })
     .sort((a, b) => b.time - a.time) // Sort by most recent first
     .slice(0, 50) // Limit to 50 most recent winners
+
+  console.log('Jackpot winners found:', jackpotWinners.length)
 
   return {
     winners: jackpotWinners,
