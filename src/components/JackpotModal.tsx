@@ -5,7 +5,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { PublicKey } from '@solana/web3.js'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
-import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_CREATOR_ADDRESS } from '../constants'
+import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_CREATOR_ADDRESS, POOLS } from '../constants'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 // Quantum animations
@@ -334,6 +334,13 @@ const WinnerInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  flex: 1;
+`
+
+const WinnerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `
 
 const WinnerAddress = styled.span`
@@ -341,6 +348,17 @@ const WinnerAddress = styled.span`
   font-size: 0.8rem;
   font-weight: 500;
   font-family: 'JetBrains Mono', monospace;
+`
+
+const WinnerToken = styled.span`
+  color: #6ffaff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(111, 250, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(111, 250, 255, 0.3);
 `
 
 const WinnerTime = styled.span`
@@ -378,90 +396,76 @@ interface JackpotModalProps {
   onClose: () => void
 }
 
-// Hook to fetch jackpot winners
+// Hook to fetch jackpot winners from all pools
 const useJackpotWinners = () => {
-  const pool = useCurrentPool()
   const [winners, setWinners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchWinners = async () => {
-      if (!pool?.token) return
-
+    const fetchWinnersFromAllPools = async () => {
       try {
         setLoading(true)
 
-        // Try multiple approaches to get comprehensive jackpot winner data
+        // Get all real token pools (exclude fake token for now)
+        const realPools = POOLS.filter(pool =>
+          !pool.token.equals(FAKE_TOKEN_MINT)
+        )
 
-        // Approach 1: Gamba API by token (catches winners from all platforms using this token)
-        const gambaResponse = await fetch(`https://api.gamba.so/events/settledGames?token=${pool.token.toBase58()}&itemsPerPage=100&page=0`)
+        console.log('Fetching jackpot winners from', realPools.length, 'pools')
 
-        let gambaWinners: any[] = []
-        if (gambaResponse.ok) {
-          const gambaData = await gambaResponse.json()
-          gambaWinners = (gambaData.results || [])
-            .filter((game: any) => {
-              const jackpotPayout = parseFloat(game.jackpotPayout || '0')
-              return jackpotPayout > 0
-            })
-            .map((game: any) => ({
-              ...game,
-              source: 'gamba-api',
-              jackpotPayoutToUser: parseFloat(game.jackpotPayout || '0'),
-              time: game.time * 1000,
-            }))
-        }
+        // Fetch winners from all pools concurrently
+        const poolPromises = realPools.map(async (pool) => {
+          try {
+            // Gamba API approach for each pool
+            const gambaResponse = await fetch(`https://api.gamba.so/events/settledGames?token=${pool.token.toBase58()}&itemsPerPage=50&page=0`)
 
-        // Approach 2: Helius API for the specific pool address (catches pool-specific transactions)
-        const heliusResponse = await fetch(`https://api.helius.xyz/v0/addresses/${pool.publicKey.toBase58()}/transactions?api-key=REDACTED_HELIUS_KEY_SHORT&limit=100`)
+            if (gambaResponse.ok) {
+              const gambaData = await gambaResponse.json()
+              const poolWinners = (gambaData.results || [])
+                .filter((game: any) => {
+                  const jackpotPayout = parseFloat(game.jackpotPayout || '0')
+                  return jackpotPayout > 0
+                })
+                .map((game: any) => ({
+                  ...game,
+                  source: 'gamba-api',
+                  poolToken: pool.token.toBase58(),
+                  jackpotPayoutToUser: parseFloat(game.jackpotPayout || '0'),
+                  time: game.time * 1000,
+                }))
 
-        let heliusWinners: any[] = []
-        if (heliusResponse.ok) {
-          const heliusData = await heliusResponse.json()
-          heliusWinners = heliusData
-            .filter((tx: any) => {
-              // Look for jackpot-related instructions in the transaction
-              const hasJackpotInstruction = tx.instructions?.some((ix: any) =>
-                ix.data && (
-                  ix.data.includes('jackpot') ||
-                  ix.data.includes('payout') ||
-                  // Add more jackpot-related keywords
-                  ix.data.includes('settle') && ix.data.includes('game')
-                )
-              )
-              return hasJackpotInstruction && tx.nativeTransfers?.length > 0
-            })
-            .map((tx: any) => ({
-              signature: tx.signature,
-              user: tx.feePayer, // Approximate user from fee payer
-              creator: 'unknown', // Helius doesn't provide creator info
-              token: pool.token.toBase58(),
-              source: 'helius-api',
-              jackpotPayoutToUser: tx.nativeTransfers?.[0]?.amount || 0,
-              time: new Date(tx.timestamp * 1000).getTime(),
-              rawTx: tx
-            }))
-        }
+              console.log(`Pool ${pool.token.toBase58().slice(0, 8)}...: ${poolWinners.length} jackpot winners`)
+              return poolWinners
+            }
+            return []
+          } catch (error) {
+            console.error(`Error fetching winners for pool ${pool.token.toBase58()}:`, error)
+            return []
+          }
+        })
 
-        // Combine and deduplicate winners from both sources
-        const allWinners = [...gambaWinners, ...heliusWinners]
-        const uniqueWinners = allWinners
-          .filter((winner, index, self) =>
-            index === self.findIndex(w => w.signature === winner.signature)
-          )
+        // Wait for all pool fetches to complete
+        const allPoolWinners = await Promise.all(poolPromises)
+        const combinedWinners = allPoolWinners.flat()
+
+        // Sort by most recent first and limit to 100 total winners
+        const sortedWinners = combinedWinners
           .sort((a, b) => b.time - a.time)
-          .slice(0, 50)
+          .slice(0, 100)
 
-        console.log('Combined jackpot winners found:', uniqueWinners.length)
-        console.log('Gamba API winners:', gambaWinners.length)
-        console.log('Helius API winners:', heliusWinners.length)
-        console.log('Sample winners:', uniqueWinners.slice(0, 3))
+        console.log('Total jackpot winners from all pools:', sortedWinners.length)
+        console.log('Winners by pool:', realPools.map((pool, index) => ({
+          token: pool.token.toBase58().slice(0, 8) + '...',
+          winners: allPoolWinners[index].length
+        })))
 
-        setWinners(uniqueWinners.map(winner => ({
+        // Transform for component compatibility
+        setWinners(sortedWinners.map(winner => ({
           signature: winner.signature,
           user: winner.user,
           creator: winner.creator,
           tokenMint: winner.token,
+          poolToken: winner.poolToken,
           jackpotPayoutToUser: winner.jackpotPayoutToUser,
           time: winner.time,
           source: winner.source,
@@ -473,15 +477,15 @@ const useJackpotWinners = () => {
         })))
 
       } catch (error) {
-        console.error('Error fetching jackpot winners:', error)
+        console.error('Error fetching jackpot winners from all pools:', error)
         setWinners([])
       } finally {
         setLoading(false)
       }
     }
 
-    fetchWinners()
-  }, [pool?.token, pool?.publicKey])
+    fetchWinnersFromAllPools()
+  }, [])
 
   return {
     winners,
@@ -638,9 +642,18 @@ const JackpotInner: React.FC = () => {
                   {winners.map((winner, index) => (
                     <WinnerItem key={`${winner.signature}-${index}`}>
                       <WinnerInfo>
-                        <WinnerAddress>
-                          {winner.data.user.toBase58().slice(0, 8)}...{winner.data.user.toBase58().slice(-4)}
-                        </WinnerAddress>
+                        <WinnerHeader>
+                          <WinnerAddress>
+                            {winner.data.user.toBase58().slice(0, 8)}...{winner.data.user.toBase58().slice(-4)}
+                          </WinnerAddress>
+                          <WinnerToken>
+                            {winner.poolToken === 'So11111111111111111111111111111111111111112' ? 'SOL' :
+                             winner.poolToken === 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' ? 'USDC' :
+                             winner.poolToken === 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' ? 'JUP' :
+                             winner.poolToken === 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263' ? 'BONK' :
+                             winner.poolToken?.slice(0, 4) + '...' || 'UNKNOWN'}
+                          </WinnerToken>
+                        </WinnerHeader>
                         <WinnerTime>{formatTime(winner.time)}</WinnerTime>
                       </WinnerInfo>
                       <WinnerAmount>
