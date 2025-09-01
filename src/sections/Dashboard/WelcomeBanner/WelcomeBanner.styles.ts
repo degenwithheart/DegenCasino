@@ -1,4 +1,6 @@
-const floatAnimation = keyframes`
+import styled, { keyframes } from "styled-components";
+
+export const floatAnimation = keyframes`
   0% {
     transform: translateY(0);
   }
@@ -10,10 +12,7 @@ const floatAnimation = keyframes`
   }
 `;
 
-import styled, { keyframes } from "styled-components";
-import { useTheme } from "../../themes/ThemeContext";
-
-const neonPulse = keyframes`
+export const neonPulse = keyframes`
   0% {
     box-shadow: 0 0 32px #a259ff, 0 0 64px #ffd70044;
     border-color: #ffd70044;
@@ -28,36 +27,48 @@ const neonPulse = keyframes`
   }
 `;
 
-const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
-  margin: ${({ $isVisible, $isLoading }) => 
+export const fadeInOut = keyframes`
+  0% { opacity: 0; transform: translateY(10px);}
+  10% { opacity: 1; transform: translateY(0);}
+  90% { opacity: 1; transform: translateY(0);}
+  100% { opacity: 0; transform: translateY(-10px);}
+`;
+
+export const sparkle = keyframes`
+  0%, 100% { opacity: 0; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+`;
+
+export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
+  margin: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '1.5rem 0' : '0'
   };
-  padding: ${({ $isVisible, $isLoading }) => 
+  padding: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '1.25rem' : '0'
   };
-  height: ${({ $isVisible, $isLoading }) => 
+  height: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? 'auto' : '0'
   };
-  overflow: ${({ $isVisible, $isLoading }) => 
+  overflow: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? 'visible' : 'hidden'
   };
-  opacity: ${({ $isVisible, $isLoading }) => 
+  opacity: ${({ $isVisible, $isLoading }) =>
     $isLoading ? 0 : $isVisible ? 1 : 0
   };
-  transform: ${({ $isVisible, $isLoading }) => 
+  transform: ${({ $isVisible, $isLoading }) =>
     $isLoading ? 'translateY(10px)' : $isVisible ? 'translateY(0)' : 'translateY(-10px)'
   };
   transition: all 0.3s ease;
-  pointer-events: ${({ $isVisible, $isLoading }) => 
+  pointer-events: ${({ $isVisible, $isLoading }) =>
     $isLoading || !$isVisible ? 'none' : 'auto'
   };
-  background: ${({ $isVisible, $isLoading, $theme }) => 
+  background: ${({ $isVisible, $isLoading, $theme }) =>
     $isLoading || $isVisible ? ($theme?.colors?.background || '#0f0f23') : 'transparent'
   };
-  border-radius: ${({ $isVisible, $isLoading }) => 
+  border-radius: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '12px' : '0'
   };
-  border: ${({ $isVisible, $isLoading, $theme }) => 
+  border: ${({ $isVisible, $isLoading, $theme }) =>
     $isLoading || $isVisible ? `1px solid ${$theme?.colors?.border || '#2a2a4a'}` : 'none'
   };
   position: relative;
@@ -71,52 +82,52 @@ const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?
   `}
 
   @media (max-width: 900px) {
-    margin: ${({ $isVisible, $isLoading }) => 
+    margin: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '1rem 0' : '0'
     };
-    padding: ${({ $isVisible, $isLoading }) => 
+    padding: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '1rem 0.75rem' : '0'
     };
   }
-  
+
   @media (max-width: 700px) {
-    margin: ${({ $isVisible, $isLoading }) => 
+    margin: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '0.75rem 0' : '0'
     };
-    padding: ${({ $isVisible, $isLoading }) => 
+    padding: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '1rem 0.5rem' : '0'
     };
-    border-radius: ${({ $isVisible, $isLoading }) => 
+    border-radius: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '12px' : '0'
     };
   }
-  
+
   @media (max-width: 480px) {
-    margin: ${({ $isVisible, $isLoading }) => 
+    margin: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '0.5rem 0' : '0'
     };
-    padding: ${({ $isVisible, $isLoading }) => 
+    padding: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '0.75rem 0.5rem' : '0'
     };
-    border-radius: ${({ $isVisible, $isLoading }) => 
+    border-radius: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '12px' : '0'
     };
   }
-  
+
   @media (max-width: 400px) {
-    margin: ${({ $isVisible, $isLoading }) => 
+    margin: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '0.25rem 0' : '0'
     };
-    padding: ${({ $isVisible, $isLoading }) => 
+    padding: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '0.5rem 0.4rem' : '0'
     };
-    border-radius: ${({ $isVisible, $isLoading }) => 
+    border-radius: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '8px' : '0'
     };
   }
 `;
 
-const Banner = styled.div<{ $theme?: any }>`
+export const Banner = styled.div<{ $theme?: any }>`
   position: relative;
   border-radius: 12px;
   width: 100%;
@@ -167,7 +178,7 @@ const Banner = styled.div<{ $theme?: any }>`
   }
 `;
 
-const BannerBottomBar = styled.div<{ $theme?: any }>`
+export const BannerBottomBar = styled.div<{ $theme?: any }>`
   position: absolute;
   left: 0;
   right: 0;
@@ -195,7 +206,7 @@ const BannerBottomBar = styled.div<{ $theme?: any }>`
   }
 `;
 
-const Heading = styled.h2<{ $theme?: any }>`
+export const Heading = styled.h2<{ $theme?: any }>`
   color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   font-size: 2.5rem;
   font-weight: 700;
@@ -250,30 +261,8 @@ const Heading = styled.h2<{ $theme?: any }>`
     }
   }
 `;
-import { useWallet } from "@solana/wallet-adapter-react";
-import { POOLS } from "../../constants";
-import { useTokenMeta } from "gamba-react-ui-v2";
-import { Connection } from '@solana/web3.js';
-import { RPC_ENDPOINT } from '../../constants';
-import React, { useEffect, useState, useRef, useCallback } from "react";
-// Throttle hook for future-proofing (matches ConnectionStatus pattern)
-function useThrottle(callback: (...args: any[]) => void, delay: number) {
-  const lastCall = useRef(0);
-  return useCallback((...args: any[]) => {
-    const now = Date.now();
-    if (now - lastCall.current > delay) {
-      lastCall.current = now;
-      callback(...args);
-    }
-  }, [callback, delay]);
-}
-const fadeInOut = keyframes`
-  0% { opacity: 0; transform: translateY(10px);}
-  10% { opacity: 1; transform: translateY(0);}
-  90% { opacity: 1; transform: translateY(0);}
-  100% { opacity: 0; transform: translateY(-10px);}
-`;
-const JackpotTicker = styled.div<{ $theme?: any }>`
+
+export const JackpotTicker = styled.div<{ $theme?: any }>`
   width: 100%;
   min-height: 48px;
   display: flex;
@@ -307,34 +296,7 @@ const JackpotTicker = styled.div<{ $theme?: any }>`
   }
 `;
 
-type JackpotInfo = {
-  icon?: string;
-  name: string;
-  symbol: string;
-  jackpot: number | string;
-};
-
-// Custom hook to cycle through random Degen/web3/Trench/casino quotes every 3 seconds
-import { QUOTES } from "../../constants/QuotesVault";
-
-function useRandomQuote(): string {
-  const [index, setIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex(i => (i + 1) % QUOTES.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
-  return `"${QUOTES[index]}" #DegenSerenade`;
-}
-
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0.8) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-`;
-
-  
-const HeroOverlay = styled.div<{ $theme?: any }>`
+export const HeroOverlay = styled.div<{ $theme?: any }>`
   position: absolute;
   inset: 0;
   background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
@@ -390,7 +352,7 @@ const HeroOverlay = styled.div<{ $theme?: any }>`
   }
 `;
 
-const FeatureGrid = styled.div<{ $theme?: any }>`
+export const FeatureGrid = styled.div<{ $theme?: any }>`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
@@ -423,7 +385,7 @@ const FeatureGrid = styled.div<{ $theme?: any }>`
   }
 `;
 
-const FeatureCard = styled.div<{ $theme?: any }>`
+export const FeatureCard = styled.div<{ $theme?: any }>`
   background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
   border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
   border-radius: 12px;
@@ -465,67 +427,3 @@ const FeatureCard = styled.div<{ $theme?: any }>`
     }
   }
 `;
-
-
-export function WelcomeBanner() {
-  const wallet = useWallet();
-  const quote = useRandomQuote();
-  const { currentTheme } = useTheme();
-
-  // Track if wallet auto-connect attempt has finished to prevent flash
-  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
-  
-  useEffect(() => {
-    // If wallet.connecting just transitioned to false, mark auto-connect as attempted
-    if (!wallet.connecting) {
-      setAutoConnectAttempted(true);
-    }
-  }, [wallet.connecting]);
-
-  // Show welcome banner only when:
-  // 1. Auto-connect has been attempted (to prevent flash)
-  // 2. Wallet is not connected
-  // 3. Wallet is not currently connecting
-  const shouldShow = autoConnectAttempted && !wallet.connected && !wallet.connecting;
-
-  // Only render the DOM if the banner should be visible
-  if (!shouldShow) return null;
-
-  return (
-    <Container $isVisible={true} $isLoading={false} $theme={currentTheme}>
-      <Banner $theme={currentTheme}>
-        <HeroOverlay $theme={currentTheme}>
-          <Heading $theme={currentTheme}>Welcome to the casino of chaos</Heading>
-        </HeroOverlay>
-        <BannerBottomBar $theme={currentTheme}>
-          <JackpotTicker $theme={currentTheme} key={quote}>{quote}</JackpotTicker>
-        </BannerBottomBar>
-      </Banner>
-      <FeatureGrid $theme={currentTheme}>
-        {[
-          {
-            title: "🔒 No Registration",
-            text: "Just connect and start playing.",
-          },
-          {
-            title: "🛡️ Non‑Custodial",
-            text: "You always control your wallet.",
-          },
-          {
-            title: "✅ Provably Fair",
-            text: "On‑chain randomness, transparent.",
-          },
-          {
-            title: "⚡ Instant Payouts",
-            text: "Winnings go straight to wallet.",
-          },
-        ].map(({ title, text }) => (
-          <FeatureCard $theme={currentTheme} key={title}>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </FeatureCard>
-        ))}
-      </FeatureGrid>
-    </Container>
-  );
-}

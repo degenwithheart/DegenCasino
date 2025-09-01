@@ -11,11 +11,11 @@ import { useUserStore } from './hooks/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
-const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe'));
-const TermsPage = lazy(() => import('./sections/Dashboard/Terms'));
-const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper'));
-const FairnessAudit = lazy(() => import('./sections/Dashboard/FairnessAudit'));
-const UserProfile = lazy(() => import('./sections/UserProfile'));
+const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
+const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
+const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
+const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
+const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
 import Header from './sections/Header';
 import AllGamesModalContent from './components/AllGamesModalContent';

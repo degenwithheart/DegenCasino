@@ -6,7 +6,7 @@ import { truncateString } from '../utils'
 import { useReferralAnalytics, useReferralCount } from '../hooks/useReferralAnalytics'
 import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/referralTier'
 import { useWalletToast } from '../utils/solanaWalletToast'
-import { generateUsernameFromWallet } from '../sections/userProfileUtils'
+import { generateUsernameFromWallet } from '../utils/userProfileUtils'
 
 const Container = styled.div`
   display: flex;

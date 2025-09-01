@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { FOOTER_LINKS } from '../../constants'
 
 // Casino animations
-const neonPulse = keyframes`
-  0% { 
+export const neonPulse = keyframes`
+  0% {
     box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
     border-color: #ffd70044;
   }
-  100% { 
+  100% {
     box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
     border-color: #ffd700aa;
   }
 `;
 
-const sparkle = keyframes`
+export const sparkle = keyframes`
   0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.8); }
   50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
 `;
 
-const moveGradient = keyframes`
+export const moveGradient = keyframes`
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 `;
@@ -29,7 +27,7 @@ interface ContainerProps {
   $compact?: boolean;
   visible?: boolean;
 }
-const Container = styled.div<ContainerProps>`
+export const Container = styled.div<ContainerProps>`
   max-width: none; /* Let main handle max-width */
   padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
   margin: 2rem 0; /* Only vertical margins */
@@ -72,7 +70,7 @@ const Container = styled.div<ContainerProps>`
   }
 `
 
-const HeaderSection = styled.div`
+export const HeaderSection = styled.div`
   display: flex;
   align-items: center;
   gap: 2rem;
@@ -92,7 +90,7 @@ const HeaderSection = styled.div`
   }
 `;
 
-const ProfileImage = styled.img`
+export const ProfileImage = styled.img`
   width: 140px;
   height: 140px;
   border-radius: 12px;
@@ -122,7 +120,7 @@ const ProfileImage = styled.img`
   }
 `;
 
-const TextInfo = styled.div`
+export const TextInfo = styled.div`
   flex: 1;
 
   h1 {
@@ -172,7 +170,7 @@ const TextInfo = styled.div`
   }
 `;
 
-const SectionHeading = styled.h2`
+export const SectionHeading = styled.h2`
   margin-top: 2.5rem;
   margin-bottom: 1rem;
   font-size: 1.5rem;
@@ -197,7 +195,7 @@ const SectionHeading = styled.h2`
   }
 `;
 
-const Content = styled.div`
+export const Content = styled.div`
   line-height: 1.6;
   font-size: 1rem;
   margin-top: 1rem;
@@ -232,7 +230,7 @@ const Content = styled.div`
   @media (max-width: 768px) {
     font-size: 0.97rem;
     line-height: 1.5;
-    
+
     p, ul {
       margin-bottom: 1rem;
     }
@@ -242,7 +240,7 @@ const Content = styled.div`
     font-size: 0.95rem;
     line-height: 1.4;
     margin-top: 0.75rem;
-    
+
     p, ul {
       margin-bottom: 0.8rem;
     }
@@ -250,77 +248,9 @@ const Content = styled.div`
 
   @media (max-width: 400px) {
     font-size: 0.9rem;
-    
+
     p, ul {
       margin-bottom: 0.7rem;
     }
   }
 `
-
-const AboutMe: React.FC = () => {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    setVisible(true)
-  }, [])
-
-  const githubLink = FOOTER_LINKS.find((link) =>
-    link.title?.toLowerCase().includes('github')
-  )
-
-  return (
-    <Container visible={visible}>
-      <HeaderSection>
-        <ProfileImage src="/webp/pfp.webp" alt="Degen Serenade PFP" />
-        <TextInfo>
-          <h1>Degen Serenade</h1>
-          <p>Heart on-chain, soul in code. Updated July 2025</p>
-        </TextInfo>
-      </HeaderSection>
-
-      <Content>
-        <SectionHeading>Who is Degen Serenade?</SectionHeading>
-        <p>
-          I’m <strong>Stuart</strong> — a romantic builder, alpha in code, and full-time decentralization dreamer.
-        </p>
-        <p>
-          I specialize in building on <strong>Solana</strong> with a passion for DeFi, on-chain apps, and crafting user-trusted protocols.
-        </p>
-
-        <SectionHeading>Vision & Mission</SectionHeading>
-        <p>
-          Creator of this casino platform and the $DGHRT token, my mission is simple: fuse secure blockchain tech with fun and fair entertainment.
-        </p>
-        <p>
-          I aim to create systems that are verifiably fair, non-custodial, and community-centric.
-        </p>
-
-        <SectionHeading>Life On & Off the Chain</SectionHeading>
-        <p>
-          By day, I chase AI ghosts. By night, I dance in AR/VR dreams. I'm a full-stack storm chaser, backend thumper, frontend dreamweaver, and DevOps alchemist.
-        </p>
-        <p>
-          Off-duty? I'm deep in memecoins, building for the thrill. Building is my love language.
-        </p>
-
-        <SectionHeading>Connect & Collaborate</SectionHeading>
-        <p>Want to vibe, collab, or dive deep into smart contract spelunking? Let’s connect:</p>
-
-        {githubLink && (
-          <p>
-            <strong>{githubLink.title}:</strong>{' '}
-            <a href={githubLink.href} rel="noopener noreferrer">
-              {githubLink.href?.replace(/^https?:\/\//, '')}
-            </a>
-          </p>
-        )}
-
-        <p style={{ fontStyle: 'italic', marginTop: '2rem' }}>
-          Thank you for being here. Let’s build something unforgettable. 🚀
-        </p>
-      </Content>
-    </Container>
-  )
-}
-
-export default AboutMe
