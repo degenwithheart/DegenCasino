@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { PLATFORM_CREATOR_ADDRESS } from '../constants';
-import { generateUsernameFromWallet } from '../sections/userProfileUtils';
+import { generateUsernameFromWallet } from '../utils/userProfileUtils';
 import { useTheme } from '../themes/ThemeContext';
 
 

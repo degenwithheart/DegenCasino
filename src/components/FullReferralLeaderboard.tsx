@@ -5,7 +5,7 @@ import { useWalletAddress } from 'gamba-react-v2'
 import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useReferralAnalytics'
 import { truncateString } from '../utils'
 import { getReferralTierInfo, formatTierDisplay } from '../utils/referralTier'
-import { generateUsernameFromWallet } from '../sections/userProfileUtils'
+import { generateUsernameFromWallet } from '../utils/userProfileUtils'
 import { useUserStore } from '../hooks/useUserStore'
 
 const Container = styled.div`

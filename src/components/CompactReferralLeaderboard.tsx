@@ -6,7 +6,7 @@ import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useRe
 import { truncateString } from '../utils'
 import { getReferralTierInfo, formatTierDisplay } from '../utils/referralTier'
 import { useReferralLeaderboardModal } from './ReferralLeaderboardModal'
-import { generateUsernameFromWallet } from '../sections/userProfileUtils'
+import { generateUsernameFromWallet } from '../utils/userProfileUtils'
 
 const Container = styled.div`
   background: rgba(255, 255, 255, 0.03);

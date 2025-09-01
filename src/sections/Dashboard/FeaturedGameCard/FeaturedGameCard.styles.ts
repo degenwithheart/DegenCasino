@@ -1,16 +1,12 @@
-import { GameBundle } from 'gamba-react-ui-v2'
-import React from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
 import styled, { keyframes, css } from 'styled-components'
-import { useWallet } from '@solana/wallet-adapter-react'
 
 // Unique animation for featured games
-const featuredGlow = keyframes`
+export const featuredGlow = keyframes`
   0% { box-shadow: 0 0 24px #ffd70088, 0 0 48px #a259ff44; }
   100% { box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88; }
 `;
 
-const StyledFeaturedGameCard = styled.div<{ $background: string }>`
+export const StyledFeaturedGameCard = styled.div<{ $background: string }>`
   width: 100%;
   aspect-ratio: 1/.9;
   background: ${(props) => props.$background};
@@ -87,23 +83,3 @@ const StyledFeaturedGameCard = styled.div<{ $background: string }>`
     box-shadow: 0 0 24px #ffd700cc;
   }
 `;
-
-export function FeaturedGameCard({ game }: { game: GameBundle }) {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { publicKey } = useWallet()
-
-  const handleClick = () => {
-    if (!publicKey) return
-    const wallet = publicKey.toBase58()
-    navigate(`/game/${wallet}/${game.id}`)
-  }
-
-  return (
-    <StyledFeaturedGameCard onClick={handleClick} $background={game.meta?.background}>
-      <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
-      <div className="featured-badge">🌟</div>
-      <div className="play">Play {game.meta.name}</div>
-    </StyledFeaturedGameCard>
-  )
-}

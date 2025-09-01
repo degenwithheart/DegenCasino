@@ -7,7 +7,7 @@ import { Modal } from './Modal'
 import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../hooks/useReferralAnalytics'
 import { truncateString } from '../utils'
 import { formatTierDisplay, getReferralTierInfo } from '../utils/referralTier'
-import { generateUsernameFromWallet } from '../sections/userProfileUtils'
+import { generateUsernameFromWallet } from '../utils/userProfileUtils'
 
 const quantumDissolve = keyframes`
   0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-5deg); }
