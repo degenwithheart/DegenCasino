@@ -62,11 +62,10 @@ export const PoolWinners: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [winners, setWinners] = React.useState<any[]>([])
+  const [playsFetchedCount, setPlaysFetchedCount] = React.useState<number | null>(null)
+  const [samplePlays, setSamplePlays] = React.useState<any[] | null>(null)
 
-  React.useEffect(() => {
-    let mounted = true
-    const API = 'https://api.gamba.so/events/settledGames'
-
+  // Candidate IDs and uniqCandidates need to be accessible in render scope
   const candidateIds: string[] = []
   try { if (pool?.authority?.toBase58) candidateIds.push(pool.authority.toBase58()) } catch {}
   try { if (pool?.publicKey?.toBase58) candidateIds.push(pool.publicKey.toBase58()) } catch {}
@@ -75,17 +74,27 @@ export const PoolWinners: React.FC = () => {
   // Dedupe and normalize lower-case
   const uniqCandidates = Array.from(new Set(candidateIds)).map(s => `${s}`.toLowerCase())
 
+  React.useEffect(() => {
+    let mounted = true
+  let scanning = true
+    const API = 'https://api.gamba.so/events/settledGames'
+
     // The public API supports filtering by creator (platform). There's no
     // documented `pool=` query parameter, so fetch plays for the platform and
     // filter locally for plays that reference the pool.
     // Paginated fetch: the API returns pages. Try several pages until we
     // accumulate enough plays or run out. itemsPerPage=200 is a reasonable
     // tradeoff; stop after maxPages to avoid infinite loops.
-    const fetchPlatformPlays = async (maxPages = 10) => {
+    // scanAll: when true, don't filter by platform creator — fetch global plays
+    // and search across all platforms. This is more expensive; limit pages.
+    const fetchPlatformPlays = async (maxPages = 25, scanAll = true) => {
       let all: any[] = []
       const perPage = 200
       for (let page = 0; page < maxPages; page++) {
-        const q = `${API}?creator=${PLATFORM_CREATOR_ADDRESS.toString()}&itemsPerPage=${perPage}&page=${page}`
+        // If scanning all platforms omit the creator filter
+        const q = scanAll
+          ? `${API}?itemsPerPage=${perPage}&page=${page}`
+          : `${API}?creator=${PLATFORM_CREATOR_ADDRESS.toString()}&itemsPerPage=${perPage}&page=${page}`
         try {
           const res = await fetch(q)
           if (!res.ok) break
@@ -93,6 +102,8 @@ export const PoolWinners: React.FC = () => {
           const results = json?.results || json || []
           if (!Array.isArray(results) || results.length === 0) break
           all = all.concat(results)
+          // Update progress debug state so UI shows how many plays we've fetched so far
+          if (mounted) setPlaysFetchedCount(all.length)
           // If fewer than perPage returned, no more pages
           if (results.length < perPage) break
           // Continue to next page otherwise
@@ -144,13 +155,19 @@ export const PoolWinners: React.FC = () => {
       let found: any[] = []
 
       // Fetch recent plays for the platform and filter locally.
-      const platformData: any = await fetchPlatformPlays()
+      const platformData: any = await fetchPlatformPlays(25, true)
+      scanning = false
       if (!platformData) {
         if (mounted) setError('Failed to fetch plays')
         setLoading(false)
         return
       }
       const plays = Array.isArray(platformData) ? platformData : (platformData.results || [])
+      // Save some debug info to surface in the UI
+      if (mounted) {
+        setPlaysFetchedCount(plays.length)
+        setSamplePlays(plays.slice(0, 5))
+      }
 
   // Debug: show what candidates we will match against
   console.debug('[PoolWinners] candidateIds', uniqCandidates, 'playsFetched', plays.length)
@@ -202,8 +219,23 @@ export const PoolWinners: React.FC = () => {
         <div style={{ color: '#aaa' }}>
           No recent jackpot winners found for this pool.
           <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-            {/* Debug hints for developers */}
-            <div>Debug: check console for candidateIds and plays fetched.</div>
+            <div>Debug info:</div>
+            <div>Candidates: <code style={{ color: '#ddd' }}>{JSON.stringify(uniqCandidates || [])}</code></div>
+            <div>Plays fetched: <strong>{playsFetchedCount ?? 'unknown'}</strong></div>
+            {samplePlays && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 12, color: '#999' }}>Sample plays (first 3):</div>
+                <ul style={{ fontSize: 12, color: '#ddd' }}>
+                  {samplePlays.slice(0,3).map((p:any, idx:number) => (
+                    <li key={idx} style={{ marginTop: 6, wordBreak: 'break-word' }}>
+                      <div><strong>sig:</strong> {p.signature || p.id || 'n/a'}</div>
+                      <div><strong>pool fields:</strong> {JSON.stringify({ pool: p.pool, pool_authority: p.pool_authority, metadata: p.metadata, creator: p.creator })}</div>
+                      <div><strong>jackpot:</strong> {String(p.jackpot || p.jackpot_payout_to_user || p.jackpotPayoutToUser || p.jackpotPayout || p.jackpot_amount || 0)}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       ) : (
