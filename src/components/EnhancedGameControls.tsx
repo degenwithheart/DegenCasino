@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import PriceIndicator from './PriceIndicator';
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
 import { 
@@ -53,11 +54,35 @@ const StyledWagerInputWrapper = styled.div`
       color: rgba(255, 255, 255, 0.4);
       font-weight: 600;
     }
+    /* add right padding to make room for token symbol affix */
+    padding-right: 72px;
     
     @media (max-width: 800px) {
       font-size: 16px;
       padding: 8px 12px;
     }
+  }
+
+  /* place token symbol as an affix inside the input */
+  position: relative;
+
+  .symbol {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    height: 36px;
+    padding: 0 10px;
+    color: rgba(255, 215, 0, 0.95);
+    font-weight: 800;
+    font-size: 14px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 8px;
+    pointer-events: none;
   }
 `;
 
@@ -69,19 +94,57 @@ export const EnhancedWagerInput: React.FC<{
   options?: number[];
 }> = ({ value, onChange, disabled, options }) => {
   const token = useCurrentToken();
+  // Local input state so users can type leading zeros and decimals without the
+  // parent value immediately clearing the field when it's 0.
+  const displayValue = value / token.baseWager;
+  const initial = displayValue === 0 ? '' : String(displayValue);
+  const [inputValue, setInputValue] = useState<string>(initial);
+  const focusedRef = useRef(false);
+
+  // Keep local input in sync when external value changes (only when not focused)
+  useEffect(() => {
+    if (!focusedRef.current) {
+      const formatted = displayValue === 0 ? '' : String(displayValue);
+      setInputValue(formatted);
+    }
+  }, [displayValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
-      const numericValue = inputValue === '' ? 0 : parseFloat(inputValue);
-      if (!isNaN(numericValue)) {
-        const wagerAmount = numericValue * token.baseWager;
-        onChange(wagerAmount);
+    const v = e.target.value;
+    // allow empty, digits, and decimal point while typing
+    if (v === '' || /^\d*\.?\d*$/.test(v)) {
+      setInputValue(v);
+      // only commit numeric values that parse to a number (avoid '.' or trailing '.')
+      if (v !== '' && v !== '.' && !v.endsWith('.')) {
+        const numericValue = parseFloat(v);
+        if (!isNaN(numericValue)) {
+          const wagerAmount = numericValue * token.baseWager;
+          onChange(wagerAmount);
+        }
+      } else if (v === '') {
+        // empty means zero
+        onChange(0);
       }
     }
   };
 
-  const displayValue = value / token.baseWager;
+  const handleFocus = () => { focusedRef.current = true; };
+  const handleBlur = () => {
+    focusedRef.current = false;
+    // normalize incomplete entries like '.' -> '0'
+    if (inputValue === '.' || inputValue === '') {
+      setInputValue(inputValue === '.' ? '0' : '');
+      onChange(0);
+    } else {
+      // ensure the displayed value matches the parsed numeric value formatting
+      const numericValue = parseFloat(inputValue);
+      if (!isNaN(numericValue)) {
+        const formatted = String(numericValue);
+        setInputValue(formatted);
+        onChange(numericValue * token.baseWager);
+      }
+    }
+  };
 
   return (
     <WagerInputContainer>
@@ -89,12 +152,19 @@ export const EnhancedWagerInput: React.FC<{
       <StyledWagerInputWrapper>
         <input
           type="text"
-          value={displayValue === 0 ? '' : displayValue.toString()}
+          value={inputValue}
           onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           disabled={disabled}
           placeholder="0.00"
         />
+        <div className="symbol">{token?.symbol ?? ''}</div>
       </StyledWagerInputWrapper>
+      <div style={{ marginTop: 8 }}>
+        {/* display live USD conversion (displayValue is token amount) */}
+        <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact />
+      </div>
     </WagerInputContainer>
   );
 };
