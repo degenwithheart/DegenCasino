@@ -179,6 +179,14 @@ class TokenPriceService {
   }
 
   /**
+   * Get cached token price without triggering an update
+   * Returns null if no cached price exists
+   */
+  getCachedTokenPrice(mintAddress: string): TokenPrice | null {
+    return this.priceCache.get(mintAddress) || null;
+  }
+
+  /**
    * Force immediate price update
    */
   async forceUpdate(): Promise<void> {

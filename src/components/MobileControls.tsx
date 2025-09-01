@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled, { keyframes, css } from 'styled-components';
+import { tokenPriceService } from '../services/TokenPriceService';
+import PriceIndicator from './PriceIndicator';
 
 // Casino animations
 const shimmer = keyframes`
@@ -727,10 +729,14 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   children
 }) => {
   const token = useCurrentToken();
+  const [priceAgeMs, setPriceAgeMs] = useState<number | null>(null);
+  const [isPriceFetching, setIsPriceFetching] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [hasAutoRefreshed, setHasAutoRefreshed] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [popupInput, setPopupInput] = useState<string>('');
-  const presetAmounts = [0.1, 0.5, 1.0, 5.0, 10.0, 25.0]; // Added more preset options
+  // Preset amounts are USD values; display will show equivalent crypto amount
+  const presetAmounts = [1, 5, 10, 25, 50, 100];
   
   // Handle click outside to close popup
   useEffect(() => {
@@ -763,9 +769,83 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   }, [isPopupOpen]);
 
   const handlePresetClick = (amount: number) => {
-    const wagerAmount = amount * token.baseWager;
+    // amount is USD; convert to crypto units using token.usdPrice
+    const usdPrice = token?.usdPrice;
+    const cryptoAmount = usdPrice ? (amount / usdPrice) : amount;
+    const wagerAmount = cryptoAmount * token.baseWager;
     setWager(wagerAmount);
     setIsPopupOpen(false); // Close popup after selection
+  };
+
+  // Track price age and fetching state so UI can show "updated Xs ago" and disable presets while price updates
+  useEffect(() => {
+    const mintAddress = token?.mint?.toBase58();
+    if (!mintAddress) {
+      setPriceAgeMs(null);
+      return;
+    }
+
+    // Seed from cached price if available (does not trigger network fetch)
+    const cached = tokenPriceService.getCachedTokenPrice(mintAddress);
+    if (cached) {
+      setPriceAgeMs(Date.now() - cached.lastUpdated);
+    } else {
+      setPriceAgeMs(Infinity);
+    }
+
+    // Poll cache age every second
+    let cancelled = false;
+    const iv = setInterval(() => {
+      const age = tokenPriceService.getPriceAge(mintAddress);
+      if (!cancelled) setPriceAgeMs(age);
+    }, 1000);
+
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [token?.mint?.toBase58()]);
+
+  // Manual refresh handler
+  const handleRefreshPrices = async () => {
+    const mintAddress = token?.mint?.toBase58();
+    if (!mintAddress) return;
+    setIsPriceFetching(true);
+    try {
+      await tokenPriceService.forceUpdate();
+      setHasAutoRefreshed(true);
+      const age = tokenPriceService.getPriceAge(mintAddress);
+      setPriceAgeMs(age);
+    } catch (err) {
+      console.error('Failed to refresh prices', err);
+    } finally {
+      setIsPriceFetching(false);
+    }
+  };
+
+  const formatCryptoFromUsd = (usdAmount: number) => {
+    const usdPrice = token?.usdPrice;
+    const cryptoAmount = usdPrice ? (usdAmount / usdPrice) : usdAmount;
+    const decimals = (token && typeof token.decimals === 'number') ? token.decimals : 6;
+    const factor = Math.pow(10, Math.min(decimals, 8));
+    const rounded = Math.round(cryptoAmount * factor) / factor;
+    if (!rounded) return `0 ${token?.symbol ?? ''}`;
+    const s = rounded.toFixed(Math.min(decimals, 8)).replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+    return `${s} ${token?.symbol ?? ''}`;
+  };
+
+  // Short, user-friendly crypto formatter for preset buttons.
+  // Uses 3-4 significant digits for compactness (good for newbies).
+  const formatCryptoShort = (usdAmount: number) => {
+    const usdPrice = token?.usdPrice;
+    const cryptoAmount = usdPrice ? (usdAmount / usdPrice) : usdAmount;
+    if (!cryptoAmount) return `0 ${token?.symbol ?? ''}`;
+
+    // Use 4 significant digits for compact display
+    let s = cryptoAmount.toPrecision(4);
+    // Avoid scientific notation for small numbers by using Number()
+    try { s = Number(s).toString(); } catch (e) { /* keep s */ }
+
+    // Trim trailing zeros and dot
+    s = s.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+    return `≈${s} ${token?.symbol ?? ''}`;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -868,7 +948,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           
           <PopupTitle>💰 Set Bet Amount</PopupTitle>
           
-          <PopupWagerInput>
+            <PopupWagerInput>
             <input
               type="text"
               value={popupInput === '' ? (displayValue === 0 ? '' : displayValue.toString()) : popupInput}
@@ -877,18 +957,42 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               placeholder="Enter amount..."
               autoFocus
             />
-            <ConfirmButton onClick={confirmPopup}>Confirm</ConfirmButton>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ color: 'rgba(255,215,0,0.95)', fontWeight: 800 }}>{token?.symbol ?? ''}</div>
+                <ConfirmButton onClick={confirmPopup}>Confirm</ConfirmButton>
+              </div>
+              <PriceIndicator token={token} showRefresh amount={undefined} />
+            </div>
           </PopupWagerInput>
           
           <PopupPresetButtons>
-            {presetAmounts.map((amount) => (
-              <PopupPresetButton
-                key={amount}
-                onClick={() => handlePresetClick(amount)}
-              >
-                {amount}
-              </PopupPresetButton>
-            ))}
+    {presetAmounts.map((amount) => {
+              const exact = formatCryptoFromUsd(amount);
+              const short = formatCryptoShort(amount);
+              return (
+                <PopupPresetButton
+                  key={amount}
+                  onClick={() => handlePresetClick(amount)}
+      disabled={!token?.usdPrice || isPriceFetching}
+      title={isPriceFetching ? 'Updating prices...' : (token?.usdPrice ? exact : 'Price unavailable')}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontWeight: 800, fontSize: 16 }}>${amount}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.9)', fontSize: 13 }}>
+                      {token?.image ? (
+                        <img
+                          src={token.image}
+                          alt={token?.symbol ?? 'token'}
+                          style={{ width: 18, height: 18, borderRadius: 5, objectFit: 'cover' }}
+                        />
+                      ) : null}
+                      <div style={{ opacity: 0.95 }}>{short}</div>
+                    </div>
+                  </div>
+                </PopupPresetButton>
+              );
+            })}
           </PopupPresetButtons>
         </PopupContainer>
       </PopupOverlay>
