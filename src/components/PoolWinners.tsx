@@ -146,6 +146,18 @@ export const PoolWinners: React.FC = () => {
           // ignore
         }
       }
+      // Fallback: sometimes the API nests identifiers deeply or under unexpected keys.
+      // As a last resort, stringify the entire play and search for the candidate substring.
+      try {
+        const s = JSON.stringify(play).toLowerCase()
+        if (s.includes(c)) {
+          console.debug('[PoolWinners] deep-match candidate', candidate)
+          return true
+        }
+      } catch (e) {
+        // ignore circular/serialization issues
+      }
+
       return false
     }
 
