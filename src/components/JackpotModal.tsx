@@ -3,7 +3,6 @@ import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurren
 import styled, { keyframes } from 'styled-components'
 import { Modal } from './Modal'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../constants'
-import PoolWinners from './PoolWinners'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 // Quantum animations
@@ -325,8 +324,6 @@ const JackpotInner: React.FC = () => {
           </PoolStatItem>
         </PoolStatsGrid>
       </PoolStatsContainer>
-
-  <PoolWinners />
 
       {connected && (
         <ControlSection>
