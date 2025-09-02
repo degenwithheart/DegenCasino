@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorModal } from './components/ErrorModal';
+import { ErrorModal } from './components';
 
 type GlobalErrorBoundaryState = { error: Error | null };
 type GlobalErrorBoundaryProps = { children: React.ReactNode };

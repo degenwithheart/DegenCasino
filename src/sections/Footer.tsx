@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../constants'
-import ConnectionStatus from '../components/ConnectionStatus'
+import ConnectionStatus from '../components/Connection/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../themes/ThemeContext';

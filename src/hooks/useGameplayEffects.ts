@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useGraphics } from '../components/GameScreenFrame'
+import { useGraphics } from '../components/Game/GameScreenFrame'
 
 export interface GameplayEffects {
   // Screen shake with intensity and duration

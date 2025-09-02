@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-import { JackpotContent } from '../components/JackpotModal'
+import { JackpotContent } from '../components'
 import { useIsCompact } from '../hooks/useIsCompact'
 import { useTheme } from '../themes/ThemeContext'
 

@@ -87,9 +87,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 
-import { Icon } from '../../components/Icon'
-import { Modal } from '../../components/Modal'
-import { GameSplashScreen } from '../../components/GameSplashScreen'
+import { Icon, GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal } from '../../components'
 import { GAMES } from '../../games'
 import { useUserStore } from '../../hooks/useUserStore'
 import { GameSlider } from '../Dashboard/Dashboard'
@@ -97,7 +95,6 @@ import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash 
 import { LoadingBar } from './LoadingBar'
 import { ProvablyFairModal } from './ProvablyFairModal'
 import { TransactionModal } from './TransactionModal'
-import { GraphicsSettings, GraphicsSettingsIcon } from '../../components/GraphicsSettings'
 import { keyframes } from 'styled-components';
 
 // Animated CSS illustrations for each error type

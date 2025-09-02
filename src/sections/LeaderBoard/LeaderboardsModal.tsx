@@ -1,7 +1,7 @@
 // src/components/LeaderboardsModal.tsx
 import React, { useState } from 'react'
 // Use the main Modal component with full quantum portal effects
-import { Modal } from '../../components/Modal'
+import { Modal } from '../../components'
 import {
   useLeaderboardData,
   Period,
