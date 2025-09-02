@@ -14,7 +14,7 @@ import Board from '../board/Board'
 import { musicManager, stopAndDispose, attachMusic } from '../musicManager'
 import actionSnd from '../sounds/action.mp3'
 import { useSound } from 'gamba-react-ui-v2'
-import type { GameplayEffectsRef } from '../../../components/GameplayFrame'
+import type { GameplayEffectsRef } from '../../../components/Game/GameplayFrame'
 
 export default function GameScreen({
   pk,
