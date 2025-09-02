@@ -8,6 +8,7 @@ import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
 import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { BucketScoreboard } from './BucketScoreboard'
 
 import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
@@ -47,6 +48,11 @@ export default function Plinko() {
 
   // Restore multi-ball support
   const [ballCount, setBallCount] = React.useState<number>(1)
+  
+  // Bucket scoreboard state
+  const [activeBuckets, setActiveBuckets] = React.useState<Set<number>>(new Set())
+  const [bucketHits, setBucketHits] = React.useState<Map<number, number>>(new Map())
+  const [recentHits, setRecentHits] = React.useState<number[]>([]) // Track order of hits
   
   // Enhanced accessibility effects functions for GameScreenFrame
   const triggerWinFlash = useCallback((color: string, intensity: number) => {
@@ -351,6 +357,30 @@ export default function Plinko() {
         sounds.play('bump', { playbackRate: rate })
       }
       if (contact.bucket && contact.plinko) {
+        const bucketIndex = contact.bucket.plugin.bucketIndex
+        
+        // Update scoreboard - mark bucket as active
+        setActiveBuckets(prev => new Set(prev).add(bucketIndex))
+        
+        // Add to recent hits array
+        setRecentHits(prev => [...prev, bucketIndex])
+        
+        // Update hit count
+        setBucketHits(prev => {
+          const newMap = new Map(prev)
+          newMap.set(bucketIndex, (newMap.get(bucketIndex) || 0) + 1)
+          return newMap
+        })
+        
+        // Clear active state after animation
+        setTimeout(() => {
+          setActiveBuckets(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(bucketIndex)
+            return newSet
+          })
+        }, 600)
+        
         // Only animate buckets if motion is enabled
         if (settings.enableMotion) {
           bucketAnimations.current[contact.bucket.plugin.bucketIndex] = 1
@@ -392,6 +422,11 @@ export default function Plinko() {
       console.error('❌ BLOCKED: Cannot play with zero wager');
       return;
     }
+    
+    // Clear scoreboard hits when starting new game
+    setBucketHits(new Map())
+    setActiveBuckets(new Set())
+    setRecentHits([]) // Clear recent hits array
     
     const plays = Math.max(1, Math.min(ballCount | 0, 50)) // clamp 1..50
     for (let i = 0; i < plays; i++) {
@@ -548,6 +583,14 @@ export default function Plinko() {
                 })
                 ctx.restore()
               }}
+            />
+            
+            {/* Bucket Scoreboard */}
+            <BucketScoreboard
+              multipliers={multipliers}
+              activeBuckets={activeBuckets}
+              bucketHits={bucketHits}
+              recentHits={recentHits}
             />
             </div>
           </GameScreenFrame>
