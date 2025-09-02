@@ -64,8 +64,8 @@ const casinoMoveGradient = keyframes`
 import { useGamba, useGambaProgram, useSendTransaction } from 'gamba-react-v2'
 import { GambaPlatformContext, GambaUi } from 'gamba-react-ui-v2'
 import React from 'react'
-import { Icon } from '../../components/Icon'
-import { Modal } from '../../components/Modal'
+import { Icon } from '../../components'
+import { Modal } from '../../components'
 
 interface ProvablyFairModalProps { onClose: () => void; inline?: boolean }
 

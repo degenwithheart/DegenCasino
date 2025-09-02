@@ -5,7 +5,7 @@ import { PublicKey } from '@solana/web3.js'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
-import { Modal } from '../components/Modal'
+import { Modal } from '../components'
 import {
   POOLS,
   PLATFORM_ALLOW_REFERRER_REMOVAL,

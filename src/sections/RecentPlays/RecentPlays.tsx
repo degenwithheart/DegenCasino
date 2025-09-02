@@ -1,4 +1,4 @@
-// apps/platform/src/sections/RecentPlays/RecentPlays.tsx
+// apps/plimport { ShareModal } from "../../components/Share/ShareModal";tform/src/sections/RecentPlays/RecentPlays.tsx
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { extractMetadata } from '../../utils'
 import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
-import { ShareModal } from '../../components/ShareModal'
+import { ShareModal } from "../../components/Share/ShareModal";
 import { useRecentPlays } from './useRecentPlays'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {

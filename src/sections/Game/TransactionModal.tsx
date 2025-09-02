@@ -65,7 +65,7 @@ import { decodeGame, getGameAddress, getPlayerUnderlyingAta, getUserUnderlyingAt
 import { GambaUi } from 'gamba-react-ui-v2'
 import { useAccount, useGamba, useGambaProgram, useSendTransaction, useTransactionStore, useWalletAddress } from 'gamba-react-v2'
 import React from 'react'
-import { Modal } from '../../components/Modal'
+import { Modal } from '../../components'
 import { LoadingBar, useLoadingState } from './LoadingBar'
 
 export function TransactionModal(props: {onClose: () => void}) {

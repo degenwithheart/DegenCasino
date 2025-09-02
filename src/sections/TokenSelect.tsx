@@ -1,5 +1,5 @@
 import React from 'react'
-import { FeesTab } from '../components/FeesTab'
+import { FeesTab } from '../components/Transaction/FeesTab'
 import { PublicKey } from '@solana/web3.js'
 import {
   FAKE_TOKEN_MINT,

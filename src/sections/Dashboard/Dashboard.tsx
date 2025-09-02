@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 // Context to allow opening the games modal from anywhere
 export const GamesModalContext = React.createContext<{ openGamesModal: () => void }>({ openGamesModal: () => {} });
-import { SlideSection } from "../../components/Slider";
+import { SlideSection, EnhancedTickerTape, FullReferralLeaderboard } from "../../components";
 import { FEATURED_GAMES } from "../../games/featuredGames";
 import { GAMES } from "../../games";
 import { GameCard } from "./GameCard";
@@ -11,9 +11,7 @@ import RecentPlays from "../RecentPlays/RecentPlays";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../constants";
-import EnhancedTickerTape from "../../components/EnhancedTickerTape";
 import { useIsCompact } from "../../hooks/useIsCompact";
-import { FullReferralLeaderboard } from "../../components/FullReferralLeaderboard";
 import { useTheme } from "../../themes/ThemeContext";
 import {
   neonPulse,

@@ -3,7 +3,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
-import { Modal } from './components/Modal';
+import { Modal } from './components';
 import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/useToast';
 import { useWalletToast } from './utils/solanaWalletToast';
@@ -18,22 +18,13 @@ const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'
 const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
 import Header from './sections/Header';
-import AllGamesModalContent from './components/AllGamesModalContent';
+import { AllGamesModal, TrollBox, Sidebar, Transaction, EmbeddedTransaction, PlayerView, CacheDebugWrapper, PlatformView, ExplorerIndex, GraphicsProvider } from './components';
 import Toasts from './sections/Toasts';
-import TrollBox from './components/TrollBox';
 import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
-import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
 // Lazy load pages and components
 const Propagation = lazy(() => import('./pages/propagation'));
-const Transaction = lazy(() => import('./components/Transaction'));
-const EmbeddedTransaction = lazy(() => import('./components/EmbeddedTransaction'));
-const PlayerView = lazy(() => import('./components/PlayerView').then(module => ({ default: module.PlayerView })));
-import { CacheDebugWrapper } from './components/CacheDebugPanel';
-const PlatformView = lazy(() => import('./components/PlatformView').then(module => ({ default: module.PlatformView })));
-const ExplorerIndex = lazy(() => import('./components/ExplorerIndex'));
-import { GraphicsProvider } from './components/GameScreenFrame';
 // Lazy load pages
 const JackpotPage = lazy(() => import('./pages/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
@@ -159,7 +150,7 @@ export default function App() {
         <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
           {showGamesModal && (
             <Modal onClose={() => setShowGamesModal(false)}>
-              <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
+              <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
             </Modal>
           )}
         {newcomer && (
