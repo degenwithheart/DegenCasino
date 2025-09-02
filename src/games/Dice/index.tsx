@@ -8,8 +8,8 @@ import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls
 import Slider from './Slider'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import { Container, Result, RollUnder, Stats } from './styles'
-import GameplayFrame, { GameplayEffectsRef } from '../../components/GameplayFrame'
-import { useGraphics } from '../../components/GameScreenFrame'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
+import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledDiceBackground } from './DiceBackground.enhanced.styles'
 
