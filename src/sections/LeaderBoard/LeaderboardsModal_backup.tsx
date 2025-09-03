@@ -36,6 +36,36 @@ import {
   ErrorText,
   EmptyStateText,
 } from './LeaderboardsModal.styles'
+} from '../../hooks/useLeaderboardData'
+import { useTheme } from '../../themes/ThemeContext'
+import { TOKEN_METADATA } from '../../constants'
+import { useTokenPrices } from '../../hooks/useTokenPrices'
+import { generateUsernameFromWallet } from '../../utils/userProfileUtils'
+
+import {
+  ModalContent,
+  HeaderSection,
+  HeaderTop,
+  RefreshButton,
+  Title,
+  Subtitle,
+  TabRow,
+  TabButton,
+  LeaderboardList,
+  ListHeader,
+  HeaderRank,
+  HeaderPlayer,
+  HeaderVolume,
+  RankItem,
+  RankNumber,
+  PlayerInfo,
+  PlayerLink,
+  VolumeAmount,
+  formatVolume,
+  LoadingText,
+  ErrorText,
+  EmptyStateText,
+} from './LeaderboardsModal.styles'
 
 interface LeaderboardsModalProps {
   onClose: () => void
@@ -84,19 +114,9 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
     <ModalContent $theme={theme}>
       {/* ────── header ────── */}
       <HeaderSection>
-        <HeaderTop>
-          <Title $theme={theme}>Leaderboard</Title>
-          <RefreshButton 
-            $theme={theme}
-            onClick={refresh}
-            disabled={loading}
-            title="Refresh leaderboard data"
-          >
-            🔄
-          </RefreshButton>
-        </HeaderTop>
+        <Title $theme={theme}>Leaderboard</Title>
         <Subtitle $theme={theme}>
-          Top players by wagered{' '}
+          Top players by wager{' '}
           {period === 'weekly' ? 'this week' : 'this month'} (SOL)
         </Subtitle>
       </HeaderSection>

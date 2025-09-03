@@ -1,177 +1,147 @@
-import { useState, useEffect } from "react";
-import { useCacheMonitor, getCacheStats, cleanupCache, warmupCache } from "../../utils/cacheMonitor";
-import { 
-  DebugPanel, 
-  DebugTitle, 
-  StatRow, 
-  StatLabel, 
-  StatValue, 
-  Button, 
-  ActivityList, 
-  ActivityItem, 
-  ToggleButton 
-} from './Cache.styles';
+import React, { useState, useEffect } from "react";
+import { cache } from "../../utils/cache";
+
+// Simple inline styles for the debug panel
+const debugPanelStyles = {
+  position: 'fixed' as const,
+  top: '10px',
+  right: '10px',
+  zIndex: 9999,
+  background: 'rgba(0, 0, 0, 0.9)',
+  color: 'white',
+  padding: '12px',
+  borderRadius: '8px',
+  fontSize: '12px',
+  fontFamily: 'monospace',
+  border: '1px solid #333',
+  minWidth: '280px',
+  maxHeight: '400px',
+  overflow: 'auto'
+};
+
+const buttonStyles = {
+  background: '#007bff',
+  border: 'none',
+  color: 'white',
+  padding: '4px 8px',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '11px',
+  margin: '2px'
+};
+
+const toggleButtonStyles = {
+  position: 'fixed' as const,
+  top: '10px',
+  right: '10px',
+  zIndex: 9999,
+  background: 'rgba(0, 0, 0, 0.7)',
+  color: 'white',
+  border: 'none',
+  borderRadius: '50%',
+  width: '40px',
+  height: '40px',
+  cursor: 'pointer',
+  fontSize: '16px'
+};
 
 export function CacheDebugPanel() {
-  const [isVisible, setIsVisible] = useState(false)
-  const [serverStats, setServerStats] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const { stats, topKeys, clear } = useCacheMonitor()
+  const [isVisible, setIsVisible] = useState(false);
+  const [stats, setStats] = useState(cache.getStats());
 
-  // Fetch server-side cache stats
   useEffect(() => {
     if (isVisible) {
-      const fetchStats = async () => {
-        const data = await getCacheStats()
-        setServerStats(data)
-      }
-      fetchStats()
-      
-      const interval = setInterval(fetchStats, 10000) // Update every 10s
-      return () => clearInterval(interval)
+      const interval = setInterval(() => {
+        setStats(cache.getStats());
+      }, 1000);
+      return () => clearInterval(interval);
     }
-  }, [isVisible])
+  }, [isVisible]);
 
-  const handleCleanup = async () => {
-    setLoading(true)
-    const success = await cleanupCache()
-    if (success) {
-      console.log('Cache cleanup completed')
-      // Refresh stats
-      const data = await getCacheStats()
-      setServerStats(data)
-    }
-    setLoading(false)
-  }
+  const handleClearAll = () => {
+    cache.clear();
+    setStats(cache.getStats());
+  };
 
-  const handleWarmup = async () => {
-    setLoading(true)
-    const success = await warmupCache()
-    if (success) {
-      console.log('Cache warmup completed')
-      // Refresh stats  
-      const data = await getCacheStats()
-      setServerStats(data)
-    }
-    setLoading(false)
-  }
+  const handleClearLeaderboard = () => {
+    cache.invalidateByPattern('leaderboard:.*');
+    setStats(cache.getStats());
+  };
+
+  const handleClearRecentPlays = () => {
+    cache.invalidateByPattern('recentPlays:.*');
+    setStats(cache.getStats());
+  };
+
+  const handleClearPlayerData = () => {
+    cache.invalidateByPattern('playerPlays:.*');
+    setStats(cache.getStats());
+  };
 
   if (!isVisible) {
     return (
-      <ToggleButton 
+      <button 
+        style={toggleButtonStyles}
         onClick={() => setIsVisible(true)}
         title="Show Cache Debug Panel"
       >
         📊
-      </ToggleButton>
-    )
+      </button>
+    );
   }
 
   return (
-    <DebugPanel>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <DebugTitle>Cache Debug Panel</DebugTitle>
-        <Button onClick={() => setIsVisible(false)}>✕</Button>
+    <div style={debugPanelStyles}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <strong>Cache Debug</strong>
+        <button 
+          style={{...buttonStyles, background: '#dc3545'}}
+          onClick={() => setIsVisible(false)}
+        >
+          ✕
+        </button>
       </div>
 
-      {/* Client Stats */}
-      <div style={{ marginBottom: '1rem' }}>
-        <h4 style={{ color: '#ffd700', margin: '0 0 0.5rem 0', fontSize: '12px' }}>Client Cache</h4>
-        <StatRow>
-          <StatLabel>Hit Rate:</StatLabel>
-          <StatValue>{stats.hitRate.toFixed(1)}%</StatValue>
-        </StatRow>
-        <StatRow>
-          <StatLabel>Total Hits:</StatLabel>
-          <StatValue>{stats.totalHits}</StatValue>
-        </StatRow>
-        <StatRow>
-          <StatLabel>Total Misses:</StatLabel>
-          <StatValue>{stats.totalMisses}</StatValue>
-        </StatRow>
-        <StatRow>
-          <StatLabel>Unique Keys:</StatLabel>
-          <StatValue>{stats.uniqueKeys}</StatValue>
-        </StatRow>
+      <div style={{ marginBottom: '12px' }}>
+        <div style={{ color: '#ffd700', fontWeight: 'bold', marginBottom: '6px' }}>Stats</div>
+        <div>Entries: {stats.totalEntries}</div>
+        <div>Size: {Math.round(stats.totalSize / 1024)}KB</div>
+        <div>Expired: {stats.expiredEntries}</div>
+        {stats.oldestEntry !== Infinity && (
+          <div>Oldest: {Math.round((Date.now() - stats.oldestEntry) / 1000)}s ago</div>
+        )}
       </div>
 
-      {/* Server Stats */}
-      {serverStats && (
-        <div style={{ marginBottom: '1rem' }}>
-          <h4 style={{ color: '#ffd700', margin: '0 0 0.5rem 0', fontSize: '12px' }}>Server Cache</h4>
-          <StatRow>
-            <StatLabel>Size:</StatLabel>
-            <StatValue>{serverStats.size}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatLabel>Utilization:</StatLabel>
-            <StatValue>{serverStats.utilization}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatLabel>Max Size:</StatLabel>
-            <StatValue>{serverStats.maxSize}</StatValue>
-          </StatRow>
-        </div>
-      )}
-
-      {/* Controls */}
-      <div style={{ marginBottom: '1rem' }}>
-        <Button onClick={clear} disabled={loading}>
-          Clear Client Stats
-        </Button>
-        <Button onClick={handleCleanup} disabled={loading}>
-          Server Cleanup
-        </Button>
-        <Button onClick={handleWarmup} disabled={loading}>
-          Warmup Cache
-        </Button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <button style={{...buttonStyles, background: '#dc3545'}} onClick={handleClearAll}>
+          Clear All
+        </button>
+        <button style={buttonStyles} onClick={handleClearLeaderboard}>
+          Clear Leaderboard
+        </button>
+        <button style={{...buttonStyles, background: '#28a745'}} onClick={handleClearRecentPlays}>
+          Clear Recent Plays
+        </button>
+        <button style={{...buttonStyles, background: '#ffc107', color: 'black'}} onClick={handleClearPlayerData}>
+          Clear Player Data
+        </button>
       </div>
-
-      {/* Top Keys */}
-      {topKeys.length > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
-          <h4 style={{ color: '#ffd700', margin: '0 0 0.5rem 0', fontSize: '12px' }}>Top Cache Keys</h4>
-          {topKeys.slice(0, 5).map((key, index) => (
-            <div key={index} style={{ fontSize: '10px', marginBottom: '0.25rem' }}>
-              <div style={{ color: '#ccc' }}>{key.key.slice(0, 30)}...</div>
-              <div style={{ color: '#ffd700' }}>
-                {key.hitRate.toFixed(1)}% ({key.hits}H/{key.misses}M)
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Recent Activity */}
-      <ActivityList>
-        <h4 style={{ color: '#ffd700', margin: '0 0 0.5rem 0', fontSize: '12px' }}>Recent Activity</h4>
-        {stats.recentActivity.map((activity, index) => (
-          <ActivityItem key={index} $hit={activity.hit}>
-            <div>{activity.hit ? 'HIT' : 'MISS'}: {activity.key.slice(0, 25)}...</div>
-            <div style={{ opacity: 0.7 }}>
-              {new Date(activity.timestamp).toLocaleTimeString()}
-            </div>
-          </ActivityItem>
-        ))}
-      </ActivityList>
-    </DebugPanel>
-  )
+    </div>
+  );
 }
 
-// Only show in development or when explicitly enabled
 export function CacheDebugWrapper() {
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    // Enable debug panel with URL parameter or in development
-    const params = new URLSearchParams(window.location.search)
-    const isDev = process.env.GAMBA_ENV === 'development'
-    const isDebug = params.get('cache-debug') === 'true'
+    const params = new URLSearchParams(window.location.search);
+    const isDev = process.env.NODE_ENV === 'development';
+    const isDebug = params.get('cache-debug') === 'true';
     
-    setEnabled(isDev || isDebug)
-  }, [])
+    setEnabled(isDev || isDebug);
+  }, []);
 
-  if (!enabled) return null
+  if (!enabled) return null;
 
-  return <CacheDebugPanel />
+  return <CacheDebugPanel />;
 }

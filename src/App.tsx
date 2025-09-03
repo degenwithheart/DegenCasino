@@ -6,6 +6,7 @@ import AdaptiveFpsOverlay from './components/Dev/AdaptiveFpsOverlay';
 import { startRafScheduler } from './utils/rafScheduler';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
+import { prefetchManager } from './utils/prefetch';
 // Keep only absolutely critical items in the initial bundle. Everything else is lazy.
 import { Modal } from './components';
 import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
@@ -14,6 +15,7 @@ import { useWalletToast } from './utils/solanaWalletToast';
 import { useUserStore } from './hooks/useUserStore';
 import { useServiceWorker, preloadCriticalAssets, warmCacheDeferred } from './hooks/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
+import { CacheDebug } from './components/Debug/CacheDebug';
 // Route/page level code-splitting (non-critical):
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
@@ -140,6 +142,17 @@ export default function App() {
   const backgroundThrottle = useUserStore(s => !!s.backgroundThrottle);
   const autoAdapt = useUserStore(s => !!s.autoAdapt);
   const setStore = useUserStore(s => s.set);
+  
+  // Initialize prefetch manager on app start
+  useEffect(() => {
+    prefetchManager.markAppStarted();
+    prefetchManager.setupBackgroundRefresh();
+    
+    return () => {
+      prefetchManager.cleanup();
+    };
+  }, []);
+  
   // React to data saver toggle
   useEffect(() => {
     if (dataSaver) {

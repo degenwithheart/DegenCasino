@@ -100,6 +100,9 @@ export const ModalContent = styled.div<{ $theme?: any }>`
 export const HeaderSection = styled.div`
   text-align: center;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 
   &::before {
     content: '⚛️';
@@ -109,6 +112,39 @@ export const HeaderSection = styled.div`
     font-size: 2.5rem;
     animation: ${sparkle} 4s infinite;
     filter: drop-shadow(0 0 8px #6ffaff);
+  }
+`
+
+export const HeaderTop = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+`
+
+export const RefreshButton = styled.button<{ $theme?: any }>`
+  position: absolute;
+  right: 0;
+  background: rgba(111, 250, 255, 0.1);
+  border: 1px solid rgba(111, 250, 255, 0.3);
+  color: #6ffaff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(111, 250, 255, 0.2);
+    border-color: rgba(111, 250, 255, 0.5);
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `
 
@@ -216,7 +252,7 @@ export const ListHeader = styled.div<{ $theme?: any }>`
 
 export const HeaderRank = styled.div`flex: 0 0 60px; text-align: center;`
 export const HeaderPlayer = styled.div`flex: 1; padding-left: 0.5rem;`
-export const HeaderVolume = styled.div`flex: 0 0 120px; text-align: right;`
+export const HeaderVolume = styled.div`flex: 0 0 200px; text-align: right;`
 
 export const RankItem = styled.div<{ $isTop3?: boolean; $theme?: any }>`
   display: flex;
@@ -286,6 +322,42 @@ export const PlayerInfo = styled.div<{ $theme?: any }>`
   font-weight: 600;
   text-shadow: 0 0 8px rgba(234, 246, 251, 0.3);
   font-family: 'JetBrains Mono', monospace;
+`
+
+export const PlayerLink = styled.a<{ $theme?: any }>`
+  flex: 1;
+  padding-left: 0.75rem;
+  font-size: 1rem;
+  color: #eaf6fb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(234, 246, 251, 0.3);
+  font-family: 'JetBrains Mono', monospace;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    color: #6ffaff;
+    text-shadow: 0 0 12px rgba(111, 250, 255, 0.6);
+    transform: scale(1.02);
+  }
+
+  &::after {
+    content: '↗';
+    opacity: 0;
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    color: #6ffaff;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
 `
 
 export const VolumeAmount = styled.div<{ $theme?: any }>`

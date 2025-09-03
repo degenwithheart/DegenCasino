@@ -10,6 +10,7 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
 import { useTheme } from '../../themes/ThemeContext'
+import { cache, CacheKeys, CacheTTL } from '../../utils/cache'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
@@ -492,29 +493,39 @@ export function PlatformView() {
           setLoading(true)
           setError(null)
           
-          // Fetch platform stats
-          const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
+          // Check cache for platform stats first
+          const statsCacheKey = CacheKeys.platformStats(creator);
+          const cachedStats = cache.get<any>(statsCacheKey);
           
-          console.log('Fetching stats from:', statsUrl)
-          const statsResponse = await fetch(statsUrl)
-          
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json()
-            console.log('Stats API response:', statsData)
-            setStats(statsData)
+          if (cachedStats) {
+            setStats(cachedStats);
           } else {
-            const errorText = await statsResponse.text()
-            console.warn('Failed to fetch stats:', statsResponse.status, errorText)
+            // Fetch platform stats
+            const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
             
-            // Try alternative stats endpoint
-            const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
-            console.log('Trying alternative stats URL:', altStatsUrl)
+            console.log('Fetching stats from:', statsUrl)
+            const statsResponse = await fetch(statsUrl)
             
-            const altStatsResponse = await fetch(altStatsUrl)
-            if (altStatsResponse.ok) {
-              const altStatsData = await altStatsResponse.json()
-              console.log('Alternative stats API response:', altStatsData)
-              setStats(altStatsData)
+            if (statsResponse.ok) {
+              const statsData = await statsResponse.json()
+              console.log('Stats API response:', statsData)
+              cache.set(statsCacheKey, statsData, CacheTTL.PLATFORM_STATS);
+              setStats(statsData)
+            } else {
+              const errorText = await statsResponse.text()
+              console.warn('Failed to fetch stats:', statsResponse.status, errorText)
+              
+              // Try alternative stats endpoint
+              const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
+              console.log('Trying alternative stats URL:', altStatsUrl)
+              
+              const altStatsResponse = await fetch(altStatsUrl)
+              if (altStatsResponse.ok) {
+                const altStatsData = await altStatsResponse.json()
+                console.log('Alternative stats API response:', altStatsData)
+                cache.set(statsCacheKey, altStatsData, CacheTTL.PLATFORM_STATS);
+                setStats(altStatsData)
+              }
             }
           }
           
@@ -655,10 +666,10 @@ export function PlatformView() {
     ? 'DegenCasino' 
     : `6o1i...8ocZ`
 
-  // Only use fees from API, but calculate volume properly from platform plays
+  // Only use fees from API, but calculate total wagered amount from platform plays
   const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
 
-  // Calculate volume from recent plays, but convert from lamports to actual token amount
+  // Calculate total wagered amount from recent plays (sum of all wager amounts)
   const calculatedVolume = recentPlays.reduce((total, play) => {
     // The wager should already be in the correct decimal format from TokenValue
     // If it's showing huge numbers, the API might be returning lamports
@@ -688,8 +699,8 @@ export function PlatformView() {
         </GameStatusHeader>
         <StatusGrid>
           <StatusCard $theme={currentTheme}>
-            <StatusValue $theme={currentTheme}>${calculatedVolume.toFixed(2)}</StatusValue>
-            <StatusLabel $theme={currentTheme}>VOLUME</StatusLabel>
+            <StatusValue $theme={currentTheme}>{calculatedVolume.toFixed(2)} SOL</StatusValue>
+            <StatusLabel $theme={currentTheme}>TOTAL WAGERED</StatusLabel>
           </StatusCard>
           <StatusCard $theme={currentTheme}>
             <StatusValue $theme={currentTheme}>${estimatedFees.toFixed(2)}</StatusValue>
