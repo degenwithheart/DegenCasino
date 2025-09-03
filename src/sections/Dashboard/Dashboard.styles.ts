@@ -23,21 +23,22 @@ export const sparkle = keyframes`
 `;
 
 // Animated accent bar
-export const AccentBar = styled.div<{ $theme?: any }>`
+export const AccentBar = styled.div<{ $theme?: any; $particles?: boolean }>`
   height: 6px;
   width: 100%;
   border-radius: 3px;
   margin: 0.5rem 0 1.5rem;
   background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+  ${({ $particles }) => !$particles && css`filter: grayscale(0.2) brightness(0.85);`}
 `;
 
 // Casino sparkle decoration
-export const CasinoSparkles = styled.div`
+export const CasinoSparkles = styled.div<{ $particles?: boolean }>`
   position: absolute;
   top: -10px;
   right: -10px;
   font-size: 1.5rem;
-  animation: ${sparkle} 2s infinite;
+  ${({ $particles }) => $particles && css`animation: ${sparkle} 2s infinite;`}
   pointer-events: none;
 `;
 

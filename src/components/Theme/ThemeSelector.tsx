@@ -5,23 +5,21 @@ import { ThemeKey, globalThemes, GlobalTheme } from '../../themes/globalThemes';
 
 const ThemeSelectorContainer = styled.div<{ currentTheme: any }>`
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: ${props => props.currentTheme.colors.surface};
-  border: 1px solid ${props => props.currentTheme.colors.border};
-  border-radius: 16px;
-  box-shadow: ${props => props.currentTheme.effects.shadow};
+  flex-direction: row;
+  gap: .6rem;
+  background: transparent;
+  padding: .25rem .1rem .4rem;
 `;
 
 const ThemeOption = styled.div<{ currentTheme: any; isActive: boolean; themeColors: any }>`
   position: relative;
-  width: 120px;
-  height: 80px;
+  min-width: 96px;
+  width: 96px;
+  height: 68px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 3px solid ${props => props.isActive ? props.themeColors.primary : 'transparent'};
+  border: 2px solid ${props => props.isActive ? props.themeColors.primary : 'rgba(255,255,255,0.08)'};
   overflow: hidden;
 
   &::before {
@@ -56,7 +54,7 @@ const ThemeOption = styled.div<{ currentTheme: any; isActive: boolean; themeColo
   }
 
   ${props => props.isActive && `
-    animation: ${props.themeColors.animation || 'pulse'} 2s infinite;
+    box-shadow: 0 0 0 2px ${props.themeColors.primary}55, 0 0 12px ${props.themeColors.primary}66;
   `}
 `;
 
@@ -85,12 +83,14 @@ const ThemePreview = styled.div<{ themeColors: any }>`
 `;
 
 const Title = styled.h3<{ currentTheme: any }>`
-  width: 100%;
-  margin: 0 0 1rem 0;
+  width: auto;
+  margin: 0 .75rem 0 .25rem;
   color: ${props => props.currentTheme.colors.text};
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-align: center;
+  font-size: .7rem;
+  font-weight: 600;
+  opacity: .65;
+  letter-spacing: .5px;
+  align-self: center;
 `;
 
 interface ThemeSelectorProps {
@@ -106,7 +106,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ className }) => {
 
   return (
     <ThemeSelectorContainer className={className} currentTheme={currentTheme}>
-      <Title currentTheme={currentTheme}>Choose Your Theme</Title>
+      <Title currentTheme={currentTheme}>Themes</Title>
       {Object.entries(globalThemes).map(([key, theme]) => (
         <ThemeOption
           key={key}
@@ -122,3 +122,5 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ className }) => {
     </ThemeSelectorContainer>
   );
 };
+
+export default ThemeSelector;

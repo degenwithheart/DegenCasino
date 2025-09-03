@@ -9,6 +9,7 @@ import { extractMetadata } from '../../utils'
 import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
 import { ShareModal } from "../../components/Share/ShareModal";
+import { SmartImage } from '../../components/UI/SmartImage'
 import { useRecentPlays } from './useRecentPlays'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
@@ -43,12 +44,13 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
         gap: '8px',
         minWidth: '60px'
       }}>
-        <img
-          src={game?.meta.image}
+        <SmartImage
+          src={game?.meta.image || ''}
+          alt={game?.meta.name || 'game'}
           style={{
-            height: '32px',
-            width: '32px',
-            borderRadius: '8px',
+            height: 32,
+            width: 32,
+            borderRadius: 8,
             objectFit: 'cover',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
             border: '1px solid rgba(255, 215, 0, 0.2)'
@@ -90,11 +92,12 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
       </div>
 
       <Profit $win={profit > 0}>
-        <img
+        <SmartImage
           src={token.image}
-          height="16px"
-          width="16px"
+          alt={token.symbol}
           style={{
+            width:16,
+            height:16,
             borderRadius: '50%',
             boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)'
           }}

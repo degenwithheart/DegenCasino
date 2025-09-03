@@ -64,6 +64,10 @@ export function preloadCriticalAssets() {
       '/webp/pfp.webp',
       '/webp/overlay-glow.webp',
       '/webp/seo.webp',
+  // Early game thumbnails for perceived speed
+  '/webp/games/blackjack.webp',
+  '/webp/games/dice.webp',
+  '/webp/games/roulette.webp',
     ];
     
     navigator.serviceWorker.controller.postMessage({
@@ -71,6 +75,30 @@ export function preloadCriticalAssets() {
       urls: criticalAssets
     });
   }
+}
+
+// Warm cache with a broader set of game/media assets after network idle
+export function warmCacheDeferred() {
+  if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return
+  if ((navigator as any).connection?.saveData) return
+  const idle = (cb: () => void) => {
+    if ('requestIdleCallback' in window) {
+      ;(window as any).requestIdleCallback(cb, { timeout: 4000 })
+    } else setTimeout(cb, 1500)
+  }
+  idle(() => {
+    navigator.serviceWorker.controller?.postMessage({
+      type: 'CACHE_URLS',
+      urls: [
+        '/webp/games/mines.webp',
+        '/webp/games/plinko.webp',
+        '/webp/games/slots.webp',
+        '/webp/games/crash.webp',
+        '/webp/games/flip.webp',
+        '/webp/games/poker.webp',
+      ]
+    })
+  })
 }
 
 // Check if app is running from cache (offline mode)

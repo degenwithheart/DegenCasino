@@ -1,58 +1,12 @@
 import type { GameBundle } from '../../games/types'
 import React, { useState } from 'react'
+import { useHoverPrefetch } from '../../hooks/usePrefetch'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { StyledGameCard, Tag, tileAnimation, bounce, spin, flip, shake, effectAnimations } from './GameCard.styles'
+import { SmartImage } from '../../components/UI/SmartImage'
 
-// WebP-aware image component for game cards
-function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
-  const [imageSrc, setImageSrc] = useState(() => {
-    // Try WebP first if it's a PNG/JPG from games directory
-    if (src.match(/\.(png|jpg|jpeg)$/i)) {
-      // Convert /games/image.png to /webp/games/image.webp
-      const webpPath = src.replace(/\/(games\/[^/]+)\.(png|jpg|jpeg)$/i, '/webp/$1.webp');
-      return webpPath;
-    }
-    return src;
-  });
-  const [hasWebP, setHasWebP] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const handleError = () => {
-    if (hasWebP && imageSrc.includes('.webp')) {
-      // Fallback to original image
-      setHasWebP(false);
-      setImageSrc(src);
-    }
-  };
-
-  const handleLoad = () => {
-    setImageLoaded(true);
-  };
-
-  return (
-    <>
-      {/* Hidden img element to handle loading/error events */}
-      <img
-        src={imageSrc}
-        alt={alt}
-        onError={handleError}
-        onLoad={handleLoad}
-        style={{ display: 'none' }}
-      />
-      {/* Visible div with background image */}
-      <div 
-        className="image" 
-        style={{ 
-          backgroundImage: imageLoaded ? `url(${imageSrc})` : 'none',
-          backgroundSize: '100% auto',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
-    </>
-  );
-}
+// Replaced by SmartImage for unified quality handling
 
 
 export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => void }) {
@@ -60,6 +14,8 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
   const small = location.pathname !== '/'
   const navigate = useNavigate()
   const { publicKey } = useWallet()
+
+  const doPrefetch = useHoverPrefetch(`game-${game.id}`, () => import('../../sections/Game/Game'))
 
   const handleClick = () => {
     if (!publicKey) return
@@ -71,6 +27,8 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
   return (
     <StyledGameCard
       onClick={handleClick}
+      onMouseEnter={doPrefetch}
+      onFocus={doPrefetch}
       $small={small ?? false}
       $background={game.meta?.background}
       $effect={game.meta?.effect}
@@ -79,7 +37,9 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
         <Tag>{game.meta.tag}</Tag>
       )}
       <div className="background" />
-      <OptimizedGameImage src={game.meta.image} alt={game.meta.name} />
+      <div className="image" style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <SmartImage src={game.meta.image} alt={game.meta.name} style={{maxWidth:'100%', maxHeight:'100%', borderRadius:8}} />
+      </div>
       {game.maintenance && (
         <div style={{
           position: 'absolute',

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { SmartImage } from './SmartImage';
 import { Link, useLocation } from 'react-router-dom';
 import { SIDEBAR_LINKS } from '../../constants';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -87,7 +88,7 @@ export default function Sidebar() {
 	return (
 		<SidebarContainer $theme={currentTheme}>
 			<CasinoLogo $theme={currentTheme}>
-				<img src="/webp/fakemoney.webp" alt="Casino Logo" />
+				<SmartImage src="/webp/fakemoney.webp" alt="Casino Logo" style={{width:48,height:48,borderRadius:'50%'}} />
 			</CasinoLogo>
 			<SidebarList>
 				{SIDEBAR_LINKS.filter(link =>
