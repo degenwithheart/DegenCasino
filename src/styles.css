@@ -32,6 +32,30 @@ body {
   padding-bottom: 80px;
 }
 
+/* Performance preference modifiers */
+html.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+html.less-glow * {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.font-slim body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  font-weight: 400;
+}
+
+/* When background throttled, components listening to app:visibility-change can drop their internal rAF rate.
+   We also provide a coarse CSS hint to pause decorative continuous animations */
+html.bg-throttled *[data-ambient-animation] {
+  animation-play-state: paused !important;
+}
+
 /* Main content area spacing for desktop with sidebar */
 main {
   margin: 0 auto;

@@ -1,3 +1,5 @@
+import { SmartImage } from '../components/UI/SmartImage'
+
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useHandleWalletConnect } from './walletConnect';
@@ -328,11 +330,12 @@ const TokenIconAndBalance = () => {
       padding: '0.25rem',
       backdropFilter: 'blur(10px)'
     }}>
-      <img
+      <SmartImage
         src={meta.image}
         alt="token-icon"
-        height="24"
         style={{ 
+          width: 24,
+          height: 24,
           borderRadius: '50%', 
           boxShadow: '0 0 8px #ffd700aa',
           filter: 'drop-shadow(0 0 4px #ffd700)'
@@ -362,11 +365,13 @@ export function UserButton() {
 
       {wallet.connected ? (
         <WalletButtonWrapper>
-          <GambaUi.Button onClick={() => (mobile ? navigate('/select-token') : user.set({ userModal: true }))}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <TokenIconAndBalance />
-            </div>
-          </GambaUi.Button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <GambaUi.Button onClick={() => (mobile ? navigate('/select-token') : user.set({ userModal: true }))}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <TokenIconAndBalance />
+              </div>
+            </GambaUi.Button>
+          </div>
         </WalletButtonWrapper>
       ) : (
         <GambaUi.Button onClick={handleWalletConnect}>

@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import pkg from './package.json';
 
 const ENV_PREFIX = ['VITE_'];
 
@@ -24,6 +25,7 @@ export default defineConfig(() => ({
     global: 'globalThis',
     // Remove development-only code
     __DEV__: false,
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   resolve: {
     alias: {

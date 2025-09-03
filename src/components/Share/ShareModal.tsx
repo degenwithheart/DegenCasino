@@ -1,6 +1,7 @@
 import { GambaTransaction } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import React from 'react'
+import { SmartImage } from '../../components/UI/SmartImage'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import styled from 'styled-components'
@@ -356,7 +357,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
             </div>
 
             <BrandingSection $theme={currentTheme}>
-              <img src="/webp/$DGHRT.webp" alt="DegenHeart" />
+              <SmartImage src="/webp/$DGHRT.webp" alt="DegenHeart" style={{width:48,height:48}} />
               <div>
                 play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
               </div>

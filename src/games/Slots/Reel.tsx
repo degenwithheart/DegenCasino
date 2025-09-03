@@ -2,6 +2,7 @@ import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
 import { SLOTS_CONFIG } from '../rtpConfig'
 import styled, { css, keyframes } from 'styled-components'
+import { SmartImage } from '../../components/UI/SmartImage'
 
 interface ReelProps {
   revealed: boolean
@@ -268,8 +269,8 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
       {/* Spinning strip with column-specific sequences */}
       <ReelStrip $isSpinning={isSpinning} $reelIndex={reelIndex} $enableMotion={enableMotion}>
         {spinItems.map((item, index) => (
-          <SpinningSlotContainer key={index} $good={false} $revealed={false} $enableMotion={enableMotion}>
-            <img src={item.image} alt="" />
+          <SpinningSlotContainer key={index} $good={false} $revealed={false} $enableMotion={enableMotion} data-ambient-animation>
+            <SmartImage src={item.image} alt="" style={{width:100,height:100}} />
           </SpinningSlotContainer>
         ))}
       </ReelStrip>
@@ -286,7 +287,7 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
               $position={position}
               $enableMotion={enableMotion}
             >
-              <img src={item.image} alt="" />
+              <SmartImage src={item.image} alt="" style={{width:100,height:100}} />
             </SlotContainer>
           )
         })}

@@ -1,5 +1,6 @@
 // src/components/LobbyBackground.tsx
 import React, { useEffect, useRef } from 'react'
+import { subscribeRaf } from '../../../utils/rafScheduler'
 import { makeDeterministicRng } from '../../../fairness/deterministicRng'
 import Matter, { Bodies, Composite, Body } from 'matter-js'
 import { PhysicsWorld } from '../engine/PhysicsWorld'
@@ -30,8 +31,8 @@ export default function LobbyBackground() {
   }, [])
 
   useEffect(() => {
-    let raf: number
-    const step = (time: number) => {
+  let unsubscribe: (() => void) | null = null
+  const step = (time: number) => {
       const w = worldRef.current!
       // spawn a new ball
       if (time - lastSpawn.current > SPAWN_INTERVAL) {
@@ -59,10 +60,10 @@ export default function LobbyBackground() {
         }
         return true
       })
-      raf = requestAnimationFrame(step)
+      // scheduler continues
     }
-    raf = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf)
+    unsubscribe = subscribeRaf(step)
+    return () => { if (unsubscribe) unsubscribe() }
   }, [])
 
   return (

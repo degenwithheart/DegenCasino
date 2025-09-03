@@ -1,50 +1,74 @@
 import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { heuristicPrefetch, preloadAssets, scheduleFontSubsetPreload, scheduleNetworkIdlePrefetch, setPrefetchUserOverride } from './hooks/usePrefetch';
 import { useWallet } from '@solana/wallet-adapter-react';
+import AdaptiveFpsOverlay from './components/Dev/AdaptiveFpsOverlay';
+import { startRafScheduler } from './utils/rafScheduler';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
+// Keep only absolutely critical items in the initial bundle. Everything else is lazy.
 import { Modal } from './components';
 import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/useToast';
 import { useWalletToast } from './utils/solanaWalletToast';
 import { useUserStore } from './hooks/useUserStore';
-import { useServiceWorker, preloadCriticalAssets } from './hooks/useServiceWorker';
+import { useServiceWorker, preloadCriticalAssets, warmCacheDeferred } from './hooks/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
-// Lazy load non-critical pages
+// Route/page level code-splitting (non-critical):
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
 const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
 const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
 const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
-import Header from './sections/Header';
-import { AllGamesModal, TrollBox, Sidebar, Transaction, EmbeddedTransaction, PlayerView, CacheDebugWrapper, PlatformView, ExplorerIndex, GraphicsProvider } from './components';
-import Toasts from './sections/Toasts';
-import { TosInner, TosWrapper } from './styles';
-import Footer from './sections/Footer';
-import styled from 'styled-components';
-// Lazy load pages and components
+// Pages (already separate):
 const Propagation = lazy(() => import('./pages/propagation'));
-// Lazy load pages
 const JackpotPage = lazy(() => import('./pages/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/BonusPage'));
+
+// Heavy / infrequently used components now lazy:
+const ExplorerIndex = lazy(() => import('./components/Explorer/ExplorerIndex'));
+// These modules use named exports; map them to default for React.lazy
+const PlatformView = lazy(() => import('./components/Platform/PlatformView').then((m: any) => ({default: m.PlatformView})));
+const PlayerView = lazy(() => import('./components/Platform/PlayerView').then((m: any) => ({default: m.PlayerView})));
+const Transaction = lazy(() => import('./components/Transaction/Transaction'));
+const AllGamesModal = lazy(() => import('./components/AllGamesModal/AllGamesModal'));
+const TrollBox = lazy(() => import('./components/UI/TrollBox'));
+const Sidebar = lazy(() => import('./components/UI/Sidebar'));
+const CacheDebugWrapper = lazy(() => import('./components/Cache/CacheDebugPanel').then(m => ({default: m.CacheDebugWrapper || (()=>null)})));
+const GraphicsProvider = lazy(() => import('./components/Game/GameScreenFrame').then(m => ({default: m.GraphicsProvider})));
+const EmbeddedTransaction = lazy(() => import('./components/Transaction/EmbeddedTransaction'));
+// Critical always-visible header stays eager (kept small) to avoid layout shift.
+import Header from './sections/Header';
+// Toasts small enough to keep inline.
+import Toasts from './sections/Toasts';
+import { TosInner, TosWrapper } from './styles';
+import Footer from './sections/Footer';
+import styled from 'styled-components';
 import { ThemeProvider } from './themes/ThemeContext';
 
 // Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
 
 const LoadingSpinner = () => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '200px',
-    color: '#FF5555'
-  }}>
-    <div>Loading...</div>
-  </div>
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '140px',
+    color: '#FF5555',
+    fontSize: '0.9rem',
+    opacity: 0.9,
+  }}>Loading...</div>
+);
+
+// Reusable Suspense boundary helper
+const Boundary: React.FC<{children: React.ReactNode, fallbackSize?: number}> = ({ children, fallbackSize }) => (
+  <Suspense fallback={<div style={{height: fallbackSize || 120}}><LoadingSpinner /></div>}>
+    {children}
+  </Suspense>
 );
 
 const MainContent = styled.main`
@@ -66,7 +90,10 @@ const MainContent = styled.main`
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    heuristicPrefetch(pathname);
+  }, [pathname]);
   return null;
 }
 
@@ -106,6 +133,23 @@ export default function App() {
   const { connected, connecting } = useWallet();
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
   const [showGamesModal, setShowGamesModal] = useState(false);
+  const dataSaver = useUserStore(s => s.dataSaver);
+  const reduceMotion = useUserStore(s => !!s.reduceMotion);
+  const lessGlow = useUserStore(s => !!s.lessGlow);
+  const fontSlim = useUserStore(s => !!s.fontSlim);
+  const backgroundThrottle = useUserStore(s => !!s.backgroundThrottle);
+  const autoAdapt = useUserStore(s => !!s.autoAdapt);
+  const setStore = useUserStore(s => s.set);
+  // React to data saver toggle
+  useEffect(() => {
+    if (dataSaver) {
+  startRafScheduler();
+      setPrefetchUserOverride(false);
+    } else {
+      // null tells system to re-evaluate based on network conditions
+      setPrefetchUserOverride(null as any);
+    }
+  }, [dataSaver]);
 
   // Anti-debugging protection (will be obfuscated)
   useEffect(() => {
@@ -123,6 +167,60 @@ export default function App() {
       }, 500);
     }
   }, []);
+
+  // Apply body classes for global styling adjustments
+  useEffect(() => {
+    const cls = document.documentElement.classList;
+    reduceMotion ? cls.add('reduce-motion') : cls.remove('reduce-motion');
+    lessGlow ? cls.add('less-glow') : cls.remove('less-glow');
+    fontSlim ? cls.add('font-slim') : cls.remove('font-slim');
+  }, [reduceMotion, lessGlow, fontSlim]);
+
+  // Background throttle: lower rAF driven loops by adding a class & custom event when hidden
+  useEffect(() => {
+    if (!backgroundThrottle) return;
+    let hidden = false;
+    const handleVis = () => {
+      hidden = document.visibilityState === 'hidden';
+      if (hidden) {
+        document.documentElement.classList.add('bg-throttled');
+      } else {
+        document.documentElement.classList.remove('bg-throttled');
+      }
+      window.dispatchEvent(new CustomEvent('app:visibility-change', { detail: { hidden } }));
+    };
+    document.addEventListener('visibilitychange', handleVis);
+    handleVis();
+    return () => document.removeEventListener('visibilitychange', handleVis);
+  }, [backgroundThrottle]);
+
+  // Auto adapt: monitor network & memory, toggle reduceMotion / lessGlow when constrained
+  useEffect(() => {
+    if (!autoAdapt) return;
+    let frame: number;
+    function evaluate() {
+      try {
+        const nav: any = navigator;
+        const conn = nav.connection;
+        const mem = (nav as any).deviceMemory || 4;
+        let poorNet = false;
+        if (conn) {
+          const et = conn.effectiveType || '';
+            poorNet = conn.saveData || /(2g|slow-2g)/.test(et);
+        }
+        const lowMemory = mem <= 2;
+        if (poorNet || lowMemory) {
+          setStore((s: any) => ({
+            reduceMotion: true,
+            lessGlow: true,
+          }));
+        }
+      } catch {}
+      frame = window.setTimeout(evaluate, 8000);
+    }
+    evaluate();
+    return () => window.clearTimeout(frame);
+  }, [autoAdapt, setStore]);
 
   useEffect(() => {
     if (!connecting) {
@@ -142,15 +240,43 @@ export default function App() {
   useEffect(() => {
     // Preload critical assets for better performance
     preloadCriticalAssets();
+    preloadAssets([
+      '/webp/games/blackjack.webp',
+      '/webp/games/dice.webp',
+      '/webp/games/roulette.webp',
+      '/webp/games/mines.webp',
+      '/webp/games/plinko.webp',
+      '/webp/games/slots.webp',
+      '/webp/games/crash.webp',
+      '/webp/games/flip.webp',
+      '/webp/$DGHRT.webp',
+    ]);
+    // Dynamic font subset preload (small char set first)
+    scheduleFontSubsetPreload([
+      { family: 'Luckiest Guy' },
+      { family: 'Inter', weights: ['400','600','700'] },
+    ])
+    // Network idle low-priority prefetch (rare modals/pages)
+    scheduleNetworkIdlePrefetch([
+      ['terms-page', () => import('./sections/Dashboard/Terms/Terms')],
+      ['whitepaper-page', () => import('./sections/Dashboard/Whitepaper/Whitepaper')],
+      ['about-page', () => import('./sections/Dashboard/AboutMe/AboutMe')],
+      ['fairness-audit', () => import('./sections/FairnessAudit/FairnessAudit')],
+    ])
+  // Warm broader cache once idle
+  warmCacheDeferred()
   }, []);
 
   return (
     <ThemeProvider>
-      <GraphicsProvider>
+      <Boundary>
+        <GraphicsProvider>
         <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
           {showGamesModal && (
             <Modal onClose={() => setShowGamesModal(false)}>
-              <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
+              <Boundary fallbackSize={200}>
+                <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
+              </Boundary>
             </Modal>
           )}
         {newcomer && (
@@ -242,12 +368,15 @@ export default function App() {
         <ScrollToTop />
         <ErrorHandler />
         <Header />
-        <Sidebar />
+  <AdaptiveFpsOverlay />
+        <Boundary>
+          <Sidebar />
+        </Boundary>
         <MainContent>
           <Toasts />
           {/* Only show WelcomeBanner after auto-connect attempt */}
           {autoConnectAttempted && !connected && <WelcomeBanner />}
-          <Suspense fallback={<LoadingSpinner />}>
+          <Boundary fallbackSize={260}>
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/jackpot" element={<JackpotPage />} />
@@ -266,13 +395,20 @@ export default function App() {
               <Route path="/:wallet/profile" element={<UserProfile />} />
               <Route path="/game/:wallet/:gameId" element={<Game />} />
             </Routes>
-          </Suspense>
+          </Boundary>
         </MainContent>
         <Footer />
-        {ENABLE_TROLLBOX && connected && <TrollBox />}
-        <CacheDebugWrapper />
+        {ENABLE_TROLLBOX && connected && (
+          <Boundary fallbackSize={120}>
+            <TrollBox />
+          </Boundary>
+        )}
+        <Boundary fallbackSize={60}>
+          <CacheDebugWrapper />
+        </Boundary>
       </GamesModalContext.Provider>
-      </GraphicsProvider>
+        </GraphicsProvider>
+      </Boundary>
     </ThemeProvider>
   );
 }

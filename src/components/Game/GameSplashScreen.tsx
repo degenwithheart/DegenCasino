@@ -1,6 +1,7 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { GambaUi } from 'gamba-react-ui-v2'
+import { SmartImage } from '../UI/SmartImage'
 
 interface GameSplashScreenProps {
   gameName: string
@@ -269,33 +270,15 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
           justifyContent: 'center',
           overflow: 'hidden',
         }}>
-          <img 
-            src={gameImage} 
+          <SmartImage 
+            src={gameImage}
             alt={gameName}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
+            qualityVariants={{
+              high: gameImage,
+              balanced: gameImage.replace(/\.(png|jpg|jpeg|webp)$/i, '-md.$1'),
+              data: gameImage.replace(/\.(png|jpg|jpeg|webp)$/i, '-sm.$1')
             }}
-            onError={(e) => {
-              // Fallback if image fails to load
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-              const container = target.parentElement
-              if (container) {
-                container.innerHTML = `
-                  <div style="
-                    width: 100%; 
-                    height: 100%; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    font-size: 3rem; 
-                    color: #ffd700;
-                  ">🎮</div>
-                `
-              }
-            }}
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />
         </div>
         

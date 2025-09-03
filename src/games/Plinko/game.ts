@@ -1,4 +1,5 @@
 import Matter from "matter-js";
+import { subscribeRaf } from '../../utils/rafScheduler'
 
 const WIDTH = 700;
 const HEIGHT = 700;
@@ -348,9 +349,11 @@ export class Plinko {
   private startReplayAnimation() {
     if (this.animationId !== null) return; // already running
 
+    let unsubscribe: (() => void) | null = null
     const step = () => {
       if (this.activeBalls.length === 0) {
         this.animationId = null;
+        if (unsubscribe) { unsubscribe(); unsubscribe = null }
         return;
       }
 
@@ -392,10 +395,10 @@ export class Plinko {
       }
       this.activeBalls = stillActive;
 
-      this.animationId = requestAnimationFrame(step);
+      // scheduler will call step again
     };
-
-    this.animationId = requestAnimationFrame(step);
+    unsubscribe = subscribeRaf(step)
+    this.animationId = 1 // sentinel value meaning active
   }
 
   /** Legacy live-physics visualizer helpers (untouched) */

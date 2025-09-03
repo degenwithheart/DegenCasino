@@ -13,6 +13,7 @@ import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/useIsCompact";
 import { useTheme } from "../../themes/ThemeContext";
+import { useUserStore } from "../../hooks/useUserStore";
 import {
   neonPulse,
   moveGradient,
@@ -47,6 +48,7 @@ export function Dashboard() {
   const handleWalletConnect = useHandleWalletConnect();
   const { openGamesModal } = useContext(GamesModalContext);
   const { currentTheme } = useTheme();
+  const particlesEnabled = useUserStore(s => s.particlesEnabled !== false)
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
@@ -57,7 +59,7 @@ export function Dashboard() {
 
   return (
     <DashboardWrapper $compact={compact} $theme={currentTheme}>
-      <CasinoSparkles>✨</CasinoSparkles>
+  {particlesEnabled && <CasinoSparkles>✨</CasinoSparkles>}
       <WelcomeBanner />
       <EnhancedTickerTape />
 
