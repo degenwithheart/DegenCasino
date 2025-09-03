@@ -8,6 +8,7 @@ import { useUserStore } from '../../hooks/useUserStore'
 import { setPrefetchUserOverride } from '../../hooks/usePrefetch'
 const ThemeSelectorLazy = React.lazy(() => import('../Theme/ThemeSelector').then(m => ({ default: m.ThemeSelector })))
 import { useTheme } from '../../themes/ThemeContext'
+import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS } from '../../constants'
 
 const Wrapper = styled.div`
   max-width: 500px;
@@ -271,6 +272,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const { setTheme } = useTheme()
   const set = useUserStore(s => s.set)
 
+  // Derived constants for external links & addresses (sourced from main constants file)
+  const creatorAddress = React.useMemo(() => {
+    try { return PLATFORM_CREATOR_ADDRESS.toBase58() } catch { return '' }
+  }, [])
+  const links = React.useMemo(() => {
+    const get = (title: string) => FOOTER_LINKS.find(l => l.title === title)?.href
+    return {
+      terms: get('Terms') || '/terms',
+      github: get('GitHub') || 'https://github.com/degenwithheart/DegenCasino',
+      x: get('X') || 'https://x.com/DegenWithHeart',
+    }
+  }, [])
+
   const toggleDataSaver = () => {
     set({ dataSaver: !dataSaver })
     setPrefetchUserOverride(!dataSaver ? false : null as any)
@@ -443,16 +457,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <strong style={{fontWeight:600}}>Performance.</strong> The platform auto scales visuals under load (Auto Optimize) and can reduce frame work with Adaptive Performance.
               </div>
               <div style={{fontSize:'.58rem', lineHeight:1.25, color:'#c9d6e5'}}>
-                <strong style={{fontWeight:600}}>Privacy.</strong> No tracking pixels. Preferences are stored in localStorage only.
+                <strong style={{fontWeight:600}}>Terms.</strong> By playing you accept the <a href={links.terms} style={{color:'#fff', textDecoration:'underline'}}>platform terms</a> & basic fair‑play rules.
               </div>
               <div style={{fontSize:'.58rem', lineHeight:1.25, color:'#c9d6e5'}}>
                 <strong style={{fontWeight:600}}>Shortcuts.</strong> Alt + Shift + F: FPS / adaptive overlay. (More coming.)
               </div>
               <div style={{fontSize:'.58rem', lineHeight:1.25, color:'#c9d6e5'}}>
-                <strong style={{fontWeight:600}}>Support / Issues.</strong> Open a GitHub issue or reach out via project channels.
+                <strong style={{fontWeight:600}}>Support.</strong> Reach out on <a href={links.x} target="_blank" rel="noopener noreferrer" style={{color:'#fff', textDecoration:'underline'}}>X</a>.
               </div>
               <div style={{fontSize:'.58rem', lineHeight:1.25, color:'#c9d6e5'}}>
-                <strong style={{fontWeight:600}}>Donate (SOL):</strong> <code style={{fontSize:'.55rem'}}>6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ</code>
+                <strong style={{fontWeight:600}}>Issues.</strong> Report bugs at <a href={links.github} target="_blank" rel="noopener noreferrer" style={{color:'#fff', textDecoration:'underline'}}>GitHub</a>.
+              </div>
+              <div style={{fontSize:'.58rem', lineHeight:1.25, color:'#c9d6e5'}}>
+                <strong style={{fontWeight:600}}>Donate (SOL):</strong> <code style={{fontSize:'.55rem'}}>{creatorAddress}</code>
               </div>
             </SectionContentPad>
           </Section>
