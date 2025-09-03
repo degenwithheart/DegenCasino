@@ -14,6 +14,15 @@ import { cache, CacheKeys, CacheTTL } from '../../utils/cache'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
+// CORS proxy for production usage
+const getApiUrl = (endpoint: string) => {
+  // If we're on production, use CORS proxy
+  if (window.location.hostname !== 'localhost') {
+    return `https://api.allorigins.win/raw?url=${encodeURIComponent(endpoint)}`
+  }
+  return endpoint
+}
+
 interface StatsData {
   usd_volume: number
   usd_fees: number
@@ -505,7 +514,7 @@ export function PlatformView() {
             const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
             
             console.log('Fetching stats from:', statsUrl)
-            const statsResponse = await fetch(statsUrl)
+            const statsResponse = await fetch(getApiUrl(statsUrl))
             
             if (statsResponse.ok) {
               const statsData = await statsResponse.json()
@@ -519,7 +528,7 @@ export function PlatformView() {
               const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
               console.log('Trying alternative stats URL:', altStatsUrl)
               
-              const altStatsResponse = await fetch(altStatsUrl)
+              const altStatsResponse = await fetch(getApiUrl(altStatsUrl))
               if (altStatsResponse.ok) {
                 const altStatsData = await altStatsResponse.json()
                 cache.set(statsCacheKey, altStatsData, CacheTTL.PLATFORM_STATS);
@@ -604,7 +613,7 @@ export function PlatformView() {
           // Fetch recent plays for this platform
           const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=20&page=0`
           
-          const playsResponse = await fetch(playsUrl)
+          const playsResponse = await fetch(getApiUrl(playsUrl))
           
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
@@ -653,7 +662,7 @@ export function PlatformView() {
               // Try alternative API endpoint format
               const altPlaysUrl = `${API_ENDPOINT}/events?creator=${creator}&limit=20`
               
-              const altResponse = await fetch(altPlaysUrl)
+              const altResponse = await fetch(getApiUrl(altPlaysUrl))
               if (altResponse.ok) {
                 const altData = await altResponse.json()
                 
