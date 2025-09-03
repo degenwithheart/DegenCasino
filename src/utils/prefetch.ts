@@ -37,11 +37,11 @@ class PrefetchManager {
 
     try {
       // Prefetch common leaderboard data
-      await this.prefetchLeaderboard('weekly', 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
-      await this.prefetchLeaderboard('monthly', 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
+      await this.prefetchLeaderboard('weekly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
+      await this.prefetchLeaderboard('monthly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
       
       // Prefetch recent plays
-      await this.prefetchRecentPlays(false, 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
+      await this.prefetchRecentPlays(false, '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
       
       console.log('✅ Critical data prefetched successfully');
     } catch (error) {
@@ -119,13 +119,13 @@ class PrefetchManager {
 
     // Refresh leaderboard every 2 minutes
     const leaderboardInterval = setInterval(() => {
-      this.prefetchLeaderboard('weekly', 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
-      this.prefetchLeaderboard('monthly', 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
+      this.prefetchLeaderboard('weekly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
+      this.prefetchLeaderboard('monthly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
     }, CacheTTL.LEADERBOARD);
 
     // Refresh recent plays every 30 seconds
     const recentPlaysInterval = setInterval(() => {
-      this.prefetchRecentPlays(false, 'DGHRTBxDmtBaL9bjwN7EtLNKh7FLqezKq4QyE6iDfR8n');
+      this.prefetchRecentPlays(false, '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
     }, CacheTTL.RECENT_PLAYS);
 
     this.refreshIntervals.set('leaderboard', leaderboardInterval);
