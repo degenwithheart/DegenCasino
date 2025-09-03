@@ -220,7 +220,7 @@ export interface RecentPlaysProps {
 }
 
 export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysProps) {
-  const events = useRecentPlays({ showAllPlatforms })
+  const { events, refresh } = useRecentPlays({ showAllPlatforms })
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
   const navigate = useNavigate()

@@ -8,6 +8,7 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { useTheme } from '../../themes/ThemeContext'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
+import { cache, CacheKeys, CacheTTL } from '../../utils/cache'
 
 interface PlayerResponse {
   volume: number
@@ -307,16 +308,37 @@ export function PlayerView() {
         try {
           setLoading(true)
           
-                    // Fetch player data
+          // Check cache for player data first
+          const playerCacheKey = CacheKeys.playerPlays(address);
+          const cachedPlayerData = cache.get<PlayerResponse>(playerCacheKey + ':data');
+          const cachedPlaysData = cache.get<any[]>(playerCacheKey + ':plays');
+          
+          if (cachedPlayerData) {
+            setPlayerData(cachedPlayerData);
+          }
+          
+          if (cachedPlaysData) {
+            setRecentPlays(cachedPlaysData);
+          }
+          
+          // If we have both cached data, skip the API calls
+          if (cachedPlayerData && cachedPlaysData) {
+            setLoading(false);
+            return;
+          }
+          
+          // Fetch player data
           const playerResponse = await fetch(`https://api.gamba.so/player?user=${address}`)
           if (playerResponse.ok) {
             const data = await playerResponse.json()
-            setPlayerData({
+            const playerData = {
               volume: data.usd_volume || 0,
               profit: data.usd_profit || 0,
               plays: data.games_played || 0,
               wins: data.games_won || 0
-            })
+            };
+            cache.set(playerCacheKey + ':data', playerData, CacheTTL.PLAYER_PLAYS);
+            setPlayerData(playerData)
           } else {
             const errorText = await playerResponse.text()
             console.warn('Player not found or API error:', playerResponse.status, errorText)
@@ -352,6 +374,7 @@ export function PlayerView() {
               }
             })
 
+            cache.set(playerCacheKey + ':plays', transformedPlays, CacheTTL.PLAYER_PLAYS);
             setRecentPlays(transformedPlays)
           } else {
             const errorText = await playsResponse.text()
