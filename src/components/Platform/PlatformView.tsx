@@ -7,21 +7,12 @@ import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { useLeaderboardData } from '../../hooks/useLeaderboardData'
 import { extractMetadata } from '../../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
+import { PLATFORM_CREATOR_ADDRESS, TOKEN_METADATA } from '../../constants'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
 import { useTheme } from '../../themes/ThemeContext'
 import { cache, CacheKeys, CacheTTL } from '../../utils/cache'
 
 const API_ENDPOINT = 'https://api.gamba.so'
-
-// CORS proxy for production usage
-const getApiUrl = (endpoint: string) => {
-  // If we're on production, use CORS proxy
-  if (window.location.hostname !== 'localhost') {
-    return `https://api.allorigins.win/raw?url=${encodeURIComponent(endpoint)}`
-  }
-  return endpoint
-}
 
 interface StatsData {
   usd_volume: number
@@ -215,7 +206,7 @@ const GameStatusHeader = styled.div<{ $theme?: any }>`
 
 const StatusGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   
   @media (max-width: 768px) {
@@ -486,9 +477,9 @@ export function PlatformView() {
   const { creator } = useParams<{creator: string}>()
   const [stats, setStats] = React.useState<any>(null)
   const [recentPlays, setRecentPlays] = React.useState<any[]>([])
+  const [walletBalance, setWalletBalance] = React.useState<number | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [walletBalance, setWalletBalance] = React.useState<number | null>(null)
   
   const { data: leaderboard = [] } = useLeaderboardData('weekly', creator || '')
   
@@ -496,8 +487,6 @@ export function PlatformView() {
 
   React.useEffect(() => {
     if (creator) {
-      const startTime = Date.now() - 7 * 24 * 60 * 60 * 1000 // 7 days ago
-      
       const fetchData = async () => {
         try {
           setLoading(true)
@@ -510,11 +499,11 @@ export function PlatformView() {
           if (cachedStats) {
             setStats(cachedStats);
           } else {
-            // Fetch platform stats
-            const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
+            // Fetch lifetime platform stats (no time filter for accurate totals)
+            const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}`
             
-            console.log('Fetching stats from:', statsUrl)
-            const statsResponse = await fetch(getApiUrl(statsUrl))
+            console.log('Fetching LIFETIME stats from:', statsUrl)
+            const statsResponse = await fetch(statsUrl)
             
             if (statsResponse.ok) {
               const statsData = await statsResponse.json()
@@ -528,92 +517,62 @@ export function PlatformView() {
               const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
               console.log('Trying alternative stats URL:', altStatsUrl)
               
-              const altStatsResponse = await fetch(getApiUrl(altStatsUrl))
+              const altStatsResponse = await fetch(altStatsUrl)
               if (altStatsResponse.ok) {
                 const altStatsData = await altStatsResponse.json()
                 cache.set(statsCacheKey, altStatsData, CacheTTL.PLATFORM_STATS);
                 setStats(altStatsData)
-              }
-            }
-          }
-          
-          // Fetch actual wallet balance to compare with API revenue
-          try {
-            // Try multiple RPC endpoints for wallet balance
-            const rpcEndpoints = [
-              'https://solana-api.projectserum.com',
-              'https://api.mainnet-beta.solana.com',
-              'https://rpc.ankr.com/solana'
-            ];
-            
-            let solBalance = 0;
-            let balanceUSD = 0;
-            
-            for (const rpcUrl of rpcEndpoints) {
-              try {
-                const connection = new (await import('@solana/web3.js')).Connection(rpcUrl);
-                const creatorPubkey = new PublicKey(creator);
-                const balance = await connection.getBalance(creatorPubkey);
-                solBalance = balance / 1e9; // Convert lamports to SOL
+              } else {
+                // Try creator-specific endpoint
+                const creatorStatsUrl = `${API_ENDPOINT}/creator/${creator}/fees`
+                console.log('Trying creator fees URL:', creatorStatsUrl)
                 
-                // Get SOL price to convert to USD
-                const solPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-                if (solPriceResponse.ok) {
-                  const priceData = await solPriceResponse.json();
-                  const solPrice = priceData.solana?.usd || 100; // Fallback price
-                  balanceUSD = solBalance * solPrice;
-                  setWalletBalance(balanceUSD);
+                const creatorResponse = await fetch(creatorStatsUrl)
+                if (creatorResponse.ok) {
+                  const creatorData = await creatorResponse.json()
+                  console.log('Creator fees API response:', creatorData)
+                  cache.set(statsCacheKey, creatorData, CacheTTL.PLATFORM_STATS);
+                  setStats(creatorData)
+                } else {
+                  // Try total lifetime stats (no time filter)
+                  const lifetimeStatsUrl = `${API_ENDPOINT}/stats?creator=${creator}`
+                  console.log('Trying lifetime stats URL:', lifetimeStatsUrl)
                   
-                  console.log('💰 WALLET BALANCE COMPARISON:', {
-                    creatorAddress: creator,
-                    rpcUsed: rpcUrl,
-                    solBalance: solBalance,
-                    solPrice: solPrice,
-                    actualWalletBalanceUSD: balanceUSD,
-                    apiRevenueUSD: stats?.revenue_usd,
-                    discrepancy: balanceUSD - (stats?.revenue_usd || 0)
-                  });
-                  break; // Success, exit loop
+                  const lifetimeResponse = await fetch(lifetimeStatsUrl)
+                  if (lifetimeResponse.ok) {
+                    const lifetimeData = await lifetimeResponse.json()
+                    console.log('📊 LIFETIME STATS:', JSON.stringify(lifetimeData, null, 2))
+                    cache.set(statsCacheKey, lifetimeData, CacheTTL.PLATFORM_STATS);
+                    setStats(lifetimeData)
+                  }
                 }
-              } catch (rpcError) {
-                console.warn(`RPC ${rpcUrl} failed:`, rpcError);
-                continue; // Try next RPC
               }
-            }
-            
-            if (solBalance === 0) {
-              throw new Error('All RPC endpoints failed');
-            }
-            
-          } catch (balanceError) {
-            console.warn('Failed to fetch wallet balance from all sources:', balanceError);
-            // Fallback: Use Solscan API for balance
-            try {
-              const solscanResponse = await fetch(`https://public-api.solscan.io/account/${creator}`);
-              if (solscanResponse.ok) {
-                const solscanData = await solscanResponse.json();
-                const solBalance = (solscanData.lamports || 0) / 1e9;
-                const solPrice = 100; // Fallback price
-                const balanceUSD = solBalance * solPrice;
-                setWalletBalance(balanceUSD);
-                
-                console.log('💰 WALLET BALANCE (via Solscan):', {
-                  creatorAddress: creator,
-                  solBalance: solBalance,
-                  estimatedBalanceUSD: balanceUSD,
-                  apiRevenueUSD: stats?.revenue_usd,
-                  discrepancy: balanceUSD - (stats?.revenue_usd || 0)
-                });
-              }
-            } catch (solscanError) {
-              console.warn('Solscan API also failed:', solscanError);
             }
           }
           
           // Fetch recent plays for this platform
           const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=20&page=0`
           
-          const playsResponse = await fetch(getApiUrl(playsUrl))
+          // Also try to get actual creator wallet balance
+          try {
+            const balanceResponse = await fetch(`https://api.helius.dev/v0/addresses/${creator}/balances`)
+            if (balanceResponse.ok) {
+              const balanceData = await balanceResponse.json()
+              console.log('Creator wallet balance data:', balanceData)
+              // Look for SOL balance
+              const solBalance = balanceData.tokens?.find((t: any) => t.mint === 'So11111111111111111111111111111111111111112')
+              if (solBalance) {
+                const solAmount = solBalance.amount / 1e9 // Convert lamports to SOL
+                const solUSD = solAmount * (TOKEN_METADATA[0]?.usdPrice || 192.55)
+                setWalletBalance(solUSD)
+                console.log('Creator SOL balance:', { solAmount, solUSD })
+              }
+            }
+          } catch (err) {
+            console.log('Could not fetch wallet balance:', err)
+          }
+          
+          const playsResponse = await fetch(playsUrl)
           
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
@@ -662,7 +621,7 @@ export function PlatformView() {
               // Try alternative API endpoint format
               const altPlaysUrl = `${API_ENDPOINT}/events?creator=${creator}&limit=20`
               
-              const altResponse = await fetch(getApiUrl(altPlaysUrl))
+              const altResponse = await fetch(altPlaysUrl)
               if (altResponse.ok) {
                 const altData = await altResponse.json()
                 
@@ -723,9 +682,6 @@ export function PlatformView() {
     ? 'DegenCasino' 
     : `6o1i...8ocZ`
 
-  // Only use fees from API, but calculate total wagered amount from platform plays
-  const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
-
   // Calculate total wagered amount from recent plays (sum of all wager amounts)
   const calculatedVolume = recentPlays.reduce((total, play) => {
     // The wager should already be in the correct decimal format from TokenValue
@@ -736,12 +692,16 @@ export function PlatformView() {
     return total + adjustedWager
   }, 0)
 
-  console.log('Volume calculation:', {
-    platformCreator: creator,
-    recentPlaysCount: recentPlays.length,
-    calculatedVolume,
-    platformRevenue: estimatedFees
-  })
+  // Only use fees from API, but calculate total wagered amount from platform plays
+  const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
+  
+  // Calculate the actual fee rate being earned
+  const apiVolumeUSD = stats?.usd_volume || 0
+  const actualFeeRate = apiVolumeUSD > 0 ? ((estimatedFees / apiVolumeUSD) * 100) : 0
+
+  // Convert USD volume to SOL
+  const solPrice = TOKEN_METADATA[0]?.usdPrice || 192.55
+  const apiVolumeSOL = apiVolumeUSD / solPrice
 
   return (
     <PlatformContainer $theme={currentTheme}>
@@ -750,23 +710,21 @@ export function PlatformView() {
       {/* Game Status Overview */}
       <GameStatusContainer $theme={currentTheme}>
         <GameStatusHeader $theme={currentTheme}>
-          📊 PLATFORM STATISTICS
+          📊 LIFETIME PLATFORM STATISTICS
         </GameStatusHeader>
         <StatusGrid>
           <StatusCard $theme={currentTheme}>
-            <StatusValue $theme={currentTheme}>{calculatedVolume.toFixed(2)} SOL</StatusValue>
-            <StatusLabel $theme={currentTheme}>TOTAL WAGERED</StatusLabel>
+            <StatusValue $theme={currentTheme}>{apiVolumeSOL.toFixed(2)} SOL</StatusValue>
+            <StatusLabel $theme={currentTheme}>TOTAL WAGERS</StatusLabel>
           </StatusCard>
           <StatusCard $theme={currentTheme}>
             <StatusValue $theme={currentTheme}>${estimatedFees.toFixed(2)}</StatusValue>
             <StatusLabel $theme={currentTheme}>API REVENUE</StatusLabel>
           </StatusCard>
-          {walletBalance !== null && (
-            <StatusCard $theme={currentTheme}>
-              <StatusValue $theme={currentTheme}>${walletBalance.toFixed(2)}</StatusValue>
-              <StatusLabel $theme={currentTheme}>ACTUAL WALLET BALANCE</StatusLabel>
-            </StatusCard>
-          )}
+          <StatusCard $theme={currentTheme}>
+            <StatusValue $theme={currentTheme}>{actualFeeRate.toFixed(2)}%</StatusValue>
+            <StatusLabel $theme={currentTheme}>ACTUAL FEE RATE</StatusLabel>
+          </StatusCard>
           <StatusCard $theme={currentTheme}>
             <StatusValue $theme={currentTheme}>{recentPlays.length}</StatusValue>
             <StatusLabel $theme={currentTheme}>PLAYS</StatusLabel>

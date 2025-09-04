@@ -1,15 +1,6 @@
 // src/utils/prefetch.ts
 import { cache, CacheKeys, CacheTTL } from './cache';
 
-// CORS proxy for production usage
-const getApiUrl = (endpoint: string) => {
-  // If we're on production, use CORS proxy
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return `https://api.allorigins.win/raw?url=${encodeURIComponent(endpoint)}`
-  }
-  return endpoint
-}
-
 export interface PrefetchConfig {
   enabled: boolean;
   onAppStart: boolean;
@@ -73,8 +64,7 @@ class PrefetchManager {
 
     try {
       console.log(`🔄 Prefetching ${period} leaderboard...`);
-      const apiUrl = `https://api.gamba.so/creator/${creator}/players?period=${period}&limit=100`;
-      const response = await fetch(getApiUrl(apiUrl));
+      const response = await fetch(`https://api.gamba.so/creator/${creator}/players?period=${period}&limit=100`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -107,7 +97,7 @@ class PrefetchManager {
         ? 'https://api.gamba.so/events/settledGames?limit=50'
         : `https://api.gamba.so/events/settledGames?creator=${creator}&limit=50`;
       
-      const response = await fetch(getApiUrl(url));
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
