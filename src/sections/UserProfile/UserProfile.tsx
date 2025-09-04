@@ -9,8 +9,8 @@ import {
 } from '../../constants';
 import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-react-ui-v2";
 import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../utils/userProfileUtils';
-import { ReferralDashboard } from '../../components/ReferralDashboard';
-import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components/ReferralLeaderboardModal';
+import { ReferralDashboard } from '../../components';
+import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components';
 import { useTheme } from '../../themes/ThemeContext';
 import { ProfileContainer, ProfileHeader, SectionBox, CasinoButton, AvatarContainer, DefaultAvatar } from './UserProfile.styles';
 
