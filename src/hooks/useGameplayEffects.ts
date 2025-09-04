@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGraphics } from '../components/Game/GameScreenFrame'
-import { subscribeRaf } from '../utils/rafScheduler'
-import { useUserStore } from './useUserStore'
 
 export interface GameplayEffects {
   // Screen shake with intensity and duration
@@ -108,8 +106,6 @@ export function useGameplayEffects(): GameplayEffects {
       console.log('♿ Particle burst disabled (accessibility visual feedback off)')
       return
     }
-  const reduceMotion = useUserStore.getState().reduceMotion
-  if (reduceMotion) return
     
     // Use theme's particleWin color if no color specified
     const effectColor = color || settings.customTheme?.particleWin || '#ffd700'
@@ -148,15 +144,13 @@ export function useGameplayEffects(): GameplayEffects {
       container.appendChild(particle)
       
       // Animate particle
-      let startTime = performance.now()
-      let unsubscribe: (()=>void) | null = null
-      const animate = (_dt:number, now:number) => {
-        const elapsed = now - startTime
+      let startTime = Date.now()
+      const animate = () => {
+        const elapsed = Date.now() - startTime
         const t = elapsed / 1000
         
         if (t > 2) {
           container.removeChild(particle)
-          if (unsubscribe) { unsubscribe(); unsubscribe = null }
           return
         }
         
@@ -168,8 +162,10 @@ export function useGameplayEffects(): GameplayEffects {
         particle.style.top = `${newY}%`
         particle.style.opacity = opacity.toString()
         
+        requestAnimationFrame(animate)
       }
-  unsubscribe = subscribeRaf(animate, 60)
+      
+      requestAnimationFrame(animate)
     }
     
     // Clean up container after particles are done

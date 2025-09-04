@@ -1,6 +1,5 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import pkg from './package.json';
 
 const ENV_PREFIX = ['VITE_'];
 
@@ -25,7 +24,6 @@ export default defineConfig(() => ({
     global: 'globalThis',
     // Remove development-only code
     __DEV__: false,
-    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   resolve: {
     alias: {
@@ -52,12 +50,12 @@ export default defineConfig(() => ({
     outDir: 'dist',
     chunkSizeWarningLimit: 2048,
     target: 'es2020', 
-    minify: true,
+    minify: 'esbuild',
     sourcemap: false,
     esbuildOptions: {
       drop: ['console', 'debugger'],
     },
-    cssMinify: true,
+    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
         // More conservative chunking to avoid circular dependencies
@@ -84,5 +82,14 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
+    {
+      name: 'ignore-api-routes',
+      configureServer(server) {
+        server.middlewares.use('/api', (req, res, next) => {
+          res.statusCode = 404;
+          res.end('API routes not available in development');
+        });
+      }
+    }
   ],
 }));

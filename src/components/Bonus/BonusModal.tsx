@@ -5,6 +5,7 @@ import {
   HeaderSection, 
   Title, 
   Subtitle, 
+  BonusAmount, 
   InfoText, 
   FeatureList 
 } from './Bonus.styles'
@@ -28,6 +29,11 @@ const BonusInner: React.FC = () => {
         <Title>BONUS SYSTEM</Title>
         <Subtitle>Free Play Quantum Mechanics</Subtitle>
       </HeaderSection>
+
+      <BonusAmount>
+        <TokenValue amount={balance.bonusBalance} />
+        <span>FREE PLAYS</span>
+      </BonusAmount>
 
       <InfoText>
         You have <strong><TokenValue amount={balance.bonusBalance} /></strong> worth of free plays available!

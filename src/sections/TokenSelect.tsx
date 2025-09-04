@@ -13,7 +13,7 @@ import {
 } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
 import { PLATFORM_SHARABLE_URL } from '../constants'
-import * as S from './TokenSelect.styles'
+import styled from 'styled-components'
 import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
 import { truncateString } from '../utils'
 import { generateUsernameFromWallet } from '../utils/userProfileUtils'
@@ -22,6 +22,94 @@ import { useWalletToast } from '../utils/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useReferralCount } from '../hooks/useReferralAnalytics'
 import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/referralTier'
+
+const GridContainer = styled.div<{ $isSingleToken: boolean }>`
+  display: grid;
+  grid-template-columns: ${({ $isSingleToken }) => ($isSingleToken ? '1fr' : 'repeat(2, 1fr)')};
+  gap: 16px;
+  background: rgba(24, 24, 24, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.15);
+  border: 1px solid #ffd700;
+  padding: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 8px 2px;
+    border-radius: 8px;
+  }
+`
+
+const TokenCard = styled.button<{ $selected?: boolean }>`
+  width: 100%;
+  background: ${({ $selected }) => ($selected ? 'rgba(255, 215, 0, 0.2)' : 'rgba(24, 24, 24, 0.8)')};
+  border: 1px solid ${({ $selected }) => ($selected ? '#ffd700' : 'rgba(255, 255, 255, 0.2)')};
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  color: #ffd700;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s, border-color 0.3s;
+
+  @media (max-width: 600px) {
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 0.98rem;
+    gap: 6px;
+  }
+
+  &:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #ffd700;
+  }
+`
+
+const StyledTokenImage = styled.img`
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 6px #ffd700aa;
+
+  @media (max-width: 600px) {
+    height: 38px;
+    width: 38px;
+  }
+`
+
+const SectionHeading = styled.h2`
+  color: #ffd700;
+  margin: 24px 0 12px 8px;
+  font-size: 1.2rem;
+`
+
+const ToggleContainer = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+`
+
+const ToggleButton = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: 12px 16px;
+  background: ${({ $active }) => ($active ? '#ffd700' : 'rgba(24, 24, 24, 0.8)')};
+  color: ${({ $active }) => ($active ? '#222' : '#ffd700')};
+  border: 1px solid #ffd700;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.3s, color 0.3s;
+
+  &:hover {
+    background: #ffd700cc;
+    color: #222;
+  }
+`
 
 function TokenSelectItem({ mint }: { mint: PublicKey }) {
   const meta = useTokenMeta(mint)
@@ -136,24 +224,24 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
 
   return (
     <>
-      <S.ToggleContainer>
-        <S.ToggleButton $active={mode === 'free'} onClick={() => handleModeChange('free')}>
+      <ToggleContainer>
+        <ToggleButton $active={mode === 'free'} onClick={() => handleModeChange('free')}>
           Free Play
-        </S.ToggleButton>
-        <S.ToggleButton $active={mode === 'live'} onClick={() => handleModeChange('live')}>
+        </ToggleButton>
+        <ToggleButton $active={mode === 'live'} onClick={() => handleModeChange('live')}>
           Live Play
-        </S.ToggleButton>
-        <S.ToggleButton $active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
+        </ToggleButton>
+        <ToggleButton $active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
           Fees
-        </S.ToggleButton>
-        <S.ToggleButton $active={mode === 'invite'} onClick={() => handleModeChange('invite')}>
+        </ToggleButton>
+        <ToggleButton $active={mode === 'invite'} onClick={() => handleModeChange('invite')}>
           Invite
-        </S.ToggleButton>
-      </S.ToggleContainer>
+        </ToggleButton>
+      </ToggleContainer>
 
       {mode === 'invite' ? (
         <div>
-          <S.SectionHeading>🎁 Referral System</S.SectionHeading>
+          <SectionHeading>🎁 Referral System</SectionHeading>
           {/* Enhanced info box with tier information */}
           <div
             style={{
@@ -419,25 +507,25 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
         </div>
       ) : mode === 'fees' ? (
         <div>
-          <S.SectionHeading>Transaction Fees</S.SectionHeading>
+          <SectionHeading>Transaction Fees</SectionHeading>
           <div style={{ margin: '16px 0' }}>
             <FeesTab value={priorityFee} onChange={setPriorityFee} />
           </div>
         </div>
       ) : (
         <>
-          <S.SectionHeading>{mode === 'free' ? 'Free Play Tokens' : 'Live Play Tokens'}</S.SectionHeading>
-          <S.GridContainer $isSingleToken={isSingleToken}>
+          <SectionHeading>{mode === 'free' ? 'Free Play Tokens' : 'Live Play Tokens'}</SectionHeading>
+          <GridContainer $isSingleToken={isSingleToken}>
             {tokensToShow.map((pool, i) => (
-              <S.TokenCard
+              <TokenCard
                 key={i}
                 onClick={() => selectPool(pool)}
                 $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
               >
                 <TokenSelectItem mint={pool.token} />
-              </S.TokenCard>
+              </TokenCard>
             ))}
-          </S.GridContainer>
+          </GridContainer>
         </>
       )}
     </>

@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 // Casino animations
 export const neonPulse = keyframes`
@@ -221,7 +221,7 @@ export const QuickStats = styled.div`
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
-    ${css`animation: ${shimmer} 2s infinite;`}
+    animation: ${shimmer} 2s infinite;
   }
 
   h3 {
@@ -436,11 +436,9 @@ export const RefreshButton = styled.button`
     transform: none;
   }
 
-  ${css`
-    .spinner {
-      animation: ${spin} 1s linear infinite;
-    }
-  `}
+  .spinner {
+    animation: ${spin} 1s linear infinite;
+  }
 
   @media (max-width: 768px) {
     padding: 0.6rem 1.2rem;
@@ -534,7 +532,7 @@ export const StatusBanner = styled.div<{ status: 'healthy' | 'warning' | 'critic
   padding: 1rem;
   margin-bottom: 2rem;
   text-align: center;
-  ${props => css`animation: ${props.status === 'warning' ? pulseWarning : pulse} 2s infinite alternate;`}
+  animation: ${props => props.status === 'warning' ? pulseWarning : pulse} 2s infinite alternate;
 
   .status-icon {
     font-size: 2rem;
@@ -791,7 +789,7 @@ export const LoadingSpinner = styled.div`
     border: 2px solid rgba(255, 215, 0, 0.3);
     border-top: 2px solid #ffd700;
     border-radius: 50%;
-    ${css`animation: ${spin} 1s linear infinite;`}
+    animation: ${spin} 1s linear infinite;
     margin-right: 0.5rem;
   }
 

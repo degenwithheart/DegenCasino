@@ -1,5 +1,4 @@
 import React from 'react';
-import { subscribeRaf } from './rafScheduler'
 
 // Performance monitoring utilities
 export class PerformanceMonitor {
@@ -91,12 +90,16 @@ export function detectPerformanceIssues() {
   
   // Check for slow frames
   let lastFrameTime = performance.now();
-  const unsubscribe = subscribeRaf((_dt, now) => {
+  function checkFrameTime() {
+    const now = performance.now();
     const frameDuration = now - lastFrameTime;
-    if (frameDuration > 32) { // slower than ~30fps
-      console.warn('🐌 Slow frame detected:', frameDuration.toFixed(1) + 'ms');
+    
+    if (frameDuration > 16.67) { // Slower than 60fps
+      console.warn('🐌 Slow frame detected:', frameDuration + 'ms');
     }
+    
     lastFrameTime = now;
-  }, 60, { forceForeground: true })
-  return unsubscribe
+    requestAnimationFrame(checkFrameTime);
+  }
+  requestAnimationFrame(checkFrameTime);
 }

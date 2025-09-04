@@ -1,5 +1,4 @@
 import React from 'react';
-import { SmartImage } from './SmartImage'
 
 interface ResponsiveImageProps {
   src: string;
@@ -12,11 +11,51 @@ interface ResponsiveImageProps {
 }
 
 // WebP-optimized image component with PNG fallback
-export function ResponsiveImage(props: ResponsiveImageProps) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn('[ResponsiveImage] Deprecated - use <SmartImage> instead.')
+export function ResponsiveImage({ 
+  src, 
+  alt, 
+  className, 
+  width, 
+  height, 
+  loading = 'lazy',
+  priority = false
+}: ResponsiveImageProps) {
+  // Convert PNG/JPG paths to WebP
+  const webpSrc = src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+  const isWebPSupported = src.match(/\.(png|jpg|jpeg)$/i);
+  
+  // For critical images, use eager loading
+  const loadingStrategy = priority ? 'eager' : loading;
+  
+  if (isWebPSupported) {
+    return (
+      <picture className={className}>
+        <source srcSet={`/webp/${webpSrc}`} type="image/webp" />
+        <img 
+          src={src} 
+          alt={alt} 
+          width={width}
+          height={height}
+          loading={loadingStrategy}
+          decoding="async"
+          className={className}
+        />
+      </picture>
+    );
   }
-  return <SmartImage src={props.src} alt={props.alt} className={props.className} style={{width: props.width, height: props.height}} />
+  
+  // For non-optimizable images, use regular img
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      width={width}
+      height={height}
+      loading={loadingStrategy}
+      decoding="async"
+      className={className}
+    />
+  );
 }
 
 // Hook for preloading critical images

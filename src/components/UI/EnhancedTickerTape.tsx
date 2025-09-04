@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTokenPrices } from '../../hooks/useTokenPrices';
 import styled, { keyframes, css } from 'styled-components';
 import { useTokenPriceService } from '../../hooks/useTokenPriceService';
-import { useUserStore } from '../../hooks/useUserStore';
 
 // Ticker animation
 const tickerMove = keyframes`
@@ -27,11 +26,9 @@ export function EnhancedTickerTape() {
   const [shouldScroll, setShouldScroll] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const particlesEnabled = useUserStore(s => s.particlesEnabled !== false);
   
   // Use the existing Gamba hook for basic token data
   const tokenMetadata = useTokenPrices();
-  const tickerInterval = useUserStore(s => s.tickerInterval || 15000)
   
   // Use our enhanced service for source information
   const { getTokenPriceData } = useTokenPriceService();
@@ -43,24 +40,30 @@ export function EnhancedTickerTape() {
     previousPrice?: number; // Add previous price for comparison
   }>>({});
 
-  // Update price history when tokenMetadata changes or interval ticks
+  // Update price history when tokenMetadata changes
   useEffect(() => {
     if (!tokenMetadata) return;
-    if (tickerInterval === 0) return; // manual freeze
+
     tokenMetadata.forEach((token: any) => {
       const mintAddress = token.mint.toBase58();
       const currentPrice = token.usdPrice || 0;
+      
       setPriceHistory(prev => {
         const existing = prev[mintAddress];
         if (!existing || existing.price !== currentPrice) {
-          return { ...prev, [mintAddress]: { price: currentPrice, timestamp: Date.now(), previousPrice: existing?.price || currentPrice } };
+          return {
+            ...prev,
+            [mintAddress]: {
+              price: currentPrice,
+              timestamp: Date.now(),
+              previousPrice: existing?.price || currentPrice // Store previous for comparison
+            }
+          };
         }
         return prev;
       });
     });
-  }, [tokenMetadata, tickerInterval]);
-
-  // Manual refresh when tickerInterval = 0 (could add a button later)
+  }, [tokenMetadata]);
 
   // Handle resize and check if scrolling is needed
   useEffect(() => {
@@ -188,7 +191,7 @@ export function EnhancedTickerTape() {
           )}
         </TickerContentMobile>
       ) : (
-  <TickerContent ref={contentRef} $shouldScroll={shouldScroll} $particles={particlesEnabled}>
+        <TickerContent ref={contentRef} $shouldScroll={shouldScroll}>
           {tokenMetadata?.map((token: any) => 
             renderTokenItem(token, token.mint.toBase58())
           )}
@@ -230,7 +233,7 @@ const TickerTapeWrapper = styled.div`
   }
 `;
 
-const TickerContent = styled.div<{ $shouldScroll: boolean; $particles?: boolean }>`
+const TickerContent = styled.div<{ $shouldScroll: boolean }>`
   display: flex;
   align-items: center;
   gap: 3.5rem;
@@ -240,7 +243,7 @@ const TickerContent = styled.div<{ $shouldScroll: boolean; $particles?: boolean 
   font-size: 1.1rem;
   color: #ffd700;
   
-  ${props => (props.$shouldScroll && props.$particles) ? css`
+  ${props => props.$shouldScroll ? css`
     animation: ${tickerMove} 18s linear infinite;
   ` : css`
     justify-content: center;
@@ -266,7 +269,6 @@ const TokenItem = styled.span<{
   $isIncreasing?: boolean; 
   $isSignificant?: boolean;
   $isLiveData?: boolean;
-  $particles?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -277,11 +279,11 @@ const TokenItem = styled.span<{
   position: relative;
   transition: all 0.3s ease;
   
-  ${props => (props.$hasChange && props.$particles) && css`
+  ${props => props.$hasChange && css`
     animation: ${pricePulse} 2s ease-in-out;
   `}
   
-  ${props => (props.$isSignificant && props.$particles) && css`
+  ${props => props.$isSignificant && css`
     animation: ${priceGlow} 2s infinite, ${pricePulse} 2s ease-in-out;
     border: 1px solid ${props.$isIncreasing ? '#22c55e' : '#ef4444'};
   `}
@@ -339,7 +341,7 @@ const DataSourceBadge = styled.span<{ $isLive: boolean }>`
   opacity: 0.8;
 `;
 
-const TrendingBadge = styled.span<{ $particles?: boolean }>`
+const TrendingBadge = styled.span`
   position: absolute;
   top: -4px;
   right: -4px;
@@ -349,7 +351,7 @@ const TrendingBadge = styled.span<{ $particles?: boolean }>`
   border-radius: 8px;
   padding: 1px 4px;
   font-weight: 700;
-  ${({ $particles }) => $particles && css`animation: ${pricePulse} 1.5s infinite;`}
+  animation: ${pricePulse} 1.5s infinite;
 `;
 
 export default EnhancedTickerTape;

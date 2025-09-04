@@ -9,11 +9,10 @@ import {
 } from '../../constants';
 import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-react-ui-v2";
 import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../utils/userProfileUtils';
-import { ReferralDashboard } from '../../components/Referral/ReferralDashboard';
-import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components/Referral/ReferralLeaderboardModal';
+import { ReferralDashboard } from '../../components/ReferralDashboard';
+import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components/ReferralLeaderboardModal';
 import { useTheme } from '../../themes/ThemeContext';
 import { ProfileContainer, ProfileHeader, SectionBox, CasinoButton, AvatarContainer, DefaultAvatar } from './UserProfile.styles';
-import { SmartImage } from '../../components/UI/SmartImage'
 
 export function Profile() {
   const wallet = useWallet();
@@ -107,36 +106,24 @@ export function Profile() {
         }}
       >
           {/* Banner image */}
-          <SmartImage
+          <img
             src="/webp/casino.webp"
             alt="Banner"
-            eager
-            qualityVariants={{
-              high: '/webp/casino.webp',
-              balanced: '/webp/casino-md.webp',
-              data: '/webp/casino-sm.webp'
-            }}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-              userSelect: 'none',
-              pointerEvents: 'none'
+              width: "100%",
+              height: "100%",
+              objectFit: "fill",
+              display: "block",
+              userSelect: "none",
+              pointerEvents: "none",
             }}
           />
 
           {avatarUrl ? (
             <AvatarContainer>
-              <SmartImage
+              <img
                 src={avatarUrl}
                 alt="User Avatar"
-                qualityVariants={{
-                  high: avatarUrl,
-                  balanced: avatarUrl,
-                  data: avatarUrl
-                }}
-                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
               />
             </AvatarContainer>
           ) : (
