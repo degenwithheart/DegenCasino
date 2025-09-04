@@ -65,7 +65,7 @@ export const ModalContent = styled.div<{ $theme?: any }>`
     height: 4px;
     background: linear-gradient(90deg, #6ffaff, #a259ff, #6ffaff);
     background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
+    ${css`animation: ${moveGradient} 4s linear infinite;`}
     border-radius: 18px 18px 0 0;
     z-index: 1;
   }
@@ -110,7 +110,7 @@ export const HeaderSection = styled.div`
     top: -15px;
     right: 15%;
     font-size: 2.5rem;
-    animation: ${sparkle} 4s infinite;
+    ${css`animation: ${sparkle} 4s infinite;`}
     filter: drop-shadow(0 0 8px #6ffaff);
   }
 `
@@ -165,7 +165,7 @@ export const Title = styled.h1<{ $theme?: any }>`
     content: '🏆';
     font-size: 1.2em;
     filter: drop-shadow(0 0 8px #6ffaff);
-    animation: ${sparkle} 2s infinite;
+    ${css`animation: ${sparkle} 2s infinite;`}
   }
 `
 
@@ -383,7 +383,7 @@ export const LoadingText = styled.p<{ $theme?: any }>`
     content: '⏳';
     margin-right: 0.5rem;
     font-size: 1.5rem;
-    animation: ${sparkle} 1.5s infinite;
+    ${css`animation: ${sparkle} 1.5s infinite;`}
   }
 `
 
