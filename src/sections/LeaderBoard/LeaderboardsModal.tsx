@@ -96,7 +96,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
           </RefreshButton>
         </HeaderTop>
         <Subtitle $theme={theme}>
-          Top players by wagered{' '}
+          Top players by wager{' '}
           {period === 'weekly' ? 'this week' : 'this month'} (SOL)
         </Subtitle>
       </HeaderSection>
