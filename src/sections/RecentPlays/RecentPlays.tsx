@@ -9,7 +9,6 @@ import { extractMetadata } from '../../utils'
 import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
 import { ShareModal } from "../../components/Share/ShareModal";
-import { SmartImage } from '../../components/UI/SmartImage'
 import { useRecentPlays } from './useRecentPlays'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
@@ -44,13 +43,12 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
         gap: '8px',
         minWidth: '60px'
       }}>
-        <SmartImage
-          src={game?.meta.image || ''}
-          alt={game?.meta.name || 'game'}
+        <img
+          src={game?.meta.image}
           style={{
-            height: 32,
-            width: 32,
-            borderRadius: 8,
+            height: '32px',
+            width: '32px',
+            borderRadius: '8px',
             objectFit: 'cover',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
             border: '1px solid rgba(255, 215, 0, 0.2)'
@@ -92,12 +90,11 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
       </div>
 
       <Profit $win={profit > 0}>
-        <SmartImage
+        <img
           src={token.image}
-          alt={token.symbol}
+          height="16px"
+          width="16px"
           style={{
-            width:16,
-            height:16,
             borderRadius: '50%',
             boxShadow: '0 1px 4px rgba(0, 0, 0, 0.3)'
           }}
@@ -220,7 +217,7 @@ export interface RecentPlaysProps {
 }
 
 export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysProps) {
-  const { events, refresh } = useRecentPlays({ showAllPlatforms })
+  const events = useRecentPlays({ showAllPlatforms })
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
   const navigate = useNavigate()

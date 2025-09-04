@@ -1,6 +1,5 @@
 // src/engine/SimulationEngine.ts
 import Matter, { Composite, Bodies, Body } from 'matter-js';
-import { subscribeRaf } from '../../../utils/rafScheduler'
 import { PhysicsWorld } from './PhysicsWorld';
 import {
   WIDTH, HEIGHT, BALL_RADIUS, BUCKET_HEIGHT,
@@ -374,9 +373,9 @@ outer:
         advanceOneFrame();
         accMs -= frameMs;
       }
-  if (f >= N && unsub) { unsub(); }
+      if (f < N) requestAnimationFrame(step);
     };
-  const unsub = subscribeRaf(step)
+    requestAnimationFrame(step);
   }
 
   /* utils */

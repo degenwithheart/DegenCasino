@@ -1,7 +1,5 @@
 // src/hooks/useLeaderboardData.ts
 import { useState, useEffect } from 'react';
-import { cache, CacheKeys, CacheTTL } from '../utils/cache';
-import { prefetchManager } from '../utils/prefetch';
 
 export type Period = 'weekly' | 'monthly';
 
@@ -19,35 +17,20 @@ const API_BASE_URL = 'https://api.gamba.so';
 
 /**
  * Fetches leaderboard data (USD volume) for a given creator
- * over the chosen period. Prioritizes cached data for instant display.
+ * over the chosen period.
  */
 export function useLeaderboardData(period: Period, creator: string) {
   const [data, setData] = useState<Player[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   useEffect(() => {
     if (!creator) return;
 
-    const cacheKey = CacheKeys.leaderboard(period, creator);
-    
-    // Check cache first - instant display if available
-    const cachedData = cache.get<Player[]>(cacheKey, CacheTTL.LEADERBOARD);
-    if (cachedData) {
-      console.log(`📋 Leaderboard cache hit for ${period} - showing cached data`);
-      setData(cachedData);
-      setError(null);
-      setLoading(false);
-      return; // Don't fetch if we have fresh cached data
-    }
-
-    // No cache available, need to fetch
-    console.log(`📋 No cache for ${period} leaderboard - fetching...`);
-    setLoading(true);
-
     const controller = new AbortController();
-    const signal = controller.signal;
+    const { signal } = controller;
 
     (async () => {
       try {
@@ -77,11 +60,7 @@ export function useLeaderboardData(period: Period, creator: string) {
         if (!res.ok) throw new Error(await res.text());
 
         const { players }: LeaderboardResult = await res.json();
-        
-        // Cache the data
-        cache.set(cacheKey, players, CacheTTL.LEADERBOARD);
         setData(players);
-        console.log(`✅ ${period} leaderboard fetched and cached`);
       } catch (err: any) {
         if (err.name === 'AbortError') return; // component unmounted/cancelled
         console.error(err);
@@ -93,20 +72,9 @@ export function useLeaderboardData(period: Period, creator: string) {
 
     // Abort fetch if component unmounts or deps change
     return () => controller.abort();
-  }, [period, creator, retryCount]); // Added retryCount to trigger refetch on retry
+  }, [period, creator]);
 
-  // Manual refresh function that forces a new fetch
-  const refresh = async () => {
-    const cacheKey = CacheKeys.leaderboard(period, creator);
-    cache.delete(cacheKey);
-    setRetryCount(prev => prev + 1);
-    console.log(`🔄 Manual refresh triggered for ${period} leaderboard`);
-  };
-
-  // Retry function that clears cache for this specific key
-  const retry = () => {
-    refresh();
-  };
-  
-  return { data, loading, error, retry, retryCount, refresh };
+  // Optionally, you can expose a retry function for manual retry from UI
+  const retry = () => setRetryCount(0);
+  return { data, loading, error, retry, retryCount };
 }

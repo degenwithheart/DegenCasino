@@ -3,7 +3,6 @@ import { Text } from '@react-three/drei'
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { SmartImage } from '../../components/UI/SmartImage'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -152,13 +151,13 @@ function Flip() {
               <div className="flip-header">
                 <div className="side-indicator">
                   <div className={`side-option ${!flipping && win && side === 'heads' ? 'active winner' : side === 'heads' ? 'selected' : ''}`}>
-                    <SmartImage src={TEXTURE_HEADS} alt="Heads" style={{width:64,height:64}} />
+                    <img src={TEXTURE_HEADS} alt="Heads" />
                     <span>HEADS: {flipping || hasPlayed ? resultIndex : 'Ready'}</span>
                     {!flipping && win && side === 'heads' && <div className="result-badge">WINNER!</div>}
                   </div>
                   <div className="vs-divider">VS</div>
                   <div className={`side-option ${!flipping && win && side === 'tails' ? 'active winner' : side === 'tails' ? 'selected' : ''}`}>
-                    <SmartImage src={TEXTURE_TAILS} alt="Tails" style={{width:64,height:64}} />
+                    <img src={TEXTURE_TAILS} alt="Tails" />
                     <span>TAILS: {flipping || hasPlayed ? n - resultIndex : 'Ready'}</span>
                     {!flipping && win && side === 'tails' && <div className="result-badge">WINNER!</div>}
                   </div>

@@ -1,6 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import { useUserStore } from '../../hooks/useUserStore';
-import { subscribeRaf } from '../../utils/rafScheduler';
 
 interface Props extends React.PropsWithChildren {
   onClose?: () => void;
@@ -21,9 +19,7 @@ import {
 
 // Particle system for quantum foam
 function useQuantumParticles(canvasRef: React.RefObject<HTMLCanvasElement>) {
-  const particlesEnabled = useUserStore(s => s.particlesEnabled !== false)
   useEffect(() => {
-    if (!particlesEnabled) return
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -36,10 +32,10 @@ function useQuantumParticles(canvasRef: React.RefObject<HTMLCanvasElement>) {
       dy: (Math.random() - 0.5) * 0.002,
       a: Math.random() * Math.PI * 2,
     }));
-    const unsub = subscribeRaf(() => {
+    function draw() {
       if (!ctx || !canvas) return;
-      const w = (canvas.width = window.innerWidth);
-      const h = (canvas.height = window.innerHeight);
+      const w = canvas.width = window.innerWidth;
+      const h = canvas.height = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
       for (const p of particles) {
         p.x += p.dx;
@@ -59,9 +55,11 @@ function useQuantumParticles(canvasRef: React.RefObject<HTMLCanvasElement>) {
         ctx.fill();
         ctx.restore();
       }
-    }, 60, { forceForeground: false });
-    return () => { unsub(); };
-  }, [canvasRef, particlesEnabled]);
+      frame = requestAnimationFrame(draw);
+    }
+    draw();
+    return () => cancelAnimationFrame(frame);
+  }, [canvasRef]);
 }
 
 export const Modal: React.FC<Props> = ({ children, onClose }) => {
@@ -79,7 +77,7 @@ export const Modal: React.FC<Props> = ({ children, onClose }) => {
 
   return (
     <Overlay>
-  <ParticleField ref={canvasRef} data-ambient-animation />
+      <ParticleField ref={canvasRef} />
       <Portal>
         <EnergyRing />
         <EnergyRing2 />

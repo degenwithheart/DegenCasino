@@ -7,10 +7,9 @@ import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { useLeaderboardData } from '../../hooks/useLeaderboardData'
 import { extractMetadata } from '../../utils'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { PLATFORM_CREATOR_ADDRESS, TOKEN_METADATA } from '../../constants'
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
 import { useTheme } from '../../themes/ThemeContext'
-import { cache, CacheKeys, CacheTTL } from '../../utils/cache'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
@@ -477,7 +476,6 @@ export function PlatformView() {
   const { creator } = useParams<{creator: string}>()
   const [stats, setStats] = React.useState<any>(null)
   const [recentPlays, setRecentPlays] = React.useState<any[]>([])
-  const [walletBalance, setWalletBalance] = React.useState<number | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   
@@ -487,98 +485,54 @@ export function PlatformView() {
 
   React.useEffect(() => {
     if (creator) {
+      const startTime = Date.now() - 7 * 24 * 60 * 60 * 1000 // 7 days ago
+      
       const fetchData = async () => {
         try {
           setLoading(true)
           setError(null)
           
-          // Check cache for platform stats first
-          const statsCacheKey = CacheKeys.platformStats(creator);
-          const cachedStats = cache.get<any>(statsCacheKey);
+          // Fetch platform stats
+          const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
           
-          if (cachedStats) {
-            setStats(cachedStats);
+          console.log('Fetching stats from:', statsUrl)
+          const statsResponse = await fetch(statsUrl)
+          
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json()
+            console.log('Stats API response:', statsData)
+            setStats(statsData)
           } else {
-            // Fetch lifetime platform stats (no time filter for accurate totals)
-            const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}`
+            const errorText = await statsResponse.text()
+            console.warn('Failed to fetch stats:', statsResponse.status, errorText)
             
-            console.log('Fetching LIFETIME stats from:', statsUrl)
-            const statsResponse = await fetch(statsUrl)
+            // Try alternative stats endpoint
+            const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
+            console.log('Trying alternative stats URL:', altStatsUrl)
             
-            if (statsResponse.ok) {
-              const statsData = await statsResponse.json()
-              cache.set(statsCacheKey, statsData, CacheTTL.PLATFORM_STATS);
-              setStats(statsData)
-            } else {
-              const errorText = await statsResponse.text()
-              console.warn('Failed to fetch stats:', statsResponse.status, errorText)
-              
-              // Try alternative stats endpoint
-              const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
-              console.log('Trying alternative stats URL:', altStatsUrl)
-              
-              const altStatsResponse = await fetch(altStatsUrl)
-              if (altStatsResponse.ok) {
-                const altStatsData = await altStatsResponse.json()
-                cache.set(statsCacheKey, altStatsData, CacheTTL.PLATFORM_STATS);
-                setStats(altStatsData)
-              } else {
-                // Try creator-specific endpoint
-                const creatorStatsUrl = `${API_ENDPOINT}/creator/${creator}/fees`
-                console.log('Trying creator fees URL:', creatorStatsUrl)
-                
-                const creatorResponse = await fetch(creatorStatsUrl)
-                if (creatorResponse.ok) {
-                  const creatorData = await creatorResponse.json()
-                  console.log('Creator fees API response:', creatorData)
-                  cache.set(statsCacheKey, creatorData, CacheTTL.PLATFORM_STATS);
-                  setStats(creatorData)
-                } else {
-                  // Try total lifetime stats (no time filter)
-                  const lifetimeStatsUrl = `${API_ENDPOINT}/stats?creator=${creator}`
-                  console.log('Trying lifetime stats URL:', lifetimeStatsUrl)
-                  
-                  const lifetimeResponse = await fetch(lifetimeStatsUrl)
-                  if (lifetimeResponse.ok) {
-                    const lifetimeData = await lifetimeResponse.json()
-                    console.log('📊 LIFETIME STATS:', JSON.stringify(lifetimeData, null, 2))
-                    cache.set(statsCacheKey, lifetimeData, CacheTTL.PLATFORM_STATS);
-                    setStats(lifetimeData)
-                  }
-                }
-              }
+            const altStatsResponse = await fetch(altStatsUrl)
+            if (altStatsResponse.ok) {
+              const altStatsData = await altStatsResponse.json()
+              console.log('Alternative stats API response:', altStatsData)
+              setStats(altStatsData)
             }
           }
           
           // Fetch recent plays for this platform
           const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=20&page=0`
           
-          // Also try to get actual creator wallet balance
-          try {
-            const balanceResponse = await fetch(`https://api.helius.dev/v0/addresses/${creator}/balances`)
-            if (balanceResponse.ok) {
-              const balanceData = await balanceResponse.json()
-              console.log('Creator wallet balance data:', balanceData)
-              // Look for SOL balance
-              const solBalance = balanceData.tokens?.find((t: any) => t.mint === 'So11111111111111111111111111111111111111112')
-              if (solBalance) {
-                const solAmount = solBalance.amount / 1e9 // Convert lamports to SOL
-                const solUSD = solAmount * (TOKEN_METADATA[0]?.usdPrice || 192.55)
-                setWalletBalance(solUSD)
-                console.log('Creator SOL balance:', { solAmount, solUSD })
-              }
-            }
-          } catch (err) {
-            console.log('Could not fetch wallet balance:', err)
-          }
-          
           const playsResponse = await fetch(playsUrl)
           
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
+            
+            // Log the raw API response to see what we're getting
+            console.log('Raw API response:', playsData)
 
             // Check if the response has the expected structure
             if (playsData && Array.isArray(playsData.results)) {
+              // Log first few plays to see the data structure
+              console.log('First 3 plays from API:', playsData.results.slice(0, 3))
               
               // Filter to only include plays where creator matches exactly
               const filteredPlays = playsData.results.filter((play: any) => play.creator === creator)
@@ -590,6 +544,17 @@ export function PlatformView() {
                 const multiplierBps = play.multiplier_bps || 0
                 const multiplier = multiplierBps > 0 ? multiplierBps / BPS_PER_WHOLE : (payout > 0 && wager > 0 ? payout / wager : 0)
 
+                // Log all time-related fields from the API
+                console.log('Time fields for play:', {
+                  signature: play.signature,
+                  block_time: play.block_time,
+                  time: play.time,
+                  timestamp: play.timestamp,
+                  created_at: play.created_at,
+                  updated_at: play.updated_at,
+                  all_fields: Object.keys(play)
+                })
+
                 // Try different timestamp fields that might be in the response
                 let timestamp = play.block_time || play.time || play.timestamp || play.created_at
                 if (timestamp) {
@@ -600,6 +565,7 @@ export function PlatformView() {
                     timestamp = timestamp < 1e12 ? timestamp * 1000 : timestamp
                   }
                 } else {
+                  console.warn('No timestamp found for play:', play)
                   timestamp = Date.now()
                 }
 
@@ -636,6 +602,13 @@ export function PlatformView() {
                       } else {
                         timestamp = Date.now()
                       }
+
+                      console.log('Alt play data:', {
+                        signature: play.signature,
+                        original_time: play.block_time || play.time || play.timestamp,
+                        converted_time: timestamp,
+                        date: new Date(timestamp).toISOString()
+                      })
 
                       return {
                         signature: play.signature || 'unknown',
@@ -682,7 +655,10 @@ export function PlatformView() {
     ? 'DegenCasino' 
     : `6o1i...8ocZ`
 
-  // Calculate total wagered amount from recent plays (sum of all wager amounts)
+  // Only use fees from API, but calculate volume properly from platform plays
+  const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
+
+  // Calculate volume from recent plays, but convert from lamports to actual token amount
   const calculatedVolume = recentPlays.reduce((total, play) => {
     // The wager should already be in the correct decimal format from TokenValue
     // If it's showing huge numbers, the API might be returning lamports
@@ -692,16 +668,14 @@ export function PlatformView() {
     return total + adjustedWager
   }, 0)
 
-  // Only use fees from API, but calculate total wagered amount from platform plays
-  const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
-  
-  // Calculate the actual fee rate being earned
-  const apiVolumeUSD = stats?.usd_volume || 0
-  const actualFeeRate = apiVolumeUSD > 0 ? ((estimatedFees / apiVolumeUSD) * 100) : 0
-
-  // Convert USD volume to SOL
-  const solPrice = TOKEN_METADATA[0]?.usdPrice || 192.55
-  const apiVolumeSOL = apiVolumeUSD / solPrice
+  console.log('Fixed volume calculation:', {
+    platformCreator: creator,
+    recentPlaysCount: recentPlays.length,
+    rawWagers: recentPlays.map(p => p.wager),
+    calculatedVolume,
+    estimatedFeesFromAPI: estimatedFees,
+    apiStats: stats
+  })
 
   return (
     <PlatformContainer $theme={currentTheme}>
@@ -710,20 +684,16 @@ export function PlatformView() {
       {/* Game Status Overview */}
       <GameStatusContainer $theme={currentTheme}>
         <GameStatusHeader $theme={currentTheme}>
-          📊 LIFETIME PLATFORM STATISTICS
+          📊 PLATFORM STATISTICS
         </GameStatusHeader>
         <StatusGrid>
           <StatusCard $theme={currentTheme}>
-            <StatusValue $theme={currentTheme}>{apiVolumeSOL.toFixed(2)} SOL</StatusValue>
-            <StatusLabel $theme={currentTheme}>TOTAL WAGERS</StatusLabel>
+            <StatusValue $theme={currentTheme}>${calculatedVolume.toFixed(2)}</StatusValue>
+            <StatusLabel $theme={currentTheme}>VOLUME</StatusLabel>
           </StatusCard>
           <StatusCard $theme={currentTheme}>
             <StatusValue $theme={currentTheme}>${estimatedFees.toFixed(2)}</StatusValue>
-            <StatusLabel $theme={currentTheme}>API REVENUE</StatusLabel>
-          </StatusCard>
-          <StatusCard $theme={currentTheme}>
-            <StatusValue $theme={currentTheme}>{actualFeeRate.toFixed(2)}%</StatusValue>
-            <StatusLabel $theme={currentTheme}>ACTUAL FEE RATE</StatusLabel>
+            <StatusLabel $theme={currentTheme}>ESTIMATED FEES</StatusLabel>
           </StatusCard>
           <StatusCard $theme={currentTheme}>
             <StatusValue $theme={currentTheme}>{recentPlays.length}</StatusValue>
