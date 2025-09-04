@@ -52,12 +52,12 @@ export default defineConfig(() => ({
     outDir: 'dist',
     chunkSizeWarningLimit: 2048,
     target: 'es2020', 
-    minify: 'esbuild',
+    minify: true,
     sourcemap: false,
     esbuildOptions: {
       drop: ['console', 'debugger'],
     },
-    cssMinify: 'lightningcss',
+    cssMinify: true,
     rollupOptions: {
       output: {
         // More conservative chunking to avoid circular dependencies
@@ -84,14 +84,5 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
-    {
-      name: 'ignore-api-routes',
-      configureServer(server) {
-        server.middlewares.use('/api', (req, res, next) => {
-          res.statusCode = 404;
-          res.end('API routes not available in development');
-        });
-      }
-    }
   ],
 }));
