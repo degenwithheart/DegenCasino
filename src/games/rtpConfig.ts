@@ -514,7 +514,7 @@ plinko: {
   // - Based on "Jacks or Better" video poker with compound betting mechanics
   // - Progressive mode: continue playing with accumulated profit until bust or cash out
   // - HAND_TYPES: All possible poker hand types mapped to betArray indices
-  // - betArray: Mathematically balanced payouts for 96% RTP, 49% win rate
+  // - betArray: Mathematically balanced payouts for 89% RTP, 45% win rate
   progressivepoker: {
     HAND_TYPES: [
       'High Card',      // 0: High Card (Bust) - 30.1% actual chance
