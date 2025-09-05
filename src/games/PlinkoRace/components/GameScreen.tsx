@@ -4,10 +4,11 @@ import { PublicKey } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useGame } from 'gamba-react-v2'
 import { GambaUi, Multiplayer } from 'gamba-react-ui-v2'
+import styled, { keyframes } from 'styled-components'
 import {
   PLATFORM_CREATOR_ADDRESS,
   MULTIPLAYER_FEE,
-  PLATFORM_REFERRAL_FEE, // ← add this
+  PLATFORM_REFERRAL_FEE,
 } from '../../../constants'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import Board from '../board/Board'
@@ -15,6 +16,81 @@ import { musicManager, stopAndDispose, attachMusic } from '../musicManager'
 import actionSnd from '../sounds/action.mp3'
 import { useSound } from 'gamba-react-ui-v2'
 import type { GameplayEffectsRef } from '../../../components/Game/GameplayFrame'
+
+const glowPulse = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.2);
+  }
+`
+
+const StatusBadge = styled.div<{ status: 'waiting' | 'playing' | 'settled' }>`
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+
+  ${({ status }) => {
+    switch (status) {
+      case 'waiting':
+        return `
+          background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(69, 160, 73, 0.2) 100%);
+          color: #4caf50;
+          border-color: rgba(76, 175, 80, 0.3);
+        `
+      case 'playing':
+        return `
+          background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 87, 34, 0.2) 100%);
+          color: #ff6b35;
+          border-color: rgba(255, 107, 53, 0.3);
+        `
+      case 'settled':
+        return `
+          background: linear-gradient(135deg, rgba(162, 89, 255, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
+          color: #a259ff;
+          border-color: rgba(162, 89, 255, 0.3);
+        `
+    }
+  }}
+`
+
+const CountdownDisplay = styled.div`
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  backdrop-filter: blur(10px);
+  animation: ${glowPulse} 2s ease-in-out infinite;
+`
+
+const StyledButton = styled.button`
+  padding: 10px 20px;
+  margin-right: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(112, 112, 218, 0.3) 0%, rgba(162, 89, 255, 0.3) 100%);
+  color: #fff;
+  border: 1px solid rgba(112, 112, 218, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(112, 112, 218, 0.3);
+    border-color: rgba(112, 112, 218, 0.4);
+  }
+`
 
 export default function GameScreen({
   pk,
@@ -155,50 +231,30 @@ export default function GameScreen({
       {/* ► Top-right status + countdown */}
       <div style={{
         position: 'absolute',
-        top: 12,
-        right: 12,
+        top: 16,
+        right: 16,
         zIndex: 200,
-        textAlign: 'right',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        alignItems: 'flex-end',
       }}>
-        <div style={{
-          display: 'inline-block',
-          background: 'rgba(112, 112, 218, 0.3)',
-          color: '#fff',
-          padding: '4px 8px',
-          borderRadius: 4,
-          fontSize: 12,
-          textTransform: 'uppercase',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(112, 112, 218, 0.2)',
-        }}>
-          {waiting ? 'Waiting' : (!replayDone ? 'Playing' : 'Settled')}
-        </div>
+        <StatusBadge status={waiting ? 'waiting' : (!replayDone ? 'playing' : 'settled')}>
+          {waiting ? '⏳ Waiting' : (!replayDone ? '🏁 Playing' : '🏆 Settled')}
+        </StatusBadge>
         {waiting && timeLeft > 0 && (
-          <div style={{ marginTop: 4, color: '#fff', fontSize: 12 }}>
+          <CountdownDisplay>
             Starts in {formatTime(timeLeft)}
-          </div>
+          </CountdownDisplay>
         )}
       </div>
 
       {/* ► Gamba controls bar */}
       <GambaUi.Portal target="controls">
         {/* ← Back to Lobby button */}
-        <button
-          onClick={onBack}
-          style={{
-            padding: '8px 16px',
-            marginRight: 12,
-            fontWeight: 600,
-            background: 'rgba(112, 112, 218, 0.3)',
-            color: '#fff',
-            border: '1px solid rgba(112, 112, 218, 0.2)',
-            borderRadius: 6,
-            cursor: 'pointer',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
+        <StyledButton onClick={onBack}>
           ← Lobby
-        </button>
+        </StyledButton>
 
         {/* Conditional game controls */}
         {waiting && chainGame?.state.waiting ? (
@@ -208,7 +264,7 @@ export default function GameScreen({
               account={chainGame}
               creatorAddress={PLATFORM_CREATOR_ADDRESS}
               creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-              referralFee={PLATFORM_REFERRAL_FEE}     // ← pass platform referral %
+              referralFee={PLATFORM_REFERRAL_FEE}
               enableMetadata
               onTx={() => {}}
             />

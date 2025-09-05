@@ -526,32 +526,30 @@ plinko: {
       'Straight',       // 6: Straight - 1.2% actual chance
       'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
     ],
-    // Payouts for 96% RTP
-    // Mathematical calculation: target_RTP = sum(probability_i * payout_i)
-    // 96% = 8.35*P1 + 4.57*P2 + 2.03*P3 + 1.25*P4 + 0.37*P5 (where P1-P5 are non-zero payouts)
+    // ULTRA LOW BUST TEST: Modified betArray for 0.0001% bust rate testing
     betArray: [
-      0,        // 0: High Card (Bust) - 30.11% chance, 0x payout
-      0,        // 1: High Card (Bust) - 20.01% chance, 0x payout
-      0,        // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
-      3.6959,   // 3: Jacks+ Pair - 8.35% chance, 3.6959x payout
-      5.5438,   // 4: Two Pair - 4.57% chance, 5.5438x payout
-      7.3917,   // 5: Three of a Kind - 2.03% chance, 7.3917x payout
-      11.0876,  // 6: Straight - 1.25% chance, 11.0876x payout
-      29.5669,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 29.5669x payout
+      3.6959,   // 0: Was High Card (Bust), now Jacks+ Pair - WIN!
+      5.5438,   // 1: Was High Card (Bust), now Two Pair - WIN!
+      7.3917,   // 2: Was Low Pair (Bust), now Three of a Kind - WIN!
+      3.6959,   // 3: Jacks+ Pair - 3.6959x payout
+      5.5438,   // 4: Two Pair - 5.5438x payout
+      7.3917,   // 5: Three of a Kind - 7.3917x payout
+      11.0876,  // 6: Straight - 11.0876x payout
+      29.5669,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 29.5669x payout
     ],
     // Actual RTP: (8.35*3.6959 + 4.57*5.5438 + 2.03*7.3917 + 1.25*11.0876 + 0.37*29.5669) / 100 = 96.000%
     // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)
     
-    // PROBABILITIES: EXTREME volatility - 91% bust rate, very rare but meaningful wins
+    // PROBABILITIES: ULTRA LOW BUST RATE - 0.0001% bust rate for testing centralized control
     probabilities: {
-      0: 35.0,   // High Card (Bust) - 35.0% (significantly increased)
-      1: 25.0,   // High Card (Bust) - 25.0% (significantly increased)
-      2: 31.0,   // Low Pair (Bust) - 31.0% (slightly decreased to make room)
-      3: 4.0,    // Jacks+ Pair (0.231x) - 4.0% (halved from 8.35%)
-      4: 2.5,    // Two Pair (0.347x) - 2.5% (halved from 4.57%)
-      5: 1.49,    // Three of a Kind (0.462x) - 1.49% (halved from 2.03%)
-      6: 1.0,   // Straight (0.693x) - 1.0% (slightly increased to balance)
-      7: 0.01    // Flush+ (1.848x) - 0.01% (extremely rare mega payout)
+      0: 0.000005,  // High Card (Bust) - 0.00005% (virtually eliminated)
+      1: 0.000005,  // High Card (Bust) - 0.00005% (virtually eliminated)
+      2: 0.0,      // Low Pair (Bust) - 0.0% (completely eliminated)
+      3: 40.0,     // Jacks+ Pair - 40.0% (massively increased)
+      4: 30.0,     // Two Pair - 30.0% (massively increased)
+      5: 20.0,     // Three of a Kind - 20.0% (massively increased)
+      6: 9.0,      // Straight - 9.0% (massively increased)
+      7: 0.99995   // Flush+ - 0.99995% (increased for balance)
     },
     
     // DISPLAY_MAPPING: Maps internal hand types to display types

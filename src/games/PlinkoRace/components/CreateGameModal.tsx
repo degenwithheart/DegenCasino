@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useMultiplayer } from 'gamba-react-v2';
 import { useCurrentToken, GambaUi, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2';
 
+const glowPulse = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.2);
+  }
+`
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+`
+
 const Backdrop = styled(motion.div)`
-  position: absolute;  /* inside canvas */
+  position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,93 +31,115 @@ const Backdrop = styled(motion.div)`
 `;
 
 const Modal = styled(motion.div)`
-  background: #1c1c1c;
-  padding: 24px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(24, 24, 24, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
+  padding: 32px;
+  border-radius: 20px;
   width: 92%;
-  max-width: 420px;
+  max-width: 480px;
   color: #fff;
-  border: 1px solid #333;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: ${glowPulse} 3s ease-in-out infinite;
 `;
 
 const Title = styled.h2`
-  margin: 0 0 16px;
-  font-size: 1.4rem;
+  margin: 0 0 24px;
+  font-size: 2rem;
   font-weight: 700;
+  background: linear-gradient(135deg, #ffd700 0%, #a259ff 50%, #ff9500 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 `;
 
 const Field = styled.div`
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: 0.9rem;
-  margin-bottom: 6px;
-  color: #a9a9b8;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #ffd700;
+  font-weight: 600;
 `;
 
 const ToggleGroup = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 12px;
 `;
 
 const ToggleButton = styled.button<{ active: boolean }>`
   flex: 1;
-  padding: 10px;
-  border: 1px solid ${({ active }) => (active ? '#fff' : '#333')};
-  border-radius: 6px;
-  background: ${({ active }) => (active ? '#fff' : '#222')};
-  color: ${({ active }) => (active ? '#111' : '#fff')};
+  padding: 12px 16px;
+  border: 2px solid ${({ active }) => (active ? '#ffd700' : 'rgba(255, 255, 255, 0.2)')};
+  border-radius: 12px;
+  background: ${({ active }) => (active ? 'rgba(255, 215, 0, 0.1)' : 'rgba(40, 40, 40, 0.8)')};
+  color: ${({ active }) => (active ? '#ffd700' : '#fff')};
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  &:hover:not(:disabled) {
-    background: ${({ active }) => (active ? '#eee' : '#333')};
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
   }
 `;
 
 const Input = styled.input`
   box-sizing: border-box;
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background: #222;
+  padding: 14px 16px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  background: rgba(40, 40, 40, 0.8);
   color: #fff;
   font-size: 1rem;
-  transition: border-color 0.2s ease;
+  transition: all 0.3s ease;
+  outline: none;
+
   &:focus {
-    outline: none;
-    border-color: #555;
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    background: rgba(50, 50, 50, 0.9);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
   }
 `;
 
 const PresetGroup = styled.div`
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 12px;
 `;
 
 const PresetButton = styled.button`
   flex: 1;
-  padding: 8px;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background: #222;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(30, 30, 30, 0.8);
   color: #fff;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+
   &:hover {
-    background: #333;
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-1px);
   }
 `;
 
 const RangeRow = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 16px;
 `;
 
 const HalfField = styled(Field)`
@@ -112,42 +148,87 @@ const HalfField = styled(Field)`
 `;
 
 const Warning = styled.p`
-  font-size: 0.85rem;
-  color: #bbb;
-  margin: 12px 0 0;
-  line-height: 1.3;
+  font-size: 0.9rem;
+  color: #ffc107;
+  margin: 16px 0 0;
+  line-height: 1.4;
+  background: rgba(255, 193, 7, 0.1);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  animation: ${float} 2s ease-in-out infinite;
 `;
 
 const ButtonRow = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 24px;
 `;
 
-const Button = styled.button<{ variant?: 'primary' }>`
-  padding: 8px 16px;
-  border-radius: 8px;
+const StyledButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+  padding: 12px 24px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   border: none;
-  transition: background 0.2s ease;
-  background: ${({ variant }) => (variant === 'primary' ? '#fff' : '#333')};
-  color: ${({ variant }) => (variant === 'primary' ? '#111' : '#fff')};
-  &:hover:not(:disabled) {
-    background: ${({ variant }) => (variant === 'primary' ? '#eee' : '#444')};
-  }
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  ${({ variant }) => {
+    switch (variant) {
+      case 'primary':
+        return `
+          background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+          color: #fff;
+          box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+          }
+        `
+      case 'secondary':
+        return `
+          background: linear-gradient(135deg, #666 0%, #888 100%);
+          color: #fff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          &:hover {
+            background: linear-gradient(135deg, #888 0%, #aaa 100%);
+            transform: translateY(-2px);
+          }
+        `
+      default:
+        return `
+          background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+          color: #000;
+          box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+          }
+        `
+    }
+  }}
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
   }
 `;
 
 const ErrorMessage = styled.p`
   color: #e74c3c;
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(231, 76, 60, 0.3);
 `;
 
 export default function CreateGameModal({
@@ -240,7 +321,7 @@ export default function CreateGameModal({
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
-            <Title>Create Plinko Race</Title>
+            <Title>🎯 Create Plinko Race</Title>
 
             <Field>
               <Label>Max Players</Label>
@@ -343,16 +424,16 @@ export default function CreateGameModal({
             {error && <ErrorMessage>{error}</ErrorMessage>}
 
             <ButtonRow>
-              <Button onClick={onClose} disabled={submitting}>
+              <StyledButton variant="secondary" onClick={onClose} disabled={submitting}>
                 Cancel
-              </Button>
-              <Button
+              </StyledButton>
+              <StyledButton
                 variant="primary"
                 onClick={handleSubmit}
                 disabled={submitting}
               >
-                {submitting ? 'Creating…' : 'Create'}
-              </Button>
+                {submitting ? '🎯 Creating…' : '🎯 Create Game'}
+              </StyledButton>
             </ButtonRow>
             </Modal>
           </Backdrop>
