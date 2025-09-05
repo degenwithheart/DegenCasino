@@ -239,6 +239,9 @@ const result = await game.result()
                       />
                     </div>
                     <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
+                      {/* ECG-style winning line */}
+                      <div className={`ecg-winning-line ${good ? 'active' : ''}`}></div>
+                      
                       {/* Left Arrow */}
                       <div className="winning-line-arrow winning-line-arrow-left">
                         <div className="arrow-icon">▶</div>

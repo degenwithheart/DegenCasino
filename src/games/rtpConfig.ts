@@ -93,14 +93,14 @@ export const BET_ARRAYS = {
 // SLOTS: Slot machine configuration
 // - NUM_REELS: Number of reels (columns)
 // - NUM_ROWS: Number of rows per reel  
-// - NUM_PAYLINES: Number of winning lines (1 horizontal bottom line)
+// - NUM_PAYLINES: Number of winning lines (1 horizontal 3rd row line)
 // - LEGENDARY_THRESHOLD: Used for special effects (e.g., animation)
 // - symbols: Array of possible slot symbols, each with a payout multiplier and weight (probability)
 // - betArray: Pre-calculated array for precise RTP calculation (adjusted for 1 payline)
 slots: {
-  NUM_REELS: 3, // Number of reels (columns)
-  NUM_ROWS: 2,  // Number of rows per reel
-  NUM_PAYLINES: 1, // Single winning line (comment corrected)
+  NUM_REELS: 6, // Number of reels (columns)
+  NUM_ROWS: 4,  // Number of rows per reel
+  NUM_PAYLINES: 1, // Single winning line (3rd row)
   LEGENDARY_THRESHOLD: 5, // Used for special effects (e.g., legendary win)
   // Rebalanced: exactly 1000 outcomes; average multiplier ≈ 0.939 (target 0.94 within tolerance)
   symbols: [

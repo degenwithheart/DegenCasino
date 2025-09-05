@@ -17,23 +17,26 @@ const COLUMN_SEQUENCES = {
   0: ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
   1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY', 'MYTHICAL'], // Column 2 (reverse)
   2: ['SOL', 'JUP', 'WOJAK', 'MYTHICAL', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
+  3: ['LEGENDARY', 'USDC', 'WOJAK', 'JUP', 'MYTHICAL', 'BONK', 'SOL', 'DGHRT'], // Column 4 (rotated)
+  4: ['BONK', 'DGHRT', 'MYTHICAL', 'WOJAK', 'JUP', 'LEGENDARY', 'SOL', 'USDC'], // Column 5 (shifted)
+  5: ['USDC', 'MYTHICAL', 'BONK', 'LEGENDARY', 'WOJAK', 'SOL', 'JUP', 'DGHRT'], // Column 6 (mixed)
 }
 
 const continuousScrollUp = keyframes`
   0% {
-    transform: translateY(-150px); /* Start position */
+    transform: translateY(-100px); /* Start position (1 slot height) */
   }
   100% {
-    transform: translateY(-1200px); /* Move up by height of 7 more slots (7 * 150px) */
+    transform: translateY(-800px); /* Move up by height of 7 more slots (7 * 100px) */
   }
 `
 
 const continuousScrollDown = keyframes`
   0% {
-    transform: translateY(-1200px); /* Start position */
+    transform: translateY(-800px); /* Start position */
   }
   100% {
-    transform: translateY(-150px); /* Move down by height of 7 more slots */
+    transform: translateY(-100px); /* Move down by height of 7 more slots */
   }
 `
 
@@ -51,7 +54,7 @@ const revealReel = keyframes`
 const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enableMotion: boolean}>`
   position: relative;
   width: 100%;
-  height: 300px; /* Height for 2 slots */
+  height: 400px; /* Height for 4 slots at 100px each */
   overflow: hidden;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
@@ -60,6 +63,45 @@ const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enable
   box-shadow: 
     inset 0 0 20px rgba(0, 0, 0, 0.5),
     0 4px 15px rgba(0, 0, 0, 0.3);
+
+  /* Subtle highlight for the winning row (3rd row) */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 200px; /* Position at 3rd row (2 * 100px) */
+    left: 0;
+    right: 0;
+    height: 100px; /* Height of one slot */
+    background: linear-gradient(90deg, 
+      rgba(255, 215, 0, 0.1) 0%,
+      rgba(255, 215, 0, 0.05) 50%,
+      rgba(255, 215, 0, 0.1) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  }
+
+  /* Responsive height adjustments for small screens */
+  @media (max-width: 480px) {
+    height: 320px; /* Reduced height for very small screens (80px per slot) */
+    border-radius: 6px;
+    
+    &::before {
+      top: 160px; /* Adjust for smaller slots (2 * 80px) */
+      height: 80px;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 640px) {
+    height: 360px; /* Slightly reduced height for small screens (90px per slot) */
+    
+    &::before {
+      top: 180px; /* Adjust for smaller slots (2 * 90px) */
+      height: 90px;
+    }
+  }
 `
 
 const ReelStrip = styled.div<{$isSpinning: boolean, $reelIndex: number, $enableMotion: boolean}>`
@@ -77,22 +119,32 @@ const ReelStrip = styled.div<{$isSpinning: boolean, $reelIndex: number, $enableM
   transition: ${props => props.$enableMotion ? 'opacity 0.3s ease' : 'none'};
 
   ${(props) => props.$isSpinning && props.$enableMotion && css`
-    animation: ${props.$reelIndex === 1 ? continuousScrollDown : continuousScrollUp} 0.6s linear infinite;
+    animation: ${props.$reelIndex % 2 === 1 ? continuousScrollDown : continuousScrollUp} 0.6s linear infinite;
     filter: blur(1px);
   `}
 `
 
 const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?: 'top' | 'bottom', $enableMotion: boolean}>`
   width: 100%;
-  height: 150px; /* Fixed slot cell height */
+  height: 100px; /* Reduced slot cell height for 4-row layout */
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   padding: 0;
+  z-index: 2; /* Ensure slots appear above the winning row highlight */
   /* Replace scale trick with simple opacity depth cue to avoid reflow/centering issues */
   ${(p) => p.$enableMotion && p.$position === 'top' && css`opacity: .88;`}
   ${(p) => p.$enableMotion && p.$position === 'bottom' && css`opacity: 1;`}
+
+  /* Responsive slot height adjustments */
+  @media (max-width: 480px) {
+    height: 80px; /* Smaller slots for very small screens */
+  }
+
+  @media (min-width: 481px) and (max-width: 640px) {
+    height: 90px; /* Slightly smaller slots for small screens */
+  }
 
   ${(p) => p.$good && p.$revealed && p.$enableMotion && css`
     animation: slotWin 1.8s ease-in-out infinite alternate;
@@ -121,7 +173,7 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
 
 const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $enableMotion: boolean}>`
   width: 100%;
-  height: 150px; /* Height of one slot */
+  height: 100px; /* Height of one slot - updated to match new layout */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -173,6 +225,24 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $e
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    /* Responsive image sizing */
+    @media (max-width: 480px) {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+    }
+
+    @media (min-width: 481px) and (max-width: 640px) {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+    }
+
+    @media (min-width: 641px) and (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+    }
   }
 `
 
@@ -247,17 +317,15 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
       return slotItem
     })
     
-    // Create a longer unique sequence to minimize visible duplicates during spinning
+    // Create a longer sequence with NO REPEATING symbols for smooth spinning
+    // Each sequence already has unique symbols, so we just extend it without duplicates
     const repeatedItems = []
     
-    // First, add the base sequence
+    // Add the base sequence (8 unique symbols)
     repeatedItems.push(...sequenceItems)
     
-    // Then add a shuffled version to create variation
-    const shuffledSequence = [...sequenceItems].reverse() // Simple reverse for variation
-    repeatedItems.push(...shuffledSequence)
-    
-    // Add the original sequence again for seamless looping
+    // Add two more copies for smooth looping during animation (24 total items)
+    repeatedItems.push(...sequenceItems)
     repeatedItems.push(...sequenceItems)
     
     return repeatedItems
