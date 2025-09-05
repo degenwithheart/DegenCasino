@@ -542,16 +542,16 @@ plinko: {
     // Actual RTP: (8.35*3.6959 + 4.57*5.5438 + 2.03*7.3917 + 1.25*11.0876 + 0.37*29.5669) / 100 = 96.000%
     // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)
     
-    // PROBABILITIES: ULTRA LOW BUST RATE - 0.0001% bust rate for testing centralized control
+    // PROBABILITIES: EXTREME volatility - 91% bust rate, very rare but meaningful wins
     probabilities: {
-      0: 0.000005,  // High Card (Bust) - 0.00005% (virtually eliminated)
-      1: 0.000005,  // High Card (Bust) - 0.00005% (virtually eliminated)
-      2: 0.0,      // Low Pair (Bust) - 0.0% (completely eliminated)
-      3: 40.0,     // Jacks+ Pair - 40.0% (massively increased)
-      4: 30.0,     // Two Pair - 30.0% (massively increased)
-      5: 20.0,     // Three of a Kind - 20.0% (massively increased)
-      6: 9.0,      // Straight - 9.0% (massively increased)
-      7: 0.99995   // Flush+ - 0.99995% (increased for balance)
+      0: 35.0,   // High Card (Bust) - 35.0% (significantly increased)
+      1: 25.0,   // High Card (Bust) - 25.0% (significantly increased)
+      2: 31.0,   // Low Pair (Bust) - 31.0% (slightly decreased to make room)
+      3: 4.0,    // Jacks+ Pair (0.231x) - 4.0% (halved from 8.35%)
+      4: 2.5,    // Two Pair (0.347x) - 2.5% (halved from 4.57%)
+      5: 1.49,    // Three of a Kind (0.462x) - 1.49% (halved from 2.03%)
+      6: 1.0,   // Straight (0.693x) - 1.0% (slightly increased to balance)
+      7: 0.01    // Flush+ (1.848x) - 0.01% (extremely rare mega payout)
     },
     
     // DISPLAY_MAPPING: Maps internal hand types to display types
