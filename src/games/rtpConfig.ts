@@ -514,7 +514,7 @@ plinko: {
   // - Based on "Jacks or Better" video poker with compound betting mechanics
   // - Progressive mode: continue playing with accumulated profit until bust or cash out
   // - HAND_TYPES: All possible poker hand types mapped to betArray indices
-  // - betArray: Mathematically balanced payouts for 89% RTP, 45% win rate
+  // - betArray: Mathematically balanced payouts for 96% RTP, 49% win rate
   progressivepoker: {
     HAND_TYPES: [
       'High Card',      // 0: High Card (Bust) - 30.1% actual chance
@@ -528,30 +528,30 @@ plinko: {
     ],
     // Payouts for 96% RTP
     // Mathematical calculation: target_RTP = sum(probability_i * payout_i)
-    // 96% = 8.35*P1 + 4.57*P2 + 2.03*P3 + 1.25*P4 + 0.37*P5 (where P1-P5 are non-zero payouts)
+    // 96% = 39*1.5624 + 6*2.1700 + 2.5*3.4720 + 1.3*6.9439 + 0.2*21.6998 (calculated for exact 96% RTP)
     betArray: [
-      0,        // 0: High Card (Bust) - 30.11% chance, 0x payout
-      0,        // 1: High Card (Bust) - 20.01% chance, 0x payout
-      0,        // 2: Low Pair (Bust) - 33.31% chance, 0x payout (increased busts)
-      3.6959,   // 3: Jacks+ Pair - 8.35% chance, 3.6959x payout
-      5.5438,   // 4: Two Pair - 4.57% chance, 5.5438x payout
-      7.3917,   // 5: Three of a Kind - 2.03% chance, 7.3917x payout
-      11.0876,  // 6: Straight - 1.25% chance, 11.0876x payout
-      29.5669,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.37% chance, 29.5669x payout
+      0,        // 0: High Card (Bust) - 17.0% chance, 0x payout
+      0,        // 1: High Card (Bust) - 17.0% chance, 0x payout
+      0,        // 2: Low Pair (Bust) - 17.0% chance, 0x payout
+      1.5624,   // 3: Jacks+ Pair - 39.0% chance, 1.5624x payout
+      2.1700,   // 4: Two Pair - 6.0% chance, 2.1700x payout
+      3.4720,   // 5: Three of a Kind - 2.5% chance, 3.4720x payout
+      6.9439,   // 6: Straight - 1.3% chance, 6.9439x payout
+      21.6998,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.2% chance, 21.6998x payout
     ],
-    // Actual RTP: (8.35*3.6959 + 4.57*5.5438 + 2.03*7.3917 + 1.25*11.0876 + 0.37*29.5669) / 100 = 96.000%
-    // Actual Win Rate: 8.35% + 4.57% + 2.03% + 1.25% + 0.37% = 16.57% (ultra volatile)
+    // Actual RTP: (39*1.5624 + 6*2.1700 + 2.5*3.4720 + 1.3*6.9439 + 0.2*21.6998) / 100 = 96.000%
+    // Actual Win Rate: 39% + 6% + 2.5% + 1.3% + 0.2% = 48.0% (balanced volatility)
     
-    // PROBABILITIES: EXTREME volatility - 91% bust rate, very rare but meaningful wins
+    // PROBABILITIES: Balanced for 96% RTP with moderate volatility
     probabilities: {
-      0: 35.0,   // High Card (Bust) - 35.0% (significantly increased)
-      1: 25.0,   // High Card (Bust) - 25.0% (significantly increased)
-      2: 31.0,   // Low Pair (Bust) - 31.0% (slightly decreased to make room)
-      3: 4.0,    // Jacks+ Pair (0.231x) - 4.0% (halved from 8.35%)
-      4: 2.5,    // Two Pair (0.347x) - 2.5% (halved from 4.57%)
-      5: 1.49,    // Three of a Kind (0.462x) - 1.49% (halved from 2.03%)
-      6: 1.0,   // Straight (0.693x) - 1.0% (slightly increased to balance)
-      7: 0.01    // Flush+ (1.848x) - 0.01% (extremely rare mega payout)
+      0: 17.0,   // High Card (Bust) - 17.0% 
+      1: 17.0,   // High Card (Bust) - 17.0% 
+      2: 17.0,   // Low Pair (Bust) - 17.0% 
+      3: 39.0,   // Jacks+ Pair - 39.0% (most common win)
+      4: 6.0,    // Two Pair - 6.0% 
+      5: 2.5,    // Three of a Kind - 2.5% 
+      6: 1.3,    // Straight - 1.3% 
+      7: 0.2     // Flush+ - 0.2% (rare but high payout)
     },
     
     // DISPLAY_MAPPING: Maps internal hand types to display types
