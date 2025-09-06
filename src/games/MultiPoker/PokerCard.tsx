@@ -88,23 +88,21 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   transform: rotateY(180deg);
   border: 2px solid #ffffff33;
 
-  &::before {
-    content: '🂠';
-    font-size: 32px;
-    color: #fff;
-    opacity: 0.8;
-  }
-
+  /* Remove the white card emoji and make the logo more prominent */
   &::after {
     content: '';
     position: absolute;
-    width: 32px;
-    height: 32px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
     background-image: url('/png/images/logo.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.6;
+    opacity: 0.92;
+    pointer-events: none;
   }
 `
 
