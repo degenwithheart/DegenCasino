@@ -84,7 +84,6 @@
     "path-to-regexp": "^6.3.0",
     "bigint-buffer": "^1.1.5",
     "lodash.isequal": "^4.5.0",
-    "uuidv4": "^6.2.13",
     "three-mesh-bvh": "^0.8.0",
     "@toruslabs/solana-embed": "^3.0.1"
   }
