@@ -11,7 +11,7 @@ function useThrottle(callback: () => void, delay: number) {
   }, [callback, delay]);
 }
 import styled, { keyframes } from 'styled-components'
-import { useTheme } from '../themes/ThemeContext'
+import { useTheme } from '../../themes/ThemeContext'
 
 type ProviderResult = {
   provider: string;
