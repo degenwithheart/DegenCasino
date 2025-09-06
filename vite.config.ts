@@ -55,7 +55,7 @@ export default defineConfig(() => ({
     esbuildOptions: {
       drop: ['console', 'debugger'],
     },
-    cssMinify: 'lightningcss',
+    cssMinify: 'esbuild',
     rollupOptions: {
       output: {
         // More conservative chunking to avoid circular dependencies
