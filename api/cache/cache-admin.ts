@@ -5,36 +5,19 @@ export const config = {
   runtime: 'edge',
 }
 
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
-
-function cors(origin: string | null) {
-  const o = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
-  return {
-    'Access-Control-Allow-Origin': o,
-    'Vary': 'Origin',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token'
-  };
-}
-
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url)
   const action = url.searchParams.get('action') || 'stats'
   
-  const origin = req.headers.get('origin');
-  const corsHeaders = cors(origin);
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  }
 
   if (req.method === 'OPTIONS') {
     return new Response('OK', { status: 200, headers: corsHeaders })
-  }
-
-  // Admin token check for non-stats actions
-  if (action !== 'stats') {
-    const token = req.headers.get('x-admin-token');
-    if (!ADMIN_TOKEN || token !== ADMIN_TOKEN) {
-      return new Response('Unauthorized', { status: 401, headers: corsHeaders })
-    }
   }
 
   try {

@@ -257,7 +257,7 @@ export function Profile() {
                     <a
                       target="_blank"
                       href={`https://solscan.io/account/${referral.referrerAddress.toString()}`}
-                      rel="noopener noreferrer"
+                      rel="noreferrer"
                       style={{ color: '#ffd700', textDecoration: 'underline' }}
                     >
                       {truncateString(referral.referrerAddress.toString(), 6, 6)}

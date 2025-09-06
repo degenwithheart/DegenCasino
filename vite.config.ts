@@ -57,7 +57,6 @@ export default defineConfig(() => ({
     },
     cssMinify: 'esbuild',
     rollupOptions: {
-      input: 'public/index.html',
       output: {
         // More conservative chunking to avoid circular dependencies
         manualChunks: {

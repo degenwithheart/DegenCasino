@@ -23,7 +23,8 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const CUSTOM_RPC = "https://api.mainnet-beta.solana.com";
+const CUSTOM_RPC =
+  "REDACTED_SYNDICA_KEY";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---

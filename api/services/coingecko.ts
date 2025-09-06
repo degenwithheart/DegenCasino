@@ -5,10 +5,6 @@ export const config = {
 }
 
 export default async function handler(req: Request): Promise<Response> {
-  const origin = req.headers.get('origin');
-  const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
-  const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
-
   try {
     const url = new URL(req.url)
     const ids = url.searchParams.get('ids') || 'solana,usd-coin,jupiter-exchange,bonk'
@@ -38,8 +34,7 @@ export default async function handler(req: Request): Promise<Response> {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=120', // 2 minute browser cache
-        'Access-Control-Allow-Origin': corsOrigin,
-        'Vary': 'Origin',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       },
@@ -60,8 +55,7 @@ export default async function handler(req: Request): Promise<Response> {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=60',
-        'Access-Control-Allow-Origin': corsOrigin,
-        'Vary': 'Origin',
+        'Access-Control-Allow-Origin': '*',
       },
       status: 202 // Accepted (using fallback)
     })

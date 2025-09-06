@@ -18,10 +18,6 @@ const LOCATIONS = [
 ]
 
 export default async function handler(req: Request): Promise<Response> {
-  const origin = req.headers.get('origin');
-  const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
-  const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
-
   const now = Date.now();
   const { searchParams } = new URL(req.url)
   const domain = searchParams.get('domain') || 'degenheart.casino';
@@ -36,9 +32,7 @@ export default async function handler(req: Request): Promise<Response> {
       status: 429,
       headers: {
         'Retry-After': Math.ceil((THROTTLE_MS - (now - lastCall)) / 1000).toString(),
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': corsOrigin,
-        'Vary': 'Origin',
+        'Content-Type': 'application/json'
       }
     });
   }
@@ -141,11 +135,7 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response(JSON.stringify({ status, results }), {
       headers: { 
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300', // 5 min browser cache
-        'Access-Control-Allow-Origin': corsOrigin,
-        'Vary': 'Origin',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Cache-Control': 'public, max-age=300' // 5 min browser cache
       },
     });
   }
