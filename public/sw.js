@@ -1,4 +1,4 @@
-const CACHE_NAME = 'degencasino-v1';
+const CACHE_NAME = 'degencasino-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -86,6 +86,12 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
+  // Only cache same-origin requests
+  if (url.origin !== location.origin) return;
+
+  // Skip navigation requests (unless implementing offline shell)
+  if (request.mode === 'navigate') return;
+
   // Skip sensitive endpoints that should never be cached
   if (request.headers.has('Authorization')) return;
   if (url.pathname.startsWith('/api/auth')) return;
@@ -135,7 +141,7 @@ async function cacheFirst(request) {
   
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+    if (networkResponse.ok && networkResponse.type !== 'opaque') {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
@@ -149,7 +155,7 @@ async function cacheFirst(request) {
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+    if (networkResponse.ok && networkResponse.type !== 'opaque') {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
@@ -171,7 +177,7 @@ async function staleWhileRevalidate(request) {
   
   // Always try to fetch in background
   const fetchPromise = fetch(request).then((networkResponse) => {
-    if (networkResponse.ok) {
+    if (networkResponse.ok && networkResponse.type !== 'opaque') {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
@@ -185,7 +191,7 @@ async function staleWhileRevalidate(request) {
 async function networkWithCacheFallback(request) {
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+    if (networkResponse.ok && networkResponse.type !== 'opaque') {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
