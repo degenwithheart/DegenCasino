@@ -76,11 +76,11 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   border-radius: 8px;
   /* Use provided card back image as the placeholder */
   background-image: url('/png/images/card.png');
-  background-position: contain;
   background-repeat: no-repeat;
-  background-size: cover; /* fill completely to avoid white borders */
+  background-size: contain; /* fill completely to avoid white borders */
   background-color: #2d1810; /* darker fallback to match card */
   box-shadow: 0 2px 8px #0005;
+  padding: 6px;
   display: ${props => {
     if (props.enableMotion === false) {
       // In static mode, hide the back when revealed
