@@ -132,7 +132,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./BlackJack')),
   },
   {
-    id: 'multiPoker',
+    id: 'multipoker',
     live: 'up',
     meta: {
       name: 'Multi Poker',
