@@ -11,7 +11,8 @@
     "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "changelog": "node scripts/generate-changelog.mjs --owner degenwithheart --repo DegenCasino --all-tags --from-tag v1.0.0 --out CHANGELOG.md"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
