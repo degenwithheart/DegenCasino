@@ -43,6 +43,11 @@ export const PlayingCard: React.FC<CardProps> = ({
         style={{ backfaceVisibility: 'hidden' }}
       >
         <div className="text-white text-xs font-bold opacity-30">🎰</div>
+        <img 
+          src="/png/images/logo.png" 
+          alt="Logo" 
+          className="absolute w-8 h-8 opacity-60"
+        />
       </div>
       
       {/* Card Front */}
