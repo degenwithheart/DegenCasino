@@ -11,30 +11,10 @@ export default async function handler(req: Request): Promise<Response> {
 
   try {
     const url = new URL(req.url)
-    const action = url.searchParams.get('action') || 'prices'
     const ids = url.searchParams.get('ids') || 'solana,usd-coin,jupiter-exchange,bonk'
     const vs_currencies = url.searchParams.get('vs_currencies') || 'usd'
-    const threshold = parseFloat(url.searchParams.get('threshold') || '5')
     
-    if (action === 'alerts') {
-      // Mock price alerts - in real implementation, compare with historical data
-      const alerts = [
-        { token: 'SOL', change: 3.2, status: 'normal' },
-        { token: 'BONK', change: 8.5, status: 'warning' }
-      ].filter(alert => alert.change > threshold)
-      
-      return new Response(JSON.stringify({ alerts, threshold, count: alerts.length }), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': corsOrigin,
-          'Vary': 'Origin',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      })
-    }
-    
-    // Default prices action
+    // Cache prices for 2 minutes
     const cacheKey = `coingecko:${ids}:${vs_currencies}`
     
     const prices = await cacheOnTheFly(cacheKey, async () => {
