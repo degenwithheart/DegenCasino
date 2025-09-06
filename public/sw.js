@@ -86,6 +86,12 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip sensitive endpoints that should never be cached
+  if (request.headers.has('Authorization')) return;
+  if (url.pathname.startsWith('/api/auth')) return;
+  if (url.pathname.startsWith('/api/cache')) return;
+  if (url.pathname.startsWith('/api/chat')) return;
+
   event.respondWith(handleFetch(request));
 });
 

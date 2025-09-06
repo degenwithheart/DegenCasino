@@ -18,6 +18,7 @@ test_scripts/targeted-mismatch-detector.cjs
 **/.DS_Store
 .venv
 # Ignore build and dependency directories
+.github
 .vercel
 .vite
 dist

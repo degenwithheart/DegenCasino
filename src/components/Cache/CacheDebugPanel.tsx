@@ -158,17 +158,14 @@ export function CacheDebugPanel() {
   )
 }
 
-// Only show in development or when explicitly enabled
+// Only show in development
 export function CacheDebugWrapper() {
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    // Enable debug panel with URL parameter or in development
-    const params = new URLSearchParams(window.location.search)
-    const isDev = process.env.GAMBA_ENV === 'development'
-    const isDebug = params.get('cache-debug') === 'true'
-    
-    setEnabled(isDev || isDebug)
+    // Only enable in development mode
+    const isDev = import.meta.env.MODE !== 'production'
+    setEnabled(isDev)
   }, [])
 
   if (!enabled) return null

@@ -109,7 +109,7 @@ export default function App() {
 
   // Anti-debugging protection (will be obfuscated)
   useEffect(() => {
-    if (process.env.GAMBA_ENV === 'production') {
+    if (import.meta.env.MODE === 'production') {
       const devtools = { open: false, orientation: null };
       setInterval(() => {
         if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {

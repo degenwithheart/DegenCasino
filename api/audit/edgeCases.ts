@@ -5,10 +5,16 @@ export const config = {
 }
 
 // CORS headers for frontend access
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
+
+function cors(origin: string | null) {
+  const o = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
+  return {
+    'Access-Control-Allow-Origin': o,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 }
 
 type ValidationResult = {
@@ -232,6 +238,9 @@ const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse =>
 };
 
 export default async function handler(request: Request): Promise<Response> {
+  const origin = request.headers.get('origin');
+  const corsHeaders = cors(origin);
+
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, {
