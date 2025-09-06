@@ -62,7 +62,7 @@ function useDnsStatus(shouldCheck = false) {
     setDnsStatus("Loading");
     const checkDnsStatus = async () => {
       try {
-        const res = await fetch("/api/check-dns");
+        const res = await fetch("/api/dns/check-dns");
         if (res.status === 429) {
           // Rate limited - use cached data or default to Issues
           if (cachedData) {

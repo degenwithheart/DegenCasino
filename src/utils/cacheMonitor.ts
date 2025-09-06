@@ -125,7 +125,7 @@ export const cacheMonitor = new CacheMonitor()
 // Utility functions for cache management in frontend
 export async function getCacheStats(): Promise<CacheMonitorStats | null> {
   try {
-    const response = await fetch('/api/cache-admin?action=stats')
+    const response = await fetch('/api/cache/cache-admin?action=stats')
     if (response.ok) {
       return await response.json()
     }
@@ -137,7 +137,7 @@ export async function getCacheStats(): Promise<CacheMonitorStats | null> {
 
 export async function cleanupCache(): Promise<boolean> {
   try {
-    const response = await fetch('/api/cache-admin?action=cleanup')
+    const response = await fetch('/api/cache/cache-admin?action=cleanup')
     return response.ok
   } catch (error) {
     console.warn('Failed to cleanup cache:', error)
@@ -147,7 +147,7 @@ export async function cleanupCache(): Promise<boolean> {
 
 export async function warmupCache(): Promise<boolean> {
   try {
-    const response = await fetch('/api/cache-warmup')
+    const response = await fetch('/api/cache/cache-warmup')
     return response.ok
   } catch (error) {
     console.warn('Failed to warmup cache:', error)
