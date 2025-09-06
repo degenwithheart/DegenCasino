@@ -40,8 +40,7 @@ export default defineConfig(() => ({
       'buffer',
       'crypto-browserify',
       'stream-browserify',
-      'util',
-      'uuid'
+      'util'
     ],
     esbuildOptions: { 
       define: { global: 'globalThis' },
