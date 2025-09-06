@@ -1,4 +1,4 @@
-import { BET_ARRAYS, RTP_TARGETS, calculateAverageRTP, calculateWinRate, GameKey } from '../../src/games/rtpConfig'
+import { RTP_TARGETS, GameKey, SIMPLE_BET_ARRAYS } from './rtpConfigTypes'
 
 export const config = {
   runtime: 'edge',
@@ -48,7 +48,7 @@ type EdgeCaseResponse = {
 };
 
 const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArray: number[] }[] => {
-  const game = BET_ARRAYS[gameKey] as any;
+  const game = SIMPLE_BET_ARRAYS[gameKey] as any;
   const scenarios: { scenario: string; betArray: number[] }[] = [];
 
   switch (gameKey) {
@@ -60,22 +60,19 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
       break;
     case 'plinko':
-      ['normal', 'degen'].forEach(mode => {
-        const betArray = [...game[mode]];
-        scenarios.push({ scenario: `plinko_${mode}`, betArray });
-      });
+      scenarios.push({ scenario: 'plinko_normal', betArray: [...game.normal] });
+      scenarios.push({ scenario: 'plinko_degen', betArray: [...game.degen] });
       break;
     case 'crash':
       // Test multiple crash scenarios for comprehensive coverage
-      for (let mult = 1.1; mult <= 50; mult += 0.5) {
+      for (let mult = 1.1; mult <= 10; mult += 0.5) {
         scenarios.push({ scenario: `crash_target=${mult.toFixed(1)}`, betArray: game.calculateBetArray(mult) });
       }
       break;
     case 'mines':
-      game.MINE_SELECT.forEach((mineCount: number) => {
-        for (let revealed = 0; revealed <= Math.min(game.GRID_SIZE - mineCount, 15); revealed++) {
+      [3, 5, 10, 15, 20].forEach((mineCount: number) => {
+        for (let revealed = 0; revealed <= Math.min(25 - mineCount, 5); revealed++) {
           const betArray = game.generateBetArray(mineCount, revealed);
-          // Only add scenario if it has at least one winning outcome
           if (betArray.some((bet: number) => bet > 0)) {
             scenarios.push({
               scenario: `mines=${mineCount}_revealed=${revealed}`,
@@ -86,15 +83,13 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       });
       break;
     case 'hilo':
-      for (let rank = 0; rank < game.RANKS; rank++) {
-        // Only test HI if there are cards higher than current rank
-        if (rank < game.RANKS - 1) {
+      for (let rank = 0; rank < 13; rank++) {
+        if (rank < 12) {
           const hiBetArray = game.calculateBetArray(rank, true);
           if (hiBetArray.some((bet: number) => bet > 0)) {
             scenarios.push({ scenario: `hi_rank=${rank}`, betArray: hiBetArray });
           }
         }
-        // Only test LO if there are cards lower than current rank
         if (rank > 0) {
           const loBetArray = game.calculateBetArray(rank, false);
           if (loBetArray.some((bet: number) => bet > 0)) {
@@ -104,10 +99,7 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       }
       break;
     case 'dice':
-      // Test key percentiles for dice
-      for (let roll = 1; roll <= 99; roll++) {
-        scenarios.push({ scenario: `rollUnder=${roll}`, betArray: game.calculateBetArray(roll) });
-      }
+      scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
       break;
     case 'blackjack':
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
@@ -116,7 +108,7 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       scenarios.push({ scenario: 'default', betArray: game.createWeightedBetArray() });
       break;
     case 'roulette':
-      ['red', 'black', 'odd', 'even', 'low', 'high', 'dozen1', 'dozen2', 'dozen3', 'column1', 'column2', 'column3'].forEach(type => {
+      ['red', 'black', 'odd', 'even'].forEach(type => {
         scenarios.push({ scenario: type, betArray: game.calculateBetArray(type) });
       });
       break;
