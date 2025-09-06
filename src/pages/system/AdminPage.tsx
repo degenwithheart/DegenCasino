@@ -566,27 +566,6 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     endpoint: '/api/admin/content?action=reset',
     method: 'GET',
     requiresAuth: true
-  },
-  {
-    id: 'analytics-stats',
-    title: 'Analytics Overview',
-    description: 'View user engagement and game performance stats',
-    endpoint: '/api/admin/analytics?action=stats',
-    method: 'GET'
-  },
-  {
-    id: 'analytics-events',
-    title: 'Recent Events',
-    description: 'View recent user actions and game events',
-    endpoint: '/api/admin/analytics?action=events',
-    method: 'GET'
-  },
-  {
-    id: 'analytics-performance',
-    title: 'Performance Metrics',
-    description: 'View system performance and load times',
-    endpoint: '/api/admin/analytics?action=performance',
-    method: 'GET'
   }
 ];
 
