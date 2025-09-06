@@ -1,16 +1,5 @@
-# Ignore test scripts and test results
-test_scripts
-test-results
-test_scripts/accurate-integration-test.js
-test_scripts/comprehensive-game-test-js.js
-test_scripts/comprehensive-trust-fix-test.cjs
-test_scripts/enhanced-real-game-test.ts
-test_scripts/final-visual-payout-verification.cjs
-test_scripts/global-trust-audit.js
-test_scripts/postcss.config.cjs
-test_scripts/quick-game-test.js
-test_scripts/real-integration-test.js
-test_scripts/targeted-mismatch-detector.cjs
+# Ignore environment and system files
+ADMIN_URL_COMMANDS.md
 # Ignore environment file
 .env
 **/gamba_integration_guide.txt
