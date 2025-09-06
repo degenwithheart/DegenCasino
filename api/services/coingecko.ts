@@ -1,4 +1,4 @@
-import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
 
 export const config = {
   runtime: 'edge',
