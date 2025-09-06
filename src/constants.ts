@@ -143,7 +143,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
 export const TOS_HTML = `
 <p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
 <p><b>2. Legal Compliance:</b> Ensure online gambling and crypto gaming are legal where you live before playing.</p>
-<p><b>3. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer">BeGambleAware.org</a>.</p>
+<p><b>3. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank">BeGambleAware.org</a>.</p>
 `
 
 /**

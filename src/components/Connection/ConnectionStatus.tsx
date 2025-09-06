@@ -23,7 +23,8 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const CUSTOM_RPC = "https://api.mainnet-beta.solana.com";
+const CUSTOM_RPC =
+  "https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---

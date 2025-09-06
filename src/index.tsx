@@ -5,12 +5,10 @@ import * as ReactLocal from 'react'
 console.log('🏷️ useConnection React identity:', ReactLocal)
 
 // Debug domain information
-if (import.meta.env.MODE !== 'production') {
-  console.log('🌐 Current domain:', window.location.hostname)
-  console.log('🌐 Current origin:', window.location.origin)
-  console.log('🌐 User agent:', navigator.userAgent)
-  console.log('🌐 Referrer:', document.referrer)
-}
+console.log('🌐 Current domain:', window.location.hostname)
+console.log('🌐 Current origin:', window.location.origin)
+console.log('🌐 User agent:', navigator.userAgent)
+console.log('🌐 Referrer:', document.referrer)
 
 
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'

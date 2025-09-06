@@ -1,108 +1,14 @@
+import { BET_ARRAYS, RTP_TARGETS, calculateAverageRTP, calculateWinRate, GameKey } from '../../src/games/rtpConfig'
+
 export const config = {
-  runtime: 'nodejs',
-}
-
-// Inline all constants to avoid any import dependencies
-const RTP_TARGETS = {
-  flip: 0.96,        
-  dice: 0.95,        
-  mines: 0.94,       
-  hilo: 0.95,        
-  crash: 0.96,       
-  slots: 0.94,       
-  plinko: 0.95,      
-  blackjack: 0.97,   
-  progressivepoker: 0.96,
-  roulette: 0.973,   
-} as const
-
-type GameKey = keyof typeof RTP_TARGETS
-
-// Simplified bet arrays for Edge Function - completely self-contained
-const SIMPLE_BET_ARRAYS = {
-  flip: {
-    heads: Array(2).fill(0).map((_, i) => i === 0 ? 1.96 : 0),
-    tails: Array(2).fill(0).map((_, i) => i === 1 ? 1.96 : 0),
-  },
-  dice: {
-    betArray: Array(100).fill(0).map((_, i) => i < 50 ? 1.9 : 0)
-  },
-  slots: {
-    betArray: Array(1000).fill(0).map((_, i) => {
-      if (i < 150) return 6.27;
-      return 0;
-    })
-  },
-  plinko: {
-    normal: Array(15).fill(0).map((_, i) => {
-      const multipliers = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.4, 1.2, 1.0, 0.8, 0.6, 0.4, 0.2];
-      return multipliers[i] || 0;
-    }),
-    degen: Array(13).fill(0).map((_, i) => {
-      const multipliers = [0.1, 0.3, 0.5, 0.7, 1.0, 1.3, 1.6, 1.3, 1.0, 0.7, 0.5, 0.3, 0.1];
-      return multipliers[i] || 0;
-    })
-  },
-  crash: {
-    calculateBetArray: (multiplier: number) => {
-      const outcomes = 1000;
-      const winProbability = 0.96 / multiplier;
-      return Array(outcomes).fill(0).map((_, i) => 
-        i < winProbability * outcomes ? multiplier : 0
-      );
-    }
-  },
-  mines: {
-    generateBetArray: (mineCount: number, revealed: number) => {
-      if (revealed === 0) return [1];
-      const totalCells = 25;
-      const safeCells = totalCells - mineCount;
-      const winProbability = safeCells / totalCells;
-      const multiplier = 0.94 / winProbability;
-      return [multiplier, 0];
-    }
-  },
-  hilo: {
-    calculateBetArray: (rank: number, isHi: boolean) => {
-      const totalRanks = 13;
-      const winningRanks = isHi ? totalRanks - rank - 1 : rank;
-      const winProbability = winningRanks / totalRanks;
-      const multiplier = winProbability > 0 ? 0.95 / winProbability : 0;
-      return winProbability > 0 ? [multiplier, 0] : [0];
-    }
-  },
-  blackjack: {
-    betArray: Array(100).fill(0).map((_, i) => {
-      if (i < 42) return 2.31;
-      return 0;
-    })
-  },
-  progressivepoker: {
-    createWeightedBetArray: () => Array(100).fill(0).map((_, i) => {
-      if (i < 35) return 2.74;
-      return 0;
-    })
-  },
-  roulette: {
-    calculateBetArray: (type: string) => {
-      const winProbability = 18/37;
-      const multiplier = 0.973 / winProbability;
-      return Array(37).fill(0).map((_, i) => i < 18 ? multiplier : 0);
-    }
-  }
+  runtime: 'edge',
 }
 
 // CORS headers for frontend access
-const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
-
-function cors(origin: string | null) {
-  const o = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
-  return {
-    'Access-Control-Allow-Origin': o,
-    'Vary': 'Origin',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
 }
 
 type ValidationResult = {
@@ -136,7 +42,7 @@ type EdgeCaseResponse = {
 };
 
 const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArray: number[] }[] => {
-  const game = SIMPLE_BET_ARRAYS[gameKey] as any;
+  const game = BET_ARRAYS[gameKey] as any;
   const scenarios: { scenario: string; betArray: number[] }[] = [];
 
   switch (gameKey) {
@@ -148,19 +54,22 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
       break;
     case 'plinko':
-      scenarios.push({ scenario: 'plinko_normal', betArray: [...game.normal] });
-      scenarios.push({ scenario: 'plinko_degen', betArray: [...game.degen] });
+      ['normal', 'degen'].forEach(mode => {
+        const betArray = [...game[mode]];
+        scenarios.push({ scenario: `plinko_${mode}`, betArray });
+      });
       break;
     case 'crash':
       // Test multiple crash scenarios for comprehensive coverage
-      for (let mult = 1.1; mult <= 10; mult += 0.5) {
+      for (let mult = 1.1; mult <= 50; mult += 0.5) {
         scenarios.push({ scenario: `crash_target=${mult.toFixed(1)}`, betArray: game.calculateBetArray(mult) });
       }
       break;
     case 'mines':
-      [3, 5, 10, 15, 20].forEach((mineCount: number) => {
-        for (let revealed = 0; revealed <= Math.min(25 - mineCount, 5); revealed++) {
+      game.MINE_SELECT.forEach((mineCount: number) => {
+        for (let revealed = 0; revealed <= Math.min(game.GRID_SIZE - mineCount, 15); revealed++) {
           const betArray = game.generateBetArray(mineCount, revealed);
+          // Only add scenario if it has at least one winning outcome
           if (betArray.some((bet: number) => bet > 0)) {
             scenarios.push({
               scenario: `mines=${mineCount}_revealed=${revealed}`,
@@ -171,13 +80,15 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       });
       break;
     case 'hilo':
-      for (let rank = 0; rank < 13; rank++) {
-        if (rank < 12) {
+      for (let rank = 0; rank < game.RANKS; rank++) {
+        // Only test HI if there are cards higher than current rank
+        if (rank < game.RANKS - 1) {
           const hiBetArray = game.calculateBetArray(rank, true);
           if (hiBetArray.some((bet: number) => bet > 0)) {
             scenarios.push({ scenario: `hi_rank=${rank}`, betArray: hiBetArray });
           }
         }
+        // Only test LO if there are cards lower than current rank
         if (rank > 0) {
           const loBetArray = game.calculateBetArray(rank, false);
           if (loBetArray.some((bet: number) => bet > 0)) {
@@ -187,7 +98,10 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       }
       break;
     case 'dice':
-      scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
+      // Test key percentiles for dice
+      for (let roll = 1; roll <= 99; roll++) {
+        scenarios.push({ scenario: `rollUnder=${roll}`, betArray: game.calculateBetArray(roll) });
+      }
       break;
     case 'blackjack':
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
@@ -196,7 +110,7 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
       scenarios.push({ scenario: 'default', betArray: game.createWeightedBetArray() });
       break;
     case 'roulette':
-      ['red', 'black', 'odd', 'even'].forEach(type => {
+      ['red', 'black', 'odd', 'even', 'low', 'high', 'dozen1', 'dozen2', 'dozen3', 'column1', 'column2', 'column3'].forEach(type => {
         scenarios.push({ scenario: type, betArray: game.calculateBetArray(type) });
       });
       break;
@@ -318,9 +232,6 @@ const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse =>
 };
 
 export default async function handler(request: Request): Promise<Response> {
-  const origin = request.headers.get('origin');
-  const corsHeaders = cors(origin);
-
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, {

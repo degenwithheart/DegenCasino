@@ -40,13 +40,8 @@ const WARMUP_ENTRIES = [
 ]
 
 export default async function handler(req: Request): Promise<Response> {
-  const origin = req.headers.get('origin');
-  const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
-  const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
-
   const corsHeaders = {
-    'Access-Control-Allow-Origin': corsOrigin,
-    'Vary': 'Origin',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   }
