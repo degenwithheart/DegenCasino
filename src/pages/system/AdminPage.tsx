@@ -408,12 +408,9 @@ const AdminPage: React.FC = () => {
         <TokenTitle>🔐 Admin Token Setup</TokenTitle>
         <TokenText>• <strong>Local:</strong> Check your .env file for ADMIN_TOKEN</TokenText>
         <TokenText>• <strong>Production:</strong> Set ADMIN_TOKEN in Vercel environment variables</TokenText>
-        <TokenText>• <strong>Status:</strong> {import.meta.env.VITE_ADMIN_TOKEN ? '✅ Configured' : '⚠️ Not found in environment'}</TokenText>
-        {import.meta.env.VITE_ADMIN_TOKEN && (
-          <TokenText>• <strong>Current:</strong> <WalletAddress>{import.meta.env.VITE_ADMIN_TOKEN}</WalletAddress></TokenText>
-        )}
-        <TokenText style={{ color: '#ff6b6b', fontSize: '0.8rem', marginTop: '10px' }}>
-          ⚠️ <strong>Security Note:</strong> Token is visible for admin convenience only
+        <TokenText>• <strong>Status:</strong> Server-side configured</TokenText>
+        <TokenText style={{ color: '#888', fontSize: '0.8rem', marginTop: '10px' }}>
+          💡 <strong>Tip:</strong> Token is stored in localStorage after first use
         </TokenText>
       </TokenInfo>
 
