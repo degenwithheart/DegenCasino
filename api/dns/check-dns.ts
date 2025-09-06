@@ -25,6 +25,7 @@ export default async function handler(req: Request): Promise<Response> {
   const now = Date.now();
   const { searchParams } = new URL(req.url)
   const domain = searchParams.get('domain') || 'degenheart.casino';
+  const includeRpc = searchParams.get('includeRpc') === 'true';
   
   // Rate limiting check
   if (now - lastCall < THROTTLE_MS) {
@@ -130,6 +131,43 @@ export default async function handler(req: Request): Promise<Response> {
     return locationResults;
   }, { ttl: CacheTTL.FIVE_MINUTES }); // Enhanced cache with TTL
 
+  let rpcResults: any[] | null = null;
+  if (includeRpc) {
+    // Check Solana RPC endpoints
+    const RPC_ENDPOINTS = [
+      { name: 'Helius', url: 'https://mainnet.helius-rpc.com/?api-key=demo' },
+      { name: 'GenesysGo', url: 'https://ssc-dao.genesysgo.net' }
+    ];
+    
+    rpcResults = await Promise.all(
+      RPC_ENDPOINTS.map(async (rpc) => {
+        try {
+          const start = Date.now();
+          const response = await fetch(rpc.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getVersion' })
+          });
+          const responseTimeMs = Date.now() - start;
+          const data = await response.json();
+          return {
+            name: rpc.name,
+            status: response.ok && data.result ? 'online' : 'offline',
+            responseTimeMs,
+            version: data.result?.['solana-core'] || 'unknown'
+          };
+        } catch (err) {
+          return {
+            name: rpc.name,
+            status: 'offline',
+            responseTimeMs: undefined,
+            error: 'Connection failed'
+          };
+        }
+      })
+    );
+  }
+
     // Summarize results into a single status string
     const onlineCount = results.filter((r: any) => r.status === 'online').length;
     let status: 'Online' | 'Issues' | 'Offline' = 'Offline';
@@ -138,7 +176,7 @@ export default async function handler(req: Request): Promise<Response> {
     } else if (onlineCount > 0) {
       status = 'Issues';
     }
-    return new Response(JSON.stringify({ status, results }), {
+    return new Response(JSON.stringify({ status, results, rpc: rpcResults }), {
       headers: { 
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=300', // 5 min browser cache
