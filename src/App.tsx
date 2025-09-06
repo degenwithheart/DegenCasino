@@ -30,6 +30,7 @@ const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
+const AdminPage = lazy(() => import('./pages/system/AdminPage'));
 import { ThemeProvider } from './themes/ThemeContext';
 
 // Loading component for lazy-loaded routes
@@ -259,6 +260,7 @@ export default function App() {
               <Route path="/aboutme" element={<AboutMe />} />
               <Route path="/audit" element={<FairnessAudit />} />
               <Route path="/propagation" element={<Propagation />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="/explorer" element={<ExplorerIndex />} />
               <Route path="/explorer/platform/:creator" element={<PlatformView />} />
               <Route path="/explorer/player/:address" element={<PlayerView />} />
