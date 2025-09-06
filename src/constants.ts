@@ -250,6 +250,16 @@ export const SIDEBAR_LINKS = [
     showWhen: () => true,
     external: false,
   },
+  {
+    to: '/admin',
+    label: 'Admin',
+    icon: FaUser, // Using FaUser for now, could use a different icon
+    showWhen: (connected: boolean, publicKey?: any) => {
+      if (!connected || !publicKey) return false;
+      return publicKey.equals(PLATFORM_CREATOR_ADDRESS);
+    },
+    external: false,
+  },
 ];
 
 

@@ -92,7 +92,7 @@ export default function Sidebar() {
 			<SidebarList>
 				{SIDEBAR_LINKS.filter(link =>
 					typeof link.showWhen === 'function'
-						? link.showWhen(connected)
+						? link.showWhen(connected, publicKey)
 						: true
 				).map((link, i) => {
 					const to =
