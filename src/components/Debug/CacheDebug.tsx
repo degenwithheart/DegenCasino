@@ -39,7 +39,7 @@ export function CacheDebug({ show = false }: CacheDebugProps) {
     return () => clearInterval(interval)
   }, [])
 
-  if (!show && process.env.NODE_ENV === 'production') {
+  if (!show && import.meta.env.MODE === 'production') {
     return null
   }
 
