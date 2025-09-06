@@ -67,8 +67,7 @@
   ],
   "functions": {
     "api/audit/edgeCases.ts": {
-      "runtime": "edge-runtime@1.0.0",
-      "excludeFiles": "node_modules/tweetnacl/**"
+      "runtime": "edge-runtime@1.0.0"
     }
   },
   "rewrites": [
