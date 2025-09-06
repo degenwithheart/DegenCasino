@@ -524,6 +524,14 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     method: 'GET'
   },
   {
+    id: 'wallet-blacklist',
+    title: 'Wallet Blacklist',
+    description: 'Manage blacklisted wallets',
+    endpoint: '/api/admin/blacklist?action=list',
+    method: 'GET',
+    requiresAuth: true
+  },
+  {
     id: 'transaction-audit',
     title: 'Transaction Audit',
     description: 'Fetch recent transactions for a wallet',
@@ -543,29 +551,6 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     description: 'Check Solana RPC endpoints',
     endpoint: '/api/dns/check-dns?includeRpc=true',
     method: 'GET'
-  },
-  {
-    id: 'content-get',
-    title: 'Get Content Settings',
-    description: 'View current game visibility and featured settings',
-    endpoint: '/api/admin/content?action=get',
-    method: 'GET'
-  },
-  {
-    id: 'content-set',
-    title: 'Set Game Visibility',
-    description: 'Show/hide specific games',
-    endpoint: '/api/admin/content?action=set&gameId=slots&visibility=true',
-    method: 'GET',
-    requiresAuth: true
-  },
-  {
-    id: 'content-reset',
-    title: 'Reset Content Settings',
-    description: 'Reset all game visibility to defaults',
-    endpoint: '/api/admin/content?action=reset',
-    method: 'GET',
-    requiresAuth: true
   }
 ];
 
@@ -710,82 +695,6 @@ const AdminPage: React.FC = () => {
         </TokenText>
       </TokenInfo>
 
-      <InfoGrid>
-        <InfoCard>
-          <InfoCardTitle>🖥️ System Status</InfoCardTitle>
-          <InfoCardValue>
-            <StatusIndicator $status="online" />
-            Online
-          </InfoCardValue>
-          <InfoCardSubtitle>All systems operational</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>🎮 Active Games</InfoCardTitle>
-          <InfoCardValue>12</InfoCardValue>
-          <InfoCardSubtitle>Games currently running</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>👥 Connected Wallets</InfoCardTitle>
-          <InfoCardValue>1,247</InfoCardValue>
-          <InfoCardSubtitle>Active this session</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>💰 Total Volume</InfoCardTitle>
-          <InfoCardValue>$2.4M</InfoCardValue>
-          <InfoCardSubtitle>24h trading volume</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>⚡ Cache Status</InfoCardTitle>
-          <InfoCardValue>
-            <StatusIndicator $status="online" />
-            98.5%
-          </InfoCardValue>
-          <InfoCardSubtitle>Hit rate performance</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>🔗 RPC Health</InfoCardTitle>
-          <InfoCardValue>
-            <StatusIndicator $status="warning" />
-            2/3
-          </InfoCardValue>
-          <InfoCardSubtitle>Endpoints responding</InfoCardSubtitle>
-        </InfoCard>
-      </InfoGrid>
-
-      <InfoGrid>
-        <InfoCard>
-          <InfoCardTitle>📈 Recent Activity</InfoCardTitle>
-          <InfoCardValue>247</InfoCardValue>
-          <InfoCardSubtitle>Games played today</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>🏆 Top Game</InfoCardTitle>
-          <InfoCardValue>Slots</InfoCardValue>
-          <InfoCardSubtitle>Most popular today</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>💎 Token Volume</InfoCardTitle>
-          <InfoCardValue>45.2K SOL</InfoCardValue>
-          <InfoCardSubtitle>24h transaction volume</InfoCardSubtitle>
-        </InfoCard>
-        
-        <InfoCard>
-          <InfoCardTitle>⚠️ Alerts</InfoCardTitle>
-          <InfoCardValue>
-            <StatusIndicator $status="warning" />
-            3
-          </InfoCardValue>
-          <InfoCardSubtitle>Require attention</InfoCardSubtitle>
-        </InfoCard>
-      </InfoGrid>
-
       <SearchInput
         type="text"
         placeholder="Search commands..."
@@ -810,7 +719,7 @@ const AdminPage: React.FC = () => {
           </div>
         </div>
         <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '6px' }}>
-          <strong>💡 Quick Actions:</strong> Use search above to find commands, or check system status cards for real-time metrics.
+          <strong>💡 Quick Actions:</strong> Use search above to find commands.
         </div>
       </InfoCard>
 
