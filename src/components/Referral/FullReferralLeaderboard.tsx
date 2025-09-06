@@ -2,11 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
-import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/useReferralAnalytics'
+import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics'
 import { truncateString } from '../../utils'
-import { getReferralTierInfo, formatTierDisplay } from '../../utils/referralTier'
-import { generateUsernameFromWallet } from '../../utils/userProfileUtils'
-import { useUserStore } from '../../hooks/useUserStore'
+import { getReferralTierInfo, formatTierDisplay } from '../../utils/user/referralTier'
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
+import { useUserStore } from '../../hooks/data/useUserStore'
 
 const Container = styled.div`
   width: 100%;

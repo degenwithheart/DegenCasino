@@ -13,11 +13,11 @@ import { Modal } from '../components'
 import LeaderboardsModal from '../sections/LeaderBoard/LeaderboardsModal'
 import { BonusModal, JackpotModal, ThemeSelector } from '../components'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_ADDRESS } from '../constants'
-import { useMediaQuery } from '../hooks/useMediaQuery'
+import { useMediaQuery } from '../hooks/ui/useMediaQuery'
 import TokenSelect from './TokenSelect'
 import { UserButton } from './UserButton'
 import { ENABLE_LEADERBOARD } from '../constants'
-import { useIsCompact } from '../hooks/useIsCompact'
+import { useIsCompact } from '../hooks/ui/useIsCompact'
 import { useTheme } from '../themes/ThemeContext'
 
 /* ─────── Casino Animations ───────────────────────────────────────────── */

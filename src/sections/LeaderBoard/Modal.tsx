@@ -1,6 +1,6 @@
 import React from 'react'
 import { Icon } from './Icon'
-import useOutsideClick from '../../hooks/useOutsideClick'
+import useOutsideClick from '../../hooks/ui/useOutsideClick'
 import styled, { keyframes } from 'styled-components'
 
 interface Props extends React.PropsWithChildren {

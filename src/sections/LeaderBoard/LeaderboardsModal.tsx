@@ -6,7 +6,7 @@ import {
   useLeaderboardData,
   Period,
   Player,
-} from '../../hooks/useLeaderboardData'
+} from '../../hooks/data/useLeaderboardData'
 import { useTheme } from '../../themes/ThemeContext'
 
 import {

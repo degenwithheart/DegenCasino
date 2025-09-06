@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useUserStore } from '../../hooks/useUserStore'
+import { useUserStore } from '../../hooks/data/useUserStore'
 
 export interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   qualityVariants?: { high?: string; balanced?: string; data?: string }

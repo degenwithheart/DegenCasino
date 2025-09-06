@@ -1,4 +1,4 @@
-import { REFERRAL_TIERS, REFERRAL_TIERS_FINANCIAL_MODE, PLATFORM_REFERRAL_FEE } from '../constants'
+import { REFERRAL_TIERS, REFERRAL_TIERS_FINANCIAL_MODE, PLATFORM_REFERRAL_FEE } from '../../constants'
 
 export type ReferralTier = typeof REFERRAL_TIERS[number]
 

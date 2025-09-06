@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
-import { BonusContent } from '../components'
-import { useIsCompact } from '../hooks/useIsCompact'
-import { useTheme } from '../themes/ThemeContext'
+import { JackpotContent } from '../../components'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { useTheme } from '../../themes/ThemeContext'
 
 const PageWrapper = styled.div<{ $theme?: any }>`
   position: fixed;
@@ -99,7 +99,7 @@ const ContentWrapper = styled.div`
   }
 `;
 
-export default function BonusPage() {
+export default function JackpotPage() {
   const navigate = useNavigate()
   const { mobile } = useIsCompact()
   const { currentTheme } = useTheme()
@@ -114,14 +114,14 @@ export default function BonusPage() {
   return (
     <PageWrapper $theme={currentTheme}>
       <Header $theme={currentTheme}>
-        <Title $theme={currentTheme}>🎁 Bonus</Title>
+        <Title $theme={currentTheme}>🎰 Jackpot</Title>
         <CloseButton $theme={currentTheme} onClick={() => navigate(-1)} aria-label="Close">
           ✕ Close
         </CloseButton>
       </Header>
 
       <ContentWrapper>
-        <BonusContent />
+        <JackpotContent />
       </ContentWrapper>
     </PageWrapper>
   )

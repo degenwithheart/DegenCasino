@@ -2,7 +2,7 @@ import { GambaTransaction } from 'gamba-core-v2'
 import { useGambaEvents, useWalletAddress } from 'gamba-react-v2'
 import { useReferral } from 'gamba-react-ui-v2'
 import { useMemo } from 'react'
-import { PLATFORM_CREATOR_ADDRESS } from '../constants'
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 
 export interface ReferralLeaderboardEntry {
   address: string

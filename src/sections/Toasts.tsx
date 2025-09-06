@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { useMediaQuery } from '../hooks/useMediaQuery'
-import { useToastStore, type Toast as TToast } from '../hooks/useToast'
+import { useMediaQuery } from '../hooks/ui/useMediaQuery'
+import { useToastStore, type Toast as TToast } from '../hooks/ui/useToast'
 
 const StyledToasts = styled.div`
   position: fixed;

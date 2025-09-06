@@ -1,6 +1,6 @@
 // src/components/Debug/CacheDebug.tsx
 import React from 'react'
-import { cache } from '../../utils/cache'
+import { cache } from '../../utils/cache/cache'
 
 interface CacheDebugProps {
   show?: boolean

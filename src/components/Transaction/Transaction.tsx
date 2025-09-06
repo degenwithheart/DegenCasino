@@ -7,7 +7,7 @@ import { GambaTransaction, parseGambaTransaction } from 'gamba-core-v2'
 import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
-import { useWalletToast } from '../../utils/solanaWalletToast'
+import { useWalletToast } from '../../utils/wallet/solanaWalletToast'
 import { ALL_GAMES } from '../../games/allGames'
 
 const TransactionContainer = styled.div`
@@ -720,7 +720,7 @@ export default function TransactionView() {
                       <DetailItem>
                         <DetailLabel>Pool</DetailLabel>
                         <DetailValue>
-                          <TokenIcon src="/webp/favicon.webp" alt="SOL" />
+                          <TokenIcon src="/webp/icons/favicon.webp" alt="SOL" />
                           {transaction.pool}
                         </DetailValue>
                       </DetailItem>
@@ -757,7 +757,7 @@ export default function TransactionView() {
                         <DetailLabel>Wager</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
+                            <TokenIcon src="/webp/icons/favicon.webp" alt="SOL" />
                             {transaction.wager.toFixed(5)} SOL
                             {transaction.usd_wager && (
                               <span style={{ color: '#888', fontSize: '12px', marginLeft: '8px' }}>
@@ -774,7 +774,7 @@ export default function TransactionView() {
                         <DetailLabel>Payout</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
+                            <TokenIcon src="/webp/icons/favicon.webp" alt="SOL" />
                             {transaction.payout.toFixed(5)} SOL
                             {transaction.wager !== undefined && (
                               <span style={{ 
@@ -795,7 +795,7 @@ export default function TransactionView() {
                         <DetailLabel>Profit</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
+                            <TokenIcon src="/webp/icons/favicon.webp" alt="SOL" />
                             <span style={{ color: transaction.profit >= 0 ? '#10b981' : '#ef4444' }}>
                               {transaction.profit >= 0 ? '+' : ''}{transaction.profit.toFixed(5)} SOL
                             </span>
@@ -832,7 +832,7 @@ export default function TransactionView() {
                         <DetailLabel>Jackpot</DetailLabel>
                         <DetailValue>
                           <TokenDisplay>
-                            <TokenIcon src="/webp/favicon.webp" alt="SOL" />
+                            <TokenIcon src="/webp/icons/favicon.webp" alt="SOL" />
                             {(transaction.jackpot / 1e9).toFixed(5)} SOL
                           </TokenDisplay>
                         </DetailValue>

@@ -5,10 +5,10 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
 import { Modal } from './components';
 import { TOS_HTML, ENABLE_TROLLBOX } from './constants';
-import { useToast } from './hooks/useToast';
-import { useWalletToast } from './utils/solanaWalletToast';
-import { useUserStore } from './hooks/useUserStore';
-import { useServiceWorker, preloadCriticalAssets } from './hooks/useServiceWorker';
+import { useToast } from './hooks/ui/useToast';
+import { useWalletToast } from './utils/wallet/solanaWalletToast';
+import { useUserStore } from './hooks/data/useUserStore';
+import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
@@ -24,12 +24,12 @@ import { TosInner, TosWrapper } from './styles';
 import Footer from './sections/Footer';
 import styled from 'styled-components';
 // Lazy load pages and components
-const Propagation = lazy(() => import('./pages/propagation'));
+const Propagation = lazy(() => import('./pages/system/propagation'));
 // Lazy load pages
-const JackpotPage = lazy(() => import('./pages/JackpotPage'));
-const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
-const SelectTokenPage = lazy(() => import('./pages/SelectTokenPage'));
-const BonusPage = lazy(() => import('./pages/BonusPage'));
+const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
+const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
+const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
+const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 import { ThemeProvider } from './themes/ThemeContext';
 
 // Loading component for lazy-loaded routes

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCacheMonitor, getCacheStats, cleanupCache, warmupCache } from "../../utils/cacheMonitor";
+import { useCacheMonitor, getCacheStats, cleanupCache, warmupCache } from "../../utils/cache/cacheMonitor";
 import { 
   DebugPanel, 
   DebugTitle, 

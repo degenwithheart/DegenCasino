@@ -3,8 +3,8 @@ import React from 'react'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const __APP_VERSION__: string | undefined
 import { Modal } from '../Modal/Modal'
-import { useUserStore } from '../../hooks/useUserStore'
-import { setPrefetchUserOverride } from '../../hooks/usePrefetch'
+import { useUserStore } from '../../hooks/data/useUserStore'
+import { setPrefetchUserOverride } from '../../hooks/system/usePrefetch'
 const ThemeSelectorLazy = React.lazy(() => import('../Theme/ThemeSelector').then(m => ({ default: m.ThemeSelector })))
 import { useTheme } from '../../themes/ThemeContext'
 import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS } from '../../constants'

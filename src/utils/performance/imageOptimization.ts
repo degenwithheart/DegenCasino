@@ -38,14 +38,14 @@ export class ImageOptimizer {
 
   async optimizeLargeImages(): Promise<void> {
     const largeImages = [
-      '$DGHRT.png',
-      'casino.png', 
-      'pfp.png',
-      'user.png',
-      'overlay-glow.png',
-      'seo.png',
-      'icon-512.png',
-      'icon-192.png'
+      'png/images/$DGHRT.png',
+      'png/images/casino.png', 
+      'png/images/pfp.png',
+      'png/images/user.png',
+      'png/images/overlay-glow.png',
+      'png/images/seo.png',
+      'png/icons/icon-512.png',
+      'png/icons/icon-192.png'
     ];
 
     console.log('🚀 Starting WebP conversion for large images...');

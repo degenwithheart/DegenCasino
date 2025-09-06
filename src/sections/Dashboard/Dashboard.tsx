@@ -11,7 +11,7 @@ import RecentPlays from "../RecentPlays/RecentPlays";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../constants";
-import { useIsCompact } from "../../hooks/useIsCompact";
+import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useTheme } from "../../themes/ThemeContext";
 import {
   neonPulse,

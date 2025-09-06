@@ -46,7 +46,7 @@ export function preloadGameAssets(gameId: string) {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     const gameAssets = [
       `/webp/games/${gameId}.webp`,
-      `/webp/games/${gameId}.png`, // fallback
+      `/png/games/${gameId}.png`, // fallback
     ];
     
     navigator.serviceWorker.controller.postMessage({

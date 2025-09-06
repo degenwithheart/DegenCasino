@@ -1,7 +1,7 @@
 // src/utils/solanaWalletToast.ts
 // Comprehensive Solana wallet and transaction toast messages
 
-import { useToast } from '../hooks/useToast';
+import { useToast } from '../../hooks/ui/useToast';
 
 export interface WalletToastInput {
   title: string;

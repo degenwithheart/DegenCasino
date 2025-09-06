@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { TOKEN_METADATA } from '../constants';
-import { tokenPriceService } from '../services/TokenPriceService';
+import { TOKEN_METADATA } from '../../constants';
+import { tokenPriceService } from '../../services/TokenPriceService';
 
 export interface TokenPriceChange {
   mintAddress: string;

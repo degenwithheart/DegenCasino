@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { tokenPriceService, TokenPrice } from '../services/TokenPriceService';
+import { tokenPriceService, TokenPrice } from '../../services/TokenPriceService';
 
 export const useTokenPriceService = () => {
   const [tokenPrices, setTokenPrices] = useState<TokenPrice[]>([]);

@@ -1,6 +1,6 @@
 // src/contexts/RefreshContext.tsx
 import React, { createContext, useContext, useCallback } from 'react';
-import { prefetchManager } from '../utils/prefetch';
+import { prefetchManager } from '../utils/general/prefetch';
 
 interface RefreshContextType {
   refreshAll: () => Promise<void>;

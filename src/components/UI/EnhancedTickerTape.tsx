@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useTokenPrices } from '../../hooks/useTokenPrices';
+import { useTokenPrices } from '../../hooks/data/useTokenPrices';
 import styled, { keyframes, css } from 'styled-components';
-import { useTokenPriceService } from '../../hooks/useTokenPriceService';
+import { useTokenPriceService } from '../../hooks/data/useTokenPriceService';
 
 // Ticker animation
 const tickerMove = keyframes`

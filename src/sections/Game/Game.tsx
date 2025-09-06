@@ -89,7 +89,7 @@ import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 
 import { Icon, GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal } from '../../components'
 import { GAMES } from '../../games'
-import { useUserStore } from '../../hooks/useUserStore'
+import { useUserStore } from '../../hooks/data/useUserStore'
 import { GameSlider } from '../Dashboard/Dashboard'
 import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles'
 import { LoadingBar } from './LoadingBar'

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
-import { useIsCompact } from '../../hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 
 // Keyframe animations matching dashboard style
 const neonPulse = keyframes`
