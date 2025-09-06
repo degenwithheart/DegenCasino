@@ -74,7 +74,7 @@ export * from './UI/Slider'
 export { default as TrollBox } from './UI/TrollBox'
 
 // Hooks
-export { useGameplayEffects } from '../hooks/useGameplayEffects'
+export { useGameplayEffects } from '../hooks/game/useGameplayEffects'
 
 // Styled Components and Utilities
 export const SelectableButton = styled.button<{selected?: boolean}>`

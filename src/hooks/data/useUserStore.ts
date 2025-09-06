@@ -14,6 +14,34 @@ export interface UserStore {
   gamesPlayed: Array<string>
   /** The last pool a user had selected */
   lastSelectedPool: { token: string, authority?: string } | null
+  /** Data saver mode for reduced bandwidth usage */
+  dataSaver?: boolean
+  /** Particles and visual effects enabled */
+  particlesEnabled?: boolean
+  /** Prefetch level for loading optimization */
+  prefetchLevel?: 'off' | 'conservative' | 'aggressive'
+  /** Reduce motion for accessibility */
+  reduceMotion?: boolean
+  /** Less glow effects */
+  lessGlow?: boolean
+  /** Ticker refresh interval in milliseconds */
+  tickerInterval?: number
+  /** Image quality setting */
+  imageQuality?: 'data' | 'balanced' | 'high'
+  /** Defer audio engine initialization */
+  deferAudio?: boolean
+  /** Progressive image loading */
+  progressiveImages?: boolean
+  /** Background throttling */
+  backgroundThrottle?: boolean
+  /** Cache warmup enabled */
+  cacheWarmup?: boolean
+  /** Slim font loading */
+  fontSlim?: boolean
+  /** Auto adaptation under load */
+  autoAdapt?: boolean
+  /** Adaptive RAF enabled */
+  adaptiveRaf?: boolean
   markGameAsPlayed: (gameId: string, played: boolean) => void
   set: (partial: Partial<UserStore> | ((state: UserStore) => Partial<UserStore>), replace?: boolean) => void
 }
@@ -29,6 +57,20 @@ export const useUserStore = create(
       userModalInitialTab: undefined,
       lastSelectedPool: null,
       gamesPlayed: [],
+      dataSaver: false,
+      particlesEnabled: true,
+      prefetchLevel: 'conservative',
+      reduceMotion: false,
+      lessGlow: false,
+      tickerInterval: 15000,
+      imageQuality: 'balanced',
+      deferAudio: true,
+      progressiveImages: true,
+      backgroundThrottle: true,
+      cacheWarmup: true,
+      fontSlim: true,
+      autoAdapt: true,
+      adaptiveRaf: true,
       markGameAsPlayed: (gameId, played) => {
         const gamesPlayed = new Set(get().gamesPlayed)
         if (played) {

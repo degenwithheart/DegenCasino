@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { subscribeRaf, getAdaptiveState, setAdaptiveRaf } from '../../utils/rafScheduler'
-import { useUserStore } from '../../hooks/useUserStore'
+import { subscribeRaf, getAdaptiveState, setAdaptiveRaf } from '../../utils/performance/rafScheduler'
+import { useUserStore } from '../../hooks/data/useUserStore'
 
 export const AdaptiveFpsOverlay: React.FC = () => {
   const adaptiveEnabled = useUserStore(s => s.adaptiveRaf !== false)

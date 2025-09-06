@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import GameScreenFrame from '../Game/GameScreenFrame'
-import { useGameplayEffects } from '../../hooks/useGameplayEffects'
+import { useGameplayEffects } from '../../hooks/game/useGameplayEffects'
 import { useGraphics } from '../Game/GameScreenFrame'
 
 interface GameplayFrameProps {

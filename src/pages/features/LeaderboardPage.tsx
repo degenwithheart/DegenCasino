@@ -1,9 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { LeaderboardsContent } from '../sections/LeaderBoard/LeaderboardsModal'
-import { PLATFORM_CREATOR_ADDRESS } from '../constants'
-import { useTheme } from '../themes/ThemeContext'
+import { LeaderboardsContent } from '../../sections/LeaderBoard/LeaderboardsModal'
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
+import { useTheme } from '../../themes/ThemeContext'
 
 const PageWrapper = styled.div<{ $theme?: any }>`
   position: fixed;

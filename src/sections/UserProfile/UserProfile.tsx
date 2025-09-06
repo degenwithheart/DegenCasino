@@ -8,7 +8,7 @@ import {
   PLATFORM_ALLOW_REFERRER_REMOVAL,
 } from '../../constants';
 import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-react-ui-v2";
-import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../utils/userProfileUtils';
+import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../utils/user/userProfileUtils';
 import { ReferralDashboard } from '../../components';
 import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components';
 import { useTheme } from '../../themes/ThemeContext';

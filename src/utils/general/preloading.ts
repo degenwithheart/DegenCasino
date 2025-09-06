@@ -2,18 +2,18 @@ import { useEffect } from 'react';
 
 // Critical resources to preload
 const CRITICAL_RESOURCES = [
-  '/casino.png',
-  '/favicon.png',
-  '/icon-192.png',
+  '/png/images/casino.png',
+  '/png/icons/favicon.png',
+  '/png/icons/icon-192.png',
 ];
 
 // Game assets to preload when user hovers over game
 const GAME_ASSETS = {
-  plinko: ['/games/plinko.png'],
-  blackjack: ['/games/blackjack.png'],
-  roulette: ['/games/roulette.png'],
-  slots: ['/games/slots.png'],
-  mines: ['/games/mines.png'],
+  plinko: ['/png/games/plinko.png'],
+  blackjack: ['/png/games/blackjack.png'],
+  roulette: ['/png/games/roulette.png'],
+  slots: ['/png/games/slots.png'],
+  mines: ['/png/games/mines.png'],
   // Add other games...
 };
 

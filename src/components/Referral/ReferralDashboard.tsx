@@ -3,10 +3,10 @@ import styled from 'styled-components'
 import { GambaUi, TokenValue, useCurrentToken, useReferral } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
 import { truncateString } from '../../utils'
-import { useReferralAnalytics, useReferralCount } from '../../hooks/useReferralAnalytics'
-import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../../utils/referralTier'
-import { useWalletToast } from '../../utils/solanaWalletToast'
-import { generateUsernameFromWallet } from '../../utils/userProfileUtils'
+import { useReferralAnalytics, useReferralCount } from '../../hooks/analytics/useReferralAnalytics'
+import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../../utils/user/referralTier'
+import { useWalletToast } from '../../utils/wallet/solanaWalletToast'
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
 
 const Container = styled.div`
   display: flex;

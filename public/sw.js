@@ -2,14 +2,14 @@ const CACHE_NAME = 'degencasino-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
-  '/favicon.png',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/png/icons/favicon.png',
+  '/png/icons/icon-192.png',
+  '/png/icons/icon-512.png',
   // Critical WebP images
   '/webp/casino.webp',
-  '/webp/favicon.webp',
-  '/webp/icon-192.webp',
-  '/webp/icon-512.webp',
+  '/webp/icons/favicon.webp',
+  '/webp/icons/icon-192.webp',
+  '/webp/icons/icon-512.webp',
 ];
 
 // Cache strategies

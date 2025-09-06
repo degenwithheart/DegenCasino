@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { TOKEN_METADATA, updateTokenPrices } from '../constants'
+import { TOKEN_METADATA, updateTokenPrices } from '../../constants'
 
 /**
  * Custom hook to provide live token prices and force re-render on update.

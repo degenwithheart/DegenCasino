@@ -16,12 +16,12 @@ import { PLATFORM_SHARABLE_URL } from '../constants'
 import styled from 'styled-components'
 import { POOLS, PLATFORM_ALLOW_REFERRER_REMOVAL, PLATFORM_REFERRAL_FEE } from '../constants'
 import { truncateString } from '../utils'
-import { generateUsernameFromWallet } from '../utils/userProfileUtils'
-import { useToast } from '../hooks/useToast'
-import { useWalletToast } from '../utils/solanaWalletToast'
+import { generateUsernameFromWallet } from '../utils/user/userProfileUtils'
+import { useToast } from '../hooks/ui/useToast'
+import { useWalletToast } from '../utils/wallet/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useReferralCount } from '../hooks/useReferralAnalytics'
-import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/referralTier'
+import { useReferralCount } from '../hooks/analytics/useReferralAnalytics'
+import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/user/referralTier'
 
 const GridContainer = styled.div<{ $isSingleToken: boolean }>`
   display: grid;

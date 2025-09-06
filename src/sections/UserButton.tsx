@@ -12,10 +12,10 @@ import {
   PLATFORM_REFERRAL_FEE,
 } from '../constants'
 import TokenSelect from './TokenSelect'
-import { useIsCompact } from '../hooks/useIsCompact'
+import { useIsCompact } from '../hooks/ui/useIsCompact'
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '../hooks/useUserStore'
-import { useToast } from '../hooks/useToast'
+import { useUserStore } from '../hooks/data/useUserStore'
+import { useToast } from '../hooks/ui/useToast'
 import { truncateString } from '../utils'
 import {
   GambaUi,

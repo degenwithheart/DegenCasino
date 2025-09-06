@@ -1,6 +1,6 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
-import { useIsCompact } from '../../hooks/useIsCompact'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useTheme } from '../../themes/ThemeContext'
 
 // Keyframe animations matching dashboard style

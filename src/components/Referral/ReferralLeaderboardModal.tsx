@@ -4,10 +4,10 @@ import styled, { keyframes } from 'styled-components'
 import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
 import { useWalletAddress } from 'gamba-react-v2'
 import { Modal } from '../Modal/Modal'
-import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/useReferralAnalytics'
+import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics'
 import { truncateString } from '../../utils'
-import { formatTierDisplay, getReferralTierInfo } from '../../utils/referralTier'
-import { generateUsernameFromWallet } from '../../utils/userProfileUtils'
+import { formatTierDisplay, getReferralTierInfo } from '../../utils/user/referralTier'
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
 
 const quantumDissolve = keyframes`
   0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-5deg); }
