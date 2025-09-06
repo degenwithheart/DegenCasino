@@ -510,60 +510,78 @@ plinko: {
   },
 
 
-  // PROGRESSIVE POWER POKER: Progressive Power Poker game configuration
-  // - Based on "Jacks or Better" video poker with compound betting mechanics
-  // - Progressive mode: continue playing with accumulated profit until bust or cash out
-  // - HAND_TYPES: All possible poker hand types mapped to betArray indices
-  // - betArray: Mathematically balanced payouts for 89% RTP, 45% win rate
+  // CHAIN POKER: Chain-or-Bust poker with progressive hand requirements
+  // - Players must chain progressively better hands or bust
+  // - Any hand equal to or lower than previous hand = instant bust
+  // - Progressive wagering: bet full balance each round until bust or cash out
+  // - HAND_TYPES: Poker hand types ranked from lowest to highest (chain order)
   progressivepoker: {
     HAND_TYPES: [
-      'High Card',      // 0: High Card (Bust) - 30.1% actual chance
-      'High Card',      // 1: High Card (Bust) - 20.0% actual chance  
-      'Low Pair',       // 2: Low Pair 2s-10s (Bust) - 31.3% actual chance
-      'Jacks+ Pair',    // 3: Pair of Jacks or Better - 10.4% actual chance
-      'Two Pair',       // 4: Two Pair - 4.6% actual chance
-      'Three of a Kind', // 5: Three of a Kind - 2.0% actual chance
-      'Straight',       // 6: Straight - 1.2% actual chance
-      'Flush+',         // 7: Flush, Full House, Four of a Kind, Straight Flush, Royal Flush - 0.4% actual chance
+      'Bust',           // 0: Chain broken or initial bust hands - varies by chain position
+      'Bust',           // 1: Chain broken or initial bust hands - varies by chain position  
+      'Bust',           // 2: Chain broken or initial bust hands - varies by chain position
+      'Pair',           // 3: Jacks or Better (lowest chainable hand)
+      'Two Pair',       // 4: Two Pair (next chain level)
+      'Three of a Kind', // 5: Three of a Kind (next chain level)
+      'Straight',       // 6: Straight (next chain level)
+      'Flush+',         // 7: Flush+ (highest chain level: Flush, Full House, Four Kind, Royal)
     ],
-    // Payouts for 96% RTP
-    // Mathematical calculation: target_RTP = sum(probability_i * payout_i)
-    // 96% = 39*1.5624 + 6*2.1700 + 2.5*3.4720 + 1.3*6.9439 + 0.2*21.6998 (calculated for exact 96% RTP)
-    betArray: [
-      0,        // 0: High Card (Bust) - 17.0% chance, 0x payout
-      0,        // 1: High Card (Bust) - 17.0% chance, 0x payout
-      0,        // 2: Low Pair (Bust) - 17.0% chance, 0x payout
-      1.5624,   // 3: Jacks+ Pair - 39.0% chance, 1.5624x payout
-      2.1700,   // 4: Two Pair - 6.0% chance, 2.1700x payout
-      3.4720,   // 5: Three of a Kind - 2.5% chance, 3.4720x payout
-      6.9439,   // 6: Straight - 1.3% chance, 6.9439x payout
-      21.6998,  // 7: Flush+ (includes Full House, Four Kind, Royal) - 0.2% chance, 21.6998x payout
-    ],
-    // Actual RTP: (39*1.5624 + 6*2.1700 + 2.5*3.4720 + 1.3*6.9439 + 0.2*21.6998) / 100 = 96.000%
-    // Actual Win Rate: 39% + 6% + 2.5% + 1.3% + 0.2% = 48.0% (balanced volatility)
     
-    // PROBABILITIES: Balanced for 96% RTP with moderate volatility
+    // CHAIN_RANKINGS: Defines the chain progression order (0 = lowest, 7 = highest)
+    CHAIN_RANKINGS: {
+      'Bust': -1,           // Not part of chain, always busts
+      'Pair': 3,            // Rank 3: Starting chain level
+      'Two Pair': 4,        // Rank 4: Must follow Pair
+      'Three of a Kind': 5, // Rank 5: Must follow Two Pair
+      'Straight': 6,        // Rank 6: Must follow Three of a Kind
+      'Flush': 7,           // Rank 7: Must follow Straight
+      'Full House': 7,      // Rank 7: Same as Flush (highest tier)
+      'Four of a Kind': 7,  // Rank 7: Same as Flush (highest tier)
+      'Royal Flush': 7,     // Rank 7: Same as Flush (highest tier)
+      'Flush+': 7           // Rank 7: Covers all highest tier hands
+    },
+    // Chain-based payouts for 96% RTP
+    // Lower probability of continuing chain = higher multipliers for successful chains
+    betArray: [
+      0,        // 0: Chain Bust - 51.0% chance, 0x payout (any failed chain progression)
+      0,        // 1: Chain Bust - 51.0% chance, 0x payout
+      0,        // 2: Chain Bust - 51.0% chance, 0x payout  
+      2.0,      // 3: Pair (start chain) - 35.0% chance, 2.0x payout
+      3.2,      // 4: Two Pair (chain continues) - 8.0% chance, 3.2x payout
+      5.5,      // 5: Three of a Kind (chain continues) - 3.5% chance, 5.5x payout
+      9.6,      // 6: Straight (chain continues) - 1.8% chance, 9.6x payout
+      27.4,     // 7: Flush+ (max chain) - 0.7% chance, 27.4x payout
+    ],
+    // Calculated RTP: (35*2.0 + 8*3.2 + 3.5*5.5 + 1.8*9.6 + 0.7*27.4) / 100 = 96.0%
+    // Win Rate: 35% + 8% + 3.5% + 1.8% + 0.7% = 49.0% (balanced for chain progression)
+    
+    // CHAIN PROBABILITIES: Probability distribution for chain-or-bust mechanics
     probabilities: {
-      0: 17.0,   // High Card (Bust) - 17.0% 
-      1: 17.0,   // High Card (Bust) - 17.0% 
-      2: 17.0,   // Low Pair (Bust) - 17.0% 
-      3: 39.0,   // Jacks+ Pair - 39.0% (most common win)
-      4: 6.0,    // Two Pair - 6.0% 
-      5: 2.5,    // Three of a Kind - 2.5% 
-      6: 1.3,    // Straight - 1.3% 
-      7: 0.2     // Flush+ - 0.2% (rare but high payout)
+      0: 17.0,   // Chain Bust - 17.0% 
+      1: 17.0,   // Chain Bust - 17.0% 
+      2: 17.0,   // Chain Bust - 17.0% (total 51% bust chance)
+      3: 35.0,   // Pair (start chain) - 35.0% (most common win, starts chain)
+      4: 8.0,    // Two Pair (chain level 2) - 8.0% 
+      5: 3.5,    // Three of a Kind (chain level 3) - 3.5% 
+      6: 1.8,    // Straight (chain level 4) - 1.8% 
+      7: 0.7     // Flush+ (max chain level) - 0.7% (hardest to achieve)
     },
     
-    // DISPLAY_MAPPING: Maps internal hand types to display types
+    // DISPLAY_MAPPING: Maps internal hand types to display types for chain system
     displayMapping: {
       'High Card': 'Bust',
       'Low Pair': 'Bust', 
       'Bust': 'Bust',
       'Jacks+ Pair': 'Pair',
+      'Pair': 'Pair',
       'Two Pair': 'Two Pair',
       'Three of a Kind': 'Three of a Kind',
       'Straight': 'Straight',
-      'Flush+': 'Flush'
+      'Flush': 'Flush',
+      'Full House': 'Full House',
+      'Four of a Kind': 'Four of a Kind',
+      'Royal Flush': 'Royal Flush',
+      'Flush+': 'Flush+'
     },
     
     // CARD_TEMPLATES: Visual card representations for each hand type
@@ -633,7 +651,30 @@ plinko: {
       ]
     },
     
-    // UTILITY FUNCTIONS: Centralized bet array calculations
+    // UTILITY FUNCTIONS: Chain validation and progression logic
+    validateChainProgression: function(previousHandRank: number, currentHandRank: number): boolean {
+      // Chain must progress to higher rank or bust
+      // -1 = no previous hand (first hand of chain)
+      // Returns true if chain can continue, false if bust
+      if (previousHandRank === -1) {
+        // First hand: only Pair+ can start a chain
+        return currentHandRank >= 3; // Index 3 = Pair
+      }
+      
+      // Subsequent hands: must be strictly higher rank
+      return currentHandRank > previousHandRank;
+    },
+    
+    getChainRank: function(handTypeName: string): number {
+      // Returns the chain rank for a hand type (-1 for bust hands)
+      return (this.CHAIN_RANKINGS as any)[handTypeName] ?? -1;
+    },
+    
+    isChainBreaker: function(handTypeName: string, payout: number): boolean {
+      // Determines if this hand breaks the chain (causes bust)
+      return payout === 0 || this.getChainRank(handTypeName) === -1;
+    },
+    
     createWeightedBetArray: function() {
       const betArray: number[] = [];
       

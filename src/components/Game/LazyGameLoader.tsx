@@ -29,7 +29,7 @@ const lazyGames = {
   flip: lazy(() => import('../../games/Flip')),
   dice: lazy(() => import('../../games/Dice')),
   hilo: lazy(() => import('../../games/HiLo')),
-  'progressive-poker': lazy(() => import('../../games/ProgressivePoker')),
+  'progressive-poker': lazy(() => import('../../games/MultiPoker')),
 };
 
 interface LazyGameLoaderProps {
