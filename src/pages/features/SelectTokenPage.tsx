@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import TokenSelect from '../sections/TokenSelect'
-import { useTheme } from '../themes/ThemeContext'
+import TokenSelect from '../../sections/TokenSelect'
+import { useTheme } from '../../themes/ThemeContext'
 
 const PageWrapper = styled.div<{ $theme?: any }>`
   position: fixed;
