@@ -603,16 +603,22 @@ const AdminPage: React.FC = () => {
         });
       } catch (error) {
         console.error('Failed to fetch platform data:', error);
-        // Fallback data
+        // Calculate fallback values using same logic as try block
+        const gameCount = ALL_GAMES.length;
+        const rtpValues = Object.values(RTP_TARGETS);
+        const minRTP = Math.min(...rtpValues) * 100; // Convert to percentage
+        const maxRTP = Math.max(...rtpValues) * 100; // Convert to percentage
+        const rtpRange = `${minRTP}-${maxRTP}`;
+        
         setPlatformData({
           architecture: 'React + Vite + Solana',
-          games: '10+ provably fair games',
+          games: `${gameCount}+ provably fair games`,
           security: 'Wallet-based auth',
           performance: 'Edge caching enabled',
-          rtp: '95-99% across games',
+          rtp: `${rtpRange}% across games`,
           deployment: 'Vercel serverless',
           storage: 'Vercel KV cache',
-          rpc: 'Helius + backup endpoints',
+          rpc: 'Checking endpoints...',
           lastUpdated: new Date().toLocaleTimeString()
         });
       }
@@ -621,7 +627,7 @@ const AdminPage: React.FC = () => {
     if (isCreator) {
       fetchPlatformData();
       // Refresh every 30 seconds
-      const interval = setInterval(fetchPlatformData, 30000);
+      const interval = setInterval(fetchPlatformData, 1200000);
       return () => clearInterval(interval);
     }
   }, [isCreator]);
