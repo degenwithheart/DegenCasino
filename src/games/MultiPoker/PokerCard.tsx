@@ -94,6 +94,18 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
     color: #fff;
     opacity: 0.8;
   }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background-image: url('/png/images/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.6;
+  }
 `
 
 const RankTop = styled.span`
