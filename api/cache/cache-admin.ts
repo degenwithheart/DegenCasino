@@ -44,7 +44,7 @@ export default async function handler(req: Request): Promise<Response> {
         const info = {
           ...stats,
           timestamp: new Date().toISOString(),
-          actions: ['stats', 'cleanup', 'configure']
+          actions: ['stats', 'cleanup', 'configure', 'keys']
         }
         return new Response(JSON.stringify(info), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -77,6 +77,26 @@ export default async function handler(req: Request): Promise<Response> {
           success: true,
           config,
           message: 'Cache configuration updated',
+          timestamp: new Date().toISOString()
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+
+      case 'keys': {
+        const pattern = url.searchParams.get('pattern') || '*'
+        // Mock keys list - in real implementation, list cache keys matching pattern
+        const keys = [
+          'coingecko:solana,usd-coin',
+          'user:Wallet1',
+          'game:slots',
+          'blacklist'
+        ].filter(key => pattern === '*' || key.includes(pattern))
+        
+        return new Response(JSON.stringify({ 
+          keys, 
+          count: keys.length,
+          pattern,
           timestamp: new Date().toISOString()
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }

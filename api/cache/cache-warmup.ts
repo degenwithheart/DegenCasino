@@ -40,6 +40,9 @@ const WARMUP_ENTRIES = [
 ]
 
 export default async function handler(req: Request): Promise<Response> {
+  const url = new URL(req.url)
+  const game = url.searchParams.get('game') || null
+
   const origin = req.headers.get('origin');
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
@@ -58,12 +61,24 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     console.log('[cache-warmup] Starting cache warmup...')
     
-    await warmupCache(WARMUP_ENTRIES)
+    let entries = WARMUP_ENTRIES
+    
+    if (game) {
+      // Add game-specific warmup entries
+      entries = [...entries, {
+        key: `game:${game}`,
+        fetcher: async () => ({ game, status: 'warmed', timestamp: new Date().toISOString() }),
+        ttl: CacheTTL.FIVE_MINUTES
+      }]
+    }
+    
+    await warmupCache(entries)
     
     return new Response(JSON.stringify({
       success: true,
-      entries: WARMUP_ENTRIES.length,
-      message: 'Cache warmup completed',
+      entries: entries.length,
+      game: game || 'all',
+      message: `Cache warmup completed for ${game || 'all'}`,
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
