@@ -339,6 +339,9 @@ const AdminPage: React.FC = () => {
       <Header>
         <Title>🛠️ Admin Control Panel</Title>
         <Subtitle>Manage and monitor your DegenCasino platform</Subtitle>
+        <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '10px' }}>
+          💡 Also accessible from the sidebar menu when creator wallet is connected
+        </div>
       </Header>
 
       <TokenInfo>
