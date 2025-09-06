@@ -1,4 +1,5 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
+import nacl from 'tweetnacl';
 
 // api/chat/chat.ts
 
@@ -56,8 +57,26 @@ async function setLocalMessages(msgs: Msg[]): Promise<void> {
 
 const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
 
-function verifySig(message: string, signatureB64: string, pubkeyBase58: string): Promise<boolean> {
-  return verifyEd25519Signature(message, signatureB64, pubkeyBase58);
+function verifySig(message: string, signatureB64: string, pubkeyBase58: string): boolean {
+  try {
+    // For Edge Runtime, use a simple base58 decode without @solana/web3.js
+    const base58Alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    let decoded = 0n;
+    for (let i = 0; i < pubkeyBase58.length; i++) {
+      decoded = decoded * 58n + BigInt(base58Alphabet.indexOf(pubkeyBase58[i]));
+    }
+    const publicKeyBytes = new Uint8Array(32);
+    for (let i = 31; i >= 0; i--) {
+      publicKeyBytes[i] = Number(decoded & 255n);
+      decoded >>= 8n;
+    }
+    
+    const signature = Uint8Array.from(atob(signatureB64), c => c.charCodeAt(0));
+    const msgBytes = new TextEncoder().encode(message);
+    return nacl.sign.detached.verify(msgBytes, signature, publicKeyBytes);
+  } catch {
+    return false;
+  }
 }
 
 // Simple base58 decoder for Edge Runtime compatibility

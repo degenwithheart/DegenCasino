@@ -1,9 +1,9 @@
 {
   "type": "module",
-  "name": "gamba-platform-template",
+  "name": "degenheart-casino",
   "private": true,
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "DegenHeart.casino. Solana on-chain, provably fair Web3 casino with instant payouts, jackpots, leaderboards, and a 3D “Casino of Chaos.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
