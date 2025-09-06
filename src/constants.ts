@@ -151,11 +151,11 @@ export const TOS_HTML = `
  * if the API key is set in environment variables.
  */
 /**
- * Fetcher for token metadata using the new API route (/api/helius).
+ * Fetcher for token metadata using the new API route (/api/services/helius).
  * Usage: await TOKEN_METADATA_FETCHER([mint1, mint2, ...])
  */
 export const TOKEN_METADATA_FETCHER = async (mints: string[]) => {
-  const res = await fetch('/api/helius', {
+  const res = await fetch('/api/services/helius', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mints }),
@@ -180,7 +180,7 @@ export async function updateTokenPrices() {
   const ids = Object.values(coingeckoMap).join(',');
   
   // Build proxy API URL (avoids CORS issues)
-  const coingeckoUrl = `/api/coingecko?ids=${ids}&vs_currencies=usd`;
+  const coingeckoUrl = `/api/services/coingecko?ids=${ids}&vs_currencies=usd`;
 
   // Promise for CoinGecko fetch via proxy
   const coingeckoPromise = fetch(coingeckoUrl)
@@ -204,7 +204,7 @@ export async function updateTokenPrices() {
 
   // Promise for Helius fetch (if available)
   let heliusPromise: Promise<string> = Promise.reject('No Helius');
-  // Helius API key is now server-only. Fetch token metadata via /api/helius endpoint if needed.
+  // Helius API key is now server-only. Fetch token metadata via /api/services/helius endpoint if needed.
 
   // Race both, prefer CoinGecko if both succeed
   try {

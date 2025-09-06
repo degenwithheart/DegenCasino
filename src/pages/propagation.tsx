@@ -548,7 +548,7 @@ export default function PropagationPage() {
     }
 
     // Use relative path for both Vercel and localhost (works with Vercel dev and Vite proxy)
-    fetch(`/api/check-dns?domain=${domainParam}`)
+    fetch(`/api/dns/check-dns?domain=${domainParam}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch DNS status')
         return res.json()

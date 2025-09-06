@@ -394,7 +394,7 @@ export default function TrollBox() {
   const swrKey =
     isMinimized || (typeof document !== 'undefined' && document.hidden)
       ? null
-      : '/api/chat'
+      : '/api/chat/chat'
   const { data: messages = [], error, mutate } = useSWR<Msg[]>(swrKey, fetcher, {
     refreshInterval: 8000,
     dedupingInterval: 7500,
@@ -409,7 +409,7 @@ export default function TrollBox() {
     if (!isCreator) return;
     setIsClearing(true);
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/api/chat/chat', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address: publicKey?.toBase58() }),
@@ -449,7 +449,7 @@ export default function TrollBox() {
     mutate([...messages, { user: uname, text: txt, ts: id }], false)
     setText('')
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/api/chat/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: uname, text: txt }),

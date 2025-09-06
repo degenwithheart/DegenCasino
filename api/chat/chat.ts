@@ -1,6 +1,6 @@
-import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
+import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
 
-// api/chat.ts
+// api/chat/chat.ts
 
 export const config = { runtime: 'edge' }
 
