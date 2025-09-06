@@ -78,8 +78,8 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   background-image: url('/png/images/card.png');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain; /* avoid cropping the artwork */
-  background-color: #3a0d0d; /* subtle fallback behind transparent edges */
+  background-size: cover; /* fill completely to avoid white borders */
+  background-color: #2d1810; /* darker fallback to match card */
   box-shadow: 0 2px 8px #0005;
   display: ${props => {
     if (props.enableMotion === false) {

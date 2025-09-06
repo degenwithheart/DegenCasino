@@ -45,8 +45,8 @@ export const PlayingCard: React.FC<CardProps> = ({
           backgroundImage: "url('/png/images/card.png')",
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
-          backgroundColor: '#3a0d0d',
+          backgroundSize: 'cover',
+          backgroundColor: '#2d1810',
           overflow: 'hidden'
         }}
       />
