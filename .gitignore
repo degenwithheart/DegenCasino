@@ -1,5 +1,4 @@
 # Ignore test scripts and test results
-scripts
 test_scripts
 test-results
 test_scripts/accurate-integration-test.js
