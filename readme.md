@@ -145,7 +145,7 @@ There are no other developers, team members, contributors, or funders.
 If you find this project valuable and would like to support privacy, open-source, and ongoing work:
 
 > **SOL Address:**  
-> `4U3kLekCh53rXxxQE3hSbqoKKLzZpLYYZRTc26R8mnGe`
+> `6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ`
 
 ---
 
