@@ -39,16 +39,15 @@ export const PlayingCard: React.FC<CardProps> = ({
     >
       {/* Card Back */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-800 to-purple-900 rounded-lg flex items-center justify-center"
-        style={{ backfaceVisibility: 'hidden' }}
-      >
-        <div className="text-white text-xs font-bold opacity-30">🎰</div>
-        <img 
-          src="/png/images/logo.png" 
-          alt="Logo" 
-          className="absolute w-8 h-8 opacity-60"
-        />
-      </div>
+        className="absolute inset-0 rounded-lg"
+        style={{ 
+          backfaceVisibility: 'hidden',
+          backgroundImage: "url('/png/images/card.png')",
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      />
       
       {/* Card Front */}
       <div 

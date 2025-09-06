@@ -74,7 +74,11 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   height: 100%;
   backface-visibility: hidden;
   border-radius: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Use provided card back image as the placeholder */
+  background-image: url('/png/images/card.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   box-shadow: 0 2px 8px #0005;
   display: ${props => {
     if (props.enableMotion === false) {
@@ -87,23 +91,7 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   justify-content: center;
   transform: rotateY(180deg);
   border: 2px solid #ffffff33;
-
-  /* Remove the white card emoji and make the logo more prominent */
-  &::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 56px;
-    height: 56px;
-    background-image: url('/png/images/logo.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.92;
-    pointer-events: none;
-  }
+  /* No extra overlays; the image is the full card back */
 `
 
 const RankTop = styled.span`
