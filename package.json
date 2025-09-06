@@ -48,7 +48,6 @@
     "three": "^0.159.0",
     "three-mesh-bvh": "^0.8.0",
     "tone": "^15.1.22",
-    "uuid": "^10.0.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
@@ -60,7 +59,6 @@
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.0.11",
     "@types/three": "^0.161.2",
-    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "javascript-obfuscator": "^4.1.1",
@@ -88,7 +86,6 @@
     "lodash.isequal": "^4.5.0",
     "uuidv4": "^6.2.13",
     "three-mesh-bvh": "^0.8.0",
-    "@toruslabs/solana-embed": "^3.0.1",
-    "lightningcss": "^1.27.0"
+    "@toruslabs/solana-embed": "^3.0.1"
   }
 }
