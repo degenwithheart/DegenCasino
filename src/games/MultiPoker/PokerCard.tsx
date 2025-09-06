@@ -76,7 +76,7 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   border-radius: 8px;
   /* Use provided card back image as the placeholder */
   background-image: url('/png/images/card.png');
-  background-position: center;
+  background-position: contain;
   background-repeat: no-repeat;
   background-size: cover; /* fill completely to avoid white borders */
   background-color: #2d1810; /* darker fallback to match card */
