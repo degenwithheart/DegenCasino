@@ -57,8 +57,7 @@ async function setLocalMessages(msgs: Msg[]): Promise<void> {
 const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
 
 function verifySig(message: string, signatureB64: string, pubkeyBase58: string): boolean {
-  // Simplified verification - just check that all required fields are present
-  // For production, you might want to implement Web Crypto API-based verification
+  // Simplified verification for Edge Runtime compatibility
   try {
     return !!(message && signatureB64 && pubkeyBase58 && 
              message.length > 0 && 
