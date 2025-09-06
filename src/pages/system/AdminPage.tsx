@@ -144,6 +144,26 @@ const AccessDeniedText = styled.p`
   margin-bottom: 30px;
 `;
 
+const TokenInfo = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+`;
+
+const TokenTitle = styled.h4`
+  color: #ff5555;
+  margin-bottom: 10px;
+  font-size: 1rem;
+`;
+
+const TokenText = styled.p`
+  color: #ccc;
+  font-size: 0.9rem;
+  margin: 5px 0;
+`;
+
 const WalletAddress = styled.code`
   background: rgba(255, 255, 255, 0.1);
   padding: 5px 10px;
@@ -237,7 +257,7 @@ const AdminPage: React.FC = () => {
 
       // Add admin token if required
       if (command.requiresAuth) {
-        const adminToken = localStorage.getItem('admin_token') || prompt('Enter admin token:');
+        const adminToken = localStorage.getItem('admin_token') || prompt('Enter admin token (check .env file or Vercel settings):');
         if (adminToken) {
           headers['X-Admin-Token'] = adminToken;
           localStorage.setItem('admin_token', adminToken);
@@ -320,6 +340,13 @@ const AdminPage: React.FC = () => {
         <Title>🛠️ Admin Control Panel</Title>
         <Subtitle>Manage and monitor your DegenCasino platform</Subtitle>
       </Header>
+
+      <TokenInfo>
+        <TokenTitle>🔐 Admin Token Setup</TokenTitle>
+        <TokenText>• <strong>Local:</strong> Check your .env file for ADMIN_TOKEN</TokenText>
+        <TokenText>• <strong>Production:</strong> Set ADMIN_TOKEN in Vercel environment variables</TokenText>
+        <TokenText>• <strong>Current:</strong> c51e70a71388d56ff6021bae38a60f213a30efbb07414523bd7be5c7b5dd89d1</TokenText>
+      </TokenInfo>
 
       <Grid>
         {ADMIN_COMMANDS.map((command) => (
