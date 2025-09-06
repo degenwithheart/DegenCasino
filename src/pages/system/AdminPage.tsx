@@ -524,14 +524,6 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     method: 'GET'
   },
   {
-    id: 'wallet-blacklist',
-    title: 'Wallet Blacklist',
-    description: 'Manage blacklisted wallets',
-    endpoint: '/api/admin/blacklist?action=list',
-    method: 'GET',
-    requiresAuth: true
-  },
-  {
     id: 'transaction-audit',
     title: 'Transaction Audit',
     description: 'Fetch recent transactions for a wallet',
@@ -550,6 +542,50 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     title: 'RPC Health Check',
     description: 'Check Solana RPC endpoints',
     endpoint: '/api/dns/check-dns?includeRpc=true',
+    method: 'GET'
+  },
+  {
+    id: 'content-get',
+    title: 'Get Content Settings',
+    description: 'View current game visibility and featured settings',
+    endpoint: '/api/admin/content?action=get',
+    method: 'GET'
+  },
+  {
+    id: 'content-set',
+    title: 'Set Game Visibility',
+    description: 'Show/hide specific games',
+    endpoint: '/api/admin/content?action=set&gameId=slots&visibility=true',
+    method: 'GET',
+    requiresAuth: true
+  },
+  {
+    id: 'content-reset',
+    title: 'Reset Content Settings',
+    description: 'Reset all game visibility to defaults',
+    endpoint: '/api/admin/content?action=reset',
+    method: 'GET',
+    requiresAuth: true
+  },
+  {
+    id: 'analytics-stats',
+    title: 'Analytics Overview',
+    description: 'View user engagement and game performance stats',
+    endpoint: '/api/admin/analytics?action=stats',
+    method: 'GET'
+  },
+  {
+    id: 'analytics-events',
+    title: 'Recent Events',
+    description: 'View recent user actions and game events',
+    endpoint: '/api/admin/analytics?action=events',
+    method: 'GET'
+  },
+  {
+    id: 'analytics-performance',
+    title: 'Performance Metrics',
+    description: 'View system performance and load times',
+    endpoint: '/api/admin/analytics?action=performance',
     method: 'GET'
   }
 ];
