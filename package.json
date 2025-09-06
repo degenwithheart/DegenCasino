@@ -8,8 +8,6 @@
     "dev": "vite",
     "build": "vite build",
     "build:compress": "vite build && node scripts/compress-build.mjs",
-    "build:safe": "vite build",
-    "build:vercel": "bash scripts/build-with-fallback.sh",
     "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
@@ -66,7 +64,6 @@
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "javascript-obfuscator": "^4.1.1",
-    "rollup": "^4.24.0",
     "rollup-plugin-gzip": "^4.1.1",
     "sharp": "^0.34.3",
     "tailwindcss": "^4.1.12",
@@ -91,7 +88,6 @@
     "lodash.isequal": "^4.5.0",
     "uuidv4": "^6.2.13",
     "three-mesh-bvh": "^0.8.0",
-    "@toruslabs/solana-embed": "^3.0.1",
-    "rollup": "^4.24.0"
+    "@toruslabs/solana-embed": "^3.0.1"
   }
 }
