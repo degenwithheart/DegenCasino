@@ -1,10 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants';
-import { Modal } from '../../components';
 import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../../themes/ThemeContext';
-import { CloseButton } from '@/components/Modal/Modal.styles';
 
 // Keyframe animations matching dashboard style
 const moveGradient = keyframes`
@@ -136,6 +134,28 @@ const ResultContent = styled.pre`
   color: #ddd;
   max-height: 400px;
   overflow-y: auto;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #ff5555;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 85, 85, 0.2);
+  }
 `;
 
 const DocsSection = styled.div`
@@ -682,13 +702,24 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`}</pre>
       </DocsSection>
 
       {selectedCommand && (
-        <Modal onClose={closeModal}>
-          <ResultModal>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={closeModal}>
+          <ResultModal onClick={(e) => e.stopPropagation()}>
             <CloseButton onClick={closeModal}>×</CloseButton>
             <ResultTitle>{selectedCommand.title} - Result</ResultTitle>
             <ResultContent>{result || 'Loading...'}</ResultContent>
           </ResultModal>
-        </Modal>
+        </div>
       )}
     </AdminContainer>
   );
