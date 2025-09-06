@@ -1,7 +1,7 @@
 # 🎰 DegenHeart Casino
 
 [![Live](https://img.shields.io/badge/live-degenheart.casino-brightgreen?style=flat-square)](https://degenheart.casino)
-[![License](https://img.shields.io/github/license/degenwithheart/DegenCasino?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/degenwithheart/DegenCasino?style=flat-square&v=1)](LICENSE)
 ![Stars](https://img.shields.io/github/stars/degenwithheart/DegenCasino?style=flat-square)
 ![Solana](https://img.shields.io/badge/solana-mainnet-brightgreen?logo=solana&logoColor=white&style=flat-square)
 
