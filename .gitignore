@@ -1,5 +1,3 @@
-# Ignore environment and system files
-ADMIN_URL_COMMANDS.md
 # Ignore environment file
 .env
 **/gamba_integration_guide.txt

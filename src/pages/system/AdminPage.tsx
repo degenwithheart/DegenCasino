@@ -2,7 +2,20 @@ import React, { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants';
 import { Modal } from '../../components';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+import { useTheme } from '../../themes/ThemeContext';
+import { CloseButton } from '@/components/Modal/Modal.styles';
+
+// Keyframe animations matching dashboard style
+const moveGradient = keyframes`
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+`
+
+const sparkle = keyframes`
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+`
 
 const AdminContainer = styled.div`
   max-width: 1200px;
@@ -14,20 +27,32 @@ const AdminContainer = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 40px;
+  position: relative;
 `;
 
-const Title = styled.h1`
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  background: linear-gradient(45deg, #ff5555, #ff8844);
+const Title = styled.h1<{ $theme?: any }>`
+  font-size: 3rem;
+  font-family: 'Luckiest Guy', cursive, sans-serif;
+  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin-bottom: 1rem;
+  animation: ${moveGradient} 3s linear infinite;
+  text-shadow: 0 0 30px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}80;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
-const Subtitle = styled.p`
-  color: #888;
-  font-size: 1.1rem;
+const Subtitle = styled.p<{ $theme?: any }>`
+  font-size: 1.3rem;
+  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
+  margin-bottom: 2rem;
+  font-weight: 300;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Grid = styled.div`
@@ -113,18 +138,91 @@ const ResultContent = styled.pre`
   overflow-y: auto;
 `;
 
-const CloseButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 1.5rem;
-  cursor: pointer;
+const DocsSection = styled.div`
+  margin-top: 60px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+`;
 
-  &:hover {
+const DocsTitle = styled.h2<{ $theme?: any }>`
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+`;
+
+const DocsContent = styled.div`
+  color: #ccc;
+  line-height: 1.6;
+
+  h3 {
     color: #ff5555;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+  }
+
+  h4 {
+    color: #ff8844;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin-bottom: 15px;
+  }
+
+  code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 15px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  ul, ol {
+    margin: 15px 0;
+    padding-left: 30px;
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  th {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffd700;
+  }
+
+  blockquote {
+    border-left: 4px solid #ff5555;
+    padding-left: 20px;
+    margin: 20px 0;
+    color: #aaa;
+    font-style: italic;
   }
 `;
 
@@ -236,6 +334,7 @@ const ADMIN_COMMANDS: AdminCommand[] = [
 
 const AdminPage: React.FC = () => {
   const { publicKey, connected } = useWallet();
+  const { currentTheme } = useTheme();
   const [selectedCommand, setSelectedCommand] = useState<AdminCommand | null>(null);
   const [result, setResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -337,8 +436,8 @@ const AdminPage: React.FC = () => {
   return (
     <AdminContainer>
       <Header>
-        <Title>🛠️ Admin Control Panel</Title>
-        <Subtitle>Manage and monitor your DegenCasino platform</Subtitle>
+        <Title $theme={currentTheme}>🛠️ Admin Control Panel</Title>
+        <Subtitle $theme={currentTheme}>Manage and monitor your DegenCasino platform</Subtitle>
         <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '10px' }}>
           💡 Also accessible from the sidebar menu when creator wallet is connected
         </div>
@@ -365,6 +464,222 @@ const AdminPage: React.FC = () => {
           </Card>
         ))}
       </Grid>
+
+      <DocsSection>
+        <DocsTitle $theme={currentTheme}>📚 Admin Documentation</DocsTitle>
+        <DocsContent>
+          <h3>Direct Browser URLs</h3>
+          
+          <h4>Admin Control Panel</h4>
+          <pre>https://degenheart.casino/admin</pre>
+          <p><em>Creator wallet only - Also accessible via sidebar menu when connected</em></p>
+
+          <h4>RTP Audit Testing</h4>
+          <pre>https://degenheart.casino/api/audit/edgeCases
+https://degenheart.casino/api/audit/edgeCases?plays=50000</pre>
+
+          <h4>Cache Management</h4>
+          <pre>https://degenheart.casino/api/cache/cache-admin?action=stats
+https://degenheart.casino/api/cache/cache-admin?action=cleanup</pre>
+
+          <h4>Cache Warmup</h4>
+          <pre>https://degenheart.casino/api/cache/cache-warmup</pre>
+
+          <h4>DNS Health Check</h4>
+          <pre>https://degenheart.casino/api/dns/check-dns
+https://degenheart.casino/api/dns/check-dns?domain=degenheart.casino</pre>
+
+          <h4>Price Data</h4>
+          <pre>https://degenheart.casino/api/services/coingecko
+https://degenheart.casino/api/services/coingecko?ids=solana,bonk
+https://degenheart.casino/api/services/coingecko?ids=solana,usd-coin,jupiter-exchange,bonk&vs_currencies=usd</pre>
+
+          <h4>Chat System</h4>
+          <pre>https://degenheart.casino/api/chat/chat</pre>
+
+          <h3>Admin Control Panel</h3>
+          <p>The admin control panel provides a user-friendly interface for executing admin commands:</p>
+          <ul>
+            <li><strong>URL:</strong> <code>https://degenheart.casino/admin</code></li>
+            <li><strong>Access:</strong> Creator wallet only</li>
+            <li><strong>Navigation:</strong> Available in sidebar menu when creator wallet is connected</li>
+            <li><strong>Features:</strong>
+              <ul>
+                <li>One-click execution of all admin commands</li>
+                <li>Real-time results in modal popups</li>
+                <li>Secure authentication with admin tokens</li>
+                <li>Visual feedback and loading states</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h3>Curl Commands for Admin Operations</h3>
+
+          <h4>Cache Configuration (POST)</h4>
+          <pre>{`curl -X POST "https://degenheart.casino/api/cache/cache-admin?action=configure" \\
+  -H "Content-Type: application/json" \\
+  -H "X-Admin-Token: YOUR_ADMIN_TOKEN" \\
+  -d '{"maxSize": 100, "ttl": 3600}'`}</pre>
+
+          <h4>Admin Authentication</h4>
+          <pre>{`curl -X POST "https://degenheart.casino/api/auth/auth" \\
+  -H "Content-Type: application/json" \\
+  -H "X-Admin-Token: YOUR_ADMIN_TOKEN" \\
+  -d '{"password": "YOUR_ADMIN_PASSWORD"}'`}</pre>
+
+          <h4>Helius API Proxy</h4>
+          <pre>{`curl -X POST "https://degenheart.casino/api/services/helius" \\
+  -H "Content-Type: application/json" \\
+  -d '{"method": "getBalance", "params": ["YOUR_WALLET_ADDRESS"]}'`}</pre>
+
+          <h3>Local Development URLs</h3>
+          <p>If running locally on <code>http://localhost:4001</code>:</p>
+          <pre>http://localhost:4001/api/audit/edgeCases
+http://localhost:4001/api/cache/cache-admin?action=stats
+http://localhost:4001/api/services/coingecko
+http://localhost:4001/api/dns/check-dns</pre>
+
+          <h3>Quick Admin Commands</h3>
+
+          <h4>Health Check Combo</h4>
+          <pre>{`# Check everything at once
+curl "https://degenheart.casino/api/cache/cache-admin?action=stats"
+curl "https://degenheart.casino/api/dns/check-dns"
+curl "https://degenheart.casino/api/services/coingecko"`}</pre>
+
+          <h4>Emergency Cache Clear</h4>
+          <pre>{`curl "https://degenheart.casino/api/cache/cache-admin?action=cleanup" \\
+  -H "X-Admin-Token: YOUR_ADMIN_TOKEN"`}</pre>
+
+          <h4>RTP Verification</h4>
+          <pre>curl "https://degenheart.casino/api/audit/edgeCases?plays=100000"</pre>
+
+          <h3>Browser Bookmarks</h3>
+          <p>For quick access, bookmark these URLs:</p>
+          <ul>
+            <li><strong>Cache Stats:</strong> <code>https://degenheart.casino/api/cache/cache-admin?action=stats</code></li>
+            <li><strong>DNS Check:</strong> <code>https://degenheart.casino/api/dns/check-dns</code></li>
+            <li><strong>Price Feed:</strong> <code>https://degenheart.casino/api/services/coingecko</code></li>
+            <li><strong>RTP Audit:</strong> <code>https://degenheart.casino/api/audit/edgeCases</code></li>
+          </ul>
+
+          <h3>API Endpoints Summary</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Purpose</th>
+                <th>Auth Required</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/api/audit/edgeCases</code></td>
+                <td>GET</td>
+                <td>RTP validation tests</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><code>/api/auth/auth</code></td>
+                <td>POST</td>
+                <td>Admin authentication</td>
+                <td>Admin Token</td>
+              </tr>
+              <tr>
+                <td><code>/api/cache/cache-admin</code></td>
+                <td>GET/POST</td>
+                <td>Cache management</td>
+                <td>Token for actions</td>
+              </tr>
+              <tr>
+                <td><code>/api/cache/cache-warmup</code></td>
+                <td>GET</td>
+                <td>Cache warmup</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><code>/api/chat/chat</code></td>
+                <td>GET/POST/DELETE</td>
+                <td>Chat system</td>
+                <td>No (DELETE needs signature)</td>
+              </tr>
+              <tr>
+                <td><code>/api/dns/check-dns</code></td>
+                <td>GET</td>
+                <td>DNS health check</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><code>/api/services/coingecko</code></td>
+                <td>GET</td>
+                <td>Price data proxy</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><code>/api/services/helius</code></td>
+                <td>POST</td>
+                <td>Helius API proxy</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Environment Variables Required</h3>
+          <ul>
+            <li><code>ADMIN_TOKEN</code>: For admin operations (set in Vercel environment variables)</li>
+            <li><code>HELIUS_API_KEY</code>: For Helius API proxy</li>
+            <li><code>ACCESS_OVERRIDE_PASSWORD</code>: For admin authentication</li>
+          </ul>
+
+          <h4>Setting up Admin Token</h4>
+          <ol>
+            <li><strong>Local Development:</strong> Add to <code>.env</code> file:
+              <pre>ADMIN_TOKEN=your_secure_random_token_here</pre>
+            </li>
+            <li><strong>Production (Vercel):</strong> Set in Vercel dashboard:
+              <ul>
+                <li>Go to Project Settings → Environment Variables</li>
+                <li>Add <code>ADMIN_TOKEN</code> with a secure random value</li>
+                <li>Redeploy the application</li>
+              </ul>
+            </li>
+            <li><strong>Generate Secure Token:</strong>
+              <pre>{`# Generate a secure random token
+openssl rand -hex 32
+# or
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`}</pre>
+            </li>
+          </ol>
+
+          <h3>Notes</h3>
+          <ul>
+            <li>All endpoints support CORS for <code>degenheart.casino</code> and <code>localhost:4001</code></li>
+            <li>Rate limiting is implemented on most endpoints</li>
+            <li>Cache TTL varies by endpoint (1 minute to 5 minutes)</li>
+            <li>Admin operations require <code>X-Admin-Token</code> header</li>
+            <li>Local development typically runs on port 4001</li>
+          </ul>
+
+          <h3>Quick Reference</h3>
+
+          <h4>Most Used Commands:</h4>
+          <ol>
+            <li><code>https://degenheart.casino/admin</code> - <strong>NEW</strong>: Admin control panel (creator only, sidebar access)</li>
+            <li><code>https://degenheart.casino/api/cache/cache-admin?action=stats</code> - Check cache health</li>
+            <li><code>https://degenheart.casino/api/dns/check-dns</code> - DNS status</li>
+            <li><code>https://degenheart.casino/api/services/coingecko</code> - Price data</li>
+            <li><code>https://degenheart.casino/api/audit/edgeCases</code> - RTP verification</li>
+          </ol>
+
+          <h4>Emergency Commands:</h4>
+          <ol>
+            <li>Cache cleanup: <code>https://degenheart.casino/api/cache/cache-admin?action=cleanup</code></li>
+            <li>Full system check: Run all health check URLs</li>
+            <li>Chat clear: DELETE to <code>/api/chat/chat</code> with signature</li>
+          </ol>
+        </DocsContent>
+      </DocsSection>
 
       {selectedCommand && (
         <Modal onClose={closeModal}>
