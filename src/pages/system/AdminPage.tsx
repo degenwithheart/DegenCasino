@@ -406,8 +406,6 @@ const AdminPage: React.FC = () => {
 
       <TokenInfo>
         <TokenTitle>🔐 Admin Token Setup</TokenTitle>
-        <TokenText>• <strong>Local:</strong> Check your .env file for ADMIN_TOKEN</TokenText>
-        <TokenText>• <strong>Production:</strong> Set ADMIN_TOKEN in Vercel environment variables</TokenText>
         <TokenText>• <strong>Status:</strong> Server-side configured</TokenText>
         <TokenText style={{ color: '#888', fontSize: '0.8rem', marginTop: '10px' }}>
           💡 <strong>Tip:</strong> Token is stored in localStorage after first use
