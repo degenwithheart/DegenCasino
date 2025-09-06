@@ -78,7 +78,8 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   background-image: url('/png/images/card.png');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain; /* avoid cropping the artwork */
+  background-color: #3a0d0d; /* subtle fallback behind transparent edges */
   box-shadow: 0 2px 8px #0005;
   display: ${props => {
     if (props.enableMotion === false) {
@@ -90,7 +91,8 @@ const CardBack = styled.div<{ revealed: boolean; enableMotion?: boolean }>`
   align-items: center;
   justify-content: center;
   transform: rotateY(180deg);
-  border: 2px solid #ffffff33;
+  border: none; /* image includes its own frame */
+  overflow: hidden; /* keep rounded corners clean */
   /* No extra overlays; the image is the full card back */
 `
 

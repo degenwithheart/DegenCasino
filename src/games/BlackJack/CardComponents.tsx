@@ -30,7 +30,7 @@ export const PlayingCard: React.FC<CardProps> = ({
 
   return (
     <motion.div
-      className={`relative w-20 h-28 bg-white rounded-lg border-2 border-gray-300 shadow-lg ${className}`}
+      className={`relative w-20 h-28 rounded-lg shadow-lg ${className}`}
       whileHover={{ scale: 1.05, rotate: 2 }}
       initial={{ rotateY: 180 }}
       animate={{ rotateY: isHidden ? 180 : 0 }}
@@ -45,7 +45,9 @@ export const PlayingCard: React.FC<CardProps> = ({
           backgroundImage: "url('/png/images/card.png')",
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover'
+          backgroundSize: 'contain',
+          backgroundColor: '#3a0d0d',
+          overflow: 'hidden'
         }}
       />
       
