@@ -132,15 +132,15 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./BlackJack')),
   },
   {
-    id: 'progressivepoker',
+    id: 'multiPoker',
     live: 'up',
     meta: {
-      name: 'Progressive Poker',
+      name: 'Multi Poker',
       background: '#000000CC',
-      image: '/webp/games/progressive-poker.webp',
-      description: `Five cards hold your fate, but here fortune favors the bold. Each hand dealt is a whispered promise — will you find the pair that starts your climb, the straight that lifts your spirit, or the royal flush that crowns you king? This is not just poker; it is progression itself, where each win becomes the seed of the next dream. Continue playing and watch your fortune blossom, or cash out and hold what you've earned. But beware — one bust hand and all returns to dust. In Progressive Poker, every decision is a love letter to risk, every hand a chance to rise or fall in the most beautiful way possible.`,
+      image: '/webp/games/multi-poker.webp',
+      description: `Three ways to play, one deck of destiny. Choose your path: Single Hand for classic poker thrills, Chain Mode where each hand must surpass the last or you lose everything, or Progressive Mode where any winning hand continues your streak. Start simple with pairs and straights, or dare the ultimate challenge of climbing the poker ladder — Two Pair, Three of a Kind, Full House, and beyond. Every mode offers its own rhythm of risk and reward, from the instant gratification of single hands to the heart-pounding tension of maintaining an unbroken chain. This is poker reimagined, where your strategy shapes your story and every deal writes a new chapter of fortune.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./ProgressivePoker')),
+    app: React.lazy(() => import('./MultiPoker')),
   },
 ]
