@@ -65,6 +65,12 @@
       ]
     }
   ],
+  "functions": {
+    "api/audit/edgeCases.ts": {
+      "runtime": "edge",
+      "excludeFiles": ["node_modules/tweetnacl/**"]
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
