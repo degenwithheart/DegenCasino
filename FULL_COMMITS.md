@@ -1,0 +1,284 @@
+- 357d4ec Degen Serenade 2025-09-07 Updated APIs
+- fb4105f Degen Serenade 2025-09-06 Updated APIs
+- f7c80c5 Degen Serenade 2025-09-06 Updated APIs
+- 7f85914 Degen Serenade 2025-09-06 Updated APIs
+- 3636db9 Degen Serenade 2025-09-06 Updated APIs
+- 66eff96 Degen Serenade 2025-09-06 Updated APIs
+- c4cdfaa Degen Serenade 2025-09-06 Updated APIs
+- 5425d8b Degen Serenade 2025-09-06 Updated APIs
+- 9b37ddf Degen Serenade 2025-09-06 Updated APIs
+- a277b28 Degen Serenade 2025-09-06 Updated APIs
+- 99ea3bb Degen Serenade 2025-09-06 Updated APIs
+- a2d2d5b Degen Serenade 2025-09-06 Updated APIs
+- 2d3a584 Degen Serenade 2025-09-06 Updated APIs
+- f388b13 Degen Serenade 2025-09-06 Updated APIs
+- 738a4be Degen Serenade 2025-09-06 Updated APIs
+- 7cd04e9 Degen Serenade 2025-09-06 Updated APIs
+- ae2fc33 Degen Serenade 2025-09-06 Updated APIs
+- da31c4b Degen Serenade 2025-09-06 Updated APIs
+- a49fe49 Degen Serenade 2025-09-06 Updated APIs
+- 87597fa Degen Serenade 2025-09-06 Updated APIs
+- 57185df Degen Serenade 2025-09-06 Updated APIs
+- ec3dafb Degen Serenade 2025-09-06 Updated APIs
+- 3649c6d Degen Serenade 2025-09-06 Updated APIs
+- 0cd7aa6 Degen Serenade 2025-09-06 Updated APIs
+- e8205e1 Degen Serenade 2025-09-06 Updated APIs
+- c9a2e99 Degen Serenade 2025-09-06 Updated APIs
+- 40a9c02 Degen Serenade 2025-09-06 Updated APIs
+- 3664afd Degen Serenade 2025-09-06 Updated APIs
+- 42b8365 Degen Serenade 2025-09-06 Updated APIs
+- a1db712 Degen Serenade 2025-09-06 Updated APIs
+- daae459 Degen Serenade 2025-09-06 Updated APIs
+- 5da877a Degen Serenade 2025-09-06 Updated APIs
+- 590df42 Degen Serenade 2025-09-06 Revert tweetnacl changes and keep audit function as Node.js runtime
+- 0d3d805 Degen Serenade 2025-09-06 Updated APIs
+- f69d40b Degen Serenade 2025-09-06 Inline Edge Function dependencies to eliminate tweetnacl import issues
+- 2582b7b Degen Serenade 2025-09-06 Updated APIs
+- 61d727c Degen Serenade 2025-09-06 Updated APIs
+- 1163c91 Degen Serenade 2025-09-06 Updated APIs
+- d935254 Degen Serenade 2025-09-06 Updated APIs
+- 7be8b4f Degen Serenade 2025-09-06 Updated APIs
+- bd2c18b Degen Serenade 2025-09-06 Updated APIs
+- 6493c4c Degen Serenade 2025-09-06 Updated APIs
+- 6d1d48b Degen Serenade 2025-09-06 Updated APIs
+- 15115f8 Degen Serenade 2025-09-06 Updated APIs
+- 6c98212 Degen Serenade 2025-09-06 Updated APIs
+- b5f856f Degen Serenade 2025-09-06 Updated APIs
+- 9d0a99c Degen Serenade 2025-09-06 Updated APIs
+- 811d9f2 Degen Serenade 2025-09-06 Updated APIs
+- 442eed0 Degen Serenade 2025-09-06 Updated APIs
+- 91384f5 Degen Serenade 2025-09-06 Updated APIs
+- 233208b Degen Serenade 2025-09-06 Updated APIs
+- 361a207 Degen Serenade 2025-09-06 Updated APIs
+- e5395fe Degen Serenade 2025-09-06 Updated APIs
+- 0db8c04 Degen Serenade 2025-09-06 Updated APIs
+- 18f4d9d Degen Serenade 2025-09-06 Updated APIs
+- bcbe5bc Degen Serenade 2025-09-06 Updated APIs
+- 84d5671 Degen Serenade 2025-09-06 Updated APIs
+- a9196e9 Degen Serenade 2025-09-06 Updated APIs
+- a4ff6c8 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 732d564 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- f0e2d22 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 576d932 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- e35c448 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 579765b Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- df9dc71 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 7b888d0 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 1569e0b Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 50180e8 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- dbeb4b7 Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- 40338ec Degen Serenade 2025-09-06 Updated Poker UI/UX & added new game modes
+- da28dd1 Degen Serenade 2025-09-05 Updated Slots UI/UX
+- 3f3b189 Degen Serenade 2025-09-05 Integrated low network support
+- c685889 Degen Serenade 2025-09-05 Integrated low network support
+- 4b87828 Degen Serenade 2025-09-05 Integrated low network support
+- 7476676 Degen Serenade 2025-09-05 Integrated low network support
+- 858cb4f Degen Serenade 2025-09-05 Integrated low network support
+- c5c3361 Degen Serenade 2025-09-04 Integrated low network support
+- cd3956a Degen Serenade 2025-09-04 Integrated low network support
+- b799553 Degen Serenade 2025-09-04 Integrated low network support
+- 71c0810 Degen Serenade 2025-09-04 Integrated low network support
+- 6b88d57 Degen Serenade 2025-09-04 Integrated low network support
+- 46ba8b8 Degen Serenade 2025-09-04 Integrated low network support
+- 97e6906 Degen Serenade 2025-09-04 Integrated low network support
+- 4003cfb Degen Serenade 2025-09-04 Integrated low network support
+- 5a58583 Degen Serenade 2025-09-04 Integrated low network support
+- dea8aaa Degen Serenade 2025-09-04 Integrated low network support
+- 880f151 Degen Serenade 2025-09-04 Integrated low network support
+- 6ffdc13 Degen Serenade 2025-09-03 Integrated low network support
+- 3b765fc Degen Serenade 2025-09-03 Integrated low network support
+- bebc71d Degen Serenade 2025-09-03 Integrated low network support
+- e797035 Degen Serenade 2025-09-03 Updated Scoreboard on PlinkoRace
+- fddffb1 Degen Serenade 2025-09-03 Updated Scoreboard on PlinkoRace
+- 09a61c1 Degen Serenade 2025-09-02 Updated Scoreboard on PlinkoRace
+- eb767b6 Degen Serenade 2025-09-02 Updated Accessabilities settings
+- c367b21 Degen Serenade 2025-09-02 Updated Accessabilities settings
+- 60c1bab Degen Serenade 2025-09-02 Updated Accessabilities settings
+- 164a2dc Degen Serenade 2025-09-02 Updated Accessabilities settings
+- b2554d0 Degen Serenade 2025-09-02 Updated Accessabilities settings
+- a6555b4 Degen Serenade 2025-09-02 Updated Accessabilities settings
+- e39ea93 Degen Serenade 2025-09-01 Updated Accessabilities settings
+- 27e1de8 Degen Serenade 2025-09-01 Reorganising Workspace
+- ae2f289 Degen Serenade 2025-09-01 Updating Flip, Mines, HiLo & ProgressivePoker Games
+- d6ea9ae Degen Serenade 2025-08-31 Updating Compression SiteWide
+- edc1c3c Degen Serenade 2025-08-31 Updating Compression SiteWide
+- eeba53e Degen Serenade 2025-08-31 Updating Compression SiteWide
+- 2905971 Degen Serenade 2025-08-31 Updating Compression SiteWide
+- b831b92 Degen Serenade 2025-08-31 Updating Compression SiteWide
+- 5eeda15 Degen Serenade 2025-08-31 Updating Compression SiteWide
+- e5788e2 Degen Serenade 2025-08-31 Updating Compression SiteWide
+- bd45b40 Degen Serenade 2025-08-31 Updating Modal displays.
+- 8ee7e32 Degen Serenade 2025-08-31 Updating Modal displays.
+- 4522556 Degen Serenade 2025-08-31 Updating Modal displays.
+- 84769c4 Degen Serenade 2025-08-31 Updating Modal displays.
+- cefcd26 Degen Serenade 2025-08-31 Updating Modal displays.
+- a9fd048 Degen Serenade 2025-08-31 Updating Modal displays.
+- 1850e14 Degen Serenade 2025-08-31 Updating Modal displays.
+- 9d9a1f2 Degen Serenade 2025-08-31 Updating Modal displays.
+- 061d9f4 Degen Serenade 2025-08-31 Updating Modal displays.
+- 46a80f6 Degen Serenade 2025-08-31 Updating Modal displays.
+- a167465 Degen Serenade 2025-08-31 Updating Modal displays.
+- c5318bc Degen Serenade 2025-08-31 Updating Modal displays.
+- 8e688c6 Degen Serenade 2025-08-30 Updating Modal displays.
+- f707ac5 Degen Serenade 2025-08-30 Updating Modal displays.
+- 02d07f1 Degen Serenade 2025-08-30 Updating mobile layout.
+- ab3fe31 Degen Serenade 2025-08-30 Updating mobile layout.
+- f3af40f Degen Serenade 2025-08-30 Updating mobile layout.
+- f4ea5d1 Degen Serenade 2025-08-30 Updating mobile layout.
+- eda6e39 Degen Serenade 2025-08-30 Updating mobile layout.
+- 015b788 Degen Serenade 2025-08-30 Updating mobile layout.
+- d53e714 Degen Serenade 2025-08-29 Updating mobile layout, expect bugs.
+- 43345dd Degen Serenade 2025-08-29 Temporarily removed JS OBS
+- 97c073f Degen Serenade 2025-08-28 Temporarily removed JS OBS
+- 33fc660 Degen Serenade 2025-08-28 Temporarily removed JS OBS
+- 7cd62f6 Degen Serenade 2025-08-27 Temporarily removed JS OBS
+- 1621f17 Degen Serenade 2025-08-27 Temporarily removed JS OBS
+- 9a9daf6 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 2b4c9c6 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- ec00d7b Degen Serenade 2025-08-27 Major updare to the Referrals system
+- c5a6e81 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 89d0bc4 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 6876d49 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 9d23a06 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 05dad1f Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 0cec172 Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 2a5b67e Degen Serenade 2025-08-27 Major updare to the Referrals system
+- 9de14cf Degen Serenade 2025-08-27 Small Update to build
+- fe747e4 Degen Serenade 2025-08-27 Small Update to build
+- b073ed7 Degen Serenade 2025-08-27 Small Update to build
+- e41c4f9 Degen Serenade 2025-08-27 Small Update to build
+- 5e3caf9 Degen Serenade 2025-08-27 Small Update to cache
+- a96172b Degen Serenade 2025-08-27 Small Update to build
+- 2bfe4e5 Degen Serenade 2025-08-27 Small Update to build
+- 9ece2ea Degen Serenade 2025-08-27 Small Update to build
+- 071e04d Degen Serenade 2025-08-27 Small Update to build
+- 2ddeeb8 Degen Serenade 2025-08-27 Small Update to build
+- bbbf20c Degen Serenade 2025-08-27 Small Update to build
+- 4dcb9d8 Degen Serenade 2025-08-27 Small bugfix
+- ea2ca36 Degen Serenade 2025-08-26 Updated CrashGame
+- 9cdcd17 Degen Serenade 2025-08-26 Udated Plinko
+- 8cbfbe9 Degen Serenade 2025-08-26 Updating JS OBS
+- ba6b1d8 Degen Serenade 2025-08-26 Udating JS OBS
+- 7488ef6 Degen Serenade 2025-08-26 Udating JS OBS
+- f1c53b1 Degen Serenade 2025-08-26 integrated JS OBS
+- bead844 Degen Serenade 2025-08-26 integrated JS OBS
+- 34ed8da Degen Serenade 2025-08-26 integrated JS OBS
+- cf45465 Degen Serenade 2025-08-26 integrated JS OBS
+- 8d86116 Degen Serenade 2025-08-26 integrated JS OBS
+- a47ded8 Degen Serenade 2025-08-26 integrated JS OBS
+- 25b5881 Degen Serenade 2025-08-26 integrated JS OBS
+- c7bc8c1 Degen Serenade 2025-08-26 integrated JS OBS
+- 9d1013e Degen Serenade 2025-08-26 integrated JS OBS
+- 55df303 Degen Serenade 2025-08-26 integrated JS OBS
+- 50ac7c5 Degen Serenade 2025-08-26 integrated JS OBS
+- e68d1eb Degen Serenade 2025-08-26 integrated JS OBS
+- ba0d4dd Degen Serenade 2025-08-26 integrated JS OBS
+- 73e096b Degen Serenade 2025-08-26 integrated JS OBS
+- 800415a Degen Serenade 2025-08-26 integrated JS OBS
+- df1facf Degen Serenade 2025-08-26 integrated JS OBS
+- 64bd6fd Degen Serenade 2025-08-26 integrated JS OBS
+- 801c10b Degen Serenade 2025-08-26 integrated JS OBS
+- 92cbe69 Degen Serenade 2025-08-26 integrated JS OBS
+- a412573 Degen Serenade 2025-08-26 Updated style for Audit page
+- 4663579 Degen Serenade 2025-08-26 Updated style for Audit page
+- 00c6de0 Degen Serenade 2025-08-26 Updated style for Audit page
+- 70d0cf1 Degen Serenade 2025-08-26 Updated style for Audit page
+- ff148e5 Degen Serenade 2025-08-26 Updated style for Audit page
+- 507f1f7 Degen Serenade 2025-08-26 Updated Audit's API
+- 474a4ab Degen Serenade 2025-08-26 Updated Audit's API
+- d999b28 Degen Serenade 2025-08-26 Updated Audit's API
+- 0fb1d6f Degen Serenade 2025-08-26 Updated Audit's API
+- 8590304 Degen Serenade 2025-08-26 🎯 FIX: Plinko RTP calculation - use binomial distribution not uniform
+- cdd9fcf Degen Serenade 2025-08-26 Updated Audit's API
+- 68ab656 Degen Serenade 2025-08-26 Updated Audit's API
+- 764ef00 Degen Serenade 2025-08-26 Updated Audit's API
+- 4187533 Degen Serenade 2025-08-26 Updated Audit's API
+- 8d9840b Degen Serenade 2025-08-26 Updated Audit's API
+- cf33930 Degen Serenade 2025-08-26 Updated Audit's API
+- 05c057d Degen Serenade 2025-08-26 Updated Audit's API
+- d338cb2 Degen Serenade 2025-08-26 Updated Audit's API
+- 63e2710 Degen Serenade 2025-08-25 Updated Audit's API
+- c7c3756 Degen Serenade 2025-08-25 Updated Audit's API
+- eed99f9 Degen Serenade 2025-08-25 Updated Audit's API
+- 7769d9f Degen Serenade 2025-08-25 Updated Audit's API
+- f6f8e3b Degen Serenade 2025-08-25 Updated Audit's API
+- 5273a14 Degen Serenade 2025-08-25 Updated Audit pages
+- b62ad0e Degen Serenade 2025-08-25 Integrated Accessabilities settings in game pages
+- 894ca6f Degen Serenade 2025-08-24 Updating ProgressivePoker
+- d9190d2 Degen Serenade 2025-08-24 Updating ProgressivePoker
+- bf8c35d Degen Serenade 2025-08-24 Updating Slots
+- e77e302 Degen Serenade 2025-08-23 Updating Slots
+- b4582ca Degen Serenade 2025-08-23 Updating Slots visual bug
+- 829530e Degen Serenade 2025-08-23 Updating Toast System Styling
+- b99ff66 Degen Serenade 2025-08-23 Updating Toast System Styling
+- 34d973d Degen Serenade 2025-08-23 Updating Toast System Styling
+- e228247 Degen Serenade 2025-08-23 Updating Toast System Styling
+- 4c00047 Degen Serenade 2025-08-23 Updating Toast System Styling
+- db086fb Degen Serenade 2025-08-23 Updating Toast System Styling
+- 76314f9 Degen Serenade 2025-08-23 Integrating New Toast System
+- fb21081 Degen Serenade 2025-08-23 Integrating New Toast System
+- 6afc963 Degen Serenade 2025-08-23 Integrating New Toast System
+- 255d034 Degen Serenade 2025-08-23 Integrating New Toast System
+- ce5e9f2 Degen Serenade 2025-08-22 Updating Mobile UI/UX
+- 461ffd3 Degen Serenade 2025-08-22 Updating ShareModal
+- 06e4c1b Degen Serenade 2025-08-22 Updating ShareModal
+- 4fb8670 Degen Serenade 2025-08-22 Updating ShareModal
+- f5280ad Degen Serenade 2025-08-22 Updating ShareModal
+- b8217ed Degen Serenade 2025-08-22 Updating API
+- 0490ec0 Degen Serenade 2025-08-22 Updating API
+- 8652623 Degen Serenade 2025-08-22 Updating API
+- 08e83f9 Degen Serenade 2025-08-22 added Roulette
+- 7840240 Degen Serenade 2025-08-22 added Roulette
+- b9a1f24 Degen Serenade 2025-08-22 added Roulette
+- d9dc1c0 Degen Serenade 2025-08-22 added Roulette
+- c3ae27c Degen Serenade 2025-08-22 added Roulette
+- babc044 Degen Serenade 2025-08-22 added Roulette
+- 39fab89 Degen Serenade 2025-08-22 added Roulette
+- ad4aa12 Degen Serenade 2025-08-22 Updated Flip
+- b06e75d Degen Serenade 2025-08-22 Recalibrated all games for a better visual result.
+- a8f6bf9 Degen Serenade 2025-08-22 Mines game has a new design & Progressive Poker is now truely progressive
+- 7c16189 Degen Serenade 2025-08-22 Mines game has a new design & Progressive Poker is now truely progressive
+- f9cf782 Degen Serenade 2025-08-21 Mines game has a new design & Progressive Poker is now truely progressive
+- 3a003af Degen Serenade 2025-08-21 Updated NavBar
+- 8e82b37 Degen Serenade 2025-08-21 Updated TrollBox
+- 97ddce8 Degen Serenade 2025-08-21 Restyled Explorer page
+- 3d7fd72 Degen Serenade 2025-08-21 Added Explorer page
+- 6aa0045 Degen Serenade 2025-08-20 Referral System added to the token modal and profile page
+- ba54ef9 Degen Serenade 2025-08-20 Referral System added to the token modal and profile page
+- de9d0f2 Degen Serenade 2025-08-20 Referral System added to the token modal and profile page
+- 7b567ac Degen Serenade 2025-08-20 Chat message design update
+- 0be9e12 Degen Serenade 2025-08-20 Chat message design update
+- 7ff1b5c Degen Serenade 2025-08-20 Styles for multiplayer games
+- 4edd87c Degen Serenade 2025-08-20 Updated DNS calls
+- 153e9bc Degen Serenade 2025-08-20 Updated DNS calls
+- c017b0c Degen Serenade 2025-08-20 Updated DNS calls
+- 68def2b Degen Serenade 2025-08-20 Updated DNS calls
+- 90399a4 Degen Serenade 2025-08-20 Updated DNS calls
+- 41c3248 Degen Serenade 2025-08-20 Updated DNS calls
+- 3688302 Degen Serenade 2025-08-20 Updated DNS calls
+- adf66e9 Degen Serenade 2025-08-20 Updated DNS calls
+- 3e33186 Degen Serenade 2025-08-20 Added caching for all RPC/API calls
+- e631fa6 Degen Serenade 2025-08-20 Added caching for all RPC/API calls
+- 99a85b1 Degen Serenade 2025-08-20 Added caching for all RPC/API calls
+- 76a7bf0 Degen Serenade 2025-08-20 Added caching for all RPC/API calls
+- 7c90322 Degen Serenade 2025-08-20 Updated Server Status
+- 0ec8747 Degen Serenade 2025-08-20 Updated Server Status
+- ba02e1e Degen Serenade 2025-08-20 Updated Server Status
+- 2eade01 Degen Serenade 2025-08-20 Updated Server Status
+- 8f03ee2 Degen Serenade 2025-08-20 Delete .env
+- 5b8cc50 Degen Serenade 2025-08-20 Updated TickerTape
+- a6bb338 Degen Serenade 2025-08-20 Updated Plinko
+- b1811ad Degen Serenade 2025-08-20 Updated a redirect bug
+- c0e9914 Degen Serenade 2025-08-20 Styling the chatbox.
+- 3563644 Degen Serenade 2025-08-20 Added the chatbox.
+- a100f39 Degen Serenade 2025-08-20 Added the chatbox.
+- cd741de Degen Serenade 2025-08-20 Added the chatbox.
+- e93feda Degen Serenade 2025-08-20 Added the chatbox.
+- bb0ad47 Degen Serenade 2025-08-20 Added the chatbox.
+- a6f9c67 Degen Serenade 2025-08-20 Update .env
+- 5bfcc9e Degen Serenade 2025-08-20 Added the chatbox.
+- cf0f534 Degen Serenade 2025-08-20 Merge remote-tracking branch 'origin/main' into main
+- 8ac3a7b Degen Serenade 2025-08-20 Global rtpConfig for all games & new Audit page.
+- 0952607 Degen Serenade 2025-08-19 Create .env
+- d23af7c Degen Serenade 2025-08-19 Update Game.tsx
+- d2526df Degen Serenade 2025-08-19 New Layout

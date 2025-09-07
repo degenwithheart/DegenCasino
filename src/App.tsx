@@ -25,6 +25,7 @@ import Footer from './sections/Footer';
 import styled from 'styled-components';
 // Lazy load pages and components
 const Propagation = lazy(() => import('./pages/system/propagation'));
+const ChangelogPage = lazy(() => import('./pages/system/ChangelogPage'));
 // Lazy load pages
 const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
@@ -259,6 +260,7 @@ export default function App() {
               <Route path="/whitepaper" element={<Whitepaper />} />
               <Route path="/aboutme" element={<AboutMe />} />
               <Route path="/audit" element={<FairnessAudit />} />
+              <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/propagation" element={<Propagation />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/explorer" element={<ExplorerIndex />} />

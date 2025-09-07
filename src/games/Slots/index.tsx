@@ -78,7 +78,7 @@ export default function Slots() {
   // Add ref for gameplay effects
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
-  const isValid = bet.some((x: number) => x > 1)
+  const isValid = wager > 0 && bet.some((x: number) => x > 0)
 
   useEffect(
     () => {

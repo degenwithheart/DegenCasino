@@ -40,6 +40,7 @@
     "matter-js": "^0.20.0",
     "minimist": "^1.2.8",
     "node-fetch": "^2.7.0",
+    "octokit": "^5.0.3",
     "react": "^18.3.1",
     "react-casino-roulette": "^1.1.2",
     "react-dom": "^18.3.1",

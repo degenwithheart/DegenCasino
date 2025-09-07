@@ -107,7 +107,7 @@ export function Profile() {
       >
           {/* Banner image */}
           <img
-            src="/webp/casino.webp"
+            src="/webp/images/casino.webp"
             alt="Banner"
             style={{
               width: "100%",
