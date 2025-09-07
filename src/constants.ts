@@ -98,7 +98,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
     baseWager: 1e9,
     decimals: 9,
-    usdPrice: 192.55,
+    usdPrice: 202.89,
   },
   {
     mint: new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
@@ -107,7 +107,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
     baseWager: 1e6,
     decimals: 6,
-    usdPrice: 0.9999,
+    usdPrice: 0.999781,
   },
   {
     mint: new PublicKey('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'),
@@ -116,7 +116,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     image: 'https://static.jup.ag/jup/icon.png',
     baseWager: 1e9,
     decimals: 9,
-    usdPrice: 0.000932,
+    usdPrice: 0.498918,
   },
   {
     mint: new PublicKey('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'),
@@ -125,7 +125,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     image: 'https://quei6zhlcfsxdfyes577gy7bkxmuz7qqakyt72xlbkyh7fysmoza.arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I',
     baseWager: 1e9,
     decimals: 9,
-    usdPrice: 0.00002806,
+    usdPrice: 0.00002029,
   },
   {
     mint: FAKE_TOKEN_MINT,
@@ -172,7 +172,7 @@ export async function updateTokenPrices() {
   const coingeckoMap: { [mint: string]: string } = {
     'So11111111111111111111111111111111111111112': 'solana',
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': 'usd-coin',
-    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN': 'jupiter-exchange',
+    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN': 'jupiter-exchange-solana',
     'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 'bonk',
   };
 

@@ -2,8 +2,6 @@ import { computed } from '@preact/signals-react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useUserBalance, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { RouletteTable } from 'react-casino-roulette'
-import 'react-casino-roulette/dist/index.css'
 import styled from 'styled-components'
 import { GameplayFrame, useGraphics } from '../../components'
 import type { GameplayEffectsRef } from '../../components'
@@ -258,10 +256,6 @@ export default function Roulette() {
               <Wrapper onContextMenu={(e) => e.preventDefault()}>
                 <Stats wager={actualWager} />
                 <Results enableMotion={settings.enableMotion} />
-                <RouletteTable
-                  onBet={handleRouletteTableBet}
-                  bets={rouletteBets}
-                />
               </Wrapper>
             )}
             
