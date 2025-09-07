@@ -160,8 +160,9 @@ export const StyledFlipBackground = styled.div`
   gap: 10px;
   padding: 10px 14px;
   height: 100%;
-  /* Mobile-first: leave space for bottom controls */
-  min-height: calc(100vh - 180px);
+  /* Mobile-first: leave space for bottom controls with dynamic viewport height */
+  min-height: calc(100vh - 160px);
+  min-height: calc(100dvh - 160px);
   position: relative;
   z-index: 2;
   }
@@ -339,7 +340,8 @@ export const StyledFlipBackground = styled.div`
   width: 100%;
   max-width: 980px;
   /* cap height on mobile so controls at bottom remain visible */
-  height: min(40vh, calc(100vh - 260px));
+  height: min(40vh, calc(100vh - 240px));
+  height: min(40dvh, calc(100dvh - 240px));
     border-radius: 12px;
     background: transparent;
     box-shadow: 

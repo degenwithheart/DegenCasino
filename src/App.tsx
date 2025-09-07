@@ -50,19 +50,38 @@ const LoadingSpinner = () => (
 );
 
 const MainContent = styled.main`
-  min-height: calc(100vh - 140px);
+  /* Mobile-first approach with dynamic viewport height */
+  min-height: calc(100vh - 120px);
+  min-height: calc(100dvh - 120px);
   padding-top: 1rem;
   padding-left: ${SIDEBAR_WIDTH}px;
   padding-right: 0;
   padding-bottom: 80px;
   transition: padding 0.3s ease;
+  
+  /* Mobile devices - no sidebar, adjusted padding */
   @media (max-width: 900px) {
     padding-left: 0;
-    padding-bottom: 80px;
+    padding-bottom: 60px;
+    min-height: calc(100vh - 100px);
+    min-height: calc(100dvh - 100px);
   }
+  
+  /* Small mobile devices - even less padding */
   @media (max-width: 700px) {
     padding-left: 0;
-    padding-bottom: 80px;
+    padding-bottom: 60px;
+    padding-top: 0.5rem;
+    min-height: calc(100vh - 80px);
+    min-height: calc(100dvh - 80px);
+  }
+  
+  /* Very small mobile devices */
+  @media (max-width: 479px) {
+    padding-bottom: 50px;
+    padding-top: 0.25rem;
+    min-height: calc(100vh - 60px);
+    min-height: calc(100dvh - 60px);
   }
 `;
 

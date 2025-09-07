@@ -18,35 +18,49 @@ export const loadingAnimation = keyframes`
 `
 
 export const Container = styled.div`
-  /* Mobile-first: Start with mobile styles */
-  margin: 0 1rem;
-  max-width: calc(100vw - 2rem);
+  /* Mobile-first: Start with mobile styles - prevent overflow */
+  margin: 0 0.5rem;
+  max-width: calc(100vw - 1rem);
+  width: 100%;
   position: relative;
   display: grid;
   gap: 5px;
+  box-sizing: border-box;
+  
+  /* Small mobile devices */
+  @media (min-width: 375px) {
+    margin: 0 0.75rem;
+    max-width: calc(100vw - 1.5rem);
+  }
   
   /* Small tablets (640px - 767px) */
   @media (min-width: 640px) {
-    margin: 0 1.5rem;
-    max-width: calc(100vw - 3rem);
+    margin: 0 1rem;
+    max-width: calc(100vw - 2rem);
   }
   
   /* Tablets (768px - 899px) */
   @media (min-width: 768px) {
-    margin: 0 2rem;
-    max-width: calc(100vw - 4rem);
+    margin: 0 1.5rem;
+    max-width: calc(100vw - 3rem);
   }
   
   /* Large tablets/small laptops (900px - 1023px) */
   @media (min-width: 900px) {
-    margin: 0 2.5rem;
-    max-width: calc(100vw - 5rem);
+    margin: 0 2rem;
+    max-width: calc(100vw - 4rem);
   }
   
   /* Desktop and up */
   @media (min-width: 1024px) {
-    margin: 0 3rem;
-    max-width: calc(100vw - 6rem);
+    margin: 0 2.5rem;
+    max-width: calc(100vw - 5rem);
+  }
+  
+  /* Large desktop */
+  @media (min-width: 1440px) {
+    margin: 0 auto;
+    max-width: min(calc(100vw - 6rem), 1400px);
   }
 `
 
@@ -100,27 +114,46 @@ export const Screen = styled.div`
   border-radius: 10px;
   overflow: hidden;
   transition: height 0.2s ease;
-  /* Mobile-first: Start with mobile viewport optimized height */
-  height: clamp(320px, calc(100vh - 180px), 500px);
+  /* Mobile-first: Start with mobile viewport optimized height using dynamic viewport units */
+  /* Fallback for browsers that don't support dvh */
+  height: clamp(300px, calc(100vh - 160px), 450px);
+  /* Modern browsers with dynamic viewport height support */
+  height: clamp(300px, calc(100dvh - 160px), 450px);
+  
+  /* Small mobile devices (portrait) */
+  @media (max-width: 479px) {
+    height: clamp(280px, calc(100vh - 140px), 400px);
+    height: clamp(280px, calc(100dvh - 140px), 400px);
+  }
   
   /* Small tablets (640px - 767px) */
   @media (min-width: 640px) {
-    height: clamp(380px, calc(100vh - 220px), 600px);
+    height: clamp(350px, calc(100vh - 200px), 550px);
+    height: clamp(350px, calc(100dvh - 200px), 550px);
   }
   
   /* Tablets (768px - 899px) */
   @media (min-width: 768px) {
-    height: clamp(420px, calc(100vh - 260px), 720px);
+    height: clamp(400px, calc(100vh - 240px), 650px);
+    height: clamp(400px, calc(100dvh - 240px), 650px);
   }
   
   /* Large tablets/small laptops (900px - 1023px) */
   @media (min-width: 900px) {
-    height: clamp(450px, calc(100vh - 280px), 800px);
+    height: clamp(420px, calc(100vh - 260px), 750px);
+    height: clamp(420px, calc(100dvh - 260px), 750px);
   }
   
   /* Desktop */
   @media (min-width: 1024px) {
-    height: clamp(480px, calc(100vh - 300px), 900px);
+    height: clamp(450px, calc(100vh - 280px), 850px);
+    height: clamp(450px, calc(100dvh - 280px), 850px);
+  }
+  
+  /* Large desktop */
+  @media (min-width: 1440px) {
+    height: clamp(500px, calc(100vh - 300px), 900px);
+    height: clamp(500px, calc(100dvh - 300px), 900px);
   }
 `
 
@@ -198,24 +231,27 @@ export const Controls = styled.div`
   border: 2px solid #ffd70044;
   box-shadow: 0 6px 32px #ffd70022, 0 1.5px 0px #ff006622;
   /* Mobile-first: Start with mobile styles */
-  padding: 14px 8px;
+  padding: 12px 6px;
   color: #fffbe6;
-  border-radius: 18px;
+  border-radius: 16px;
   z-index: 6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  overflow: visible;
-  gap: 18px;
+  overflow: hidden;
+  gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   
   /* Casino glow */
   &:before {
     content: '';
     position: absolute;
     inset: -6px;
-    border-radius: 22px;
+    border-radius: 20px;
     background: radial-gradient(circle, #ffd70055 0%, transparent 80%);
     z-index: 0;
     pointer-events: none;
@@ -223,18 +259,27 @@ export const Controls = styled.div`
   > * {
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Small mobile adjustments */
+  @media (min-width: 375px) {
+    padding: 14px 8px;
+    gap: 16px;
   }
   
   /* Small tablets: Still column layout but with more padding */
   @media (min-width: 640px) {
     padding: 16px 12px;
-    gap: 20px;
+    gap: 18px;
+    border-radius: 18px;
   }
   
   /* Tablets: Still column layout but optimized for tablets */
   @media (min-width: 768px) {
     padding: 18px 16px;
-    gap: 22px;
+    gap: 20px;
   }
   
   /* Large tablets/small laptops: Transition to hybrid layout */
@@ -243,6 +288,7 @@ export const Controls = styled.div`
     gap: 20px;
     height: 80px;
     padding: 20px 24px;
+    overflow: visible;
   }
   
   /* Desktop and up: Full desktop layout */
