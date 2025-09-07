@@ -142,14 +142,16 @@ const Button = styled.button`
 `;
 
 const ResultModal = styled.div`
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 85, 85, 0.3);
   border-radius: 12px;
-  padding: 20px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
+  padding: 25px;
+  max-width: 800px;
+  width: 95%;
+  max-height: 85vh;
   overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
 `;
 
 const ResultTitle = styled.h3`
@@ -159,15 +161,42 @@ const ResultTitle = styled.h3`
 
 const ResultContent = styled.pre`
   background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
   white-space: pre-wrap;
-  word-break: break-all;
-  color: #ddd;
-  max-height: 400px;
+  word-break: break-word;
+  color: #e0e0e0;
+  max-height: 500px;
   overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 85, 85, 0.5);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 85, 85, 0.7);
+  }
+
+  /* Highlight status icons and emojis */
+  span.status-icon {
+    font-size: 1.1rem;
+    margin-right: 4px;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -323,6 +352,322 @@ const AdminPage: React.FC = () => {
   // Check if connected wallet is the creator
   const isCreator = connected && publicKey?.equals(PLATFORM_CREATOR_ADDRESS);
 
+  // Format results in a human-readable way
+  const formatResult = (command: AdminCommand, jsonData: any): string => {
+    // Handle monitoring API responses with human-readable formatting
+    if (command.id === 'comprehensive-test') {
+      return formatComprehensiveTest(jsonData);
+    }
+    
+    if (command.id === 'rpc-health') {
+      return formatRpcHealth(jsonData);
+    }
+    
+    if (command.id === 'usage-metrics') {
+      return formatUsageMetrics(jsonData);
+    }
+    
+    if (command.id === 'cache-stats') {
+      return formatCacheStats(jsonData);
+    }
+    
+    if (command.id === 'dns-check') {
+      return formatDnsCheck(jsonData);
+    }
+    
+    if (command.id === 'rtp-audit') {
+      return formatRtpAudit(jsonData);
+    }
+    
+    if (command.id === 'price-data') {
+      return formatPriceData(jsonData);
+    }
+    
+    if (command.id === 'chat-messages') {
+      return formatChatMessages(jsonData);
+    }
+    
+    // Default JSON formatting for unknown commands
+    return JSON.stringify(jsonData, null, 2);
+  };
+
+  const formatComprehensiveTest = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    const status = data.overallStatus || 'unknown';
+    const statusIcon = status === 'healthy' ? '🟢' : status === 'degraded' ? '🟡' : '🔴';
+    
+    let result = `${statusIcon} SYSTEM STATUS: ${status.toUpperCase()}\n`;
+    result += `${'═'.repeat(50)}\n\n`;
+    
+    // Summary
+    if (data.summary) {
+      result += `📊 TEST SUMMARY:\n`;
+      result += `   ✓ Total Tests: ${data.summary.totalTests}\n`;
+      result += `   ✓ Successful: ${data.summary.successfulTests}\n`;
+      result += `   ${data.summary.failedTests > 0 ? '✗' : '✓'} Failed: ${data.summary.failedTests}\n`;
+      result += `   📈 Success Rate: ${((data.summary.successfulTests / data.summary.totalTests) * 100).toFixed(1)}%\n`;
+      result += `   ⚡ Average Response: ${Math.round(data.summary.averageResponseTime)}ms\n\n`;
+    }
+    
+    // RPC Health Summary
+    if (data.rpcHealth) {
+      const rpcStatus = data.rpcHealth.overallStatus;
+      const rpcIcon = rpcStatus === 'healthy' ? '🟢' : rpcStatus === 'degraded' ? '🟡' : '🔴';
+      result += `${rpcIcon} RPC HEALTH:\n`;
+      result += `   📡 Status: ${rpcStatus.toUpperCase()}\n`;
+      result += `   📞 Successful Calls: ${data.rpcHealth.successfulCalls}/${data.rpcHealth.totalCalls}\n`;
+      result += `   ⚡ Average Response: ${Math.round(data.rpcHealth.averageResponseTime)}ms\n\n`;
+    }
+    
+    // Usage Metrics
+    if (data.usageMetrics) {
+      result += `📈 DAILY USAGE ESTIMATE:\n`;
+      const usage = data.usageMetrics.estimatedDailyUsage;
+      result += `   🔄 Total API Calls: ${usage.totalDaily?.toLocaleString() || 'N/A'}\n`;
+      result += `   🔌 RPC Calls: ${usage.rpcDaily?.toLocaleString() || 'N/A'}\n`;
+      result += `   💰 Price API Calls: ${usage.priceDaily?.toLocaleString() || 'N/A'}\n`;
+      result += `   🌐 Helius Calls: ${usage.heliusDaily?.toLocaleString() || 'N/A'}\n\n`;
+      
+      if (data.usageMetrics.costEstimates) {
+        result += `💰 MONTHLY COST ESTIMATE:\n`;
+        const costs = data.usageMetrics.costEstimates;
+        result += `   💸 Total: $${costs.totalEstimatedMonthlyCost?.toFixed(2) || 'N/A'}\n`;
+        result += `   🌐 Helius: $${costs.heliusCost?.toFixed(2) || 'N/A'}\n`;
+        result += `   📊 CoinGecko: $${costs.coinGeckoCost?.toFixed(2) || 'N/A'}\n\n`;
+      }
+    }
+    
+    // Recommendations
+    if (data.recommendations && data.recommendations.length > 0) {
+      result += `💡 RECOMMENDATIONS:\n`;
+      data.recommendations.forEach((rec: string, index: number) => {
+        result += `   ${index + 1}. ${rec}\n`;
+      });
+      result += `\n`;
+    }
+    
+    result += `🕐 Test completed in ${data.duration}ms\n`;
+    result += `📅 ${new Date(data.timestamp).toLocaleString()}`;
+    
+    return result;
+  };
+
+  const formatRpcHealth = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    const status = data.overallStatus || 'unknown';
+    const statusIcon = status === 'healthy' ? '🟢' : status === 'degraded' ? '🟡' : '🔴';
+    
+    let result = `${statusIcon} RPC HEALTH STATUS: ${status.toUpperCase()}\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    // Overall metrics
+    result += `📊 OVERALL METRICS:\n`;
+    result += `   • Total Calls: ${data.totalCalls}\n`;
+    result += `   • Successful: ${data.successfulCalls}\n`;
+    result += `   • Failed: ${data.failedCalls}\n`;
+    result += `   • Success Rate: ${((data.successfulCalls / data.totalCalls) * 100).toFixed(1)}%\n`;
+    result += `   • Average Response: ${Math.round(data.averageResponseTime)}ms\n\n`;
+    
+    // Endpoint summaries
+    if (data.endpointSummaries && data.endpointSummaries.length > 0) {
+      result += `🔌 ENDPOINT STATUS:\n`;
+      data.endpointSummaries.forEach((endpoint: any) => {
+        const epStatus = endpoint.status;
+        const epIcon = epStatus === 'healthy' ? '🟢' : epStatus === 'degraded' ? '🟡' : '🔴';
+        result += `\n   ${epIcon} ${endpoint.type.toUpperCase()} RPC:\n`;
+        result += `      • Status: ${epStatus}\n`;
+        result += `      • Success Rate: ${((endpoint.successfulTests / endpoint.totalTests) * 100).toFixed(1)}%\n`;
+        result += `      • Avg Response: ${Math.round(endpoint.averageResponseTime)}ms\n`;
+        result += `      • Critical Failures: ${endpoint.criticalFailures}\n`;
+      });
+    }
+    
+    // Daily usage estimate
+    if (data.estimatedDailyUsage) {
+      result += `\n\n📈 ESTIMATED DAILY USAGE:\n`;
+      result += `   • Total Calls/Day: ${data.estimatedDailyUsage.totalCallsPerDay?.toLocaleString()}\n`;
+      if (data.estimatedDailyUsage.peakUsagePeriods) {
+        result += `   • Peak Hours: ${data.estimatedDailyUsage.peakUsagePeriods.join(', ')}\n`;
+      }
+    }
+    
+    result += `\n🕐 Analysis completed in ${data.duration}ms\n`;
+    result += `📅 ${new Date(data.timestamp).toLocaleString()}`;
+    
+    return result;
+  };
+
+  const formatUsageMetrics = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    let result = `📊 API USAGE METRICS REPORT\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    // Current period summary
+    result += `📈 CURRENT HOUR USAGE:\n`;
+    result += `   • Total API Calls: ${data.totalApiCalls?.toLocaleString()}\n`;
+    result += `   • RPC Calls: ${data.rpcCalls?.toLocaleString()}\n`;
+    result += `   • Price API Calls: ${data.priceApiCalls?.toLocaleString()}\n`;
+    result += `   • Chat API Calls: ${data.chatApiCalls?.toLocaleString()}\n`;
+    result += `   • Helius Calls: ${data.heliusApiCalls?.toLocaleString()}\n\n`;
+    
+    // Daily estimates
+    if (data.estimatedDailyUsage) {
+      result += `🗓️ ESTIMATED DAILY USAGE:\n`;
+      const daily = data.estimatedDailyUsage;
+      result += `   • Total: ${daily.totalDaily?.toLocaleString()}\n`;
+      result += `   • RPC: ${daily.rpcDaily?.toLocaleString()}\n`;
+      result += `   • Price APIs: ${daily.priceDaily?.toLocaleString()}\n`;
+      result += `   • Helius: ${daily.heliusDaily?.toLocaleString()}\n`;
+      result += `   • Chat: ${daily.chatDaily?.toLocaleString()}\n`;
+      result += `   • Cache/DNS: ${(daily.cacheDaily + daily.dnsDaily)?.toLocaleString()}\n\n`;
+    }
+    
+    // Cost estimates
+    if (data.costEstimates) {
+      result += `💰 MONTHLY COST ESTIMATES:\n`;
+      const costs = data.costEstimates;
+      result += `   • Total: $${costs.totalEstimatedMonthlyCost?.toFixed(2)}\n`;
+      result += `   • Helius API: $${costs.heliusCost?.toFixed(2)}\n`;
+      result += `   • CoinGecko: $${costs.coinGeckoCost?.toFixed(2)}\n`;
+      result += `   • CoinMarketCap: $${costs.coinMarketCapCost?.toFixed(2)}\n\n`;
+    }
+    
+    // Peak usage times
+    if (data.peakUsageTimes && data.peakUsageTimes.length > 0) {
+      result += `⏰ PEAK USAGE TIMES:\n`;
+      data.peakUsageTimes.forEach((time: string, index: number) => {
+        result += `   ${index + 1}. ${time} UTC\n`;
+      });
+      result += `\n`;
+    }
+    
+    // Hourly breakdown (show last 6 hours)
+    if (data.usageByHour) {
+      result += `📊 HOURLY USAGE (Last 6 Hours):\n`;
+      const hours = Object.entries(data.usageByHour).slice(0, 6);
+      hours.forEach(([hour, calls]: [string, any]) => {
+        result += `   • ${hour}: ${calls?.toLocaleString()} calls\n`;
+      });
+    }
+    
+    result += `\n📅 Report generated: ${new Date(data.timestamp).toLocaleString()}`;
+    
+    return result;
+  };
+
+  const formatCacheStats = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    let result = `💾 CACHE STATISTICS\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    result += `📊 CACHE PERFORMANCE:\n`;
+    result += `   • Total Entries: ${data.totalEntries || 'N/A'}\n`;
+    result += `   • Hit Rate: ${data.hitRate ? (data.hitRate * 100).toFixed(1) + '%' : 'N/A'}\n`;
+    result += `   • Memory Usage: ${data.memoryUsage || 'N/A'}\n`;
+    result += `   • Expired Entries: ${data.expiredEntries || 'N/A'}\n\n`;
+    
+    if (data.actions) {
+      result += `🛠️ AVAILABLE ACTIONS:\n`;
+      data.actions.forEach((action: string) => {
+        result += `   • ${action}\n`;
+      });
+    }
+    
+    result += `\n📅 ${new Date(data.timestamp).toLocaleString()}`;
+    
+    return result;
+  };
+
+  const formatDnsCheck = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    const status = data.status || 'unknown';
+    const statusIcon = status === 'Online' ? '🟢' : status === 'Issues' ? '🟡' : '🔴';
+    
+    let result = `${statusIcon} DNS STATUS: ${status.toUpperCase()}\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    if (data.results && data.results.length > 0) {
+      result += `🌍 GLOBAL DNS STATUS:\n`;
+      data.results.forEach((location: any) => {
+        const locIcon = location.status === 'online' ? '🟢' : '🔴';
+        result += `   ${locIcon} ${location.location}, ${location.country}: ${location.status}\n`;
+      });
+    }
+    
+    return result;
+  };
+
+  const formatRtpAudit = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    const status = data.overallStatus || 'unknown';
+    const statusIcon = status === 'healthy' ? '🟢' : status === 'warning' ? '🟡' : '🔴';
+    
+    let result = `${statusIcon} RTP AUDIT: ${status.toUpperCase()}\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    result += `🎰 AUDIT SUMMARY:\n`;
+    result += `   • Total Tests: ${data.totalTests || 'N/A'}\n`;
+    result += `   • Passed: ${data.passedTests || 'N/A'}\n`;
+    result += `   • Failed: ${data.failedTests || 'N/A'}\n`;
+    result += `   • Success Rate: ${data.successRate ? (data.successRate * 100).toFixed(1) + '%' : 'N/A'}\n\n`;
+    
+    if (data.gameResults && data.gameResults.length > 0) {
+      result += `🎲 GAME RESULTS:\n`;
+      data.gameResults.forEach((game: any) => {
+        const gameIcon = game.status === 'pass' ? '✅' : '❌';
+        result += `   ${gameIcon} ${game.game}: ${game.status} (RTP: ${(game.actualRtp * 100).toFixed(2)}%)\n`;
+      });
+    }
+    
+    return result;
+  };
+
+  const formatPriceData = (data: any): string => {
+    if (!data) return 'No data received';
+    
+    let result = `💰 CRYPTOCURRENCY PRICES\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    const tokens = Object.entries(data);
+    tokens.forEach(([tokenId, priceData]: [string, any]) => {
+      if (priceData && typeof priceData === 'object' && priceData.usd) {
+        result += `💎 ${tokenId.toUpperCase()}:\n`;
+        result += `   • Price: $${priceData.usd.toFixed(6)}\n\n`;
+      }
+    });
+    
+    return result;
+  };
+
+  const formatChatMessages = (data: any): string => {
+    if (!Array.isArray(data)) return 'Invalid chat data received';
+    
+    let result = `💬 CHAT MESSAGES (${data.length} total)\n`;
+    result += `═══════════════════════════════════════\n\n`;
+    
+    if (data.length === 0) {
+      result += `📭 No messages found\n`;
+    } else {
+      const recentMessages = data.slice(-10); // Show last 10 messages
+      recentMessages.forEach((msg: any, index: number) => {
+        const time = new Date(msg.ts).toLocaleTimeString();
+        result += `[${time}] ${msg.user}: ${msg.text}\n`;
+      });
+      
+      if (data.length > 10) {
+        result += `\n... and ${data.length - 10} more messages`;
+      }
+    }
+    
+    return result;
+  };
+
   const executeCommand = useCallback(async (command: AdminCommand) => {
     setLoading(true);
     setResult('');
@@ -357,7 +702,8 @@ const AdminPage: React.FC = () => {
       if (response.ok) {
         try {
           const jsonData = JSON.parse(data);
-          formattedResult += `Response:\n${JSON.stringify(jsonData, null, 2)}`;
+          // Use human-readable formatting for known commands
+          formattedResult += formatResult(command, jsonData);
         } catch {
           formattedResult += `Response:\n${data}`;
         }
