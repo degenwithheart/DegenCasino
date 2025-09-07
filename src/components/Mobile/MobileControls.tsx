@@ -1136,7 +1136,49 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   );
 };
 
-// Desktop wrapper component
-export const DesktopControls: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <DesktopControlsWrapper>{children}</DesktopControlsWrapper>;
+// Desktop wrapper component - now uses the comprehensive DesktopGameControls
+export const DesktopControls: React.FC<{
+  wager: number;
+  setWager: (value: number) => void;
+  onPlay: () => void;
+  playDisabled?: boolean;
+  playText?: string;
+  gameDetails?: {
+    title: string;
+    description: string;
+    rules?: string[];
+    tips?: string[];
+  };
+  minWager?: number;
+  maxWager?: number;
+  children?: React.ReactNode;
+}> = ({
+  wager,
+  setWager,
+  onPlay,
+  playDisabled = false,
+  playText = "Play",
+  gameDetails,
+  minWager,
+  maxWager,
+  children
+}) => {
+  // If children are provided (legacy usage), use the simple wrapper
+  if (children) {
+    return <DesktopControlsWrapper>{children}</DesktopControlsWrapper>;
+  }
+
+  // Otherwise, use the new comprehensive component
+  return (
+    <DesktopGameControls
+      wager={wager}
+      setWager={setWager}
+      onPlay={onPlay}
+      playDisabled={playDisabled}
+      playText={playText}
+      gameDetails={gameDetails}
+      minWager={minWager}
+      maxWager={maxWager}
+    />
+  );
 };
