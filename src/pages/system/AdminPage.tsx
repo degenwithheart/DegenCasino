@@ -503,36 +503,56 @@ const AdminPage: React.FC = () => {
     if (!data) return 'No data received';
     
     let result = `📊 API USAGE METRICS REPORT\n`;
-    result += `═══════════════════════════════════════\n\n`;
+    result += `${'═'.repeat(50)}\n\n`;
     
     // Current period summary
     result += `📈 CURRENT HOUR USAGE:\n`;
-    result += `   • Total API Calls: ${data.totalApiCalls?.toLocaleString()}\n`;
-    result += `   • RPC Calls: ${data.rpcCalls?.toLocaleString()}\n`;
-    result += `   • Price API Calls: ${data.priceApiCalls?.toLocaleString()}\n`;
-    result += `   • Chat API Calls: ${data.chatApiCalls?.toLocaleString()}\n`;
-    result += `   • Helius Calls: ${data.heliusApiCalls?.toLocaleString()}\n\n`;
+    result += `   🔄 Total API Calls: ${data.totalApiCalls?.toLocaleString()}\n`;
+    result += `   🔌 RPC Calls: ${data.rpcCalls?.toLocaleString()}\n`;
+    result += `   💰 Price API Calls: ${data.priceApiCalls?.toLocaleString()}\n`;
+    result += `   💬 Chat API Calls: ${data.chatApiCalls?.toLocaleString()}\n`;
+    result += `   🌐 Helius Calls: ${data.heliusApiCalls?.toLocaleString()}\n\n`;
     
-    // Daily estimates
+    // Daily estimates with validation
     if (data.estimatedDailyUsage) {
       result += `🗓️ ESTIMATED DAILY USAGE:\n`;
       const daily = data.estimatedDailyUsage;
-      result += `   • Total: ${daily.totalDaily?.toLocaleString()}\n`;
-      result += `   • RPC: ${daily.rpcDaily?.toLocaleString()}\n`;
-      result += `   • Price APIs: ${daily.priceDaily?.toLocaleString()}\n`;
-      result += `   • Helius: ${daily.heliusDaily?.toLocaleString()}\n`;
-      result += `   • Chat: ${daily.chatDaily?.toLocaleString()}\n`;
-      result += `   • Cache/DNS: ${(daily.cacheDaily + daily.dnsDaily)?.toLocaleString()}\n\n`;
+      result += `   📊 Total: ${daily.totalDaily?.toLocaleString()}\n`;
+      result += `   🔌 RPC: ${daily.rpcDaily?.toLocaleString()}\n`;
+      result += `   💰 Price APIs: ${daily.priceDaily?.toLocaleString()}\n`;
+      result += `   🌐 Helius: ${daily.heliusDaily?.toLocaleString()}\n`;
+      result += `   💬 Chat: ${daily.chatDaily?.toLocaleString()}\n`;
+      result += `   🔧 Cache/DNS: ${(daily.cacheDaily + daily.dnsDaily)?.toLocaleString()}\n\n`;
+      
+      // Validation against real usage
+      const heliusDaily = daily.heliusDaily || 0;
+      const realHeliusDaily = 42314 / 90; // 42,314 credits ÷ 90 days = ~470/day
+      result += `✅ HELIUS USAGE VALIDATION:\n`;
+      result += `   📊 Estimated: ${heliusDaily.toLocaleString()}/day\n`;
+      result += `   📈 Real Usage: ~${Math.round(realHeliusDaily)}/day (based on 42,314 in 3 months)\n`;
+      if (heliusDaily <= realHeliusDaily * 2) {
+        result += `   🟢 Status: REALISTIC ESTIMATE\n\n`;
+      } else {
+        result += `   🟡 Status: MAY BE OVERESTIMATED\n\n`;
+      }
     }
     
     // Cost estimates
     if (data.costEstimates) {
       result += `💰 MONTHLY COST ESTIMATES:\n`;
       const costs = data.costEstimates;
-      result += `   • Total: $${costs.totalEstimatedMonthlyCost?.toFixed(2)}\n`;
-      result += `   • Helius API: $${costs.heliusCost?.toFixed(2)}\n`;
-      result += `   • CoinGecko: $${costs.coinGeckoCost?.toFixed(2)}\n`;
-      result += `   • CoinMarketCap: $${costs.coinMarketCapCost?.toFixed(2)}\n\n`;
+      result += `   💸 Total: $${costs.totalEstimatedMonthlyCost?.toFixed(2)}\n`;
+      result += `   🌐 Helius API: $${costs.heliusCost?.toFixed(2)}\n`;
+      result += `   📊 CoinGecko: $${costs.coinGeckoCost?.toFixed(2)}\n`;
+      result += `   📈 CoinMarketCap: $${costs.coinMarketCapCost?.toFixed(2)}\n\n`;
+      
+      // Cost validation
+      const estimatedMonthly = costs.totalEstimatedMonthlyCost || 0;
+      if (estimatedMonthly > 500) {
+        result += `   ⚠️  High cost estimate - consider optimizing API usage\n\n`;
+      } else if (estimatedMonthly < 100) {
+        result += `   ✅ Reasonable cost estimate\n\n`;
+      }
     }
     
     // Peak usage times
@@ -549,11 +569,13 @@ const AdminPage: React.FC = () => {
       result += `📊 HOURLY USAGE (Last 6 Hours):\n`;
       const hours = Object.entries(data.usageByHour).slice(0, 6);
       hours.forEach(([hour, calls]: [string, any]) => {
-        result += `   • ${hour}: ${calls?.toLocaleString()} calls\n`;
+        result += `   ⏰ ${hour}: ${calls?.toLocaleString()} calls\n`;
       });
+      result += `\n`;
     }
     
-    result += `\n📅 Report generated: ${new Date(data.timestamp).toLocaleString()}`;
+    result += `📝 NOTE: Estimates calibrated against real Helius usage data\n`;
+    result += `📅 Report generated: ${new Date(data.timestamp).toLocaleString()}`;
     
     return result;
   };

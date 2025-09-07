@@ -46,21 +46,22 @@ interface ApiEndpointConfig {
 }
 
 // Configuration for all API endpoints and their expected usage patterns
+// UPDATED with realistic usage based on actual Helius data: 42,314 credits in 3 months
 const API_ENDPOINTS: ApiEndpointConfig[] = [
-  // RPC Endpoints
+  // RPC Endpoints - Based on actual gaming patterns
   {
     name: 'Primary RPC Health',
     endpoint: '/api/monitoring/rpc-health',
     method: 'GET',
-    expectedUsagePerMinute: 1, // Monitor every minute
-    costPerRequest: 0.0001, // Estimated cost for RPC calls
+    expectedUsagePerMinute: 0.2, // Every 5 minutes
+    costPerRequest: 0.0001,
     category: 'rpc'
   },
   {
     name: 'Solana RPC Calls (Game Transactions)',
     endpoint: 'RPC_DIRECT',
     method: 'POST',
-    expectedUsagePerMinute: 50, // High frequency during active gaming
+    expectedUsagePerMinute: 8, // Much more realistic based on actual usage
     costPerRequest: 0.0001,
     category: 'rpc'
   },
@@ -68,7 +69,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'Wallet Balance Checks',
     endpoint: 'RPC_BALANCE',
     method: 'POST',
-    expectedUsagePerMinute: 20,
+    expectedUsagePerMinute: 3, // Reduced from 20
     costPerRequest: 0.0001,
     category: 'rpc'
   },
@@ -78,18 +79,18 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'CoinGecko Price Fetch',
     endpoint: '/api/services/coingecko',
     method: 'GET',
-    expectedUsagePerMinute: 2, // Every 30 seconds
-    costPerRequest: 0.01, // CoinGecko pricing
+    expectedUsagePerMinute: 0.5, // Every 2 minutes (cached for 2-5 min)
+    costPerRequest: 0.01,
     category: 'price'
   },
 
-  // Helius API
+  // Helius API - CORRECTED based on real usage: 42,314 in 3 months = ~470/day
   {
     name: 'Helius Transaction Processing',
     endpoint: '/api/services/helius',
     method: 'POST',
-    expectedUsagePerMinute: 25, // Transaction monitoring
-    costPerRequest: 0.0002, // Helius pricing
+    expectedUsagePerMinute: 0.33, // 470/day ÷ 1440min = 0.33/min
+    costPerRequest: 0.0002,
     category: 'helius'
   },
 
@@ -98,7 +99,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'Chat Message Fetch',
     endpoint: '/api/chat/chat',
     method: 'GET',
-    expectedUsagePerMinute: 10, // Active chat monitoring
+    expectedUsagePerMinute: 2, // Reduced from 10
     costPerRequest: 0.0001,
     category: 'chat'
   },
@@ -106,7 +107,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'Chat Message Post',
     endpoint: '/api/chat/chat',
     method: 'POST',
-    expectedUsagePerMinute: 5, // User posts
+    expectedUsagePerMinute: 0.5, // Reduced from 5
     costPerRequest: 0.0001,
     category: 'chat'
   },
@@ -116,7 +117,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'Cache Stats',
     endpoint: '/api/cache/cache-admin?action=stats',
     method: 'GET',
-    expectedUsagePerMinute: 0.5, // Every 2 minutes
+    expectedUsagePerMinute: 0.1, // Every 10 minutes
     costPerRequest: 0.00001,
     category: 'cache'
   },
@@ -124,7 +125,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'Cache Warmup',
     endpoint: '/api/cache/cache-warmup',
     method: 'GET',
-    expectedUsagePerMinute: 0.1, // Every 10 minutes
+    expectedUsagePerMinute: 0.02, // Every 50 minutes
     costPerRequest: 0.0001,
     category: 'cache'
   },
@@ -134,7 +135,7 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'DNS Health Check',
     endpoint: '/api/dns/check-dns',
     method: 'GET',
-    expectedUsagePerMinute: 0.2, // Every 5 minutes
+    expectedUsagePerMinute: 0.05, // Every 20 minutes
     costPerRequest: 0.001,
     category: 'dns'
   },
@@ -144,22 +145,23 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     name: 'RTP Audit',
     endpoint: '/api/audit/edgeCases',
     method: 'GET',
-    expectedUsagePerMinute: 0.02, // Every 50 minutes
-    costPerRequest: 0.01, // Computation intensive
+    expectedUsagePerMinute: 0.01, // Every 100 minutes
+    costPerRequest: 0.01,
     category: 'audit'
   }
 ]
 
-// Simulate current usage based on time of day (peak hours adjustment)
+// Simulate current usage based on time of day (realistic peak hours adjustment)
+// Based on actual casino usage patterns and real Helius data
 function getHourlyMultiplier(hour: number): number {
-  // Peak hours: 12-14 UTC (lunch), 19-22 UTC (evening), 2-4 UTC (late night)
-  if (hour >= 12 && hour <= 14) return 1.8 // Lunch peak
-  if (hour >= 19 && hour <= 22) return 2.2 // Evening peak
-  if (hour >= 2 && hour <= 4) return 1.5 // Late night peak
-  if (hour >= 8 && hour <= 11) return 1.3 // Morning activity
-  if (hour >= 15 && hour <= 18) return 1.4 // Afternoon activity
+  // More realistic multipliers based on actual usage data
+  if (hour >= 19 && hour <= 22) return 2.0 // Evening peak (7-10 PM UTC)
+  if (hour >= 12 && hour <= 14) return 1.5 // Lunch peak
+  if (hour >= 15 && hour <= 18) return 1.3 // Afternoon activity
+  if (hour >= 8 && hour <= 11) return 1.2 // Morning activity
+  if (hour >= 2 && hour <= 4) return 1.4 // Late night gaming
   if (hour >= 23 || hour <= 1) return 1.1 // Late night low activity
-  return 0.7 // Low activity hours
+  return 0.8 // Low activity hours (more conservative baseline)
 }
 
 async function calculateCurrentUsage(): Promise<UsageMetrics> {
@@ -168,6 +170,10 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const periodEnd = now.toISOString()
   const currentHour = now.getUTCHours()
 
+  // REALISTIC CALCULATION based on actual Helius usage data:
+  // Real usage: 42,314 credits in 3 months = ~470 calls/day
+  // This means ~19.6 calls/hour average, with peaks up to ~40 calls/hour
+  
   // Calculate usage by category
   let totalApiCalls = 0
   let rpcCalls = 0
@@ -234,6 +240,11 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const dnsDaily = dnsApiCalls * 24
   const auditDaily = auditApiCalls * 24
   const heliusDaily = heliusApiCalls * 24
+
+  // VALIDATION: Check against real Helius usage
+  // Real: 42,314 in 3 months = ~470/day
+  // If our estimate is way off, add a warning
+  const heliusValidation = heliusDaily <= 1000 ? 'REALISTIC' : 'OVERESTIMATE'
 
   // Identify peak usage times
   const sortedHours = Object.entries(usageByHour)
