@@ -437,14 +437,19 @@ async function fetchTransactionLogs(txId: string) {
     console.warn('Helius RPC fallback failed:', heliusRpcError)
   }
 
-  // Final fallback: Syndica -> Helius RPC -> Public RPC
-  const fallbackEndpoints = [
+  // Primary endpoints first, then last resort public endpoints only if all paid services fail
+  const primaryEndpoints = [
     import.meta.env.VITE_RPC_ENDPOINT,
-    import.meta.env.VITE_HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
-    'https://api.mainnet-beta.solana.com'
+    import.meta.env.VITE_HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
   ].filter(Boolean);
+  
+  const lastResortEndpoints = [
+    'https://rpc.ankr.com/solana',
+    'https://api.mainnet-beta.solana.com'
+  ];
 
-  for (const endpoint of fallbackEndpoints) {
+  // Try primary endpoints first
+  for (const endpoint of primaryEndpoints) {
     try {
       const connection = new Connection(endpoint!)
       const tx = await connection.getTransaction(txId, { 
@@ -463,7 +468,35 @@ async function fetchTransactionLogs(txId: string) {
         }))
       }
     } catch (error) {
-      console.warn(`Failed to fetch from ${endpoint}:`, error)
+      console.warn(`Failed to fetch from primary endpoint ${endpoint}:`, error)
+      continue
+    }
+  }
+  
+  // If all primary endpoints failed, try last resort public endpoints
+  console.warn("All paid RPC services failed for transaction logs, trying last resort public endpoints");
+  
+  for (const endpoint of lastResortEndpoints) {
+    try {
+      const connection = new Connection(endpoint)
+      const tx = await connection.getTransaction(txId, { 
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0 
+      })
+      
+      if (tx?.meta?.logMessages) {
+        console.warn(`Using last resort endpoint for transaction logs: ${endpoint}`);
+        return tx.meta.logMessages.map((log, index) => ({
+          index,
+          message: log,
+          level: log.includes('Error') ? 'ERROR' : 
+                 log.includes('Warning') ? 'WARN' :
+                 log.includes('success') || log.includes('Success') ? 'SUCCESS' : 'INFO',
+          timestamp: Date.now() - (((tx.meta?.logMessages?.length ?? 0) - index) * 100)
+        }))
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch from last resort endpoint ${endpoint}:`, error)
       continue
     }
   }

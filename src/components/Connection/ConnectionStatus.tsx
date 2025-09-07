@@ -23,8 +23,8 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const SYNDICA_RPC = import.meta.env.VITE_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com";
-const HELIUS_RPC_BACKUP = import.meta.env.VITE_HELIUS_API_KEY || "https://api.mainnet-beta.solana.com";
+const SYNDICA_RPC = import.meta.env.VITE_RPC_ENDPOINT || "https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1";
+const HELIUS_RPC_BACKUP = import.meta.env.VITE_HELIUS_API_KEY || "https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---
@@ -114,11 +114,15 @@ export default function ConnectionStatus() {
   // --- Throttle delay ---
   const THROTTLE_MS = 10000; // 10 seconds
 
-  // Ping + Health check with Syndica Primary -> Helius Backup -> Public fallback
+  // Ping + Health check with Syndica Primary -> Helius Backup -> Public fallback (LAST RESORT ONLY)
   const throttledHealthCheck = useThrottle(async () => {
-    const endpoints = [SYNDICA_RPC, HELIUS_RPC_BACKUP, "https://api.mainnet-beta.solana.com"];
+    // Primary endpoints - try these first
+    const primaryEndpoints = [SYNDICA_RPC, HELIUS_RPC_BACKUP];
+    // Last resort public endpoints - only if all paid services fail
+    const lastResortEndpoints = ["https://rpc.ankr.com/solana", "https://api.mainnet-beta.solana.com"];
     
-    for (const endpoint of endpoints) {
+    // Try primary endpoints first
+    for (const endpoint of primaryEndpoints) {
       const start = performance.now();
       try {
         const res = await fetch(endpoint, {
@@ -135,7 +139,34 @@ export default function ConnectionStatus() {
           return; // Success, exit loop
         }
       } catch {
-        // Continue to next endpoint
+        // Continue to next primary endpoint
+      }
+    }
+    
+    // If all primary endpoints failed, wait before trying last resort public endpoints
+    console.warn("All paid RPC services failed, falling back to public endpoints as last resort");
+    await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+    
+    // Try last resort public endpoints
+    for (const endpoint of lastResortEndpoints) {
+      const start = performance.now();
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getHealth" }),
+        });
+        const elapsed = performance.now() - start;
+        const data = await res.json();
+        
+        if (data.result === "ok") {
+          setRpcPing(Math.round(elapsed));
+          setRpcHealth({ isHealthy: true });
+          console.warn(`Using last resort endpoint: ${endpoint}`);
+          return; // Success, exit loop
+        }
+      } catch {
+        // Continue to next last resort endpoint
       }
     }
     

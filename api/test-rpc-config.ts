@@ -1,5 +1,14 @@
 /**
- * Test endpoint to verify RPC configuration
+ * Test endpoint to v  const rpcEndpoints = [
+    {
+      name: 'Syndica Primary',
+      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+      priority: 1
+    },
+    {
+      name: 'Helius RPC Backup',
+      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
+      priority: 2configuration
  * This tests the new RPC priority: Syndica -> Helius RPC -> Public
  */
 
@@ -26,18 +35,23 @@ export default async function handler(req: Request): Promise<Response> {
   const rpcEndpoints = [
     {
       name: 'Syndica Primary',
-      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
+      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
       priority: 1
     },
     {
       name: 'Helius RPC Backup',
-      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
+      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
       priority: 2
     },
     {
-      name: 'Solana Labs Fallback',
-      url: 'https://api.mainnet-beta.solana.com',
+      name: 'Ankr Last Resort',
+      url: 'https://rpc.ankr.com/solana',
       priority: 3
+    },
+    {
+      name: 'Solana Labs Last Resort',
+      url: 'https://api.mainnet-beta.solana.com',
+      priority: 4
     }
   ];
 

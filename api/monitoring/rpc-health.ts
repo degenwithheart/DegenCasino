@@ -8,23 +8,23 @@ export const config = {
 const RPC_ENDPOINTS = [
   {
     name: 'Syndica Primary',
-    url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
+    url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
     type: 'primary'
   },
   {
     name: 'Helius RPC Backup',
-    url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
+    url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
     type: 'backup'
   },
   {
-    name: 'Solana Labs Fallback',
-    url: 'https://api.mainnet-beta.solana.com',
-    type: 'fallback'
+    name: 'Ankr Last Resort',
+    url: 'https://rpc.ankr.com/solana',
+    type: 'last-resort'
   },
   {
-    name: 'Ankr Fallback',
-    url: 'https://rpc.ankr.com/solana',
-    type: 'fallback'
+    name: 'Solana Labs Last Resort',
+    url: 'https://api.mainnet-beta.solana.com',
+    type: 'last-resort'
   }
 ]
 

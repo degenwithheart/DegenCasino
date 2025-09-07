@@ -3,6 +3,7 @@ import { Connection } from '@solana/web3.js'
 import styled, { css } from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
 import { useTheme } from '../../themes/ThemeContext'
+import { RPC_ENDPOINT } from '../../constants'
 
 /**
  * Embedded Transaction Component for displaying transaction details inline
@@ -132,7 +133,7 @@ export default function EmbeddedTransactionView({ txId, onLoad }: EmbeddedTransa
 
   React.useEffect(() => {
     if (txId) {
-      fetchGambaTransaction(new Connection('https://api.mainnet-beta.solana.com'), txId)
+      fetchGambaTransaction(new Connection(RPC_ENDPOINT), txId)
         .then(result => {
           setTransaction(result)
           onLoad?.(result)
