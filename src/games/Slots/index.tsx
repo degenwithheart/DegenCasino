@@ -169,44 +169,59 @@ export default function Slots() {
       return;
     }
     
-    setSpinning(true)
-    setResult(undefined)
+    try {
+      setSpinning(true)
+      setResult(undefined)
 
-    await game.play({
-      wager,
-      bet: [...bet],
-    })
+      console.log('🎰 Starting Slots game with:', { wager, bet: bet.slice(0, 10) + '...', betLength: bet.length })
+      
+      await game.play({
+        wager,
+        bet: [...bet],
+      })
 
-    sounds.play('play')
+      sounds.play('play')
 
-    setRevealedSlots(0)
-    setGood(false)
-    setWinningPaylines([])
-    setWinningSymbol(null)
+      setRevealedSlots(0)
+      setGood(false)
+      setWinningPaylines([])
+      setWinningSymbol(null)
 
-    const startTime = Date.now()
+      const startTime = Date.now()
 
-    sounds.play('spin', { playbackRate: .5 })
+      sounds.play('spin', { playbackRate: .5 })
 
-const result = await game.result()
+      console.log('🎰 Waiting for game result...')
+      const result = await game.result()
+      console.log('🎰 Game result received:', { payout: result.payout, multiplier: result.multiplier })
 
-    // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
-    const resultDelay = Date.now() - startTime
-    const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
+      // Make sure we wait a minimum time of SPIN_DELAY before slots are revealed:
+      const resultDelay = Date.now() - startTime
+      const revealDelay = Math.max(0, SPIN_DELAY - resultDelay)
 
-    const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
-    const combination = getSlotCombination(
-      NUM_SLOTS,
-      result.multiplier,
-      [...bet],
-      seed,
-    )
+      const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
+      const combination = getSlotCombination(
+        NUM_SLOTS,
+        result.multiplier,
+        [...bet],
+        seed,
+      )
 
-    setCombination(combination)
+      setCombination(combination)
+      setResult(result)
 
-    setResult(result)
-
-    timeout.current = setTimeout(() => revealReel(combination), revealDelay)
+      timeout.current = setTimeout(() => revealReel(combination), revealDelay)
+    } catch (error) {
+      console.error('🎰 SLOTS ERROR:', error)
+      setSpinning(false)
+      // Reset game state on error
+      setResult(undefined)
+      setRevealedSlots(NUM_SLOTS)
+      setGood(false)
+      setWinningPaylines([])
+      setWinningSymbol(null)
+      return
+    }
   }
 
   return (
