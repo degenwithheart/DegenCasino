@@ -54,8 +54,19 @@ const generateScenarioBetArrays = (gameKey: GameKey): { scenario: string; betArr
 
   switch (gameKey) {
     case 'flip':
-      scenarios.push({ scenario: 'heads', betArray: [...game.heads] });
-      scenarios.push({ scenario: 'tails', betArray: [...game.tails] });
+      // Generate bet arrays for common flip scenarios
+      for (let n = 1; n <= 5; n++) { // Test 1-5 coins
+        for (let k = 1; k <= n; k++) { // Test different targets
+          scenarios.push({ 
+            scenario: `heads_${n}coins_${k}target`, 
+            betArray: game.calculateBetArray(n, k, 'heads') 
+          });
+          scenarios.push({ 
+            scenario: `tails_${n}coins_${k}target`, 
+            betArray: game.calculateBetArray(n, k, 'tails') 
+          });
+        }
+      }
       break;
     case 'slots':
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
