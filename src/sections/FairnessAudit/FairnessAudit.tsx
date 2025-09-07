@@ -166,8 +166,8 @@ const getRealBetArrays = () => {
     // BlackJack - use actual game implementation
     blackjack: [...BLACKJACK_CONFIG.betArray],
     
-    // Flip - use actual game implementation
-    flip: FLIP_CONFIG.heads, // [1.98, 0]
+    // Flip - use actual game implementation (heads scenario)
+    flip: FLIP_CONFIG.calculateBetArray(1, 1, 'heads'), // 1 coin, need 1 head, betting heads
     
     // Dice - use actual game implementation (50% odds example)
     dice: DICE_CONFIG.calculateBetArray(50),

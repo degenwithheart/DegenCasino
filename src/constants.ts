@@ -37,6 +37,10 @@ export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
+// Dashboard component visibility toggles
+export const DASHBOARD_SHOW_RECENT_PLAYS = false // Toggle to show/hide RecentPlays on dashboard
+export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboard on dashboard
+
 /** 
  * Referral Tier Mode:
  * false = Badge/Status rewards only (safe, no financial promises)

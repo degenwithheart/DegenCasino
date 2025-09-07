@@ -10,7 +10,7 @@ import { WelcomeBanner } from "./WelcomeBanner/WelcomeBanner";
 import RecentPlays from "../RecentPlays/RecentPlays";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
-import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD } from "../../constants";
+import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_RECENT_PLAYS, DASHBOARD_SHOW_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useTheme } from "../../themes/ThemeContext";
 import {
@@ -79,15 +79,17 @@ export function Dashboard() {
             >
               🃏 All Games
             </ToggleButton>
-            <ToggleButton
-              $active={activeSection === 'plays'}
-              $compact={compact}
-              $theme={currentTheme}
-              onClick={() => setActiveSection('plays')}
-            >
-              🕹️ Recent Plays
-            </ToggleButton>
-            {ENABLE_LEADERBOARD && (
+            {DASHBOARD_SHOW_RECENT_PLAYS && (
+              <ToggleButton
+                $active={activeSection === 'plays'}
+                $compact={compact}
+                $theme={currentTheme}
+                onClick={() => setActiveSection('plays')}
+              >
+                🕹️ Recent Plays
+              </ToggleButton>
+            )}
+            {DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
               <ToggleButton
                 $active={activeSection === 'referrals'}
                 $compact={compact}
@@ -145,13 +147,13 @@ export function Dashboard() {
             </>
           )}
 
-          {activeSection === 'plays' && (
+          {activeSection === 'plays' && DASHBOARD_SHOW_RECENT_PLAYS && (
             <SectionWrapper $compact={compact}>
               <RecentPlays showAllPlatforms={false} />
             </SectionWrapper>
           )}
 
-          {activeSection === 'referrals' && ENABLE_LEADERBOARD && (
+          {activeSection === 'referrals' && DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
             <>
               <AccentBar />
               <SectionWrapper $compact={compact}>
