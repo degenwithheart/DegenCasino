@@ -1,8 +1,8 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
+import { UsageTracker } from '../cache/usage-tracker'
 
 export const config = {
-// REMOVED: API_ENDPOINTS array with fake expectedUsagePerMinute data
-// Real usage tracking should be implemented in each actual API endpointedge',
+  runtime: 'edge',
 }
 
 interface UsageMetrics {
@@ -102,47 +102,46 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const periodStart = new Date(now.getTime() - 60 * 60 * 1000).toISOString() // Last hour
   const periodEnd = now.toISOString()
 
-  // REAL USAGE ONLY - NO FAKE ESTIMATES OR BASELINES!
-  // TODO: Replace with actual usage counters from your APIs
+  // GET REAL USAGE DATA from tracking system
+  const hourlyUsage = await UsageTracker.getCurrentHourUsage()
+  const dailyUsage = await UsageTracker.getCurrentDayUsage() 
+  const rpcEndpoints = await UsageTracker.getRpcEndpointUsage()
   
-  // For now, return ZERO until real tracking is implemented
-  // This prevents any fake/estimated data from being displayed
+  // Current hourly usage (REAL DATA)
+  const currentHeliusUsage = hourlyUsage.helius || 0
+  const currentRpcCalls = hourlyUsage.rpc || 0
+  const currentPriceApi = hourlyUsage.price || 0
+  const currentChatApi = hourlyUsage.chat || 0
+  const currentCacheApi = hourlyUsage.cache || 0
+  const currentDnsApi = hourlyUsage.dns || 0
+  const currentAuditApi = hourlyUsage.audit || 0
   
-  const currentHeliusUsage = 0 // Should come from actual API call counter
-  const currentRpcCalls = 0 // Should come from actual RPC call counter
-  const currentPriceApi = 0 // Should come from actual price API counter
-  const currentChatApi = 0 // Should come from actual chat API counter
-  const currentCacheApi = 0 // Should come from actual cache API counter
-  const currentDnsApi = 0 // Should come from actual DNS API counter
-  const currentAuditApi = 0 // Should come from actual audit API counter
-  
-  const totalApiCalls = currentRpcCalls + currentPriceApi + currentHeliusUsage + 
-                       currentChatApi + currentCacheApi + currentDnsApi + currentAuditApi
+  const totalApiCalls = hourlyUsage.total || 0
 
-  // RPC endpoint breakdown - will be 0 until real tracking
-  const syndicaPrimary = 0 // Should come from actual Syndica call counter
-  const syndicaBalance = 0 // Should come from actual Syndica balance call counter
-  const heliusBackup = 0 // Should come from actual Helius backup call counter
-  const ankrLastResort = 0 // Should come from actual Ankr call counter
-  const solanaLabsLastResort = 0 // Should come from actual Solana Labs call counter
+  // RPC endpoint breakdown (REAL DATA)
+  const syndicaPrimary = rpcEndpoints['syndica-primary'] || 0
+  const syndicaBalance = rpcEndpoints['syndica-balance'] || 0
+  const heliusBackup = rpcEndpoints['helius-backup'] || 0
+  const ankrLastResort = rpcEndpoints['ankr-last-resort'] || 0
+  const solanaLabsLastResort = rpcEndpoints['solana-labs-last-resort'] || 0
 
   // All costs are $0 since you're on free plans
   const heliusCost = 0
   const coinGeckoCost = 0
   const coinMarketCapCost = 0
 
-  // No fake hourly patterns - empty until real tracking
+  // TODO: Implement hourly pattern tracking
   const usageByHour: Record<string, number> = {}
 
-  // NO FAKE DAILY ESTIMATES - all zero until real tracking
-  const totalDaily = 0 // Should come from actual daily usage tracking
-  const rpcDaily = 0 // Should come from actual daily RPC tracking
-  const priceDaily = 0 // Should come from actual daily price API tracking
-  const chatDaily = 0 // Should come from actual daily chat tracking
-  const cacheDaily = 0 // Should come from actual daily cache tracking
-  const dnsDaily = 0 // Should come from actual daily DNS tracking
-  const auditDaily = 0 // Should come from actual daily audit tracking
-  const heliusDaily = 0 // Should come from actual daily Helius tracking
+  // Daily usage (REAL DATA)
+  const totalDaily = dailyUsage.total || 0
+  const rpcDaily = dailyUsage.rpc || 0
+  const priceDaily = dailyUsage.price || 0
+  const chatDaily = dailyUsage.chat || 0
+  const cacheDaily = dailyUsage.cache || 0
+  const dnsDaily = dailyUsage.dns || 0
+  const auditDaily = dailyUsage.audit || 0
+  const heliusDaily = dailyUsage.helius || 0
 
   // VALIDATION: Check against real Helius usage
   // Real: 42,314 in 3 months = ~470/day

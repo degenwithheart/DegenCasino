@@ -1,4 +1,5 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 // api/chat/chat.ts
 
@@ -190,3 +191,6 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Internal Error', { status: 500, headers: corsHeaders });
   }
 }
+
+// Export with usage tracking (keeping the original function as default for now)
+// TODO: Wrap the original handler with withUsageTracking
