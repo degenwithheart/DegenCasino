@@ -513,6 +513,33 @@ const AdminPage: React.FC = () => {
     result += `   💬 Chat API Calls: ${data.chatApiCalls?.toLocaleString()}\n`;
     result += `   🌐 Helius Calls: ${data.heliusApiCalls?.toLocaleString()}\n\n`;
     
+    // RPC Endpoint Breakdown
+    if (data.rpcEndpointBreakdown) {
+      result += `🔌 RPC ENDPOINT BREAKDOWN:\n`;
+      const rpc = data.rpcEndpointBreakdown;
+      result += `   🥇 Syndica Primary: ${rpc.syndicaPrimary?.toLocaleString()} calls/hour\n`;
+      result += `   🏦 Syndica Balance: ${rpc.syndicaBalance?.toLocaleString()} calls/hour\n`;
+      result += `   🔄 Helius Backup: ${rpc.heliusBackup?.toLocaleString()} calls/hour\n`;
+      result += `   ⚠️  Ankr Last Resort: ${rpc.ankrLastResort?.toLocaleString()} calls/hour\n`;
+      result += `   🚨 Solana Labs Last Resort: ${rpc.solanaLabsLastResort?.toLocaleString()} calls/hour\n\n`;
+      
+      // Calculate percentages
+      const totalRpc = (rpc.syndicaPrimary || 0) + (rpc.syndicaBalance || 0) + (rpc.heliusBackup || 0) + (rpc.ankrLastResort || 0) + (rpc.solanaLabsLastResort || 0);
+      if (totalRpc > 0) {
+        const syndicaPercent = ((rpc.syndicaPrimary + rpc.syndicaBalance) / totalRpc * 100).toFixed(1);
+        const publicPercent = ((rpc.ankrLastResort + rpc.solanaLabsLastResort) / totalRpc * 100).toFixed(1);
+        result += `📊 RPC USAGE DISTRIBUTION:\n`;
+        result += `   💰 Paid Services (Syndica + Helius): ${syndicaPercent}%\n`;
+        result += `   🆓 Public RPCs (Last Resort): ${publicPercent}%\n`;
+        if (parseFloat(publicPercent) > 5) {
+          result += `   ⚠️  WARNING: High public RPC usage - check paid service health\n`;
+        } else {
+          result += `   ✅ Optimal: Primarily using paid services\n`;
+        }
+        result += `\n`;
+      }
+    }
+    
     // Daily estimates with validation
     if (data.estimatedDailyUsage) {
       result += `🗓️ ESTIMATED DAILY USAGE:\n`;
@@ -552,6 +579,35 @@ const AdminPage: React.FC = () => {
         result += `   ⚠️  High cost estimate - consider optimizing API usage\n\n`;
       } else if (estimatedMonthly < 100) {
         result += `   ✅ Reasonable cost estimate\n\n`;
+      }
+    }
+    
+    // Rate Limit Analysis
+    if (data.rateLimitAnalysis) {
+      result += `⚡ RATE LIMIT ANALYSIS:\n`;
+      const rl = data.rateLimitAnalysis;
+      
+      // Syndica analysis
+      const syndicaStatus = rl.syndicaUsage.status === 'safe' ? '🟢' : 
+                           rl.syndicaUsage.status === 'warning' ? '🟡' : '🔴';
+      result += `   ${syndicaStatus} SYNDICA (Standard Plan - FREE):\n`;
+      result += `      • Current: ${rl.syndicaUsage.requestsPerSecond?.toFixed(2)} RPS / ${rl.syndicaUsage.rpsLimit} limit (${rl.syndicaUsage.rpsUtilization?.toFixed(1)}%)\n`;
+      result += `      • Monthly: ${rl.syndicaUsage.requestsPerMonth?.toLocaleString()} / ${rl.syndicaUsage.monthlyLimit?.toLocaleString()} (${rl.syndicaUsage.monthlyUtilization?.toFixed(1)}%)\n`;
+      
+      // Helius analysis
+      const heliusStatus = rl.heliusUsage.status === 'safe' ? '🟢' : 
+                          rl.heliusUsage.status === 'warning' ? '🟡' : '🔴';
+      result += `   ${heliusStatus} HELIUS (Free Plan):\n`;
+      result += `      • Current: ${rl.heliusUsage.requestsPerSecond?.toFixed(2)} RPS / ${rl.heliusUsage.rpsLimit} limit (${rl.heliusUsage.rpsUtilization?.toFixed(1)}%)\n`;
+      result += `      • Monthly: ${rl.heliusUsage.creditsPerMonth?.toLocaleString()} / ${rl.heliusUsage.monthlyLimit?.toLocaleString()} credits (${rl.heliusUsage.monthlyUtilization?.toFixed(1)}%)\n\n`;
+      
+      // Recommendations
+      if (rl.recommendations && rl.recommendations.length > 0) {
+        result += `💡 RECOMMENDATIONS:\n`;
+        rl.recommendations.forEach((rec: string) => {
+          result += `   ${rec}\n`;
+        });
+        result += `\n`;
       }
     }
     
