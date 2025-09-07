@@ -1,4 +1,5 @@
 import { UsageTracker } from '../cache/usage-tracker'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -16,7 +17,7 @@ function cors(origin: string | null) {
   }
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function usageDebugHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin')
   const corsHeaders = cors(origin)
 
@@ -106,3 +107,6 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(usageDebugHandler, 'usage-debug-api', 'monitoring');

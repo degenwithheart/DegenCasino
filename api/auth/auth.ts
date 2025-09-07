@@ -1,3 +1,5 @@
+import { withUsageTracking } from '../cache/usage-tracker'
+
 export const config = { runtime: 'edge' };
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
@@ -36,7 +38,7 @@ async function checkRateLimit(ip: string): Promise<boolean> {
   }
 }
 
-export default async function handler(req: Request) {
+async function authHandler(req: Request) {
   const origin = req.headers.get('origin');
   const corsHeaders = cors(origin);
 
@@ -72,3 +74,6 @@ export default async function handler(req: Request) {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 }
+
+// Export with usage tracking
+export default withUsageTracking(authHandler, 'auth-api', 'auth');

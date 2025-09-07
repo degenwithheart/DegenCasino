@@ -1,4 +1,5 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -192,7 +193,7 @@ function generateRecommendations(testResults: TestResult[], rpcHealth: any, usag
   return recommendations
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function comprehensiveTestHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin')
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001'])
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino'
@@ -310,3 +311,6 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(comprehensiveTestHandler, 'comprehensive-test-api', 'monitoring');

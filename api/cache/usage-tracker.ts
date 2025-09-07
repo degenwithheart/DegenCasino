@@ -5,7 +5,7 @@ export interface UsageRecord {
   timestamp: number
   endpoint: string
   method: string
-  category: 'rpc' | 'helius' | 'price' | 'chat' | 'cache' | 'dns' | 'audit'
+  category: 'rpc' | 'helius' | 'price' | 'chat' | 'cache' | 'dns' | 'audit' | 'auth' | 'monitoring'
   success: boolean
   responseTime?: number
 }
@@ -48,7 +48,7 @@ export class UsageTracker {
   static async getCurrentHourUsage(): Promise<Record<string, number>> {
     const hourKey = Math.floor(Date.now() / (60 * 60 * 1000))
     
-    const categories = ['rpc', 'helius', 'price', 'chat', 'cache', 'dns', 'audit', 'total']
+    const categories = ['rpc', 'helius', 'price', 'chat', 'cache', 'dns', 'audit', 'auth', 'monitoring', 'total']
     const usage: Record<string, number> = {}
     
     for (const category of categories) {
@@ -62,7 +62,7 @@ export class UsageTracker {
   static async getCurrentDayUsage(): Promise<Record<string, number>> {
     const dayKey = Math.floor(Date.now() / (24 * 60 * 60 * 1000))
     
-    const categories = ['rpc', 'helius', 'price', 'chat', 'cache', 'dns', 'audit', 'total']
+    const categories = ['rpc', 'helius', 'price', 'chat', 'cache', 'dns', 'audit', 'auth', 'monitoring', 'total']
     const usage: Record<string, number> = {}
     
     for (const category of categories) {

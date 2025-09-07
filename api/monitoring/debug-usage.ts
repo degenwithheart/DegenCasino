@@ -1,10 +1,11 @@
 import { UsageTracker } from '../cache/usage-tracker'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function debugUsageHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin')
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001'])
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino'
@@ -108,3 +109,6 @@ export default async function handler(req: Request): Promise<Response> {
 
   return new Response('Method Not Allowed', { status: 405, headers: corsHeaders })
 }
+
+// Export with usage tracking  
+export default withUsageTracking(debugUsageHandler, 'debug-usage-api', 'monitoring');

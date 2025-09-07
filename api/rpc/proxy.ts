@@ -1,16 +1,38 @@
 import { withUsageTracking } from '../cache/usage-tracker'
+import smartCache from '../rate-limiter/smart-cache'
+import rateLimiter from '../rate-limiter/rate-limiter'
 
 export const config = {
   runtime: 'edge',
 }
 
-// RPC endpoints configuration
+// RPC endpoints configuration with provider mapping
 const RPC_ENDPOINTS = {
-  'syndica-primary': process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
-  'syndica-balance': process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
-  'helius-backup': process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
-  'ankr-last-resort': 'https://rpc.ankr.com/solana',
-  'solana-labs-last-resort': 'https://api.mainnet-beta.solana.com'
+  'syndica-primary': { 
+    url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+    provider: 'syndica' as const,
+    priority: 1
+  },
+  'syndica-balance': { 
+    url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+    provider: 'syndica' as const,
+    priority: 2
+  },
+  'helius-backup': { 
+    url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
+    provider: 'helius' as const,
+    priority: 3
+  },
+  'ankr-last-resort': { 
+    url: 'https://rpc.ankr.com/solana',
+    provider: 'public' as const,
+    priority: 4
+  },
+  'solana-labs-last-resort': { 
+    url: 'https://api.mainnet-beta.solana.com',
+    provider: 'public' as const,
+    priority: 5
+  }
 }
 
 const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001'])
@@ -43,9 +65,9 @@ async function rpcProxyHandler(req: Request): Promise<Response> {
   try {
     // Get endpoint preference from header or default to syndica-primary
     const endpointKey = req.headers.get('X-RPC-Endpoint') || 'syndica-primary'
-    const rpcUrl = RPC_ENDPOINTS[endpointKey as keyof typeof RPC_ENDPOINTS]
+    const endpointConfig = RPC_ENDPOINTS[endpointKey as keyof typeof RPC_ENDPOINTS]
     
-    if (!rpcUrl) {
+    if (!endpointConfig) {
       return new Response(JSON.stringify({
         error: 'Invalid RPC endpoint specified',
         availableEndpoints: Object.keys(RPC_ENDPOINTS)
@@ -55,20 +77,56 @@ async function rpcProxyHandler(req: Request): Promise<Response> {
       })
     }
 
-    // Get the request body
+    // Get the request body and parse RPC method
     const body = await req.text()
-    
-    // Parse to validate JSON and extract method for tracking
     let rpcMethod = 'unknown'
+    let rpcParams: any[] = []
+    
     try {
       const parsed = JSON.parse(body)
       rpcMethod = parsed.method || 'unknown'
+      rpcParams = parsed.params || []
     } catch {
       // If parsing fails, continue with unknown method
     }
 
-    // Forward the request to the actual RPC endpoint
-    const response = await fetch(rpcUrl, {
+    // Use smart caching for supported providers
+    if (endpointConfig.provider === 'syndica' || endpointConfig.provider === 'helius') {
+      try {
+        const result = await smartCache.smartRpcCall(
+          endpointConfig.provider,
+          rpcMethod,
+          rpcParams,
+          {
+            endpoint: endpointKey,
+            skipCache: rpcMethod === 'sendTransaction' || req.headers.get('X-Skip-Cache') === 'true',
+            forceFresh: req.headers.get('X-Force-Fresh') === 'true'
+          }
+        )
+
+        // Return cached/rate-limited result
+        return new Response(JSON.stringify({
+          jsonrpc: '2.0',
+          id: JSON.parse(body).id || null,
+          result
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'X-RPC-Endpoint-Used': endpointKey,
+            'X-RPC-Method': rpcMethod,
+            'X-Cache-Status': 'smart-cache'
+          }
+        })
+      } catch (cacheError) {
+        console.error(`Smart cache error, falling back to direct call:`, cacheError)
+        // Fall through to direct call
+      }
+    }
+
+    // Direct call for public endpoints or fallback
+    const response = await fetch(endpointConfig.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +143,8 @@ async function rpcProxyHandler(req: Request): Promise<Response> {
         ...corsHeaders,
         'Content-Type': 'application/json',
         'X-RPC-Endpoint-Used': endpointKey,
-        'X-RPC-Method': rpcMethod
+        'X-RPC-Method': rpcMethod,
+        'X-Cache-Status': 'direct'
       }
     })
 

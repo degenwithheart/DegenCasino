@@ -1,5 +1,6 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
 import { UsageTracker } from '../cache/usage-tracker'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -18,6 +19,8 @@ interface UsageMetrics {
       cache: number
       dns: number
       audit: number
+      auth: number
+      monitoring: number
     }
   }
   rpcEndpoints: {
@@ -43,6 +46,8 @@ interface UsageMetrics {
       cache: number
       dns: number
       audit: number
+      auth: number
+      monitoring: number
     }
   }
   hourlyPattern: Record<string, number>
@@ -139,6 +144,8 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const currentCacheApi = hourlyUsage.cache || 0
   const currentDnsApi = hourlyUsage.dns || 0
   const currentAuditApi = hourlyUsage.audit || 0
+  const currentAuthApi = hourlyUsage.auth || 0
+  const currentMonitoringApi = hourlyUsage.monitoring || 0
   
   const totalApiCalls = hourlyUsage.total || 0
 
@@ -166,6 +173,8 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const dnsDaily = dailyUsage.dns || 0
   const auditDaily = dailyUsage.audit || 0
   const heliusDaily = dailyUsage.helius || 0
+  const authDaily = dailyUsage.auth || 0
+  const monitoringDaily = dailyUsage.monitoring || 0
 
   // VALIDATION: Check against real Helius usage
   // Real: 42,314 in 3 months = ~470/day
@@ -245,7 +254,9 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
         chat: currentChatApi,
         cache: currentCacheApi,
         dns: currentDnsApi,
-        audit: currentAuditApi
+        audit: currentAuditApi,
+        auth: currentAuthApi,
+        monitoring: currentMonitoringApi
       }
     },
 
@@ -276,7 +287,9 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
         chat: chatDaily,   // ~235
         cache: cacheDaily, // ~24
         dns: dnsDaily,     // ~9
-        audit: auditDaily  // ~5
+        audit: auditDaily, // ~5
+        auth: authDaily,   // ~10
+        monitoring: monitoringDaily // ~12
       }
     },
 
@@ -320,7 +333,7 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   }
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function usageMetricsHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin')
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001'])
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino'
@@ -372,3 +385,6 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(usageMetricsHandler, 'usage-metrics-api', 'monitoring');
