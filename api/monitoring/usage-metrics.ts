@@ -102,10 +102,34 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const periodStart = new Date(now.getTime() - 60 * 60 * 1000).toISOString() // Last hour
   const periodEnd = now.toISOString()
 
+  // TEST: Generate some sample tracking data to verify system works
+  console.log('🧪 Testing usage tracker...')
+  await UsageTracker.track({
+    timestamp: Date.now(),
+    endpoint: 'test-helius',
+    method: 'POST',
+    category: 'helius',
+    success: true,
+    responseTime: 150
+  })
+  
+  await UsageTracker.track({
+    timestamp: Date.now(),
+    endpoint: 'test-price',
+    method: 'GET',
+    category: 'price',
+    success: true,
+    responseTime: 100
+  })
+
   // GET REAL USAGE DATA from tracking system
   const hourlyUsage = await UsageTracker.getCurrentHourUsage()
   const dailyUsage = await UsageTracker.getCurrentDayUsage() 
   const rpcEndpoints = await UsageTracker.getRpcEndpointUsage()
+  
+  console.log('📊 Hourly usage:', hourlyUsage)
+  console.log('📊 Daily usage:', dailyUsage)
+  console.log('🔌 RPC endpoints:', rpcEndpoints)
   
   // Current hourly usage (REAL DATA)
   const currentHeliusUsage = hourlyUsage.helius || 0
