@@ -26,12 +26,12 @@ export default async function handler(req: Request): Promise<Response> {
   const rpcEndpoints = [
     {
       name: 'Syndica Primary',
-      url: process.env.VITE_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
+      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
       priority: 1
     },
     {
       name: 'Helius RPC Backup',
-      url: process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
+      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
       priority: 2
     },
     {
@@ -79,7 +79,7 @@ export default async function handler(req: Request): Promise<Response> {
   // Test Helius v0 API
   const heliusV0StartTime = Date.now();
   try {
-    const heliusV0Response = await fetch('https://api.helius.xyz/v0/transactions/health?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c');
+    const heliusV0Response = await fetch('https://api.helius.xyz/v0/transactions/health?api-key=' + ((process.env.VITE_HELIUS_V0_TRANSACTIONS || process.env.HELIUS_V0_TRANSACTIONS)?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'));
     const heliusV0ResponseTime = Date.now() - heliusV0StartTime;
     
     results.push({

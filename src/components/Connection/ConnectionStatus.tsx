@@ -24,7 +24,7 @@ function useThrottle(callback: () => void, delay: number) {
 }
 
 const SYNDICA_RPC = import.meta.env.VITE_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com";
-const HELIUS_RPC_BACKUP = import.meta.env.HELIUS_API_KEY || "https://api.mainnet-beta.solana.com";
+const HELIUS_RPC_BACKUP = import.meta.env.VITE_HELIUS_API_KEY || "https://api.mainnet-beta.solana.com";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---
@@ -149,7 +149,7 @@ export default function ConnectionStatus() {
     if (!PLATFORM_CREATOR) return;
     try {
       const res = await fetch(
-        `https://api.helius.xyz/v0/addresses/${PLATFORM_CREATOR}/transactions?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c&limit=1`
+        `https://api.helius.xyz/v0/addresses/${PLATFORM_CREATOR}/transactions?api-key=${import.meta.env.VITE_HELIUS_V0_TRANSACTIONS?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'}&limit=1`
       );
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {

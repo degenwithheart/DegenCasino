@@ -8,12 +8,12 @@ export const config = {
 const RPC_ENDPOINTS = [
   {
     name: 'Syndica Primary',
-    url: process.env.VITE_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
+    url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
     type: 'primary'
   },
   {
     name: 'Helius RPC Backup',
-    url: process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
+    url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
     type: 'backup'
   },
   {
