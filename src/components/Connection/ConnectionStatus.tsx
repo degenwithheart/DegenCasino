@@ -23,7 +23,8 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const CUSTOM_RPC = "https://api.mainnet-beta.solana.com";
+const SYNDICA_RPC = import.meta.env.VITE_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com";
+const HELIUS_RPC_BACKUP = import.meta.env.HELIUS_API_KEY || "https://api.mainnet-beta.solana.com";
 const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---
@@ -113,23 +114,34 @@ export default function ConnectionStatus() {
   // --- Throttle delay ---
   const THROTTLE_MS = 10000; // 10 seconds
 
-  // Ping + Health check (only when modal is open, singular, throttled)
+  // Ping + Health check with Syndica Primary -> Helius Backup -> Public fallback
   const throttledHealthCheck = useThrottle(async () => {
-    const start = performance.now();
-    try {
-      const res = await fetch(CUSTOM_RPC, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getHealth" }),
-      });
-      const elapsed = performance.now() - start;
-      setRpcPing(Math.round(elapsed));
-      const data = await res.json();
-      setRpcHealth({ isHealthy: data.result === "ok" });
-    } catch {
-      setRpcPing(null);
-      setRpcHealth({ isHealthy: false });
+    const endpoints = [SYNDICA_RPC, HELIUS_RPC_BACKUP, "https://api.mainnet-beta.solana.com"];
+    
+    for (const endpoint of endpoints) {
+      const start = performance.now();
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getHealth" }),
+        });
+        const elapsed = performance.now() - start;
+        const data = await res.json();
+        
+        if (data.result === "ok") {
+          setRpcPing(Math.round(elapsed));
+          setRpcHealth({ isHealthy: true });
+          return; // Success, exit loop
+        }
+      } catch {
+        // Continue to next endpoint
+      }
     }
+    
+    // All endpoints failed
+    setRpcPing(null);
+    setRpcHealth({ isHealthy: false });
   }, THROTTLE_MS);
 
   // Last transaction + status check (only when modal is open, singular, throttled)

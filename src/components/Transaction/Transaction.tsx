@@ -387,7 +387,7 @@ async function fetchGambaTransaction(txId: string, userAddress?: string) {
 }
 
 async function fetchTransactionLogs(txId: string) {
-  // Try Helius API first
+  // Use Helius v0 API for enhanced transaction parsing
   try {
     const heliusResponse = await fetch(`https://api.helius.xyz/v0/transactions/${txId}?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c`)
     if (heliusResponse.ok) {
@@ -404,7 +404,7 @@ async function fetchTransactionLogs(txId: string) {
       }
     }
   } catch (error) {
-    console.warn('Helius API failed, trying fallback:', error)
+    console.warn('Helius v0 API failed, trying Helius RPC fallback:', error)
   }
 
   // Fallback to Helius RPC instead of mainnet-beta
@@ -437,34 +437,39 @@ async function fetchTransactionLogs(txId: string) {
     console.warn('Helius RPC fallback failed:', heliusRpcError)
   }
 
-  // Final fallback to standard Solana RPC if Helius fails
-  try {
-    const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
-    const tx = await connection.getTransaction(txId, { 
-      commitment: 'confirmed',
-      maxSupportedTransactionVersion: 0 
-    })
-    
-    if (!tx?.meta?.logMessages) return []
-    
-    return tx.meta.logMessages.map((log, index) => ({
-      index,
-      message: log,
-      level: log.includes('Error') ? 'ERROR' : 
-             log.includes('Warning') ? 'WARN' :
-             log.includes('success') || log.includes('Success') ? 'SUCCESS' : 'INFO',
-      timestamp: Date.now() - (((tx.meta?.logMessages?.length ?? 0) - index) * 100)
-    }))
-  } catch (error) {
-    console.error('Failed to fetch transaction logs from both APIs:', error)
-    // Check if the error is specifically about AccountNotFound
-    const errorMessage = String(error)
-    if (errorMessage.includes('AccountNotFound')) {
-      console.warn('Account has no transaction history')
+  // Final fallback: Syndica -> Helius RPC -> Public RPC
+  const fallbackEndpoints = [
+    import.meta.env.VITE_RPC_ENDPOINT,
+    'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
+    'https://api.mainnet-beta.solana.com'
+  ].filter(Boolean);
+
+  for (const endpoint of fallbackEndpoints) {
+    try {
+      const connection = new Connection(endpoint!)
+      const tx = await connection.getTransaction(txId, { 
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0 
+      })
+      
+      if (tx?.meta?.logMessages) {
+        return tx.meta.logMessages.map((log, index) => ({
+          index,
+          message: log,
+          level: log.includes('Error') ? 'ERROR' : 
+                 log.includes('Warning') ? 'WARN' :
+                 log.includes('success') || log.includes('Success') ? 'SUCCESS' : 'INFO',
+          timestamp: Date.now() - (((tx.meta?.logMessages?.length ?? 0) - index) * 100)
+        }))
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch from ${endpoint}:`, error)
+      continue
     }
-    // Always return an empty array, never return the error itself
-    return []
   }
+  
+  console.error('Failed to fetch transaction logs from all endpoints')
+  return []
 }
 
 async function generateProofData(txId: string, transaction: any) {
@@ -1245,7 +1250,9 @@ export default function TransactionView() {
 {`Transaction Signature: ${txId}
 Blockchain: Solana Mainnet-Beta
 Status: ${hasRealData ? 'Confirmed with Game Data' : 'Confirmed (Game Data Unavailable)'}
-Network: https://mainnet.helius-rpc.com (Helius Enhanced RPC)
+Primary Network: Syndica RPC (Enhanced Performance)
+Backup Network: Helius RPC (Enhanced Transaction Parsing)
+Transaction Data: Helius v0 API (Enhanced Parsing)
 ${hasRealData ? `Game Platform: ${transaction.platform || 'Unknown'}
 Player: ${transaction.player || 'Unknown'}
 Timestamp: ${transaction.time || 'Unknown'}` : 'Game-specific data not accessible through current API endpoints.'}

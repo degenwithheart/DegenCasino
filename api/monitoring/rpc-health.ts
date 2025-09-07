@@ -4,32 +4,27 @@ export const config = {
   runtime: 'edge',
 }
 
-// RPC endpoints to monitor
+// RPC endpoints to monitor - Production Configuration
 const RPC_ENDPOINTS = [
   {
-    name: 'Primary RPC',
+    name: 'Syndica Primary',
     url: process.env.VITE_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com',
     type: 'primary'
   },
   {
-    name: 'Backup RPC',
-    url: 'https://rpc.ankr.com/solana',
+    name: 'Helius RPC Backup',
+    url: process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
     type: 'backup'
   },
   {
-    name: 'Solana Labs',
+    name: 'Solana Labs Fallback',
     url: 'https://api.mainnet-beta.solana.com',
-    type: 'public'
+    type: 'fallback'
   },
   {
-    name: 'QuickNode',
-    url: 'https://solana-mainnet.core.chainstack.com/rpc/v1',
-    type: 'alternative'
-  },
-  {
-    name: 'Helius',
-    url: process.env.HELIUS_API_KEY || 'https://rpc.helius.xyz/?api-key=demo',
-    type: 'helius'
+    name: 'Ankr Fallback',
+    url: 'https://rpc.ankr.com/solana',
+    type: 'fallback'
   }
 ]
 

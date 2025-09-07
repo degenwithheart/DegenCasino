@@ -57,19 +57,30 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     costPerRequest: 0.0001,
     category: 'rpc'
   },
+  // Syndica RPC Endpoints - Primary
   {
-    name: 'Solana RPC Calls (Game Transactions)',
-    endpoint: 'RPC_DIRECT',
+    name: 'Syndica RPC Calls (Primary)',
+    endpoint: 'SYNDICA_PRIMARY',
     method: 'POST',
-    expectedUsagePerMinute: 8, // Much more realistic based on actual usage
+    expectedUsagePerMinute: 8, // Primary RPC for game transactions
     costPerRequest: 0.0001,
     category: 'rpc'
   },
   {
-    name: 'Wallet Balance Checks',
-    endpoint: 'RPC_BALANCE',
+    name: 'Syndica Balance Checks',
+    endpoint: 'SYNDICA_BALANCE',
     method: 'POST',
-    expectedUsagePerMinute: 3, // Reduced from 20
+    expectedUsagePerMinute: 3,
+    costPerRequest: 0.0001,
+    category: 'rpc'
+  },
+
+  // Helius RPC - Backup only
+  {
+    name: 'Helius RPC Backup',
+    endpoint: 'HELIUS_RPC_BACKUP',
+    method: 'POST',
+    expectedUsagePerMinute: 1, // Only when Syndica fails
     costPerRequest: 0.0001,
     category: 'rpc'
   },
@@ -84,9 +95,9 @@ const API_ENDPOINTS: ApiEndpointConfig[] = [
     category: 'price'
   },
 
-  // Helius API - CORRECTED based on real usage: 42,314 in 3 months = ~470/day
+  // Helius v0 API - Transaction parsing only
   {
-    name: 'Helius Transaction Processing',
+    name: 'Helius v0 Transaction Parsing',
     endpoint: '/api/services/helius',
     method: 'POST',
     expectedUsagePerMinute: 0.33, // 470/day ÷ 1440min = 0.33/min
