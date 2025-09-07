@@ -2,7 +2,7 @@ import { computed } from '@preact/signals-react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useUserBalance, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { RouletteTable, RouletteWheel } from 'react-casino-roulette'
+import { RouletteTable } from 'react-casino-roulette'
 import 'react-casino-roulette/dist/index.css'
 import styled from 'styled-components'
 import { GameplayFrame, useGraphics } from '../../components'
@@ -14,6 +14,7 @@ import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addChips, addResult, bet, clearChips, results, selectedChip, totalChipValue, chipPlacements } from './signals'
 import { ROULETTE_CONFIG } from '../rtpConfig'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { RouletteWheel } from './RouletteWheel'
 
 const Wrapper = styled.div`
   display: grid;
@@ -268,7 +269,7 @@ export default function Roulette() {
               <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <RouletteWheel
                   start={wheelSpinning}
-                  winningBet={winningNumber}
+                  winningBet={parseInt(winningNumber)}
                   onSpinningEnd={handleWheelSpinEnd}
                   withAnimation={settings.enableMotion}
                 />
