@@ -121,7 +121,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'blackjack',
-    live: 'up',
+    live: 'down',
     meta: {
       name: 'BlackJack',
       background: '#000000CC',
