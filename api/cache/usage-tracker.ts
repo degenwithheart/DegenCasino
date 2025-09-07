@@ -1,5 +1,5 @@
 // Real-time usage tracking system for DegenCasino APIs
-import { cacheOnTheFly, CacheTTL } from './xcacheOnTheFly'
+// Using simple in-memory storage with periodic cache sync
 
 export interface UsageRecord {
   timestamp: number
@@ -10,6 +10,11 @@ export interface UsageRecord {
   responseTime?: number
 }
 
+// In-memory counters (will reset on server restart, but better than nothing)
+let hourlyCounters: Record<string, number> = {}
+let dailyCounters: Record<string, number> = {}
+let endpointCounters: Record<string, number> = {}
+
 export class UsageTracker {
   
   // Track a single API call
@@ -19,20 +24,19 @@ export class UsageTracker {
       const hourKey = Math.floor(now / (60 * 60 * 1000)) // Current hour
       const dayKey = Math.floor(now / (24 * 60 * 60 * 1000)) // Current day
       
-      // Store in cache with multiple time buckets for aggregation
-      await Promise.all([
-        this.incrementCounter(`usage:hour:${hourKey}:${record.category}`, 1),
-        this.incrementCounter(`usage:hour:${hourKey}:total`, 1),
-        this.incrementCounter(`usage:day:${dayKey}:${record.category}`, 1),
-        this.incrementCounter(`usage:day:${dayKey}:total`, 1),
-        this.incrementCounter(`usage:endpoint:${record.endpoint}`, 1),
-        
-        // Track errors separately
-        record.success ? null : this.incrementCounter(`errors:hour:${hourKey}:${record.category}`, 1),
-        
-        // Track response times if provided
-        record.responseTime ? this.trackResponseTime(record.category, record.responseTime) : null
-      ])
+      // Increment in-memory counters
+      this.incrementInMemory(`hour:${hourKey}:${record.category}`)
+      this.incrementInMemory(`hour:${hourKey}:total`)
+      this.incrementInMemory(`day:${dayKey}:${record.category}`)
+      this.incrementInMemory(`day:${dayKey}:total`)
+      this.incrementInMemory(`endpoint:${record.endpoint}`)
+      
+      // Track errors separately
+      if (!record.success) {
+        this.incrementInMemory(`errors:hour:${hourKey}:${record.category}`)
+      }
+      
+      console.log(`📊 Tracked: ${record.category} call to ${record.endpoint}`)
       
     } catch (error) {
       console.error('Usage tracking failed:', error)
@@ -48,7 +52,7 @@ export class UsageTracker {
     const usage: Record<string, number> = {}
     
     for (const category of categories) {
-      usage[category] = await this.getCounter(`usage:hour:${hourKey}:${category}`) || 0
+      usage[category] = hourlyCounters[`hour:${hourKey}:${category}`] || 0
     }
     
     return usage
@@ -62,7 +66,7 @@ export class UsageTracker {
     const usage: Record<string, number> = {}
     
     for (const category of categories) {
-      usage[category] = await this.getCounter(`usage:day:${dayKey}:${category}`) || 0
+      usage[category] = dailyCounters[`day:${dayKey}:${category}`] || 0
     }
     
     return usage
@@ -80,47 +84,30 @@ export class UsageTracker {
     
     const usage: Record<string, number> = {}
     for (const endpoint of endpoints) {
-      usage[endpoint] = await this.getCounter(`usage:endpoint:${endpoint}`) || 0
+      usage[endpoint] = endpointCounters[`endpoint:${endpoint}`] || 0
     }
     
     return usage
   }
   
-  // Helper to increment counter in cache
-  private static async incrementCounter(key: string, value: number): Promise<void> {
-    try {
-      const current = await this.getCounter(key) || 0
-      await cacheOnTheFly(key, async () => current + value, { ttl: CacheTTL.HOUR })
-    } catch (error) {
-      console.error(`Failed to increment counter ${key}:`, error)
+  // Helper to increment in-memory counter
+  private static incrementInMemory(key: string): void {
+    if (key.includes('hour:')) {
+      hourlyCounters[key] = (hourlyCounters[key] || 0) + 1
+    } else if (key.includes('day:')) {
+      dailyCounters[key] = (dailyCounters[key] || 0) + 1
+    } else if (key.includes('endpoint:')) {
+      endpointCounters[key] = (endpointCounters[key] || 0) + 1
     }
   }
   
-  // Helper to get counter from cache
-  private static async getCounter(key: string): Promise<number> {
-    try {
-      return await cacheOnTheFly(key, async () => 0, { ttl: CacheTTL.HOUR })
-    } catch (error) {
-      console.error(`Failed to get counter ${key}:`, error)
-      return 0
-    }
-  }
-  
-  // Track response times
-  private static async trackResponseTime(category: string, responseTime: number): Promise<void> {
-    const timeKey = `response_time:${category}`
-    try {
-      // Store last 100 response times for averaging
-      const times = await cacheOnTheFly(`${timeKey}:times`, async () => [], { ttl: CacheTTL.HOUR }) as number[]
-      times.push(responseTime)
-      if (times.length > 100) times.shift() // Keep only last 100
-      
-      await cacheOnTheFly(`${timeKey}:times`, async () => times, { ttl: CacheTTL.HOUR })
-      await cacheOnTheFly(`${timeKey}:avg`, async () => {
-        return times.reduce((a, b) => a + b, 0) / times.length
-      }, { ttl: CacheTTL.HOUR })
-    } catch (error) {
-      console.error(`Failed to track response time for ${category}:`, error)
+  // Get all current stats (for debugging)
+  static getDebugStats(): any {
+    return {
+      hourlyCounters,
+      dailyCounters,
+      endpointCounters,
+      totalTrackedCalls: Object.values(endpointCounters).reduce((a, b) => a + b, 0)
     }
   }
 }
