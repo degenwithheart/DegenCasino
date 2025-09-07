@@ -83,25 +83,17 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
   display: flex;
   align-items: center;
   text-decoration: none;
-  gap: 0.5rem;
+  gap: 0.75rem;
   position: relative;
   margin-left: 1.5rem;
 
-  /* Remove any background or box-shadow from Logo itself */
-
-  &::before {
-    content: '🎰';
-    position: absolute;
-    left: -30px;
-    font-size: 1.5rem;
-    animation: ${sparkle} 3s infinite;
-  }
-
   img {
     height: 42px;
+    width: auto;
     transition: all 0.3s ease-in-out;
     filter: drop-shadow(0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     border-radius: 8px;
+    object-fit: contain;
   }
 
   span {
@@ -114,7 +106,6 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
     text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
     letter-spacing: 1px;
     animation: ${neonPulse} 2s infinite alternate;
-    /* Remove any background or box-shadow here as well */
     background: none !important;
     box-shadow: none !important;
   }
@@ -132,11 +123,8 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
 
   @media (max-width: 600px) {
     margin-left: 0.5rem;
-    &::before {
-      left: -25px;
-      font-size: 1.2rem;
-    }
-
+    gap: 0.5rem;
+    
     img {
       height: 32px;
     }
@@ -297,11 +285,8 @@ export default function Header() {
       {/* Header bar */}
       <StyledHeader>
         <Logo to="/" $theme={currentTheme}>
-          {!isCompact ? (
-            <span>DegenHeart.casino</span>
-          ) : (
-            <img alt="DegenHeart.casino logo" src="/webp/$DGHRT.webp" />
-          )}
+          <img alt="DegenHeart.casino logo" src="/png/images/logo.png" />
+          {!isCompact && <span>DegenHeart.casino</span>}
         </Logo>
 
         <RightGroup $isCompact={isCompact}>
