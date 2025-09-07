@@ -132,7 +132,7 @@ async function addMessage(msg: Msg): Promise<void> {
   }
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function chatHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin');
   const corsHeaders = cors(origin);
 
@@ -192,5 +192,5 @@ export default async function handler(req: Request): Promise<Response> {
   }
 }
 
-// Export with usage tracking (keeping the original function as default for now)
-// TODO: Wrap the original handler with withUsageTracking
+// Export with usage tracking
+export default withUsageTracking(chatHandler, 'chat-api', 'chat');

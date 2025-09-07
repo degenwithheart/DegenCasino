@@ -1,4 +1,5 @@
 import { warmupCache, CacheTTL } from './xcacheOnTheFly'
+import { withUsageTracking } from './usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -39,7 +40,7 @@ const WARMUP_ENTRIES = [
   }
 ]
 
-export default async function handler(req: Request): Promise<Response> {
+async function cacheWarmupHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin');
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
@@ -81,3 +82,6 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(cacheWarmupHandler, 'cache-warmup-api', 'cache');

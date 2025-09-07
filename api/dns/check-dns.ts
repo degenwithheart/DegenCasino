@@ -1,4 +1,5 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 // Simple in-memory rate limiter (per process, not per user)
 let lastCall = 0;
@@ -17,7 +18,7 @@ const LOCATIONS = [
   { location: "Sydney", country: "Australia", code: "AU" },
 ]
 
-export default async function handler(req: Request): Promise<Response> {
+async function dnsCheckHandler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin');
   const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);
   const corsOrigin = origin && allowedOrigins.has(origin) ? origin : 'https://degenheart.casino';
@@ -149,3 +150,6 @@ export default async function handler(req: Request): Promise<Response> {
       },
     });
   }
+
+// Export with usage tracking
+export default withUsageTracking(dnsCheckHandler, 'dns-check-api', 'dns');

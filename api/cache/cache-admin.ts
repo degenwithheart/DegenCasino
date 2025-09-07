@@ -1,5 +1,6 @@
 import { getCacheInfo } from './xcacheOnTheFly'
 import { cacheStats, cacheCleanup, cacheConfigure } from './xcache-edge'
+import { withUsageTracking } from './usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -18,7 +19,7 @@ function cors(origin: string | null) {
   };
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function cacheAdminHandler(req: Request): Promise<Response> {
   const url = new URL(req.url)
   const action = url.searchParams.get('action') || 'stats'
   
@@ -100,3 +101,6 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(cacheAdminHandler, 'cache-admin-api', 'cache');

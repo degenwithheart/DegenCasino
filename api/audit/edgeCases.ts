@@ -1,4 +1,5 @@
 import { BET_ARRAYS, RTP_TARGETS, calculateAverageRTP, calculateWinRate, GameKey } from '../../src/games/rtpConfig'
+import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
@@ -237,7 +238,7 @@ const validateAllGames = (playsPerScenario: number = 10000): EdgeCaseResponse =>
   };
 };
 
-export default async function handler(request: Request): Promise<Response> {
+async function auditHandler(request: Request): Promise<Response> {
   const origin = request.headers.get('origin');
   const corsHeaders = cors(origin);
 
@@ -304,3 +305,6 @@ export default async function handler(request: Request): Promise<Response> {
     })
   }
 }
+
+// Export with usage tracking
+export default withUsageTracking(auditHandler, 'audit-api', 'audit');
