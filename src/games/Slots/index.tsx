@@ -66,13 +66,17 @@ export default function Slots() {
   })
   const bet = React.useMemo(
     () => {
-      // Cap maxPayout to reasonable limit matching game design (max 7x multiplier)
-      // Using pool.maxPayout directly can create unrealistic bet arrays with 1000x+ multipliers
+      // Use rtpConfig to generate proper bet array based on pool constraints
       const cappedMaxPayout = Math.min(pool.maxPayout, wager * 7)
       return generateBetArray(cappedMaxPayout, wager)
     },
     [pool.maxPayout, wager],
   )
+  
+  // Calculate the actual maximum multiplier from the bet array
+  const maxMultiplier = React.useMemo(() => {
+    return Math.max(...bet)
+  }, [bet])
   const timeout = useRef<any>()
   
   // Add ref for gameplay effects
@@ -318,7 +322,7 @@ export default function Slots() {
         />
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={7} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin
           </EnhancedPlayButton>

@@ -183,6 +183,13 @@ export default function PlinkoRace() {
   const rows = degen ? PEGS.degen : PEGS.normal
   const buckets = degen ? BUCKETS.degen : BUCKETS.normal
   const multipliers = bet // Use exact bet array
+  
+  // Calculate maximum multiplier from both normal and degen modes
+  const maxMultiplier = React.useMemo(() => {
+    const normalMax = Math.max(...BET);
+    const degenMax = Math.max(...DEGEN_BET);
+    return Math.max(normalMax, degenMax);
+  }, []);
 
   return (
     <>
@@ -241,7 +248,7 @@ export default function PlinkoRace() {
         </MobileControls>
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <div>Degen:</div>
           <GambaUi.Switch
             disabled={gamba.isPlaying}

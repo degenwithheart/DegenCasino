@@ -311,6 +311,11 @@ export default function ProgressivePowerPoker() {
     jackpot: SOUND_JACKPOT,
   })
 
+  // Calculate maximum multiplier from progressive poker bet array
+  const maxMultiplier = React.useMemo(() => {
+    return Math.max(...PROGRESSIVE_POKER_CONFIG.betArray);
+  }, []);
+
   const [hand, setHand] = React.useState<({ name: string; type: HandType; payout: number } | null)>(null)
   const [revealing, setRevealing] = React.useState(false)
   const [cards, setCards] = React.useState<{ rank: number; suit: number }[]>([])
@@ -853,7 +858,7 @@ export default function ProgressivePowerPoker() {
     </MobileControls>
     
     <DesktopControls>
-      <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={inProgress} />
+      <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={inProgress} multiplier={maxMultiplier} />
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
         <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Game Mode:</div>

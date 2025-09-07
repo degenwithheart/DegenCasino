@@ -334,6 +334,10 @@ export default function Plinko() {
   const bet = degen ? DEGEN_BET : BET
   const rows = degen ? PEGS.degen : PEGS.normal
   const buckets = degen ? BUCKETS.degen : BUCKETS.normal
+  
+  // Calculate dynamic max multiplier
+  const maxMultiplier = React.useMemo(() => Math.max(...bet), [bet])
+  
   const multipliers = bet // Use exact bet array - no duplicate removal!
 
   const plinko = usePlinko({
@@ -613,7 +617,7 @@ export default function Plinko() {
         </MobileControls>
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <div>Degen:</div>
           <GambaUi.Switch
             disabled={gamba.isPlaying}

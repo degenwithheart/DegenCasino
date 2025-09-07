@@ -55,6 +55,11 @@ export default function Blackjack(props: BlackjackConfig) {
     jackpot: SOUND_JACKPOT,
   })
 
+  // Calculate maximum multiplier from blackjack bet array
+  const maxMultiplier = React.useMemo(() => {
+    return Math.max(...BLACKJACK_CONFIG.betArray);
+  }, []);
+
   const resetGame = () => {
     setProfit(null)
     setPlayerCards([])
@@ -409,7 +414,7 @@ export default function Blackjack(props: BlackjackConfig) {
         />
         
         <DesktopControls>
-          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={isDealing} />
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} disabled={isDealing} multiplier={maxMultiplier} />
           <EnhancedPlayButton onClick={play} disabled={isDealing}>
             {isDealing ? "Dealing..." : "Deal Cards"}
           </EnhancedPlayButton>

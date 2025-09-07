@@ -79,6 +79,22 @@ function Flip() {
     lose: SOUND_LOSE,
   })
 
+  // Calculate maximum multiplier across all possible flip combinations
+  const maxMultiplier = React.useMemo(() => {
+    let max = 0;
+    // Check common flip configurations (n coins, k target, both sides)
+    for (let nCoins = 1; nCoins <= 10; nCoins++) {
+      for (let kTarget = 0; kTarget <= nCoins; kTarget++) {
+        const headsArray = FLIP_CONFIG.calculateBetArray(nCoins, kTarget, 'heads');
+        const tailsArray = FLIP_CONFIG.calculateBetArray(nCoins, kTarget, 'tails');
+        const headsMax = Math.max(...headsArray);
+        const tailsMax = Math.max(...tailsArray);
+        max = Math.max(max, headsMax, tailsMax);
+      }
+    }
+    return max;
+  }, []);
+
   const play = async () => {
     // CRITICAL SECURITY: Prevent zero wager gameplay
     if (wager <= 0) {
@@ -329,6 +345,7 @@ function Flip() {
           <EnhancedWagerInput
             value={wager}
             onChange={setWager}
+            multiplier={maxMultiplier}
           />
           <EnhancedButton disabled={gamba.isPlaying} onClick={() => setSide(side === 'heads' ? 'tails' : 'heads')}>
             <div style={{ display: 'flex' }}>

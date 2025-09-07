@@ -185,6 +185,22 @@ function Mines() {
     return MINES_CONFIG.getMultiplier(mines, level + 1)
   }
 
+  // Calculate maximum multiplier across all possible mine configurations and levels
+  const maxMultiplier = React.useMemo(() => {
+    let max = 0;
+    MINE_SELECT.forEach(mineCount => {
+      const maxLevel = GRID_SIZE - mineCount - 1; // Maximum possible level for this mine count
+      for (let level = 0; level <= maxLevel; level++) {
+        const bet = MINES_CONFIG.generateBetArray(mineCount, level);
+        const multiplier = Math.max(...bet);
+        if (multiplier > max) {
+          max = multiplier;
+        }
+      }
+    });
+    return max;
+  }, []);
+
   const levels = React.useMemo(
     () => {
       const totalLevels = GRID_SIZE - mines
@@ -453,7 +469,7 @@ function Mines() {
             </MobileControls>
 
             <DesktopControls>
-              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
               <OptionSelector
                 label="Mines"
                 options={MINE_SELECT.map(mines => ({
@@ -479,7 +495,7 @@ function Mines() {
             />
             
             <DesktopControls>
-              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
               <EnhancedPlayButton 
                 onClick={endGame}
                 disabled={loading}

@@ -201,6 +201,19 @@ export default function HiLo(props: HiLoConfig) {
     finish: SOUND_FINISH,
   })
 
+  // Calculate maximum multiplier across all possible card ranks and hi/lo combinations
+  const maxMultiplier = React.useMemo(() => {
+    let max = 0;
+    for (let rank = 0; rank < 13; rank++) {
+      const hiArray = generateBetArray(rank, true);
+      const loArray = generateBetArray(rank, false);
+      const hiMax = Math.max(...hiArray);
+      const loMax = Math.max(...loArray);
+      max = Math.max(max, hiMax, loMax);
+    }
+    return max;
+  }, []);
+
   const betHi = React.useMemo(() => generateBetArray(currentRank, true), [currentRank])
   const betLo = React.useMemo(() => generateBetArray(currentRank, false), [currentRank])
 
@@ -471,6 +484,7 @@ export default function HiLo(props: HiLoConfig) {
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
+                multiplier={maxMultiplier}
               />
               <div>Progressive:</div>
               <GambaUi.Switch
@@ -502,6 +516,7 @@ export default function HiLo(props: HiLoConfig) {
                 value={initialWager}
                 onChange={setInitialWager}
                 disabled={true}
+                multiplier={maxMultiplier}
               />
               <TokenValue amount={currentBalance} />
               {progressive && (

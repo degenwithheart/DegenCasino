@@ -184,7 +184,7 @@ export default function CrashGame() {
         
         {/* Desktop controls: Custom layout for crash game */}
         <CrashDesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={multiplierTarget} />
           <div style={{ flex: 1, maxWidth: '200px' }}>
             <CustomSlider
               value={multiplierTarget}
