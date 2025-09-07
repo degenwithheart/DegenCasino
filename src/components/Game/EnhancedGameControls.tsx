@@ -439,38 +439,16 @@ export const EnhancedPlayButton: React.FC<{
   wager?: number; // Add wager prop for validation
 }> = ({ onClick, disabled, children, wager }) => {
   
-  const token = useCurrentToken();
-  const wagerLimits = useWagerLimits();
-  // Use provided limits or fall back to calculated ones
-  const effectiveMinWager = wagerLimits.minWager;
-  const effectiveMaxWager = wagerLimits.maxWager;
-
   const handleClick = () => {
-    // Check wager validation first
-    if (
-      wager === undefined ||
-      wager < effectiveMinWager ||
-      wager > effectiveMaxWager
-    ) {
-      console.log('❌ BLOCKED: Wager not in allowed range');
-      return;
-    }
-    // If onClick is provided and wager is valid, call it
+    // If onClick is provided, call it
     if (onClick) {
       onClick();
     }
   };
 
-  // Disable if explicitly disabled OR if wager is not in allowed range
-  const isDisabled =
-    disabled ||
-    wager === undefined ||
-    wager < effectiveMinWager ||
-    wager > effectiveMaxWager;
-
   return (
     <StyledPlayButtonWrapper>
-      <GambaUi.PlayButton onClick={handleClick} disabled={isDisabled}>
+      <GambaUi.PlayButton onClick={handleClick} disabled={disabled}>
         {children}
       </GambaUi.PlayButton>
     </StyledPlayButtonWrapper>

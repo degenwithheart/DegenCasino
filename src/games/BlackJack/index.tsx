@@ -9,6 +9,7 @@ import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/Gamepla
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledBlackjackBackground } from './BlackjackBackground.enhanced.styles'
+import { BlackjackCard } from './BlackjackCard'
 
 // Card creation is now deterministic; randomness sourced from on-chain result mapping.
 const createCard = (rank: number, suit: number, keySeed: number): Card => ({
@@ -271,20 +272,13 @@ export default function Blackjack(props: BlackjackConfig) {
                             animationDelay: settings.enableMotion ? `${index * 0.3}s` : '0s',
                             animation: settings.enableMotion ? undefined : 'none'
                           }}>
-                            <div 
-                              className="playing-card dealer-card" 
-                              style={{ color: SUIT_COLORS[card.suit] }}
-                            >
-                              <div className="card-corner top-left">
-                                <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
-                                <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                              </div>
-                              <div className="card-suit center">{SUIT_SYMBOLS[card.suit]}</div>
-                              <div className="card-corner bottom-right">
-                                <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
-                                <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                              </div>
-                            </div>
+                            <BlackjackCard
+                              rank={card.rank}
+                              suit={card.suit}
+                              revealed={true}
+                              isDealer={true}
+                              enableMotion={settings.enableMotion}
+                            />
                           </div>
                         ))
                       )}
@@ -352,20 +346,13 @@ export default function Blackjack(props: BlackjackConfig) {
                               animationDelay: settings.enableMotion ? `${(index + 2) * 0.3}s` : '0s',
                               animation: settings.enableMotion ? undefined : 'none'
                             }}>
-                              <div 
-                                className="playing-card player-card" 
-                                style={{ color: SUIT_COLORS[card.suit] }}
-                              >
-                                <div className="card-corner top-left">
-                                  <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
-                                  <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                                </div>
-                                <div className="card-suit center">{SUIT_SYMBOLS[card.suit]}</div>
-                                <div className="card-corner bottom-right">
-                                  <div className="card-rank">{RANK_SYMBOLS[card.rank]}</div>
-                                  <div className="card-suit">{SUIT_SYMBOLS[card.suit]}</div>
-                                </div>
-                              </div>
+                              <BlackjackCard
+                                rank={card.rank}
+                                suit={card.suit}
+                                revealed={true}
+                                isDealer={false}
+                                enableMotion={settings.enableMotion}
+                              />
                             </div>
                           ))
                         )}

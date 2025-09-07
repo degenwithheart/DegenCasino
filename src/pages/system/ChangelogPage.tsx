@@ -162,8 +162,37 @@ interface ChangelogEntry {
   description: string;
 }
 
-// Sample changelog data - ALL 284+ commits with version numbers
 const changelogData: ChangelogEntry[] = [
+  {
+    version: "v3.3.4",
+    date: "2025-09-07",
+    description: "Implemented comprehensive dynamic multiplier system across all games. Replaced hardcoded multiplier values with dynamic calculations from rtpConfig, ensuring all wager limits are based on actual game mechanics. Updated Mines, PlinkoRace, BlackJack, MultiPoker, HiLo, and Flip games with sophisticated multiplier calculations that consider all possible game states and configurations."
+  },
+  {
+    version: "v3.3.3",
+    date: "2025-09-07",
+    description: "Enhanced wager validation system with dynamic maximum multiplier calculations. All games now use their respective rtpConfig bet arrays to determine accurate wager limits, preventing payouts that exceed pool limits while maintaining realistic gameplay parameters."
+  },
+  {
+    version: "v3.3.2",
+    date: "2025-09-07",
+    description: "Updated platform logo assets across the application with new branding design. Improved logo rendering and consistency throughout the user interface for better brand recognition and visual cohesion."
+  },
+  {
+    version: "v3.3.1",
+    date: "2025-09-07",
+    description: "Refined logo integration and branding elements across all platform components. Enhanced visual consistency and brand presentation throughout the application interface."
+  },
+  {
+    version: "v3.3.0",
+    date: "2025-09-07",
+    description: "Major logo and branding update with new visual identity implementation. Updated all logo assets, favicon, and branding elements to reflect the platform's evolved visual design language."
+  },
+  {
+    version: "v3.2.9",
+    date: "2025-09-07",
+    description: "Comprehensive Slots UI overhaul with enhanced user profile layout improvements. Modernized interface design with better responsive layouts, improved visual hierarchy, and enhanced user experience across desktop and mobile devices."
+  },
   {
     version: "v3.2.8",
     date: "2025-09-07",

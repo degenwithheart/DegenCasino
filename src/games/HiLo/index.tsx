@@ -9,6 +9,7 @@ import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/Gamepla
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledHiLoBackground } from './HiLoBackground.enhanced.styles'
+import { HiLoCard } from './HiLoCard'
 
 const BPS_PER_WHOLE = 10000
 
@@ -413,14 +414,17 @@ export default function HiLo(props: HiLoConfig) {
                               opacity,
                             }}
                           >
-                      <Card>
-                        <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                        <div className="suit" style={{ backgroundImage: 'url(' + props.logo +  ')' }} />
-                      </Card>
-                    </CardContainer>
-                  )
-                })}
-              </CardsContainer>
+                            <HiLoCard
+                              rank={card.rank}
+                              revealed={true}
+                              small={false}
+                              logo={props.logo}
+                              enableMotion={settings.enableMotion}
+                            />
+                          </CardContainer>
+                        )
+                      })}
+                    </CardsContainer>
               <Options>
                 <Option
                   selected={option === 'hi'}
@@ -450,9 +454,16 @@ export default function HiLo(props: HiLoConfig) {
               {Array.from({ length: RANKS }).map((_, rankIndex) => {
                 const opacity = bet[rankIndex] > 0 ? .9 : .5
                 return (
-                  <Card key={rankIndex} $small style={{ opacity }} onClick={() => addCard(rankIndex)}>
-                    <div className="rank">{RANK_SYMBOLS[rankIndex]}</div>
-                  </Card>
+                  <HiLoCard
+                    key={rankIndex}
+                    rank={rankIndex}
+                    revealed={true}
+                    small={true}
+                    logo={props.logo}
+                    enableMotion={settings.enableMotion}
+                    style={{ opacity }}
+                    onClick={() => addCard(rankIndex)}
+                  />
                 )
               })}
             </CardPreview>
