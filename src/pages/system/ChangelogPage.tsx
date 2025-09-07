@@ -164,6 +164,11 @@ interface ChangelogEntry {
 
 const changelogData: ChangelogEntry[] = [
   {
+    version: "v3.3.5",
+    date: "2025-09-07",
+    description: "Enhanced wagering system with improved constants configuration, updated dashboard wagering display logic, and refined fairness audit components. Implemented comprehensive wagering parameter updates across platform components for better user experience and system reliability."
+  },
+  {
     version: "v3.3.4",
     date: "2025-09-07",
     description: "Implemented comprehensive dynamic multiplier system across all games. Replaced hardcoded multiplier values with dynamic calculations from rtpConfig, ensuring all wager limits are based on actual game mechanics. Updated Mines, PlinkoRace, BlackJack, MultiPoker, HiLo, and Flip games with sophisticated multiplier calculations that consider all possible game states and configurations."
