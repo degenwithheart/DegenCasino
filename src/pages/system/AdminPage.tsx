@@ -502,17 +502,48 @@ const AdminPage: React.FC = () => {
   const formatUsageMetrics = (data: any): string => {
     if (!data) return 'No data received';
     
-    let result = `📊 API USAGE METRICS REPORT (REAL DATA)\n`;
+    let result = `📊 API USAGE METRICS REPORT (REAL DATA ONLY)\n`;
     result += `${'═'.repeat(50)}\n\n`;
     
-    // Current period summary
+    // Check if we have any real data
+    const hasRealData = data.current?.total > 0;
+    
+    if (!hasRealData) {
+      result += `⚠️  NO REAL USAGE DATA AVAILABLE\n\n`;
+      result += `📝 IMPLEMENTATION STATUS:\n`;
+      result += `   🔧 Real usage tracking not yet implemented\n`;
+      result += `   🚫 All estimates and baselines removed\n`;
+      result += `   ✅ No more fake data being displayed\n\n`;
+      
+      result += `💡 TO GET REAL DATA:\n`;
+      result += `   1️⃣ Implement actual API call counters\n`;
+      result += `   2️⃣ Track RPC calls as they happen\n`;
+      result += `   3️⃣ Count Helius API usage in real-time\n`;
+      result += `   4️⃣ Monitor chat/cache/other APIs\n\n`;
+      
+      result += `📋 CURRENT CONFIGURATION:\n`;
+      result += `   🔌 Syndica: Standard Plan (FREE) - 100 RPS, 10M/month\n`;
+      result += `   🌐 Helius: Free Plan - 10 RPS, 1M credits/month\n`;
+      result += `   💰 All services: $0 cost (free plans)\n\n`;
+      
+      result += `🎯 NEXT STEPS:\n`;
+      result += `   • Add usage counters to each API endpoint\n`;
+      result += `   • Store real usage in database or cache\n`;
+      result += `   • Replace zeros with actual call counts\n`;
+      
+      return result;
+    }
+    
+    // If we had real data, we'd display it here
     result += `📈 CURRENT HOUR USAGE:\n`;
     result += `   🔄 Total: ${data.current?.total?.toLocaleString()}\n`;
     result += `   🔌 RPC: ${data.current?.breakdown?.rpc?.toLocaleString()}\n`;
     result += `   💰 Price: ${data.current?.breakdown?.price?.toLocaleString()}\n`;
     result += `   🌐 Helius: ${data.current?.breakdown?.helius?.toLocaleString()}\n`;
     result += `   💬 Chat: ${data.current?.breakdown?.chat?.toLocaleString()}\n`;
-    result += `   🔧 Cache/DNS: ${(data.current?.breakdown?.cache + data.current?.breakdown?.dns)?.toLocaleString()}\n\n`;
+    result += `   🔧 Other: ${(data.current?.breakdown?.cache + data.current?.breakdown?.dns + data.current?.breakdown?.audit)?.toLocaleString()}\n\n`;
+    
+    return result;
     
     // RPC Endpoint Breakdown
     if (data.rpcEndpoints) {

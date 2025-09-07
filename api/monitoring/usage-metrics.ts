@@ -1,7 +1,8 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
 
 export const config = {
-  runtime: 'edge',
+// REMOVED: API_ENDPOINTS array with fake expectedUsagePerMinute data
+// Real usage tracking should be implemented in each actual API endpointedge',
 }
 
 interface UsageMetrics {
@@ -80,14 +81,9 @@ interface UsageMetrics {
   }
 }
 
-interface ApiEndpointConfig {
-  name: string
-  endpoint: string
-  method: string
-  expectedUsagePerMinute: number
-  costPerRequest: number
-  category: 'rpc' | 'price' | 'chat' | 'cache' | 'dns' | 'audit' | 'helius-v0'
-}
+// REMOVED: ApiEndpointConfig interface - no longer using fake endpoint configurations
+
+// REMOVED: API_ENDPOINTS array with fake expectedUsagePerMinute data
 
 // Configuration for all API endpoints and their expected usage patterns
 // UPDATED with realistic usage based on actual Helius data: 42,314 credits in 3 months
@@ -96,219 +92,57 @@ interface ApiEndpointConfig {
 // - Helius: Free Plan (1M credits/month, 10 RPS limit) 
 // - CoinGecko: Free tier (10-50 calls/min)
 // - Internal APIs: No external cost (Vercel function execution)
-// RATE LIMITS:
-// - Syndica Standard: 100 requests/second, 10M requests/month
-// - Helius Free: 10 requests/second, 1M credits/month
-// - CoinGecko Free: 10-50 calls/minute depending on endpoint
-const API_ENDPOINTS: ApiEndpointConfig[] = [
-  // RPC Endpoints - Based on actual gaming patterns
-  {
-    name: 'Primary RPC Health',
-    endpoint: '/api/monitoring/rpc-health',
-    method: 'GET',
-    expectedUsagePerMinute: 0.2, // Every 5 minutes
-    costPerRequest: 0.0001,
-    category: 'rpc'
-  },
-  // Syndica RPC Endpoints - Standard Plan (FREE: $0/month, 10M requests/month, 100 RPS)
-  {
-    name: 'Syndica RPC Calls (Primary)',
-    endpoint: 'SYNDICA_PRIMARY',
-    method: 'POST',
-    expectedUsagePerMinute: 2, // REALISTIC: Based on actual casino traffic patterns
-    costPerRequest: 0, // Syndica Standard Plan is FREE
-    category: 'rpc'
-  },
-  {
-    name: 'Syndica Balance Checks',
-    endpoint: 'SYNDICA_BALANCE',
-    method: 'POST',
-    expectedUsagePerMinute: 1, // REALISTIC: Reduced from inflated estimates
-    costPerRequest: 0, // Syndica Standard Plan is FREE
-    category: 'rpc'
-  },
+// REMOVED: API_ENDPOINTS array with fake expectedUsagePerMinute data
+// Real usage tracking should be implemented in each actual API endpoint
 
-  // Helius RPC - Free Plan (1M credits/month, 10 RPS limit)
-  {
-    name: 'Helius RPC Backup',
-    endpoint: 'HELIUS_RPC_BACKUP',
-    method: 'POST',
-    expectedUsagePerMinute: 0.2, // REALISTIC: Only when Syndica fails (rare)
-    costPerRequest: 0, // Helius Free Plan (1M credits included)
-    category: 'rpc'
-  },
-
-  // Public RPC - Last Resort Only
-  {
-    name: 'Ankr RPC (Last Resort)',
-    endpoint: 'ANKR_LAST_RESORT',
-    method: 'POST',
-    expectedUsagePerMinute: 0.1, // Should rarely be used
-    costPerRequest: 0, // Free but rate limited
-    category: 'rpc'
-  },
-  {
-    name: 'Solana Labs RPC (Absolute Last)',
-    endpoint: 'SOLANA_LABS_LAST_RESORT',
-    method: 'POST',
-    expectedUsagePerMinute: 0.05, // Should almost never be used
-    costPerRequest: 0, // Free but heavily rate limited
-    category: 'rpc'
-  },
-
-  // Price API Endpoints (COINGECKO: Free tier 10-50 calls/min, Pro ~$129/month)
-  {
-    name: 'CoinGecko Price Fetch',
-    endpoint: '/api/services/coingecko',
-    method: 'GET',
-    expectedUsagePerMinute: 0.5, // Every 2 minutes (cached for 2-5 min)
-    costPerRequest: 0, // Free tier up to 10-50 calls/min, then paid plans
-    category: 'price'
-  },
-
-  // Helius v0 API - Transaction parsing only (FREE PLAN: 1M credits/month included)
-  {
-    name: 'Helius v0 Transaction Parsing',
-    endpoint: '/api/services/helius',
-    method: 'POST',
-    expectedUsagePerMinute: 0.33, // 470/day ÷ 1440min = 0.33/min
-    costPerRequest: 0, // Helius Free Plan (1M credits included)
-    category: 'helius-v0'
-  },
-
-  // Chat API (YOUR VERCEL FUNCTIONS - no external cost)
-  {
-    name: 'Chat Message Fetch',
-    endpoint: '/api/chat/chat',
-    method: 'GET',
-    expectedUsagePerMinute: 2, // Reduced from 10
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'chat'
-  },
-  {
-    name: 'Chat Message Post',
-    endpoint: '/api/chat/chat',
-    method: 'POST',
-    expectedUsagePerMinute: 0.5, // Reduced from 5
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'chat'
-  },
-
-  // Cache API (YOUR VERCEL FUNCTIONS - no external cost)
-  {
-    name: 'Cache Stats',
-    endpoint: '/api/cache/cache-admin?action=stats',
-    method: 'GET',
-    expectedUsagePerMinute: 0.1, // Every 10 minutes
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'cache'
-  },
-  {
-    name: 'Cache Warmup',
-    endpoint: '/api/cache/cache-warmup',
-    method: 'GET',
-    expectedUsagePerMinute: 0.02, // Every 50 minutes
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'cache'
-  },
-
-  // DNS Monitoring (YOUR VERCEL FUNCTIONS - no external cost)
-  {
-    name: 'DNS Health Check',
-    endpoint: '/api/dns/check-dns',
-    method: 'GET',
-    expectedUsagePerMinute: 0.05, // Every 20 minutes
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'dns'
-  },
-
-  // Audit API (YOUR VERCEL FUNCTIONS - no external cost)
-  {
-    name: 'RTP Audit',
-    endpoint: '/api/audit/edgeCases',
-    method: 'GET',
-    expectedUsagePerMinute: 0.01, // Every 100 minutes
-    costPerRequest: 0, // Internal API, no external cost
-    category: 'audit'
-  }
-]
-
-// Simulate current usage based on time of day (realistic peak hours adjustment)
-// Based on actual casino usage patterns and real Helius data
-function getHourlyMultiplier(hour: number): number {
-  // More realistic multipliers based on actual usage data
-  if (hour >= 19 && hour <= 22) return 2.0 // Evening peak (7-10 PM UTC)
-  if (hour >= 12 && hour <= 14) return 1.5 // Lunch peak
-  if (hour >= 15 && hour <= 18) return 1.3 // Afternoon activity
-  if (hour >= 8 && hour <= 11) return 1.2 // Morning activity
-  if (hour >= 2 && hour <= 4) return 1.4 // Late night gaming
-  if (hour >= 23 || hour <= 1) return 1.1 // Late night low activity
-  return 0.8 // Low activity hours (more conservative baseline)
-}
+// REMOVED: getHourlyMultiplier function - no more fake time-based estimates
 
 async function calculateCurrentUsage(): Promise<UsageMetrics> {
   const now = new Date()
   const periodStart = new Date(now.getTime() - 60 * 60 * 1000).toISOString() // Last hour
   const periodEnd = now.toISOString()
-  const currentHour = now.getUTCHours()
 
-  // REAL USAGE TRACKING - NO MORE FAKE ESTIMATES!
-  // This should be replaced with actual usage tracking from your APIs
+  // REAL USAGE ONLY - NO FAKE ESTIMATES OR BASELINES!
+  // TODO: Replace with actual usage counters from your APIs
   
-  // For now, return MINIMAL realistic numbers based on your actual Helius usage
-  // Real data: 42,314 credits in 3 months = 470/day = 19.6/hour average
+  // For now, return ZERO until real tracking is implemented
+  // This prevents any fake/estimated data from being displayed
   
-  // WARNING: These are still estimates until real tracking is implemented
-  const hourlyMultiplier = getHourlyMultiplier(currentHour)
-  const baseHeliusPerHour = 19.6 // Real average from your data
-  
-  // Conservative estimates - much lower than before
-  const currentHeliusUsage = Math.round(baseHeliusPerHour * hourlyMultiplier)
-  const currentRpcCalls = Math.round(currentHeliusUsage * 3) // Much more conservative scaling
-  const currentPriceApi = Math.round(currentHeliusUsage * 0.1) // Very conservative
-  const currentChatApi = Math.round(currentHeliusUsage * 0.5)
-  const currentCacheApi = Math.round(currentHeliusUsage * 0.05)
-  const currentDnsApi = Math.round(currentHeliusUsage * 0.02)
-  const currentAuditApi = Math.round(currentHeliusUsage * 0.01)
+  const currentHeliusUsage = 0 // Should come from actual API call counter
+  const currentRpcCalls = 0 // Should come from actual RPC call counter
+  const currentPriceApi = 0 // Should come from actual price API counter
+  const currentChatApi = 0 // Should come from actual chat API counter
+  const currentCacheApi = 0 // Should come from actual cache API counter
+  const currentDnsApi = 0 // Should come from actual DNS API counter
+  const currentAuditApi = 0 // Should come from actual audit API counter
   
   const totalApiCalls = currentRpcCalls + currentPriceApi + currentHeliusUsage + 
                        currentChatApi + currentCacheApi + currentDnsApi + currentAuditApi
 
-  // RPC endpoint breakdown - conservative distribution
-  const syndicaPrimary = Math.round(currentRpcCalls * 0.90) // 90% primary
-  const syndicaBalance = Math.round(currentRpcCalls * 0.08) // 8% balance
-  const heliusBackup = Math.round(currentRpcCalls * 0.015) // 1.5% backup
-  const ankrLastResort = Math.round(currentRpcCalls * 0.003) // 0.3% last resort
-  const solanaLabsLastResort = Math.round(currentRpcCalls * 0.002) // 0.2% absolute last
+  // RPC endpoint breakdown - will be 0 until real tracking
+  const syndicaPrimary = 0 // Should come from actual Syndica call counter
+  const syndicaBalance = 0 // Should come from actual Syndica balance call counter
+  const heliusBackup = 0 // Should come from actual Helius backup call counter
+  const ankrLastResort = 0 // Should come from actual Ankr call counter
+  const solanaLabsLastResort = 0 // Should come from actual Solana Labs call counter
 
   // All costs are $0 since you're on free plans
   const heliusCost = 0
   const coinGeckoCost = 0
   const coinMarketCapCost = 0
 
-  // Generate hourly usage pattern - much more conservative
+  // No fake hourly patterns - empty until real tracking
   const usageByHour: Record<string, number> = {}
-  
-  for (let i = 0; i < 24; i++) {
-    const hour = (currentHour - i + 24) % 24
-    const hourLabel = `${hour.toString().padStart(2, '0')}:00`
-    const multiplier = getHourlyMultiplier(hour)
-    
-    const hourlyHelius = Math.round(baseHeliusPerHour * multiplier)
-    const hourlyTotal = Math.round(hourlyHelius * 4.1) // Conservative total multiplier
-    usageByHour[hourLabel] = hourlyTotal
-  }
 
-  // REALISTIC daily estimates based on your actual 470 Helius/day
-  const realHeliusDaily = 470 // Your actual usage
-  const totalDaily = Math.round(realHeliusDaily * 4.1) // ~1,927 total
-  const rpcDaily = Math.round(realHeliusDaily * 3) // ~1,410 RPC
-  const priceDaily = Math.round(realHeliusDaily * 0.1) // ~47 price
-  const chatDaily = Math.round(realHeliusDaily * 0.5) // ~235 chat
-  const cacheDaily = Math.round(realHeliusDaily * 0.05) // ~24 cache
-  const dnsDaily = Math.round(realHeliusDaily * 0.02) // ~9 DNS
-  const auditDaily = Math.round(realHeliusDaily * 0.01) // ~5 audit
-  const heliusDaily = realHeliusDaily
+  // NO FAKE DAILY ESTIMATES - all zero until real tracking
+  const totalDaily = 0 // Should come from actual daily usage tracking
+  const rpcDaily = 0 // Should come from actual daily RPC tracking
+  const priceDaily = 0 // Should come from actual daily price API tracking
+  const chatDaily = 0 // Should come from actual daily chat tracking
+  const cacheDaily = 0 // Should come from actual daily cache tracking
+  const dnsDaily = 0 // Should come from actual daily DNS tracking
+  const auditDaily = 0 // Should come from actual daily audit tracking
+  const heliusDaily = 0 // Should come from actual daily Helius tracking
 
   // VALIDATION: Check against real Helius usage
   // Real: 42,314 in 3 months = ~470/day
@@ -446,9 +280,9 @@ async function calculateCurrentUsage(): Promise<UsageMetrics> {
         currentRps: Math.round((currentHeliusUsage + heliusBackup) / 3600),
         utilizationPercent: Math.round(((currentHeliusUsage + heliusBackup) / 3600 / 10) * 100),
         status: ((currentHeliusUsage + heliusBackup) / 3600) > 8 ? 'warning' : 'healthy',
-        dailyProjection: realHeliusDaily,
-        monthlyProjection: realHeliusDaily * 30, // 14,100
-        percentOfMonthlyLimit: Math.round((realHeliusDaily * 30 / 1000000) * 100) // ~1.4%
+        dailyProjection: heliusDaily,
+        monthlyProjection: heliusDaily * 30,
+        percentOfMonthlyLimit: Math.round((heliusDaily * 30 / 1000000) * 100)
       },
       publicRpcs: {
         planType: 'Public (Last Resort Only)',
