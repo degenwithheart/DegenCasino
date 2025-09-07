@@ -318,7 +318,7 @@ export default function Slots() {
         />
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={7} />
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin
           </EnhancedPlayButton>

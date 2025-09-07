@@ -12,6 +12,7 @@ import {
   PresetButton,
   PresetContainer
 } from '../../sections/Game/Game.styles';
+import { useWagerLimits, validateWager } from '../../utils/general/wagerUtils';
 
 // Wrapper for GambaUi.WagerInput with enhanced styling
 const StyledWagerInputWrapper = styled.div`
@@ -92,14 +93,27 @@ export const EnhancedWagerInput: React.FC<{
   onChange: (value: number) => void;
   disabled?: boolean;
   options?: number[];
-}> = ({ value, onChange, disabled, options }) => {
+  minWager?: number;
+  maxWager?: number;
+  multiplier?: number;
+}> = ({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }) => {
   const token = useCurrentToken();
+  const wagerLimits = useWagerLimits(multiplier);
+  
+  // Use provided limits or fall back to calculated ones
+  const effectiveMinWager = minWager ?? wagerLimits.minWager;
+  const effectiveMaxWager = maxWager ?? wagerLimits.maxWager;
   // Local input state so users can type leading zeros and decimals without the
   // parent value immediately clearing the field when it's 0.
   const displayValue = value / token.baseWager;
   const initial = displayValue === 0 ? '' : String(displayValue);
   const [inputValue, setInputValue] = useState<string>(initial);
   const focusedRef = useRef(false);
+
+  // Helper to check if a value is within min/max wager
+  const isWagerInRange = (wager: number) => {
+    return wager >= effectiveMinWager && wager <= effectiveMaxWager;
+  };
 
   // Keep local input in sync when external value changes (only when not focused)
   useEffect(() => {
@@ -119,11 +133,26 @@ export const EnhancedWagerInput: React.FC<{
         const numericValue = parseFloat(v);
         if (!isNaN(numericValue)) {
           const wagerAmount = numericValue * token.baseWager;
-          onChange(wagerAmount);
+          // Only allow if in range
+          if (isWagerInRange(wagerAmount)) {
+            onChange(wagerAmount);
+          } else if (wagerAmount < effectiveMinWager) {
+            // Clamp and format to 4 decimals
+            const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
+            setInputValue(minDisplay);
+            onChange(effectiveMinWager);
+          } else if (wagerAmount > effectiveMaxWager) {
+            // Clamp and format to 4 decimals
+            const maxDisplay = (effectiveMaxWager / token.baseWager).toFixed(4);
+            setInputValue(maxDisplay);
+            onChange(effectiveMaxWager);
+          }
         }
       } else if (v === '') {
-        // empty means zero
-        onChange(0);
+        // empty means zero, but enforce minimum wager
+        const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
+        setInputValue(minDisplay);
+        onChange(effectiveMinWager);
       }
     }
   };
@@ -133,15 +162,21 @@ export const EnhancedWagerInput: React.FC<{
     focusedRef.current = false;
     // normalize incomplete entries like '.' -> '0'
     if (inputValue === '.' || inputValue === '') {
-      setInputValue(inputValue === '.' ? '0' : '');
-      onChange(0);
+      const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
+      setInputValue(minDisplay);
+      onChange(effectiveMinWager);
     } else {
       // ensure the displayed value matches the parsed numeric value formatting
       const numericValue = parseFloat(inputValue);
       if (!isNaN(numericValue)) {
-        const formatted = String(numericValue);
-        setInputValue(formatted);
-        onChange(numericValue * token.baseWager);
+        const wagerAmount = numericValue * token.baseWager;
+        // Clamp the wager amount within min/max limits
+        let clampedWager = wagerAmount;
+        if (wagerAmount < effectiveMinWager) clampedWager = effectiveMinWager;
+        if (wagerAmount > effectiveMaxWager) clampedWager = effectiveMaxWager;
+        const clampedDisplayValue = (clampedWager / token.baseWager).toFixed(4);
+        setInputValue(clampedDisplayValue);
+        onChange(clampedWager);
       }
     }
   };
@@ -164,6 +199,10 @@ export const EnhancedWagerInput: React.FC<{
       <div style={{ marginTop: 8 }}>
         {/* display live USD conversion (displayValue is token amount) */}
         <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact />
+      </div>
+      <div style={{ marginTop: 4, fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center' }}>
+        Min: {(effectiveMinWager / token.baseWager).toFixed(4)} {token?.symbol} | 
+        Max: {effectiveMaxWager === Infinity ? '∞' : (effectiveMaxWager / token.baseWager).toFixed(4)} {token?.symbol}
       </div>
     </WagerInputContainer>
   );
@@ -400,22 +439,35 @@ export const EnhancedPlayButton: React.FC<{
   wager?: number; // Add wager prop for validation
 }> = ({ onClick, disabled, children, wager }) => {
   
+  const token = useCurrentToken();
+  const wagerLimits = useWagerLimits();
+  // Use provided limits or fall back to calculated ones
+  const effectiveMinWager = wagerLimits.minWager;
+  const effectiveMaxWager = wagerLimits.maxWager;
+
   const handleClick = () => {
     // Check wager validation first
-    if (wager !== undefined && wager <= 0) {
-      console.log('❌ BLOCKED: Cannot play with zero wager');
+    if (
+      wager === undefined ||
+      wager < effectiveMinWager ||
+      wager > effectiveMaxWager
+    ) {
+      console.log('❌ BLOCKED: Wager not in allowed range');
       return;
     }
-    
     // If onClick is provided and wager is valid, call it
     if (onClick) {
       onClick();
     }
   };
-  
-  // Disable if explicitly disabled OR if wager is 0 or less
-  const isDisabled = disabled || (wager !== undefined && wager <= 0);
-  
+
+  // Disable if explicitly disabled OR if wager is not in allowed range
+  const isDisabled =
+    disabled ||
+    wager === undefined ||
+    wager < effectiveMinWager ||
+    wager > effectiveMaxWager;
+
   return (
     <StyledPlayButtonWrapper>
       <GambaUi.PlayButton onClick={handleClick} disabled={isDisabled}>

@@ -216,7 +216,7 @@ export default function Dice() {
         />
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={multiplier} />
           <EnhancedPlayButton onClick={play}>Roll</EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>

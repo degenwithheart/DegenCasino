@@ -293,7 +293,7 @@ export default function Roulette() {
         </MobileControls>
         
         <DesktopControls>
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={Math.max(...bet.value)} />
           <GambaUi.Select
             options={CHIPS}
             value={selectedChip.value}
