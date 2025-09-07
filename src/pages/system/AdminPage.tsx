@@ -240,6 +240,27 @@ interface AdminCommand {
 
 const ADMIN_COMMANDS: AdminCommand[] = [
   {
+    id: 'comprehensive-test',
+    title: '🚀 Comprehensive System Test',
+    description: 'Run complete 60-second test of all RPC calls, APIs, and calculate daily usage metrics',
+    endpoint: '/api/monitoring/comprehensive-test',
+    method: 'GET'
+  },
+  {
+    id: 'rpc-health',
+    title: '🔌 RPC Health Monitor',
+    description: 'Live health check of all Solana RPC endpoints with response times',
+    endpoint: '/api/monitoring/rpc-health',
+    method: 'GET'
+  },
+  {
+    id: 'usage-metrics',
+    title: '📊 API Usage & Cost Analysis',
+    description: 'Calculate current API usage patterns and estimated daily costs',
+    endpoint: '/api/monitoring/usage-metrics',
+    method: 'GET'
+  },
+  {
     id: 'cache-stats',
     title: 'Cache Statistics',
     description: 'Get current cache statistics and performance metrics',
