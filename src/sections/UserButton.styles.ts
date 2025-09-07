@@ -1,62 +1,101 @@
 import styled, { keyframes, css } from 'styled-components'
 
-// Keyframe animations matching casino style
-export const neonPulse = keyframes`
+// Romantic animations for user button
+export const romanticPulse = keyframes`
   0% {
-    box-shadow: 0 0 24px #a259ff88, 0 0 48px #ffd70044;
-    border-color: #ffd70044;
+    box-shadow: 
+      0 0 24px rgba(212, 165, 116, 0.4),
+      0 0 48px rgba(184, 51, 106, 0.3);
+    border-color: rgba(212, 165, 116, 0.4);
   }
   100% {
-    box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88;
-    border-color: #ffd700aa;
+    box-shadow: 
+      0 0 48px rgba(212, 165, 116, 0.6),
+      0 0 96px rgba(184, 51, 106, 0.4);
+    border-color: rgba(212, 165, 116, 0.7);
   }
 `;
 
-export const moveGradient = keyframes`
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+export const loveLetterGradientMove = keyframes`
+  0% { 
+    background-position: 0% 50%; 
+  }
+  100% { 
+    background-position: 100% 50%; 
+  }
 `;
 
-export const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+export const candlestickSparkle = keyframes`
+  0%, 100% { 
+    opacity: 0; 
+    transform: scale(0.8) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(180deg); 
+  }
 `;
+
+// Keep old exports for compatibility
+export const neonPulse = romanticPulse;
+export const moveGradient = loveLetterGradientMove;
+export const sparkle = candlestickSparkle;
 
 export const Container = styled.div`
   height: auto;
-  width: 600px;
+  width: min(600px, 94vw);
   margin: 1rem auto;
-  border-radius: 20px;
-  padding: 2rem;
-  color: #fff;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
+  border-radius: 24px;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  color: var(--love-letter-gold);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
   text-align: center;
   position: relative;
 
-  /* Enhanced glassmorphism */
-  background: rgba(24, 24, 24, 0.8);
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.4);
+  /* Enhanced romantic glassmorphism */
+  background: linear-gradient(
+    135deg,
+    rgba(10, 5, 17, 0.9) 0%,
+    rgba(139, 90, 158, 0.2) 50%,
+    rgba(10, 5, 17, 0.9) 100%
+  );
+  backdrop-filter: blur(30px) saturate(1.5);
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  box-shadow: 
+    0 16px 48px rgba(10, 5, 17, 0.7),
+    0 8px 24px rgba(212, 165, 116, 0.1),
+    inset 0 1px 0 rgba(212, 165, 116, 0.2);
 
-  /* Casino gradient border effect */
+  /* Romantic gradient border effect */
   &::before {
     content: '';
     position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    background: linear-gradient(45deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    border-radius: 20px;
-    opacity: 0.3;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+      45deg,
+      var(--love-letter-gold) 0%,
+      var(--deep-crimson-rose) 25%,
+      var(--soft-purple-twilight) 50%,
+      var(--deep-crimson-rose) 75%,
+      var(--love-letter-gold) 100%
+    );
+    background-size: 300% 300%;
+    animation: ${loveLetterGradientMove} 6s ease-in-out infinite;
+    border-radius: 26px;
+    opacity: 0;
     z-index: -1;
-    ${css`animation: ${moveGradient} 4s linear infinite;`}
+    transition: opacity 0.4s ease;
   }
 
-  /* Inner glow effect */
+  &:hover::before {
+    opacity: 0.6;
+  }
+
+  /* Inner romantic glow effect */
   &::after {
     content: '';
     position: absolute;
@@ -64,34 +103,92 @@ export const Container = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 20px;
+    border-radius: 24px;
     background:
-      radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 70% 80%, rgba(162, 89, 255, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(184, 51, 106, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(139, 90, 158, 0.05) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
-  > * {
-    position: relative;
-    z-index: 1;
+  /* Mobile-first responsive design */
+  @media (max-width: 479px) {
+    margin: 0.75rem auto;
+    border-radius: 18px;
+    padding: 1.25rem;
+    
+    &::before {
+      border-radius: 20px;
+    }
+    
+    &::after {
+      border-radius: 18px;
+    }
   }
 
-  @media (max-width: 600px) {
-    width: 98vw;
-    min-width: 0;
-    padding: 1rem 0.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  @media (min-width: 768px) {
+    border-radius: 28px;
+    
+    &::before {
+      border-radius: 30px;
+    }
+    
+    &::after {
+      border-radius: 28px;
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 10;
   }
 `;
 
 export const Header = styled.h3`
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   margin-bottom: 1.5rem;
-  color: #ffd700;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  text-shadow: 0 0 12px #ffd700, 0 0 24px #a259ff;
+  color: var(--love-letter-gold);
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 600;
+  text-shadow: 
+    0 0 12px rgba(212, 165, 116, 0.5),
+    0 0 4px rgba(212, 165, 116, 0.3);
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--love-letter-gold) 50%,
+      transparent 100%
+    );
+    opacity: 0.7;
+  }
+
+  @media (max-width: 479px) {
+    margin-bottom: 1.25rem;
+    
+    &::after {
+      width: 40px;
+      height: 1px;
+      bottom: -6px;
+    }
+  }
+`;
+
+export const CasinoIcon = styled.div`
+  font-family: 'DM Sans', sans-serif;
+  text-shadow: 
+    0 0 12px rgba(212, 165, 116, 0.5),
+    0 0 8px rgba(184, 51, 106, 0.3);
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -99,11 +196,20 @@ export const Header = styled.h3`
   gap: 0.5rem;
 
   &::before {
-    content: '🎰';
+    content: '💕';
     font-size: 1.2em;
-    filter: drop-shadow(0 0 8px #ffd700);
+    filter: drop-shadow(0 0 8px var(--love-letter-gold));
+    animation: ${candlestickSparkle} 3s infinite;
   }
-`
+
+  @media (max-width: 479px) {
+    gap: 0.25rem;
+    
+    &::before {
+      font-size: 1em;
+    }
+  }
+`;
 
 export const TokenPreview = styled.div`
   margin-top: 1.5rem;
@@ -111,34 +217,64 @@ export const TokenPreview = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 700;
-  font-size: 1.1rem;
+  color: var(--love-letter-gold);
+  font-weight: 600;
+  font-size: clamp(1rem, 3vw, 1.1rem);
   padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 165, 116, 0.1) 0%,
+    rgba(184, 51, 106, 0.05) 50%,
+    rgba(139, 90, 158, 0.1) 100%
+  );
+  border-radius: 16px;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  backdrop-filter: blur(15px) saturate(1.2);
+  box-shadow: 
+    0 4px 16px rgba(10, 5, 17, 0.4),
+    inset 0 1px 0 rgba(212, 165, 116, 0.1);
+  font-family: 'DM Sans', sans-serif;
 
-  @media (max-width: 600px) {
-    font-size: 1rem;
-    padding: 0.7rem 0.5rem;
-    border-radius: 8px;
+  @media (max-width: 479px) {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
     gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    border-radius: 18px;
+    padding: 1.25rem 1.75rem;
   }
 `;
 
 export const TokenIcon = styled.img`
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  box-shadow: 0 0 12px #ffd700aa;
-  filter: drop-shadow(0 0 4px #ffd700);
+  border-radius: 10px;
+  box-shadow: 
+    0 0 12px rgba(212, 165, 116, 0.4),
+    0 4px 8px rgba(10, 5, 17, 0.3);
+  filter: drop-shadow(0 0 4px var(--love-letter-gold));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @media (max-width: 600px) {
+  &:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 
+      0 0 16px rgba(212, 165, 116, 0.6),
+      0 6px 12px rgba(10, 5, 17, 0.4);
+  }
+
+  @media (max-width: 479px) {
     width: 26px;
     height: 26px;
-    border-radius: 6px;
+    border-radius: 8px;
+  }
+
+  @media (min-width: 768px) {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
   }
 `;
 
@@ -148,32 +284,56 @@ export const WalletButtonWrapper = styled.div`
 
   ${css`
     .gamba-button {
-      background: linear-gradient(90deg, #ffd700, #a259ff) !important;
-      border: 2px solid transparent !important;
+      background: linear-gradient(
+        135deg,
+        var(--love-letter-gold) 0%,
+        var(--deep-crimson-rose) 50%,
+        var(--soft-purple-twilight) 100%
+      ) !important;
+      border: 1px solid rgba(212, 165, 116, 0.4) !important;
       border-radius: 16px !important;
       padding: 0.75rem 1.5rem !important;
-      font-weight: 700 !important;
-      font-size: 1rem !important;
-      color: #222 !important;
-      transition: all 0.3s ease !important;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
-      animation: ${neonPulse} 2s infinite alternate !important;
+      font-weight: 600 !important;
+      font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+      color: var(--deep-romantic-night) !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 
+        0 8px 24px rgba(10, 5, 17, 0.4),
+        0 4px 12px rgba(212, 165, 116, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+      animation: ${romanticPulse} 3s infinite alternate !important;
+      backdrop-filter: blur(10px) !important;
+      font-family: 'DM Sans', sans-serif !important;
+      letter-spacing: 0.5px !important;
+      text-shadow: 0 1px 2px rgba(10, 5, 17, 0.3) !important;
 
-      @media (max-width: 600px) {
-        font-size: 0.98rem !important;
-        padding: 0.6rem 1rem !important;
-        border-radius: 10px !important;
+      @media (max-width: 479px) {
+        padding: 0.6rem 1.25rem !important;
+        border-radius: 12px !important;
+      }
+
+      @media (min-width: 768px) {
+        padding: 0.875rem 1.75rem !important;
+        border-radius: 18px !important;
       }
 
       &:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5) !important;
+        transform: translateY(-2px) scale(1.05) !important;
+        box-shadow: 
+          0 12px 32px rgba(10, 5, 17, 0.5),
+          0 6px 16px rgba(212, 165, 116, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
+
+      &:active {
+        transform: translateY(-1px) scale(1.02) !important;
+        transition: all 0.2s ease !important;
       }
     }
   `}
 `;
 
-// Enhanced referral section styles
+// Enhanced romantic referral section styles
 export const ReferralSection = styled.div`
   margin-top: 2rem;
   display: flex;
@@ -181,66 +341,126 @@ export const ReferralSection = styled.div`
   gap: 1rem;
   width: 100%;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 165, 116, 0.08) 0%,
+    rgba(184, 51, 106, 0.05) 50%,
+    rgba(139, 90, 158, 0.08) 100%
+  );
+  border-radius: 20px;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  backdrop-filter: blur(15px) saturate(1.2);
   position: relative;
+  box-shadow: 
+    0 8px 24px rgba(10, 5, 17, 0.4),
+    inset 0 1px 0 rgba(212, 165, 116, 0.1);
 
   &::before {
-    content: '💎';
+    content: '�';
     position: absolute;
     top: -10px;
     right: -10px;
     font-size: 1.5rem;
-    ${css`animation: ${sparkle} 2s infinite;`}
-    filter: drop-shadow(0 0 8px #ffd700);
+    animation: ${candlestickSparkle} 3s infinite;
+    filter: drop-shadow(0 0 8px var(--love-letter-gold));
   }
 
-  @media (max-width: 600px) {
-    padding: 0.8rem 0.3rem;
-    border-radius: 10px;
-    gap: 0.6rem;
+  @media (max-width: 479px) {
+    padding: 1rem;
+    border-radius: 16px;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    
+    &::before {
+      font-size: 1.25rem;
+      top: -8px;
+      right: -8px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    border-radius: 24px;
+    padding: 1.75rem;
   }
 `;
 
 export const ReferralButton = styled.div`
   .gamba-button {
-    background: linear-gradient(90deg, #00ff88, #0099ff) !important;
-    border: none !important;
-    border-radius: 12px !important;
+    background: linear-gradient(
+      135deg,
+      var(--soft-purple-twilight) 0%,
+      var(--deep-crimson-rose) 50%,
+      var(--love-letter-gold) 100%
+    ) !important;
+    border: 1px solid rgba(139, 90, 158, 0.4) !important;
+    border-radius: 14px !important;
     padding: 0.75rem 1.5rem !important;
     font-weight: 600 !important;
-    color: #000 !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 0 16px rgba(0, 255, 136, 0.3) !important;
+    color: var(--deep-romantic-night) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 
+      0 6px 20px rgba(10, 5, 17, 0.4),
+      0 3px 10px rgba(139, 90, 158, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    text-shadow: 0 1px 2px rgba(10, 5, 17, 0.3) !important;
 
     &:hover {
-      transform: scale(1.02) !important;
-      box-shadow: 0 0 24px rgba(0, 255, 136, 0.5) !important;
+      transform: translateY(-2px) scale(1.02) !important;
+      box-shadow: 
+        0 8px 28px rgba(10, 5, 17, 0.5),
+        0 4px 14px rgba(139, 90, 158, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    }
+
+    @media (max-width: 479px) {
+      border-radius: 12px !important;
+      padding: 0.6rem 1.25rem !important;
     }
   }
-`
+`;
 
 export const RemoveButton = styled.div`
   .gamba-button {
-    background: rgba(255, 69, 87, 0.8) !important;
-    border: 1px solid rgba(255, 69, 87, 0.5) !important;
-    border-radius: 12px !important;
-    color: white !important;
-    transition: all 0.3s ease !important;
+    background: linear-gradient(
+      135deg,
+      rgba(184, 51, 106, 0.8) 0%,
+      rgba(139, 90, 158, 0.8) 100%
+    ) !important;
+    border: 1px solid rgba(184, 51, 106, 0.5) !important;
+    border-radius: 14px !important;
+    color: var(--love-letter-gold) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 
+      0 4px 16px rgba(10, 5, 17, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 
     &:hover:not(:disabled) {
-      background: rgba(255, 69, 87, 1) !important;
-      box-shadow: 0 0 16px rgba(255, 69, 87, 0.4) !important;
+      background: linear-gradient(
+        135deg,
+        rgba(184, 51, 106, 1) 0%,
+        rgba(139, 90, 158, 1) 100%
+      ) !important;
+      box-shadow: 
+        0 6px 20px rgba(10, 5, 17, 0.4),
+        0 3px 10px rgba(184, 51, 106, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+      transform: translateY(-1px) !important;
     }
 
     &:disabled {
       opacity: 0.5 !important;
       cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    @media (max-width: 479px) {
+      border-radius: 12px !important;
     }
   }
-`
+`;
 
 export const InfoText = styled.div`
   opacity: 0.8;

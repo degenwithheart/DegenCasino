@@ -4,23 +4,52 @@ import styled, { keyframes, css } from 'styled-components';
 import { tokenPriceService } from '../../services/TokenPriceService';
 import PriceIndicator from "../UI/PriceIndicator";
 
-// Casino animations
-const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
+// Romantic animations for the mobile experience
+const romanticPulse = keyframes`
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.4),
+      0 8px 32px rgba(10, 5, 17, 0.3);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 
+      0 0 32px rgba(212, 165, 116, 0.6),
+      0 12px 48px rgba(10, 5, 17, 0.5);
+  }
 `;
 
-const glow = keyframes`
-  0%, 100% { box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
-  50% { box-shadow: 0 0 20px #ffd700, 0 0 30px #ff0066, 0 0 40px #ff0066; }
+const loveLetterFloat = keyframes`
+  0% { 
+    background-position: -200px 0; 
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% { 
+    background-position: calc(200px + 100%) 0;
+    opacity: 0.3;
+  }
 `;
 
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+const candlestickSparkle = keyframes`
+  0%, 100% { 
+    box-shadow: 
+      0 0 15px rgba(212, 165, 116, 0.3),
+      0 0 30px rgba(184, 51, 106, 0.2),
+      inset 0 0 20px rgba(139, 90, 158, 0.1);
+  }
+  50% { 
+    box-shadow: 
+      0 0 25px rgba(212, 165, 116, 0.5),
+      0 0 50px rgba(184, 51, 106, 0.3),
+      inset 0 0 30px rgba(139, 90, 158, 0.2);
+  }
 `;
 
-const popupSlideIn = keyframes`
+const dreamlikeFadeInOut = keyframes`
   0% {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
@@ -28,17 +57,6 @@ const popupSlideIn = keyframes`
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-`;
-
-const popupSlideOut = keyframes`
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
   }
 `;
 
@@ -52,31 +70,70 @@ const fadeOut = keyframes`
   100% { opacity: 0; }
 `;
 
-// Main mobile controls container - completely redesigned for mobile-first
+const popupSlideIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+`;
+
+const popupSlideOut = keyframes`
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+`;
+
+const glow = keyframes`
+  0%, 100% {
+    box-shadow: 
+      inset 0 2px 8px rgba(0, 0, 0, 0.3),
+      0 0 0 3px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 
+      inset 0 2px 8px rgba(0, 0, 0, 0.3),
+      0 0 0 3px rgba(255, 215, 0, 0.5);
+  }
+`;
+
+// Main mobile controls container - romantic degen aesthetic
 const MobileControlsWrapper = styled.div`
   display: none;
   @media (max-width: 800px) {
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding: 18px;
-    background: linear-gradient(145deg, 
-      rgba(18, 18, 28, 0.98) 0%, 
-      rgba(25, 25, 40, 0.98) 50%, 
-      rgba(20, 20, 35, 0.98) 100%
+    padding: 20px;
+    background: linear-gradient(135deg, 
+      rgba(10, 5, 17, 0.95) 0%, 
+      rgba(139, 90, 158, 0.15) 30%,
+      rgba(184, 51, 106, 0.08) 70%,
+      rgba(10, 5, 17, 0.95) 100%
     );
-    border: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 20px;
-    backdrop-filter: blur(15px);
+    border: 1px solid rgba(212, 165, 116, 0.3);
+    border-radius: 24px;
+    backdrop-filter: blur(20px) saturate(1.3);
     box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 0 0 1px rgba(255, 215, 0, 0.1);
-    gap: 16px;
+      0 8px 32px rgba(10, 5, 17, 0.6),
+      inset 0 1px 0 rgba(212, 165, 116, 0.2),
+      0 0 0 1px rgba(212, 165, 116, 0.1);
+    gap: 18px;
     position: relative;
     overflow: hidden;
+    animation: ${candlestickSparkle} 6s ease-in-out infinite;
+    color: var(--love-letter-gold);
+    font-family: 'DM Sans', sans-serif;
     
-    /* Casino shine effect */
+    /* Romantic glow effect like candlelight */
     &::before {
       content: '';
       position: absolute;
@@ -87,11 +144,29 @@ const MobileControlsWrapper = styled.div`
       background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 215, 0, 0.1),
+        rgba(212, 165, 116, 0.12),
+        rgba(184, 51, 106, 0.08),
         transparent
       );
-      animation: ${shimmer} 3s infinite;
+      animation: ${loveLetterFloat} 4s infinite ease-in-out;
       pointer-events: none;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        var(--love-letter-gold), 
+        var(--deep-crimson-rose), 
+        var(--soft-purple-twilight),
+        var(--love-letter-gold)
+      );
+      background-size: 300% 100%;
+      animation: ${loveLetterFloat} 3s infinite ease-in-out;
     }
   }
 `;
@@ -107,114 +182,111 @@ const DesktopControlsWrapper = styled.div`
   }
 `;
 
-// Top row with wager and play button - modern mobile-first layout
+// Top row with wager and play button - romantic mobile layout
 const TopRow = styled.div`
   display: flex;
   align-items: flex-end;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
 `;
 
-// Wager section (left side) - enhanced for mobile
+// Wager section (left side) - romantic degen aesthetic
 const WagerSection = styled.div`
   flex: 2;
   min-width: 0;
 `;
 
 const WagerLabel = styled.div`
-  color: #ffd700;
+  color: var(--love-letter-gold);
   font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-weight: 600;
+  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(10, 5, 17, 0.8);
+  font-family: 'Libre Baskerville', serif;
+  opacity: 0.9;
 `;
 
 const WagerInputRow = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: linear-gradient(145deg, 
-    rgba(8, 8, 15, 0.9) 0%, 
-    rgba(12, 12, 20, 0.9) 100%
+  gap: 10px;
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.85) 0%, 
+    rgba(139, 90, 158, 0.1) 50%,
+    rgba(10, 5, 17, 0.85) 100%
   );
-  border: 2px solid rgba(255, 215, 0, 0.4);
-  border-radius: 12px;
-  padding: 12px;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  border-radius: 16px;
+  padding: 14px;
   box-shadow: 
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 215, 0, 0.1);
+    inset 0 2px 8px rgba(10, 5, 17, 0.4),
+    0 4px 16px rgba(212, 165, 116, 0.1),
+    0 0 0 1px rgba(212, 165, 116, 0.15);
+  backdrop-filter: blur(12px);
+  animation: ${romanticPulse} 8s ease-in-out infinite;
   
   input {
     all: unset;
     width: 100%;
-    color: #fff;
-    font-weight: 700;
+    color: var(--love-letter-gold);
+    font-weight: 600;
     font-size: 16px;
     text-align: center;
     background: transparent;
+    font-family: 'DM Sans', sans-serif;
     
     &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-      font-weight: 600;
+      color: rgba(212, 165, 116, 0.5);
+      font-family: 'DM Sans', sans-serif;
     }
     
     &:focus {
       outline: none;
-      animation: ${glow} 2s infinite;
+      color: var(--love-letter-gold);
     }
-  }
-  
-  &:focus-within {
-    border-color: #ffd700;
-    box-shadow: 
-      inset 0 2px 8px rgba(0, 0, 0, 0.3),
-      0 0 0 3px rgba(255, 215, 0, 0.3),
-      0 4px 12px rgba(255, 215, 0, 0.2);
-  }
-  
-  &:hover:not(:focus-within) {
-    border-color: rgba(255, 215, 0, 0.6);
-    background: linear-gradient(145deg, 
-      rgba(10, 10, 18, 0.9) 0%, 
-      rgba(15, 15, 25, 0.9) 100%
-    );
   }
 `;
 
 const PresetButtonsRow = styled.div`
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
 `;
 
 const PresetButton = styled.button`
-  background: linear-gradient(145deg, 
-    rgba(0, 255, 225, 0.2) 0%, 
-    rgba(0, 200, 180, 0.2) 100%
+  background: linear-gradient(135deg, 
+    rgba(184, 51, 106, 0.2) 0%, 
+    rgba(139, 90, 158, 0.2) 100%
   );
-  border: 1px solid rgba(0, 255, 225, 0.4);
-  color: #fff;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  color: var(--love-letter-gold);
   font-weight: 600;
   font-size: 11px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 35px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 40px;
+  text-shadow: 0 1px 3px rgba(10, 5, 17, 0.8);
+  box-shadow: 
+    0 2px 8px rgba(10, 5, 17, 0.3),
+    inset 0 1px 0 rgba(212, 165, 116, 0.1);
+  font-family: 'DM Sans', sans-serif;
+  backdrop-filter: blur(8px);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(145deg, 
-      rgba(0, 255, 225, 0.3) 0%, 
-      rgba(0, 200, 180, 0.3) 100%
+    background: linear-gradient(135deg, 
+      rgba(184, 51, 106, 0.3) 0%, 
+      rgba(139, 90, 158, 0.3) 100%
     );
-    border-color: rgba(0, 255, 225, 0.6);
-    transform: translateY(-1px) scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 255, 225, 0.3);
+    border-color: rgba(212, 165, 116, 0.6);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+      0 6px 16px rgba(184, 51, 106, 0.3),
+      inset 0 1px 0 rgba(212, 165, 116, 0.2);
   }
   
   &:active:not(:disabled) {
@@ -227,7 +299,7 @@ const PresetButton = styled.button`
   }
 `;
 
-// Play button section (right side)
+// Play button section (right side) - romantic degen aesthetic
 const PlaySection = styled.div`
   flex: 1;
   display: flex;
@@ -237,34 +309,36 @@ const PlaySection = styled.div`
 
 const PlayButton = styled.button`
   width: 100%;
-  height: 54px;
+  height: 56px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  background: linear-gradient(145deg, 
-    #ff0066 0%, 
-    #ff3385 30%, 
-    #ffd700 100%
+  background: linear-gradient(135deg, 
+    var(--deep-crimson-rose) 0%, 
+    var(--soft-purple-twilight) 30%, 
+    var(--love-letter-gold) 100%
   );
-  border: 3px solid #ffd700;
-  color: #fff;
-  font-weight: 900;
+  border: 2px solid var(--love-letter-gold);
+  color: var(--deep-romantic-night);
+  font-weight: 700;
   font-size: 16px;
-  border-radius: 16px;
+  border-radius: 18px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   box-shadow: 
-    0 4px 20px rgba(255, 215, 0, 0.4),
-    0 2px 10px rgba(255, 0, 102, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    0 6px 24px rgba(212, 165, 116, 0.4),
+    0 3px 12px rgba(184, 51, 106, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 2px 4px rgba(10, 5, 17, 0.8);
   position: relative;
   overflow: hidden;
+  font-family: 'Libre Baskerville', serif;
+  animation: ${romanticPulse} 6s ease-in-out infinite;
 
-  /* Shine effect */
+  /* Romantic shine effect like candlelight */
   &::before {
     content: '';
     position: absolute;
@@ -275,10 +349,10 @@ const PlayButton = styled.button`
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.3),
+      rgba(212, 165, 116, 0.4),
       transparent
     );
-    transition: left 0.6s ease;
+    animation: ${loveLetterFloat} 2s ease-in-out;
     z-index: 1;
   }
 
@@ -289,13 +363,13 @@ const PlayButton = styled.button`
   }
   
   &:hover:not(:disabled) {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-3px) scale(1.02);
     box-shadow: 
-      0 6px 30px rgba(255, 215, 0, 0.6),
-      0 4px 15px rgba(255, 0, 102, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    border-color: #ffe066;
-    animation: ${pulse} 1.5s infinite;
+      0 8px 32px rgba(212, 165, 116, 0.6),
+      0 4px 16px rgba(184, 51, 106, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border-color: var(--love-letter-gold);
+    animation: ${candlestickSparkle} 2s infinite;
 
     &::before {
       left: 100%;
@@ -303,7 +377,7 @@ const PlayButton = styled.button`
   }
   
   &:active:not(:disabled) {
-    transform: translateY(0) scale(1);
+    transform: translateY(-1px) scale(1);
   }
   
   &:disabled {
@@ -314,49 +388,55 @@ const PlayButton = styled.button`
   }
 `;
 
-// Game options section
+// Game options section - romantic degen aesthetic
 const GameOptionsSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 `;
 
 const OptionLabel = styled.div`
-  color: #ffd700;
+  color: var(--love-letter-gold);
   font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-weight: 600;
+  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(10, 5, 17, 0.8);
+  font-family: 'Libre Baskerville', serif;
+  opacity: 0.9;
 `;
 
 const OptionButtonGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
 `;
 
 const OptionButton = styled.button<{ $selected?: boolean }>`
   background: ${props => props.$selected 
-    ? 'linear-gradient(145deg, #ffd700 0%, #ffeb3b 100%)'
-    : 'linear-gradient(145deg, rgba(0, 255, 225, 0.2) 0%, rgba(0, 200, 180, 0.2) 100%)'
+    ? 'linear-gradient(135deg, var(--love-letter-gold) 0%, rgba(255, 235, 59, 0.9) 100%)'
+    : 'linear-gradient(135deg, rgba(184, 51, 106, 0.2) 0%, rgba(139, 90, 158, 0.2) 100%)'
   };
-  border: 2px solid ${props => props.$selected ? '#ffd700' : 'rgba(0, 255, 225, 0.4)'};
-  color: ${props => props.$selected ? '#000' : '#fff'};
-  font-weight: 700;
+  border: 2px solid ${props => props.$selected ? 'var(--love-letter-gold)' : 'rgba(212, 165, 116, 0.4)'};
+  color: ${props => props.$selected ? 'var(--deep-romantic-night)' : 'var(--love-letter-gold)'};
+  font-weight: 600;
   font-size: 13px;
-  padding: 10px 16px;
-  border-radius: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 60px;
-  text-shadow: ${props => props.$selected ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 65px;
+  text-shadow: ${props => props.$selected ? '0 1px 3px rgba(10,5,17,0.5)' : '0 2px 4px rgba(10,5,17,0.8)'};
+  box-shadow: 
+    0 4px 12px rgba(10, 5, 17, 0.3),
+    inset 0 1px 0 rgba(212, 165, 116, 0.1);
   position: relative;
   overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  backdrop-filter: blur(8px);
   
   &::before {
     content: '';

@@ -49,8 +49,21 @@ const ChatIcon = () => (
 )
 
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(5px) }
-  to   { opacity: 1; transform: translateY(0) }
+  from { opacity: 0; transform: translateY(5px) scale(0.95) }
+  to   { opacity: 1; transform: translateY(0) scale(1) }
+`
+
+const romanticGlow = keyframes`
+  0%, 100% { 
+    box-shadow: 
+      0 0 24px rgba(212, 165, 116, 0.3),
+      0 8px 32px rgba(10, 5, 17, 0.6);
+  }
+  50% { 
+    box-shadow: 
+      0 0 32px rgba(212, 165, 116, 0.5),
+      0 12px 48px rgba(10, 5, 17, 0.8);
+  }
 `
 
 const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $theme?: any }>`
@@ -60,19 +73,23 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
   z-index: 998;
   border-radius: ${({ $isMinimized, $isMaximized }) =>
     $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
-  background: ${({ $isMinimized, $theme }) => ($isMinimized ? $theme?.colors?.secondary || '#5e47ff' : 'rgba(28,28,35,0.92)')};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}4d;
-  color: ${({ $theme }) => $theme?.colors?.text || '#eee'};
+  background: ${({ $isMinimized }) => ($isMinimized ? 
+    'linear-gradient(135deg, var(--deep-crimson-rose) 0%, var(--soft-purple-twilight) 100%)' : 
+    'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.95) 100%)'
+  )};
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  color: var(--love-letter-gold);
   font-size: 0.95rem;
-  box-shadow: 0 0 32px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}88, 0 8px 32px rgba(0,0,0,0.45);
-  ${({ $isMinimized }) => !$isMinimized && `backdrop-filter: blur(18px)`};
+  font-family: 'DM Sans', sans-serif;
+  animation: ${romanticGlow} 4s ease-in-out infinite;
+  ${({ $isMinimized }) => !$isMinimized && `backdrop-filter: blur(20px) saturate(1.3)`};
   overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: ${({ $isMinimized }) => ($isMinimized ? 'pointer' : 'default')};
-  transition: width 0.3s, height 0.3s, max-height 0.3s, border-radius 0.3s, background 0.3s, bottom 0.3s, right 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  ${({ $isMinimized, $isMaximized, $theme }) =>
+  ${({ $isMinimized, $isMaximized }) =>
     $isMinimized
       ? `
     width: 56px;
@@ -80,7 +97,7 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
     max-height: 56px;
     justify-content: center;
     align-items: center;
-    color: ${$theme?.colors?.text || '#fff'};
+    color: var(--love-letter-gold);
     & > *:not(${ExpandIconWrapper}) { display: none }
   `
       : $isMaximized
@@ -96,6 +113,7 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
     bottom: auto;
     transform: translate(-50%, -50%);
     font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+    border-radius: 24px;
   `
       : `
     width: clamp(260px, 32vw, 420px);
@@ -104,6 +122,16 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
     min-height: 120px;
     font-size: clamp(0.92rem, 1vw, 1.08rem);
   `}
+
+  @media (max-width: 479px) {
+    width: ${({ $isMinimized, $isMaximized }) => 
+      $isMinimized ? '48px' : $isMaximized ? '94vw' : '280px'};
+    height: ${({ $isMinimized }) => $isMinimized ? '48px' : 'auto'};
+    right: ${({ $isMaximized }) => $isMaximized ? '3vw' : '12px'};
+    bottom: ${({ $isMaximized }) => $isMaximized ? '3vh' : '90px'};
+    border-radius: ${({ $isMinimized, $isMaximized }) =>
+      $isMinimized ? '50%' : $isMaximized ? '20px' : '16px'};
+  }
 
   &::before {
     content: '';
@@ -128,9 +156,8 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.accent || '#ff9500'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+    background: linear-gradient(90deg, var(--love-letter-gold), var(--deep-crimson-rose), var(--love-letter-gold));
     background-size: 300% 100%;
-    animation: none;
     border-radius: ${({ $isMinimized, $isMaximized }) =>
       $isMinimized ? '50%' : $isMaximized ? '24px 24px 0 0' : '18px 18px 0 0'};
     z-index: 1;
@@ -151,21 +178,17 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $them
       top: 1vh;
       right: auto;
       bottom: auto;
-      border-radius: 16px;
       transform: none;
     `
         : `
-      width: clamp(200px, 48vw, 340px);
-      max-width: 98vw;
-      max-height: clamp(200px, 40vh, 340px);
-      bottom: 12px;
-      right: 12px;
+      width: clamp(240px, 80vw, 340px);
+      height: clamp(200px, 60vh, 360px);
+      right: 8px;
+      bottom: 80px;
     `}
   }
-  @media (max-width: 1000px) {
-    display: none !important;
-  }
 `
+
 const MaximizeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -544,7 +567,7 @@ export default function TrollBox() {
       )}
       <ContentContainer $isMinimized={isMinimized}>
         <Header $theme={currentTheme}>
-          <HeaderTitle>Moonshot Chat</HeaderTitle>
+          <HeaderTitle>Serenade Chat</HeaderTitle>
           <HeaderStatus $theme={currentTheme}>
             {messages.length ? `${messages.length} msgs` : 'Connecting…'}
           </HeaderStatus>

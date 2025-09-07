@@ -3,52 +3,121 @@ import styled from 'styled-components'
 export const StyledFlipBackground = styled.div`
   perspective: 100px;
   user-select: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 15%, #475569 30%, #64748b 45%, #94a3b8 60%, #cbd5e1 75%, #f1f5f9 90%, #94a3b8 100%);
+  background: linear-gradient(
+    135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 15%, 
+    var(--deep-crimson-rose) 30%, 
+    var(--love-letter-gold) 45%, 
+    var(--deep-crimson-rose) 60%, 
+    var(--soft-purple-twilight) 75%, 
+    var(--deep-romantic-night) 90%
+  );
   border-radius: 24px;
-  border: 3px solid rgba(203, 213, 225, 0.4);
+  border: 3px solid var(--love-letter-gold);
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.6),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-    0 0 40px rgba(148, 163, 184, 0.3);
+    0 25px 50px rgba(10, 5, 17, 0.8),
+    inset 0 2px 4px rgba(212, 165, 116, 0.3),
+    inset 0 -2px 4px rgba(10, 5, 17, 0.5),
+    0 0 40px var(--deep-crimson-rose);
   overflow: hidden;
+  animation: romanticPulse 5s ease-in-out infinite;
   
-  /* Floating coin background elements - Silver poetry style */
+  /* Romantic coin elements */
   &::before {
-    content: '🪙';
+    content: '💰';
     position: absolute;
     top: 8%;
     left: 7%;
     font-size: 140px;
-    opacity: 0.06;
+    opacity: 0.12;
     transform: rotate(-20deg);
     pointer-events: none;
-    color: #64748b;
+    color: var(--love-letter-gold);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.7);
     filter: blur(1px);
+    animation: loveLetterFloat 8s ease-in-out infinite;
   }
 
   &::after {
-    content: '🪙';
+    content: '💎';
     position: absolute;
     bottom: 10%;
     right: 8%;
     font-size: 120px;
-    opacity: 0.08;
+    opacity: 0.15;
     transform: rotate(25deg);
     pointer-events: none;
-    color: #94a3b8;
+    color: var(--deep-crimson-rose);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.7);
     filter: blur(0.5px);
+    animation: candlestickSparkle 6s ease-in-out infinite;
+  }
+
+  @keyframes romanticPulse {
+    0%, 100% { 
+      filter: brightness(1) saturate(1) hue-rotate(0deg);
+      border-color: var(--love-letter-gold);
+    }
+    25% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+    50% { 
+      filter: brightness(1.1) saturate(1.2) hue-rotate(10deg);
+      border-color: var(--soft-purple-twilight);
+    }
+    75% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+  }
+
+  @keyframes loveLetterFloat {
+    0%, 100% { 
+      transform: rotate(-20deg) translateY(0px);
+      opacity: 0.12;
+    }
+    25% { 
+      transform: rotate(-15deg) translateY(-10px);
+      opacity: 0.18;
+    }
+    50% { 
+      transform: rotate(-10deg) translateY(-20px);
+      opacity: 0.25;
+    }
+    75% { 
+      transform: rotate(-15deg) translateY(-10px);
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes candlestickSparkle {
+    0%, 100% { 
+      transform: rotate(25deg) scale(1);
+      opacity: 0.15;
+    }
+    20% { 
+      transform: rotate(30deg) scale(1.05);
+      opacity: 0.22;
+    }
+    40% { 
+      transform: rotate(35deg) scale(1.1);
+      opacity: 0.3;
+    }
+    60% { 
+      transform: rotate(32deg) scale(1.08);
+      opacity: 0.25;
+    }
+    80% { 
+      transform: rotate(28deg) scale(1.03);
+      opacity: 0.18;
+    }
   }
 
   /* Override GameScreenFrame's dark background */
@@ -65,7 +134,6 @@ export const StyledFlipBackground = styled.div`
     position: relative;
     z-index: 1;
     width: 100%;
-    height: 100%;
   }
 
   .flip-content {

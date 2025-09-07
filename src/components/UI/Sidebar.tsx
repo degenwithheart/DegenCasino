@@ -14,8 +14,17 @@ const SidebarContainer = styled.nav<{ $theme?: any }>`
 	left: 0;
 	height: 100vh;
 	width: ${SIDEBAR_WIDTH}px;
-	background: linear-gradient(180deg, ${({ $theme }) => $theme?.colors?.background || '#222'} 0%, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'} 100%);
-	box-shadow: 2px 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
+	background: linear-gradient(
+		180deg, 
+		rgba(10, 5, 17, 0.95) 0%, 
+		rgba(139, 90, 158, 0.15) 50%,
+		rgba(10, 5, 17, 0.95) 100%
+	);
+	backdrop-filter: blur(20px) saturate(1.3);
+	border-right: 1px solid rgba(212, 165, 116, 0.2);
+	box-shadow: 
+		2px 0 16px rgba(10, 5, 17, 0.6),
+		2px 0 8px rgba(212, 165, 116, 0.2);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -47,35 +56,75 @@ const SidebarItem = styled.li<{ $active?: boolean; $theme?: any }>`
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 0.7rem 0;
+		padding: 1rem 0;
 		width: 100%;
-		color: ${({ $active, $theme }) => ($active ? $theme?.colors?.primary || '#ffd700' : $theme?.colors?.text || '#fff')};
-		background: none;
+		color: ${({ $active }) => ($active ? 'var(--love-letter-gold)' : 'rgba(212, 165, 116, 0.7)')};
+		background: ${({ $active }) => $active ? 
+			'linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(184, 51, 106, 0.05) 100%)' : 
+			'none'
+		};
 		border: none;
-		font-size: 1.2rem;
-		font-family: 'Luckiest Guy', cursive, sans-serif;
+		font-size: 1rem;
+		font-family: 'DM Sans', sans-serif;
+		font-weight: 500;
 		cursor: pointer;
-		transition: color 0.2s;
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		border-radius: ${({ $active }) => $active ? '12px' : '8px'};
+		margin: 0 8px;
+		backdrop-filter: ${({ $active }) => $active ? 'blur(10px)' : 'none'};
+		border: ${({ $active }) => $active ? '1px solid rgba(212, 165, 116, 0.2)' : '1px solid transparent'};
+		
 		&:hover {
-			color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-			text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+			color: var(--love-letter-gold);
+			background: linear-gradient(
+				135deg, 
+				rgba(212, 165, 116, 0.15) 0%, 
+				rgba(184, 51, 106, 0.1) 50%,
+				rgba(139, 90, 158, 0.15) 100%
+			);
+			text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
+			transform: translateX(2px);
+			border-color: rgba(212, 165, 116, 0.3);
+			backdrop-filter: blur(10px);
 		}
+		
 		svg {
-			font-size: 1.7rem;
-			margin-bottom: 0.2rem;
+			font-size: 1.5rem;
+			margin-bottom: 0.3rem;
+			filter: drop-shadow(0 0 4px rgba(212, 165, 116, 0.3));
 		}
 	}
 `;
 
 const CasinoLogo = styled.div<{ $theme?: any }>`
-	margin: 1.5rem 0 2rem;
+	margin: 2rem 0 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
 	img {
 		width: 48px;
 		height: 48px;
 		border-radius: 50%;
-		border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-		box-shadow: 0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}88;
-		background: ${({ $theme }) => $theme?.colors?.background || '#fff'};
+		border: 2px solid rgba(212, 165, 116, 0.5);
+		box-shadow: 
+			0 0 16px rgba(212, 165, 116, 0.4),
+			0 4px 8px rgba(10, 5, 17, 0.3);
+		background: linear-gradient(
+			135deg,
+			rgba(212, 165, 116, 0.1) 0%,
+			rgba(184, 51, 106, 0.05) 100%
+		);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		filter: contrast(1.1) brightness(1.05);
+		
+		&:hover {
+			transform: scale(1.1) rotate(5deg);
+			box-shadow: 
+				0 0 20px rgba(212, 165, 116, 0.6),
+				0 6px 12px rgba(10, 5, 17, 0.4);
+			border-color: rgba(212, 165, 116, 0.7);
+		}
 	}
 `;
 

@@ -2,52 +2,136 @@ import styled from 'styled-components'
 
 export const StyledProgressivePokerBackground = styled.div`
   user-select: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #1a0d2e 0%, #2d1b45 15%, #4c1d95 30%, #6d28d9 45%, #8b5cf6 60%, #a78bfa 75%, #c4b5fd 90%, #6d28d9 100%);
+  background: linear-gradient(
+    135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 15%, 
+    var(--deep-crimson-rose) 30%, 
+    var(--love-letter-gold) 45%, 
+    var(--deep-crimson-rose) 60%, 
+    var(--soft-purple-twilight) 75%, 
+    var(--deep-romantic-night) 90%
+  );
   border-radius: 24px;
-  border: 3px solid rgba(139, 92, 246, 0.4);
+  border: 3px solid var(--love-letter-gold);
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.7),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(139, 92, 246, 0.3);
+    0 25px 50px rgba(10, 5, 17, 0.8),
+    inset 0 2px 4px rgba(212, 165, 116, 0.2),
+    inset 0 -2px 4px rgba(10, 5, 17, 0.7),
+    0 0 40px var(--deep-crimson-rose);
   overflow: hidden;
+  animation: romanticPulse 4s ease-in-out infinite;
   
-  /* Floating poker card background elements - Progressive style */
+  /* Romantic poker card elements */
   &::before {
-    content: '🂡';
+    content: '�';
     position: absolute;
     top: 8%;
     left: 5%;
     font-size: 140px;
-    opacity: 0.06;
+    opacity: 0.12;
     transform: rotate(-20deg);
     pointer-events: none;
-    color: #6d28d9;
+    color: var(--deep-crimson-rose);
     z-index: 1;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.7);
     filter: blur(0.5px);
+    animation: loveLetterFloat 8s ease-in-out infinite;
   }
 
   &::after {
-    content: '🂱';
+    content: '💝';
     position: absolute;
     bottom: 10%;
     right: 7%;
     font-size: 120px;
-    opacity: 0.07;
+    opacity: 0.15;
     transform: rotate(25deg);
     pointer-events: none;
-    color: #8b5cf6;
+    color: var(--love-letter-gold);
     z-index: 1;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.7);
     filter: blur(0.5px);
+    animation: candlestickSparkle 6s ease-in-out infinite;
+  }
+
+  @keyframes romanticPulse {
+    0%, 100% { 
+      filter: brightness(1) saturate(1) hue-rotate(0deg);
+      border-color: var(--love-letter-gold);
+    }
+    25% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+    50% { 
+      filter: brightness(1.1) saturate(1.2) hue-rotate(10deg);
+      border-color: var(--soft-purple-twilight);
+    }
+    75% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+  }
+
+  @keyframes loveLetterFloat {
+    0%, 100% { 
+      transform: rotate(-20deg) translateY(0px);
+      opacity: 0.12;
+    }
+    25% { 
+      transform: rotate(-15deg) translateY(-8px);
+      opacity: 0.18;
+    }
+    50% { 
+      transform: rotate(-10deg) translateY(-15px);
+      opacity: 0.25;
+    }
+    75% { 
+      transform: rotate(-15deg) translateY(-8px);
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes candlestickSparkle {
+    0%, 100% { 
+      transform: rotate(25deg) scale(1);
+      opacity: 0.15;
+    }
+    20% { 
+      transform: rotate(30deg) scale(1.05);
+      opacity: 0.22;
+    }
+    40% { 
+      transform: rotate(35deg) scale(1.1);
+      opacity: 0.3;
+    }
+    60% { 
+      transform: rotate(32deg) scale(1.08);
+      opacity: 0.25;
+    }
+    80% { 
+      transform: rotate(28deg) scale(1.03);
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes romanticFloat {
+    0%, 100% { 
+      transform: rotate(-12deg) translateY(0px);
+      opacity: 0.08;
+    }
+    33% { 
+      transform: rotate(-8deg) translateY(-10px);
+      opacity: 0.12;
+    }
+    66% { 
+      transform: rotate(-16deg) translateY(-5px);
+      opacity: 0.15;
+    }
   }
 
   /* Override GameScreenFrame's dark background */
@@ -66,7 +150,7 @@ export const StyledProgressivePokerBackground = styled.div`
     z-index: 10;
   }
 
-  /* Additional progressive poker elements */
+  /* Additional romantic poker elements */
   .progressive-bg-elements {
     position: absolute;
     top: 0;
@@ -77,15 +161,16 @@ export const StyledProgressivePokerBackground = styled.div`
     z-index: 2;
 
     &::before {
-      content: '🂮';
+      content: '💕';
       position: absolute;
       top: 30%;
       right: 15%;
       font-size: 100px;
-      opacity: 0.05;
+      opacity: 0.08;
       transform: rotate(-12deg);
-      color: #a78bfa;
-      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+      color: var(--deep-crimson-rose);
+      text-shadow: 2px 2px 6px rgba(10, 5, 17, 0.6);
+      animation: romanticFloat 7s ease-in-out infinite;
       filter: blur(0.3px);
     }
 

@@ -700,10 +700,10 @@ export default function GameScreenFrame({
   }
   
   // MEDIUM+ QUALITY MODE: Full visual effects based on settings
-  const backgroundColor = theme?.background || '#0a0a0f'
+  const backgroundColor = theme?.background
   const backgroundGradient = theme?.gradientPrimary || (theme ? 
     `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}20, ${theme.secondary}15, ${backgroundColor})` : 
-    `linear-gradient(135deg, ${backgroundColor}, #1a1a2e, ${backgroundColor})`)
+    `linear-gradient(135deg, ${backgroundColor}, ${backgroundColor})`)
 
   // Use regular div when transforms are disabled to avoid layout conflicts
   const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer

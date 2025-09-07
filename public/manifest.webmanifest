@@ -1,13 +1,13 @@
 {
-  "name": "Degen Heart",
+  "name": "Degen Heart - Romantic Serenade Casino",
   "short_name": "DegenHeart",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#0a0511",
   "lang": "en",
   "scope": "/",
-  "theme_color": "#FF5555",
-  "description": "Degen Heart Casino brings fast, fair, and transparent blockchain gaming to the Solana network.",
+  "theme_color": "#d4a574",
+  "description": "Surreal romantic degen trader casino - where candlestick charts rise like cathedral candles in a jazz-at-midnight atmosphere. Experience the slow-burn serenade of blockchain gaming.",
   "icons": [
     {
       "src": "/icon-512.png",

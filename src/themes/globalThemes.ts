@@ -88,6 +88,124 @@ export const fadeInScale = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
+// Jazz Midnight Romantic Animation
+export const jazzMidnight = keyframes`
+  0% { 
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+  25% { 
+    transform: rotate(90deg) scale(1.05);
+    opacity: 0.9;
+    filter: hue-rotate(15deg);
+  }
+  50% { 
+    transform: rotate(180deg) scale(1);
+    opacity: 0.8;
+    filter: hue-rotate(30deg);
+  }
+  75% { 
+    transform: rotate(270deg) scale(1.05);
+    opacity: 0.9;
+    filter: hue-rotate(15deg);
+  }
+  100% { 
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+`;
+
+export const marketPrayer = keyframes`
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.4),
+      0 0 40px rgba(184, 51, 106, 0.2),
+      0 0 60px rgba(139, 90, 158, 0.1);
+  }
+  33% { 
+    box-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.5),
+      0 0 60px rgba(184, 51, 106, 0.3),
+      0 0 90px rgba(139, 90, 158, 0.2);
+  }
+  66% { 
+    box-shadow: 
+      0 0 40px rgba(212, 165, 116, 0.6),
+      0 0 80px rgba(184, 51, 106, 0.4),
+      0 0 120px rgba(139, 90, 158, 0.3);
+  }
+`;
+
+export const candlestickSerenade = keyframes`
+  0% { 
+    transform: translateY(0px) rotate(0deg);
+    text-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+  }
+  25% { 
+    transform: translateY(-5px) rotate(1deg);
+    text-shadow: 0 0 25px rgba(184, 51, 106, 0.7);
+  }
+  50% { 
+    transform: translateY(-8px) rotate(0deg);
+    text-shadow: 0 0 30px rgba(139, 90, 158, 0.8);
+  }
+  75% { 
+    transform: translateY(-5px) rotate(-1deg);
+    text-shadow: 0 0 25px rgba(184, 51, 106, 0.7);
+  }
+  100% { 
+    transform: translateY(0px) rotate(0deg);
+    text-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+  }
+`;
+
+export const loveLetterGlow = keyframes`
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.3), 
+      0 0 40px rgba(184, 51, 106, 0.2),
+      inset 0 0 20px rgba(244, 233, 225, 0.05);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.5), 
+      0 0 60px rgba(184, 51, 106, 0.3),
+      inset 0 0 30px rgba(244, 233, 225, 0.1);
+  }
+`;
+
+export const dreamlikeFloat = keyframes`
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) rotate(0deg); 
+    opacity: 0.8;
+  }
+  33% { 
+    transform: translateY(-8px) translateX(3px) rotate(1deg); 
+    opacity: 1;
+  }
+  66% { 
+    transform: translateY(5px) translateX(-2px) rotate(-1deg); 
+    opacity: 0.9;
+  }
+`;
+
+export const etherealPulse = keyframes`
+  0% { 
+    background-position: 0% 50%; 
+    filter: brightness(1) saturate(1);
+  }
+  50% { 
+    background-position: 100% 50%; 
+    filter: brightness(1.1) saturate(1.2);
+  }
+  100% { 
+    background-position: 0% 50%; 
+    filter: brightness(1) saturate(1);
+  }
+`;
+
 export const retroFlicker = keyframes`
   0%, 100% { opacity: 1; }
   2% { opacity: 0.8; }
@@ -434,6 +552,90 @@ export const crystalTheme: GlobalTheme = {
   },
 };
 
+// Surreal Romantic Degen Trader Theme - Jazz at Midnight
+export const romanticDegenTheme: GlobalTheme = {
+  name: 'Romantic Degen Serenade',
+  description: 'Surreal romantic degen trader aesthetic - candlestick cathedral with love letter gold, soft neon glow, and jazz-at-midnight atmosphere',
+  colors: {
+    primary: '#d4a574', // Love letter gold
+    secondary: '#b8336a', // Deep crimson rose
+    accent: '#8b5a9e', // Soft purple twilight
+    background: '#0a0511', // Deep romantic night
+    surface: '#0f081c', // Mysterious depth
+    border: '#d4a574', // Romantic border glow
+    text: '#f4e9e1', // Warm ivory text
+    textSecondary: '#e8d5c4', // Soft romantic text
+    success: '#8b5a9e', // Romantic success purple
+    error: '#b8336a', // Passionate error crimson
+    warning: '#d4a574', // Warning gold
+    info: '#8b5a9e', // Info twilight
+    shadow: 'rgba(139, 90, 158, 0.15)',
+    button: {
+      primary: '#d4a574',
+      secondary: '#b8336a',
+      hover: '#e8c49a',
+      active: '#c19660',
+      disabled: 'rgba(139, 90, 158, 0.3)',
+    },
+    input: {
+      background: 'rgba(212, 165, 116, 0.08)',
+      border: 'rgba(212, 165, 116, 0.18)',
+      focus: 'rgba(184, 51, 106, 0.3)',
+      placeholder: 'rgba(244, 233, 225, 0.5)',
+    },
+    card: {
+      background: 'rgba(212, 165, 116, 0.08)',
+      border: 'rgba(212, 165, 116, 0.18)',
+      hover: 'rgba(212, 165, 116, 0.15)',
+    },
+    modal: {
+      background: 'rgba(10, 5, 17, 0.95)',
+      overlay: 'rgba(0, 0, 0, 0.8)',
+    },
+  },
+  effects: {
+    glow: '0 0 40px rgba(212, 165, 116, 0.3), 0 0 80px rgba(184, 51, 106, 0.2)',
+    shadow: '0 8px 32px rgba(139, 90, 158, 0.15)',
+    borderGlow: '0 0 20px rgba(212, 165, 116, 0.4)',
+    textGlow: '0 0 8px rgba(244, 233, 225, 0.3)',
+    buttonGlow: '0 0 25px rgba(184, 51, 106, 0.4)',
+  },
+  animations: {
+    primary: candlestickSerenade,
+    secondary: loveLetterGlow,
+    accent: etherealPulse,
+    hover: dreamlikeFloat,
+    loading: jazzMidnight,
+  },
+  patterns: {
+    background: `
+      radial-gradient(circle at 15% 20%, rgba(212, 165, 116, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(184, 51, 106, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(139, 90, 158, 0.02) 0%, transparent 60%),
+      linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(212, 165, 116, 0.08) 0%, 
+        rgba(184, 51, 106, 0.06) 50%, 
+        rgba(139, 90, 158, 0.04) 100%
+      )
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #d4a574 0%, 
+        #b8336a 50%, 
+        #8b5a9e 100%
+      )
+    `,
+  },
+  typography: {
+    fontFamily: "'Libre Baskerville', 'DM Sans', Georgia, serif",
+    headingColor: '#d4a574',
+    bodyColor: '#f4e9e1',
+  },
+};
+
 // Space Casino Theme
 export const spaceTheme: GlobalTheme = {
   name: 'Space Casino',
@@ -638,6 +840,7 @@ export const carnivalTheme: GlobalTheme = {
 // All available themes
 export const globalThemes = {
   default: defaultTheme,
+  romanticDegen: romanticDegenTheme,
   cyberpunk: cyberpunkTheme,
   casinoFloor: casinoFloorTheme,
   crystal: crystalTheme,

@@ -14,7 +14,7 @@ import {
 } from '../../sections/Game/Game.styles';
 import { useWagerLimits, validateWager } from '../../utils/general/wagerUtils';
 
-// Wrapper for GambaUi.WagerInput with enhanced styling
+// Wrapper for GambaUi.WagerInput with romantic styling
 const StyledWagerInputWrapper = styled.div`
   .gamba-wager-input {
     all: unset;
@@ -27,40 +27,65 @@ const StyledWagerInputWrapper = styled.div`
   input {
     all: unset;
     flex: 1;
-    background: rgba(12, 12, 17, 0.8);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 10px;
-    padding: 10px 14px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 18px;
+    background: linear-gradient(
+      135deg,
+      rgba(10, 5, 17, 0.9) 0%,
+      rgba(139, 90, 158, 0.15) 50%,
+      rgba(10, 5, 17, 0.9) 100%
+    );
+    border: 1px solid rgba(212, 165, 116, 0.3);
+    border-radius: 16px;
+    padding: 12px 16px;
+    color: var(--love-letter-gold);
+    font-weight: 500;
+    font-size: clamp(16px, 3vw, 18px);
     text-align: center;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease;
+    box-shadow: 
+      0 4px 16px rgba(10, 5, 17, 0.4),
+      inset 0 1px 0 rgba(212, 165, 116, 0.1);
+    backdrop-filter: blur(15px) saturate(1.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'DM Sans', sans-serif;
     
     &:hover {
-      border-color: rgba(255, 215, 0, 0.5);
-      background: rgba(12, 12, 17, 0.9);
+      border-color: rgba(212, 165, 116, 0.5);
+      background: linear-gradient(
+        135deg,
+        rgba(10, 5, 17, 0.95) 0%,
+        rgba(139, 90, 158, 0.2) 50%,
+        rgba(10, 5, 17, 0.95) 100%
+      );
+      box-shadow: 
+        0 6px 20px rgba(10, 5, 17, 0.5),
+        inset 0 1px 0 rgba(212, 165, 116, 0.2);
     }
     
     &:focus {
       outline: none;
-      border-color: #ffd700;
+      border-color: rgba(212, 165, 116, 0.7);
       box-shadow: 
-        0 0 0 2px rgba(255, 215, 0, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        0 0 0 2px rgba(212, 165, 116, 0.3),
+        0 6px 20px rgba(10, 5, 17, 0.5),
+        inset 0 1px 0 rgba(212, 165, 116, 0.2);
     }
     
     &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-      font-weight: 600;
+      color: rgba(212, 165, 116, 0.5);
+      font-weight: 500;
     }
     /* add right padding to make room for token symbol affix */
     padding-right: 72px;
     
-    @media (max-width: 800px) {
+    @media (max-width: 479px) {
       font-size: 16px;
-      padding: 8px 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      padding-right: 64px;
+    }
+
+    @media (min-width: 768px) {
+      border-radius: 18px;
+      padding: 14px 18px;
     }
   }
 
@@ -69,7 +94,7 @@ const StyledWagerInputWrapper = styled.div`
 
   .symbol {
     position: absolute;
-    right: 14px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     display: inline-flex;
@@ -77,13 +102,28 @@ const StyledWagerInputWrapper = styled.div`
     justify-content: center;
     min-width: 56px;
     height: 36px;
-    padding: 0 10px;
-    color: rgba(255, 215, 0, 0.95);
-    font-weight: 800;
+    padding: 0 12px;
+    color: var(--love-letter-gold);
+    font-weight: 600;
     font-size: 14px;
-    background: rgba(0,0,0,0.12);
-    border-radius: 8px;
+    background: linear-gradient(
+      135deg,
+      rgba(212, 165, 116, 0.15) 0%,
+      rgba(184, 51, 106, 0.1) 100%
+    );
+    border-radius: 10px;
     pointer-events: none;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    font-family: 'DM Sans', sans-serif;
+
+    @media (max-width: 479px) {
+      right: 12px;
+      min-width: 48px;
+      height: 32px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
   }
 `;
 
@@ -208,95 +248,98 @@ export const EnhancedWagerInput: React.FC<{
   );
 };
 
-// Wrapper for GambaUi.Button with enhanced styling
+// Wrapper for GambaUi.Button with romantic styling
 const StyledButtonWrapper = styled.div<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   .gamba-button {
     all: unset;
     background: ${props => {
       switch (props.variant) {
         case 'primary':
-          return 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)';
+          return 'linear-gradient(135deg, var(--love-letter-gold) 0%, var(--deep-crimson-rose) 50%, var(--soft-purple-twilight) 100%)';
         case 'danger':
-          return 'linear-gradient(135deg, #ff4757 0%, #ff3742 100%)';
+          return 'linear-gradient(135deg, rgba(184, 51, 106, 0.9) 0%, rgba(139, 90, 158, 0.9) 100%)';
         default:
-          return 'linear-gradient(135deg, #00ffe1 0%, #00d4aa 100%)';
+          return 'linear-gradient(135deg, var(--soft-purple-twilight) 0%, var(--deep-crimson-rose) 50%, var(--love-letter-gold) 100%)';
       }
     }};
-    border: 2px solid ${props => {
+    border: 1px solid ${props => {
       switch (props.variant) {
         case 'primary':
-          return '#ffd700';
+          return 'rgba(212, 165, 116, 0.5)';
         case 'danger':
-          return '#ff4757';
+          return 'rgba(184, 51, 106, 0.5)';
         default:
-          return '#00ffe1';
+          return 'rgba(139, 90, 158, 0.5)';
       }
     }};
-    color: ${props => props.variant === 'primary' ? '#000' : '#fff'};
-    font-weight: 700;
-    font-size: 14px;
-    padding: 8px 16px;
-    border-radius: 10px;
+    color: ${props => props.variant === 'primary' ? 'var(--deep-romantic-night)' : 'var(--love-letter-gold)'};
+    font-weight: 600;
+    font-size: clamp(12px, 2.5vw, 14px);
+    padding: 10px 16px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 
-      0 2px 8px ${props => {
+      0 4px 12px ${props => {
         switch (props.variant) {
           case 'primary':
-            return 'rgba(255, 215, 0, 0.3)';
+            return 'rgba(212, 165, 116, 0.3)';
           case 'danger':
-            return 'rgba(255, 71, 87, 0.3)';
+            return 'rgba(184, 51, 106, 0.3)';
           default:
-            return 'rgba(0, 255, 225, 0.3)';
+            return 'rgba(139, 90, 158, 0.3)';
         }
       }},
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    min-width: 50px;
-    text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
+    min-width: 60px;
+    text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(10, 5, 17, 0.3)' : '0 1px 2px rgba(10, 5, 17, 0.5)'};
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(10px) saturate(1.2);
+    font-family: 'DM Sans', sans-serif;
 
     &:hover:not(:disabled) {
-      transform: translateY(-1px) scale(1.02);
+      transform: translateY(-2px) scale(1.05);
       box-shadow: 
-        0 4px 12px ${props => {
+        0 6px 20px ${props => {
           switch (props.variant) {
             case 'primary':
-              return 'rgba(255, 215, 0, 0.4)';
+              return 'rgba(212, 165, 116, 0.4)';
             case 'danger':
-              return 'rgba(255, 71, 87, 0.4)';
+              return 'rgba(184, 51, 106, 0.4)';
             default:
-              return 'rgba(0, 255, 225, 0.4)';
+              return 'rgba(139, 90, 158, 0.4)';
           }
         }},
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
       border-color: ${props => {
         switch (props.variant) {
           case 'primary':
-            return '#ffe066';
+            return 'rgba(212, 165, 116, 0.7)';
           case 'danger':
-            return '#ff5975';
+            return 'rgba(184, 51, 106, 0.7)';
           default:
-            return '#33ffec';
+            return 'rgba(139, 90, 158, 0.7)';
         }
       }};
     }
 
     &:active:not(:disabled) {
-      transform: translateY(0) scale(0.98);
+      transform: translateY(-1px) scale(1.02);
+      transition: all 0.2s ease;
       box-shadow: 
-        0 1px 4px ${props => {
+        0 3px 8px ${props => {
           switch (props.variant) {
             case 'primary':
-              return 'rgba(255, 215, 0, 0.3)';
+              return 'rgba(212, 165, 116, 0.3)';
             case 'danger':
-              return 'rgba(255, 71, 87, 0.3)';
+              return 'rgba(184, 51, 106, 0.3)';
             default:
-              return 'rgba(0, 255, 225, 0.3)';
+              return 'rgba(139, 90, 158, 0.3)';
           }
         }},
-        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        inset 0 2px 4px rgba(10, 5, 17, 0.2);
     }
 
     &:disabled {
@@ -304,9 +347,22 @@ const StyledButtonWrapper = styled.div<{ variant?: 'primary' | 'secondary' | 'da
       cursor: not-allowed;
       transform: none;
       box-shadow: 
-        0 1px 4px rgba(0, 0, 0, 0.2),
+        0 2px 6px rgba(10, 5, 17, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
+
+    @media (max-width: 479px) {
+      padding: 8px 12px;
+      border-radius: 10px;
+      min-width: 50px;
+    }
+
+    @media (min-width: 768px) {
+      padding: 12px 18px;
+      border-radius: 14px;
+      min-width: 70px;
+    }
+  }
 
     @media (max-width: 800px) {
       font-size: 12px;
@@ -351,31 +407,38 @@ export const EnhancedButton: React.FC<{
   );
 };
 
-// Wrapper for GambaUi.PlayButton with enhanced styling
+// Wrapper for GambaUi.PlayButton with romantic styling
 const StyledPlayButtonWrapper = styled.div`
   .gamba-play-button {
     all: unset;
-    background: linear-gradient(135deg, #ff0066 0%, #ff3385 50%, #ffd700 100%);
-    border: 3px solid #ffd700;
-    color: #fff;
-    font-weight: 900;
-    font-size: 18px;
-    padding: 14px 28px;
-    border-radius: 50px;
+    background: linear-gradient(
+      135deg, 
+      var(--deep-crimson-rose) 0%, 
+      var(--love-letter-gold) 50%, 
+      var(--soft-purple-twilight) 100%
+    );
+    border: 2px solid rgba(212, 165, 116, 0.6);
+    color: var(--deep-romantic-night);
+    font-weight: 700;
+    font-size: clamp(16px, 4vw, 18px);
+    padding: 16px 32px;
+    border-radius: 24px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     box-shadow: 
-      0 4px 20px rgba(255, 215, 0, 0.4),
-      0 2px 10px rgba(255, 0, 102, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      0 8px 24px rgba(212, 165, 116, 0.4),
+      0 4px 12px rgba(184, 51, 106, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 2px rgba(10, 5, 17, 0.3);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(10px) saturate(1.2);
+    font-family: 'Libre Baskerville', serif;
 
     &::before {
       content: '';
@@ -384,18 +447,23 @@ const StyledPlayButtonWrapper = styled.div`
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s ease;
+      background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.25), 
+        transparent
+      );
+      transition: left 0.6s ease;
       z-index: 0;
     }
 
     &:hover:not(:disabled) {
-      transform: translateY(-2px) scale(1.05);
+      transform: translateY(-3px) scale(1.08);
       box-shadow: 
-        0 6px 30px rgba(255, 215, 0, 0.6),
-        0 4px 15px rgba(255, 0, 102, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border-color: #ffe066;
+        0 12px 36px rgba(212, 165, 116, 0.6),
+        0 6px 18px rgba(184, 51, 106, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      border-color: rgba(212, 165, 116, 0.8);
 
       &::before {
         left: 100%;
@@ -403,11 +471,12 @@ const StyledPlayButtonWrapper = styled.div`
     }
 
     &:active:not(:disabled) {
-      transform: translateY(-1px) scale(1.02);
+      transform: translateY(-1px) scale(1.05);
+      transition: all 0.2s ease;
       box-shadow: 
-        0 4px 20px rgba(255, 215, 0, 0.5),
-        0 2px 10px rgba(255, 0, 102, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        0 6px 20px rgba(212, 165, 116, 0.5),
+        0 3px 10px rgba(184, 51, 106, 0.3),
+        inset 0 2px 4px rgba(10, 5, 17, 0.2);
     }
 
     &:disabled {
@@ -415,7 +484,7 @@ const StyledPlayButtonWrapper = styled.div`
       cursor: not-allowed;
       transform: none;
       box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.2),
+        0 4px 12px rgba(10, 5, 17, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
       
       &::before {
@@ -423,10 +492,19 @@ const StyledPlayButtonWrapper = styled.div`
       }
     }
 
-    @media (max-width: 800px) {
-      font-size: 16px;
+    @media (max-width: 479px) {
+      font-size: 14px;
       padding: 12px 24px;
-      border-width: 2px;
+      border-radius: 18px;
+      border-width: 1px;
+      letter-spacing: 1px;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 20px;
+      padding: 18px 36px;
+      border-radius: 28px;
+      letter-spacing: 1.5px;
     }
   }
 `;

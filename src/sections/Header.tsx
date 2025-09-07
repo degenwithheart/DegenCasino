@@ -20,22 +20,48 @@ import { ENABLE_LEADERBOARD } from '../constants'
 import { useIsCompact } from '../hooks/ui/useIsCompact'
 import { useTheme } from '../themes/ThemeContext'
 
-/* ─────── Casino Animations ───────────────────────────────────────────── */
+/* ─────── Romantic Degen Serenade Animations ───────────────────────────────────────────── */
 
-const neonPulse = keyframes`
+const romanticPulse = keyframes`
   0% { 
-    box-shadow: 0 0 12px var(--secondary-color-88), 0 0 24px var(--primary-color-44);
-    text-shadow: 0 0 8px var(--primary-color);
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.4), 0 0 40px rgba(184, 51, 106, 0.2);
+    text-shadow: 0 0 12px rgba(212, 165, 116, 0.6), 0 0 24px rgba(184, 51, 106, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(212, 165, 116, 0.6), 0 0 60px rgba(184, 51, 106, 0.4);
+    text-shadow: 0 0 20px rgba(212, 165, 116, 0.8), 0 0 40px rgba(184, 51, 106, 0.5);
   }
   100% { 
-    box-shadow: 0 0 24px var(--primary-color-cc), 0 0 48px var(--secondary-color-88);
-    text-shadow: 0 0 16px var(--primary-color), 0 0 32px var(--secondary-color);
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.4), 0 0 40px rgba(184, 51, 106, 0.2);
+    text-shadow: 0 0 12px rgba(212, 165, 116, 0.6), 0 0 24px rgba(184, 51, 106, 0.3);
   }
 `;
 
-const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.8); }
-  50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
+const loveLetterFloat = keyframes`
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: rotate(0deg) scale(0.9) translateY(0px); 
+  }
+  33% { 
+    opacity: 1; 
+    transform: rotate(2deg) scale(1.1) translateY(-3px); 
+  }
+  66% { 
+    opacity: 0.8; 
+    transform: rotate(-1deg) scale(1.05) translateY(2px); 
+  }
+`;
+
+const candlestickGlow = keyframes`
+  0% { 
+    filter: drop-shadow(0 0 15px rgba(212, 165, 116, 0.6));
+  }
+  50% { 
+    filter: drop-shadow(0 0 25px rgba(184, 51, 106, 0.8));
+  }
+  100% { 
+    filter: drop-shadow(0 0 15px rgba(212, 165, 116, 0.6));
+  }
 `;
 
 /* ─────── styled ───────────────────────────────────────────── */
@@ -52,11 +78,16 @@ const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
   flex-wrap: wrap;
   height: 100px;
   padding: 0 2rem;
-  background: rgba(24, 24, 24, 0.85);
+  
+  /* Romantic Glassmorphism Background */
+  background: rgba(10, 5, 17, 0.85);
   backdrop-filter: blur(20px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(139, 90, 158, 0.15),
+    0 0 40px rgba(212, 165, 116, 0.1);
 
+  /* Romantic atmosphere overlay */
   &::before {
     content: '';
     position: absolute;
@@ -65,17 +96,45 @@ const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 50%, rgba(162, 89, 255, 0.03) 0%, transparent 50%);
+      radial-gradient(circle at 20% 50%, rgba(212, 165, 116, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(184, 51, 106, 0.03) 0%, transparent 50%),
+      linear-gradient(90deg, rgba(139, 90, 158, 0.02) 0%, transparent 50%, rgba(139, 90, 158, 0.02) 100%);
     pointer-events: none;
     z-index: -1;
   }
 
+  /* Jazz midnight border effect */
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(212, 165, 116, 0.6) 25%, 
+      rgba(184, 51, 106, 0.4) 50%, 
+      rgba(139, 90, 158, 0.6) 75%, 
+      transparent 100%
+    );
+    animation: ${romanticPulse} 4s infinite ease-in-out;
+  }
+
+  /* Mobile responsive */
   @media (max-width: 600px) {
     height: 80px;
-    padding: 0.5rem 0.5rem;
+    padding: 0.5rem;
     min-width: 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    box-shadow: 
+      0 4px 16px rgba(139, 90, 158, 0.2),
+      0 0 20px rgba(212, 165, 116, 0.08);
+  }
+
+  /* Small mobile */
+  @media (max-width: 479px) {
+    height: 70px;
+    padding: 0.25rem;
   }
 `
 
@@ -90,40 +149,82 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
   img {
     height: 42px;
     width: auto;
-    transition: all 0.3s ease-in-out;
-    filter: drop-shadow(0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
-    border-radius: 8px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'});
+    border-radius: 12px;
     object-fit: contain;
+    animation: ${candlestickGlow} 3s infinite ease-in-out;
   }
 
   span {
     font-size: 1.5rem;
-    font-weight: bold;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    font-weight: 700;
+    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
     white-space: nowrap;
     user-select: none;
-    font-family: 'Luckiest Guy', cursive, sans-serif;
-    text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
-    letter-spacing: 1px;
-    animation: ${neonPulse} 2s infinite alternate;
+    font-family: 'Libre Baskerville', 'DM Sans', serif;
+    text-shadow: 
+      0 0 20px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'}, 
+      0 0 40px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'},
+      0 0 8px rgba(244, 233, 225, 0.4);
+    letter-spacing: 0.5px;
+    animation: ${romanticPulse} 3s infinite ease-in-out;
     background: none !important;
     box-shadow: none !important;
+    position: relative;
+  }
+
+  /* Love letter heart accent */
+  span::after {
+    content: '♡';
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    font-size: 0.6em;
+    opacity: 0.7;
+    color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
+    animation: ${loveLetterFloat} 4s infinite ease-in-out;
   }
 
   &:hover {
     img {
-      transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+      transform: scale(1.1) rotate(3deg);
+      filter: drop-shadow(0 0 20px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'})
+              drop-shadow(0 0 30px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'});
     }
     
     span {
-      transform: scale(1.05);
+      transform: scale(1.05) translateY(-2px);
+      text-shadow: 
+        0 0 30px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'}, 
+        0 0 60px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'},
+        0 0 12px rgba(244, 233, 225, 0.6);
+    }
+
+    span::after {
+      transform: scale(1.2) rotate(10deg);
+      opacity: 1;
     }
   }
 
+  /* Tablet responsive */
+  @media (max-width: 768px) {
+    margin-left: 1rem;
+    gap: 0.5rem;
+    
+    img {
+      height: 36px;
+    }
+
+    span {
+      font-size: 1.3rem;
+    }
+  }
+
+  /* Mobile responsive */
   @media (max-width: 600px) {
     margin-left: 0.5rem;
-    gap: 0.5rem;
+    gap: 0.4rem;
     
     img {
       height: 32px;
@@ -133,71 +234,160 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
       font-size: 1.1rem;
     }
   }
+
+  /* Small mobile */
+  @media (max-width: 479px) {
+    gap: 0.25rem;
+    
+    img {
+      height: 28px;
+    }
+
+    span {
+      font-size: 1rem;
+    }
+
+    span::after {
+      display: none; /* Hide heart on very small screens */
+    }
+  }
 `
 
 const Bonus = styled.button<{ $theme?: any }>`
-  /* flat transparent button to match GambaUi.Button */
-  background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
-  border: none;
-  padding: 8px 10px;
+  /* Romantic glassmorphism button */
+  background: rgba(212, 165, 116, 0.08);
+  backdrop-filter: blur(8px);
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  border-radius: 12px;
+  padding: 8px 12px;
   font-size: 14px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: color 0.12s ease, transform 0.12s ease;
-  box-shadow: none;
-  backdrop-filter: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(212, 165, 116, 0.2), 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
 
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    background: rgba(212, 165, 116, 0.15);
+    box-shadow: 
+      0 8px 24px rgba(139, 90, 158, 0.15),
+      0 0 20px rgba(212, 165, 116, 0.3);
     outline: none;
+    text-shadow: 0 0 8px rgba(212, 165, 116, 0.4);
+  }
+
+  &:hover::before {
+    left: 100%;
   }
 
   @media (max-width: 1024px) {
     font-size: 13px;
-    padding: 6px 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 8px;
   }
 `
 
 const JackpotBonus = styled.button<{ $theme?: any }>`
-  /* flat transparent button to match GambaUi.Button */
-  background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
-  border: none;
-  padding: 8px 10px;
+  /* Romantic glassmorphism jackpot button with enhanced glow */
+  background: rgba(184, 51, 106, 0.08);
+  backdrop-filter: blur(8px);
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  border: 1px solid rgba(184, 51, 106, 0.18);
+  border-radius: 12px;
+  padding: 8px 12px;
   font-size: 14px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: color 0.12s ease, transform 0.12s ease;
-  box-shadow: none;
-  backdrop-filter: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(184, 51, 106, 0.2), 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
 
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
+    border-color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
+    background: rgba(184, 51, 106, 0.15);
+    box-shadow: 
+      0 8px 24px rgba(139, 90, 158, 0.15),
+      0 0 25px rgba(184, 51, 106, 0.4);
     outline: none;
+    text-shadow: 0 0 8px rgba(184, 51, 106, 0.4);
+  }
+
+  &:hover::before {
+    left: 100%;
   }
 
   @media (max-width: 1024px) {
     font-size: 13px;
-    padding: 6px 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 8px;
   }
 `;
 
 const ThemeButton = styled.button<{ $theme?: any }>`
-  /* flat transparent button to match GambaUi.Button */
-  background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
-  border: none;
+  /* Romantic glassmorphism theme button */
+  background: rgba(139, 90, 158, 0.08);
+  backdrop-filter: blur(8px);
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  border: 1px solid rgba(139, 90, 158, 0.18);
+  border-radius: 12px;
   padding: 8px 10px;
   font-size: 13px;
   font-weight: 600;
@@ -205,20 +395,53 @@ const ThemeButton = styled.button<{ $theme?: any }>`
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: color 0.12s ease, transform 0.12s ease;
-  box-shadow: none;
-  backdrop-filter: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(139, 90, 158, 0.2), 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
 
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+    border-color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+    background: rgba(139, 90, 158, 0.15);
+    box-shadow: 
+      0 8px 24px rgba(139, 90, 158, 0.15),
+      0 0 20px rgba(139, 90, 158, 0.3);
     outline: none;
+    text-shadow: 0 0 8px rgba(139, 90, 158, 0.4);
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 10px;
   }
 
   @media (max-width: 600px) {
-    padding: 5px 8px;
+    padding: 5px 7px;
     font-size: 11px;
+    border-radius: 8px;
   }
 `;
 

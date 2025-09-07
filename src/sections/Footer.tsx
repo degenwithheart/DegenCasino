@@ -5,22 +5,33 @@ import ConnectionStatus from '../components/Connection/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../themes/ThemeContext';
-// ––––– Animations ––––– //
+import { liveGlow, moveGradient } from './Footer.styles';
+// ––––– Romantic Serenade Animations ––––– //
 
-const liveGlow = keyframes`
+const romanticGlow = keyframes`
   0% { 
-    box-shadow: 0 0 8px #00ff88;
-    text-shadow: 0 0 8px #00ff88;
+    box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+    text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(184, 51, 106, 0.5), 0 0 40px rgba(212, 165, 116, 0.3);
+    text-shadow: 0 0 15px rgba(184, 51, 106, 0.7), 0 0 25px rgba(212, 165, 116, 0.4);
   }
   100% { 
-    box-shadow: 0 0 16px #00ff88, 0 0 32px #00ff4488;
-    text-shadow: 0 0 16px #00ff88, 0 0 32px #00ff4488;
+    box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+    text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
   }
 `;
 
-const moveGradient = keyframes`
+const loveLetterGradient = keyframes`
   0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const dreamlikeFloat = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
 `;
 
 // ––––– Styled Components ––––– //
@@ -33,20 +44,25 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
   width: 100vw;
   height: 72px;
   padding: 0 48px;
-  background: ${({ $theme }) => $theme?.colors?.background || 'rgba(24, 24, 24, 0.9)'};
+  
+  /* Romantic glassmorphism background */
+  background: rgba(10, 5, 17, 0.95);
   backdrop-filter: blur(20px);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
-  border-top: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow: 
+    0 -8px 32px rgba(139, 90, 158, 0.15),
+    0 0 40px rgba(212, 165, 116, 0.08);
   box-sizing: border-box;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: ${({ $theme }) => $theme?.colors?.text || '#ddd'};
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
   z-index: 1000;
 
+  /* Romantic atmosphere overlay */
   &::before {
     content: '';
     position: absolute;
@@ -55,22 +71,30 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
     width: 100%;
     height: 100%;
     background:
-      radial-gradient(circle at 20% 50%, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}11 0%, transparent 50%),
-      radial-gradient(circle at 80% 50%, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}11 0%, transparent 50%);
+      radial-gradient(circle at 20% 50%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(184, 51, 106, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 0%, rgba(139, 90, 158, 0.03) 0%, transparent 40%);
     pointer-events: none;
     z-index: -1;
   }
 
+  /* Love letter border effect */
   &::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+    height: 2px;
+    background: linear-gradient(90deg, 
+      transparent 0%,
+      rgba(212, 165, 116, 0.6) 25%, 
+      rgba(184, 51, 106, 0.4) 50%, 
+      rgba(139, 90, 158, 0.6) 75%, 
+      transparent 100%
+    );
     background-size: 300% 100%;
-    animation: ${moveGradient} 4s linear infinite;
+    animation: ${loveLetterGradient} 6s ease-in-out infinite;
   }
 
   /* Hide desktop footer for midscreen and below (<=900px) so sidebar bottom nav or burger takes over */
@@ -86,15 +110,57 @@ const MobileFooter = styled.footer<{ $theme?: any }>`
   right: 0;
   width: 100vw;
   height: 56px;
-  background: ${({ $theme }) => $theme?.colors?.background || 'rgba(24, 24, 24, 0.98)'};
-  border-top: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  
+  /* Mobile romantic glassmorphism */
+  background: rgba(10, 5, 17, 0.98);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow: 
+    0 -4px 16px rgba(139, 90, 158, 0.2),
+    0 0 20px rgba(212, 165, 116, 0.08);
+  
   display: flex;
   align-items: center;
   justify-content: space-around;
   z-index: 1001;
-  box-shadow: 0 -2px 16px rgba(0,0,0,0.25);
-  font-size: 0.98rem;
+  font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
   padding: 0 4px;
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+
+  /* Mobile romantic overlay */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(90deg, 
+        rgba(212, 165, 116, 0.03) 0%, 
+        rgba(184, 51, 106, 0.02) 50%, 
+        rgba(139, 90, 158, 0.03) 100%
+      );
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Jazz midnight top border */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent 0%,
+      rgba(212, 165, 116, 0.4) 50%, 
+      transparent 100%
+    );
+    animation: ${dreamlikeFloat} 3s ease-in-out infinite;
+  }
 
   @media (min-width: 901px) {
     display: none;

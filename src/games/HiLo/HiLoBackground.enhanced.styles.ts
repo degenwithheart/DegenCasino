@@ -1,60 +1,131 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+// Romantic degen trader animations for HiLo card game
+const romanticCardFlip = keyframes`
+  0%, 100% { 
+    transform: rotate(-18deg) scale(1);
+    text-shadow: 
+      0 0 25px rgba(212, 165, 116, 0.5),
+      3px 3px 8px rgba(10, 5, 17, 0.8);
+  }
+  50% { 
+    transform: rotate(-12deg) scale(1.05);
+    text-shadow: 
+      0 0 35px rgba(212, 165, 116, 0.7),
+      3px 3px 12px rgba(10, 5, 17, 0.9);
+  }
+`;
+
+const loveHeartBeat = keyframes`
+  0%, 100% { 
+    transform: rotate(25deg) scale(1);
+    text-shadow: 
+      0 0 30px rgba(184, 51, 106, 0.6),
+      3px 3px 8px rgba(10, 5, 17, 0.8);
+  }
+  50% { 
+    transform: rotate(30deg) scale(1.1);
+    text-shadow: 
+      0 0 40px rgba(184, 51, 106, 0.8),
+      3px 3px 12px rgba(10, 5, 17, 0.9);
+  }
+`;
+
+const mysticalCardAura = keyframes`
+  0% { 
+    background-position: 0% 50%; 
+    opacity: 0.95;
+  }
+  50% { 
+    background-position: 100% 50%;
+    opacity: 0.98;
+  }
+  100% { 
+    background-position: 0% 50%;
+    opacity: 0.95;
+  }
+`;
 
 export const StyledHiLoBackground = styled.div`
   perspective: 100px;
   user-select: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #4c1d95 0%, #7c2d12 15%, #991b1b 30%, #dc2626 45%, #ef4444 60%, #f87171 75%, #fca5a5 90%, #dc2626 100%);
-  border-radius: 24px;
-  border: 3px solid rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.95) 0%, 
+    rgba(139, 90, 158, 0.25) 15%,
+    rgba(184, 51, 106, 0.3) 30%,
+    rgba(212, 165, 116, 0.2) 45%,
+    rgba(184, 51, 106, 0.3) 60%,
+    rgba(139, 90, 158, 0.25) 75%,
+    rgba(10, 5, 17, 0.95) 100%
+  );
+  background-size: 400% 400%;
+  animation: ${mysticalCardAura} 8s ease-in-out infinite;
+  border-radius: 20px;
+  border: 2px solid rgba(212, 165, 116, 0.4);
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.7),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(239, 68, 68, 0.3);
+    0 25px 50px rgba(10, 5, 17, 0.7),
+    inset 0 2px 4px rgba(212, 165, 116, 0.2),
+    inset 0 -2px 4px rgba(10, 5, 17, 0.5),
+    0 0 40px rgba(212, 165, 116, 0.25);
   overflow: hidden;
   
-  /* Floating card romance elements */
+  /* Romantic card elements */
   &::before {
     content: '🃏';
     position: absolute;
     top: 8%;
     left: 6%;
-    font-size: 130px;
-    opacity: 0.07;
-    transform: rotate(-18deg);
-    pointer-events: none;
-    color: #7c2d12;
+    font-size: 100px;
+    opacity: 0.15;
+    color: rgba(212, 165, 116, 0.5);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    animation: ${romanticCardFlip} 8s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      font-size: 80px;
+      top: 6%;
+      left: 4%;
+    }
+
+    @media (max-width: 479px) {
+      font-size: 60px;
+      opacity: 0.1;
+    }
   }
 
   &::after {
-    content: '❤️';
+    content: '💕';
     position: absolute;
     bottom: 12%;
     right: 8%;
-    font-size: 110px;
-    opacity: 0.08;
-    transform: rotate(25deg);
-    pointer-events: none;
-    color: #dc2626;
+    font-size: 85px;
+    opacity: 0.18;
+    color: rgba(184, 51, 106, 0.6);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    animation: ${loveHeartBeat} 5s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      font-size: 70px;
+      bottom: 8%;
+      right: 5%;
+    }
+
+    @media (max-width: 479px) {
+      font-size: 50px;
+      opacity: 0.12;
+    }
   }
 
-  /* Override GameScreenFrame's dark background */
+  /* Override GameScreenFrame backgrounds */
   & .absolute.inset-\\[2px\\].rounded-\\[0\\.65rem\\].bg-\\[\\#0c0c11\\] {
     background: transparent !important;
   }
 
-  /* General override for any dark background in the frame */
   & [class*="bg-[#0c0c11]"] {
     background: transparent !important;
   }
@@ -71,13 +142,26 @@ export const StyledHiLoBackground = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 25px;
+    gap: 20px;
     transform: rotateX(1deg) rotateY(0deg);
     position: relative;
     z-index: 2;
-    padding: 40px 30px;
+    padding: 32px 24px;
     max-width: 1200px;
     margin: 0 auto;
+    font-family: 'DM Sans', sans-serif;
+
+    @media (max-width: 768px) {
+      gap: 16px;
+      padding: 24px 16px;
+      transform: rotateX(0.5deg);
+    }
+
+    @media (max-width: 479px) {
+      gap: 12px;
+      padding: 20px 12px;
+      transform: none;
+    }
     /* Allow content to size naturally so decorative bands don't stretch the whole viewport */
     min-height: auto;
     box-sizing: border-box;

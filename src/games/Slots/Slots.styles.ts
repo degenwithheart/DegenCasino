@@ -1,4 +1,46 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+// Romantic degen trader animations for slots
+const romanticSlotGlow = keyframes`
+  0%, 100% { 
+    transform: rotate(-12deg) scale(1);
+    text-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.4),
+      3px 3px 8px rgba(10, 5, 17, 0.8);
+  }
+  50% { 
+    transform: rotate(-8deg) scale(1.05);
+    text-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.6),
+      3px 3px 12px rgba(10, 5, 17, 0.9);
+  }
+`;
+
+const loveLetterSparkle = keyframes`
+  0%, 100% { 
+    transform: rotate(20deg) scale(1);
+    text-shadow: 
+      0 0 25px rgba(184, 51, 106, 0.5),
+      3px 3px 8px rgba(10, 5, 17, 0.8);
+  }
+  50% { 
+    transform: rotate(25deg) scale(1.08);
+    text-shadow: 
+      0 0 35px rgba(184, 51, 106, 0.7),
+      3px 3px 12px rgba(10, 5, 17, 0.9);
+  }
+`;
+
+const romanticFlicker = keyframes`
+  0%, 100% { 
+    opacity: 0.05;
+    transform: rotate(-20deg) scale(1);
+  }
+  50% { 
+    opacity: 0.08;
+    transform: rotate(-15deg) scale(1.02);
+  }
+`;
 
 export const StyledSlots = styled.div`
   perspective: 100px;
@@ -10,49 +52,77 @@ export const StyledSlots = styled.div`
   bottom: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #581c87 0%, #7c3aed 25%, #a855f7 50%, #c084fc 75%, #e879f9 100%);
-  border-radius: 24px;
-  border: 3px solid rgba(168, 85, 247, 0.3);
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.95) 0%, 
+    rgba(139, 90, 158, 0.25) 20%,
+    rgba(184, 51, 106, 0.2) 40%,
+    rgba(212, 165, 116, 0.15) 60%,
+    rgba(139, 90, 158, 0.25) 80%,
+    rgba(10, 5, 17, 0.95) 100%
+  );
+  border-radius: 20px;
+  border: 2px solid rgba(212, 165, 116, 0.3);
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.5),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-    0 0 30px rgba(168, 85, 247, 0.2);
+    0 25px 50px rgba(10, 5, 17, 0.7),
+    inset 0 2px 4px rgba(212, 165, 116, 0.15),
+    inset 0 -2px 4px rgba(10, 5, 17, 0.5),
+    0 0 30px rgba(212, 165, 116, 0.2);
   overflow: hidden;
   
-  /* Floating slot machine background elements */
+  /* Romantic slot machine elements */
   &::before {
     content: '🎰';
     position: absolute;
     top: 8%;
     left: 6%;
-    font-size: 110px;
-    opacity: 0.06;
-    transform: rotate(-12deg);
-    pointer-events: none;
-    color: #a855f7;
+    font-size: 90px;
+    opacity: 0.12;
+    color: rgba(212, 165, 116, 0.4);
     z-index: 0;
+    pointer-events: none;
+    animation: ${romanticSlotGlow} 8s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      font-size: 70px;
+      top: 6%;
+      left: 4%;
+    }
+
+    @media (max-width: 479px) {
+      font-size: 50px;
+      opacity: 0.08;
+    }
   }
 
   &::after {
-    content: '💎';
+    content: '�';
     position: absolute;
     bottom: 12%;
     right: 8%;
-    font-size: 95px;
-    opacity: 0.08;
-    transform: rotate(20deg);
-    pointer-events: none;
-    color: #c084fc;
+    font-size: 80px;
+    opacity: 0.15;
+    color: rgba(184, 51, 106, 0.5);
     z-index: 0;
+    pointer-events: none;
+    animation: ${loveLetterSparkle} 6s ease-in-out infinite;
+
+    @media (max-width: 768px) {
+      font-size: 60px;
+      bottom: 8%;
+      right: 5%;
+    }
+
+    @media (max-width: 479px) {
+      font-size: 45px;
+      opacity: 0.1;
+    }
   }
 
-  /* Override GameScreenFrame's dark background */
+  /* Override GameScreenFrame backgrounds */
   & .absolute.inset-\\[2px\\].rounded-\\[0\\.65rem\\].bg-\\[\\#0c0c11\\] {
     background: transparent !important;
   }
 
-  /* General override for any dark background in the frame */
   & [class*="bg-[#0c0c11]"] {
     background: transparent !important;
   }
@@ -70,16 +140,27 @@ export const StyledSlots = styled.div`
     justify-content: center;
     align-items: center;
     gap: 0;
-    transform: rotateX(3deg) rotateY(0deg);
+    transform: rotateX(2deg) rotateY(0deg);
     position: relative;
     z-index: 2;
     padding: 0;
     max-width: 1200px;
     margin: 0 auto;
     min-height: 100%;
+    font-family: 'DM Sans', sans-serif;
+
+    @media (max-width: 768px) {
+      transform: rotateX(1deg);
+      max-width: 100%;
+    }
+
+    @media (max-width: 479px) {
+      transform: none;
+      padding: 0 8px;
+    }
   }
 
-  /* Additional casino background elements */
+  /* Romantic casino background elements */
   .casino-bg-elements {
     position: absolute;
     top: 0;
@@ -90,14 +171,23 @@ export const StyledSlots = styled.div`
     z-index: 0;
 
     &::before {
-      content: '🍒';
+      content: '�';
       position: absolute;
       top: 40%;
       right: 12%;
-      font-size: 85px;
-      opacity: 0.05;
-      transform: rotate(-20deg);
-      color: #7c3aed;
+      font-size: 70px;
+      color: rgba(184, 51, 106, 0.3);
+      animation: ${romanticFlicker} 10s ease-in-out infinite;
+
+      @media (max-width: 768px) {
+        font-size: 50px;
+        right: 8%;
+      }
+
+      @media (max-width: 479px) {
+        font-size: 35px;
+        opacity: 0.06;
+      }
     }
 
     &::after {

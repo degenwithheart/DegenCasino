@@ -1,80 +1,98 @@
 import styled, { keyframes } from 'styled-components'
 
-const smokeAnimation = keyframes`
+const romanticMistAnimation = keyframes`
   0% {
     transform: translate(0, 0) rotate(0deg);
-    opacity: 0.1;
+    opacity: 0.15;
   }
   50% {
     transform: translate(-20px, -100px) rotate(10deg);
-    opacity: 0.3;
+    opacity: 0.4;
+    filter: hue-rotate(10deg);
   }
   100% {
     transform: translate(-40px, -200px) rotate(20deg);
     opacity: 0;
+    filter: hue-rotate(20deg);
   }
 `
 
-const cardDealAnimation = keyframes`
+const loveLetterDealAnimation = keyframes`
   0% {
     transform: translateY(-100px) scale(0.8) rotateY(180deg);
     opacity: 0;
+    filter: brightness(0.8);
   }
   50% {
     transform: translateY(-20px) scale(0.9) rotateY(90deg);
     opacity: 0.7;
+    filter: brightness(1.1);
   }
   100% {
     transform: translateY(0) scale(1) rotateY(0deg);
     opacity: 1;
+    filter: brightness(1);
   }
 `
 
-const pulseGlow = keyframes`
+const romanticPulseGlow = keyframes`
   0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 20px var(--love-letter-gold);
   }
-  50% {
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+  33% {
+    box-shadow: 0 0 30px var(--deep-crimson-rose);
+  }
+  66% {
+    box-shadow: 0 0 25px var(--soft-purple-twilight);
   }
 `
 
-const betTokenSlide = keyframes`
+const candlestickTokenSlide = keyframes`
   0% {
     transform: translateY(-100px) scale(0.5);
     opacity: 0;
+    filter: brightness(0.8);
   }
   50% {
     transform: translateY(-20px) scale(0.8);
     opacity: 0.8;
+    filter: brightness(1.2);
   }
   100% {
     transform: translateY(0) scale(1);
     opacity: 1;
+    filter: brightness(1);
   }
 `
 
-const betTokenGlow = keyframes`
+const romanticTokenGlow = keyframes`
   0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 20px var(--love-letter-gold);
   }
-  50% {
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+  33% {
+    box-shadow: 0 0 30px var(--deep-crimson-rose);
+  }
+  66% {
+    box-shadow: 0 0 25px var(--soft-purple-twilight);
   }
 `
 
-const tensionFlicker = keyframes`
+const loveLetterFlicker = keyframes`
   0%, 100% {
-    opacity: 0.8;
+    opacity: 0.9;
+    filter: brightness(1);
   }
   25% {
-    opacity: 0.6;
+    opacity: 0.7;
+    filter: brightness(0.9);
   }
   50% {
-    opacity: 0.9;
+    opacity: 1;
+    filter: brightness(1.1);
   }
   75% {
-    opacity: 0.7;
+    opacity: 0.8;
+    filter: brightness(0.95);
   }
 `
 
@@ -82,12 +100,18 @@ export const StyledBlackjackBackground = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  background:
-    radial-gradient(circle at 30% 20%, #1a1a2e 0%, #16213e 50%, #0f0f23 100%),
-    linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(
+    135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 25%, 
+    var(--deep-crimson-rose) 50%, 
+    var(--love-letter-gold) 75%, 
+    var(--deep-romantic-night) 100%
+  );
   background-attachment: fixed;
+  animation: romanticPulseGlow 6s ease-in-out infinite;
 
-  /* Elegant casino pattern overlay */
+  /* Romantic casino pattern overlay */
   &::before {
     content: '';
     position: absolute;
@@ -115,7 +139,7 @@ export const StyledBlackjackBackground = styled.div`
       radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
       radial-gradient(circle at 40% 40%, rgba(255, 20, 147, 0.06) 0%, transparent 50%);
-    animation: ${smokeAnimation} 20s infinite linear;
+    animation: ${romanticMistAnimation} 20s infinite linear;
     pointer-events: none;
   }
 
@@ -145,7 +169,7 @@ export const StyledBlackjackBackground = styled.div`
       height: 60px;
       background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
       border-radius: 50%;
-      animation: ${smokeAnimation} 8s infinite linear;
+      animation: ${romanticMistAnimation} 8s infinite linear;
     }
     
     &::before {
@@ -169,7 +193,7 @@ export const StyledBlackjackBackground = styled.div`
     height: 8px;
     background: #ff4444;
     border-radius: 50%;
-    animation: ${tensionFlicker} 2s infinite;
+    animation: ${loveLetterFlicker} 2s infinite;
     box-shadow: 0 0 10px #ff4444;
   }
 
@@ -311,7 +335,7 @@ export const StyledBlackjackBackground = styled.div`
 
     .bust {
       color: #ff4757;
-      animation: ${pulseGlow} 1s infinite;
+      animation: ${romanticPulseGlow} 1s infinite;
       text-shadow: 0 2px 4px rgba(255, 71, 87, 0.5);
     }
   }
@@ -455,7 +479,7 @@ export const StyledBlackjackBackground = styled.div`
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    animation: ${betTokenSlide} 0.8s ease-out;
+    animation: ${candlestickTokenSlide} 0.8s ease-out;
   }
 
   .bet-token-image {
@@ -467,7 +491,7 @@ export const StyledBlackjackBackground = styled.div`
       0 4px 12px rgba(0, 0, 0, 0.3),
       0 0 20px rgba(255, 215, 0, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    animation: ${betTokenGlow} 2s infinite;
+    animation: ${romanticTokenGlow} 2s infinite;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
@@ -566,7 +590,7 @@ export const StyledBlackjackBackground = styled.div`
       transform: scale(1.02);
     }
   }  .casino-card {
-    animation: ${cardDealAnimation} 0.8s ease-out;
+    animation: ${loveLetterDealAnimation} 0.8s ease-out;
     transform-origin: center;
   }
 
@@ -680,7 +704,7 @@ export const StyledBlackjackBackground = styled.div`
         linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
       border-color: rgba(34, 197, 94, 0.4);
       color: #ffffff;
-      animation: ${pulseGlow} 2s infinite;
+      animation: ${romanticPulseGlow} 2s infinite;
     }
 
     &.lose {
@@ -741,7 +765,7 @@ export const StyledBlackjackBackground = styled.div`
 
   .waiting-icon {
     font-size: 20px;
-    animation: ${tensionFlicker} 1.5s infinite;
+    animation: ${loveLetterFlicker} 1.5s infinite;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
 

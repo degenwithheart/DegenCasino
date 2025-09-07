@@ -1,6 +1,6 @@
 import React from 'react';
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { 
   MobileControlsContainer,
   TopControlsRow,
@@ -18,11 +18,40 @@ import {
   WagerButton
   } from "../../sections/Game/Game.styles";
 
-// Compact Wager Input for Mobile Layout
+// Romantic animations for mobile game controls
+const romanticPulse = keyframes`
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.4),
+      0 8px 32px rgba(10, 5, 17, 0.3);
+  }
+  50% { 
+    transform: scale(1.01);
+    box-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.6),
+      0 12px 48px rgba(10, 5, 17, 0.5);
+  }
+`;
+
+const loveLetterGlow = keyframes`
+  0%, 100% { 
+    box-shadow: 
+      0 0 15px rgba(212, 165, 116, 0.3),
+      inset 0 0 20px rgba(139, 90, 158, 0.1);
+  }
+  50% { 
+    box-shadow: 
+      0 0 25px rgba(212, 165, 116, 0.5),
+      inset 0 0 30px rgba(139, 90, 158, 0.2);
+  }
+`;
+
+// Compact Wager Input for Mobile Layout - romantic degen aesthetic
 const CompactStyledWagerInputWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   
   .gamba-wager-input {
     all: unset;
@@ -35,45 +64,62 @@ const CompactStyledWagerInputWrapper = styled.div`
   input {
     all: unset;
     flex: 1;
-    background: rgba(12, 12, 17, 0.8);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: #fff;
+    background: linear-gradient(135deg, 
+      rgba(10, 5, 17, 0.85) 0%, 
+      rgba(139, 90, 158, 0.1) 50%,
+      rgba(10, 5, 17, 0.85) 100%
+    );
+    border: 1px solid rgba(212, 165, 116, 0.4);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: var(--love-letter-gold);
     font-weight: 600;
     font-size: 14px;
     text-align: center;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease;
-    min-width: 80px;
+    box-shadow: 
+      inset 0 2px 8px rgba(10, 5, 17, 0.4),
+      0 4px 16px rgba(212, 165, 116, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 85px;
+    font-family: 'DM Sans', sans-serif;
+    backdrop-filter: blur(12px);
+    animation: ${loveLetterGlow} 6s ease-in-out infinite;
     
     &:hover {
-      border-color: rgba(255, 215, 0, 0.5);
-      background: rgba(12, 12, 17, 0.9);
+      border-color: rgba(212, 165, 116, 0.6);
+      background: linear-gradient(135deg, 
+        rgba(10, 5, 17, 0.9) 0%, 
+        rgba(139, 90, 158, 0.15) 50%,
+        rgba(10, 5, 17, 0.9) 100%
+      );
+      transform: translateY(-1px);
     }
     
     &:focus {
       outline: none;
-      border-color: #ffd700;
+      border-color: var(--love-letter-gold);
       box-shadow: 
-        0 0 0 2px rgba(255, 215, 0, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        0 0 0 2px rgba(212, 165, 116, 0.3),
+        inset 0 2px 8px rgba(10, 5, 17, 0.4),
+        0 6px 20px rgba(212, 165, 116, 0.2);
+      transform: translateY(-1px) scale(1.02);
     }
     
     &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-      font-weight: 600;
+      color: rgba(212, 165, 116, 0.5);
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
     }
     
     @media (max-width: 800px) {
       font-size: 13px;
-      padding: 6px 10px;
-      min-width: 70px;
+      padding: 8px 12px;
+      min-width: 75px;
     }
   }
 `;
 
-// Enhanced PlayButton for mobile layout
+// Enhanced PlayButton for mobile layout - romantic degen aesthetic
 const CompactPlayButtonWrapper = styled.div`
   width: 100%;
   display: flex;

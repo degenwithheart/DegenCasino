@@ -3,52 +3,111 @@ import styled from 'styled-components'
 export const StyledPlinkoRaceBackground = styled.div`
   perspective: 100px;
   user-select: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 15%, #2d2d5a 30%, #3a3a7a 45%, #4d4d9a 60%, #6060ba 75%, #7070da 90%, #3a3a7a 100%);
+  background: linear-gradient(
+    135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 15%, 
+    var(--deep-crimson-rose) 30%, 
+    var(--love-letter-gold) 45%, 
+    var(--deep-crimson-rose) 60%, 
+    var(--soft-purple-twilight) 75%, 
+    var(--deep-romantic-night) 90%
+  );
   border-radius: 24px;
-  border: 3px solid rgba(112, 112, 218, 0.4);
+  border: 3px solid var(--love-letter-gold);
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.8),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(112, 112, 218, 0.3);
+    0 25px 50px rgba(10, 5, 17, 0.9),
+    inset 0 2px 4px rgba(212, 165, 116, 0.2),
+    inset 0 -2px 4px rgba(10, 5, 17, 0.7),
+    0 0 40px var(--deep-crimson-rose);
   overflow: hidden;
+  animation: romanticPulse 5s ease-in-out infinite;
   
-  /* Floating velocity elements */
+  /* Romantic racing elements */
   &::before {
-    content: '⚡';
+    content: '💫';
     position: absolute;
     top: 8%;
     left: 6%;
     font-size: 150px;
-    opacity: 0.06;
+    opacity: 0.12;
     transform: rotate(-18deg);
     pointer-events: none;
-    color: #7070da;
+    color: var(--love-letter-gold);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
-    animation: float-velocity 8s ease-in-out infinite;
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.8);
+    animation: romantic-velocity-float 8s ease-in-out infinite;
   }
 
   &::after {
-    content: '🎯';
+    content: '💖';
     position: absolute;
     bottom: 10%;
     right: 8%;
     font-size: 130px;
-    opacity: 0.08;
+    opacity: 0.15;
     transform: rotate(25deg);
     pointer-events: none;
-    color: #6060ba;
+    color: var(--deep-crimson-rose);
     z-index: 0;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
-    animation: float-velocity 10s ease-in-out infinite reverse;
+    text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.8);
+    animation: romantic-heartbeat-float 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes romanticPulse {
+    0%, 100% { 
+      filter: brightness(1) saturate(1) hue-rotate(0deg);
+      border-color: var(--love-letter-gold);
+    }
+    25% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+    50% { 
+      filter: brightness(1.1) saturate(1.2) hue-rotate(10deg);
+      border-color: var(--soft-purple-twilight);
+    }
+    75% { 
+      filter: brightness(1.05) saturate(1.1) hue-rotate(5deg);
+      border-color: var(--deep-crimson-rose);
+    }
+  }
+
+  @keyframes romantic-velocity-float {
+    0%, 100% { 
+      transform: rotate(-18deg) translateY(0px) scale(1);
+      opacity: 0.12;
+    }
+    25% { 
+      transform: rotate(-15deg) translateY(-15px) scale(1.05);
+      opacity: 0.18;
+    }
+    50% { 
+      transform: rotate(-12deg) translateY(-25px) scale(1.1);
+      opacity: 0.25;
+    }
+    75% { 
+      transform: rotate(-15deg) translateY(-15px) scale(1.05);
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes romantic-heartbeat-float {
+    0%, 100% { 
+      transform: rotate(25deg) translateY(0px) scale(1);
+      opacity: 0.15;
+    }
+    33% { 
+      transform: rotate(30deg) translateY(-12px) scale(1.08);
+      opacity: 0.22;
+    }
+    66% { 
+      transform: rotate(35deg) translateY(-20px) scale(1.15);
+      opacity: 0.3;
+    }
   }
 
   /* Override GameScreenFrame's dark background */
@@ -66,12 +125,11 @@ export const StyledPlinkoRaceBackground = styled.div`
     background: transparent !important;
   }
 
-  /* Use min-height so internal layout can expand without being constrained */
+  /* Allow internal layout to flow naturally without height constraints */
   & > * {
     position: relative;
     z-index: 1;
     width: 100%;
-    min-height: 100%;
     pointer-events: auto;
   }
 

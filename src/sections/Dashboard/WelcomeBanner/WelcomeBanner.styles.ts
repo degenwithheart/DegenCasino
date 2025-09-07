@@ -1,43 +1,61 @@
 import styled, { keyframes } from "styled-components";
 
-export const floatAnimation = keyframes`
+export const loveLetterFloat = keyframes`
   0% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-8px) rotate(1deg);
   }
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
 `;
 
-export const neonPulse = keyframes`
+export const romanticPulse = keyframes`
   0% {
-    box-shadow: 0 0 32px #a259ff, 0 0 64px #ffd70044;
-    border-color: #ffd70044;
+    box-shadow: 
+      0 0 32px rgba(212, 165, 116, 0.4),
+      0 0 64px rgba(184, 51, 106, 0.2);
+    border-color: rgba(212, 165, 116, 0.3);
   }
   50% {
-    box-shadow: 0 0 48px #ffd700, 0 0 96px #a259ff88;
-    border-color: #ffd700;
+    box-shadow: 
+      0 0 48px rgba(212, 165, 116, 0.6),
+      0 0 96px rgba(184, 51, 106, 0.4);
+    border-color: rgba(212, 165, 116, 0.5);
   }
   100% {
-    box-shadow: 0 0 32px #a259ff, 0 0 64px #ffd70044;
-    border-color: #ffd70044;
+    box-shadow: 
+      0 0 32px rgba(212, 165, 116, 0.4),
+      0 0 64px rgba(184, 51, 106, 0.2);
+    border-color: rgba(212, 165, 116, 0.3);
   }
 `;
 
-export const fadeInOut = keyframes`
-  0% { opacity: 0; transform: translateY(10px);}
-  10% { opacity: 1; transform: translateY(0);}
-  90% { opacity: 1; transform: translateY(0);}
-  100% { opacity: 0; transform: translateY(-10px);}
+export const dreamlikeFadeInOut = keyframes`
+  0% { opacity: 0; transform: translateY(10px) scale(0.95);}
+  10% { opacity: 1; transform: translateY(0) scale(1);}
+  90% { opacity: 1; transform: translateY(0) scale(1);}
+  100% { opacity: 0; transform: translateY(-10px) scale(0.95);}
 `;
 
-export const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0.8) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+export const candlestickSparkle = keyframes`
+  0%, 100% { 
+    opacity: 0; 
+    transform: scale(0.8) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(180deg); 
+  }
 `;
+
+// Keep old exports for compatibility
+export const floatAnimation = loveLetterFloat;
+export const neonPulse = romanticPulse;
+export const fadeInOut = dreamlikeFadeInOut;
+export const sparkle = candlestickSparkle;
 
 export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
   margin: ${({ $isVisible, $isLoading }) =>

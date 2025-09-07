@@ -1,25 +1,54 @@
 import styled, { css, keyframes } from 'styled-components'
 
-const resultFlash = keyframes`
-  from { background-color: white;}
-  to { background-color: #292a307d;}
+const romanticResultFlash = keyframes`
+  from { 
+    background-color: var(--love-letter-gold);
+    box-shadow: 0 0 20px var(--deep-crimson-rose);
+  }
+  to { 
+    background: linear-gradient(135deg, var(--deep-romantic-night), var(--soft-purple-twilight));
+    box-shadow: 0 0 10px var(--love-letter-gold);
+  }
+`
+
+const romanticPulse = keyframes`
+  0%, 100% { 
+    filter: brightness(1) saturate(1);
+    border-color: var(--love-letter-gold);
+  }
+  50% { 
+    filter: brightness(1.1) saturate(1.2);
+    border-color: var(--deep-crimson-rose);
+  }
 `
 
 export const StyledResults = styled.div<{ enableMotion?: boolean }>`
   border-radius: 10px;
-  background: #191c2fa1;
+  background: linear-gradient(135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 50%, 
+    var(--deep-crimson-rose) 100%
+  );
+  border: 2px solid var(--love-letter-gold);
   margin: 0 auto;
   font-weight: bold;
   overflow: hidden;
   width: 100%;
   display: flex;
   height: 50px;
+  box-shadow: 
+    0 8px 25px rgba(10, 5, 17, 0.6),
+    inset 0 2px 4px rgba(212, 165, 116, 0.2),
+    0 0 15px var(--deep-crimson-rose);
+  animation: romanticPulse 3s ease-in-out infinite;
 
   & > div {
     display: flex;
     padding: 10px;
     width: 40px;
     justify-content: center;
+    color: var(--love-letter-gold);
+    text-shadow: 1px 1px 2px rgba(10, 5, 17, 0.8);
   }
 
   & > div:first-child {
@@ -27,14 +56,34 @@ export const StyledResults = styled.div<{ enableMotion?: boolean }>`
     align-items: center;
     width: 60px;
     justify-content: center;
-    background: #FFFFFF11;
+    background: linear-gradient(135deg, 
+      var(--love-letter-gold) 0%, 
+      var(--deep-crimson-rose) 100%
+    );
+    color: #fff;
+    border-radius: 8px 0 0 8px;
     ${props => props.enableMotion !== false && css`
-      animation: ${resultFlash} 1s;
+      animation: ${romanticResultFlash} 1s ease-in-out;
     `}
   }
   
   /* Responsive adjustments */
-  @media (max-width: 640px) {
+  @media (max-width: 479px) {
+    height: 38px;
+    
+    & > div {
+      padding: 6px;
+      width: 30px;
+      font-size: 12px;
+    }
+    
+    & > div:first-child {
+      font-size: 18px;
+      width: 45px;
+    }
+  }
+
+  @media (min-width: 480px) and (max-width: 768px) {
     height: 42px;
     
     & > div {
@@ -48,7 +97,8 @@ export const StyledResults = styled.div<{ enableMotion?: boolean }>`
     }
   }
   
-  @media (min-width: 641px) and (max-width: 768px) {
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
     height: 46px;
     
     & > div {
@@ -62,21 +112,7 @@ export const StyledResults = styled.div<{ enableMotion?: boolean }>`
     }
   }
   
-  @media (min-width: 769px) and (max-width: 899px) {
-    height: 48px;
-    
-    & > div {
-      padding: 9px;
-      width: 39px;
-    }
-    
-    & > div:first-child {
-      font-size: 23px;
-      width: 58px;
-    }
-  }
-  
-  @media (min-width: 900px) {
+  @media (min-width: 1025px) {
     height: 50px;
     
     & > div {
@@ -91,55 +127,99 @@ export const StyledResults = styled.div<{ enableMotion?: boolean }>`
   }
 `
 
+const romanticBetGlow = keyframes`
+  0%, 100% { 
+    box-shadow: 0 0 10px var(--love-letter-gold);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 20px var(--deep-crimson-rose);
+    transform: scale(1.02);
+  }
+`
+
 export const StyledBetButton = styled.div<{$highlighted?: boolean, $color?: 'black' | 'red'}>`
   position: relative;
-  border: none;
-  border-radius: 5px;
+  border: 2px solid var(--love-letter-gold);
+  border-radius: 8px;
   padding: 10px 10px;
-  box-shadow: 0 0 0 1px var(--border-color);
-  color: white;
+  background: linear-gradient(135deg, 
+    var(--deep-romantic-night) 0%, 
+    var(--soft-purple-twilight) 50%, 
+    var(--deep-crimson-rose) 100%
+  );
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 15px rgba(10, 5, 17, 0.6),
+    inset 0 1px 2px rgba(212, 165, 116, 0.2);
+  color: var(--love-letter-gold);
+  text-shadow: 1px 1px 2px rgba(10, 5, 17, 0.8);
+  transition: all 0.3s ease;
   width: 60px;
   cursor: pointer;
   text-align: center;
 
   ${(props) => props.$color === 'red' && css`
-    --background-color: #ff3d5e;
-    --border-color: #ff2b4e;
+    background: linear-gradient(135deg, 
+      var(--deep-crimson-rose) 0%, 
+      #ff3d5e 50%, 
+      var(--deep-crimson-rose) 100%
+    );
+    border-color: var(--deep-crimson-rose);
   `}
 
   ${(props) => props.$color === 'black' && css`
-    --background-color: #1b1b25;
-    --border-color: #121218;
+    background: linear-gradient(135deg, 
+      var(--deep-romantic-night) 0%, 
+      #1b1b25 50%, 
+      var(--deep-romantic-night) 100%
+    );
+    border-color: var(--soft-purple-twilight);
   `}
-
-  background-color: var(--background-color);
-  box-shadow: 0 0 0 1px var(--border-color);
 
   &::after {
     content: " ";
-    transition: background .1s;
+    transition: all 0.3s ease;
     background: transparent;
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    border-radius: 5px;
+    border-radius: 8px;
   }
 
-  &:hover::after {
-    background: #9999ff44;
-    mix-blend-mode:screen;
-  }
-  ${(props) => props.$highlighted && css`
+  &:hover {
+    animation: ${romanticBetGlow} 1.5s ease-in-out infinite;
+    transform: translateY(-1px);
+    
     &::after {
-      background: #9999ff44;
-      mix-blend-mode:screen;
+      background: linear-gradient(135deg, 
+        rgba(212, 165, 116, 0.3) 0%, 
+        rgba(184, 51, 106, 0.2) 100%
+      );
+    }
+  }
+
+  ${(props) => props.$highlighted && css`
+    animation: ${romanticBetGlow} 1.5s ease-in-out infinite;
+    
+    &::after {
+      background: linear-gradient(135deg, 
+        rgba(212, 165, 116, 0.4) 0%, 
+        rgba(184, 51, 106, 0.3) 100%
+      );
     }
   `}
   
   /* Responsive adjustments */
-  @media (max-width: 640px) {
+  @media (max-width: 479px) {
+    width: 45px;
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  @media (min-width: 480px) and (max-width: 768px) {
     width: 50px;
     padding: 8px 6px;
     font-size: 14px;

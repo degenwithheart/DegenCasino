@@ -1,47 +1,89 @@
 import styled, { keyframes, css } from "styled-components";
 
-// Keyframe animations
-export const neonPulse = keyframes<{ $theme?: any }>`
+// Romantic Serenade Keyframe animations
+export const romanticPulse = keyframes<{ $theme?: any }>`
   0% { 
-    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88, 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
+    box-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.4), 
+      0 0 60px rgba(184, 51, 106, 0.2);
+    border-color: rgba(212, 165, 116, 0.3);
+  }
+  50% { 
+    box-shadow: 
+      0 0 50px rgba(212, 165, 116, 0.6), 
+      0 0 100px rgba(184, 51, 106, 0.4),
+      0 0 150px rgba(139, 90, 158, 0.2);
+    border-color: rgba(212, 165, 116, 0.6);
   }
   100% { 
-    box-shadow: 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc, 0 0 96px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}aa;
+    box-shadow: 
+      0 0 30px rgba(212, 165, 116, 0.4), 
+      0 0 60px rgba(184, 51, 106, 0.2);
+    border-color: rgba(212, 165, 116, 0.3);
   }
 `;
 
-export const moveGradient = keyframes`
+export const loveLetterGradient = keyframes`
   0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
-export const sparkle = keyframes`
-  0%, 100% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+export const candlestickSparkle = keyframes`
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: scale(0.9) rotate(0deg); 
+  }
+  33% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(120deg); 
+  }
+  66% { 
+    opacity: 0.8; 
+    transform: scale(1.1) rotate(240deg); 
+  }
 `;
 
-// Animated accent bar
+export const dreamlikeFloat = keyframes`
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  50% { 
+    transform: translateY(-8px) rotate(2deg); 
+  }
+`;
+
+// Romantic animated accent bar
 export const AccentBar = styled.div<{ $theme?: any }>`
-  height: 6px;
+  height: 4px;
   width: 100%;
-  border-radius: 3px;
+  border-radius: 8px;
   margin: 0.5rem 0 1.5rem;
-  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+  background: linear-gradient(90deg, 
+    rgba(212, 165, 116, 0.8) 0%, 
+    rgba(184, 51, 106, 0.6) 25%, 
+    rgba(139, 90, 158, 0.7) 50%, 
+    rgba(184, 51, 106, 0.6) 75%, 
+    rgba(212, 165, 116, 0.8) 100%
+  );
+  background-size: 300% 100%;
+  animation: ${loveLetterGradient} 6s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.3);
 `;
 
-// Casino sparkle decoration
+// Romantic candlestick sparkle decoration
 export const CasinoSparkles = styled.div`
   position: absolute;
   top: -10px;
   right: -10px;
   font-size: 1.5rem;
-  animation: ${sparkle} 2s infinite;
+  animation: ${candlestickSparkle} 4s ease-in-out infinite;
   pointer-events: none;
+  color: rgba(212, 165, 116, 0.7);
+  filter: drop-shadow(0 0 8px rgba(212, 165, 116, 0.4));
 `;
 
-// Global Dashboard wrapper with enhanced casino styling
+// Global Dashboard wrapper with romantic glassmorphism styling
 interface CompactDivProps {
   $compact?: boolean;
   $theme?: any;
@@ -50,18 +92,31 @@ export const DashboardWrapper = styled.div<CompactDivProps>`
   max-width: none; /* Let main handle max-width */
   margin: 2rem 0; /* Only vertical margins */
   padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
-  background: ${({ $theme }) => $theme?.colors?.background || '#0f0f23'};
-  border-radius: 12px;
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  
+  /* Romantic glassmorphism background */
+  background: rgba(10, 5, 17, 0.7);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid rgba(212, 165, 116, 0.18);
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Love letter paper texture */
+  box-shadow: 
+    0 8px 32px rgba(139, 90, 158, 0.15),
+    0 0 40px rgba(212, 165, 116, 0.08),
+    inset 0 1px 2px rgba(244, 233, 225, 0.05);
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 24px rgba(255, 215, 0, 0.2)'};
-    transform: translateY(-2px);
+    border-color: rgba(212, 165, 116, 0.4);
+    box-shadow: 
+      0 12px 48px rgba(139, 90, 158, 0.2),
+      0 0 60px rgba(212, 165, 116, 0.15),
+      inset 0 1px 4px rgba(244, 233, 225, 0.08);
+    transform: translateY(-4px);
   }
 
+  /* Romantic atmosphere overlay */
   &::before {
     content: '';
     position: fixed;
@@ -70,32 +125,58 @@ export const DashboardWrapper = styled.div<CompactDivProps>`
     width: 100vw;
     height: 100vh;
     background: 
-      radial-gradient(circle at 20% 80%, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}11 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}11 0%, transparent 50%);
+      radial-gradient(circle at 20% 80%, rgba(212, 165, 116, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(184, 51, 106, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(139, 90, 158, 0.02) 0%, transparent 60%);
     pointer-events: none;
     z-index: -1;
   }
 
+  /* Candlestick constellation effect */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(1px 1px at 15% 25%, rgba(212, 165, 116, 0.2), transparent),
+      radial-gradient(1px 1px at 85% 75%, rgba(184, 51, 106, 0.15), transparent),
+      radial-gradient(1px 1px at 55% 15%, rgba(139, 90, 158, 0.15), transparent);
+    background-size: 150px 150px, 200px 200px, 175px 175px;
+    animation: ${dreamlikeFloat} 20s infinite ease-in-out;
+    pointer-events: none;
+    border-radius: 16px;
+  }
+
+  /* Responsive mobile-first scaling */
   @media (max-width: 1200px) {
     margin: 1.5rem 0;
     padding: ${({ $compact }) => ($compact ? '1.5rem' : '2rem')};
+    border-radius: 14px;
   }
+  
   @media (max-width: 900px) {
     margin: 1rem 0;
     padding: ${({ $compact }) => ($compact ? '1rem' : '1.5rem')};
+    border-radius: 12px;
   }
+  
   @media (max-width: 700px) {
     margin: 0.5rem 0;
     padding: ${({ $compact }) => ($compact ? '0.8rem' : '1rem')};
-    border-radius: ${({ $compact }) => ($compact ? '0.8rem' : '1rem')};
+    border-radius: 10px;
     max-width: 100vw;
   }
+  
   @media (max-width: 480px) {
-    margin: 0;
+    margin: 0.25rem 0;
     padding: ${({ $compact }) => ($compact ? '0.6rem' : '0.8rem')};
-    border-radius: 0.8rem;
+    border-radius: 8px;
     max-width: 100vw;
   }
+  
   @media (max-width: 400px) {
     margin: 0;
     padding: ${({ $compact }) => ($compact ? '0.4rem' : '0.6rem')};
@@ -329,46 +410,111 @@ export const ConnectButton = styled.button<CompactDivProps & { $theme?: any }>`
   font-size: ${({ $compact }) => ($compact ? '1rem' : '1.3rem')};
   font-weight: 700;
   border-radius: ${({ $compact }) => ($compact ? '1.2rem' : '2rem')};
-  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'});
-  color: ${({ $theme }) => $theme?.colors?.background || '#222'};
-  box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}88;
-  border: none;
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.9) 0%, 
+    rgba(184, 51, 106, 0.8) 50%, 
+    rgba(139, 90, 158, 0.9) 100%
+  );
+  color: rgba(244, 233, 225, 0.95);
+  box-shadow: 
+    0 8px 24px rgba(139, 90, 158, 0.3),
+    0 0 40px rgba(212, 165, 116, 0.2);
+  border: 1px solid rgba(212, 165, 116, 0.3);
   cursor: pointer;
-  animation: ${neonPulse} 1.5s infinite alternate;
-  transition: all 0.3s ease-in-out;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 1px;
+  animation: ${romanticPulse} 3s infinite ease-in-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Libre Baskerville', 'DM Sans', serif;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
 
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 48px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 
+      0 12px 36px rgba(139, 90, 158, 0.4),
+      0 0 60px rgba(212, 165, 116, 0.3);
+    background: linear-gradient(135deg, 
+      rgba(212, 165, 116, 1) 0%, 
+      rgba(184, 51, 106, 0.9) 50%, 
+      rgba(139, 90, 158, 1) 100%
+    );
   }
 `;
 
 export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $theme?: any }>`
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  font-size: ${({ $compact }) => ($compact ? '1.1rem' : '1.3rem')};
-  color: ${({ $active, $theme }) => $active ? ($theme?.colors?.primary || '#ffd700') : 'rgba(255, 255, 255, 0.7)'};
-  text-shadow: ${({ $active, $theme }) => $active
-    ? `0 0 8px ${$theme?.colors?.primary || '#ffd700'}, 0 0 24px ${$theme?.colors?.secondary || '#a259ff'}`
-    : `0 0 4px ${$theme?.colors?.primary || '#ffd700'}44`
+  /* Romantic glassmorphism toggle button */
+  background: ${({ $active }) => $active 
+    ? 'rgba(212, 165, 116, 0.15)' 
+    : 'rgba(139, 90, 158, 0.08)'
   };
-  letter-spacing: 1px;
+  backdrop-filter: blur(8px);
+  border: 1px solid ${({ $active }) => $active 
+    ? 'rgba(212, 165, 116, 0.4)' 
+    : 'rgba(139, 90, 158, 0.2)'
+  };
+  border-radius: ${({ $compact }) => ($compact ? '10px' : '12px')};
+  padding: ${({ $compact }) => ($compact ? '8px 16px' : '10px 20px')};
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: ${({ $compact }) => ($compact ? '0.9rem' : '1rem')};
+  font-weight: 600;
+  color: ${({ $active }) => $active 
+    ? 'rgba(212, 165, 116, 1)' 
+    : 'rgba(244, 233, 225, 0.7)'
+  };
+  text-shadow: ${({ $active }) => $active
+    ? '0 0 12px rgba(212, 165, 116, 0.4), 0 0 24px rgba(184, 51, 106, 0.2)'
+    : '0 0 8px rgba(139, 90, 158, 0.3)'
+  };
+  letter-spacing: 0.3px;
   cursor: pointer;
-  font-weight: 700;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
-  filter: ${({ $active, $theme }) => $active ? `drop-shadow(0 0 8px ${$theme?.colors?.primary || '#ffd700'})` : 'none'};
-  opacity: ${({ $active }) => $active ? 1 : 0.5};
-  border-bottom: ${({ $active, $theme }) => $active ? `3px solid ${$theme?.colors?.primary || '#ffd700'}` : '3px solid transparent'};
-  padding-bottom: 0.2em;
+  position: relative;
+  overflow: hidden;
+
+  /* Love letter shimmer effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(212, 165, 116, 0.2), 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
 
   &:hover {
-    opacity: 0.8;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    background: ${({ $active }) => $active 
+      ? 'rgba(212, 165, 116, 0.25)' 
+      : 'rgba(139, 90, 158, 0.15)'
+    };
+    border-color: ${({ $active }) => $active 
+      ? 'rgba(212, 165, 116, 0.6)' 
+      : 'rgba(139, 90, 158, 0.4)'
+    };
+    color: ${({ $active }) => $active 
+      ? 'rgba(212, 165, 116, 1)' 
+      : 'rgba(244, 233, 225, 0.9)'
+    };
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 24px rgba(139, 90, 158, 0.15),
+      0 0 30px ${({ $active }) => $active 
+        ? 'rgba(212, 165, 116, 0.3)' 
+        : 'rgba(139, 90, 158, 0.2)'
+      };
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 `;

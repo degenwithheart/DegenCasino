@@ -1,16 +1,66 @@
-/* Custom properties for theme colors and border radius */
+/* Surreal Romantic Degen Trader Theme - Mobile First */
 :root {
-  --background-color: #0b0b0e;
-  --text-color: #fff;
-  --gamba-ui-primary-color: #9564ff;
-  --gamba-ui-border-radius: 10px;
-  --plate-size: 350px;
-  --pit-width: 32px;
-  --rim-size: 6px;
-  --trim-color: #4b2808;
-  --trim-secondary: silver;
-  --spin-button: green;
-  --reset-button: darkgreen;
+  /* Base Romantic Serenade Colors */
+  --background-color: #0a0511;
+  --text-color: #f4e9e1;
+  --primary-romantic: #d4a574; /* Warm gold - love letter gold */
+  --secondary-romantic: #b8336a; /* Deep crimson rose */
+  --accent-romantic: #8b5a9e; /* Soft purple twilight */
+  --gamba-ui-primary-color: var(--primary-romantic);
+  --gamba-ui-border-radius: 16px;
+  
+  /* Glassmorphism & Neon Elements */
+  --glass-bg: rgba(212, 165, 116, 0.08);
+  --glass-border: rgba(212, 165, 116, 0.18);
+  --neon-glow: #d4a574;
+  --crimson-glow: #b8336a;
+  --soft-shadow: rgba(139, 90, 158, 0.15);
+  
+  /* Interactive Elements */
+  --romantic-hover: rgba(212, 165, 116, 0.25);
+  --romantic-focus: rgba(184, 51, 106, 0.3);
+  --heart-pulse: rgba(184, 51, 106, 0.4);
+  
+  /* Typography Hierarchy */
+  --heading-glow: 0 0 20px rgba(212, 165, 116, 0.6);
+  --text-glow: 0 0 8px rgba(244, 233, 225, 0.3);
+  --romantic-text: #e8d5c4;
+  
+  /* Mobile-First Sizing (320px base) */
+  --mobile-padding: 12px;
+  --mobile-margin: 8px;
+  --mobile-border-radius: 12px;
+  --mobile-font-base: 14px;
+  --mobile-font-small: 12px;
+  --mobile-font-large: 18px;
+  --mobile-font-xl: 24px;
+  
+  /* Tablet Sizing (768px+) */
+  --tablet-padding: 16px;
+  --tablet-margin: 12px;
+  --tablet-border-radius: 14px;
+  --tablet-font-base: 15px;
+  --tablet-font-small: 13px;
+  --tablet-font-large: 20px;
+  --tablet-font-xl: 28px;
+  
+  /* Desktop Sizing (1024px+) */
+  --desktop-padding: 20px;
+  --desktop-margin: 16px;
+  --desktop-border-radius: 16px;
+  --desktop-font-base: 16px;
+  --desktop-font-small: 14px;
+  --desktop-font-large: 22px;
+  --desktop-font-xl: 32px;
+  
+  /* Game Specific - Roulette */
+  --plate-size: 280px; /* Mobile first */
+  --pit-width: 28px;
+  --rim-size: 5px;
+  --trim-color: var(--primary-romantic);
+  --trim-secondary: var(--accent-romantic);
+  --spin-button: var(--primary-romantic);
+  --reset-button: var(--secondary-romantic);
   --spin-duration: 3s;
 }
 
@@ -19,124 +69,436 @@ html, body, #root {
   width: 100%;
 }
 
+/* Mobile-First Base Styles */
 body {
-  background: var(--background-color);
+  background: linear-gradient(135deg, 
+    var(--background-color) 0%, 
+    #0d0618 25%, 
+    #0f081c 50%, 
+    #0a0511 75%, 
+    var(--background-color) 100%
+  );
+  background-attachment: fixed;
   color: var(--text-color);
-  font-family: 'DM Sans', 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.4;
+  font-family: 'DM Sans', 'Libre Baskerville', 'Georgia', serif;
+  font-size: var(--mobile-font-base);
+  line-height: 1.6;
   margin: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
-  padding-bottom: 80px;
+  padding-bottom: 90px; /* Mobile footer space */
+  
+  /* Romantic texture overlay */
+  position: relative;
 }
 
-/* Main content area spacing for desktop with sidebar */
+/* Subtle romantic atmosphere overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 20%, rgba(212, 165, 116, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(184, 51, 106, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(139, 90, 158, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Candlestick constellation effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(1px 1px at 20% 30%, rgba(212, 165, 116, 0.3), transparent),
+    radial-gradient(1px 1px at 80% 70%, rgba(184, 51, 106, 0.2), transparent),
+    radial-gradient(1px 1px at 60% 20%, rgba(139, 90, 158, 0.2), transparent);
+  background-size: 200px 200px, 300px 300px, 250px 250px;
+  animation: starFloat 40s infinite linear;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes starFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-20px); }
+}
+
+/* Mobile-First Layout (320px+) */
 main {
-  margin: 0 auto;
-  max-width: calc(100vw - 160px); /* Account for sidebar + margins */
+  margin: 0;
+  max-width: 100vw;
+  padding: var(--mobile-padding);
+  position: relative;
 }
 
-/* Tablet layout - sidebar becomes bottom nav, remove left padding */
-@media (max-width: 900px) {
+/* Tablet Layout (768px+) */
+@media (min-width: 768px) {
   body {
-    padding-bottom: 150px; /* Space for bottom nav + footer */
+    font-size: var(--tablet-font-base);
+    padding-bottom: 120px; /* Space for enhanced tablet footer */
   }
   
   main {
     margin: 0 auto;
     max-width: calc(100vw - 2rem);
+    padding: var(--tablet-padding);
+  }
+  
+  /* Tablet: Roulette size adjustment */
+  :root {
+    --plate-size: 320px;
+    --pit-width: 30px;
   }
 }
 
-/* Mobile layout - sidebar hidden, full width available */
-@media (max-width: 700px) {
+/* Small Desktop Layout (1024px+) */
+@media (min-width: 1024px) {
   body {
-    padding-bottom: 80px; /* Just footer space */
+    font-size: var(--desktop-font-base);
+    padding-bottom: 100px; /* Desktop footer space */
   }
   
   main {
-    margin: 0;
-    max-width: 100vw;
+    margin: 0 auto;
+    max-width: calc(100vw - 200px); /* Account for sidebar */
+    padding: var(--desktop-padding);
+  }
+  
+  /* Desktop: Full roulette size */
+  :root {
+    --plate-size: 350px;
+    --pit-width: 32px;
+    --rim-size: 6px;
   }
 }
 
+/* Large Desktop Layout (1440px+) */
+@media (min-width: 1440px) {
+  main {
+    max-width: 1200px; /* Contained width for better readability */
+  }
+  
+  /* Large desktop: Enhanced roulette */
+  :root {
+    --plate-size: 380px;
+    --pit-width: 34px;
+    --rim-size: 7px;
+  }
+}
+
+/* Mobile-First Typography */
 h1, h2 {
   margin: 0;
+  color: var(--primary-romantic);
+  text-shadow: var(--heading-glow);
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
+h1 {
+  font-size: var(--mobile-font-xl);
+  font-family: 'Libre Baskerville', 'Georgia', serif;
+  margin-bottom: var(--mobile-margin);
+}
+
+h2 {
+  font-size: var(--mobile-font-large);
+  margin-bottom: calc(var(--mobile-margin) * 0.75);
+}
+
+/* Tablet Typography */
+@media (min-width: 768px) {
+  h1 {
+    font-size: var(--tablet-font-xl);
+    margin-bottom: var(--tablet-margin);
+  }
+  
+  h2 {
+    font-size: var(--tablet-font-large);
+    margin-bottom: calc(var(--tablet-margin) * 0.75);
+  }
+}
+
+/* Desktop Typography */
+@media (min-width: 1024px) {
+  h1 {
+    font-size: var(--desktop-font-xl);
+    margin-bottom: var(--desktop-margin);
+  }
+  
+  h2 {
+    font-size: var(--desktop-font-large);
+    margin-bottom: calc(var(--desktop-margin) * 0.75);
+  }
+}
+
+/* Romantic Link Styling */
 a {
-  color: inherit;
+  color: var(--primary-romantic);
   text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-/* Universal scrollbar styling for all scrollable elements */
+a:hover {
+  color: var(--secondary-romantic);
+  text-shadow: 0 0 12px var(--heart-pulse);
+}
+
+/* Love letter effect for special links */
+a.romantic-link::after {
+  content: '♡';
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: all 0.3s ease;
+  margin-left: 4px;
+  font-size: 0.8em;
+}
+
+a.romantic-link:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Romantic Glassmorphism Scrollbars - Mobile First */
 *::-webkit-scrollbar {
-  width: 12px;
-  height: 8px; /* For horizontal scrollbars */
+  width: 8px; /* Mobile thin scrollbar */
+  height: 6px;
 }
+
 *::-webkit-scrollbar-thumb {
-  background-color: var(--gamba-ui-primary-color);
-  border-radius: 6px;
+  background: linear-gradient(135deg, var(--primary-romantic), var(--secondary-romantic));
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 
+    0 0 8px var(--heart-pulse),
+    inset 0 0 4px rgba(244, 233, 225, 0.1);
 }
+
 *::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--glass-bg);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
 }
 
-/* Specific body scrollbar styling (fallback) */
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--secondary-romantic), var(--accent-romantic));
+  box-shadow: 
+    0 0 12px var(--heart-pulse),
+    inset 0 0 6px rgba(244, 233, 225, 0.2);
+}
+
+/* Tablet & Desktop Scrollbars */
+@media (min-width: 768px) {
+  *::-webkit-scrollbar {
+    width: 12px;
+    height: 8px;
+  }
+}
+
+/* Body scrollbar with romantic flourishes */
 body::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
+
+@media (min-width: 768px) {
+  body::-webkit-scrollbar {
+    width: 12px;
+  }
+}
+
 body::-webkit-scrollbar-thumb {
-  background-color: var(--gamba-ui-primary-color);
+  background: linear-gradient(135deg, var(--primary-romantic), var(--secondary-romantic));
+  border-radius: 10px;
+  box-shadow: 
+    0 0 12px var(--heart-pulse),
+    inset 0 0 4px rgba(244, 233, 225, 0.15);
 }
 
-/* Wallet button custom style */
+/* Romantic Glassmorphism Wallet Button - Mobile First */
 .wallet-adapter-button.wallet-adapter-button-trigger {
-  height: 40px;
-  line-height: 40px;
-  background: rgb(55, 57, 82);
-  border-radius: var(--gamba-ui-border-radius);
+  height: 44px; /* Mobile touch-friendly */
+  line-height: 44px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--mobile-border-radius);
+  color: var(--romantic-text);
+  font-size: var(--mobile-font-base);
+  font-weight: 500;
+  padding: 0 var(--mobile-padding);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  
+  /* Romantic glow effect */
+  box-shadow: 
+    0 4px 16px var(--soft-shadow),
+    0 0 20px rgba(212, 165, 116, 0.1);
 }
 
-@media (max-width: 600px) {
+.wallet-adapter-button.wallet-adapter-button-trigger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(212, 165, 116, 0.2), 
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.wallet-adapter-button.wallet-adapter-button-trigger:hover {
+  background: var(--romantic-hover);
+  border-color: var(--primary-romantic);
+  color: var(--primary-romantic);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px var(--soft-shadow),
+    0 0 30px var(--heart-pulse),
+    inset 0 1px 2px rgba(244, 233, 225, 0.1);
+}
+
+.wallet-adapter-button.wallet-adapter-button-trigger:hover::before {
+  left: 100%;
+}
+
+.wallet-adapter-button.wallet-adapter-button-trigger:active {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 16px var(--soft-shadow),
+    0 0 20px var(--heart-pulse);
+}
+
+/* Tablet Wallet Button */
+@media (min-width: 768px) {
+  .wallet-adapter-button.wallet-adapter-button-trigger {
+    height: 48px;
+    line-height: 48px;
+    font-size: var(--tablet-font-base);
+    border-radius: var(--tablet-border-radius);
+    padding: 0 var(--tablet-padding);
+  }
+}
+
+/* Desktop Wallet Button */
+@media (min-width: 1024px) {
+  .wallet-adapter-button.wallet-adapter-button-trigger {
+    height: 52px;
+    line-height: 52px;
+    font-size: var(--desktop-font-base);
+    border-radius: var(--desktop-border-radius);
+    padding: 0 var(--desktop-padding);
+  }
+}
+
+/* Small Mobile Responsive Adjustments (320px-479px) */
+@media (max-width: 479px) {
   body {
-    font-size: 14px;
-    padding-left: 0;
-    padding-bottom: 80px; /* Just footer space on small mobile */
+    font-size: var(--mobile-font-small);
+    padding-bottom: 75px;
   }
   
   main {
-    margin: 0;
-    max-width: 100vw;
+    padding: calc(var(--mobile-padding) * 0.75);
   }
   
   h1 {
-    font-size: 1.4rem;
+    font-size: calc(var(--mobile-font-xl) * 0.85);
   }
+  
   h2 {
-    font-size: 1.2rem;
+    font-size: calc(var(--mobile-font-large) * 0.9);
   }
+  
   .wallet-adapter-button.wallet-adapter-button-trigger {
-    height: 36px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    padding: 0 12px;
+    height: 40px;
+    line-height: 40px;
+    font-size: calc(var(--mobile-font-base) * 0.9);
+    border-radius: calc(var(--mobile-border-radius) * 0.8);
+    padding: 0 calc(var(--mobile-padding) * 0.8);
   }
-  body::-webkit-scrollbar {
-    width: 2px;
+  
+  /* Ultra-thin scrollbar for small mobile */
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  /* Smaller roulette for tiny screens */
+  :root {
+    --plate-size: 240px;
+    --pit-width: 24px;
+    --rim-size: 4px;
   }
 }
 
+/* Enhanced Medium Mobile (480px-767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  :root {
+    --plate-size: 300px;
+    --pit-width: 28px;
+    --rim-size: 5px;
+  }
+  
+  .wallet-adapter-button.wallet-adapter-button-trigger {
+    height: 46px;
+    line-height: 46px;
+  }
+}
+
+/* Romantic Roulette Wheel - Cathedral Candlestick Aesthetic */
 .plate {
-  background-color: gray;
+  background: linear-gradient(135deg, 
+    var(--background-color) 0%, 
+    rgba(212, 165, 116, 0.1) 50%, 
+    var(--background-color) 100%
+  );
   width: var(--plate-size);
   height: var(--plate-size);
   margin: calc(var(--rim-size) * 2);
   border-radius: 50%;
   position: relative;
-  animation: rotate 24s infinite linear;
+  animation: romanticRotate 30s infinite linear;
+  box-shadow: 
+    0 0 40px rgba(212, 165, 116, 0.3),
+    0 0 80px rgba(184, 51, 106, 0.2),
+    inset 0 0 30px rgba(139, 90, 158, 0.1);
+}
+
+@keyframes romanticRotate {
+  0% { 
+    transform: rotate(0deg);
+    box-shadow: 
+      0 0 40px rgba(212, 165, 116, 0.3),
+      0 0 80px rgba(184, 51, 106, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 50px rgba(212, 165, 116, 0.4),
+      0 0 100px rgba(184, 51, 106, 0.3);
+  }
+  100% { 
+    transform: rotate(360deg);
+    box-shadow: 
+      0 0 40px rgba(212, 165, 116, 0.3),
+      0 0 80px rgba(184, 51, 106, 0.2);
+  }
 }
 
 .plate::after,
@@ -147,20 +509,30 @@ body::-webkit-scrollbar-thumb {
   border-radius: 50%;
 }
 
+/* Romantic rim with love letter gold */
 .plate::after {
   top: calc(-1 * var(--rim-size));
   right: calc(-1 * var(--rim-size));
   bottom: calc(-1 * var(--rim-size));
   left: calc(-1 * var(--rim-size));
-  border: var(--rim-size) solid var(--trim-color);
-  box-shadow: inset 0px 0px 0px calc(var(--rim-size) / 3) #b8860b,
-    0px 0px 0px calc(var(--rim-size) / 3) #ffd700;
+  border: var(--rim-size) solid var(--primary-romantic);
+  box-shadow: 
+    inset 0px 0px 0px calc(var(--rim-size) / 3) rgba(184, 51, 106, 0.6),
+    0px 0px 0px calc(var(--rim-size) / 3) rgba(212, 165, 116, 0.8),
+    0 0 20px rgba(212, 165, 116, 0.5);
 }
 
+/* Inner romantic chamber */
 .plate::before {
-  background: rgba(0, 0, 0, 0.65);
-  border: 1px solid var(--trim-secondary);
-  box-shadow: inset 0px 0px 0px 2px #404040;
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.9) 0%, 
+    rgba(13, 6, 24, 0.95) 50%, 
+    rgba(10, 5, 17, 0.9) 100%
+  );
+  border: 1px solid var(--accent-romantic);
+  box-shadow: 
+    inset 0px 0px 0px 2px rgba(139, 90, 158, 0.4),
+    0 0 15px rgba(184, 51, 106, 0.3);
   top: 12%;
   left: 12%;
   right: 12%;
@@ -168,6 +540,7 @@ body::-webkit-scrollbar-thumb {
   z-index: 1;
 }
 
+/* Romantic Number Segments - Cathedral Candles */
 .number {
   width: var(--pit-width);
   height: calc(var(--plate-size) / 2);
@@ -180,16 +553,35 @@ body::-webkit-scrollbar-thumb {
   background-color: transparent;
   border-left: calc(var(--pit-width) / 2) solid transparent;
   border-right: calc(var(--pit-width) / 2) solid transparent;
-  border-top: calc(var(--plate-size) / 2) solid black;
+  border-top: calc(var(--plate-size) / 2) solid rgba(10, 5, 17, 0.9);
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
+/* Red numbers - Deep crimson passion */
 .number:nth-child(odd) {
-  border-top-color: red;
+  border-top-color: var(--secondary-romantic);
+  filter: drop-shadow(0 0 8px rgba(184, 51, 106, 0.6));
 }
 
+/* Black numbers - Mysterious midnight */
+.number:nth-child(even):not(:nth-child(37)) {
+  border-top-color: rgba(10, 5, 17, 0.95);
+  filter: drop-shadow(0 0 8px rgba(139, 90, 158, 0.4));
+}
+
+/* Green zero - Romantic emerald */
 .number:nth-child(37) {
-  border-top-color: green;
+  border-top-color: rgba(139, 90, 158, 0.8);
+  filter: drop-shadow(0 0 12px rgba(139, 90, 158, 0.8));
+}
+
+/* Hover effect for interactive romance */
+.number:hover {
+  filter: 
+    drop-shadow(0 0 15px var(--neon-glow)) 
+    brightness(1.2);
+  transform: scale(1.02);
 }
 
 .number:nth-child(1) { transform: rotate(0deg); }
@@ -230,18 +622,40 @@ body::-webkit-scrollbar-thumb {
 .number:nth-child(36) { transform: rotate(340.55deg); }
 .number:nth-child(37) { transform: rotate(350.28deg); }
 
+/* Romantic Number Labels - Love Letter Typography */
 .pit {
-  color: #fff;
+  color: var(--romantic-text);
   padding-top: 12px;
   width: var(--pit-width);
   display: inline-block;
-  font-size: 12px;
+  font-size: calc(var(--mobile-font-small) * 0.9);
+  font-weight: 600;
   transform: scale(1, 1.8);
   position: absolute;
   top: calc(-1 * var(--plate-size) / 2);
   left: calc(-1 * var(--pit-width) / 2);
+  text-shadow: 
+    0 0 6px rgba(244, 233, 225, 0.8),
+    0 0 12px rgba(212, 165, 116, 0.4);
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.5px;
 }
 
+/* Tablet font size */
+@media (min-width: 768px) {
+  .pit {
+    font-size: calc(var(--tablet-font-small) * 0.9);
+  }
+}
+
+/* Desktop font size */
+@media (min-width: 1024px) {
+  .pit {
+    font-size: calc(var(--desktop-font-small) * 0.9);
+  }
+}
+
+/* Romantic Inner Wheel - Heart of the Market */
 .inner {
   display: block;
   height: var(--plate-size);
@@ -257,35 +671,83 @@ body::-webkit-scrollbar-thumb {
   border-radius: 50%;
 }
 
+/* Inner chamber with romantic ambiance */
 .inner::after {
   z-index: 3;
   top: 24%;
   right: 24%;
   bottom: 24%;
   left: 24%;
-  background-color: #111;
-  border: 3px solid #333;
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.9) 0%, 
+    rgba(15, 8, 28, 0.95) 50%, 
+    rgba(10, 5, 17, 0.9) 100%
+  );
+  border: 3px solid var(--accent-romantic);
+  box-shadow: 
+    0 0 20px rgba(139, 90, 158, 0.6),
+    inset 0 0 15px rgba(212, 165, 116, 0.1);
 }
 
+/* Romantic ball - Glowing market heartbeat */
 .inner::before {
   top: 24%;
   bottom: 21%;
   left: 24%;
   right: 22%;
-  content: "\2022";
-  color: #fff;
-  font-size: 60px;
+  content: "♡";
+  color: var(--primary-romantic);
+  font-size: calc(var(--mobile-font-xl) * 1.5);
   z-index: 5;
   border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 
+    0 0 20px var(--neon-glow),
+    0 0 40px var(--heart-pulse);
+  animation: heartbeat 2s infinite ease-in-out;
 }
 
+@keyframes heartbeat {
+  0%, 100% { 
+    transform: scale(1);
+    text-shadow: 
+      0 0 20px var(--neon-glow),
+      0 0 40px var(--heart-pulse);
+  }
+  50% { 
+    transform: scale(1.1);
+    text-shadow: 
+      0 0 30px var(--neon-glow),
+      0 0 60px var(--heart-pulse);
+  }
+}
+
+/* Tablet & Desktop heart size */
+@media (min-width: 768px) {
+  .inner::before {
+    font-size: calc(var(--tablet-font-xl) * 1.5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .inner::before {
+    font-size: calc(var(--desktop-font-xl) * 1.5);
+  }
+}
+
+/* Rest state - Peaceful romantic pause */
 .inner.rest::before {
-  transition: top 0.5s ease-in, right 0.5s ease-in, bottom 0.5s ease-in,
-    left 0.5s ease-in;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   top: 25%;
   right: 25%;
   bottom: 24%;
   left: 25%;
+  animation: none;
+  text-shadow: 
+    0 0 15px var(--neon-glow),
+    0 0 30px var(--heart-pulse);
 }
 
 /* Spin results positions */
@@ -327,11 +789,7 @@ body::-webkit-scrollbar-thumb {
 .inner[data-spinto="36"]::before { transform: rotateZ(-2523deg); }
 .inner[data-spinto="0"]::before { transform: rotateZ(-2833deg); }
 
-@keyframes rotate {
-  0% { transform: rotateZ(0deg); }
-  100% { transform: rotateZ(360deg); }
-}
-
+/* Romantic Data Display - Love Letter Reveal */
 .data {
   display: block;
   position: absolute;
@@ -340,9 +798,23 @@ body::-webkit-scrollbar-thumb {
   bottom: 30%;
   left: 30%;
   border-radius: 50%;
-  animation: rotate 24s reverse linear infinite;
+  animation: romanticFloat 30s reverse linear infinite;
   perspective: 2000px;
   z-index: 100;
+}
+
+@keyframes romanticFloat {
+  0% { 
+    transform: rotate(0deg);
+    filter: drop-shadow(0 0 20px rgba(212, 165, 116, 0.4));
+  }
+  50% { 
+    filter: drop-shadow(0 0 30px rgba(184, 51, 106, 0.5));
+  }
+  100% { 
+    transform: rotate(360deg);
+    filter: drop-shadow(0 0 20px rgba(212, 165, 116, 0.4));
+  }
 }
 
 .data-inner {
@@ -350,7 +822,7 @@ body::-webkit-scrollbar-thumb {
   width: 100%;
   height: 100%;
   text-align: center;
-  transition: transform 0.72s;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
 
@@ -369,39 +841,106 @@ body::-webkit-scrollbar-thumb {
   border-radius: 50%;
   overflow: hidden;
   display: inline-block;
+  backdrop-filter: blur(8px);
 }
 
+/* Love letter mask */
 .mask {
-  color: #fff;
-  font-size: 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--romantic-text);
+  font-size: calc(var(--mobile-font-large) * 0.8);
   margin: auto;
-  line-height: 1.4;
-  padding-top: 36px;
+  line-height: 1.6;
+  padding-top: 35%;
+  text-shadow: var(--text-glow);
+  font-family: 'Libre Baskerville', serif;
+  box-shadow: 
+    0 0 30px rgba(212, 165, 116, 0.2),
+    inset 0 0 20px rgba(244, 233, 225, 0.05);
 }
 
+/* Romantic result display */
 .result {
-  background-color: green;
-  color: white;
+  background: linear-gradient(135deg, 
+    var(--secondary-romantic) 0%, 
+    var(--accent-romantic) 50%, 
+    var(--primary-romantic) 100%
+  );
+  color: var(--romantic-text);
   transform: rotateY(180deg);
   align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 2px solid var(--primary-romantic);
+  box-shadow: 
+    0 0 40px var(--heart-pulse),
+    inset 0 0 30px rgba(244, 233, 225, 0.1);
 }
 
 .result-number {
-  font-size: 72px;
-  font-weight: 500;
+  font-size: calc(var(--mobile-font-xl) * 2);
+  font-weight: 700;
   line-height: 1.2;
-  margin-top: 12px;
+  margin-top: 8px;
+  text-shadow: 
+    0 0 20px rgba(244, 233, 225, 0.8),
+    0 0 40px var(--neon-glow);
+  font-family: 'DM Sans', sans-serif;
 }
 
 .result-color {
-  text-transform: uppercase;
-  font-size: 21px;
+  text-transform: capitalize;
+  font-size: var(--mobile-font-large);
   line-height: 1;
+  font-weight: 500;
+  text-shadow: var(--text-glow);
+  margin-top: 4px;
+  letter-spacing: 1px;
 }
 
+/* Tablet & Desktop result sizing */
+@media (min-width: 768px) {
+  .mask {
+    font-size: calc(var(--tablet-font-large) * 0.8);
+  }
+  
+  .result-number {
+    font-size: calc(var(--tablet-font-xl) * 2);
+  }
+  
+  .result-color {
+    font-size: var(--tablet-font-large);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mask {
+    font-size: calc(var(--desktop-font-large) * 0.8);
+  }
+  
+  .result-number {
+    font-size: calc(var(--desktop-font-xl) * 2);
+  }
+  
+  .result-color {
+    font-size: var(--desktop-font-large);
+  }
+}
+
+/* Romantic Previous Results - Market Memory Lane */
 .previous-results {
   max-width: var(--plate-size);
   margin: 24px 12px;
+  padding: var(--mobile-padding);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--mobile-border-radius);
+  box-shadow: 
+    0 8px 32px var(--soft-shadow),
+    0 0 20px rgba(212, 165, 116, 0.1);
 }
 
 .previous-list {
@@ -410,23 +949,134 @@ body::-webkit-scrollbar-thumb {
 
 .previous-result {
   display: flex;
-  margin: 1px;
-  padding: 12px;
-  color: #fff;
+  margin: 2px 0;
+  padding: var(--mobile-padding);
+  color: var(--romantic-text);
+  border-radius: calc(var(--mobile-border-radius) * 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.previous-result::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(212, 165, 116, 0.1), 
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.previous-result:hover {
+  border-color: var(--glass-border);
+  box-shadow: 
+    0 4px 16px var(--soft-shadow),
+    0 0 20px rgba(212, 165, 116, 0.2);
+  transform: translateY(-1px);
+}
+
+.previous-result:hover::before {
+  left: 100%;
 }
 
 .previous-result:first-child {
-  animation: flipin 0.48s ease-out;
+  animation: romanticFlipIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  border-color: var(--primary-romantic);
+  box-shadow: 
+    0 0 25px var(--heart-pulse),
+    inset 0 0 15px rgba(212, 165, 116, 0.1);
+}
+
+@keyframes romanticFlipIn {
+  0% { 
+    transform: rotateX(90deg) scale(0.8);
+    opacity: 0;
+  }
+  50% { 
+    transform: rotateX(45deg) scale(1.05);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: rotateX(0deg) scale(1);
+    opacity: 1;
+  }
 }
 
 .previous-number {
   flex: 1;
+  font-weight: 600;
+  font-size: var(--mobile-font-base);
+  text-shadow: var(--text-glow);
 }
 
-.color-green { background-color: green; }
-.color-black { background-color: black; }
-.color-red { background-color: red; }
+/* Tablet & Desktop previous results */
+@media (min-width: 768px) {
+  .previous-results {
+    padding: var(--tablet-padding);
+    border-radius: var(--tablet-border-radius);
+  }
+  
+  .previous-result {
+    padding: var(--tablet-padding);
+  }
+  
+  .previous-number {
+    font-size: var(--tablet-font-base);
+  }
+}
 
+@media (min-width: 1024px) {
+  .previous-results {
+    padding: var(--desktop-padding);
+    border-radius: var(--desktop-border-radius);
+  }
+  
+  .previous-result {
+    padding: var(--desktop-padding);
+  }
+  
+  .previous-number {
+    font-size: var(--desktop-font-base);
+  }
+}
+
+/* Romantic Color Coding - Passionate Market Emotions */
+.color-green { 
+  background: linear-gradient(135deg, 
+    rgba(139, 90, 158, 0.8) 0%, 
+    rgba(139, 90, 158, 0.6) 100%
+  );
+  border: 1px solid rgba(139, 90, 158, 0.4);
+  box-shadow: 0 0 15px rgba(139, 90, 158, 0.3);
+}
+
+.color-black { 
+  background: linear-gradient(135deg, 
+    rgba(10, 5, 17, 0.9) 0%, 
+    rgba(15, 8, 28, 0.8) 100%
+  );
+  border: 1px solid rgba(139, 90, 158, 0.3);
+  box-shadow: 0 0 12px rgba(139, 90, 158, 0.2);
+}
+
+.color-red { 
+  background: linear-gradient(135deg, 
+    rgba(184, 51, 106, 0.8) 0%, 
+    rgba(184, 51, 106, 0.6) 100%
+  );
+  border: 1px solid rgba(184, 51, 106, 0.4);
+  box-shadow: 0 0 15px rgba(184, 51, 106, 0.3);
+}
+
+/* Accessibility helper - keeping visually hidden but romantic */
 .visuallyhidden {
   position: absolute;
   overflow: hidden;
@@ -438,7 +1088,215 @@ body::-webkit-scrollbar-thumb {
   border: 0;
 }
 
+/* Keep the original flipin as romanticFlipIn fallback */
 @keyframes flipin {
   0% { transform: rotateX(90deg); }
   100% { transform: rotateX(0deg); }
+}
+
+/* Additional Romantic UI Components - Mobile First */
+
+/* Glassmorphism Cards */
+.romantic-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--mobile-border-radius);
+  padding: var(--mobile-padding);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 8px 32px var(--soft-shadow),
+    0 0 20px rgba(212, 165, 116, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.romantic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--primary-romantic), 
+    transparent
+  );
+  opacity: 0.6;
+}
+
+.romantic-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-romantic);
+  box-shadow: 
+    0 12px 48px var(--soft-shadow),
+    0 0 40px var(--heart-pulse);
+}
+
+/* Romantic Input Fields */
+.romantic-input {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--mobile-border-radius);
+  padding: calc(var(--mobile-padding) * 0.8);
+  color: var(--romantic-text);
+  font-size: var(--mobile-font-base);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.romantic-input::placeholder {
+  color: rgba(244, 233, 225, 0.5);
+  font-style: italic;
+}
+
+.romantic-input:focus {
+  outline: none;
+  border-color: var(--primary-romantic);
+  box-shadow: 
+    0 0 20px var(--heart-pulse),
+    inset 0 0 10px rgba(212, 165, 116, 0.1);
+  background: var(--romantic-focus);
+}
+
+/* Romantic Buttons */
+.romantic-button {
+  background: linear-gradient(135deg, 
+    var(--primary-romantic) 0%, 
+    var(--secondary-romantic) 100%
+  );
+  border: 1px solid var(--primary-romantic);
+  border-radius: var(--mobile-border-radius);
+  color: var(--romantic-text);
+  padding: calc(var(--mobile-padding) * 0.8) var(--mobile-padding);
+  font-size: var(--mobile-font-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.romantic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(244, 233, 225, 0.2), 
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.romantic-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px var(--soft-shadow),
+    0 0 30px var(--heart-pulse);
+  background: linear-gradient(135deg, 
+    var(--secondary-romantic) 0%, 
+    var(--accent-romantic) 100%
+  );
+}
+
+.romantic-button:hover::before {
+  left: 100%;
+}
+
+.romantic-button:active {
+  transform: translateY(-1px);
+}
+
+/* Tablet & Desktop component scaling */
+@media (min-width: 768px) {
+  .romantic-card {
+    border-radius: var(--tablet-border-radius);
+    padding: var(--tablet-padding);
+  }
+  
+  .romantic-input {
+    border-radius: var(--tablet-border-radius);
+    padding: calc(var(--tablet-padding) * 0.8);
+    font-size: var(--tablet-font-base);
+  }
+  
+  .romantic-button {
+    border-radius: var(--tablet-border-radius);
+    padding: calc(var(--tablet-padding) * 0.8) var(--tablet-padding);
+    font-size: var(--tablet-font-base);
+  }
+}
+
+@media (min-width: 1024px) {
+  .romantic-card {
+    border-radius: var(--desktop-border-radius);
+    padding: var(--desktop-padding);
+  }
+  
+  .romantic-input {
+    border-radius: var(--desktop-border-radius);
+    padding: calc(var(--desktop-padding) * 0.8);
+    font-size: var(--desktop-font-base);
+  }
+  
+  .romantic-button {
+    border-radius: var(--desktop-border-radius);
+    padding: calc(var(--desktop-padding) * 0.8) var(--desktop-padding);
+    font-size: var(--desktop-font-base);
+  }
+}
+
+/* Jazz Midnight Loading Animation */
+@keyframes jazzLoading {
+  0% { 
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  25% { 
+    transform: rotate(90deg) scale(1.1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: rotate(180deg) scale(1);
+    opacity: 0.6;
+  }
+  75% { 
+    transform: rotate(270deg) scale(1.1);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.romantic-loading {
+  animation: jazzLoading 2s infinite ease-in-out;
+}
+
+/* Market Prayer Pulse */
+@keyframes marketPrayer {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.4),
+      0 0 40px rgba(184, 51, 106, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 40px rgba(212, 165, 116, 0.6),
+      0 0 80px rgba(184, 51, 106, 0.4);
+  }
+}
+
+.market-prayer {
+  animation: marketPrayer 3s infinite ease-in-out;
 }
