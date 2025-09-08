@@ -231,75 +231,25 @@ export default function Slots() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <StyledSlotsBackground>
-            {/* Enhanced background for Slots game */}
-            <div className="slots-bg-elements" />
-            <div className="casino-bg-elements" />
-            <div className="decorative-overlay" />
-            
-            <StyledSlots>
-              <GameplayFrame 
-                ref={effectsRef}
-                {...(useGameMeta('slots') && { 
-                  title: useGameMeta('slots')!.name, 
-                  description: useGameMeta('slots')!.description 
-                })}
-                disableContainerTransforms={true}
-              >
-                {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
+        <StyledSlotsBackground>
+          {/* Enhanced background for Slots game */}
+          <div className="slots-bg-elements" />
+          <div className="casino-bg-elements" />
+          <div className="decorative-overlay" />
+          
+          <StyledSlots>
+            <GameplayFrame 
+              ref={effectsRef}
+              {...(useGameMeta('slots') && { 
+                title: useGameMeta('slots')!.name, 
+                description: useGameMeta('slots')!.description 
+              })}
+              disableContainerTransforms={true}
+            >
+              {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
+              <GambaUi.Responsive>
                 <div className="slots-content">
                   <div className={'slots'}>
-                    <div className="slots-reels-container">
-                      <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
-                        {/* ECG-style winning line */}
-                        <div className={`ecg-winning-line ${good ? 'active' : ''}`}></div>
-                        
-                        {/* Left Arrow */}
-                        <div className="winning-line-arrow winning-line-arrow-left">
-                          <div className="arrow-icon">▶</div>
-                        </div>
-                        
-                        {Array.from({ length: NUM_REELS }).map((_, reelIndex) => {
-                          const reelItems = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                            const slotIndex = reelIndex * NUM_ROWS + rowIndex
-                            return combination[slotIndex]
-                          })
-                          
-                          const reelGoodSlots = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                            const slotIndex = reelIndex * NUM_ROWS + rowIndex
-                            return good && winningPaylines.some(line => line.payline.includes(slotIndex))
-                          })
-                          
-                          const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
-                          
-                          console.log(`🎰 RENDERING REEL ${reelIndex}:`, {
-                            reelRevealed,
-                            isSpinning: spinning && !reelRevealed,
-                            enableMotion: settings.enableMotion,
-                            reelItems: reelItems.map(i => i.multiplier),
-                            reelGoodSlots
-                          })
-                          
-                          return (
-                            <Reel
-                              key={reelIndex}
-                              reelIndex={reelIndex}
-                              revealed={reelRevealed}
-                              good={reelGoodSlots}
-                              items={reelItems}
-                              isSpinning={spinning && !reelRevealed}
-                              enableMotion={settings.enableMotion}
-                            />
-                          )
-                        })}
-                        
-                        {/* Right Arrow */}
-                        <div className="winning-line-arrow winning-line-arrow-right">
-                          <div className="arrow-icon">◀</div>
-                        </div>
-                      </div>
-                    </div>
                     <div className="winning-line-display">
                       <ItemPreview 
                         betArray={[...bet]} 
@@ -307,12 +257,60 @@ export default function Slots() {
                         isWinning={good}
                       />
                     </div>
+                    <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
+                      {/* ECG-style winning line */}
+                      <div className={`ecg-winning-line ${good ? 'active' : ''}`}></div>
+                      
+                      {/* Left Arrow */}
+                      <div className="winning-line-arrow winning-line-arrow-left">
+                        <div className="arrow-icon">▶</div>
+                      </div>
+                      
+                      {Array.from({ length: NUM_REELS }).map((_, reelIndex) => {
+                        const reelItems = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
+                          return combination[slotIndex]
+                        })
+                        
+                        const reelGoodSlots = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
+                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
+                          return good && winningPaylines.some(line => line.payline.includes(slotIndex))
+                        })
+                        
+                        const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
+                        
+                        console.log(`🎰 RENDERING REEL ${reelIndex}:`, {
+                          reelRevealed,
+                          isSpinning: spinning && !reelRevealed,
+                          enableMotion: settings.enableMotion,
+                          reelItems: reelItems.map(i => i.multiplier),
+                          reelGoodSlots
+                        })
+                        
+                        return (
+                          <Reel
+                            key={reelIndex}
+                            reelIndex={reelIndex}
+                            revealed={reelRevealed}
+                            good={reelGoodSlots}
+                            items={reelItems}
+                            isSpinning={spinning && !reelRevealed}
+                            enableMotion={settings.enableMotion}
+                          />
+                        )
+                      })}
+                      
+                      {/* Right Arrow */}
+                      <div className="winning-line-arrow winning-line-arrow-right">
+                        <div className="arrow-icon">◀</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </GameplayFrame>
-            </StyledSlots>
-          </StyledSlotsBackground>
-        </GambaUi.Responsive>
+              </GambaUi.Responsive>
+            </GameplayFrame>
+          </StyledSlots>
+        </StyledSlotsBackground>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls
@@ -323,13 +321,7 @@ export default function Slots() {
           playText="Spin"
         />
         
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={play}
-          playDisabled={!isValid}
-          playText="Spin"
-        >
+        <DesktopControls>
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin

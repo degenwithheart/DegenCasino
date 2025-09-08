@@ -21,50 +21,7 @@ const loveLetterSparkle = keyframes`
     transform: rotate(20deg) scale(1);
     text-shadow: 
       0 0 25px rgba(184, 51, 106, 0.5),
-      3px   /* Mobile responsive adjustments */
-  @media (max-width: 480px) {
-    .slots-content .slots {
-      flex-direction: column !important;
-      gap: 15px;
-      padding: 15px;
-    }
-
-    .winning-line-display {
-      width: 100%;
-      border-left: none;
-      border-top: 2px solid rgba(147, 51, 234, 0.3);
-      border-radius: 0 0 20px 20px;
-      padding: 15px 20px;
-      
-      &::before {
-        content: 'WINNING COMBOS';
-        position: absolute;
-        top: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 10px;
-        font-weight: bold;
-        color: rgba(147, 51, 234, 0.8);
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
-    }
-
-    .slots-reels {
-      gap: 2px;
-      padding: 15px 4px;
-    }
-
-    .winning-line-arrow {
-      width: 20px;
-      display: none;
-    }
-
-    .arrow-icon {
-      font-size: 16px;
-    }
-  } 5, 17, 0.8);
+      3px 3px 8px rgba(10, 5, 17, 0.8);
   }
   50% { 
     transform: rotate(25deg) scale(1.08);
@@ -395,10 +352,10 @@ export const StyledSlots = styled.div`
     100% { transform: scale(1.02); }
   }
 
-  .slots-content .slots {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px;
+  .slots {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     justify-content: center;
     box-sizing: border-box;
     border-radius: 25px;
@@ -408,7 +365,7 @@ export const StyledSlots = styled.div`
         rgba(15, 15, 25, 0.95) 50%,
         rgba(20, 20, 30, 0.9) 100%
       );
-    padding: 20px;
+    padding: 0;
     border: 3px solid transparent;
     background-image: 
       linear-gradient(145deg, rgba(30, 30, 30, 0.9), rgba(15, 15, 25, 0.95)),
@@ -427,10 +384,8 @@ export const StyledSlots = styled.div`
       inset 0 2px 0 rgba(255, 255, 255, 0.1),
       inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     position: relative;
-    min-height: 400px;
+    min-height: 300px;
     overflow: hidden;
-    /* Force layout update */
-    transform: translateZ(0);
     
     &::before {
       content: '';
@@ -459,50 +414,35 @@ export const StyledSlots = styled.div`
         rgba(20, 15, 30, 0.9) 50%,
         rgba(15, 10, 25, 0.95) 100%
       );
-    border-left: 2px solid rgba(147, 51, 234, 0.3);
-    padding: 20px 15px;
-    border-radius: 0 20px 20px 0;
+    border-bottom: 2px solid rgba(147, 51, 234, 0.3);
+    padding: 20px 30px;
+    border-radius: 22px 22px 0 0;
     position: relative;
-    width: 120px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     
     &::before {
-      content: 'WINNING COMBOS';
+      content: 'WINNING COMBINATIONS';
       position: absolute;
       top: 8px;
       left: 50%;
-      transform: translateX(-50%) rotate(-90deg);
+      transform: translateX(-50%);
       font-size: 10px;
       font-weight: bold;
       color: rgba(147, 51, 234, 0.8);
       letter-spacing: 1px;
       text-transform: uppercase;
-      white-space: nowrap;
-      transform-origin: center;
     }
-  }
-
-  .slots-reels-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .slots-reels {
     display: flex;
-    gap: 12px;
+    gap: 12px; /* Reduced gap for 6 reels */
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 40px 20px; /* Reduced horizontal padding */
     flex: 1;
     perspective: 800px;
-    transform: rotateX(-5deg);
+    transform: rotateX(-5deg); /* Slight tilt so top appears further back */
     position: relative;
-    max-width: 600px;
   }
 
   .winning-line-arrow {
@@ -532,27 +472,27 @@ export const StyledSlots = styled.div`
       0 0 20px rgba(255, 215, 0, 0.6),
       0 0 30px rgba(255, 215, 0, 0.4);
     animation: arrowPulse 2s ease-in-out infinite;
-    /* Position the arrow to align perfectly with the ECG line on center */
-    transform: translateY(-50px); /* Fine-tuned to match ECG line exactly */
+    /* Position the arrow to align perfectly with the ECG line on 3rd row */
+    transform: translateY(48px); /* Fine-tuned to match ECG line exactly */
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
   }
 
   .winning-line-arrow-left .arrow-icon {
-    transform: translateY(-50px) rotate(0deg);
+    transform: translateY(48px) rotate(0deg);
   }
 
   .winning-line-arrow-right .arrow-icon {
-    transform: translateY(-50px) rotate(0deg);
+    transform: translateY(48px) rotate(0deg);
   }
 
   @keyframes arrowPulse {
     0%, 100% {
       opacity: 0.7;
-      transform: translateY(-50px) scale(1); /* Updated to match ECG line exactly */
+      transform: translateY(48px) scale(1); /* Updated to match ECG line exactly */
     }
     50% {
       opacity: 1;
-      transform: translateY(-50px) scale(1.1); /* Updated to match ECG line exactly */
+      transform: translateY(48px) scale(1.1); /* Updated to match ECG line exactly */
     }
   }
 
@@ -566,7 +506,7 @@ export const StyledSlots = styled.div`
     background: transparent;
     z-index: 15;
     pointer-events: none;
-    transform: translateY(-50px); /* Position at center of reels area */
+    transform: translateY(50px); /* Position at 3rd row */
     opacity: 0;
     transition: opacity 0.3s ease;
     
@@ -672,24 +612,13 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 481px) and (max-width: 640px) {
-    .slots-content .slots {
-      flex-direction: row !important;
-      gap: 15px;
-      padding: 15px;
-    }
-
-    .winning-line-display {
-      width: 100px;
-      padding: 15px 10px;
-    }
-
     .slots-reels {
-      gap: 4px;
-      padding: 20px 8px;
+      gap: 4px; /* Tighter gap for 6 reels on mobile */
+      padding: 20px 8px; /* Reduced padding for mobile */
     }
 
     .winning-line-arrow {
-      width: 25px;
+      width: 25px; /* Smaller arrows for mobile */
     }
 
     .winning-line-arrow-left {
@@ -701,24 +630,13 @@ export const StyledSlots = styled.div`
     }
 
     .arrow-icon {
-      font-size: 20px;
+      font-size: 20px; /* Smaller arrow icons */
     }
   }
 
   @media (min-width: 641px) and (max-width: 768px) {
-    .slots-content .slots {
-      flex-direction: row !important;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .winning-line-display {
-      width: 110px;
-      padding: 18px 12px;
-    }
-
     .slots-reels {
-      gap: 6px;
+      gap: 6px; /* Tighter gap for tablets */
       padding: 25px 12px;
     }
 
@@ -740,17 +658,6 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 769px) and (max-width: 899px) {
-    .slots-content .slots {
-      flex-direction: row !important;
-      gap: 25px;
-      padding: 25px;
-    }
-
-    .winning-line-display {
-      width: 115px;
-      padding: 20px 12px;
-    }
-
     .slots-reels {
       gap: 8px;
       padding: 30px 15px;
@@ -774,19 +681,8 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 900px) {
-    .slots-content .slots {
-      flex-direction: row !important;
-      gap: 30px;
-      padding: 30px;
-    }
-
-    .winning-line-display {
-      width: 130px;
-      padding: 25px 15px;
-    }
-
     .slots-reels {
-      gap: 10px;
+      gap: 10px; /* Slightly reduced for 6 reels */
       padding: 35px 18px;
     }
 

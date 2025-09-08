@@ -92,7 +92,7 @@ const GraphicsContext = createContext<{
   settings: {
     quality: 'high',
     enableEffects: false,
-    enableMotion: true,
+    enableMotion: false,
     performanceMode: false
   },
   updateSettings: () => {}
@@ -108,8 +108,8 @@ export const useGraphics = () => {
 }
 
 /**
- * PREDEFINED THEMES WITH ENHANCED BACKGROUNDS
- * Brand new collection of 6 immersive casino themes with rich styling
+ * PREDEFINED THEMES
+ * Brand new collection of 6 casino themes
  */
 export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
   midnight: {
@@ -140,16 +140,12 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#ff4757',
     particleWin: '#1e90ff',
     particleLose: '#ff69b4',
-    gradientPrimary: `
-      linear-gradient(135deg, #0b0c10 0%, #1e90ff15 25%, #4b008220 50%, #00ced115 75%, #0b0c10 100%),
-      radial-gradient(circle at 20% 30%, #1e90ff20 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, #ff69b420 0%, transparent 50%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #1e90ff, #4b0082)',
     gradientSecondary: 'linear-gradient(135deg, #00ced1, #ff69b4)',
     gradientAccent: 'linear-gradient(135deg, #4b0082, #1e90ff)',
     shadowColor: '#1e90ff40',
     glowColor: '#1e90ff60',
-    description: 'A luxurious midnight casino with deep blues and neon highlights 🌙💎⭐',
+    description: 'A luxurious midnight casino with deep blues and neon highlights',
     category: 'dark',
     isDarkMode: true
   },
@@ -181,16 +177,12 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#ff2400',
     particleWin: '#ff4500',
     particleLose: '#ff6347',
-    gradientPrimary: `
-      linear-gradient(135deg, #1a0f0f 0%, #dc143c20 25%, #ff634720 50%, #ffd70015 75%, #1a0f0f 100%),
-      radial-gradient(circle at 25% 25%, #dc143c25 0%, transparent 60%),
-      radial-gradient(circle at 75% 75%, #ff450025 0%, transparent 60%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #dc143c, #ff6347)',
     gradientSecondary: 'linear-gradient(135deg, #ff4500, #ffd700)',
     gradientAccent: 'linear-gradient(135deg, #ff2400, #dc143c)',
     shadowColor: '#dc143c40',
     glowColor: '#ff634760',
-    description: 'Fiery crimson tones with royal luxury 👑🔥♠️',
+    description: 'Fiery crimson tones with royal luxury',
     category: 'classic',
     isDarkMode: true
   },
@@ -222,16 +214,12 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#ff1744',
     particleWin: '#80d8ff',
     particleLose: '#ff4081',
-    gradientPrimary: `
-      linear-gradient(135deg, #0f1a20 0%, #00e5ff20 25%, #80d8ff15 50%, #b3e5fc10 75%, #0f1a20 100%),
-      radial-gradient(circle at 30% 20%, #00e5ff30 0%, transparent 50%),
-      radial-gradient(circle at 70% 80%, #80d8ff25 0%, transparent 50%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #00e5ff, #80d8ff)',
     gradientSecondary: 'linear-gradient(135deg, #b3e5fc, #00e5ff)',
     gradientAccent: 'linear-gradient(135deg, #40c4ff, #00e5ff)',
     shadowColor: '#00e5ff40',
     glowColor: '#80d8ff60',
-    description: 'A cool, icy atmosphere with frosted neon lights ❄️💎🏔️',
+    description: 'A cool, icy atmosphere with frosted neon lights',
     category: 'frost',
     isDarkMode: true
   },
@@ -263,16 +251,12 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#e60026',
     particleWin: '#ffb400',
     particleLose: '#ff004c',
-    gradientPrimary: `
-      linear-gradient(135deg, #1a0f05 0%, #ffb40025 25%, #ff730020 50%, #ff450015 75%, #1a0f05 100%),
-      radial-gradient(circle at 40% 30%, #ffb40030 0%, transparent 60%),
-      radial-gradient(circle at 60% 70%, #ff730025 0%, transparent 60%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #ffb400, #ff7300)',
     gradientSecondary: 'linear-gradient(135deg, #ff4500, #ff004c)',
     gradientAccent: 'linear-gradient(135deg, #ff7300, #ffd700)',
     shadowColor: '#ff730040',
     glowColor: '#ffb40060',
-    description: 'Blazing sunbursts and fiery casino energy ☀️🔥⚡',
+    description: 'Blazing sunbursts and fiery casino energy',
     category: 'fire',
     isDarkMode: true
   },
@@ -304,16 +288,12 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#ff1744',
     particleWin: '#00e676',
     particleLose: '#ff4081',
-    gradientPrimary: `
-      linear-gradient(135deg, #0f1a10 0%, #00c85325 25%, #64dd1720 50%, #aeea0015 75%, #0f1a10 100%),
-      radial-gradient(circle at 25% 35%, #00c85330 0%, transparent 55%),
-      radial-gradient(circle at 75% 65%, #64dd1725 0%, transparent 55%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #00c853, #64dd17)',
     gradientSecondary: 'linear-gradient(135deg, #aeea00, #00e676)',
     gradientAccent: 'linear-gradient(135deg, #00c853, #4caf50)',
     shadowColor: '#00c85340',
     glowColor: '#64dd1760',
-    description: 'Mystical jade-inspired theme with Eastern elegance 🐉💚🎋',
+    description: 'Mystical jade-inspired theme with Eastern elegance',
     category: 'nature',
     isDarkMode: true
   },
@@ -345,58 +325,13 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     loseGlow: '#dc143c',
     particleWin: '#4169e1',
     particleLose: '#ff69b4',
-    gradientPrimary: `
-      linear-gradient(135deg, #0f0f1a 0%, #9370db25 25%, #6a5acd20 50%, #4169e115 75%, #0f0f1a 100%),
-      radial-gradient(circle at 35% 25%, #9370db30 0%, transparent 50%),
-      radial-gradient(circle at 65% 75%, #ff69b425 0%, transparent 50%)
-    `,
+    gradientPrimary: 'linear-gradient(135deg, #9370db, #4169e1)',
     gradientSecondary: 'linear-gradient(135deg, #6a5acd, #ff69b4)',
     gradientAccent: 'linear-gradient(135deg, #9370db, #ff69b4)',
     shadowColor: '#9370db40',
     glowColor: '#9370db60',
-    description: 'Dreamy starlit purples and cosmic casino allure 🌌💫🔮',
+    description: 'Dreamy starlit purples and cosmic casino allure',
     category: 'cosmic',
-    isDarkMode: true
-  },
-  romantic: {
-    name: 'Romantic Degen',
-    primary: '#d4a574',      // love-letter-gold
-    secondary: '#b8336a',    // deep-crimson-rose  
-    tertiary: '#8b5a9e',     // soft-purple-twilight
-    accent: '#0a0511',       // deep-romantic-night
-    background: '#0a0511',
-    success: '#d4a574',
-    warning: '#b8336a',
-    danger: '#8b5a9e',
-    info: '#d4a574',
-    border: '#d4a574',
-    borderHover: '#b8336a',
-    text: '#d4a574',
-    textSecondary: '#b8336a',
-    textMuted: '#8b5a9e',
-    surface: '#0a0511',
-    surfaceHover: '#1a0f15',
-    overlay: '#0a051199',
-    button: '#d4a574',
-    buttonHover: '#b8336a',
-    buttonText: '#0a0511',
-    input: '#1a0f15',
-    inputBorder: '#d4a57440',
-    winGlow: '#d4a574',
-    loseGlow: '#b8336a',
-    particleWin: '#d4a574',
-    particleLose: '#8b5a9e',
-    gradientPrimary: `
-      linear-gradient(135deg, #0a0511 0%, #d4a57420 25%, #b8336a15 50%, #8b5a9e20 75%, #0a0511 100%),
-      radial-gradient(circle at 25% 25%, #d4a57425 0%, transparent 60%),
-      radial-gradient(circle at 75% 75%, #b8336a20 0%, transparent 60%)
-    `,
-    gradientSecondary: 'linear-gradient(135deg, #b8336a, #8b5a9e)',
-    gradientAccent: 'linear-gradient(135deg, #d4a574, #b8336a)',
-    shadowColor: '#d4a57440',
-    glowColor: '#b8336a60',
-    description: 'Candlesticks rise like candles in a cathedral, slow-burn degen serenade 💕🕯️🌹',
-    category: 'classic',
     isDarkMode: true
   }
 }
@@ -454,7 +389,7 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
         const loadedSettings: GraphicsSettings = { 
           quality: parsed.quality || (performanceMode ? 'low' : 'high'),
           enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : false,
-          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : true,
+          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : false,
           performanceMode
         }
         
@@ -473,7 +408,7 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
     return {
       quality: performanceMode ? 'low' : 'high',
       enableEffects: false,  // Default to OFF - accessibility feature for enhanced visual feedback
-      enableMotion: true,    // Default to ON - animations and motion enabled by default
+      enableMotion: false,   // Default to OFF - motion needs enhancement
       performanceMode
     }
   })
@@ -634,304 +569,6 @@ const EffectsContainer = styled(motion.div)<{
   
   &.flashing::before {
     opacity: var(--flash-intensity, 0.3);
-  }
-`
-
-/**
- * ENHANCED THEME BACKGROUND COMPONENT
- * Provides rich, immersive backgrounds with floating emoji elements for each theme
- */
-const EnhancedThemeBackground = styled.div<{
-  theme: string
-  enableMotion: boolean
-}>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-
-  /* Midnight Luxe Theme - Luxurious midnight casino */
-  ${props => props.theme === 'midnight' && `
-    &::before {
-      content: '🌙';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #1e90ff;
-      text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7);
-      ${props.enableMotion ? 'animation: midnightFloat 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '💎';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #ff69b4;
-      text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.7);
-      ${props.enableMotion ? 'animation: luxeSparkle 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Crimson Royale Theme - Fiery royal casino */
-  ${props => props.theme === 'crimson' && `
-    &::before {
-      content: '👑';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #ffd700;
-      text-shadow: 3px 3px 8px rgba(26, 15, 15, 0.8);
-      ${props.enableMotion ? 'animation: royalGlow 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '🔥';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #ff4500;
-      text-shadow: 3px 3px 8px rgba(26, 15, 15, 0.8);
-      ${props.enableMotion ? 'animation: crimsonFlame 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Arctic Frost Theme - Cool icy atmosphere */
-  ${props => props.theme === 'arctic' && `
-    &::before {
-      content: '❄️';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #00e5ff;
-      text-shadow: 3px 3px 8px rgba(15, 26, 32, 0.8);
-      ${props.enableMotion ? 'animation: frostFloat 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '🏔️';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #80d8ff;
-      text-shadow: 3px 3px 8px rgba(15, 26, 32, 0.8);
-      ${props.enableMotion ? 'animation: glacialShimmer 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Solar Flare Theme - Blazing energy */
-  ${props => props.theme === 'solar' && `
-    &::before {
-      content: '☀️';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #ffb400;
-      text-shadow: 3px 3px 8px rgba(26, 15, 5, 0.8);
-      ${props.enableMotion ? 'animation: solarPulse 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '⚡';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #ff7300;
-      text-shadow: 3px 3px 8px rgba(26, 15, 5, 0.8);
-      ${props.enableMotion ? 'animation: lightningStrike 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Jade Dynasty Theme - Mystical Eastern elegance */
-  ${props => props.theme === 'jade' && `
-    &::before {
-      content: '🐉';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #00c853;
-      text-shadow: 3px 3px 8px rgba(15, 26, 16, 0.8);
-      ${props.enableMotion ? 'animation: dragonDance 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '🎋';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #64dd17;
-      text-shadow: 3px 3px 8px rgba(15, 26, 16, 0.8);
-      ${props.enableMotion ? 'animation: bambooSway 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Starlight Mirage Theme - Cosmic casino allure */
-  ${props => props.theme === 'starlight' && `
-    &::before {
-      content: '🌌';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #9370db;
-      text-shadow: 3px 3px 8px rgba(15, 15, 26, 0.8);
-      ${props.enableMotion ? 'animation: cosmicSwirl 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '🔮';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #ff69b4;
-      text-shadow: 3px 3px 8px rgba(15, 15, 26, 0.8);
-      ${props.enableMotion ? 'animation: mysticalOrb 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Romantic Degen Theme - Candlesticks rise like candles in a cathedral */
-  ${props => props.theme === 'romantic' && `
-    &::before {
-      content: '💕';
-      position: absolute;
-      top: 8%;
-      left: 6%;
-      font-size: 140px;
-      opacity: 0.1;
-      transform: rotate(-15deg);
-      color: #d4a574;
-      text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.8);
-      ${props.enableMotion ? 'animation: loveLetterFloat 8s ease-in-out infinite;' : ''}
-    }
-    &::after {
-      content: '🌹';
-      position: absolute;
-      bottom: 10%;
-      right: 8%;
-      font-size: 120px;
-      opacity: 0.12;
-      transform: rotate(25deg);
-      color: #b8336a;
-      text-shadow: 3px 3px 8px rgba(10, 5, 17, 0.8);
-      ${props.enableMotion ? 'animation: romanticBloom 6s ease-in-out infinite;' : ''}
-    }
-  `}
-
-  /* Animation Keyframes */
-  @keyframes midnightFloat {
-    0%, 100% { transform: rotate(-15deg) translateY(0px); opacity: 0.1; }
-    25% { transform: rotate(-10deg) translateY(-10px); opacity: 0.15; }
-    50% { transform: rotate(-5deg) translateY(-20px); opacity: 0.2; }
-    75% { transform: rotate(-10deg) translateY(-10px); opacity: 0.15; }
-  }
-  @keyframes luxeSparkle {
-    0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.12; }
-    50% { transform: rotate(30deg) scale(1.1); opacity: 0.2; }
-  }
-  @keyframes royalGlow {
-    0%, 100% { transform: rotate(-15deg) translateY(0px); opacity: 0.1; filter: brightness(1); }
-    50% { transform: rotate(-10deg) translateY(-15px); opacity: 0.18; filter: brightness(1.2); }
-  }
-  @keyframes crimsonFlame {
-    0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.12; }
-    25% { transform: rotate(30deg) scale(1.05); opacity: 0.16; }
-    50% { transform: rotate(35deg) scale(1.1); opacity: 0.2; }
-    75% { transform: rotate(30deg) scale(1.05); opacity: 0.16; }
-  }
-  @keyframes frostFloat {
-    0%, 100% { transform: rotate(-15deg) translateY(0px); opacity: 0.1; }
-    50% { transform: rotate(-12deg) translateY(-25px); opacity: 0.18; }
-  }
-  @keyframes glacialShimmer {
-    0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.12; filter: blur(0px); }
-    50% { transform: rotate(28deg) scale(1.08); opacity: 0.18; filter: blur(1px); }
-  }
-  @keyframes solarPulse {
-    0%, 100% { transform: rotate(-15deg) scale(1); opacity: 0.1; }
-    25% { transform: rotate(-12deg) scale(1.05); opacity: 0.15; }
-    50% { transform: rotate(-10deg) scale(1.1); opacity: 0.2; }
-    75% { transform: rotate(-12deg) scale(1.05); opacity: 0.15; }
-  }
-  @keyframes lightningStrike {
-    0%, 100% { transform: rotate(25deg) translateY(0px); opacity: 0.12; }
-    10% { transform: rotate(30deg) translateY(-5px); opacity: 0.25; }
-    20% { transform: rotate(25deg) translateY(0px); opacity: 0.12; }
-  }
-  @keyframes dragonDance {
-    0%, 100% { transform: rotate(-15deg) translateX(0px); opacity: 0.1; }
-    33% { transform: rotate(-10deg) translateX(-8px); opacity: 0.14; }
-    66% { transform: rotate(-20deg) translateX(8px); opacity: 0.16; }
-  }
-  @keyframes bambooSway {
-    0%, 100% { transform: rotate(25deg) translateX(0px); opacity: 0.12; }
-    50% { transform: rotate(30deg) translateX(-10px); opacity: 0.18; }
-  }
-  @keyframes cosmicSwirl {
-    0%, 100% { transform: rotate(-15deg) scale(1); opacity: 0.1; }
-    25% { transform: rotate(-10deg) scale(1.02); opacity: 0.13; }
-    50% { transform: rotate(-5deg) scale(1.05); opacity: 0.16; }
-    75% { transform: rotate(-10deg) scale(1.02); opacity: 0.13; }
-  }
-  @keyframes mysticalOrb {
-    0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.12; }
-    50% { transform: rotate(35deg) scale(1.15); opacity: 0.2; }
-  }
-  @keyframes loveLetterFloat {
-    0%, 100% { transform: rotate(-15deg) translateY(0px); opacity: 0.1; }
-    25% { transform: rotate(-12deg) translateY(-12px); opacity: 0.14; }
-    50% { transform: rotate(-8deg) translateY(-18px); opacity: 0.18; }
-    75% { transform: rotate(-12deg) translateY(-12px); opacity: 0.14; }
-  }
-  @keyframes romanticBloom {
-    0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.12; }
-    33% { transform: rotate(28deg) scale(1.05); opacity: 0.16; }
-    66% { transform: rotate(30deg) scale(1.08); opacity: 0.2; }
-  }
-
-  /* Additional floating elements for each theme */
-  .theme-elements {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
   }
 `
 
@@ -1176,14 +813,6 @@ export default function GameScreenFrame({
         <div className="absolute top-2 right-2 z-50 bg-orange-600 text-white px-2 py-1 rounded text-xs opacity-75">
           Consider Low Quality
         </div>
-      )}
-      
-      {/* ENHANCED THEME BACKGROUND with floating emoji elements */}
-      {theme && (
-        <EnhancedThemeBackground 
-          theme={theme.name.toLowerCase().split(' ')[0]} 
-          enableMotion={shouldAnimate}
-        />
       )}
       
       {/* ANIMATED BORDER SYSTEM with enhanced motion visibility */}

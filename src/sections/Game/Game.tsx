@@ -6,8 +6,7 @@ const InfoModalContent = styled.div`
   max-width: 98vw;
   min-width: 0;
   min-height: 200px;
-  /* Use portal viewport height instead of viewport height for better scaling */
-  max-height: calc(40 * var(--pvh, 1vh)); /* Scales with portal container height */
+  max-height: 400px;
   margin-bottom: 2rem;
   margin-top: 2rem;
   padding: 0.25rem;
@@ -24,7 +23,7 @@ const InfoModalContent = styled.div`
     border-radius: 1rem;
     max-width: 90vw;
     min-height: 250px;
-    max-height: calc(45 * var(--pvh, 1vh));
+    max-height: 450px;
   }
   
   /* Tablets */
@@ -32,7 +31,7 @@ const InfoModalContent = styled.div`
     padding: 1rem;
     max-width: 85vw;
     min-height: 300px;
-    max-height: calc(50 * var(--pvh, 1vh));
+    max-height: 500px;
     margin-bottom: 3rem;
     margin-top: 3rem;
   }
@@ -41,7 +40,6 @@ const InfoModalContent = styled.div`
   @media (min-width: 1024px) {
     max-width: 80vw;
     min-height: 350px;
-    max-height: calc(55 * var(--pvh, 1vh));
     margin-bottom: 4rem;
     margin-top: 4rem;
   }
@@ -83,7 +81,7 @@ const InfoModalContent = styled.div`
   }
 `;
 // src/sections/Game/Game.tsx
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
@@ -93,7 +91,7 @@ import { Icon, GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal }
 import { GAMES } from '../../games'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GameSlider } from '../Dashboard/Dashboard'
-import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash, ScalingPortalTarget } from './Game.styles'
+import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles'
 import { LoadingBar } from './LoadingBar'
 import { ProvablyFairModal } from './ProvablyFairModal'
 import { TransactionModal } from './TransactionModal'
@@ -333,56 +331,6 @@ function CustomRenderer() {
   const markGameAsPlayed = useUserStore(s => () => s.markGameAsPlayed(game.id, true))
   const [ready, setReady] = useState(false)
   const [txModal, setTxModal] = useState(false)
-  
-  // Portal viewport height tracking
-  const screenRef = useRef<HTMLDivElement>(null)
-
-  // Dynamic portal viewport height system
-  // This creates custom CSS properties --pvh and --portal-height that allow
-  // portal content to scale vertically with the portal container size.
-  // 
-  // Usage in CSS:
-  // - height: calc(80 * var(--pvh, 1vh)) instead of height: 80vh
-  // - max-height: var(--portal-height, 100vh) instead of max-height: 100vh
-  // - top: calc(10 * var(--pvh, 1vh)) instead of top: 10vh
-  // - transform: scale(var(--portal-scale, 1)) for automatic scaling
-  //
-  // This prevents vertical cropping when the portal container height shrinks
-  // while keeping width behavior unchanged.
-  useEffect(() => {
-    const updatePortalViewportHeight = (height: number) => {
-      // Create portal-specific viewport height units (--pvh)
-      const portalVH = height / 100
-      
-      // Calculate scaling factor based on expected minimum game height
-      const expectedMinHeight = 400 // Minimum height most games are designed for
-      const scale = Math.min(1, height / expectedMinHeight)
-      
-      // Set CSS custom properties for portal height units and scaling
-      document.documentElement.style.setProperty('--pvh', `${portalVH}px`)
-      document.documentElement.style.setProperty('--portal-height', `${height}px`)
-      document.documentElement.style.setProperty('--portal-scale', scale.toString())
-    }
-
-    if (screenRef.current) {
-      // Set initial values
-      updatePortalViewportHeight(screenRef.current.clientHeight)
-      
-      // Track portal container height changes
-      const resizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          const { height } = entry.contentRect
-          updatePortalViewportHeight(height)
-        }
-      })
-      
-      resizeObserver.observe(screenRef.current)
-      
-      return () => {
-        resizeObserver.disconnect()
-      }
-    }
-  }, [ready]) // Re-run when ready state changes
 
   useEffect(() => {
     const timeout = setTimeout(() => setReady(true), 750)
@@ -425,9 +373,8 @@ function CustomRenderer() {
           }}>
             <div style={{
               width: '100%',
-              height: 'auto',
-              maxHeight: 'calc(var(--portal-height, 100vh) - 20px)',
-              overflow: 'auto',
+              height: '99%',
+              overflow: 'hidden',
               borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
               border: '2px solid rgba(255,215,0,.4)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
@@ -577,9 +524,8 @@ function CustomRenderer() {
           }}>
             <div style={{
               width: '100%',
-              height: 'auto',
-              maxHeight: 'calc(var(--portal-height, 100vh) - 20px)',
-              overflow: 'auto',
+              height: '99%',
+              overflow: 'hidden',
               borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
               border: '2px solid rgba(255,215,0,.35)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
@@ -691,7 +637,7 @@ function CustomRenderer() {
       {graphicsSettings && <GraphicsSettings onClose={() => setGraphicsSettings(false)} />}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
       <Container>
-        <Screen ref={screenRef}>
+        <Screen>
           {!ready ? (
             <Splash>
               <svg 
@@ -742,11 +688,7 @@ function CustomRenderer() {
             </Splash>
           ) : null}
           <GambaUi.PortalTarget target="error" />
-          {ready && (
-            <ScalingPortalTarget>
-              <GambaUi.PortalTarget target="screen" />
-            </ScalingPortalTarget>
-          )}
+          {ready && <GambaUi.PortalTarget target="screen" />}
         </Screen>
         <LoadingBar />
         <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
