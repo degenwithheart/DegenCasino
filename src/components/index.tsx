@@ -35,6 +35,9 @@ export * from './Graphics/GraphicsSettings'
 // Jackpot
 export { default as JackpotModal, JackpotContent } from './Jackpot/JackpotModal'
 
+// TOS
+export { default as TOSModal, TOSContent } from './TOS/TOSModal'
+
 // Mobile
 export * from './Mobile/MobileControls'
 export * from './Mobile/MobileGameControls'

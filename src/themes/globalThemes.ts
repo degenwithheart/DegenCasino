@@ -286,7 +286,7 @@ export interface GlobalTheme {
 
 // Default Theme (Current Dashboard Styling)
 export const defaultTheme: GlobalTheme = {
-  name: 'Classic Casino',
+  name: 'Default',
   description: 'The timeless casino experience with gold accents',
   colors: {
     primary: '#ffd700',
@@ -340,9 +340,29 @@ export const defaultTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.05) 0%, transparent 50%)',
-    overlay: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 149, 0, 0.05))',
-    gradient: 'linear-gradient(135deg, #ffd700 0%, #a259ff 50%, #ff9500 100%)',
+    background: `
+      radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%), 
+      radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(255, 149, 0, 0.05) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.02) 0%, rgba(15, 15, 35, 0.95) 50%, rgba(162, 89, 255, 0.02) 100%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.12) 0%, 
+        rgba(255, 149, 0, 0.08) 50%, 
+        rgba(162, 89, 255, 0.06) 100%
+      ),
+      radial-gradient(circle at center, rgba(255, 215, 0, 0.03) 0%, transparent 70%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #ffd700 0%, 
+        #ff9500 25%,
+        #a259ff 50%, 
+        #ffd700 75%,
+        #ff9500 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Luckiest Guy', cursive, sans-serif",
@@ -351,24 +371,24 @@ export const defaultTheme: GlobalTheme = {
   },
 };
 
-// Cyberpunk Neon Grid Theme
+// Enhanced Cyberpunk Neon Grid Theme
 export const cyberpunkTheme: GlobalTheme = {
-  name: 'Cyberpunk Neon',
-  description: 'Futuristic terminal interface with holographic elements',
+  name: 'Cyberpunk Matrix',
+  description: 'Neural-linked cyber casino with glitch aesthetics and holographic displays',
   colors: {
-    primary: '#00ff88',
-    secondary: '#ff0080',
-    accent: '#0088ff',
-    background: '#0a0a0a',
-    surface: '#1a0a1a',
-    border: '#00ff88',
-    text: '#00ff88',
-    textSecondary: '#ffffff',
-    success: '#00ff88',
-    error: '#ff0040',
-    warning: '#ffaa00',
-    info: '#0088ff',
-    shadow: 'rgba(0, 255, 136, 0.3)',
+    primary: '#00ff41',        // Matrix green
+    secondary: '#ff0080',      // Cyber magenta
+    accent: '#00d4ff',         // Electric blue
+    background: '#000000',     // Pure black matrix
+    surface: '#0a0f0a',        // Dark green tint
+    border: '#00ff41',         // Matrix border
+    text: '#00ff41',           // Green terminal text
+    textSecondary: '#66ff99',  // Lighter matrix green
+    success: '#00ff41',        // Success green
+    error: '#ff003c',          // Critical error red
+    warning: '#ffcc00',        // System warning amber
+    info: '#00d4ff',           // Info cyan
+    shadow: 'rgba(0, 255, 65, 0.4)',
     button: {
       primary: '#00ff88',
       secondary: '#ff0080',
@@ -393,11 +413,11 @@ export const cyberpunkTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 20px #00ff88, 0 0 40px #ff0080',
-    shadow: '0 0 30px rgba(0, 255, 136, 0.3)',
-    borderGlow: '0 0 15px #00ff88',
-    textGlow: '0 0 10px #00ff88',
-    buttonGlow: '0 0 20px #00ff88',
+    glow: '0 0 24px rgba(0, 255, 136, 0.4), 0 0 48px rgba(255, 0, 128, 0.3), 0 0 72px rgba(0, 136, 255, 0.2)',
+    shadow: '0 0 30px rgba(0, 255, 136, 0.3), 0 8px 32px rgba(0, 0, 0, 0.8)',
+    borderGlow: '0 0 15px rgba(0, 255, 136, 0.6), 0 0 30px rgba(255, 0, 128, 0.4)',
+    textGlow: '0 0 10px rgba(0, 255, 136, 0.8), 0 0 20px rgba(0, 255, 136, 0.4)',
+    buttonGlow: '0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(255, 0, 128, 0.3)',
   },
   animations: {
     primary: hologram,
@@ -407,9 +427,34 @@ export const cyberpunkTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'linear-gradient(45deg, #0a0a0a 25%, transparent 25%), linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0a0a0a 75%), linear-gradient(-45deg, transparent 75%, #0a0a0a 75%)',
-    overlay: 'linear-gradient(90deg, rgba(0, 255, 136, 0.1) 0%, rgba(255, 0, 128, 0.1) 50%, rgba(0, 136, 255, 0.1) 100%)',
-    gradient: 'linear-gradient(135deg, #00ff88 0%, #ff0080 50%, #0088ff 100%)',
+    background: `
+      linear-gradient(45deg, #0a0a0a 25%, transparent 25%), 
+      linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), 
+      linear-gradient(45deg, transparent 75%, #0a0a0a 75%), 
+      linear-gradient(-45deg, transparent 75%, #0a0a0a 75%),
+      radial-gradient(circle at 30% 70%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 70% 30%, rgba(255, 0, 128, 0.08) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(0, 136, 255, 0.05) 0%, rgba(0, 0, 0, 0.95) 100%)
+    `,
+    overlay: `
+      linear-gradient(90deg, 
+        rgba(0, 255, 136, 0.15) 0%, 
+        rgba(255, 0, 128, 0.12) 25%,
+        rgba(0, 136, 255, 0.1) 50%,
+        rgba(0, 255, 136, 0.08) 75%,
+        rgba(255, 0, 128, 0.06) 100%
+      ),
+      radial-gradient(circle at center, rgba(0, 255, 136, 0.05) 0%, transparent 60%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #00ff88 0%, 
+        #ff0080 25%,
+        #0088ff 50%, 
+        #00ff88 75%,
+        #ff0080 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Courier New', monospace",
@@ -460,11 +505,11 @@ export const casinoFloorTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 25px rgba(218, 165, 32, 0.4)',
-    shadow: '0 8px 32px rgba(47, 27, 20, 0.6)',
-    borderGlow: '0 0 12px rgba(218, 165, 32, 0.5)',
-    textGlow: '0 0 8px rgba(218, 165, 32, 0.6)',
-    buttonGlow: '0 0 16px rgba(218, 165, 32, 0.4)',
+    glow: '0 0 25px rgba(218, 165, 32, 0.5), 0 0 50px rgba(139, 69, 19, 0.3), 0 0 75px rgba(220, 20, 60, 0.2)',
+    shadow: '0 8px 32px rgba(47, 27, 20, 0.7), 0 16px 64px rgba(218, 165, 32, 0.2)',
+    borderGlow: '0 0 12px rgba(218, 165, 32, 0.6), 0 0 24px rgba(139, 69, 19, 0.4)',
+    textGlow: '0 0 8px rgba(218, 165, 32, 0.7), 0 0 16px rgba(245, 222, 179, 0.3)',
+    buttonGlow: '0 0 16px rgba(218, 165, 32, 0.5), 0 0 32px rgba(220, 20, 60, 0.3)',
   },
   animations: {
     primary: float,
@@ -474,9 +519,30 @@ export const casinoFloorTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'radial-gradient(ellipse at center, rgba(218, 165, 32, 0.1) 0%, transparent 70%), linear-gradient(45deg, rgba(139, 69, 19, 0.1) 25%, transparent 25%)',
-    overlay: 'linear-gradient(135deg, rgba(218, 165, 32, 0.15), rgba(139, 69, 19, 0.1))',
-    gradient: 'linear-gradient(135deg, #daa520 0%, #8b4513 50%, #dc143c 100%)',
+    background: `
+      radial-gradient(ellipse at center, rgba(218, 165, 32, 0.12) 0%, transparent 70%), 
+      linear-gradient(45deg, rgba(139, 69, 19, 0.08) 25%, transparent 25%),
+      radial-gradient(circle at 20% 80%, rgba(220, 20, 60, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(218, 165, 32, 0.08) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(47, 27, 20, 0.95) 0%, rgba(139, 69, 19, 0.1) 50%, rgba(47, 27, 20, 0.95) 100%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(218, 165, 32, 0.18) 0%, 
+        rgba(139, 69, 19, 0.12) 50%, 
+        rgba(220, 20, 60, 0.08) 100%
+      ),
+      radial-gradient(circle at center, rgba(245, 222, 179, 0.04) 0%, transparent 70%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #daa520 0%, 
+        #8b4513 25%,
+        #dc143c 50%, 
+        #daa520 75%,
+        #8b4513 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Times New Roman', serif",
@@ -527,11 +593,11 @@ export const crystalTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 25px rgba(138, 43, 226, 0.5)',
-    shadow: '0 8px 32px rgba(138, 43, 226, 0.3)',
-    borderGlow: '0 0 15px rgba(138, 43, 226, 0.4)',
-    textGlow: '0 0 10px rgba(177, 156, 217, 0.6)',
-    buttonGlow: '0 0 18px rgba(138, 43, 226, 0.4)',
+    glow: '0 0 25px rgba(138, 43, 226, 0.6), 0 0 50px rgba(106, 90, 205, 0.4), 0 0 75px rgba(147, 112, 219, 0.3)',
+    shadow: '0 8px 32px rgba(138, 43, 226, 0.4), 0 16px 64px rgba(26, 10, 46, 0.8)',
+    borderGlow: '0 0 15px rgba(138, 43, 226, 0.6), 0 0 30px rgba(147, 112, 219, 0.4)',
+    textGlow: '0 0 10px rgba(177, 156, 217, 0.8), 0 0 20px rgba(138, 43, 226, 0.5)',
+    buttonGlow: '0 0 18px rgba(138, 43, 226, 0.6), 0 0 36px rgba(106, 90, 205, 0.4)',
   },
   animations: {
     primary: hologram,
@@ -541,9 +607,30 @@ export const crystalTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'radial-gradient(circle at 30% 70%, rgba(138, 43, 226, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(106, 90, 205, 0.1) 0%, transparent 50%)',
-    overlay: 'linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(106, 90, 205, 0.1))',
-    gradient: 'linear-gradient(135deg, #b19cd9 0%, #6a5acd 50%, #9370db 100%)',
+    background: `
+      radial-gradient(circle at 30% 70%, rgba(138, 43, 226, 0.12) 0%, transparent 50%), 
+      radial-gradient(circle at 70% 30%, rgba(106, 90, 205, 0.10) 0%, transparent 50%),
+      radial-gradient(circle at 50% 20%, rgba(147, 112, 219, 0.08) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(26, 10, 46, 0.95) 0%, rgba(138, 43, 226, 0.05) 50%, rgba(26, 10, 46, 0.95) 100%),
+      linear-gradient(45deg, rgba(45, 27, 105, 0.3) 25%, transparent 25%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(138, 43, 226, 0.18) 0%, 
+        rgba(106, 90, 205, 0.12) 50%, 
+        rgba(147, 112, 219, 0.08) 100%
+      ),
+      radial-gradient(circle at center, rgba(230, 230, 250, 0.03) 0%, transparent 70%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #b19cd9 0%, 
+        #6a5acd 25%,
+        #9370db 50%, 
+        #8a2be2 75%,
+        #b19cd9 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Georgia', serif",
@@ -678,11 +765,11 @@ export const spaceTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 25px #00ffff, 0 0 50px #ff4500',
-    shadow: '0 0 40px rgba(0, 255, 255, 0.3)',
-    borderGlow: '0 0 15px #00ffff',
-    textGlow: '0 0 10px #00ffff',
-    buttonGlow: '0 0 20px #00ffff',
+    glow: '0 0 25px rgba(0, 255, 255, 0.5), 0 0 50px rgba(255, 69, 0, 0.3), 0 0 75px rgba(153, 50, 204, 0.2)',
+    shadow: '0 0 40px rgba(0, 255, 255, 0.4), 0 12px 48px rgba(0, 0, 17, 0.8)',
+    borderGlow: '0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(255, 69, 0, 0.4)',
+    textGlow: '0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(224, 255, 255, 0.4)',
+    buttonGlow: '0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(255, 69, 0, 0.3)',
   },
   animations: {
     primary: spaceFloat,
@@ -692,9 +779,30 @@ export const spaceTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'radial-gradient(ellipse at center, rgba(0, 255, 255, 0.1) 0%, transparent 70%), radial-gradient(ellipse at top, rgba(255, 69, 0, 0.1) 0%, transparent 50%)',
-    overlay: 'linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 69, 0, 0.1))',
-    gradient: 'linear-gradient(135deg, #00ffff 0%, #ff4500 50%, #9932cc 100%)',
+    background: `
+      radial-gradient(ellipse at center, rgba(0, 255, 255, 0.12) 0%, transparent 70%), 
+      radial-gradient(ellipse at top, rgba(255, 69, 0, 0.10) 0%, transparent 50%),
+      radial-gradient(circle at 40% 60%, rgba(153, 50, 204, 0.08) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(0, 0, 17, 0.95) 0%, rgba(0, 17, 34, 0.8) 50%, rgba(0, 0, 17, 0.95) 100%),
+      linear-gradient(45deg, rgba(0, 255, 255, 0.02) 25%, transparent 25%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(0, 255, 255, 0.15) 0%, 
+        rgba(255, 69, 0, 0.12) 50%, 
+        rgba(153, 50, 204, 0.08) 100%
+      ),
+      radial-gradient(circle at center, rgba(224, 255, 255, 0.03) 0%, transparent 70%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #00ffff 0%, 
+        #ff4500 25%,
+        #9932cc 50%, 
+        #00ffff 75%,
+        #ff4500 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Orbitron', sans-serif",
@@ -745,11 +853,11 @@ export const retroTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 20px #ffff00, 0 0 10px #ff00ff',
-    shadow: '0 4px 16px rgba(0, 0, 0, 0.8)',
-    borderGlow: '0 0 8px #ffff00',
-    textGlow: '0 0 6px #ffff00',
-    buttonGlow: '0 0 12px #ffff00',
+    glow: '0 0 20px rgba(255, 255, 0, 0.6), 0 0 10px rgba(255, 0, 255, 0.4), 0 0 30px rgba(0, 255, 255, 0.3)',
+    shadow: '0 4px 16px rgba(0, 0, 0, 0.9), 0 8px 32px rgba(255, 255, 0, 0.2)',
+    borderGlow: '0 0 8px rgba(255, 255, 0, 0.7), 0 0 16px rgba(255, 0, 255, 0.5)',
+    textGlow: '0 0 6px rgba(255, 255, 0, 0.9), 0 0 12px rgba(255, 255, 0, 0.6)',
+    buttonGlow: '0 0 12px rgba(255, 255, 0, 0.7), 0 0 24px rgba(255, 0, 255, 0.4)',
   },
   animations: {
     primary: retroFlicker,
@@ -759,9 +867,30 @@ export const retroTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'repeating-linear-gradient(45deg, rgba(255, 255, 0, 0.05) 0px, rgba(255, 255, 0, 0.05) 2px, transparent 2px, transparent 4px)',
-    overlay: 'linear-gradient(135deg, rgba(255, 255, 0, 0.1), rgba(255, 0, 255, 0.1))',
-    gradient: 'linear-gradient(135deg, #ffff00 0%, #ff00ff 50%, #00ffff 100%)',
+    background: `
+      repeating-linear-gradient(45deg, rgba(255, 255, 0, 0.06) 0px, rgba(255, 255, 0, 0.06) 2px, transparent 2px, transparent 4px),
+      repeating-linear-gradient(-45deg, rgba(255, 0, 255, 0.04) 0px, rgba(255, 0, 255, 0.04) 2px, transparent 2px, transparent 4px),
+      radial-gradient(circle at 30% 70%, rgba(255, 255, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 70% 30%, rgba(0, 255, 255, 0.06) 0%, transparent 50%),
+      linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(17, 17, 17, 0.8) 50%, rgba(0, 0, 0, 0.95) 100%)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(255, 255, 0, 0.12) 0%, 
+        rgba(255, 0, 255, 0.10) 50%, 
+        rgba(0, 255, 255, 0.08) 100%
+      ),
+      radial-gradient(circle at center, rgba(255, 255, 255, 0.02) 0%, transparent 60%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #ffff00 0%, 
+        #ff00ff 25%,
+        #00ffff 50%, 
+        #ffff00 75%,
+        #ff00ff 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Press Start 2P', monospace",
@@ -812,11 +941,11 @@ export const carnivalTheme: GlobalTheme = {
     },
   },
   effects: {
-    glow: '0 0 25px #ff6b35, 0 0 15px #f7931e',
-    shadow: '0 6px 24px rgba(255, 107, 53, 0.4)',
-    borderGlow: '0 0 12px #ff6b35',
-    textGlow: '0 0 8px #ff6b35',
-    buttonGlow: '0 0 16px #ff6b35',
+    glow: '0 0 25px rgba(255, 107, 53, 0.6), 0 0 15px rgba(247, 147, 30, 0.4), 0 0 35px rgba(0, 255, 136, 0.3)',
+    shadow: '0 6px 24px rgba(255, 107, 53, 0.5), 0 12px 48px rgba(45, 27, 105, 0.6)',
+    borderGlow: '0 0 12px rgba(255, 107, 53, 0.7), 0 0 24px rgba(247, 147, 30, 0.5)',
+    textGlow: '0 0 8px rgba(255, 107, 53, 0.8), 0 0 16px rgba(255, 235, 59, 0.4)',
+    buttonGlow: '0 0 16px rgba(255, 107, 53, 0.6), 0 0 32px rgba(0, 255, 136, 0.4)',
   },
   animations: {
     primary: carnival,
@@ -826,9 +955,30 @@ export const carnivalTheme: GlobalTheme = {
     loading: blink,
   },
   patterns: {
-    background: 'radial-gradient(circle at 30% 70%, rgba(255, 107, 53, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(247, 147, 30, 0.1) 0%, transparent 50%)',
-    overlay: 'linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(247, 147, 30, 0.1))',
-    gradient: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #00ff88 100%)',
+    background: `
+      radial-gradient(circle at 30% 70%, rgba(255, 107, 53, 0.12) 0%, transparent 50%), 
+      radial-gradient(circle at 70% 30%, rgba(247, 147, 30, 0.10) 0%, transparent 50%),
+      radial-gradient(circle at 50% 20%, rgba(0, 255, 136, 0.08) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(45, 27, 105, 0.95) 0%, rgba(74, 20, 140, 0.8) 50%, rgba(45, 27, 105, 0.95) 100%),
+      repeating-linear-gradient(45deg, rgba(255, 107, 53, 0.03) 0px, rgba(255, 107, 53, 0.03) 4px, transparent 4px, transparent 8px)
+    `,
+    overlay: `
+      linear-gradient(135deg, 
+        rgba(255, 107, 53, 0.18) 0%, 
+        rgba(247, 147, 30, 0.12) 50%, 
+        rgba(0, 255, 136, 0.08) 100%
+      ),
+      radial-gradient(circle at center, rgba(255, 235, 59, 0.04) 0%, transparent 70%)
+    `,
+    gradient: `
+      linear-gradient(135deg, 
+        #ff6b35 0%, 
+        #f7931e 25%,
+        #00ff88 50%, 
+        #ff6b35 75%,
+        #f7931e 100%
+      )
+    `,
   },
   typography: {
     fontFamily: "'Fredoka One', cursive",
