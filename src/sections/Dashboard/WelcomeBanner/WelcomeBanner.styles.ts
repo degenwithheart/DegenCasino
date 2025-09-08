@@ -59,10 +59,10 @@ export const sparkle = candlestickSparkle;
 
 export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
   margin: ${({ $isVisible, $isLoading }) =>
-    $isLoading || $isVisible ? '1.5rem 0' : '0'
+    $isLoading || $isVisible ? '2rem 0' : '0'
   };
   padding: ${({ $isVisible, $isLoading }) =>
-    $isLoading || $isVisible ? '1.25rem' : '0'
+    $isLoading || $isVisible ? '1.5rem' : '0'
   };
   height: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? 'auto' : '0'
@@ -74,58 +74,77 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
     $isLoading ? 0 : $isVisible ? 1 : 0
   };
   transform: ${({ $isVisible, $isLoading }) =>
-    $isLoading ? 'translateY(10px)' : $isVisible ? 'translateY(0)' : 'translateY(-10px)'
+    $isLoading ? 'translateY(15px)' : $isVisible ? 'translateY(0)' : 'translateY(-15px)'
   };
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: ${({ $isVisible, $isLoading }) =>
     $isLoading || !$isVisible ? 'none' : 'auto'
   };
   background: ${({ $isVisible, $isLoading, $theme }) =>
-    $isLoading || $isVisible ? ($theme?.colors?.background || '#0f0f23') : 'transparent'
+    $isLoading || $isVisible ? ($theme?.colors?.surface || 'rgba(15, 15, 35, 0.6)') : 'transparent'
   };
   border-radius: ${({ $isVisible, $isLoading }) =>
-    $isLoading || $isVisible ? '12px' : '0'
+    $isLoading || $isVisible ? '20px' : '0'
   };
   border: ${({ $isVisible, $isLoading, $theme }) =>
-    $isLoading || $isVisible ? `1px solid ${$theme?.colors?.border || '#2a2a4a'}` : 'none'
+    $isLoading || $isVisible ? `2px solid ${$theme?.colors?.border || '#2a2a4a'}` : 'none'
   };
   position: relative;
+  backdrop-filter: ${({ $isVisible, $isLoading }) =>
+    $isLoading || $isVisible ? 'blur(12px)' : 'none'
+  };
+  box-shadow: ${({ $isVisible, $isLoading, $theme }) =>
+    $isLoading || $isVisible ? ($theme?.effects?.shadow || '0 12px 40px rgba(0, 0, 0, 0.4)') : 'none'
+  };
 
   ${({ $isVisible, $isLoading, $theme }) => ($isLoading || $isVisible) && `
     &:hover {
       border-color: ${$theme?.colors?.primary || '#ffd700'};
-      box-shadow: 0 0 24px ${$theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
-      transform: translateY(-2px);
+      box-shadow: ${$theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
+      transform: translateY(-4px);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: ${$theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
+      border-radius: 18px;
+      pointer-events: none;
+      opacity: 0.8;
     }
   `}
 
   @media (max-width: 900px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1rem 0' : '0'
+      $isLoading || $isVisible ? '1.5rem 0' : '0'
     };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1rem 0.75rem' : '0'
+      $isLoading || $isVisible ? '1.25rem' : '0'
+    };
+    border-radius: ${({ $isVisible, $isLoading }) =>
+      $isLoading || $isVisible ? '16px' : '0'
     };
   }
 
   @media (max-width: 700px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.75rem 0' : '0'
+      $isLoading || $isVisible ? '1rem 0' : '0'
     };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1rem 0.5rem' : '0'
+      $isLoading || $isVisible ? '1rem' : '0'
     };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '12px' : '0'
+      $isLoading || $isVisible ? '14px' : '0'
     };
   }
 
   @media (max-width: 480px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.5rem 0' : '0'
+      $isLoading || $isVisible ? '0.75rem 0' : '0'
     };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.75rem 0.5rem' : '0'
+      $isLoading || $isVisible ? '0.75rem' : '0'
     };
     border-radius: ${({ $isVisible, $isLoading }) =>
       $isLoading || $isVisible ? '12px' : '0'
@@ -134,33 +153,37 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
 
   @media (max-width: 400px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.25rem 0' : '0'
+      $isLoading || $isVisible ? '0.5rem 0' : '0'
     };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.5rem 0.4rem' : '0'
+      $isLoading || $isVisible ? '0.5rem' : '0'
     };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '8px' : '0'
+      $isLoading || $isVisible ? '10px' : '0'
     };
   }
 `;
 
 export const Banner = styled.div<{ $theme?: any }>`
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
-  /* switch to min-height so surrounding frames control overall layout */
-  min-height: 180px;
+  min-height: 200px;
   overflow: hidden;
-  background: linear-gradient(180deg, ${({ $theme }) => $theme?.colors?.surface || 'rgba(91, 33, 182, 0.8)'} 0%, ${({ $theme }) => $theme?.colors?.background || '#22003a'} 80%, ${({ $theme }) => $theme?.colors?.background || '#22003a'} 100%);
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
+  background: ${({ $theme }) => $theme?.patterns?.background || `
+    radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%), 
+    radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(15, 15, 35, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%)
+  `};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  margin-bottom: 1.5rem;
+  transition: all 0.4s ease;
+  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 32px rgba(0, 0, 0, 0.3)'};
 
   &:hover {
     border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
-    transform: translateY(-2px);
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    transform: translateY(-3px);
   }
 
   &::before {
@@ -170,28 +193,54 @@ export const Banner = styled.div<{ $theme?: any }>`
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.1)'} 0%, transparent 50%);
-    animation: ${floatAnimation} 6s infinite ease-in-out;
+    background: ${({ $theme }) => $theme?.patterns?.overlay || `
+      radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 50%)
+    `};
+    animation: ${loveLetterFloat} 8s infinite ease-in-out;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $theme }) => $theme?.patterns?.gradient ? `
+      linear-gradient(135deg, 
+        ${$theme.patterns.gradient.replace('linear-gradient(135deg, ', '').replace(')', '')}
+      ), 
+      ${$theme.colors?.surface || 'rgba(26, 26, 46, 0.8)'}
+    ` : `
+      linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.05) 0%, 
+        rgba(162, 89, 255, 0.03) 50%, 
+        rgba(255, 149, 0, 0.02) 100%
+      )
+    `};
+    opacity: 0.7;
+    border-radius: 14px;
     pointer-events: none;
   }
 
   @media (max-width: 1200px) {
-    min-height: 160px;
-    margin-bottom: 1rem;
+    min-height: 180px;
+    margin-bottom: 1.25rem;
   }
 
   @media (max-width: 768px) {
-    min-height: 140px;
-    margin-bottom: 0.75rem;
+    min-height: 160px;
+    margin-bottom: 1rem;
+    border-radius: 12px;
   }
 
   @media (max-width: 480px) {
-    min-height: 120px;
-    margin-bottom: 0.5rem;
+    min-height: 140px;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
   }
 
   @media (max-width: 400px) {
-    min-height: 100px;
+    min-height: 120px;
     margin-bottom: 0.5rem;
   }
 `;
@@ -201,80 +250,122 @@ export const BannerBottomBar = styled.div<{ $theme?: any }>`
   left: 0;
   right: 0;
   bottom: 0;
-  height: 64px;
-  background: linear-gradient(180deg, transparent 0%, ${({ $theme }) => $theme?.colors?.background || 'rgba(0, 0, 0, 0.7)'} 100%);
+  height: 80px;
+  background: ${({ $theme }) => $theme?.colors?.background ? `
+    linear-gradient(180deg, 
+      transparent 0%, 
+      ${$theme.colors.background}60 50%,
+      ${$theme.colors.background}95 100%
+    )
+  ` : 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.9) 100%)'};
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  z-index: 3;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
   pointer-events: none;
-  padding: 0 1rem;
-  backdrop-filter: blur(8px);
+  padding: 0 1.5rem;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
 
   @media (max-width: 768px) {
-    height: 56px;
-    padding: 0 0.75rem;
+    height: 70px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
   }
 
   @media (max-width: 480px) {
-    height: 48px;
-    padding: 0 0.5rem;
+    height: 60px;
+    padding: 0 0.75rem;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 `;
 
 export const Heading = styled.h2<{ $theme?: any }>`
   color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
   text-align: center;
-  text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
-  font-family: 'Luckiest Guy', cursive, sans-serif;
-  letter-spacing: 2px;
-  margin-bottom: 0.5rem;
-  line-height: 1.2;
+  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 16px #ffd700, 0 0 32px rgba(162, 89, 255, 0.6)'};
+  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Luckiest Guy', cursive, sans-serif"};
+  letter-spacing: 2.5px;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+  position: relative;
+  z-index: 2;
 
   &::after {
     content: " — where every flip flirts with fate.";
     font-weight: 400;
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     display: block;
-    margin-top: 0.25rem;
-    opacity: 0.9;
-    color: ${({ $theme }) => $theme?.colors?.text || '#ffffff'};
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
-    font-family: 'Arial', sans-serif;
-    letter-spacing: 1px;
+    margin-top: 0.5rem;
+    opacity: 0.95;
+    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#ffffff'};
+    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px rgba(162, 89, 255, 0.8)'};
+    font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+    letter-spacing: 1.2px;
+    animation: ${dreamlikeFadeInOut} 6s ease-in-out infinite;
+  }
+
+  &::before {
+    content: '🎰✨';
+    position: absolute;
+    top: -10px;
+    right: -40px;
+    font-size: 1.8rem;
+    opacity: 0.7;
+    animation: ${candlestickSparkle} 3s infinite ease-in-out;
+    z-index: -1;
   }
 
   @media (max-width: 1200px) {
-    font-size: 2.2rem;
-    letter-spacing: 1.5px;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
     &::after {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+    &::before {
+      font-size: 1.6rem;
+      right: -35px;
     }
   }
 
   @media (max-width: 768px) {
-    font-size: 1.8rem;
-    letter-spacing: 1px;
+    font-size: 2rem;
+    letter-spacing: 1.5px;
     &::after {
-      font-size: 1rem;
+      font-size: 1.1rem;
+      margin-top: 0.4rem;
+    }
+    &::before {
+      font-size: 1.4rem;
+      right: -30px;
     }
   }
 
   @media (max-width: 480px) {
-    font-size: 1.4rem;
-    letter-spacing: 0.5px;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
     &::after {
-      font-size: 0.9rem;
+      font-size: 1rem;
+    }
+    &::before {
+      font-size: 1.2rem;
+      right: -25px;
     }
   }
 
   @media (max-width: 400px) {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     &::after {
+      display: none;
+    }
+    &::before {
       display: none;
     }
   }
@@ -282,88 +373,147 @@ export const Heading = styled.h2<{ $theme?: any }>`
 
 export const JackpotTicker = styled.div<{ $theme?: any }>`
   width: 100%;
-  min-height: 48px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.35rem;
+  font-weight: 600;
   color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  background: transparent;
-  border-radius: 1rem;
-  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
-  box-shadow: none;
-  transition: background 0.3s;
-  gap: 1rem;
-  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  font-family: 'Arial', sans-serif;
-  letter-spacing: 0.5px;
+  background: ${({ $theme }) => $theme?.colors?.surface ? `
+    linear-gradient(135deg, 
+      ${$theme.colors.surface}60 0%, 
+      ${$theme.colors.background}80 100%
+    )
+  ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  transition: all 0.4s ease;
+  gap: 1.2rem;
+  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
+  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+  letter-spacing: 0.8px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    opacity: 0.6;
+    border-radius: 14px;
+  }
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    transform: translateY(-2px);
+  }
 
   @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     margin: 0 auto 1rem;
-    gap: 0.75rem;
-    font-size: 1.1rem;
+    gap: 1rem;
+    font-size: 1.2rem;
+    min-height: 48px;
   }
 
   @media (max-width: 480px) {
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    gap: 0.75rem;
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 400px) {
     font-size: 1rem;
-    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
   }
 `;
 
 export const HeroOverlay = styled.div<{ $theme?: any }>`
   position: absolute;
   inset: 0;
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
-  padding: 1.25rem;
+  background: ${({ $theme }) => $theme?.colors?.surface ? `
+    linear-gradient(135deg, 
+      ${$theme.colors.surface}40 0%, 
+      ${$theme.colors.background}60 50%, 
+      ${$theme.colors.surface}20 100%
+    )
+  ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 15, 35, 0.8) 100%)'};
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 32px;
-  z-index: 1;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
 
   &::before {
     content: '🎰';
     position: absolute;
-    top: 16px;
-    right: 16px;
-    font-size: 1.6rem;
-    padding: 0.35rem 1rem;
-    opacity: 0.85;
+    top: 20px;
+    right: 20px;
+    font-size: 2rem;
+    padding: 0.5rem 1.2rem;
+    opacity: 0.8;
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
+    border-radius: 12px;
+    border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
+    backdrop-filter: blur(6px);
+    animation: ${loveLetterFloat} 4s infinite ease-in-out;
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 16px rgba(255, 215, 0, 0.3)'};
   }
 
   &::after {
     content: '🎲';
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    font-size: 1.6rem;
-    animation: ${sparkle} 2s infinite 1s;
-    opacity: 0.85;
+    bottom: 20px;
+    left: 20px;
+    font-size: 2rem;
+    padding: 0.5rem 1.2rem;
+    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
+    border-radius: 12px;
+    border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(162, 89, 255, 0.3)'};
+    backdrop-filter: blur(6px);
+    animation: ${candlestickSparkle} 3s infinite 1s;
+    opacity: 0.8;
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 16px rgba(162, 89, 255, 0.3)'};
   }
 
   @media (max-width: 768px) {
-    padding: 1rem 0.75rem;
+    padding: 1.5rem 1rem;
     &::before {
-      font-size: 1.3rem;
-      top: 12px;
-      right: 12px;
-      padding: 0.25rem 0.75rem;
+      font-size: 1.6rem;
+      top: 16px;
+      right: 16px;
+      padding: 0.4rem 1rem;
     }
     &::after {
-      font-size: 1.3rem;
-      left: 12px;
-      bottom: 12px;
-      padding: 0.25rem 0.75rem;
+      font-size: 1.6rem;
+      left: 16px;
+      bottom: 16px;
+      padding: 0.4rem 1rem;
     }
   }
 
   @media (max-width: 480px) {
-    padding: 0.75rem 0.5rem;
+    padding: 1rem 0.75rem;
+    &::before, &::after {
+      font-size: 1.4rem;
+      padding: 0.3rem 0.8rem;
+    }
+  }
+
+  @media (max-width: 400px) {
     &::before, &::after {
       display: none;
     }
@@ -404,44 +554,85 @@ export const FeatureGrid = styled.div<{ $theme?: any }>`
 `;
 
 export const FeatureCard = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: ${({ $theme }) => $theme?.colors?.surface ? `
+    linear-gradient(135deg, 
+      ${$theme.colors.surface}80 0%, 
+      ${$theme.colors.background}90 100%
+    )
+  ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.9) 100%)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  border-radius: 16px;
+  padding: 2rem;
   color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
+    opacity: 0.6;
+    border-radius: 14px;
+    transition: opacity 0.4s ease;
+  }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || 'rgba(255, 215, 0, 0.2)'};
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
     border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    
+    &::before {
+      opacity: 0.8;
+    }
   }
 
   h3 {
-    margin: 0 0 0.5rem;
-    font-size: 1.25rem;
+    margin: 0 0 1rem;
+    font-size: 1.4rem;
     color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    font-weight: 600;
+    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+    letter-spacing: 0.5px;
   }
 
   p {
     margin: 0;
-    font-size: 1rem;
-    opacity: 0.9;
+    font-size: 1.1rem;
+    opacity: 0.95;
     color: ${({ $theme }) => $theme?.colors?.textSecondary || '#c0c0c0'};
-    line-height: 1.4;
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+    font-weight: 500;
   }
 
   @media (max-width: 768px) {
+    padding: 1.5rem;
+    border-radius: 14px;
+    h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
     padding: 1.25rem;
+    border-radius: 12px;
     h3 {
       font-size: 1.1rem;
     }
     p {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
   }
 `;
