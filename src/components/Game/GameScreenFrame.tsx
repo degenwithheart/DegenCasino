@@ -376,29 +376,35 @@ function detectPerformanceCapability(): boolean {
  */
 export function GraphicsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<GraphicsSettings>(() => {
-    // Load global settings from localStorage
-    const saved = localStorage.getItem('degenCasinoGraphicsSettings')
+    // Load global settings from sessionStorage
+    const saved = sessionStorage.getItem('degenCasinoGraphicsSettings')
     const performanceMode = detectPerformanceCapability()
     
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        console.log('📱 Loading saved graphics settings:', parsed)
+        console.log('📱 Loading saved graphics settings from session:', parsed)
         
         // Always preserve user's explicit choices
-        return { 
+        const loadedSettings: GraphicsSettings = { 
           quality: parsed.quality || (performanceMode ? 'low' : 'high'),
           enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : false,
           enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : false,
-          performanceMode,
-          customTheme: parsed.customTheme
+          performanceMode
         }
+        
+        // Only include customTheme if it actually exists and has a value
+        if (parsed.customTheme) {
+          loadedSettings.customTheme = parsed.customTheme
+        }
+        
+        return loadedSettings
       } catch (e) {
-        console.warn('Failed to parse saved graphics settings, using defaults')
+        console.warn('Failed to parse saved graphics settings from session, using defaults')
       }
     }
     
-    console.log('📱 Using default graphics settings (new user)')
+    console.log('📱 Using default graphics settings (new session)')
     return {
       quality: performanceMode ? 'low' : 'high',
       enableEffects: false,  // Default to OFF - accessibility feature for enhanced visual feedback
@@ -408,7 +414,20 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
   })
   
   const updateSettings = (updates: Partial<GraphicsSettings>) => {
-    const newSettings = { ...settings, ...updates }
+    // If updates doesn't have customTheme property, but current settings does,
+    // we need to explicitly remove it
+    let newSettings: GraphicsSettings
+    
+    if (!('customTheme' in updates) && 'customTheme' in settings) {
+      // Remove customTheme completely
+      const { customTheme, ...settingsWithoutTheme } = settings
+      newSettings = { ...settingsWithoutTheme, ...updates } as GraphicsSettings
+      console.log('🗑️ Removing customTheme from settings')
+    } else {
+      // Normal merge
+      newSettings = { ...settings, ...updates }
+    }
+    
     console.log('🔧 Graphics Settings Update:', { 
       previous: settings, 
       updates, 
@@ -416,9 +435,9 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
     })
     setSettings(newSettings)
     
-    // Save globally with a consistent key
-    localStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newSettings))
-    console.log('💾 Saved to localStorage:', JSON.stringify(newSettings))
+    // Save globally with a consistent key to sessionStorage
+    sessionStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newSettings))
+    console.log('💾 Saved to sessionStorage:', JSON.stringify(newSettings))
     
     // Also trigger a custom event so other components can listen
     window.dispatchEvent(new CustomEvent('graphicsSettingsChanged', { 
@@ -578,19 +597,29 @@ export default function GameScreenFrame({
     quality: settings.quality,
     enableEffects: settings.enableEffects,
     enableMotion: settings.enableMotion,
-    shouldShowEffects,
-    shouldAnimate,
-    disableContainerTransforms,
-    qualityEffectsDisabled: disableContainerTransforms,
-    theme: theme?.name || 'default'
+    customTheme: settings.customTheme,
+    themeExists: !!theme,
+    themeName: theme?.name
   })
   
-  // Generate theme colors
+  // Generate theme colors only if a custom theme is selected
   const seed = title || description || 'game'
-  const themeColors = useMemo(() => 
-    generateThemeColors(seed, colors, theme), 
-    [seed, colors, theme]
-  )
+  const themeColors = useMemo(() => {
+    console.log('🎨 GameScreenFrame - Generating themeColors:', { 
+      theme: theme?.name || 'none', 
+      hasTheme: !!theme, 
+      hasColors: !!colors,
+      shouldReturnNull: (!theme && !colors)
+    })
+    // For default theme (no custom theme), return null to use original CSS
+    if (!theme && !colors) {
+      console.log('🎨 GameScreenFrame - Returning null (default theme)')
+      return null
+    }
+    const generated = generateThemeColors(seed, colors, theme)
+    console.log('🎨 GameScreenFrame - Generated colors:', generated)
+    return generated
+  }, [seed, colors, theme])
   
   // Quality-based rendering decisions combined with effects/motion settings
   const qualitySettings = useMemo(() => {
@@ -670,10 +699,26 @@ export default function GameScreenFrame({
   
   // LOW QUALITY MODE: Minimal rendering for performance
   if (settings.quality === 'low') {
-    const backgroundColor = theme?.background || '#0a0a0f'
-    const lowQualityGradient = theme?.gradientPrimary || (theme ? 
-      `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}15, ${backgroundColor})` : 
-      backgroundColor)
+    // For default theme, don't apply any custom styling
+    if (!theme) {
+      return (
+        <div className="w-full h-full relative">
+          {settings.performanceMode && (
+            <div className="absolute top-2 right-2 z-50 bg-orange-600 text-white px-2 py-1 rounded text-xs opacity-75">
+              Performance Mode
+            </div>
+          )}
+          <div className="w-full h-full p-2">
+            {children}
+          </div>
+        </div>
+      )
+    }
+    
+    // For custom themes, apply theme styling
+    const backgroundColor = theme.background || '#0a0a0f'
+    const lowQualityGradient = theme.gradientPrimary || 
+      `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}15, ${backgroundColor})`
     
     return (
       <div 
@@ -700,10 +745,20 @@ export default function GameScreenFrame({
   }
   
   // MEDIUM+ QUALITY MODE: Full visual effects based on settings
-  const backgroundColor = theme?.background
-  const backgroundGradient = theme?.gradientPrimary || (theme ? 
-    `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}20, ${theme.secondary}15, ${backgroundColor})` : 
-    `linear-gradient(135deg, ${backgroundColor}, ${backgroundColor})`)
+  
+  // For default theme, don't apply any custom styling
+  if (!theme) {
+    return (
+      <div className="relative w-full h-full group">
+        {children}
+      </div>
+    )
+  }
+  
+  // For custom themes, apply theme styling
+  const backgroundColor = theme.background
+  const backgroundGradient = theme.gradientPrimary || 
+    `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}20, ${theme.secondary}15, ${backgroundColor})`
 
   // Use regular div when transforms are disabled to avoid layout conflicts
   const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer
@@ -761,7 +816,7 @@ export default function GameScreenFrame({
       )}
       
       {/* ANIMATED BORDER SYSTEM with enhanced motion visibility */}
-      {qualitySettings.showBorder && shouldAnimate && shouldShowEffects ? (
+      {qualitySettings.showBorder && shouldAnimate && shouldShowEffects && themeColors ? (
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"
           style={{
@@ -791,7 +846,7 @@ export default function GameScreenFrame({
             style={{ backgroundColor: 'transparent' }}
           />
         </motion.div>
-      ) : qualitySettings.showBorder && shouldShowEffects ? (
+      ) : qualitySettings.showBorder && shouldShowEffects && themeColors ? (
         /* STATIC BORDER when motion is disabled but effects are enabled */
         <div
           className="absolute inset-0 rounded-xl pointer-events-none opacity-80"
@@ -808,7 +863,7 @@ export default function GameScreenFrame({
       ) : null}
       
       {/* CORNER GLOW EFFECTS (High/Ultra quality) */}
-      {qualitySettings.showGlow && shouldShowEffects && (
+      {qualitySettings.showGlow && shouldShowEffects && themeColors && (
         <>
           {[0, 1, 2, 3].map(corner => {
             // Use theme glow color if available, otherwise use generated theme colors
@@ -855,7 +910,7 @@ export default function GameScreenFrame({
       )}
       
       {/* SCANLINE EFFECT (Ultra quality only) */}
-      {qualitySettings.showScanline && shouldShowEffects && (
+      {qualitySettings.showScanline && shouldShowEffects && themeColors && (
         <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
           {shouldAnimate ? (
             <motion.div
@@ -885,7 +940,7 @@ export default function GameScreenFrame({
       )}
       
       {/* ENHANCED PARTICLE EFFECTS (High/Ultra quality) - Much more visible */}
-      {qualitySettings.showParticles && shouldShowEffects && (
+      {qualitySettings.showParticles && shouldShowEffects && themeColors && (
         <>
           {[...Array(settings.quality === 'ultra' ? 12 : 8)].map((_, i) => (
             shouldAnimate ? (

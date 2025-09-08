@@ -1170,7 +1170,7 @@ export const DesktopControls: React.FC<{
 
   // Otherwise, use the new comprehensive component
   return (
-    <DesktopGameControls
+    <DesktopControls
       wager={wager}
       setWager={setWager}
       onPlay={onPlay}

@@ -6,9 +6,10 @@ interface PriceIndicatorProps {
   showRefresh?: boolean;
   amount?: number; // amount in token units (not baseWager)
   compact?: boolean;
+  showFullDetails?: boolean; // Show all details directly without collapsible element
 }
 
-export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefresh = true, amount, compact = false }) => {
+export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefresh = true, amount, compact = false, showFullDetails = false }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [priceAgeMs, setPriceAgeMs] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -101,46 +102,206 @@ export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefre
 
     if (typeof amount === 'number' && !isNaN(amount)) {
       // Full precision token amount
-      details.push(<div key="tok-full">Token amount: <code style={{ color: '#fff' }}>{String(amount)}</code></div>);
+      details.push(
+        <div key="tok-full" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: 8,
+          padding: '8px 12px',
+          background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.6) 0%, rgba(139, 90, 158, 0.1) 100%)',
+          border: '1px solid rgba(212, 165, 116, 0.2)',
+          borderRadius: 8,
+          backdropFilter: 'blur(8px)'
+        }}>
+          <span style={{ color: 'rgba(212, 165, 116, 0.8)', fontSize: 12, fontWeight: 600 }}>Token amount:</span>
+          <code style={{ 
+            color: 'var(--love-letter-gold)', 
+            fontWeight: 700, 
+            fontSize: 13,
+            fontFamily: "'JetBrains Mono', monospace",
+            background: 'rgba(212, 165, 116, 0.1)',
+            padding: '2px 6px',
+            borderRadius: 4
+          }}>{String(amount)}</code>
+        </div>
+      );
+      
       if (usdPrice && usdPrice > 0) {
         const exactUsd = amount * usdPrice;
-        details.push(<div key="usd-full">Exact USD: <code style={{ color: '#fff' }}>{exactUsd.toFixed(8)}</code></div>);
+        details.push(
+          <div key="usd-full" style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: 8,
+            padding: '8px 12px',
+            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.6) 0%, rgba(139, 90, 158, 0.1) 100%)',
+            border: '1px solid rgba(212, 165, 116, 0.2)',
+            borderRadius: 8,
+            backdropFilter: 'blur(8px)'
+          }}>
+            <span style={{ color: 'rgba(212, 165, 116, 0.8)', fontSize: 12, fontWeight: 600 }}>Exact USD:</span>
+            <code style={{ 
+              color: 'var(--love-letter-gold)', 
+              fontWeight: 700, 
+              fontSize: 13,
+              fontFamily: "'JetBrains Mono', monospace",
+              background: 'rgba(212, 165, 116, 0.1)',
+              padding: '2px 6px',
+              borderRadius: 4
+            }}>${new Intl.NumberFormat('en-US', { 
+              style: 'currency', 
+              currency: 'USD', 
+              minimumFractionDigits: 2,
+              maximumFractionDigits: exactUsd < 1 ? 6 : exactUsd < 10 ? 4 : 2
+            }).format(exactUsd)}</code>
+          </div>
+        );
       }
     }
 
     // Price source and raw price if available
     const cached = tokenPriceService.getCachedTokenPrice(token.mint.toBase58());
     if (cached) {
-      details.push(<div key="src">Source: <strong style={{ color: '#ffd700' }}>{cached.source}</strong></div>);
-      details.push(<div key="raw">Raw price: <code style={{ color: '#fff' }}>{cached.currentPrice}</code></div>);
+      details.push(
+        <div key="src" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: 8,
+          padding: '8px 12px',
+          background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.6) 0%, rgba(139, 90, 158, 0.1) 100%)',
+          border: '1px solid rgba(212, 165, 116, 0.2)',
+          borderRadius: 8,
+          backdropFilter: 'blur(8px)'
+        }}>
+          <span style={{ color: 'rgba(212, 165, 116, 0.8)', fontSize: 12, fontWeight: 600 }}>Source:</span>
+          <strong style={{ 
+            color: 'var(--love-letter-gold)', 
+            fontWeight: 700, 
+            fontSize: 13,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>{cached.source}</strong>
+        </div>
+      );
+      
+      details.push(
+        <div key="raw" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: 0,
+          padding: '8px 12px',
+          background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.6) 0%, rgba(139, 90, 158, 0.1) 100%)',
+          border: '1px solid rgba(212, 165, 116, 0.2)',
+          borderRadius: 8,
+          backdropFilter: 'blur(8px)'
+        }}>
+          <span style={{ color: 'rgba(212, 165, 116, 0.8)', fontSize: 12, fontWeight: 600 }}>Raw price:</span>
+          <code style={{ 
+            color: 'var(--love-letter-gold)', 
+            fontWeight: 700, 
+            fontSize: 13,
+            fontFamily: "'JetBrains Mono', monospace",
+            background: 'rgba(212, 165, 116, 0.1)',
+            padding: '2px 6px',
+            borderRadius: 4
+          }}>${cached.currentPrice}</code>
+        </div>
+      );
     }
 
     return (
-      <div style={{ marginTop: 8, background: 'rgba(0,0,0,0.2)', padding: 8, borderRadius: 8 }}>
-        {details.length ? details : <div style={{ color: 'rgba(255,255,255,0.7)' }}>No details available</div>}
+      <div style={{ 
+        marginTop: 12, 
+        background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.4) 0%, rgba(139, 90, 158, 0.05) 100%)', 
+        padding: 12, 
+        borderRadius: 12,
+        border: '1px solid rgba(212, 165, 116, 0.15)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 16px rgba(10, 5, 17, 0.3)'
+      }}>
+        {details.length ? details : (
+          <div style={{ 
+            color: 'rgba(212, 165, 116, 0.6)', 
+            fontSize: 12, 
+            fontWeight: 500,
+            textAlign: 'center',
+            fontStyle: 'italic'
+          }}>No details available</div>
+        )}
       </div>
     );
   };
 
   return (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-      <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12 }}>{renderAge()}</div>
+  <div style={{ 
+    display: 'flex', 
+    flexDirection: showFullDetails ? 'column' : 'row',
+    alignItems: showFullDetails ? 'stretch' : 'center', 
+    gap: showFullDetails ? 12 : 8, 
+    flexWrap: 'wrap',
+    width: '100%'
+  }}>
+      <div style={{ 
+        color: 'rgba(212, 165, 116, 0.7)', 
+        fontSize: 11, 
+        fontWeight: 500,
+        fontFamily: "'DM Sans', sans-serif"
+      }}>{renderAge()}</div>
+      
       {showRefresh && (
         <button
           onClick={handleRefresh}
           disabled={isFetching}
-          style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.06)', color: '#fff', fontWeight: 700, fontSize: 12, cursor: 'pointer' }}
+          style={{ 
+            padding: '6px 12px', 
+            borderRadius: 8, 
+            background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(184, 51, 106, 0.05) 100%)', 
+            border: '1px solid rgba(212, 165, 116, 0.2)', 
+            color: 'var(--love-letter-gold)', 
+            fontWeight: 600, 
+            fontSize: 11, 
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            fontFamily: "'DM Sans', sans-serif"
+          }}
         >
           Refresh
         </button>
       )}
-      {typeof amount === 'number' && !isNaN(amount) && (
-        <div style={{ color: 'rgba(255,215,0,0.95)', fontWeight: 800, fontSize: 13 }}>{renderConversion()}</div>
+      
+      {typeof amount === 'number' && !isNaN(amount) && !showFullDetails && (
+        <div style={{ 
+          color: 'var(--love-letter-gold)', 
+          fontWeight: 700, 
+          fontSize: showFullDetails ? 15 : 13,
+          fontFamily: "'DM Sans', sans-serif",
+          textShadow: '0 1px 2px rgba(10, 5, 17, 0.5)'
+        }}>{renderConversion()}</div>
       )}
-      {/* Use native details/summary for accessibility. Hide on mobile. */}
-      {!isMobile && (
-        <details style={{ marginLeft: 8, borderRadius: 6, overflow: 'hidden' }}>
-          <summary style={{ listStyle: 'none', cursor: 'pointer', padding: '4px 8px', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, background: 'transparent', color: '#fff', fontSize: 12 }}>
+      
+      {/* Show full details directly if showFullDetails is true */}
+      {showFullDetails && renderDetails()}
+      
+      {/* Use native details/summary for accessibility. Hide on mobile. Only show if not showing full details */}
+      {!showFullDetails && !isMobile && (
+        <details style={{ marginLeft: 8, borderRadius: 8, overflow: 'hidden' }}>
+          <summary style={{ 
+            listStyle: 'none', 
+            cursor: 'pointer', 
+            padding: '6px 12px', 
+            border: '1px solid rgba(212, 165, 116, 0.2)', 
+            borderRadius: 8, 
+            background: 'linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(184, 51, 106, 0.05) 100%)', 
+            color: 'var(--love-letter-gold)', 
+            fontSize: 11,
+            fontWeight: 600,
+            transition: 'all 0.3s ease',
+            fontFamily: "'DM Sans', sans-serif"
+          }}>
             Details
           </summary>
           {renderDetails()}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useGraphics, GraphicsQuality, PREDEFINED_THEMES, CustomTheme } from '../Game/GameScreenFrame'
+import { Modal } from '../Modal/Modal'
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-10px); }
@@ -12,33 +13,12 @@ const slideIn = keyframes`
   to { transform: translateX(0); }
 `
 
-const SettingsModal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: ${fadeIn} 0.3s ease;
-`
-
-const SettingsPanel = styled.div`
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  border: 2px solid #333;
-  border-radius: 16px;
-  padding: 24px;
-  width: 90%;
+const SettingsContent = styled.div`
   max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  color: white;
-  animation: ${slideIn} 0.4s ease;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: #eaf6fb;
+  font-family: "'JetBrains Mono', 'Orbitron', 'monospace'";
   
   h2 {
     margin: 0 0 20px 0;
@@ -56,8 +36,8 @@ const SettingsSection = styled.div`
   h3 {
     margin: 0 0 12px 0;
     font-size: 16px;
-    color: #ccc;
-    border-bottom: 1px solid #333;
+    color: #6ffaff;
+    border-bottom: 1px solid rgba(111, 250, 255, 0.3);
     padding-bottom: 8px;
   }
 `
@@ -70,47 +50,54 @@ const SettingRow = styled.div`
   
   label {
     font-size: 14px;
-    color: #bbb;
+    color: #eaf6fb;
     flex: 1;
     margin-right: 16px;
   }
 `
 
 const Select = styled.select`
-  background: #2a2a3e;
-  border: 1px solid #444;
+  background: rgba(111, 250, 255, 0.1);
+  border: 1px solid rgba(111, 250, 255, 0.3);
   border-radius: 8px;
-  color: white;
+  color: #eaf6fb;
   padding: 8px 12px;
   min-width: 120px;
   font-size: 14px;
   cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
   
   &:hover {
-    border-color: #666;
+    border-color: rgba(111, 250, 255, 0.5);
   }
   
   &:focus {
     outline: none;
-    border-color: #888;
-    box-shadow: 0 0 0 2px rgba(136, 136, 136, 0.2);
+    border-color: #6ffaff;
+    box-shadow: 0 0 0 2px rgba(111, 250, 255, 0.2);
+  }
+  
+  option {
+    background: #1a1a2e;
+    color: #eaf6fb;
   }
 `
 
-const ToggleSwitch = styled.div<{ enabled: boolean }>`
+const ToggleSwitch = styled.div<{ $enabled: boolean }>`
   position: relative;
   width: 50px;
   height: 24px;
-  background: ${props => props.enabled ? '#4ade80' : '#374151'};
+  background: ${props => props.$enabled ? '#6ffaff' : 'rgba(111, 250, 255, 0.2)'};
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 1px solid rgba(111, 250, 255, 0.3);
   
   &::after {
     content: '';
     position: absolute;
     top: 2px;
-    left: ${props => props.enabled ? '26px' : '2px'};
+    left: ${props => props.$enabled ? '26px' : '2px'};
     width: 20px;
     height: 20px;
     background: white;
@@ -120,7 +107,8 @@ const ToggleSwitch = styled.div<{ enabled: boolean }>`
   }
   
   &:hover {
-    background: ${props => props.enabled ? '#22c55e' : '#4b5563'};
+    background: ${props => props.$enabled ? '#5ee8f0' : 'rgba(111, 250, 255, 0.3)'};
+    border-color: rgba(111, 250, 255, 0.5);
   }
 `
 
@@ -132,7 +120,7 @@ const ThemePreview = styled.div<{ theme: CustomTheme }>`
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-right: 8px;
+  flex-shrink: 0;
   
   &:hover {
     transform: scale(1.1);
@@ -141,10 +129,34 @@ const ThemePreview = styled.div<{ theme: CustomTheme }>`
 `
 
 const ThemeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  display: flex;
   gap: 12px;
   margin-top: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  
+  /* Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(111, 250, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(111, 250, 255, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(111, 250, 255, 0.5);
+    }
+  }
+  
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(111, 250, 255, 0.3) rgba(111, 250, 255, 0.1);
 `
 
 const WarningBanner = styled.div`
@@ -172,23 +184,28 @@ const ActionButtons = styled.div`
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-family: 'JetBrains Mono', monospace;
     
     &.primary {
-      background: linear-gradient(45deg, #4ade80, #22c55e);
-      color: white;
+      background: linear-gradient(135deg, #6ffaff 0%, #a259ff 100%);
+      color: #0a0a0a;
+      border: 1px solid rgba(111, 250, 255, 0.3);
       
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 4px 12px rgba(111, 250, 255, 0.4);
+        background: linear-gradient(135deg, #5ee8f0 0%, #9146ff 100%);
       }
     }
     
     &.secondary {
-      background: #374151;
-      color: #d1d5db;
+      background: rgba(111, 250, 255, 0.1);
+      color: #eaf6fb;
+      border: 1px solid rgba(111, 250, 255, 0.3);
       
       &:hover {
-        background: #4b5563;
+        background: rgba(111, 250, 255, 0.2);
+        border-color: rgba(111, 250, 255, 0.5);
       }
     }
   }
@@ -198,7 +215,7 @@ interface GraphicsSettingsProps {
   onClose: () => void
 }
 
-export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
+export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
   const { settings, updateSettings } = useGraphics()
   const [localSettings, setLocalSettings] = useState(settings)
 
@@ -209,10 +226,26 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
   }
 
   const handleThemeChange = (themeName: string) => {
-    console.log('🎨 Theme Change:', themeName)
-    const theme = themeName === 'default' ? undefined : PREDEFINED_THEMES[themeName]
-    console.log('🎨 Selected Theme:', theme)
-    const newSettings = { ...localSettings, customTheme: theme }
+    console.log('🎨 Theme Change called with:', themeName)
+    console.log('🎨 Current localSettings:', localSettings)
+    
+    let newSettings
+    
+    if (themeName === 'default') {
+      // Create a new object without the customTheme property
+      const { customTheme, ...settingsWithoutTheme } = localSettings
+      newSettings = settingsWithoutTheme
+      console.log('🎨 Setting to default - removed customTheme property')
+    } else {
+      const theme = PREDEFINED_THEMES[themeName]
+      newSettings = { 
+        ...localSettings, 
+        customTheme: theme
+      }
+      console.log('🎨 Setting custom theme:', theme?.name)
+    }
+    
+    console.log('🎨 Final newSettings:', newSettings)
     setLocalSettings(newSettings)
     updateSettings(newSettings) // Apply immediately
   }
@@ -252,19 +285,18 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
   }
 
   return (
-    <SettingsModal onClick={onClose}>
-      <SettingsPanel onClick={e => e.stopPropagation()}>
-        <h2>🎮 Graphics Settings</h2>
-        
-        {/* Performance Warning */}
-        {settings.performanceMode && (
-          <WarningBanner>
-            ⚠️ Low-end device detected! Consider using Low quality for optimal performance.
-          </WarningBanner>
-        )}
+    <SettingsContent>
+      <h2>🎮 Graphics Settings</h2>
+      
+      {/* Performance Warning */}
+      {settings.performanceMode && (
+        <WarningBanner>
+          ⚠️ Low-end device detected! Consider using Low quality for optimal performance.
+        </WarningBanner>
+      )}
 
-        {/* Graphics Quality */}
-        <SettingsSection>
+      {/* Graphics Quality */}
+      <SettingsSection>
           <h3>🎯 Quality Level</h3>
           <SettingRow>
             <label>Graphics Quality</label>
@@ -294,14 +326,14 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
           <SettingRow>
             <label>Enhanced Visual Feedback (Screen Flashes & Shakes)</label>
             <ToggleSwitch
-              enabled={localSettings.enableEffects}
+              $enabled={localSettings.enableEffects}
               onClick={() => handleToggle('enableEffects')}
             />
           </SettingRow>
           <SettingRow>
             <label>Static Mode (No Motion/Animations)</label>
             <ToggleSwitch
-              enabled={!localSettings.enableMotion}
+              $enabled={!localSettings.enableMotion}
               onClick={() => handleToggle('enableMotion')}
             />
           </SettingRow>
@@ -314,7 +346,10 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
             <label>Color Theme</label>
             <Select
               value={(() => {
-                if (!localSettings.customTheme) return 'default'
+                // Check if customTheme property exists and has a value
+                if (!('customTheme' in localSettings) || !localSettings.customTheme) {
+                  return 'default'
+                }
                 // Find the key that matches the theme
                 const themeKey = Object.entries(PREDEFINED_THEMES).find(
                   ([_, theme]) => theme.name === localSettings.customTheme?.name
@@ -332,14 +367,44 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
           
           {/* Theme Previews */}
           <ThemeGrid>
+            {/* Default Theme Preview */}
+            <div style={{ textAlign: 'center', minWidth: '80px', flexShrink: 0 }}>
+              <div
+                style={{
+                  width: '60px',
+                  height: '30px',
+                  border: '2px solid transparent',
+                  borderColor: (!localSettings.customTheme && !('customTheme' in localSettings)) ? '#6ffaff' : 'transparent',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(45deg, #1a1a2e, #16213e, #0f3460)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  flexShrink: 0
+                }}
+                onClick={() => {
+                  console.log('🎨 Default theme clicked!')
+                  handleThemeChange('default')
+                }}
+                title="Default Theme"
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              />
+              <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: '1.2' }}>
+                Default
+              </div>
+            </div>
+            {/* Custom Themes */}
             {Object.entries(PREDEFINED_THEMES).map(([key, theme]) => (
-              <div key={key} style={{ textAlign: 'center' }}>
+              <div key={key} style={{ textAlign: 'center', minWidth: '80px', flexShrink: 0 }}>
                 <ThemePreview
                   theme={theme}
                   onClick={() => handleThemeChange(key)}
                   title={theme.name}
+                  style={{
+                    borderColor: localSettings.customTheme?.name === theme.name ? '#6ffaff' : 'transparent'
+                  }}
                 />
-                <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: '1.2' }}>
                   {theme.name}
                 </div>
               </div>
@@ -347,40 +412,29 @@ export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
           </ThemeGrid>
         </SettingsSection>
 
-        {/* Quality Level Descriptions */}
-        <SettingsSection>
-          <h3>📋 Quality Details</h3>
-          <div style={{ fontSize: '12px', color: '#999', lineHeight: '1.5' }}>
-            <div><strong>Low:</strong> Minimal effects, maximum performance</div>
-            <div><strong>Medium:</strong> Basic animations and gradients</div>
-            <div><strong>High:</strong> All effects including particles and shadows</div>
-            <div><strong>Ultra:</strong> Maximum visual fidelity with scanning effects</div>
-          </div>
-        </SettingsSection>
+      {/* Action Buttons */}
+      <ActionButtons>
+        <button className="secondary" onClick={resetToDefaults}>
+          Reset Defaults
+        </button>
+        <button className="primary" onClick={onClose}>
+          Close
+        </button>
+      </ActionButtons>
+    </SettingsContent>
+  )
+}  export const GraphicsSettingsContent = GraphicsSettingsInner
 
-        {/* Accessibility Details */}
-        <SettingsSection>
-          <h3>♿ Accessibility Details</h3>
-          <div style={{ fontSize: '12px', color: '#999', lineHeight: '1.5' }}>
-            <div><strong>Enhanced Visual Feedback:</strong> Provides stronger visual accessibility aids through screen flashes, color changes, and shake effects for game outcomes. Beneficial for users with visual processing differences who need clearer outcome signals. ⚠️ <strong>Contains rapid flashing lights - avoid if photosensitive.</strong></div>
-            <br />
-            <div><strong>Static Mode:</strong> Completely disables ALL animations, transitions, hover effects, and motion throughout the entire interface. Creates a fully static experience with no moving elements for users sensitive to motion or who prefer zero visual distraction.</div>
-          </div>
-        </SettingsSection>
-
-        {/* Action Buttons */}
-        <ActionButtons>
-          <button className="secondary" onClick={resetToDefaults}>
-            Reset Defaults
-          </button>
-          <button className="primary" onClick={applySettings}>
-            Close
-          </button>
-        </ActionButtons>
-      </SettingsPanel>
-    </SettingsModal>
+export function GraphicsSettings({ onClose }: GraphicsSettingsProps) {
+  return (
+    <Modal onClose={onClose}>
+      <GraphicsSettingsContent onClose={onClose} />
+    </Modal>
   )
 }
+
+export default GraphicsSettings
+
 
 // Simple settings icon component
 export function GraphicsSettingsIcon() {

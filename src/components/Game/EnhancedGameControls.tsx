@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PriceIndicator from "../UI/PriceIndicator";
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
+import { Modal } from '../Modal/Modal';
 import { 
   WagerInputContainer, 
   WagerLabel, 
@@ -127,6 +128,107 @@ const StyledWagerInputWrapper = styled.div`
   }
 `;
 
+// Details Button for wager info
+const DetailsButton = styled.button`
+  all: unset;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 165, 116, 0.2) 0%,
+    rgba(184, 51, 106, 0.15) 100%
+  );
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  color: var(--love-letter-gold);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  font-family: 'DM Sans', sans-serif;
+  
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(212, 165, 116, 0.3) 0%,
+      rgba(184, 51, 106, 0.2) 100%
+    );
+    border-color: rgba(212, 165, 116, 0.5);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+  }
+  
+  &:active {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 479px) {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    top: 6px;
+    right: 6px;
+  }
+`;
+
+// Wager Details Modal Content
+const WagerDetailsContent = styled.div`
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: var(--love-letter-gold);
+  font-family: 'DM Sans', sans-serif;
+`;
+
+const WagerDetailsTitle = styled.h2`
+  font-family: 'Libre Baskerville', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--love-letter-gold);
+  text-align: center;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 4px rgba(10, 5, 17, 0.5);
+`;
+
+const WagerDetailsSection = styled.div`
+  margin: 16px 0;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 5, 17, 0.8) 0%,
+    rgba(139, 90, 158, 0.1) 50%,
+    rgba(10, 5, 17, 0.8) 100%
+  );
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+`;
+
+const WagerDetailsLabel = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(212, 165, 116, 0.8);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const WagerDetailsValue = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--love-letter-gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 // Enhanced WagerInput component
 export const EnhancedWagerInput: React.FC<{
   value: number;
@@ -139,6 +241,7 @@ export const EnhancedWagerInput: React.FC<{
 }> = ({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }) => {
   const token = useCurrentToken();
   const wagerLimits = useWagerLimits(multiplier);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   
   // Use provided limits or fall back to calculated ones
   const effectiveMinWager = minWager ?? wagerLimits.minWager;
@@ -222,29 +325,103 @@ export const EnhancedWagerInput: React.FC<{
   };
 
   return (
-    <WagerInputContainer>
-      <WagerLabel>Bet Amount</WagerLabel>
-      <StyledWagerInputWrapper>
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={disabled}
-          placeholder="0.00"
-        />
-        <div className="symbol">{token?.symbol ?? ''}</div>
-      </StyledWagerInputWrapper>
-      <div style={{ marginTop: 8 }}>
-        {/* display live USD conversion (displayValue is token amount) */}
-        <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact />
-      </div>
-      <div style={{ marginTop: 4, fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center' }}>
-        Min: {(effectiveMinWager / token.baseWager).toFixed(4)} {token?.symbol} | 
-        Max: {effectiveMaxWager === Infinity ? '∞' : (effectiveMaxWager / token.baseWager).toFixed(4)} {token?.symbol}
-      </div>
-    </WagerInputContainer>
+    <>
+      <WagerInputContainer>
+        <WagerLabel>Bet Amount</WagerLabel>
+        <StyledWagerInputWrapper>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            disabled={disabled}
+            placeholder="0.00"
+          />
+          <div className="symbol">{token?.symbol ?? ''}</div>
+        </StyledWagerInputWrapper>
+        <DetailsButton onClick={() => setShowDetailsModal(true)}>
+          i
+        </DetailsButton>
+      </WagerInputContainer>
+      
+      {showDetailsModal && (
+        <Modal onClose={() => setShowDetailsModal(false)}>
+          <WagerDetailsContent>
+            <WagerDetailsTitle>Wager Details</WagerDetailsTitle>
+            
+            <WagerDetailsSection>
+              <WagerDetailsLabel>USD Value</WagerDetailsLabel>
+              <WagerDetailsValue>
+                <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact showFullDetails />
+              </WagerDetailsValue>
+            </WagerDetailsSection>
+            
+            <WagerDetailsSection>
+              <WagerDetailsLabel>Bet Limits</WagerDetailsLabel>
+              <WagerDetailsValue style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                gap: '16px',
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'flex-start',
+                  flex: 1
+                }}>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: 'rgba(212, 165, 116, 0.7)', 
+                    fontWeight: 600,
+                    marginBottom: '4px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>Min</span>
+                  <span style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 700, 
+                    color: 'var(--love-letter-gold)'
+                  }}>
+                    {(effectiveMinWager / token.baseWager).toFixed(4)} {token?.symbol}
+                  </span>
+                </div>
+                <div style={{ 
+                  width: '1px', 
+                  height: '40px', 
+                  background: 'linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.3), transparent)',
+                  alignSelf: 'stretch'
+                }}></div>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'flex-end',
+                  flex: 1
+                }}>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: 'rgba(212, 165, 116, 0.7)', 
+                    fontWeight: 600,
+                    marginBottom: '4px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>Max</span>
+                  <span style={{ 
+                    fontSize: '16px', 
+                    fontWeight: 700, 
+                    color: 'var(--love-letter-gold)'
+                  }}>
+                    {effectiveMaxWager === Infinity ? '∞' : (effectiveMaxWager / token.baseWager).toFixed(4)} {token?.symbol}
+                  </span>
+                </div>
+              </WagerDetailsValue>
+            </WagerDetailsSection>
+          </WagerDetailsContent>
+        </Modal>
+      )}
+    </>
   );
 };
 

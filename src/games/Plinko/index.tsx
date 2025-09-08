@@ -616,7 +616,11 @@ export default function Plinko() {
           />
         </MobileControls>
         
-        <DesktopControls>
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={() => play()}
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <div>Degen:</div>
           <GambaUi.Switch

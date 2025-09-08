@@ -3,7 +3,11 @@ import styled from 'styled-components'
 export const StyledPlinkoBackground = styled.div`
   perspective: 100px;
   user-select: none;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   background: linear-gradient(
@@ -43,7 +47,7 @@ export const StyledPlinkoBackground = styled.div`
   }
 
   &::after {
-    content: '�';
+    content: '💖';
     position: absolute;
     bottom: 10%;
     right: 8%;
@@ -118,11 +122,12 @@ export const StyledPlinkoBackground = styled.div`
     }
   }
 
-  /* Allow internal layout to flow naturally without height constraints */
+  /* Use min-height so internal layout can expand without being constrained */
   & > * {
     position: relative;
     z-index: 1;
     width: 100%;
+    min-height: 100%;
   }
 
   .plinko-content {
@@ -140,8 +145,8 @@ export const StyledPlinkoBackground = styled.div`
     min-height: 100%;
   }
 
-  /* Romantic floating elements */
-  .romantic-bg-elements {
+  /* Additional gravity elements */
+  .gravity-bg-elements {
     position: absolute;
     top: 0;
     left: 0;
@@ -151,59 +156,31 @@ export const StyledPlinkoBackground = styled.div`
     z-index: 0;
 
     &::before {
-      content: '�';
+      content: '🔵';
       position: absolute;
       top: 30%;
       right: 15%;
       font-size: 100px;
-      opacity: 0.08;
+      opacity: 0.05;
       transform: rotate(-20deg);
-      color: var(--deep-crimson-rose);
-      filter: drop-shadow(3px 3px 6px rgba(10, 5, 17, 0.6));
-      animation: romanticFloat 7s ease-in-out infinite;
+      color: #a5f3fc;
+      filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
     }
 
     &::after {
-      content: '✨';
+      content: '💫';
       position: absolute;
       bottom: 35%;
       left: 12%;
       font-size: 90px;
-      opacity: 0.1;
+      opacity: 0.07;
       transform: rotate(30deg);
-      color: var(--love-letter-gold);
-      filter: drop-shadow(3px 3px 6px rgba(10, 5, 17, 0.6));
-      animation: loveLetterSparkle 5s ease-in-out infinite;
+      color: #22d3ee;
+      filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
     }
   }
 
-  @keyframes romanticFloat {
-    0%, 100% { 
-      transform: rotate(-20deg) translateY(0px);
-      opacity: 0.08;
-    }
-    33% { 
-      transform: rotate(-15deg) translateY(-12px);
-      opacity: 0.12;
-    }
-    66% { 
-      transform: rotate(-25deg) translateY(-6px);
-      opacity: 0.15;
-    }
-  }
-
-  @keyframes loveLetterSparkle {
-    0%, 100% { 
-      transform: rotate(30deg) scale(1);
-      opacity: 0.1;
-    }
-    50% { 
-      transform: rotate(35deg) scale(1.15);
-      opacity: 0.18;
-    }
-  }
-
-  /* Romantic melody overlay */
+  /* Melody overlay for flowing movement */
   .melody-overlay {
     position: absolute;
     top: 0;
@@ -211,35 +188,14 @@ export const StyledPlinkoBackground = styled.div`
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(circle at 25% 25%, var(--deep-crimson-rose) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, var(--soft-purple-twilight) 0%, transparent 60%),
-      radial-gradient(circle at 50% 50%, var(--love-letter-gold) 0%, transparent 80%);
-    opacity: 0.15;
+      radial-gradient(circle at 25% 25%, rgba(34, 211, 238, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(14, 116, 144, 0.12) 0%, transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(8, 145, 178, 0.1) 0%, transparent 80%);
     pointer-events: none;
     z-index: 0;
-    animation: mysticalAura 10s ease-in-out infinite;
   }
 
-  @keyframes mysticalAura {
-    0%, 100% { 
-      opacity: 0.15;
-      filter: blur(0px);
-    }
-    25% { 
-      opacity: 0.2;
-      filter: blur(1px);
-    }
-    50% { 
-      opacity: 0.25;
-      filter: blur(2px);
-    }
-    75% { 
-      opacity: 0.2;
-      filter: blur(1px);
-    }
-  }
-
-  /* Romantic inevitability indicator */
+  /* Inevitability indicator for gravity's pull */
   .inevitability-indicator {
     position: absolute;
     top: 50%;
@@ -247,36 +203,21 @@ export const StyledPlinkoBackground = styled.div`
     transform: translate(-50%, -50%);
     width: 400px;
     height: 400px;
-    border: 1px solid var(--love-letter-gold);
+    border: 1px solid rgba(34, 211, 238, 0.2);
     border-radius: 50%;
-    animation: romanticHeartbeat 6s ease-in-out infinite;
+    animation: gravity-pulse 6s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
-    box-shadow: 
-      0 0 20px var(--deep-crimson-rose),
-      inset 0 0 20px var(--soft-purple-twilight);
   }
 
-  @keyframes romanticHeartbeat {
+  @keyframes gravity-pulse {
     0%, 100% {
-      opacity: 0.4;
-      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.8;
       filter: brightness(1);
     }
-    25% {
-      opacity: 0.6;
-      transform: translate(-50%, -50%) scale(1.02);
-      filter: brightness(1.1);
-    }
     50% {
-      opacity: 0.8;
-      transform: translate(-50%, -50%) scale(1.05);
-      filter: brightness(1.2);
-    }
-    75% {
-      opacity: 0.6;
-      transform: translate(-50%, -50%) scale(1.02);
-      filter: brightness(1.1);
+      opacity: 1;
+      filter: brightness(1.15);
     }
   }
 
@@ -291,80 +232,78 @@ export const StyledPlinkoBackground = styled.div`
     }
   }
 
-  /* Enhanced styling for romantic plinko elements */
+  /* Enhanced styling for plinko-specific elements */
   .gravity-board-area {
     background: 
       linear-gradient(135deg, 
-        var(--deep-romantic-night) 0%,
-        var(--soft-purple-twilight) 50%,
-        var(--deep-romantic-night) 100%
+        rgba(12, 74, 110, 0.9) 0%,
+        rgba(14, 116, 144, 0.85) 50%,
+        rgba(12, 74, 110, 0.9) 100%
       );
-    border: 2px solid var(--love-letter-gold);
+    border: 2px solid rgba(34, 211, 238, 0.4);
     border-radius: 16px;
     backdrop-filter: blur(20px);
     box-shadow: 
-      0 8px 32px rgba(10, 5, 17, 0.7),
-      inset 0 1px 2px rgba(212, 165, 116, 0.2),
-      0 0 15px var(--deep-crimson-rose);
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.1);
     padding: 20px;
-    color: var(--love-letter-gold);
-    text-shadow: 1px 1px 2px rgba(10, 5, 17, 0.9);
+    color: #a5f3fc;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 
   .falling-display {
     background: 
       linear-gradient(135deg, 
-        var(--deep-crimson-rose) 0%,
-        var(--soft-purple-twilight) 50%,
-        var(--deep-crimson-rose) 100%
+        rgba(8, 145, 178, 0.9) 0%,
+        rgba(6, 182, 212, 0.85) 50%,
+        rgba(8, 145, 178, 0.9) 100%
       );
-    border: 3px solid var(--love-letter-gold);
+    border: 3px solid rgba(34, 211, 238, 0.6);
     border-radius: 20px;
     box-shadow: 
-      0 12px 40px rgba(10, 5, 17, 0.7),
-      inset 0 2px 4px rgba(212, 165, 116, 0.3),
-      0 0 25px var(--deep-crimson-rose);
+      0 12px 40px rgba(0, 0, 0, 0.5),
+      inset 0 2px 4px rgba(255, 255, 255, 0.15),
+      0 0 25px rgba(34, 211, 238, 0.3);
     padding: 25px;
-    color: #fff;
-    text-shadow: 2px 2px 4px rgba(10, 5, 17, 0.9);
-    animation: romanticHeartbeat 4s ease-in-out infinite;
+    color: #f0fdff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    animation: gravity-pulse 4s ease-in-out infinite;
   }
 
   .physics-container {
     background: 
       linear-gradient(135deg, 
-        var(--deep-romantic-night) 0%,
-        var(--soft-purple-twilight) 50%,
-        var(--deep-romantic-night) 100%
+        rgba(12, 74, 110, 0.8) 0%,
+        rgba(14, 116, 144, 0.75) 50%,
+        rgba(12, 74, 110, 0.8) 100%
       );
-    border: 2px solid var(--deep-crimson-rose);
+    border: 2px solid rgba(34, 211, 238, 0.3);
     border-radius: 12px;
     padding: 20px;
     backdrop-filter: blur(15px);
     box-shadow: 
-      0 6px 24px rgba(10, 5, 17, 0.5),
-      inset 0 1px 2px rgba(139, 90, 158, 0.2),
-      0 0 10px var(--soft-purple-twilight);
+      0 6px 24px rgba(0, 0, 0, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
 
-  /* Romantic result area for consistent layout */
+  /* Result area for consistent layout */
   .gravity-result-area {
     background: 
       linear-gradient(135deg, 
-        var(--soft-purple-twilight) 0%,
-        var(--deep-crimson-rose) 50%,
-        var(--soft-purple-twilight) 100%
+        rgba(14, 116, 144, 0.9) 0%,
+        rgba(8, 145, 178, 0.85) 50%,
+        rgba(14, 116, 144, 0.9) 100%
       );
-    border: 2px solid var(--love-letter-gold);
+    border: 2px solid rgba(34, 211, 238, 0.4);
     border-radius: 16px;
     backdrop-filter: blur(20px);
     box-shadow: 
-      0 10px 35px rgba(10, 5, 17, 0.6),
-      inset 0 2px 4px rgba(212, 165, 116, 0.3),
-      0 0 20px var(--deep-crimson-rose);
+      0 10px 35px rgba(0, 0, 0, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.12),
+      0 0 20px rgba(34, 211, 238, 0.3);
     padding: 25px;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(10, 5, 17, 0.9);
+    color: #f0fdff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     min-height: 60px;
     display: flex;
     align-items: center;
@@ -372,24 +311,24 @@ export const StyledPlinkoBackground = styled.div`
     text-align: center;
   }
 
-  /* Enhanced Romantic Plinko Bucket Styling */
+  /* Enhanced Plinko Bucket Styling */
   .plinko-bucket {
     background: linear-gradient(135deg, 
-      var(--deep-crimson-rose) 0%,
-      var(--love-letter-gold) 50%,
-      var(--soft-purple-twilight) 100%
+      rgba(6, 182, 212, 0.95) 0%,
+      rgba(34, 211, 238, 0.9) 50%,
+      rgba(103, 232, 249, 0.95) 100%
     );
-    border: 3px solid var(--love-letter-gold);
+    border: 3px solid rgba(255, 255, 255, 0.4);
     border-radius: 8px 8px 16px 16px;
     box-shadow: 
-      0 8px 25px rgba(10, 5, 17, 0.8),
-      inset 0 2px 4px rgba(212, 165, 116, 0.4),
-      0 0 15px var(--deep-crimson-rose),
-      inset 0 -2px 8px rgba(10, 5, 17, 0.4);
+      0 8px 25px rgba(0, 0, 0, 0.6),
+      inset 0 2px 4px rgba(255, 255, 255, 0.3),
+      0 0 15px rgba(34, 211, 238, 0.5),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(15px);
     color: #ffffff;
     font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(10, 5, 17, 0.9);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -409,21 +348,10 @@ export const StyledPlinkoBackground = styled.div`
     bottom: 0;
     background: linear-gradient(45deg, 
       transparent 30%, 
-      rgba(212, 165, 116, 0.3) 50%, 
+      rgba(255, 255, 255, 0.2) 50%, 
       transparent 70%
     );
-    animation: romantic-bucket-shimmer 3s ease-in-out infinite;
-  }
-
-  @keyframes romantic-bucket-shimmer {
-    0%, 100% { 
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-    50% { 
-      transform: translateX(100%);
-      opacity: 1;
-    }
+    animation: bucket-shimmer 3s ease-in-out infinite;
   }
 
   .plinko-bucket::after {
@@ -434,9 +362,9 @@ export const StyledPlinkoBackground = styled.div`
     right: 0;
     bottom: 0;
     background: linear-gradient(180deg, 
-      rgba(212, 165, 116, 0.2) 0%,
+      rgba(255, 255, 255, 0.1) 0%,
       transparent 50%,
-      rgba(10, 5, 17, 0.2) 100%
+      rgba(0, 0, 0, 0.1) 100%
     );
     pointer-events: none;
   }
@@ -444,39 +372,38 @@ export const StyledPlinkoBackground = styled.div`
   .plinko-bucket:hover {
     transform: translateY(-2px);
     box-shadow: 
-      0 12px 35px rgba(10, 5, 17, 0.7),
-      inset 0 2px 6px rgba(212, 165, 116, 0.5),
-      0 0 25px var(--love-letter-gold);
-    filter: brightness(1.1);
+      0 12px 35px rgba(0, 0, 0, 0.5),
+      inset 0 2px 6px rgba(255, 255, 255, 0.25),
+      0 0 25px rgba(34, 211, 238, 0.6);
   }
 
   .plinko-bucket.high-multiplier {
     background: linear-gradient(135deg, 
-      var(--love-letter-gold) 0%,
-      var(--deep-crimson-rose) 50%,
-      var(--soft-purple-twilight) 100%
+      rgba(34, 211, 238, 0.95) 0%,
+      rgba(103, 232, 249, 0.9) 50%,
+      rgba(165, 243, 252, 0.95) 100%
     );
-    border-color: var(--love-letter-gold);
+    border-color: rgba(103, 232, 249, 0.8);
     box-shadow: 
-      0 10px 30px rgba(10, 5, 17, 0.7),
-      inset 0 3px 6px rgba(212, 165, 116, 0.4),
-      0 0 30px var(--love-letter-gold);
-    animation: romanticHeartbeat 2s ease-in-out infinite;
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      inset 0 3px 6px rgba(255, 255, 255, 0.3),
+      0 0 30px rgba(103, 232, 249, 0.7);
+    animation: gravity-pulse 2s ease-in-out infinite;
   }
 
   .plinko-bucket.medium-multiplier {
     background: linear-gradient(135deg, 
-      var(--soft-purple-twilight) 0%,
-      var(--deep-crimson-rose) 50%,
-      var(--love-letter-gold) 100%
+      rgba(14, 116, 144, 0.9) 0%,
+      rgba(6, 182, 212, 0.85) 50%,
+      rgba(34, 211, 238, 0.9) 100%
     );
   }
 
   .plinko-bucket.low-multiplier {
     background: linear-gradient(135deg, 
-      var(--deep-romantic-night) 0%,
-      var(--soft-purple-twilight) 50%,
-      var(--deep-crimson-rose) 100%
+      rgba(12, 74, 110, 0.85) 0%,
+      rgba(14, 116, 144, 0.8) 50%,
+      rgba(8, 145, 178, 0.85) 100%
     );
     opacity: 0.8;
   }
@@ -490,43 +417,8 @@ export const StyledPlinkoBackground = styled.div`
     }
   }
 
-  /* Responsive Design for Romantic Plinko */
-  @media (max-width: 479px) {
-    .plinko-content {
-      padding: 15px 10px;
-      gap: 12px;
-    }
-
-    .gravity-board-area, .falling-display, .physics-container, .gravity-result-area {
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .plinko-bucket {
-      margin: 0 1px;
-      min-height: 30px;
-      font-size: 11px;
-      padding: 4px;
-    }
-
-    .inevitability-indicator {
-      width: 250px;
-      height: 250px;
-    }
-
-    &::before, &::after {
-      font-size: 80px;
-    }
-
-    .romantic-bg-elements {
-      &::before, &::after {
-        font-size: 60px;
-      }
-    }
-  }
-
-  @media (min-width: 480px) and (max-width: 768px) {
+  /* Responsive Design for Plinko */
+  @media (max-width: 640px) {
     .plinko-content {
       padding: 20px 15px;
       gap: 15px;
@@ -565,31 +457,7 @@ export const StyledPlinkoBackground = styled.div`
     }
   }
 
-  @media (min-width: 769px) and (max-width: 1024px) {
-    }
-
-    .physics-container {
-      padding: 18px;
-    }
-
-    .gravity-result-area {
-      padding: 22px;
-      min-height: 55px;
-    }
-
-    .plinko-bucket {
-      margin: 0 1.5px;
-      min-height: 38px;
-      font-size: 13px;
-    }
-
-    .inevitability-indicator {
-      width: 350px;
-      height: 350px;
-    }
-  }
-
-  @media (min-width: 769px) and (max-width: 1024px) {
+  @media (min-width: 641px) and (max-width: 768px) {
     .plinko-content {
       padding: 25px 18px;
       gap: 18px;
@@ -624,19 +492,27 @@ export const StyledPlinkoBackground = styled.div`
     }
   }
 
-  @media (min-width: 1025px) {
+  @media (min-width: 769px) and (max-width: 899px) {
     .plinko-content {
-      padding: 30px 20px;
+      padding: 28px 20px;
       gap: 20px;
     }
 
-    .gravity-board-area, .falling-display, .physics-container {
+    .gravity-board-area {
+      padding: 20px;
+    }
+
+    .falling-display {
+      padding: 24px;
+    }
+
+    .physics-container {
       padding: 20px;
     }
 
     .gravity-result-area {
-      padding: 25px;
-      min-height: 60px;
+      padding: 24px;
+      min-height: 58px;
     }
 
     .plinko-bucket {
@@ -646,10 +522,30 @@ export const StyledPlinkoBackground = styled.div`
     }
 
     .inevitability-indicator {
-      width: 400px;
-      height: 400px;
+      width: 380px;
+      height: 380px;
     }
   }
+
+  @media (min-width: 900px) {
+    .plinko-content {
+      padding: 30px 20px;
+      gap: 20px;
+    }
+
+    .gravity-board-area {
+      padding: 20px;
+    }
+
+    .falling-display {
+      padding: 25px;
+    }
+
+    .physics-container {
+      padding: 20px;
+    }
+
+    .gravity-result-area {
       padding: 25px;
       min-height: 60px;
     }
