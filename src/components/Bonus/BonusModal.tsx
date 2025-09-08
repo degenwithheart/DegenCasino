@@ -6,7 +6,6 @@ import {
   Title, 
   Subtitle, 
   BonusAmount, 
-  InfoText, 
   FeatureList 
 } from './Bonus.styles'
 
@@ -35,21 +34,12 @@ const BonusInner: React.FC = () => {
         <span>FREE PLAYS</span>
       </BonusAmount>
 
-      <InfoText>
-        You have <strong><TokenValue amount={balance.bonusBalance} /></strong> worth of free plays available!
-      </InfoText>
-
       <FeatureList>
         <li>Bonus applies automatically when you play</li>
         <li>Small wallet fee still required for transactions</li>
         <li>No expiration on bonus funds</li>
         <li>Use on any game in the casino</li>
       </FeatureList>
-
-      <InfoText>
-        Start playing any game and your bonus will be applied automatically. 
-        The house edge works in your favor with these free plays!
-      </InfoText>
     </div>
   )
 }

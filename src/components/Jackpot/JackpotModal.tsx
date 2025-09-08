@@ -57,39 +57,6 @@ const Subtitle = styled.p`
   font-family: 'JetBrains Mono', monospace;
 `
 
-const FeatureList = styled.ul`
-  background: rgba(111, 250, 255, 0.08);
-  border: 1px solid rgba(111, 250, 255, 0.3);
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 1rem 0;
-  list-style: none;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0;
-    color: #eaf6fb;
-    font-size: 0.95rem;
-    font-family: 'JetBrains Mono', monospace;
-
-    &::before {
-      content: '⚛️';
-      font-size: 1.2rem;
-      background: rgba(111, 250, 255, 0.15);
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 8px rgba(111, 250, 255, 0.25);
-      filter: drop-shadow(0 0 4px #6ffaff);
-    }
-  }
-`
-
 const ControlSection = styled.div`
   background: rgba(111, 250, 255, 0.08);
   border: 1px solid rgba(111, 250, 255, 0.3);
@@ -284,11 +251,6 @@ const JackpotInner: React.FC = () => {
         <Title>💰 JACKPOT SYSTEM</Title>
         <Subtitle>Quantum Pool Mechanics</Subtitle>
       </HeaderSection>
-
-      <FeatureList>
-        <li>Jackpot grows with every bet placed</li>
-        <li>Pool fees contribute to the quantum accumulation</li>
-      </FeatureList>
 
       <PoolStatsContainer>
         <PoolStatsTitle>POOL STATISTICS</PoolStatsTitle>

@@ -150,7 +150,7 @@ export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefre
               background: 'rgba(212, 165, 116, 0.1)',
               padding: '2px 6px',
               borderRadius: 4
-            }}>${new Intl.NumberFormat('en-US', { 
+            }}>{new Intl.NumberFormat('en-US', { 
               style: 'currency', 
               currency: 'USD', 
               minimumFractionDigits: 2,

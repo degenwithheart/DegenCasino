@@ -72,22 +72,6 @@ export const BonusAmount = styled.div`
   }
 `
 
-export const InfoText = styled.p`
-  color: #eaf6fb;
-  font-size: 0.9rem;
-  font-family: 'JetBrains Mono', monospace;
-  text-align: center;
-  margin: 1rem 0;
-  line-height: 1.5;
-  opacity: 0.9;
-
-  strong, b {
-    color: #6ffaff;
-    font-weight: 700;
-    text-shadow: 0 0 6px #6ffaff88;
-  }
-`
-
 export const FeatureList = styled.ul`
   background: rgba(111, 250, 255, 0.08);
   border: 1px solid rgba(111, 250, 255, 0.3);

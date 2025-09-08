@@ -276,7 +276,7 @@ export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
     const defaultSettings = {
       quality: 'high' as GraphicsQuality,
       enableEffects: false,
-      enableMotion: false,
+      enableMotion: true,
       customTheme: undefined,
       performanceMode: settings.performanceMode // Keep detected performance mode
     }

@@ -373,10 +373,6 @@ export const MetaControls = styled.div`
     width: auto;
     gap: 14px;
     padding: 10px 16px;
-    border: 2px solid #333;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-    box-shadow: inset 0 1px 0 #ffffff08, 0 4px 12px #00000066;
     flex-wrap: nowrap;
     justify-content: flex-start;
   }
@@ -497,16 +493,8 @@ export const WagerInputContainer = styled.div`
   align-items: stretch;
   padding: 12px 14px;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(24, 24, 31, 0.95) 0%, rgba(45, 0, 54, 0.8) 100%);
-  border: 2px solid rgba(255, 215, 0, 0.4);
-  border-radius: 16px;
   margin: 8px 0;
   position: relative;
-  overflow: hidden;
-  box-shadow: 
-    0 4px 20px rgba(255, 215, 0, 0.15),
-    0 2px 8px rgba(162, 89, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 
   /* Tablet and up: Switch to row layout */
@@ -515,37 +503,6 @@ export const WagerInputContainer = styled.div`
     align-items: center;
     padding: 12px 18px;
     gap: 0;
-  }
-
-  &:hover {
-    border-color: rgba(255, 215, 0, 0.6);
-    box-shadow: 
-      0 6px 24px rgba(255, 215, 0, 0.25),
-      0 2px 12px rgba(162, 89, 255, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-  }
-
-  &:focus-within {
-    border-color: #ffd700;
-    box-shadow: 
-      0 0 0 4px rgba(255, 215, 0, 0.2),
-      0 6px 24px rgba(255, 215, 0, 0.3),
-      0 2px 12px rgba(162, 89, 255, 0.2);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    border-radius: 14px;
   }
 `;
 
@@ -943,7 +900,6 @@ export const MetaControlsRow = styled.div`
   /* Mobile-first: Smaller gaps and padding, allow wrapping */
   gap: 8px;
   padding-top: 6px;
-  border-top: 1px solid rgba(255, 215, 0, 0.2);
   flex-wrap: wrap;
 
   /* Tablet and up: Larger gaps and padding, no wrapping */

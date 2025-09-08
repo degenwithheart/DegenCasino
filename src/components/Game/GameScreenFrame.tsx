@@ -92,7 +92,7 @@ const GraphicsContext = createContext<{
   settings: {
     quality: 'high',
     enableEffects: false,
-    enableMotion: false,
+    enableMotion: true,
     performanceMode: false
   },
   updateSettings: () => {}
@@ -389,7 +389,7 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
         const loadedSettings: GraphicsSettings = { 
           quality: parsed.quality || (performanceMode ? 'low' : 'high'),
           enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : false,
-          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : false,
+          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : true,
           performanceMode
         }
         
@@ -408,7 +408,7 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
     return {
       quality: performanceMode ? 'low' : 'high',
       enableEffects: false,  // Default to OFF - accessibility feature for enhanced visual feedback
-      enableMotion: false,   // Default to OFF - motion needs enhancement
+      enableMotion: true,    // Default to ON - Static Mode OFF by default
       performanceMode
     }
   })

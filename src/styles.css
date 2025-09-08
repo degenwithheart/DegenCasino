@@ -75,6 +75,8 @@ html {
   height: 100%;
   height: 100dvh;
   overflow-x: hidden;
+  /* Ensure scrollbar doesn't get hidden behind fixed elements */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -107,6 +109,9 @@ body {
   /* Prevent horizontal scroll on mobile */
   max-width: 100vw;
   box-sizing: border-box;
+  
+  /* Reserve space for scrollbar to prevent it from being hidden */
+  scrollbar-gutter: stable;
 }
 
 /* Subtle romantic atmosphere overlay */

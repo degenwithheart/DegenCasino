@@ -87,6 +87,11 @@ const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
     0 8px 32px rgba(139, 90, 158, 0.15),
     0 0 40px rgba(212, 165, 116, 0.1);
 
+  /* Leave space for scrollbar on desktop devices with mouse */
+  @media (hover: hover) and (pointer: fine) {
+    right: 15px;
+  }
+
   /* Romantic atmosphere overlay */
   &::before {
     content: '';

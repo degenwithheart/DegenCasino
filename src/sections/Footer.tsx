@@ -41,7 +41,6 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
   bottom: 0;
   left: 0;
   right: 0;
-  width: 100vw;
   height: 72px;
   padding: 0 48px;
   
@@ -61,6 +60,11 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
   font-family: 'DM Sans', 'Inter', sans-serif;
   color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
   z-index: 1000;
+
+  /* Leave space for scrollbar on desktop devices with mouse */
+  @media (hover: hover) and (pointer: fine) {
+    right: 15px;
+  }
 
   /* Romantic atmosphere overlay */
   &::before {
