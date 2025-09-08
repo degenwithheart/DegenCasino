@@ -52,8 +52,12 @@ export default function Slots() {
     revealedSlots,
     wager,
     enableMotion: settings.enableMotion,
-    combination: combination.map(c => c.multiplier),
-    winningPaylines: winningPaylines.length
+    combination: combination.map(c => c ? c.multiplier : 'undefined'),
+    combinationLength: combination.length,
+    winningPaylines: winningPaylines.length,
+    NUM_REELS,
+    NUM_ROWS,
+    NUM_SLOTS: NUM_REELS * NUM_ROWS
   })
   
   const sounds = useSound({
@@ -249,6 +253,22 @@ export default function Slots() {
               >
                 {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
                 <div className="slots-content">
+                  {/* DEBUG: Always show some visible content */}
+                  <div style={{
+                    background: 'rgba(255, 255, 0, 0.8)',
+                    padding: '20px',
+                    color: 'black',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    margin: '20px 0'
+                  }}>
+                    DEBUG: SLOTS CONTENT RENDERING
+                    <br />NUM_REELS: {NUM_REELS} | NUM_ROWS: {NUM_ROWS} | NUM_SLOTS: {NUM_SLOTS}
+                    <br />Combination Length: {combination.length}
+                    <br />Spinning: {spinning ? 'YES' : 'NO'}
+                    <br />Revealed Slots: {revealedSlots}
+                  </div>
+                  
                   <div className={'slots'}>
                     <div className="slots-reels-container">
                       <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
@@ -277,8 +297,10 @@ export default function Slots() {
                             reelRevealed,
                             isSpinning: spinning && !reelRevealed,
                             enableMotion: settings.enableMotion,
-                            reelItems: reelItems.map(i => i.multiplier),
-                            reelGoodSlots
+                            reelItems: reelItems.map(i => i ? i.multiplier : 'undefined'),
+                            reelItemsLength: reelItems.length,
+                            reelGoodSlots,
+                            slotIndices: Array.from({ length: NUM_ROWS }).map((_, rowIndex) => reelIndex * NUM_ROWS + rowIndex)
                           })
                           
                           return (

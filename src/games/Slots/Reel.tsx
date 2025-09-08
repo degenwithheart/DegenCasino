@@ -53,25 +53,28 @@ const revealReel = keyframes`
 
 const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enableMotion: boolean}>`
   position: relative;
-  width: 100%;
-  height: 400px; /* Height for 4 slots at 100px each */
+  width: 120px; /* Fixed width for 6-reel layout */
+  height: 480px; /* Increased height for 4 slots at 120px each */
   overflow: hidden;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
   transform: none; /* Let parent container handle 3D transforms */
   transform-style: preserve-3d;
   box-shadow: 
     inset 0 0 20px rgba(0, 0, 0, 0.5),
     0 4px 15px rgba(0, 0, 0, 0.3);
 
+  /* DEBUG: Add visible border to see individual reels */
+  border: 2px solid rgba(0, 255, 255, 0.8);
+
   /* Subtle highlight for the winning row (3rd row) */
   &::before {
     content: '';
     position: absolute;
-    top: 200px; /* Position at 3rd row (2 * 100px) */
+    top: 240px; /* Position at 3rd row (2 * 120px) */
     left: 0;
     right: 0;
-    height: 100px; /* Height of one slot */
+    height: 120px; /* Height of one slot */
     background: linear-gradient(90deg, 
       rgba(255, 215, 0, 0.1) 0%,
       rgba(255, 215, 0, 0.05) 50%,
@@ -85,7 +88,8 @@ const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enable
 
   /* Responsive height adjustments for small screens */
   @media (max-width: 480px) {
-    height: 320px; /* Reduced height for very small screens (80px per slot) */
+    width: 80px;
+    height: 320px; /* 4 slots at 80px each */
     border-radius: 6px;
     
     &::before {
@@ -95,11 +99,22 @@ const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enable
   }
 
   @media (min-width: 481px) and (max-width: 640px) {
-    height: 360px; /* Slightly reduced height for small screens (90px per slot) */
+    width: 90px;
+    height: 360px; /* 4 slots at 90px each */
     
     &::before {
       top: 180px; /* Adjust for smaller slots (2 * 90px) */
       height: 90px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    width: 100px;
+    height: 400px; /* 4 slots at 100px each */
+    
+    &::before {
+      top: 200px; /* Adjust for smaller slots (2 * 100px) */
+      height: 100px;
     }
   }
 `
@@ -124,19 +139,16 @@ const ReelStrip = styled.div<{$isSpinning: boolean, $reelIndex: number, $enableM
   `}
 `
 
-const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?: 'top' | 'bottom', $enableMotion: boolean}>`
+const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?: 'top' | 'middle1' | 'middle2' | 'bottom', $enableMotion: boolean}>`
   width: 100%;
-  height: 100px; /* Reduced slot cell height for 4-row layout */
+  height: 120px; /* Increased slot height for better visibility */
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   padding: 0;
   z-index: 2; /* Ensure slots appear above the winning row highlight */
-  /* Replace scale trick with simple opacity depth cue to avoid reflow/centering issues */
-  ${(p) => p.$enableMotion && p.$position === 'top' && css`opacity: .88;`}
-  ${(p) => p.$enableMotion && p.$position === 'bottom' && css`opacity: 1;`}
-
+  
   /* Responsive slot height adjustments */
   @media (max-width: 480px) {
     height: 80px; /* Smaller slots for very small screens */
@@ -144,6 +156,10 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
 
   @media (min-width: 481px) and (max-width: 640px) {
     height: 90px; /* Slightly smaller slots for small screens */
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    height: 100px; /* Medium slots for tablets */
   }
 
   ${(p) => p.$good && p.$revealed && p.$enableMotion && css`
@@ -157,7 +173,7 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
   }
 
   & img {
-    width: 100px;
+    width: 100px; /* Larger images for better visibility */
     height: 100px;
     object-fit: contain;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,.4));
@@ -168,17 +184,35 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
     left: 50%;
     transform: translate(-50%, -50%);
     ${(p) => p.$good && p.$revealed && css`filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 20px rgba(255,215,0,.7));`}
+
+    /* Responsive image sizing */
+    @media (max-width: 480px) {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+    }
+
+    @media (min-width: 481px) and (max-width: 640px) {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+    }
+
+    @media (min-width: 641px) and (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+    }
   }
 `
 
 const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $enableMotion: boolean}>`
   width: 100%;
-  height: 100px; /* Height of one slot - updated to match new layout */
+  height: 120px; /* Increased to match SlotContainer */
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 0; /* Remove padding for perfect centering */
+  padding: 0;
   
   /* During spinning, create transition effect based on vertical position */
   transform: scale(1.0);
@@ -212,15 +246,14 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $e
   }
 
   & img {
-    width: 100px; /* Fixed size for all images */
-    height: 100px; /* Fixed size for all images */
+    width: 100px; /* Increased size to match SlotContainer */
+    height: 100px;
     object-fit: contain;
-    object-position: center center; /* Ensure centered positioning */
+    object-position: center center;
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
     border-radius: 12px;
     transition: ${props => props.$enableMotion ? 'all 0.4s ease' : 'none'};
     display: block;
-    /* Perfect centering */
     position: absolute;
     top: 50%;
     left: 50%;
@@ -345,7 +378,10 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
       {/* Final revealed slots */}
       <FinalSlot $good={false} $revealed={revealed} $enableMotion={enableMotion}>
         {items.map((item, slotIndex) => {
-          const position = slotIndex === 0 ? 'top' : 'bottom'
+          // Determine position for each of the 4 slots
+          const position = slotIndex === 0 ? 'top' : 
+                          slotIndex === 1 ? 'middle1' : 
+                          slotIndex === 2 ? 'middle2' : 'bottom'
           return (
             <SlotContainer 
               key={slotIndex} 
@@ -354,7 +390,7 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
               $position={position}
               $enableMotion={enableMotion}
             >
-              <img src={item.image} alt="" />
+              <img src={item?.image || SLOT_ITEMS[0].image} alt="" />
             </SlotContainer>
           )
         })}

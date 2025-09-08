@@ -186,20 +186,25 @@ export const StyledSlots = styled.div`
     transform: rotateX(2deg) rotateY(0deg);
     position: relative;
     z-index: 2;
-    padding: 0;
+    padding: 20px; /* Added padding for debugging */
     max-width: 1200px;
     margin: 0 auto;
     min-height: 100%;
     font-family: 'DM Sans', sans-serif;
+    
+    /* DEBUG: Add visible border to see if container is rendering */
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    background: rgba(255, 0, 0, 0.1);
 
     @media (max-width: 768px) {
       transform: rotateX(1deg);
       max-width: 100%;
+      padding: 15px;
     }
 
     @media (max-width: 479px) {
       transform: none;
-      padding: 0 8px;
+      padding: 10px 8px;
     }
   }
 
@@ -427,10 +432,13 @@ export const StyledSlots = styled.div`
       inset 0 2px 0 rgba(255, 255, 255, 0.1),
       inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     position: relative;
-    min-height: 400px;
+    min-height: 480px; /* Increased to accommodate new reel height */
     overflow: hidden;
     /* Force layout update */
     transform: translateZ(0);
+    
+    /* DEBUG: Add visible border to see slots container */
+    outline: 3px solid rgba(0, 255, 0, 0.8);
     
     &::before {
       content: '';
@@ -509,7 +517,7 @@ export const StyledSlots = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 400px; /* Match new reel height (4 rows × 100px) */
+    height: 480px; /* Match new reel height (4 rows × 120px) */
     width: 50px; /* Reduced width for 6-reel layout */
     position: relative;
     z-index: 10;

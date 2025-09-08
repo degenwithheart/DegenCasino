@@ -43,7 +43,7 @@ import { SLOTS_CONFIG } from '../rtpConfig'
 export const NUM_REELS = SLOTS_CONFIG.NUM_REELS
 export const NUM_ROWS = SLOTS_CONFIG.NUM_ROWS  
 export const NUM_PAYLINES = SLOTS_CONFIG.NUM_PAYLINES
-export const NUM_SLOTS = NUM_REELS * NUM_ROWS // Total grid cells (9)
+export const NUM_SLOTS = NUM_REELS * NUM_ROWS // Total grid cells (24 for 6x4 grid)
 // MS that it takes for spin to finish and reveal to start
 export const SPIN_DELAY = 1500
 // MS between each slot reveal
