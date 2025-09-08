@@ -28,26 +28,24 @@ export function ItemPreview({
   isWinning?: boolean
 }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <StyledItemPreview>
-        {itemsByMultiplier.map(({ items, multiplier }, i) => (
-          <div 
-            className={`
-              ${!betArray.includes(multiplier) ? "hidden" : ''} 
-              ${isWinning && winningMultiplier === multiplier ? "winning" : ''}
-            `} 
+    <StyledItemPreview>
+      {itemsByMultiplier.map(({ items, multiplier }, i) => (
+        <div 
+          className={`
+            ${!betArray.includes(multiplier) ? "hidden" : ''} 
+            ${isWinning && winningMultiplier === multiplier ? "winning" : ''}
+          `} 
+          key={i}
+        >
+          <div className={"multiplier"}>{multiplier}x</div>
+          <div
             key={i}
+            className={"icon"}
           >
-            <div className={"multiplier"}>{multiplier}x</div>
-            <div
-              key={i}
-              className={"icon"}
-            >
-              <img className={"slotImage"} src={items[0].image} />
-            </div>
+            <img className={"slotImage"} src={items[0].image} />
           </div>
-        ))}
-      </StyledItemPreview>
-    </div>
+        </div>
+      ))}
+    </StyledItemPreview>
   )
 }

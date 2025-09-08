@@ -2,21 +2,23 @@ import styled from "styled-components";
 
 export const StyledItemPreview = styled.div`
   display: flex;
-  gap: 18px;
-  padding: 20px 30px 10px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px 10px;
   background: transparent;
   border-radius: 0;
   border: none;
   box-shadow: none;
   margin-bottom: 0;
   justify-content: center;
-  margin-top: 15px;
+  align-items: center;
+  margin-top: 20px;
 
   & > div {
     position: relative;
-    width: 60px;
-    aspect-ratio: 1/1.2;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
     border: 2px solid transparent;
     background: 
       linear-gradient(145deg, 
@@ -38,9 +40,9 @@ export const StyledItemPreview = styled.div`
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
     &:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: 
-        0 8px 20px rgba(0, 0, 0, 0.5),
+        0 6px 15px rgba(0, 0, 0, 0.5),
         inset 0 2px 0 rgba(255, 255, 255, 0.2);
     }
   }
@@ -123,8 +125,8 @@ export const StyledItemPreview = styled.div`
 
   & > div > .multiplier {
     position: absolute;
-    right: -4px;
-    top: -4px;
+    right: -2px;
+    top: -2px;
     color: #1a1a1a;
     background: 
       linear-gradient(135deg, 
@@ -132,20 +134,72 @@ export const StyledItemPreview = styled.div`
         rgba(255, 236, 99, 0.9) 100%
       );
     z-index: 10;
-    padding: 3px 6px;
-    border-radius: 8px;
-    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    font-size: 8px;
     font-weight: bold;
-    border: 2px solid rgba(255, 215, 0, 0.8);
+    border: 1px solid rgba(255, 215, 0, 0.8);
     box-shadow: 
-      0 2px 6px rgba(0, 0, 0, 0.4),
-      0 1px 3px rgba(255, 215, 0, 0.4);
+      0 2px 4px rgba(0, 0, 0, 0.4),
+      0 1px 2px rgba(255, 215, 0, 0.4);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    transform: scale(0.9);
+    transform: scale(0.85);
     transition: all 0.3s ease;
 
     &:hover {
-      transform: scale(1.05);
+      transform: scale(0.95);
+    }
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 480px) {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 10px 15px;
+    margin-top: 15px;
+
+    & > div {
+      width: 45px;
+      height: 45px;
+    }
+
+    & > div > .multiplier {
+      font-size: 7px;
+      padding: 1px 3px;
+      transform: scale(0.8);
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 640px) {
+    gap: 10px;
+    padding: 12px 8px;
+
+    & > div {
+      width: 48px;
+      height: 48px;
+    }
+
+    & > div > .multiplier {
+      font-size: 7.5px;
+      padding: 2px 3px;
+      transform: scale(0.82);
+    }
+  }
+
+  @media (min-width: 641px) {
+    gap: 12px;
+    padding: 15px 10px;
+
+    & > div {
+      width: 50px;
+      height: 50px;
+    }
+
+    & > div > .multiplier {
+      font-size: 8px;
+      padding: 2px 4px;
+      transform: scale(0.85);
     }
   }
 `
