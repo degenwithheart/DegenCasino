@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTheme } from '../../../themes/ThemeContext'
 import { Container, Title, Subtitle, Selector, SectionHeading, Content, Flag } from './Terms.styles'
 
 type ContinentKey = 'AU' | 'EU' | 'AMERICAS' | 'ASIA'
@@ -47,6 +48,7 @@ const continents: Record<
 const Terms: React.FC = () => {
   const [visible, setVisible] = useState(false)
   const [continent, setContinent] = useState<ContinentKey>('EU')
+  const { currentTheme } = useTheme()
 
   useEffect(() => {
     setVisible(true)
@@ -55,14 +57,14 @@ const Terms: React.FC = () => {
   const data = continents[continent]
 
   return (
-    <Container visible={visible}>
-      <Title>📜 Terms and Conditions 📜</Title>
-      <Subtitle>
-        Read our terms and understand your rights and responsibilities while using our platform.
+    <Container visible={visible} $theme={currentTheme}>
+      <Title $theme={currentTheme}>�️ Terms of the Heart �️</Title>
+      <Subtitle $theme={currentTheme}>
+        In the flickering candlelight of our casino cathedral, understand the sacred bonds between player and house.
       </Subtitle>
 
-      <Selector>
-        <label>Select your jurisdiction:</label>
+      <Selector $theme={currentTheme}>
+        <label>Choose your romantic realm:</label>
         {(Object.entries(continents) as [ContinentKey, typeof data][]).map(
           ([key, val]) => (
             <button
@@ -77,97 +79,112 @@ const Terms: React.FC = () => {
         )}
       </Selector>
 
-      <Content>
+      <Content $theme={currentTheme}>
         <p>
-          <strong>1 Age Requirement:</strong> {data.ageRequirement}
+          <strong>💍 Age of Consent:</strong> {data.ageRequirement}
         </p>
 
         {data.gamblingWarning && (
           <>
-            <SectionHeading>Important Notice</SectionHeading>
-            <p>{data.gamblingWarning}</p>
+            <SectionHeading $theme={currentTheme}>🌹 Sacred Warnings 🌹</SectionHeading>
+            <p><em>{data.gamblingWarning}</em></p>
           </>
         )}
 
-        <SectionHeading>2 Nature of the Platform</SectionHeading>
+        <SectionHeading $theme={currentTheme}>💎 The Nature of Our Sacred Ground 💎</SectionHeading>
         <p>
-          <strong>2a Decentralized Casino:</strong> All gameplay is executed on-chain via
-          secure smart contracts, ensuring transparency and fairness.
+          <strong>🏛️ Temple of Transparency:</strong> All gameplay unfolds like a love letter written in code, 
+          executed on-chain through sacred smart contracts, ensuring every moment is transparent and fair.
         </p>
         <p>
-          <strong>2b Non-Custodial Funds:</strong> You maintain full control of your funds at all times. Bets and payouts are executed directly on-chain.
-        </p>
-
-        <p>
-          <strong>2c Provably Fair:</strong> All games are transparent and verifiable on Solana blockchain.
-        </p>
-        <p>
-          <strong>2d Assumption of Risk:</strong> Use of crypto assets involves inherent risks, including potential loss of funds. You accept full responsibility for any losses incurred.
+          <strong>🔑 Your Sovereign Heart:</strong> You hold the keys to your own treasure, maintaining full control 
+          of your funds at all times. Each bet and blessing flows directly through the blockchain's embrace.
         </p>
 
-        <SectionHeading>3 Account and Wallet Integration</SectionHeading>
         <p>
-          <strong>3a Supported Wallets:</strong> You must connect a supported Solana wallet to use the Platform.
+          <strong>🎭 Provably Fair Romance:</strong> Every game is a sonnet of transparency, verifiable on the 
+          eternal Solana blockchain where truth lives forever.
         </p>
         <p>
-          <strong>3b Transaction Fees:</strong> You are solely responsible for any network or gas fees incurred when interacting with the Platform.
-        </p>
-
-        <SectionHeading>4 Responsible Gaming</SectionHeading>
-        <p>
-          <strong>4a No Guarantee:</strong> The Platform does not guarantee any winnings or financial returns. Gambling involves risk of loss.
-        </p>
-        <p>
-          <strong>4b Self-Regulation:</strong> If you believe you may have a gambling problem, please seek professional help and use available self-exclusion tools.
+          <strong>⚡ The Dance of Risk:</strong> Crypto assets waltz with inherent risk, including the potential 
+          loss of your treasures. You accept this passionate dance with full awareness of its consequences.
         </p>
 
-        <SectionHeading>5 Prohibited Conduct</SectionHeading>
+        <SectionHeading $theme={currentTheme}>🌟 Wallet's Sacred Union 🌟</SectionHeading>
+        <p>
+          <strong>💫 Chosen Vessels:</strong> Your Solana wallet must join our sacred circle to participate 
+          in the casino's midnight mass.
+        </p>
+        <p>
+          <strong>💰 Network's Tribute:</strong> The blockchain demands its offerings in the form of gas and 
+          network fees - a small price for entry into our realm.
+        </p>
+
+        <SectionHeading $theme={currentTheme}>🎲 The Art of Responsible Romance 🎲</SectionHeading>
+        <p>
+          <strong>🌙 No Promises Under Starlight:</strong> We offer no guarantees of winnings or golden returns. 
+          Gambling is a dance with fortune's fickle heart.
+        </p>
+        <p>
+          <strong>🛡️ Guardian of Your Own Soul:</strong> If the casino's siren song grows too strong, 
+          seek wisdom from professionals and use the tools we provide for your protection.
+        </p>
+
+        <SectionHeading $theme={currentTheme}>⚔️ Forbidden Enchantments ⚔️</SectionHeading>
         <ul>
-          <li>You must not violate applicable laws or provide false or misleading information.</li>
-          <li>No use of bots, automation, or unauthorized software to interact with the Platform.</li>
-          <li>No attempts to exploit, manipulate, or reverse engineer smart contracts or Platform functionality.</li>
+          <li>Thou shalt not violate the sacred laws or speak false prophecies to our temple.</li>
+          <li>No mechanical familiars (bots) or dark magic (automation) shall disturb our sacred rituals.</li>
+          <li>Attempts to unweave our smart contract spells or exploit our mystical systems are forbidden.</li>
         </ul>
 
-        <SectionHeading>6 Intellectual Property</SectionHeading>
+        <SectionHeading $theme={currentTheme}>👑 Treasures of the Mind 👑</SectionHeading>
         <p>
-          All content, trademarks, and intellectual property are owned by DegenHeart Foundation. Unauthorized use, reproduction, or distribution is prohibited.
+          All creations, symbols, and intellectual pearls belong to the <strong>DegenHeart Foundation</strong>. 
+          Unauthorized theft or reproduction of our romantic works is strictly forbidden.
         </p>
 
-        <SectionHeading>7 Privacy and Data</SectionHeading>
+        <SectionHeading $theme={currentTheme}>🔮 Secrets and Transparency 🔮</SectionHeading>
         <p>
-          All blockchain transactions are publicly visible by design. We do not store or process sensitive personal data beyond what is necessary to operate the Platform.
+          The blockchain keeps its own diary - all transactions become part of the eternal ledger. 
+          We guard only what is necessary, keeping your deepest secrets safe while honoring transparency.
         </p>
 
-        <SectionHeading>8 Disclaimer of Warranties</SectionHeading>
+        <SectionHeading $theme={currentTheme}>⚠️ No Promises in the Moonlight ⚠️</SectionHeading>
         <p>
-          The Platform is provided "as is" and "as available" without warranties of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, or non-infringement.
+          Our temple stands "as is" beneath the stars, offering no warranties beyond the honesty of our code. 
+          We promise no merchantability, fitness for purpose, or protection from the night's uncertainties.
         </p>
 
-        <SectionHeading>9 Limitation of Liability</SectionHeading>
+        <SectionHeading $theme={currentTheme}>💔 Limitations of a Broken Heart 💔</SectionHeading>
         <p>
-          To the fullest extent permitted by law, DegenHeart Foundation is not liable for any indirect, incidental, consequential, or punitive damages. Maximum liability is limited to $100 or your total Platform spend within the last six months, whichever is greater.
+          To the fullest extent the law allows, <strong>DegenHeart Foundation</strong> bears no responsibility 
+          for indirect sorrows, unexpected losses, or punitive damages. Our maximum liability remains at $100 
+          or your total devotion to our platform over six moons, whichever brings greater comfort.
         </p>
 
-        <SectionHeading>10 Indemnification</SectionHeading>
+        <SectionHeading $theme={currentTheme}>🛡️ Shield of Mutual Protection 🛡️</SectionHeading>
         <p>
-          You agree to indemnify and hold harmless DegenHeart Foundation, its affiliates, and partners from any claims, damages, losses, liabilities, and expenses arising out of your use or misuse of the Platform.
+          You pledge to protect <strong>DegenHeart Foundation</strong> and its allied houses from claims, 
+          damages, and sorrows arising from your journey through our realm.
         </p>
 
-        <SectionHeading>11 Governing Law & Dispute Resolution</SectionHeading>
-        <p>{data.disputeResolution}</p>
+        <SectionHeading $theme={currentTheme}>⚖️ Laws of the Heart & Resolution of Disputes ⚖️</SectionHeading>
+        <p><em>{data.disputeResolution}</em></p>
 
-        <SectionHeading>12 Termination</SectionHeading>
+        <SectionHeading $theme={currentTheme}>🚪 When the Dance Must End 🚪</SectionHeading>
         <p>
-          We reserve the right to suspend or terminate your access to the Platform at any time, without prior notice, for any reason including violation of these Terms.
+          We reserve the right to close the temple doors to you at any moment, without warning bells, 
+          should you break the sacred covenant of these terms.
         </p>
 
-        <SectionHeading>13 General Provisions</SectionHeading>
+        <SectionHeading $theme={currentTheme}>📜 The Final Verse 📜</SectionHeading>
         <p>
-          These Terms constitute the entire agreement between you and DegenHeart Foundation. If any provision is found unenforceable, the remaining provisions shall remain in full force and effect.
+          These terms form the complete ballad between your heart and <strong>DegenHeart Foundation</strong>. 
+          Should any verse prove unsingable, the remaining stanzas shall continue their eternal song.
         </p>
 
-        <p style={{ fontStyle: 'italic', marginTop: '2rem' }}>
-          Please gamble responsibly. This platform is intended for entertainment purposes only.
+        <p style={{ fontStyle: 'italic', marginTop: '2rem', textAlign: 'center', opacity: 0.8 }}>
+          <em>💕 Please gamble with the wisdom of the heart. Our temple exists for the joy of the game alone. 💕</em>
         </p>
       </Content>
     </Container>
