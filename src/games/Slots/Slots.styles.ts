@@ -23,8 +23,8 @@ const loveLetterSparkle = keyframes`
       0 0 25px rgba(184, 51, 106, 0.5),
       3px   /* Mobile responsive adjustments */
   @media (max-width: 480px) {
-    .slots {
-      flex-direction: column;
+    .slots-content .slots {
+      flex-direction: column !important;
       gap: 15px;
       padding: 15px;
     }
@@ -395,9 +395,9 @@ export const StyledSlots = styled.div`
     100% { transform: scale(1.02); }
   }
 
-  .slots {
-    display: flex;
-    flex-direction: row;
+  .slots-content .slots {
+    display: flex !important;
+    flex-direction: row !important;
     gap: 20px;
     justify-content: center;
     box-sizing: border-box;
@@ -429,6 +429,8 @@ export const StyledSlots = styled.div`
     position: relative;
     min-height: 400px;
     overflow: hidden;
+    /* Force layout update */
+    transform: translateZ(0);
     
     &::before {
       content: '';
@@ -670,7 +672,8 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 481px) and (max-width: 640px) {
-    .slots {
+    .slots-content .slots {
+      flex-direction: row !important;
       gap: 15px;
       padding: 15px;
     }
@@ -703,7 +706,8 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 641px) and (max-width: 768px) {
-    .slots {
+    .slots-content .slots {
+      flex-direction: row !important;
       gap: 20px;
       padding: 20px;
     }
@@ -736,7 +740,8 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 769px) and (max-width: 899px) {
-    .slots {
+    .slots-content .slots {
+      flex-direction: row !important;
       gap: 25px;
       padding: 25px;
     }
@@ -769,7 +774,8 @@ export const StyledSlots = styled.div`
   }
 
   @media (min-width: 900px) {
-    .slots {
+    .slots-content .slots {
+      flex-direction: row !important;
       gap: 30px;
       padding: 30px;
     }
