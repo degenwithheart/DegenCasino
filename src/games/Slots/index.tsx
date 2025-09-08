@@ -231,23 +231,23 @@ export default function Slots() {
   return (
     <>
       <GambaUi.Portal target="screen">
-        <StyledSlotsBackground>
-          {/* Enhanced background for Slots game */}
-          <div className="slots-bg-elements" />
-          <div className="casino-bg-elements" />
-          <div className="decorative-overlay" />
-          
-          <StyledSlots>
-            <GameplayFrame 
-              ref={effectsRef}
-              {...(useGameMeta('slots') && { 
-                title: useGameMeta('slots')!.name, 
-                description: useGameMeta('slots')!.description 
-              })}
-              disableContainerTransforms={true}
-            >
-              {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
-              <GambaUi.Responsive>
+        <GambaUi.Responsive>
+          <StyledSlotsBackground>
+            {/* Enhanced background for Slots game */}
+            <div className="slots-bg-elements" />
+            <div className="casino-bg-elements" />
+            <div className="decorative-overlay" />
+            
+            <StyledSlots>
+              <GameplayFrame 
+                ref={effectsRef}
+                {...(useGameMeta('slots') && { 
+                  title: useGameMeta('slots')!.name, 
+                  description: useGameMeta('slots')!.description 
+                })}
+                disableContainerTransforms={true}
+              >
+                {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
                 <div className="slots-content">
                   <div className={'slots'}>
                     <div className="winning-line-display">
@@ -307,10 +307,10 @@ export default function Slots() {
                     </div>
                   </div>
                 </div>
-              </GambaUi.Responsive>
-            </GameplayFrame>
-          </StyledSlots>
-        </StyledSlotsBackground>
+              </GameplayFrame>
+            </StyledSlots>
+          </StyledSlotsBackground>
+        </GambaUi.Responsive>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
         <MobileControls
@@ -321,7 +321,13 @@ export default function Slots() {
           playText="Spin"
         />
         
-        <DesktopControls>
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={play}
+          playDisabled={!isValid}
+          playText="Spin"
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin
