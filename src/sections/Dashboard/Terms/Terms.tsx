@@ -58,7 +58,7 @@ const Terms: React.FC = () => {
 
   return (
     <Container visible={visible} $theme={currentTheme}>
-      <Title $theme={currentTheme}>�️ Terms of the Heart �️</Title>
+      <Title $theme={currentTheme}>⚖️ Terms of the Heart ⚖️</Title>
       <Subtitle $theme={currentTheme}>
         In the flickering candlelight of our casino cathedral, understand the sacred bonds between player and house.
       </Subtitle>

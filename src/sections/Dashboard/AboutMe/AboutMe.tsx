@@ -18,7 +18,7 @@ const AboutMe: React.FC = () => {
   return (
     <Container visible={visible} $theme={currentTheme}>
       <HeaderSection $theme={currentTheme}>
-        <ProfileImage src="/webp/pfp.webp" alt="Degen Serenade PFP" $theme={currentTheme} />
+        <ProfileImage src="/webp/images/pfp.webp" alt="Degen Serenade PFP" $theme={currentTheme} />
         <TextInfo $theme={currentTheme}>
           <h1>Degen Serenade</h1>
           <p>Heart on-chain, soul in code — a romantic builder dancing between candlesticks and cathedral dreams. Updated September 2025</p>
