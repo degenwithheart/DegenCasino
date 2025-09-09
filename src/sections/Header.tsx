@@ -6,6 +6,7 @@ import {
   useGambaPlatformContext,
   useUserBalance,
 } from 'gamba-react-ui-v2'
+import { useWallet } from '@solana/wallet-adapter-react'
 import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
@@ -477,6 +478,7 @@ export default function Header() {
   const { compact: isCompact, mobile } = useIsCompact()
   const navigate = useNavigate()
   const { currentTheme } = useTheme()
+  const { connected } = useWallet()
 
   const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
@@ -518,32 +520,34 @@ export default function Header() {
         </Logo>
 
         <RightGroup $isCompact={isCompact}>
-          {context.connected && (
-            <>
-              {pool.jackpotBalance > 0 && (
-                <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
-                  💰
-                  {!isCompact && 'Jackpot'}
-                </JackpotBonus>
-              )}
+          {connected && pool.jackpotBalance > 0 && (
+            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
+              💰
+              {!isCompact && 'Jackpot'}
+            </JackpotBonus>
+          )}
 
-              <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
-                ✨
-                {!isCompact && 'Bonus'}
-              </Bonus>
+          {connected && (
+            <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
+              ✨
+              {!isCompact && 'Bonus'}
+            </Bonus>
+          )}
 
-              {/* Leaderboard trigger */}
-              <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
-                🏆
-                {!isCompact && ' Leaderboard'}
-              </GambaUi.Button>
+          {/* Leaderboard trigger */}
+          {connected && (
+            <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
+              🏆
+              {!isCompact && ' Leaderboard'}
+            </GambaUi.Button>
+          )}
 
-              {/* Theme selector trigger */}
-              <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
-                🎨
-                {!isCompact && ' Theme'}
-              </ThemeButton>
-            </>
+          {/* Theme selector trigger */}
+          {connected && (
+            <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
+              🎨
+              {!isCompact && ' Theme'}
+            </ThemeButton>
           )}
 
           {/* Pass isCompact to UserButton to hide text on small */}
