@@ -116,7 +116,7 @@ export function Dashboard() {
                 <GameSliderWrapper>
                   {singleplayerGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
-                      <GameCard game={game} />
+                      <FeaturedGameCard game={game} />
                     </GameCardWrapper>
                   ))}
                 </GameSliderWrapper>
@@ -127,7 +127,7 @@ export function Dashboard() {
                 <GameSliderWrapper>
                   {multiplayerGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
-                      <GameCard game={game} />
+                      <FeaturedGameCard game={game} />
                     </GameCardWrapper>
                   ))}
                 </GameSliderWrapper>
@@ -138,7 +138,7 @@ export function Dashboard() {
                 <GameSliderWrapper>
                   {liveNewGames.map((game) => (
                     <GameCardWrapper key={game.id} $compact={compact}>
-                      <GameCard game={game} />
+                      <FeaturedGameCard game={game} />
                     </GameCardWrapper>
                   ))}
                 </GameSliderWrapper>

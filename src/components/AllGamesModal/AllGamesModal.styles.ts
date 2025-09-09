@@ -184,30 +184,27 @@ export const HorizontalScroll = styled.div`
   padding: 0.5rem 0 1rem 0;
   max-width: 100%;
   scrollbar-width: thin;
-  scrollbar-color: var(--love-letter-gold) var(--deep-romantic-night);
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   position: relative;
   z-index: 10;
   
   &::-webkit-scrollbar {
-    height: 6px;
-    background: rgba(10, 5, 17, 0.8);
-    border-radius: 3px;
+    height: 8px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      90deg,
-      var(--love-letter-gold) 0%,
-      var(--deep-crimson-rose) 50%,
-      var(--soft-purple-twilight) 100%
-    );
-    border-radius: 3px;
-    box-shadow: 0 0 8px rgba(212, 165, 116, 0.5);
+    background-color: #ffd700;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #a259ff;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(10, 5, 17, 0.6);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
   }
 
   @media (max-width: 479px) {
@@ -216,15 +213,15 @@ export const HorizontalScroll = styled.div`
   }
 `;
 
-// Card wrapper to match StyledGameCard sizing with romantic styling
+// Card wrapper to match Dashboard GameCard sizing
 export const MenuCardWrapper = styled.div`
-  width: 150px;
-  min-width: 150px;
-  max-width: 150px;
-  aspect-ratio: 1/0.9;
-  max-height: 100px;
+  width: 180px;
+  height: 162px;
+  min-width: 160px;
+  max-width: 200px;
   display: flex;
   align-items: stretch;
+  justify-content: center;
   position: relative;
   border-radius: 12px;
   overflow: hidden;
@@ -238,16 +235,16 @@ export const MenuCardWrapper = styled.div`
   }
 
   @media (max-width: 479px) {
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
+    width: 160px;
+    height: 144px;
+    min-width: 140px;
     border-radius: 10px;
   }
 
   @media (min-width: 768px) {
-    width: 160px;
-    min-width: 160px;
-    max-width: 160px;
+    width: 200px;
+    height: 180px;
+    min-width: 180px;
     border-radius: 14px;
   }
 `;

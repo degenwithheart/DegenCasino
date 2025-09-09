@@ -151,18 +151,18 @@ export const StyledFlipBackground = styled.div`
     min-height: 100%;
   }
 
-  /* Modern Flip Redesign */
+  /* Modern Flip Redesign - Now uses game scaling system */
   .flip-redesign {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: calc(var(--game-spacing-scale, 1) * 10px);
+  padding: calc(var(--game-spacing-scale, 1) * 10px) calc(var(--game-spacing-scale, 1) * 14px);
   height: 100%;
-  /* Mobile-first: leave space for bottom controls with dynamic viewport height */
-  min-height: calc(100vh - 160px);
-  min-height: calc(100dvh - 160px);
+  /* Use CSS custom properties from GameScalingProvider for optimal height */
+  min-height: var(--game-screen-height, calc(100dvh - 160px));
+  width: var(--game-screen-width, 100%);
   position: relative;
   z-index: 2;
   }
@@ -172,9 +172,9 @@ export const StyledFlipBackground = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: calc(var(--game-spacing-scale, 1) * 6px);
   width: 100%;
-  margin-top: 4px;
+  margin-top: calc(var(--game-spacing-scale, 1) * 4px);
   }
 
   .side-indicator {
@@ -210,7 +210,7 @@ export const StyledFlipBackground = styled.div`
     }
 
     span {
-      font-size: 14px;
+      font-size: calc(var(--game-text-scale, 1) * 14px);
       font-weight: 600;
       color: rgba(255, 255, 255, 0.7);
       transition: all 0.3s ease;
@@ -305,18 +305,18 @@ export const StyledFlipBackground = styled.div`
   .win-multiplier {
     background: linear-gradient(135deg, #F59E0B, #EAB308);
     color: #92400E;
-    font-size: 18px;
+    font-size: calc(var(--game-text-scale, 1) * 18px);
     font-weight: 700;
-    padding: 8px 20px;
+    padding: calc(var(--game-spacing-scale, 1) * 8px) calc(var(--game-spacing-scale, 1) * 20px);
     border-radius: 25px;
     box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
   .coins-count {
-  margin-top: 4px;
+  margin-top: calc(var(--game-spacing-scale, 1) * 4px);
   color: rgba(255,255,255,0.9);
-  font-size: 12px;
+  font-size: calc(var(--game-text-scale, 1) * 12px);
   }
 
   .coin-arena {
@@ -326,22 +326,21 @@ export const StyledFlipBackground = styled.div`
   /* lift the coins closer to the header on mobile */
   justify-content: flex-start;
   align-items: center;
-  gap: 10px;
+  gap: calc(var(--game-spacing-scale, 1) * 10px);
   width: 100%;
   position: relative;
   overflow: visible;
-  padding-top: 12px;
-  /* Smaller min-height on mobile so the controls remain reachable */
-  min-height: 44vh;
+  padding-top: calc(var(--game-spacing-scale, 1) * 12px);
+  /* Use flexible height that adapts to available space */
+  min-height: calc(var(--game-screen-height, 400px) * 0.6);
   }
 
   .coin-container {
-  /* responsive canvas container - mobile-first sizing */
-  width: 100%;
+  /* responsive canvas container using game scaling system */
+  width: min(100%, var(--game-screen-width, 980px));
   max-width: 980px;
-  /* cap height on mobile so controls at bottom remain visible */
-  height: min(40vh, calc(100vh - 240px));
-  height: min(40dvh, calc(100dvh - 240px));
+  /* Use proportional height based on available screen space */
+  height: calc(var(--game-screen-height, 400px) * 0.5);
     border-radius: 12px;
     background: transparent;
     box-shadow: 

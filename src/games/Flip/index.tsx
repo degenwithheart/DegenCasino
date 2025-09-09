@@ -6,6 +6,7 @@ import React from 'react'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, OptionSelector, DesktopControls } from '../../components'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameScaling } from '../../contexts/GameScalingContext'
 import { useGameMeta } from '../useGameMeta'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { FLIP_CONFIG, probAtLeast, computeMultiplier } from '../rtpConfig'
@@ -34,23 +35,13 @@ function Flip() {
   const [k, setK] = React.useState(1) // target at least k
   const [hasPlayed, setHasPlayed] = React.useState(false)
   const coinContainerRef = React.useRef<HTMLDivElement | null>(null)
-  const [containerSize, setContainerSize] = React.useState({ width: 800, height: 360 })
-
-  // Observe container size for responsive coin scaling (store width and height)
-  React.useEffect(() => {
-    const el = coinContainerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const r = entry.contentRect
-        setContainerSize({ width: r.width, height: r.height })
-      }
-    })
-    ro.observe(el)
-    // initial
-    setContainerSize({ width: el.clientWidth, height: el.clientHeight })
-    return () => ro.disconnect()
-  }, [])
+  const { width, height, scale } = useGameScaling()
+  
+  // Use dimensions from scaling context with automatic responsive updates
+  const containerSize = React.useMemo(() => ({
+    width,
+    height
+  }), [width, height])
   
   // Compute probability and multiplier
   const prob = React.useMemo(() => {
@@ -341,55 +332,56 @@ function Flip() {
         </MobileControls>
         
         {/* Desktop Layout */}
-        <DesktopControls>
-          <EnhancedWagerInput
-            value={wager}
-            onChange={setWager}
-            multiplier={maxMultiplier}
-          />
-          <EnhancedButton disabled={gamba.isPlaying} onClick={() => setSide(side === 'heads' ? 'tails' : 'heads')}>
-            <div style={{ display: 'flex' }}>
-              <img height="20px" src={side === 'heads' ? TEXTURE_HEADS : TEXTURE_TAILS} />
-              {side === 'heads' ? 'Heads' : 'Tails' }
-            </div>
-          </EnhancedButton>
-          <div style={{ margin: '10px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div>
-              <label>Coins: {n}</label>
-              <input
-                type="range"
-                min="1"
-                max="2"
-                value={n}
-                onChange={(e) => {
-                  const newN = parseInt(e.target.value);
-                  setN(newN);
-                  if (k > newN) setK(newN);
-                }}
-                disabled={gamba.isPlaying}
-                style={{ width: '100%' }}
-              />
-            </div>
-            <div>
-              <label>At least {k} {side}</label>
-              <input
-                type="range"
-                min="0"
-                max={n}
-                value={k}
-                onChange={(e) => setK(parseInt(e.target.value))}
-                disabled={gamba.isPlaying}
-                style={{ width: '100%' }}
-              />
-            </div>
-            <div>
-              Probability: {(prob * 100).toFixed(2)}%<br/>
-              Multiplier: {multiplier.toFixed(2)}x
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={play}
+          playDisabled={gamba.isPlaying}
+          playText="Flip"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <EnhancedButton disabled={gamba.isPlaying} onClick={() => setSide(side === 'heads' ? 'tails' : 'heads')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img height="20px" src={side === 'heads' ? TEXTURE_HEADS : TEXTURE_TAILS} />
+                {side === 'heads' ? 'Heads' : 'Tails' }
+              </div>
+            </EnhancedButton>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '200px' }}>
+              <div>
+                <label style={{ fontSize: '14px', color: '#ffd700' }}>Coins: {n}</label>
+                <input
+                  type="range"
+                  min="1"
+                  max="2"
+                  value={n}
+                  onChange={(e) => {
+                    const newN = parseInt(e.target.value);
+                    setN(newN);
+                    if (k > newN) setK(newN);
+                  }}
+                  disabled={gamba.isPlaying}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '14px', color: '#ffd700' }}>At least {k} {side}</label>
+                <input
+                  type="range"
+                  min="0"
+                  max={n}
+                  value={k}
+                  onChange={(e) => setK(parseInt(e.target.value))}
+                  disabled={gamba.isPlaying}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ fontSize: '12px', color: '#ffffff99' }}>
+                Probability: {(prob * 100).toFixed(2)}%<br/>
+                Multiplier: {multiplier.toFixed(2)}x
+              </div>
             </div>
           </div>
-          <EnhancedPlayButton onClick={play}>
-            Flip
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

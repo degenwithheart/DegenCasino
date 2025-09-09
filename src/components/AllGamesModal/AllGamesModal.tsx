@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ALL_GAMES } from '../../games/allGames';
-import { GameCard } from '../../sections/Dashboard/GameCard';
+import { FeaturedGameCard } from '../../sections/Dashboard/FeaturedGameCard/FeaturedGameCard';
 import { 
   ModalContent, 
   HeaderSection, 
@@ -38,7 +38,7 @@ const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick
         <HorizontalScroll>
           {SINGLEPLAYER_GAMES.map(game => (
             <MenuCardWrapper key={game.id}>
-              <GameCard game={game} onClick={() => onGameClick?.(game)} />
+              <FeaturedGameCard game={game} onClick={() => onGameClick?.(game)} />
             </MenuCardWrapper>
           ))}
         </HorizontalScroll>
@@ -55,7 +55,7 @@ const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick
         <HorizontalScroll>
           {MULTIPLAYER_GAMES.map(game => (
             <MenuCardWrapper key={game.id}>
-              <GameCard game={game} onClick={() => onGameClick?.(game)} />
+              <FeaturedGameCard game={game} onClick={() => onGameClick?.(game)} />
             </MenuCardWrapper>
           ))}
         </HorizontalScroll>

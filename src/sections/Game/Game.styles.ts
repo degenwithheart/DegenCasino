@@ -113,47 +113,48 @@ export const Screen = styled.div`
   background: #0c0c11;
   border-radius: 10px;
   overflow: hidden;
-  transition: height 0.2s ease;
+  transition: all 0.2s ease;
+  
+  /* Standard responsive sizing - not affected by game scaling system */
+  width: 100%;
+  
   /* Mobile-first: Start with mobile viewport optimized height using dynamic viewport units */
-  /* Fallback for browsers that don't support dvh */
-  height: clamp(300px, calc(100vh - 160px), 450px);
-  /* Modern browsers with dynamic viewport height support */
   height: clamp(300px, calc(100dvh - 160px), 450px);
   
   /* Small mobile devices (portrait) */
   @media (max-width: 479px) {
-    height: clamp(280px, calc(100vh - 140px), 400px);
     height: clamp(280px, calc(100dvh - 140px), 400px);
   }
   
   /* Small tablets (640px - 767px) */
   @media (min-width: 640px) {
-    height: clamp(350px, calc(100vh - 200px), 550px);
     height: clamp(350px, calc(100dvh - 200px), 550px);
   }
   
   /* Tablets (768px - 899px) */
   @media (min-width: 768px) {
-    height: clamp(400px, calc(100vh - 240px), 650px);
     height: clamp(400px, calc(100dvh - 240px), 650px);
   }
   
   /* Large tablets/small laptops (900px - 1023px) */
   @media (min-width: 900px) {
-    height: clamp(420px, calc(100vh - 260px), 750px);
     height: clamp(420px, calc(100dvh - 260px), 750px);
   }
   
   /* Desktop */
   @media (min-width: 1024px) {
-    height: clamp(450px, calc(100vh - 280px), 850px);
     height: clamp(450px, calc(100dvh - 280px), 850px);
   }
   
   /* Large desktop */
   @media (min-width: 1440px) {
-    height: clamp(500px, calc(100vh - 300px), 900px);
     height: clamp(500px, calc(100dvh - 300px), 900px);
+  }
+  
+  /* Game content should utilize full container space */
+  & > * {
+    width: 100%;
+    height: 100%;
   }
 `
 

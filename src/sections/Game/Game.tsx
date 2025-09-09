@@ -88,6 +88,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 
 import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal, FullscreenPortal } from '../../components'
+import { GameScalingProvider } from '../../contexts/GameScalingContext'
 
 // Direct import of Icon object from the Icon file
 const Icon = {
@@ -755,90 +756,102 @@ function CustomRenderer() {
         />
       )}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
-      <Container key={`game-container-${renderKey}`}>
-        <Screen>
-          {!ready ? (
-            <Splash>
-              <svg 
-                width={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
-                height={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
-                viewBox="0 0 180 180" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg" 
-                style={{ display: 'block' }}
+        <Container key={`game-container-${renderKey}`}>
+          <Screen>
+            {!ready ? (
+              <Splash>
+                <svg 
+                  width={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
+                  height={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
+                  viewBox="0 0 180 180" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  style={{ display: 'block' }}
+                >
+                  <g>
+                    <circle
+                      cx="90" cy="90" r="80"
+                      stroke="#ffd700"
+                      strokeWidth="8"
+                      fill="#18181f"
+                      style={{
+                        transformOrigin: '90px 90px',
+                        animation: 'spin 1.2s linear infinite'
+                      }}
+                    />
+                    <text
+                      x="50%" y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontFamily="'Luckiest Guy', cursive, sans-serif"
+                      fontSize={window.innerWidth <= 640 ? "24" : window.innerWidth <= 768 ? "30" : "36"}
+                      fill="#ffd700"
+                      letterSpacing="2"
+                      style={{
+                        textTransform: 'uppercase',
+                        animation: 'pulse 1.2s ease-in-out infinite'
+                      }}
+                    >
+                      Loading
+                    </text>
+                  </g>
+                  <style>{`
+                    @keyframes spin {
+                      100% { transform: rotate(360deg); }
+                    }
+                    @keyframes pulse {
+                      0%, 100% { opacity: 1; }
+                      50% { opacity: 0.5; }
+                    }
+                  `}</style>
+                </svg>
+              </Splash>
+            ) : null}
+            <GambaUi.PortalTarget target="error" />
+            {ready && (
+              <GameScalingProvider
+                options={{
+                  minHeight: 280,
+                  maxHeight: 900,
+                  controlsReservedSpace: 120,
+                  headerReservedSpace: 60,
+                  aggressiveScaling: true,
+                }}
               >
-                <g>
-                  <circle
-                    cx="90" cy="90" r="80"
-                    stroke="#ffd700"
-                    strokeWidth="8"
-                    fill="#18181f"
-                    style={{
-                      transformOrigin: '90px 90px',
-                      animation: 'spin 1.2s linear infinite'
-                    }}
-                  />
-                  <text
-                    x="50%" y="50%"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontFamily="'Luckiest Guy', cursive, sans-serif"
-                    fontSize={window.innerWidth <= 640 ? "24" : window.innerWidth <= 768 ? "30" : "36"}
-                    fill="#ffd700"
-                    letterSpacing="2"
-                    style={{
-                      textTransform: 'uppercase',
-                      animation: 'pulse 1.2s ease-in-out infinite'
-                    }}
-                  >
-                    Loading
-                  </text>
-                </g>
-                <style>{`
-                  @keyframes spin {
-                    100% { transform: rotate(360deg); }
-                  }
-                  @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                  }
-                `}</style>
-              </svg>
-            </Splash>
-          ) : null}
-          <GambaUi.PortalTarget target="error" />
-          {ready && <GambaUi.PortalTarget target="screen" />}
-        </Screen>
-        <LoadingBar />
-        <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
-          <div className="control-buttons">
-            <GambaUi.PortalTarget target="controls" />
-            <IconButton as="div" className="play-button-portal">
-              <GambaUi.PortalTarget target="play" />
-            </IconButton>
-          </div>
-          <MetaControls>
-            <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
-              <Icon.Info />
-            </IconButton>
-            <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
-              <Icon.Fairness />
-            </IconButton>
-            <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
-              <GraphicsSettingsIcon />
-            </IconButton>
-            <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
-              <Icon.Fullscreen />
-            </IconButton>
-            <IconButton
-              onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
-              disabled={showSplash}
-            >
-              {soundStore.volume ? <Icon.Volume /> : <Icon.VolumeMuted />}
-            </IconButton>
-          </MetaControls>
-        </Controls>
-      </Container>
+                <GambaUi.PortalTarget target="screen" />
+              </GameScalingProvider>
+            )}
+          </Screen>
+          <LoadingBar />
+          <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
+            <div className="control-buttons">
+              <GambaUi.PortalTarget target="controls" />
+              <IconButton as="div" className="play-button-portal">
+                <GambaUi.PortalTarget target="play" />
+              </IconButton>
+            </div>
+            <MetaControls>
+              <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
+                <Icon.Info />
+              </IconButton>
+              <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
+                <Icon.Fairness />
+              </IconButton>
+              <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
+                <GraphicsSettingsIcon />
+              </IconButton>
+              <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
+                <Icon.Fullscreen />
+              </IconButton>
+              <IconButton
+                onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
+                disabled={showSplash}
+              >
+                {soundStore.volume ? <Icon.Volume /> : <Icon.VolumeMuted />}
+              </IconButton>
+            </MetaControls>
+          </Controls>
+        </Container>
     </>
   )
 }
