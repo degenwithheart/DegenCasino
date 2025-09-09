@@ -87,7 +87,86 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 
-import { Icon, GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal } from '../../components'
+import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal, FullscreenPortal } from '../../components'
+
+// Direct import of Icon object from the Icon file
+const Icon = {
+  Info: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+  Fairness: () => (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 800 800"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="m738 312.197-74.146-160.552a52.68 52.68 0 0 0 17.301-38.697 52.13 52.13 0 0 0-11.559-32.532 52.18 52.18 0 0 0-29.359-18.187 52.2 52.2 0 0 0-34.293 4.128 52.17 52.17 0 0 0-24.2 24.635l-374.847 95.233a51.1 51.1 0 0 0-33.228-12.35 51.93 51.93 0 0 0-29.664 9.063 51.9 51.9 0 0 0-19.193 24.353 51.84 51.84 0 0 0 14.256 57.426L63 429.386l221.064-.824-75.794-164.668a51.32 51.32 0 0 0 15.929-27.445l135.384-34.305v421.551h-2.747l-182.891 56.812a29.1 29.1 0 0 0-14.614 10.429 29.08 29.08 0 0 0-5.709 17.014v1.923a27.4 27.4 0 0 0 1.706 11.342 27.45 27.45 0 0 0 15.795 15.937 27.5 27.5 0 0 0 11.334 1.811h436.361a27.48 27.48 0 0 0 20.827-8.001 27.46 27.46 0 0 0 8.007-20.816v-2.196a29.07 29.07 0 0 0-5.597-16.95 29.1 29.1 0 0 0-14.45-10.493l-182.618-56.812h-3.021V184.58l146.096-38.698 5.491 5.763-74.42 161.101c16.434 0 203.806-.549 218.867-.549M108.311 429.386l65.358-141.615 64.451 140.984zm521.766-254.687 63.711 137.223H565.542z"
+        fill="currentColor"
+      />
+      <path
+        d="M323 424c0 82.842-66.932 150-149.5 150C90.934 574 24 506.842 24 424c164.834.004 130.334 0 299 0"
+        fill="currentColor"
+      />
+      <path
+        d="M626.5 424C626.5 506.842 693.432 574 776 574s149.5-67.158 149.5-150c-164.834.004-130.334 0-299 0"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+  Volume: () => (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  ),
+  VolumeMuted: () => (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 0 576 512"
+      width="18"
+      height="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256l45.64-45.64c6.3-6.3 6.3-16.52 0-22.82l-22.82-22.82c-6.3-6.3-16.52-6.3-22.82 0L416 210.36l-45.64-45.64c-6.3-6.3-16.52-6.3-22.82 0l-22.82 22.82c-6.3 6.3-6.3 16.52 0 22.82L370.36 256l-45.63 45.63c-6.3 6.3-6.3 16.52 0 22.82l22.82 22.82c6.3 6.3 16.52 6.3 22.82 0L416 301.64l45.64 45.64c6.3 6.3 16.52 6.3 22.82 0l22.82-22.82c6.3-6.3 6.3-16.52 0-22.82L461.64 256z" />
+    </svg>
+  ),
+  Fullscreen: () => (
+    <svg
+      stroke="currentColor"
+      fill="currentColor"
+      strokeWidth="0"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+    </svg>
+  ),
+}
 import { GAMES } from '../../games'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GameSlider } from '../Dashboard/Dashboard'
@@ -326,8 +405,19 @@ function CustomRenderer() {
   const [provablyFair, setProvablyFair] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
   const [graphicsSettings, setGraphicsSettings] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
+  const [renderKey, setRenderKey] = useState(0)
   const soundStore = useSoundStore()
   const firstTimePlaying = useUserStore(s => !s.gamesPlayed.includes(game.id))
+  
+  // Shared function to exit fullscreen with proper re-rendering
+  const exitFullscreen = () => {
+    setFullscreen(false)
+    // Force re-render of the main game by updating render key
+    setTimeout(() => {
+      setRenderKey(prev => prev + 1)
+    }, 50)
+  }
   const markGameAsPlayed = useUserStore(s => () => s.markGameAsPlayed(game.id, true))
   const [ready, setReady] = useState(false)
   const [txModal, setTxModal] = useState(false)
@@ -634,9 +724,38 @@ function CustomRenderer() {
         </GambaUi.Portal>
       )}
       {txModal && <TransactionModal onClose={() => setTxModal(false)} />}
-      {graphicsSettings && <GraphicsSettings onClose={() => setGraphicsSettings(false)} />}
+      {graphicsSettings && !fullscreen && <GraphicsSettings onClose={() => setGraphicsSettings(false)} />}
+      {fullscreen && (
+        <FullscreenPortal 
+          key={`fullscreen-${renderKey}`}
+          onExit={exitFullscreen}
+          modals={graphicsSettings ? <GraphicsSettings onClose={() => setGraphicsSettings(false)} /> : undefined}
+          metaControls={
+            <>
+              <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
+                <Icon.Info />
+              </IconButton>
+              <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
+                <Icon.Fairness />
+              </IconButton>
+              <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
+                <GraphicsSettingsIcon />
+              </IconButton>
+              <IconButton onClick={exitFullscreen} disabled={showSplash}>
+                ×
+              </IconButton>
+              <IconButton
+                onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
+                disabled={showSplash}
+              >
+                {soundStore.volume ? <Icon.Volume /> : <Icon.VolumeMuted />}
+              </IconButton>
+            </>
+          }
+        />
+      )}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
-      <Container>
+      <Container key={`game-container-${renderKey}`}>
         <Screen>
           {!ready ? (
             <Splash>
@@ -707,6 +826,9 @@ function CustomRenderer() {
             </IconButton>
             <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
               <GraphicsSettingsIcon />
+            </IconButton>
+            <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
+              <Icon.Fullscreen />
             </IconButton>
             <IconButton
               onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}

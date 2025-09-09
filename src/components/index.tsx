@@ -23,6 +23,7 @@ export { default as ExplorerIndex } from './Explorer/ExplorerIndex'
 
 // Game
 export * from './Game/EnhancedGameControls'
+export { FullscreenPortal } from './Game/FullscreenPortal'
 export { default as GameplayFrame } from './Game/GameplayFrame'
 export type { GameplayEffectsRef } from './Game/GameplayFrame'
 export { default as GameScreenFrame, useGraphics, GraphicsProvider } from './Game/GameScreenFrame'
@@ -69,7 +70,7 @@ export { default as Transaction } from './Transaction/Transaction'
 
 // UI
 export { default as EnhancedTickerTape } from './UI/EnhancedTickerTape'
-export * from './UI/Icon'
+export { Icon } from './UI/Icon'
 export { default as PriceIndicator } from './UI/PriceIndicator'
 export { default as ResponsiveImage } from './UI/ResponsiveImage'
 export { default as Sidebar } from './UI/Sidebar'
