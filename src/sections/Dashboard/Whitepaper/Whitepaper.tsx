@@ -17,7 +17,7 @@ const WhitepaperTabs: React.FC = () => {
     <Container visible={visible} $theme={currentTheme}>
       <h1>🕯️ The Sacred Scrolls of Degen Casino �️</h1>
       <p style={{ fontStyle: 'italic', color: '#ccc', marginBottom: '2rem', textAlign: 'center', opacity: 0.9 }}>
-        <em>This isn't just a casino — it's a serenade of risk, a love letter to the chain, written in the flickering candlelight of our digital cathedral.</em>
+        <em>This isn't just a casino — it's a serenade of risk, a love letter to the chain, written in the flickering candlelight of our digital temple.</em>
       </p>
 
       <Tabs $theme={currentTheme}>
@@ -34,7 +34,7 @@ const WhitepaperTabs: React.FC = () => {
 
       {activeTab === 'Overview' && (
         <Section $theme={currentTheme}>
-          <h2>🏛️ The Cathedral of Chance 🏛️</h2>
+          <h2>🏛️ The Palace of Chance 🏛️</h2>
           <p><strong>Degen Casino</strong> is the on-chain rebellion, a symphony of risk where every bet becomes a verse in our eternal ballad.</p>
           <p>Just provably fair games, settled instantly by code, not committees — pure, unadulterated blockchain poetry.</p>
           <h2>💫 Our Sacred Mission 💫</h2>
@@ -52,7 +52,7 @@ const WhitepaperTabs: React.FC = () => {
       {activeTab === 'Token' && (
         <Section $theme={currentTheme}>
           <h2>💎 The Heart Token: $DGHRT 💎</h2>
-          <p><strong>$DGHRT</strong> is the emotional and financial heartbeat of our casino cathedral, pulsing with the rhythm of true degen passion.</p>
+          <p><strong>$DGHRT</strong> is the emotional and financial heartbeat of our casino sanctuary, pulsing with the rhythm of true degen passion.</p>
           <ul>
             <li><strong>Bet with your soul</strong> on exclusive house-edge games that test the limits of fortune.</li>
             <li><strong>Claim 100 tokens</strong> weekly per lost bet — loyalty baked into code, a reward for your devotion.</li>
@@ -89,7 +89,7 @@ const WhitepaperTabs: React.FC = () => {
         <Section $theme={currentTheme}>
           <h2>👑 Your Identity: The Degen With Heart 👑</h2>
           <p><strong>"Building is my love language."</strong></p>
-          <p>I'm <strong>Stuart / @DegenWithHeart</strong> — a full-stack dev with code in my veins and DeFi in my chest, crafting digital cathedrals from pure passion.</p>
+          <p>I'm <strong>Stuart / @DegenWithHeart</strong> — a full-stack dev with code in my veins and DeFi in my chest, crafting digital realms from pure passion.</p>
           <ul>
             <li>Self-funded. Unsponsored. Unshilled. — A true artisan of the blockchain.</li>
             <li>I live where tech meets art, risk meets rhythm, creation meets destiny.</li>
@@ -105,7 +105,7 @@ const WhitepaperTabs: React.FC = () => {
             <li>🔜 <strong>Q4 2026:</strong> Enable weekly claim page for loyal degens — rewarding the faithful</li>
             <li>🔜 <strong>Q4 2026:</strong> Raydium DEX listing — joining the greater ecosystem</li>
             <li>🔜 <strong>Q2 2027:</strong> Mobile App + Telegram game integrations — expanding our reach</li>
-            <li>🔜 <strong>Q4 2027:</strong> Governance phase — $DGHRT holders vote on future games — democracy in our cathedral</li>
+            <li>🔜 <strong>Q4 2027:</strong> Governance phase — $DGHRT holders vote on future games — democracy in our hall</li>
           </ul>
 
           <h2>🔗 Sacred Links 🔗</h2>

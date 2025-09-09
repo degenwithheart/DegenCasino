@@ -43,48 +43,70 @@ interface ContainerProps {
   $theme?: any;
 }
 export const Container = styled.div<ContainerProps>`
-  max-width: 100vw;
-  padding: ${({ $compact }) => ($compact ? '1rem' : '2rem')};
-  margin: 2rem 0;
+  max-width: none; /* Let main handle max-width */
+  margin: 2rem 0; /* Only vertical margins */
+  padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
+  
+  /* Romantic glassmorphism background */
+  background: rgba(10, 5, 17, 0.7);
+  backdrop-filter: blur(16px);
   border-radius: 16px;
-  background: ${({ $theme }) => $theme?.patterns?.background || 'linear-gradient(135deg, #0a0511 0%, #1a0b2e 50%, #2d1b4e 100%)'};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-  color: ${({ $theme }) => $theme?.colors?.textPrimary || '#e8d5c4'};
+  border: 1px solid rgba(212, 165, 116, 0.18);
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Love letter paper texture */
+  box-shadow: 
+    0 8px 32px rgba(139, 90, 158, 0.15),
+    0 0 40px rgba(212, 165, 116, 0.08),
+    inset 0 1px 2px rgba(244, 233, 225, 0.05);
+
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(20px)')};
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  position: relative;
+  color: ${({ $theme }) => $theme?.colors?.textPrimary || '#e8d5c4'};
   overflow: hidden;
 
+  &:hover {
+    border-color: rgba(212, 165, 116, 0.4);
+    box-shadow: 
+      0 12px 48px rgba(139, 90, 158, 0.2),
+      0 0 60px rgba(212, 165, 116, 0.15),
+      inset 0 1px 4px rgba(244, 233, 225, 0.08);
+    transform: translateY(-4px);
+  }
+
+  /* Romantic atmosphere overlay */
   &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(212, 165, 116, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(184, 51, 106, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(139, 90, 158, 0.02) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Candlestick constellation effect */
+  &::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(184, 54, 106, 0.1) 0%, transparent 50%)'};
+    background-image: 
+      radial-gradient(1px 1px at 15% 25%, rgba(212, 165, 116, 0.2), transparent),
+      radial-gradient(1px 1px at 85% 75%, rgba(184, 51, 106, 0.15), transparent),
+      radial-gradient(1px 1px at 55% 15%, rgba(139, 90, 158, 0.15), transparent);
+    background-size: 150px 150px, 200px 200px, 175px 175px;
+    animation: ${dreamlikeFloat} 20s infinite ease-in-out;
     pointer-events: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: ${({ $theme }) => $theme?.patterns?.borderGlow || 'linear-gradient(45deg, #d4a574, #b8336a, #8b5a9e, #d4a574)'};
-    border-radius: 18px;
-    z-index: -1;
-    opacity: 0.3;
-    animation: ${romanticPulse} 4s ease-in-out infinite;
-  }
-
-  &:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 20px 60px rgba(212, 165, 116, 0.3), 0 0 100px rgba(184, 54, 106, 0.2)'};
-  }
+    border-radius: 16px;
 
   @media (max-width: 900px) {
     margin: 1rem 0;
@@ -117,17 +139,25 @@ export const Tabs = styled.div<{ $theme?: any }>`
   z-index: 2;
 
   button {
-    background: ${({ $theme }) => $theme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.8)'};
-    backdrop-filter: blur(10px);
-    border: 2px solid ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
+    background: linear-gradient(
+      135deg,
+      var(--love-letter-gold) 0%,
+      var(--deep-crimson-rose) 50%,
+      var(--soft-purple-twilight) 100%
+    ) !important;
+    border: 1px solid rgba(212, 165, 116, 0.4) !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    color: var(--deep-romantic-night) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 
+      0 8px 24px rgba(10, 5, 17, 0.4),
+      0 4px 12px rgba(212, 165, 116, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
     font-family: 'Luckiest Guy', cursive;
-    font-size: 1rem;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
 
@@ -138,26 +168,32 @@ export const Tabs = styled.div<{ $theme?: any }>`
       left: -100%;
       width: 100%;
       height: 100%;
-      background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.3), transparent)'};
+      background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.3), transparent);
       transition: left 0.5s ease;
     }
 
     &:hover {
-      border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-      box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 20px rgba(212, 165, 116, 0.4), 0 0 40px rgba(184, 54, 106, 0.2)'};
-      transform: translateY(-2px);
-      color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+      transform: translateY(-2px) scale(1.05) !important;
+      box-shadow: 
+        0 12px 32px rgba(10, 5, 17, 0.5),
+        0 6px 16px rgba(212, 165, 116, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 
       &::before {
         left: 100%;
       }
     }
 
+    &:active {
+      transform: translateY(-1px) scale(1.02) !important;
+      transition: all 0.2s ease !important;
+    }
+
     &.active {
-      background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
-      color: ${({ $theme }) => $theme?.colors?.background || '#0a0511'};
-      border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-      box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 30px rgba(212, 165, 116, 0.6), 0 0 60px rgba(184, 54, 106, 0.4)'};
+      background: linear-gradient(135deg, #d4a574, #b8336a) !important;
+      color: #0a0511 !important;
+      border-color: #d4a574 !important;
+      box-shadow: 0 0 30px rgba(212, 165, 116, 0.6), 0 0 60px rgba(184, 54, 106, 0.4) !important;
       animation: ${loveLetterFloat} 3s ease-in-out infinite;
     }
   }

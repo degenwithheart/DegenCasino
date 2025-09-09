@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FOOTER_LINKS } from '../../../constants'
 import { useTheme } from '../../../themes/ThemeContext'
-import { Container, HeaderSection, ProfileImage, TextInfo, SectionHeading, Content } from './AboutMe.styles'
+import { Container, HeaderSection, ProfileImage, TextInfo, SectionHeading, Content, HeartDecoration, CandlestickDecoration, MarketLoversOverlay } from './AboutMe.styles'
 
 const AboutMe: React.FC = () => {
   const [visible, setVisible] = useState(false)
@@ -17,18 +17,26 @@ const AboutMe: React.FC = () => {
 
   return (
     <Container visible={visible} $theme={currentTheme}>
+      <MarketLoversOverlay />
+      <HeartDecoration>💖</HeartDecoration>
+      <HeartDecoration>💕</HeartDecoration>
+      <HeartDecoration>💗</HeartDecoration>
+      <HeartDecoration>💓</HeartDecoration>
+      <CandlestickDecoration />
+      <CandlestickDecoration />
+      <CandlestickDecoration />
       <HeaderSection $theme={currentTheme}>
         <ProfileImage src="/webp/images/pfp.webp" alt="Degen Serenade PFP" $theme={currentTheme} />
         <TextInfo $theme={currentTheme}>
           <h1>Degen Serenade</h1>
-          <p>Heart on-chain, soul in code — a romantic builder dancing between candlesticks and cathedral dreams. Updated September 2025</p>
+          <p>Heart on-chain, soul in code — a romantic builder dancing between candlesticks and palace dreams. Updated September 2025</p>
         </TextInfo>
       </HeaderSection>
 
       <Content $theme={currentTheme}>
         <SectionHeading $theme={currentTheme}>Who is Degen Serenade?</SectionHeading>
         <p>
-          I'm <strong>Stuart</strong> — a romantic builder weaving love letters in Solana's blockchain cathedral, 
+          I'm <strong>Stuart</strong> — a romantic builder weaving love letters in Solana's blockchain realm, 
           where every smart contract whispers sweet promises of decentralization.
         </p>
         <p>
@@ -39,7 +47,7 @@ const AboutMe: React.FC = () => {
         <SectionHeading $theme={currentTheme}>Vision & Mission</SectionHeading>
         <p>
           Creator of this casino platform and the sacred <strong>$DGHRT token</strong>, my mission dances 
-          like candlelight against cathedral walls: fuse secure blockchain artistry with fun, fair entertainment 
+          like candlelight against temple walls: fuse secure blockchain artistry with fun, fair entertainment 
           that feels like a slow-burn serenade.
         </p>
         <p>
@@ -51,7 +59,7 @@ const AboutMe: React.FC = () => {
         <p>
           By day, I chase <strong>AI ghosts</strong> through neural networks. By night, I dance in <strong>AR/VR dreams</strong> 
           where pixels become poetry. I'm a full-stack storm chaser, backend thumper, frontend dreamweaver, 
-          and DevOps alchemist brewing magic in cloud cathedrals.
+          and DevOps alchemist brewing magic in cloud palaces.
         </p>
         <p>
           Off-duty? I'm deep in <em>memecoin moonbeams</em>, building for the thrill of watching code come alive. 
@@ -80,7 +88,7 @@ const AboutMe: React.FC = () => {
           fontSize: '1.2rem',
           opacity: 0.9
         }}>
-          Thank you for being here, fellow traveler of the digital cathedral. 
+          Thank you for being here, fellow traveler of the digital sanctuary. 
           Let's build something unforgettable together — where every line of code 
           is a love letter to the future. 🚀💕
         </p>

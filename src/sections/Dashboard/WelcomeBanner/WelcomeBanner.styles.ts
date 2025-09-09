@@ -636,3 +636,114 @@ export const FeatureCard = styled.div<{ $theme?: any }>`
     }
   }
 `;
+
+export const QuotesSection = styled.div<{ $theme?: any }>`
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: ${({ $theme }) => $theme?.colors?.surface ? `
+    linear-gradient(135deg, 
+      ${$theme.colors.surface}60 0%, 
+      ${$theme.colors.background}80 100%
+    )
+  ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
+  border-radius: 16px;
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  backdrop-filter: blur(12px);
+  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    transform: translateY(-2px);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    opacity: 0.6;
+    border-radius: 14px;
+  }
+
+  @media (max-width: 768px) {
+    margin: 1.25rem 0;
+    padding: 0.875rem;
+    border-radius: 14px;
+  }
+
+  @media (max-width: 480px) {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+`;
+
+export const QuotesTicker = styled.div<{ $theme?: any }>`
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  background: ${({ $theme }) => $theme?.colors?.surface ? `
+    linear-gradient(135deg, 
+      ${$theme.colors.surface}60 0%, 
+      ${$theme.colors.background}80 100%
+    )
+  ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  transition: all 0.4s ease;
+  gap: 1.2rem;
+  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
+  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+  letter-spacing: 0.8px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    opacity: 0.6;
+    border-radius: 14px;
+  }
+
+  &:hover {
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem 1.5rem;
+    margin: 0 auto 1rem;
+    gap: 1rem;
+    font-size: 1.2rem;
+    min-height: 48px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    gap: 0.75rem;
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 400px) {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
+`;

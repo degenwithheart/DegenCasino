@@ -6,7 +6,7 @@ import { RPC_ENDPOINT } from '../../../constants';
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useTheme } from "../../../themes/ThemeContext";
 import { QUOTES } from "../../../constants/QuotesVault";
-import { Container, Banner, BannerBottomBar, Heading, JackpotTicker, HeroOverlay, FeatureGrid, FeatureCard } from './WelcomeBanner.styles';
+import { Container, Banner, BannerBottomBar, Heading, JackpotTicker, HeroOverlay, FeatureGrid, FeatureCard, QuotesSection, QuotesTicker } from './WelcomeBanner.styles';
 
 // Throttle hook for future-proofing (matches ConnectionStatus pattern)
 function useThrottle(callback: (...args: any[]) => void, delay: number) {
@@ -69,10 +69,37 @@ export function WelcomeBanner() {
         <HeroOverlay $theme={currentTheme}>
           <Heading $theme={currentTheme}>Welcome to the casino of chaos</Heading>
         </HeroOverlay>
-        <BannerBottomBar $theme={currentTheme}>
-          <JackpotTicker $theme={currentTheme} key={quote}>{quote}</JackpotTicker>
-        </BannerBottomBar>
       </Banner>
+      <QuotesSection $theme={currentTheme} style={{
+        width: '100%',
+        minHeight: '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontSize: '1.35rem',
+        fontWeight: 600,
+        color: currentTheme?.colors?.primary || '#ffd700',
+        background: currentTheme?.colors?.surface
+          ? `linear-gradient(135deg, ${currentTheme.colors.surface}60 0%, ${currentTheme.colors.background}80 100%)`
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)',
+        borderRadius: 16,
+        padding: '1.5rem 2rem',
+        boxShadow: currentTheme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)',
+        border: `2px solid ${currentTheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'}`,
+        transition: 'all 0.4s ease',
+        gap: '1.2rem',
+        textShadow: currentTheme?.effects?.textGlow || '0 0 12px #ffd700',
+        fontFamily: currentTheme?.typography?.fontFamily || "'Arial', sans-serif",
+        letterSpacing: '0.8px',
+        backdropFilter: 'blur(12px)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+        key={quote}
+      >
+        {quote}
+      </QuotesSection>
       <FeatureGrid $theme={currentTheme}>
         {[
           {

@@ -518,29 +518,33 @@ export default function Header() {
         </Logo>
 
         <RightGroup $isCompact={isCompact}>
-          {pool.jackpotBalance > 0 && (
-            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
-              💰
-              {!isCompact && 'Jackpot'}
-            </JackpotBonus>
+          {context.connected && (
+            <>
+              {pool.jackpotBalance > 0 && (
+                <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
+                  💰
+                  {!isCompact && 'Jackpot'}
+                </JackpotBonus>
+              )}
+
+              <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
+                ✨
+                {!isCompact && 'Bonus'}
+              </Bonus>
+
+              {/* Leaderboard trigger */}
+              <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
+                🏆
+                {!isCompact && ' Leaderboard'}
+              </GambaUi.Button>
+
+              {/* Theme selector trigger */}
+              <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
+                🎨
+                {!isCompact && ' Theme'}
+              </ThemeButton>
+            </>
           )}
-
-          <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
-            ✨
-            {!isCompact && 'Bonus'}
-          </Bonus>
-
-          {/* Leaderboard trigger */}
-          <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
-            🏆
-            {!isCompact && ' Leaderboard'}
-          </GambaUi.Button>
-
-          {/* Theme selector trigger */}
-          <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
-            🎨
-            {!isCompact && ' Theme'}
-          </ThemeButton>
 
           {/* Pass isCompact to UserButton to hide text on small */}
           <UserButton />

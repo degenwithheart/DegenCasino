@@ -60,7 +60,7 @@ const Terms: React.FC = () => {
     <Container visible={visible} $theme={currentTheme}>
       <Title $theme={currentTheme}>⚖️ Terms of the Heart ⚖️</Title>
       <Subtitle $theme={currentTheme}>
-        In the flickering candlelight of our casino cathedral, understand the sacred bonds between player and house.
+        In the flickering candlelight of our casino temple, understand the sacred bonds between player and house.
       </Subtitle>
 
       <Selector $theme={currentTheme}>
