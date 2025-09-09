@@ -14,9 +14,6 @@ import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_R
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useTheme } from "../../themes/ThemeContext";
 import {
-  neonPulse,
-  moveGradient,
-  sparkle,
   AccentBar,
   CasinoSparkles,
   DashboardWrapper,
