@@ -4,6 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { tokenPriceService } from '../../services/TokenPriceService';
 import PriceIndicator from "../UI/PriceIndicator";
 import { useTheme } from '../../themes/ThemeContext';
+import { EnhancedWagerInput, EnhancedPlayButton } from '../Game/EnhancedGameControls';
 
 // Romantic animations for the mobile experience
 const romanticPulse = keyframes`
@@ -1136,17 +1137,14 @@ export const DesktopControls: React.FC<{
     return <DesktopControlsWrapper $theme={currentTheme}>{children}</DesktopControlsWrapper>;
   }
 
-  // Otherwise, use the new comprehensive component
+  // Otherwise, use the comprehensive MobileGameControls component
   return (
-    <DesktopControls
-      wager={wager}
-      setWager={setWager}
-      onPlay={onPlay}
-      playDisabled={playDisabled}
-      playText={playText}
-      gameDetails={gameDetails}
-      minWager={minWager}
-      maxWager={maxWager}
-    />
+    <DesktopControlsWrapper $theme={currentTheme}>
+      {/* Use individual Enhanced components for desktop */}
+      <EnhancedWagerInput value={wager} onChange={setWager} />
+      <EnhancedPlayButton onClick={onPlay} disabled={playDisabled}>
+        {playText}
+      </EnhancedPlayButton>
+    </DesktopControlsWrapper>
   );
 };
