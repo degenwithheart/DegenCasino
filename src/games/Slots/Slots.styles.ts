@@ -144,9 +144,10 @@ export const StyledSlots = styled.div`
     position: relative;
     z-index: 2;
     padding: 0;
-    max-width: 1200px;
+    max-width: 1400px; /* Increased max-width for 6-reel layout */
     margin: 0 auto;
     min-height: 100%;
+    width: 100%;
     font-family: 'DM Sans', sans-serif;
 
     @media (max-width: 768px) {
@@ -156,7 +157,7 @@ export const StyledSlots = styled.div`
 
     @media (max-width: 479px) {
       transform: none;
-      padding: 0 8px;
+      padding: 0 4px; /* Reduced padding for very small screens */
     }
   }
 
@@ -385,7 +386,17 @@ export const StyledSlots = styled.div`
       inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     position: relative;
     min-height: 300px;
+    width: 100%;
     overflow: hidden;
+
+    /* Responsive width constraints */
+    @media (min-width: 768px) {
+      min-width: 1000px; /* 6-reel layout on desktop */
+    }
+
+    @media (max-width: 767px) {
+      min-width: 500px; /* 4-reel layout on mobile */
+    }
     
     &::before {
       content: '';
@@ -435,64 +446,104 @@ export const StyledSlots = styled.div`
 
   .slots-reels {
     display: flex;
-    gap: 12px; /* Reduced gap for 6 reels */
     justify-content: center;
     align-items: center;
-    padding: 40px 20px; /* Reduced horizontal padding */
     flex: 1;
     perspective: 800px;
     transform: rotateX(-5deg); /* Slight tilt so top appears further back */
     position: relative;
+    width: 100%;
+
+    /* Responsive layout adjustments */
+    @media (min-width: 768px) {
+      gap: 8px; /* Tighter gap for 6 reels on desktop */
+      padding: 40px 10px;
+      min-width: 700px;
+    }
+
+    @media (max-width: 767px) {
+      gap: 12px; /* More generous gap for 4 reels on mobile */
+      padding: 40px 20px;
+      min-width: 400px;
+    }
   }
 
   .winning-line-arrow {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 400px; /* Match new reel height (4 rows × 100px) */
-    width: 50px; /* Reduced width for 6-reel layout */
+    height: 300px; /* Match new reel height (3 rows × 100px) */
     position: relative;
     z-index: 10;
     pointer-events: none;
+
+    /* Responsive width based on number of reels */
+    @media (min-width: 768px) {
+      width: 40px; /* Smaller width for 6-reel desktop layout */
+    }
+
+    @media (max-width: 767px) {
+      width: 50px; /* Normal width for 4-reel mobile layout */
+    }
   }
 
   .winning-line-arrow-left {
-    margin-right: 10px;
+    @media (min-width: 768px) {
+      margin-right: 5px; /* Tighter margin for 6-reel desktop */
+    }
+
+    @media (max-width: 767px) {
+      margin-right: 10px; /* Normal margin for 4-reel mobile */
+    }
   }
 
   .winning-line-arrow-right {
-    margin-left: 10px;
+    @media (min-width: 768px) {
+      margin-left: 5px; /* Tighter margin for 6-reel desktop */
+    }
+
+    @media (max-width: 767px) {
+      margin-left: 10px; /* Normal margin for 4-reel mobile */
+    }
   }
 
   .arrow-icon {
-    font-size: 36px;
     color: #ffd700;
     text-shadow: 
       0 0 10px rgba(255, 215, 0, 0.8),
       0 0 20px rgba(255, 215, 0, 0.6),
       0 0 30px rgba(255, 215, 0, 0.4);
     animation: arrowPulse 2s ease-in-out infinite;
-    /* Position the arrow to align perfectly with the ECG line on 3rd row */
-    transform: translateY(48px); /* Fine-tuned to match ECG line exactly */
+    /* Position the arrow to align perfectly with the ECG line on middle row (3-row layout) */
+    transform: translateY(0px); /* Centered for middle row of 3-row layout */
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+
+    /* Responsive sizing */
+    @media (min-width: 768px) {
+      font-size: 30px; /* Smaller for 6-reel desktop layout */
+    }
+
+    @media (max-width: 767px) {
+      font-size: 36px; /* Normal size for 4-reel mobile layout */
+    }
   }
 
   .winning-line-arrow-left .arrow-icon {
-    transform: translateY(48px) rotate(0deg);
+    transform: translateY(0px) rotate(0deg);
   }
 
   .winning-line-arrow-right .arrow-icon {
-    transform: translateY(48px) rotate(0deg);
+    transform: translateY(0px) rotate(0deg);
   }
 
   @keyframes arrowPulse {
     0%, 100% {
       opacity: 0.7;
-      transform: translateY(48px) scale(1); /* Updated to match ECG line exactly */
+      transform: translateY(0px) scale(1); /* Updated to match ECG line exactly */
     }
     50% {
       opacity: 1;
-      transform: translateY(48px) scale(1.1); /* Updated to match ECG line exactly */
+      transform: translateY(0px) scale(1.1); /* Updated to match ECG line exactly */
     }
   }
 
@@ -506,7 +557,7 @@ export const StyledSlots = styled.div`
     background: transparent;
     z-index: 15;
     pointer-events: none;
-    transform: translateY(50px); /* Position at 3rd row */
+    transform: translateY(0px); /* Position at middle row for 3-row layout */
     opacity: 0;
     transition: opacity 0.3s ease;
     
@@ -597,63 +648,64 @@ export const StyledSlots = styled.div`
   /* Mobile responsive adjustments for arrows */
   @media (max-width: 480px) {
     .slots-reels {
-      gap: 2px; /* Very tight gap for small phones */
-      padding: 15px 4px; /* Minimal padding */
+      gap: 1px; /* Very tight gap for small phones to fit 6 reels */
+      padding: 15px 2px; /* Minimal padding */
+      overflow-x: auto; /* Allow horizontal scroll on very small screens */
     }
 
     .winning-line-arrow {
-      width: 20px; /* Very small arrows */
+      width: 15px; /* Very small arrows */
       display: none; /* Hide arrows on very small screens */
     }
 
     .arrow-icon {
-      font-size: 16px;
+      font-size: 12px;
     }
   }
 
   @media (min-width: 481px) and (max-width: 640px) {
     .slots-reels {
-      gap: 4px; /* Tighter gap for 6 reels on mobile */
-      padding: 20px 8px; /* Reduced padding for mobile */
+      gap: 3px; /* Tighter gap for 6 reels on mobile */
+      padding: 20px 4px; /* Further reduced padding for mobile */
     }
 
     .winning-line-arrow {
-      width: 25px; /* Smaller arrows for mobile */
+      width: 20px; /* Smaller arrows for mobile */
     }
 
     .winning-line-arrow-left {
-      margin-right: 2px;
+      margin-right: 1px;
     }
 
     .winning-line-arrow-right {
-      margin-left: 2px;
+      margin-left: 1px;
     }
 
     .arrow-icon {
-      font-size: 20px; /* Smaller arrow icons */
+      font-size: 16px; /* Smaller arrow icons */
     }
   }
 
   @media (min-width: 641px) and (max-width: 768px) {
     .slots-reels {
-      gap: 6px; /* Tighter gap for tablets */
-      padding: 25px 12px;
+      gap: 5px; /* Tighter gap for tablets */
+      padding: 25px 8px;
     }
 
     .winning-line-arrow {
-      width: 32px;
+      width: 28px;
     }
 
     .winning-line-arrow-left {
-      margin-right: 4px;
+      margin-right: 3px;
     }
 
     .winning-line-arrow-right {
-      margin-left: 4px;
+      margin-left: 3px;
     }
 
     .arrow-icon {
-      font-size: 24px;
+      font-size: 20px;
     }
   }
 
@@ -682,24 +734,24 @@ export const StyledSlots = styled.div`
 
   @media (min-width: 900px) {
     .slots-reels {
-      gap: 10px; /* Slightly reduced for 6 reels */
-      padding: 35px 18px;
+      gap: 8px; /* Further reduced for 6 reels */
+      padding: 35px 15px;
     }
 
     .winning-line-arrow {
-      width: 42px;
+      width: 40px;
     }
 
     .winning-line-arrow-left {
-      margin-right: 6px;
+      margin-right: 5px;
     }
 
     .winning-line-arrow-right {
-      margin-left: 6px;
+      margin-left: 5px;
     }
 
     .arrow-icon {
-      font-size: 32px;
+      font-size: 30px;
     }
   }
 `

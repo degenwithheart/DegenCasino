@@ -1,4 +1,4 @@
-import { SLOT_ITEMS, SlotItem, NUM_REELS, NUM_ROWS, NUM_PAYLINES } from './constants'
+import { SLOT_ITEMS, SlotItem } from './constants'
 import { SLOTS_CONFIG } from '../rtpConfig'
 
 /**
@@ -37,20 +37,22 @@ export const generateBetArray = (
 }
 
 /**
- * Gets the paylines for checking wins (1 horizontal line on 3rd row)
- * Grid layout (4×6 grid, column-major for reels):
- * Reel 0: [0, 1, 2, 3]    <- Column 1 (rows 0,1,2,3)
- * Reel 1: [4, 5, 6, 7]    <- Column 2 (rows 0,1,2,3)  
- * Reel 2: [8, 9, 10, 11]  <- Column 3 (rows 0,1,2,3)
- * Reel 3: [12, 13, 14, 15] <- Column 4 (rows 0,1,2,3)
- * Reel 4: [16, 17, 18, 19] <- Column 5 (rows 0,1,2,3)
- * Reel 5: [20, 21, 22, 23] <- Column 6 (rows 0,1,2,3)
- * The 3rd row [2, 6, 10, 14, 18, 22] is the winning line
+ * Gets the paylines for checking wins (1 horizontal line on middle row)
+ * Dynamically calculates payline based on number of reels and rows
+ * For 3-row games: middle row (row 1)
+ * For 4-row games: 3rd row (row 2)  
+ * Grid layout is column-major: reel 0: [0, 1, 2...], reel 1: [rows, rows+1, rows+2...]
  */
-export const getPaylines = () => {
-  return [
-    [2, 6, 10, 14, 18, 22], // 3rd row horizontal line (winning line)
-  ];
+export const getPaylines = (numReels: number, numRows: number) => {
+  const middleRow = Math.floor(numRows / 2); // Row 1 for 3 rows, row 1 for 4 rows
+  const winningLine: number[] = [];
+  
+  // Build the middle row payline: [middleRow, middleRow + numRows, middleRow + 2*numRows, ...]
+  for (let reel = 0; reel < numReels; reel++) {
+    winningLine.push(middleRow + reel * numRows);
+  }
+  
+  return [winningLine];
 }
 
 /**
@@ -72,8 +74,8 @@ export const checkPaylineWin = (grid: SlotItem[], paylineIndices: number[]) => {
 /**
  * Gets all winning paylines from a grid
  */
-export const getWinningPaylines = (grid: SlotItem[]) => {
-  const paylines = getPaylines();
+export const getWinningPaylines = (grid: SlotItem[], numReels: number, numRows: number) => {
+  const paylines = getPaylines(numReels, numRows);
   const winningPaylines: { payline: number[], symbol: SlotItem }[] = [];
   
   paylines.forEach((payline, index) => {
@@ -87,38 +89,40 @@ export const getWinningPaylines = (grid: SlotItem[]) => {
 }
 
 /**
- * Enhanced getSlotCombination with strategic column sequences and no matching top rows
- * Grid layout (4 rows, 6 columns):
- * [0, 4, 8, 12, 16, 20]   <- Top row (row 0)
- * [1, 5, 9, 13, 17, 21]   <- Row 1
- * [2, 6, 10, 14, 18, 22]  <- Row 2 (WINNING LINE)
- * [3, 7, 11, 15, 19, 23]  <- Bottom row (row 3)
- * 
- * Column sequences:
- * Column 0: MYTHICAL, LEGENDARY, DGHRT, SOL, USDC, JUP, BONK, WOJAK
- * Column 1: WOJAK, BONK, JUP, USDC, SOL, DGHRT, LEGENDARY, MYTHICAL (reverse)
- * Column 2: SOL, JUP, WOJAK, MYTHICAL, BONK, USDC, DGHRT, LEGENDARY (offset)
- * Column 3: LEGENDARY, USDC, WOJAK, JUP, MYTHICAL, BONK, SOL, DGHRT (rotated)
- * Column 4: BONK, DGHRT, MYTHICAL, WOJAK, JUP, LEGENDARY, SOL, USDC (shifted)
- * Column 5: USDC, MYTHICAL, BONK, LEGENDARY, WOJAK, SOL, JUP, DGHRT (mixed)
+ * Enhanced getSlotCombination with strategic column sequences 
+ * Supports dynamic grid sizes (4x3 or 6x3)
+ * Grid layout is column-major: [0, 1, 2], [3, 4, 5], [6, 7, 8]... for 3 rows
+ * Winning line is always the middle row
  */
 export const getSlotCombination = (
-  count: number, // Should be 24 (4×6 grid)
+  count: number, // Total slots (numReels * numRows)
   multiplier: number,
   bet: number[],
   seed: string, // typically the on-chain result signature
+  numReels: number,
+  numRows: number,
 ) => {
-  const rng = makeDeterministicRng(`${seed}:${multiplier}:${bet.length}:${count}`)
+  const rng = makeDeterministicRng(`${seed}:${multiplier}:${bet.length}:${count}:${numReels}:${numRows}`)
 
-    // Define column sequences (must match Reel.tsx) - using actual RTP config symbols
-  const COLUMN_SEQUENCES = {
-    0: ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
-    1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY', 'MYTHICAL'], // Column 2 (reverse)
-    2: ['SOL', 'JUP', 'WOJAK', 'MYTHICAL', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
-    3: ['LEGENDARY', 'USDC', 'WOJAK', 'JUP', 'MYTHICAL', 'BONK', 'SOL', 'DGHRT'], // Column 4 (rotated)
-    4: ['BONK', 'DGHRT', 'MYTHICAL', 'WOJAK', 'JUP', 'LEGENDARY', 'SOL', 'USDC'], // Column 5 (shifted)
-    5: ['USDC', 'MYTHICAL', 'BONK', 'LEGENDARY', 'WOJAK', 'SOL', 'JUP', 'DGHRT'], // Column 6 (mixed)
-  }
+  // Generate dynamic column sequences based on number of reels
+  const baseSequence = ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'];
+  const generateColumnSequences = (numReels: number) => {
+    const sequences: string[][] = [];
+    for (let i = 0; i < numReels; i++) {
+      if (i === 0) {
+        sequences.push([...baseSequence]); // Column 0: original
+      } else if (i === 1) {
+        sequences.push([...baseSequence].reverse()); // Column 1: reverse
+      } else {
+        // For other columns, create variations by rotating and shuffling
+        const rotated = [...baseSequence.slice(i), ...baseSequence.slice(0, i)];
+        sequences.push(rotated);
+      }
+    }
+    return sequences;
+  };
+  
+  const COLUMN_SEQUENCES = generateColumnSequences(numReels);
   
   // Helper to get SlotItem by symbol name - using actual RTP config multipliers
   const getSymbolByName = (symbolName: string): SlotItem => {
@@ -141,108 +145,92 @@ export const getSlotCombination = (
   
   // Helper to get random position in column sequence
   const getRandomSymbolFromColumn = (columnIndex: number, rng: () => number): SlotItem => {
-    const sequence = COLUMN_SEQUENCES[columnIndex as keyof typeof COLUMN_SEQUENCES]
+    const sequence = COLUMN_SEQUENCES[columnIndex]
+    if (!sequence) return SLOT_ITEMS[0] // fallback
     const randomIndex = Math.floor(rng() * sequence.length)
     return getSymbolByName(sequence[randomIndex])
   }
 
   // Helper to get unique symbols for a column (no duplicates in vertical reel)
   const getUniqueSymbolsForColumn = (columnIndex: number, count: number, rng: () => number): SlotItem[] => {
-    const sequence = COLUMN_SEQUENCES[columnIndex as keyof typeof COLUMN_SEQUENCES]
+    const sequence = COLUMN_SEQUENCES[columnIndex]
+    if (!sequence) return Array(count).fill(SLOT_ITEMS[0]) // fallback
     const shuffled = [...sequence].sort(() => rng() - 0.5) // Shuffle the sequence
     return shuffled.slice(0, count).map(symbolName => getSymbolByName(symbolName))
   }
 
-  // WIN CASE: create a grid with the winning 3rd row line
+  const middleRow = Math.floor(numRows / 2); // Middle row is the winning line
+  
+  // WIN CASE: create a grid with the winning middle row line
   if (multiplier > 0) {
     const winningItems = SLOT_ITEMS.filter((x) => x.multiplier === multiplier)
     const chosen = winningItems.length > 0 
       ? pickDeterministic(winningItems, rng)
       : pickDeterministic(SLOT_ITEMS, rng)
 
-    // Create a 4x6 grid (24 slots total)
-    const grid: SlotItem[] = new Array(24).fill(null);
+    // Create dynamic grid
+    const grid: SlotItem[] = new Array(count).fill(null);
     
-    // Fill each column with unique symbols, ensuring the winning symbol is at row 2 (3rd row)
-    for (let columnIndex = 0; columnIndex < 6; columnIndex++) {
-      const sequence = COLUMN_SEQUENCES[columnIndex as keyof typeof COLUMN_SEQUENCES]
+    // Fill each column with symbols, ensuring the winning symbol is at the middle row
+    for (let columnIndex = 0; columnIndex < numReels; columnIndex++) {
+      const uniqueSymbols = getUniqueSymbolsForColumn(columnIndex, numRows, rng);
       
-      // Find the winning symbol in this column's sequence
-      const winningSymbolName = SLOTS_CONFIG.symbols.find(s => Math.abs(s.multiplier - chosen.multiplier) < 0.001)?.name
-      const winningSymbolIndex = winningSymbolName ? sequence.indexOf(winningSymbolName) : -1
-      
-      // Create a unique arrangement with the winning symbol at position 2 (3rd row)
-      const shuffled = [...sequence].sort(() => rng() - 0.5)
-      
-      // Ensure winning symbol is at position 2 if it exists in this column's sequence
-      if (winningSymbolIndex !== -1) {
-        // Remove winning symbol from shuffled array if it exists
-        const filteredShuffled = shuffled.filter(name => name !== winningSymbolName)
-        // Place winning symbol at position 2, fill others uniquely
-        const columnSymbols = [
-          filteredShuffled[0] || sequence[0],           // Row 0
-          filteredShuffled[1] || sequence[1],           // Row 1  
-          winningSymbolName!,                           // Row 2 (winning line)
-          filteredShuffled[2] || sequence[3]            // Row 3
-        ]
-        
-        // Place symbols in this column
-        for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-          const index = columnIndex * 4 + rowIndex;
-          grid[index] = getSymbolByName(columnSymbols[rowIndex]);
-        }
-      } else {
-        // This column doesn't have the winning symbol, use regular unique arrangement
-        const uniqueSymbols = shuffled.slice(0, 4).map(symbolName => getSymbolByName(symbolName))
-        for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-          const index = columnIndex * 4 + rowIndex;
+      // Place symbols in this column
+      for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+        const index = columnIndex * numRows + rowIndex;
+        if (rowIndex === middleRow) {
+          grid[index] = chosen; // Place winning symbol at middle row
+        } else {
           grid[index] = uniqueSymbols[rowIndex];
         }
-        // Override position 2 with winning symbol
-        grid[columnIndex * 4 + 2] = chosen;
       }
     }
     
     return grid;
   }
 
-    // LOSS CASE: create a grid with no winning 3rd row line but following column sequences
-  const grid: SlotItem[] = new Array(24).fill(null);
+  // LOSS CASE: create a grid with no winning middle row line
+  const grid: SlotItem[] = new Array(count).fill(null);
   
   // Fill each column with unique symbols (no duplicates per vertical reel)
-  for (let columnIndex = 0; columnIndex < 6; columnIndex++) {
-    const uniqueSymbols = getUniqueSymbolsForColumn(columnIndex, 4, rng);
+  for (let columnIndex = 0; columnIndex < numReels; columnIndex++) {
+    const uniqueSymbols = getUniqueSymbolsForColumn(columnIndex, numRows, rng);
     
-    // Place symbols in this column (4 rows)
-    for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-      const index = columnIndex * 4 + rowIndex;
+    // Place symbols in this column
+    for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+      const index = columnIndex * numRows + rowIndex;
       grid[index] = uniqueSymbols[rowIndex];
     }
   }
   
-  // Ensure the 3rd row [2, 6, 10, 14, 18, 22] is NOT a winning line
+  // Ensure the middle row is NOT a winning line
   let attempts = 0;
   while (attempts < 10) {
-    const thirdRowSymbols = [grid[2], grid[6], grid[10], grid[14], grid[18], grid[22]];
-    const firstSymbol = thirdRowSymbols[0];
+    const middleRowSymbols: SlotItem[] = [];
+    for (let columnIndex = 0; columnIndex < numReels; columnIndex++) {
+      const index = columnIndex * numRows + middleRow;
+      middleRowSymbols.push(grid[index]);
+    }
     
-    // Check if 3rd row is a winning combination
-    const isThirdRowWinning = thirdRowSymbols.every(symbol => 
+    const firstSymbol = middleRowSymbols[0];
+    
+    // Check if middle row is a winning combination
+    const isMiddleRowWinning = middleRowSymbols.every(symbol => 
       symbol.multiplier === firstSymbol.multiplier && 
       firstSymbol.multiplier > 0
     );
     
-    if (!isThirdRowWinning) {
+    if (!isMiddleRowWinning) {
       break; // No winning line, we're good
     }
     
-    // Break the winning 3rd row line by regenerating unique symbols for one column
-    const columnToChange = Math.floor(rng() * 6); // 0-5 for 6 columns
-    const newUniqueSymbols = getUniqueSymbolsForColumn(columnToChange, 4, rng);
+    // Break the winning middle row line by changing one symbol
+    const columnToChange = Math.floor(rng() * numReels);
+    const newUniqueSymbols = getUniqueSymbolsForColumn(columnToChange, numRows, rng);
     
     // Replace all symbols in this column with new unique symbols
-    for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-      const index = columnToChange * 4 + rowIndex;
+    for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+      const index = columnToChange * numRows + rowIndex;
       grid[index] = newUniqueSymbols[rowIndex];
     }
     

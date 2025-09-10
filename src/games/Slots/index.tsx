@@ -12,9 +12,12 @@ import { StyledSlotsBackground } from './SlotsBackground.enhanced.styles'
 import {
   FINAL_DELAY,
   LEGENDARY_THRESHOLD,
-  NUM_SLOTS,
-  NUM_REELS,
-  NUM_ROWS,
+  DEFAULT_SLOT_MODE,
+  SlotMode,
+  getNumSlots,
+  getNumReels,
+  getNumRows,
+  getNumPaylines,
   REVEAL_SLOT_DELAY,
   SLOT_ITEMS,
   SOUND_LOSE,
@@ -31,6 +34,27 @@ import { generateBetArray, getSlotCombination, getWinningPaylines } from './util
 export default function Slots() {
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
+  
+  // Responsive mode based on screen size
+  const [isMobile, setIsMobile] = React.useState(false)
+  
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768) // Mobile breakpoint
+    }
+    
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+  
+  // Dynamic values based on screen size
+  const slotMode: SlotMode = isMobile ? 'classic' : 'wide'
+  const NUM_REELS = getNumReels(slotMode)
+  const NUM_ROWS = getNumRows(slotMode)
+  const NUM_SLOTS = getNumSlots(slotMode)
+  const NUM_PAYLINES = getNumPaylines(slotMode)
+  
   const [spinning, setSpinning] = React.useState(false)
   const [result, setResult] = React.useState<GameResult>()
   const [good, setGood] = React.useState(false)
@@ -42,10 +66,32 @@ export default function Slots() {
   const [winningPaylines, setWinningPaylines] = React.useState<{ payline: number[], symbol: SlotItem }[]>([])
   const [winningSymbol, setWinningSymbol] = React.useState<SlotItem | null>(null)
   
+  // Update combination array when screen size changes
+  React.useEffect(() => {
+    console.log('🎰 RESPONSIVE MODE CHANGE:', { 
+      isMobile,
+      slotMode, 
+      NUM_REELS, 
+      NUM_ROWS, 
+      NUM_SLOTS,
+      previousCombinationLength: combination.length 
+    })
+    setCombination(Array.from({ length: NUM_SLOTS }).map(() => SLOT_ITEMS[0]))
+    setRevealedSlots(NUM_SLOTS)
+    setWinningPaylines([])
+    setWinningSymbol(null)
+    setGood(false)
+  }, [NUM_SLOTS, isMobile])
+  
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
   
-  console.log('🎰 SLOTS MAIN DEBUG:', {
+  console.log('🎰 SLOTS DEBUG:', {
+    isMobile,
+    slotMode: isMobile ? '4×3' : '6×3',
+    NUM_REELS,
+    NUM_ROWS, 
+    NUM_SLOTS,
     spinning,
     result: !!result,
     good,
@@ -53,7 +99,8 @@ export default function Slots() {
     wager,
     enableMotion: settings.enableMotion,
     combination: combination.map(c => c.multiplier),
-    winningPaylines: winningPaylines.length
+    winningPaylines: winningPaylines.length,
+    combinationLength: combination.length
   })
   
   const sounds = useSound({
@@ -105,7 +152,7 @@ export default function Slots() {
     const currentGrid = combination.slice(0, revealedSlotCount).concat(
       Array.from({ length: NUM_SLOTS - revealedSlotCount }).map(() => SLOT_ITEMS[0])
     )
-    const winningLines = getWinningPaylines(currentGrid)
+    const winningLines = getWinningPaylines(currentGrid, NUM_REELS, NUM_ROWS)
     
     // Check if current reel has any legendary wins
     for (let row = 0; row < NUM_ROWS; row++) {
@@ -127,7 +174,7 @@ export default function Slots() {
     } else if (reel === NUM_REELS - 1) {
       // Show final results
       sounds.sounds.spin.player.stop()
-      const finalWinningLines = getWinningPaylines(combination)
+      const finalWinningLines = getWinningPaylines(combination, NUM_REELS, NUM_ROWS)
       setWinningPaylines(finalWinningLines)
       
       timeout.current = setTimeout(() => {
@@ -209,6 +256,8 @@ export default function Slots() {
         result.multiplier,
         [...bet],
         seed,
+        NUM_REELS,
+        NUM_ROWS,
       )
 
       setCombination(combination)
@@ -269,7 +318,7 @@ export default function Slots() {
                       {Array.from({ length: NUM_REELS }).map((_, reelIndex) => {
                         const reelItems = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
                           const slotIndex = reelIndex * NUM_ROWS + rowIndex
-                          return combination[slotIndex]
+                          return combination[slotIndex] || SLOT_ITEMS[0] // Fallback if undefined
                         })
                         
                         const reelGoodSlots = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
@@ -280,11 +329,17 @@ export default function Slots() {
                         const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
                         
                         console.log(`🎰 RENDERING REEL ${reelIndex}:`, {
+                          NUM_REELS,
+                          NUM_ROWS,
+                          NUM_SLOTS,
+                          slotMode,
+                          combinationLength: combination.length,
                           reelRevealed,
                           isSpinning: spinning && !reelRevealed,
                           enableMotion: settings.enableMotion,
-                          reelItems: reelItems.map(i => i.multiplier),
-                          reelGoodSlots
+                          reelItems: reelItems.map(i => i?.multiplier || 'undefined'),
+                          reelGoodSlots,
+                          slotIndicesForThisReel: Array.from({ length: NUM_ROWS }).map((_, rowIndex) => reelIndex * NUM_ROWS + rowIndex)
                         })
                         
                         return (
@@ -329,6 +384,7 @@ export default function Slots() {
           playText="Spin"
         >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+          
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin
           </EnhancedPlayButton>

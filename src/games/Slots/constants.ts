@@ -14,7 +14,7 @@ import IMAGE_BONK from './assets/slot-bonk.webp'
 import IMAGE_MYTHICAL from './assets/slot-mythical.webp'
 import IMAGE_LEGENDARY from './assets/slot-legendary.webp'
 import IMAGE_WOJAK from './assets/slot-wojak.webp'
-import { BET_ARRAYS } from '../rtpConfig'
+import { BET_ARRAYS, SLOTS_CONFIG } from '../rtpConfig'
 
 export interface SlotItem {
   multiplier: number
@@ -39,11 +39,29 @@ export const SLOT_ITEMS: SlotItem[] = BET_ARRAYS.slots.symbols.map((symbol: any)
   image: SYMBOL_IMAGES[symbol.name] || '',
 }))
 
-import { SLOTS_CONFIG } from '../rtpConfig'
-export const NUM_REELS = SLOTS_CONFIG.NUM_REELS
-export const NUM_ROWS = SLOTS_CONFIG.NUM_ROWS  
-export const NUM_PAYLINES = SLOTS_CONFIG.NUM_PAYLINES
-export const NUM_SLOTS = NUM_REELS * NUM_ROWS // Total grid cells (9)
+// Slot modes configuration 
+export type SlotMode = 'classic' | 'wide'
+
+// Mode configurations
+const SLOT_MODES = {
+  classic: { NUM_REELS: 4, NUM_ROWS: 3, NUM_PAYLINES: 1 },
+  wide: { NUM_REELS: 6, NUM_ROWS: 3, NUM_PAYLINES: 1 }
+}
+
+// Default mode configuration (classic 4x3)
+export const DEFAULT_SLOT_MODE: SlotMode = 'classic'
+
+// Helper functions for mode-based values
+export const getNumReels = (mode: SlotMode) => SLOT_MODES[mode].NUM_REELS
+export const getNumRows = (mode: SlotMode) => SLOT_MODES[mode].NUM_ROWS
+export const getNumPaylines = (mode: SlotMode) => SLOT_MODES[mode].NUM_PAYLINES
+export const getNumSlots = (mode: SlotMode) => getNumReels(mode) * getNumRows(mode)
+
+// Default values (classic mode: 4x3)
+export const NUM_REELS = SLOT_MODES[DEFAULT_SLOT_MODE].NUM_REELS
+export const NUM_ROWS = SLOT_MODES[DEFAULT_SLOT_MODE].NUM_ROWS  
+export const NUM_PAYLINES = SLOT_MODES[DEFAULT_SLOT_MODE].NUM_PAYLINES
+export const NUM_SLOTS = NUM_REELS * NUM_ROWS
 // MS that it takes for spin to finish and reveal to start
 export const SPIN_DELAY = 1500
 // MS between each slot reveal

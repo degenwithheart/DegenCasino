@@ -54,7 +54,7 @@ const revealReel = keyframes`
 const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enableMotion: boolean}>`
   position: relative;
   width: 100%;
-  height: 400px; /* Height for 4 slots at 100px each */
+  height: 300px; /* Height for 3 slots at 100px each (3-row layout) */
   overflow: hidden;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
@@ -63,44 +63,20 @@ const StyledReel = styled.div<{$revealed: boolean, $isSpinning: boolean, $enable
   box-shadow: 
     inset 0 0 20px rgba(0, 0, 0, 0.5),
     0 4px 15px rgba(0, 0, 0, 0.3);
+  flex: 1; /* Allow flex sizing */
+  min-width: 80px; /* Increased minimum width for better visibility */
+  max-width: 150px; /* Increased maximum width */
 
-  /* Subtle highlight for the winning row (3rd row) */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 200px; /* Position at 3rd row (2 * 100px) */
-    left: 0;
-    right: 0;
-    height: 100px; /* Height of one slot */
-    background: linear-gradient(90deg, 
-      rgba(255, 215, 0, 0.1) 0%,
-      rgba(255, 215, 0, 0.05) 50%,
-      rgba(255, 215, 0, 0.1) 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-    border-top: 1px solid rgba(255, 215, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-  }
+
 
   /* Responsive height adjustments for small screens */
   @media (max-width: 480px) {
-    height: 320px; /* Reduced height for very small screens (80px per slot) */
+    height: 240px; /* Reduced height for very small screens (80px per slot × 3 slots) */
     border-radius: 6px;
-    
-    &::before {
-      top: 160px; /* Adjust for smaller slots (2 * 80px) */
-      height: 80px;
-    }
   }
 
   @media (min-width: 481px) and (max-width: 640px) {
-    height: 360px; /* Slightly reduced height for small screens (90px per slot) */
-    
-    &::before {
-      top: 180px; /* Adjust for smaller slots (2 * 90px) */
-      height: 90px;
-    }
+    height: 270px; /* Slightly reduced height for small screens (90px per slot × 3 slots) */
   }
 `
 
@@ -157,8 +133,10 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
   }
 
   & img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
+    max-width: 90%;
+    max-height: 90%;
     object-fit: contain;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,.4));
     border-radius: 12px;
@@ -168,6 +146,17 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
     left: 50%;
     transform: translate(-50%, -50%);
     ${(p) => p.$good && p.$revealed && css`filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 20px rgba(255,215,0,.7));`}
+
+    /* Responsive sizing for different screen sizes */
+    @media (max-width: 480px) {
+      width: 60px;
+      height: 60px;
+    }
+
+    @media (min-width: 481px) and (max-width: 640px) {
+      width: 70px;
+      height: 70px;
+    }
   }
 `
 
@@ -192,24 +181,7 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $e
     transform: scale(1.0); /* Full size for "bottom" positions */
   }
 
-  /* Add gradient divider line at the bottom of each slot */
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 12.5%;
-    width: 75%;
-    height: 2px;
-    background: linear-gradient(90deg, 
-      transparent 0%,
-      rgba(255, 215, 0, 0.8) 20%,
-      rgba(147, 51, 234, 0.9) 50%,
-      rgba(255, 215, 0, 0.8) 80%,
-      transparent 100%
-    );
-    z-index: 10;
-    pointer-events: none;
-  }
+
 
   & img {
     width: 100px; /* Fixed size for all images */
@@ -273,30 +245,15 @@ const FinalSlot = styled.div<{$good: boolean, $revealed: boolean, $enableMotion:
   transition: ${props => props.$enableMotion ? 'opacity 0.5s ease-out' : 'none'};
   z-index: 5;
 
-  /* Add gradient line for idle/revealed state - positioned at center between two slots */
-  &::after {
-    content: '';
-    position: absolute;
-    top: 150px; /* Position at center between two 150px slots */
-    left: 12.5%;
-    width: 75%;
-    height: 2px;
-    background: linear-gradient(90deg, 
-      transparent 0%,
-      rgba(255, 215, 0, 0.8) 20%,
-      rgba(147, 51, 234, 0.9) 50%,
-      rgba(255, 215, 0, 0.8) 80%,
-      transparent 100%
-    );
-    z-index: 10;
-    pointer-events: none;
-  }
+
 `
 
 export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotion = true }: ReelProps) {
   // Create column-specific symbol sequences for strategic gameplay
   const spinItems = React.useMemo(() => {
-    const columnSequence = COLUMN_SEQUENCES[reelIndex as keyof typeof COLUMN_SEQUENCES] || COLUMN_SEQUENCES[0]
+    // Handle any number of reels by cycling through available sequences
+    const sequenceIndex = reelIndex % Object.keys(COLUMN_SEQUENCES).length
+    const columnSequence = COLUMN_SEQUENCES[sequenceIndex as keyof typeof COLUMN_SEQUENCES] || COLUMN_SEQUENCES[0]
     
     // Map symbol names to actual SlotItem objects using RTP config
     const sequenceItems = columnSequence.map(symbolName => {
