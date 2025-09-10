@@ -17,19 +17,18 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   position: relative;
-  background: #ff556a;
-  border-radius: 10px;
-  box-shadow: 0 0 0px 5px #32294355;
+  background: transparent;
+  border-radius: clamp(8px, 1.25vh, 12px);
   transition: box-shadow .2s ease;
-  height: 15px;
+  height: clamp(14px, 2.5vh, 24px);
   opacity: 1;
   cursor: pointer;
 `
 
 const Track = styled.div`
-  background: #55f275;
+  background: transparent;
   height: 100%;
-  border-radius: 10px 0 0 10px;
+  border-radius: clamp(8px, 1.25vh, 12px) 0 0 clamp(8px, 1.25vh, 12px);
 `
 
 const StyledSlider = styled.input`
@@ -55,39 +54,51 @@ const StyledSlider = styled.input`
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #FFFFFF;
+    width: clamp(16px, 3vh, 28px);
+    height: clamp(16px, 3vh, 28px);
+    background: linear-gradient(135deg, #ffd700, #ff0066);
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 165, 116, 0.8);
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(212, 165, 116, 0.2);
   }
 
   &::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: #FFFFFF;
+    width: clamp(16px, 3vh, 28px);
+    height: clamp(16px, 3vh, 28px);
+    background: linear-gradient(135deg, #ffd700, #ff0066);
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 165, 116, 0.8);
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(212, 165, 116, 0.2);
   }
 `
 
 const Label = styled.div<{$active: boolean}>`
-  margin-top: 10px;
+  margin-top: clamp(12px, 2vh, 20px);
   position: absolute;
   transform: translateX(-50%);
   text-align: center;
-  background: #32294322;
-  padding: 5px;
-  border-radius: 10px;
-  min-width: 30px;
-  color: #ff949f;
-  transition: left .2s ease;
-  font-size: 75%;
+  background: rgba(10, 5, 17, 0.7);
+  padding: clamp(3px, 0.8vh, 8px) clamp(4px, 1vw, 8px);
+  border-radius: clamp(6px, 1vh, 12px);
+  min-width: clamp(24px, 4vw, 40px);
+  color: rgba(212, 165, 116, 0.7);
+  transition: left .2s ease, color .2s ease;
+  font-size: clamp(8px, 1.2vw, 12px);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  border: 1px solid rgba(212, 165, 116, 0.2);
 
   ${(props) => props.$active && css`
-    color: #94ff94;
+    color: var(--love-letter-gold);
+    background: rgba(212, 165, 116, 0.15);
+    border-color: rgba(212, 165, 116, 0.4);
   `}
-
 `
 
 function Slider ({ min: minValue, max: maxValue, value, onChange, disabled, range: [min, max] }: SliderProps) {

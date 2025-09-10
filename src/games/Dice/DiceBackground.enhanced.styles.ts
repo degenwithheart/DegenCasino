@@ -104,45 +104,47 @@ export const StyledDiceBackground = styled.div`
   .dice-redesign {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    gap: 20px;
-    padding: 20px;
-    min-height: 100%;
+    gap: clamp(12px, 2vh, 24px);
+    padding: clamp(8px, 1.5vh, 20px);
+    height: 100%;
     position: relative;
     z-index: 2;
     font-family: 'DM Sans', sans-serif;
 
     @media (max-width: 768px) {
-      gap: 16px;
-      padding: 16px;
-      min-height: 400px;
+      gap: clamp(8px, 1.5vh, 16px);
+      padding: clamp(8px, 1vh, 16px);
     }
 
     @media (max-width: 479px) {
-      gap: 12px;
-      padding: 12px;
-      min-height: 350px;
+      gap: clamp(6px, 1vh, 12px);
+      padding: clamp(6px, 0.8vh, 12px);
     }
   }
 
   .dice-header {
     display: flex;
-    gap: 12px;
+    gap: clamp(6px, 1.5vw, 16px);
     width: 100%;
-    max-width: 600px;
+    max-width: min(90vw, 800px);
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: clamp(8px, 1.5vh, 16px);
 
     @media (max-width: 768px) {
-      gap: 8px;
-      max-width: 100%;
+      gap: clamp(6px, 1.2vw, 12px);
+      max-width: 95vw;
+      margin-bottom: clamp(6px, 1vh, 12px);
     }
 
     @media (max-width: 479px) {
-      gap: 6px;
+      gap: clamp(4px, 1vw, 8px);
       flex-direction: row;
       justify-content: space-between;
+      max-width: 98vw;
+      margin-bottom: clamp(4px, 0.8vh, 10px);
     }
   }
 
@@ -154,14 +156,14 @@ export const StyledDiceBackground = styled.div`
     );
     backdrop-filter: blur(16px) saturate(1.2);
     border: 1px solid rgba(212, 165, 116, 0.3);
-    border-radius: 16px;
-    padding: 16px 18px;
+    border-radius: clamp(12px, 2vw, 18px);
+    padding: clamp(12px, 2vh, 20px) clamp(14px, 2.5vw, 22px);
     text-align: center;
     box-shadow: 
       0 8px 32px rgba(10, 5, 17, 0.4),
       inset 0 1px 0 rgba(212, 165, 116, 0.2);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 110px;
+    min-width: clamp(80px, 15vw, 130px);
     animation: ${romanticPulse} 8s ease-in-out infinite;
     
     /* Romantic glow */
@@ -194,6 +196,29 @@ export const StyledDiceBackground = styled.div`
       animation: ${candlestickSparkle} 4s ease-in-out infinite;
     }
 
+    &.result-active {
+      background: linear-gradient(135deg, 
+        rgba(184, 51, 106, 0.2) 0%, 
+        rgba(139, 90, 158, 0.15) 50%,
+        rgba(212, 165, 116, 0.2) 100%
+      );
+      border: 1px solid rgba(184, 51, 106, 0.5);
+      box-shadow: 
+        0 8px 32px rgba(184, 51, 106, 0.3),
+        inset 0 1px 0 rgba(184, 51, 106, 0.3);
+      animation: ${romanticPulse} 3s ease-in-out infinite;
+    }
+
+    &.result-inactive {
+      background: linear-gradient(135deg, 
+        rgba(10, 5, 17, 0.6) 0%, 
+        rgba(139, 90, 158, 0.05) 50%,
+        rgba(10, 5, 17, 0.6) 100%
+      );
+      border: 1px solid rgba(212, 165, 116, 0.2);
+      opacity: 0.7;
+    }
+
     &:hover {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 
@@ -203,48 +228,48 @@ export const StyledDiceBackground = styled.div`
     }
 
     @media (max-width: 768px) {
-      padding: 12px 14px;
-      min-width: 90px;
+      padding: clamp(10px, 1.8vh, 16px) clamp(12px, 2vw, 18px);
+      min-width: clamp(75px, 18vw, 110px);
     }
 
     @media (max-width: 479px) {
-      padding: 10px 12px;
-      min-width: 80px;
+      padding: clamp(8px, 1.5vh, 14px) clamp(10px, 1.8vw, 16px);
+      min-width: clamp(70px, 25vw, 100px);
       flex: 1;
     }
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: clamp(16px, 2.5vw, 24px);
     font-weight: 700;
     color: var(--love-letter-gold);
-    margin-bottom: 4px;
+    margin-bottom: clamp(2px, 0.5vh, 6px);
     font-variant-numeric: tabular-nums;
     font-family: 'Libre Baskerville', serif;
     text-shadow: 0 2px 4px rgba(10, 5, 17, 0.8);
 
     @media (max-width: 768px) {
-      font-size: 18px;
+      font-size: clamp(14px, 3vw, 20px);
     }
 
     @media (max-width: 479px) {
-      font-size: 16px;
+      font-size: clamp(12px, 3.5vw, 18px);
     }
 
     .error {
       color: var(--deep-crimson-rose);
-      font-size: 12px;
+      font-size: clamp(10px, 1.5vw, 14px);
       font-weight: 600;
       font-family: 'DM Sans', sans-serif;
       
       @media (max-width: 479px) {
-        font-size: 10px;
+        font-size: clamp(8px, 2vw, 12px);
       }
     }
   }
 
   .stat-label {
-    font-size: 11px;
+    font-size: clamp(9px, 1.4vw, 13px);
     font-weight: 500;
     color: rgba(212, 165, 116, 0.8);
     text-transform: uppercase;
@@ -252,41 +277,30 @@ export const StyledDiceBackground = styled.div`
     font-family: 'DM Sans', sans-serif;
 
     @media (max-width: 479px) {
-      font-size: 10px;
+      font-size: clamp(8px, 1.6vw, 11px);
       letter-spacing: 0.5px;
     }
   }
-    margin-bottom: 4px;
-    font-variant-numeric: tabular-nums;
 
-    .error {
-      color: #EF4444;
-      font-size: 14px;
-      font-weight: 600;
-    }
-  }
-
-  .stat-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
 
   .roll-target {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: clamp(8px, 2vh, 20px);
 
     @media (max-width: 768px) {
-      margin: 8px 0;
+      margin-bottom: clamp(6px, 1.5vh, 16px);
+    }
+
+    @media (max-width: 479px) {
+      margin-bottom: clamp(4px, 1vh, 12px);
     }
   }
 
   .target-circle {
-    width: 120px;
-    height: 120px;
+    width: clamp(85px, 12vw, 150px);
+    height: clamp(85px, 12vw, 150px);
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, 
       rgba(212, 165, 116, 0.3), 
@@ -322,18 +336,18 @@ export const StyledDiceBackground = styled.div`
     }
 
     @media (max-width: 768px) {
-      width: 100px;
-      height: 100px;
+      width: clamp(80px, 15vw, 120px);
+      height: clamp(80px, 15vw, 120px);
     }
 
     @media (max-width: 479px) {
-      width: 85px;
-      height: 85px;
+      width: clamp(75px, 18vw, 100px);
+      height: clamp(75px, 18vw, 100px);
     }
   }
 
   .target-number {
-    font-size: 36px;
+    font-size: clamp(28px, 4vw, 48px);
     font-weight: 700;
     color: var(--love-letter-gold);
     z-index: 1;
@@ -343,11 +357,11 @@ export const StyledDiceBackground = styled.div`
     text-shadow: 0 2px 8px rgba(10, 5, 17, 0.8);
 
     @media (max-width: 768px) {
-      font-size: 32px;
+      font-size: clamp(26px, 5vw, 36px);
     }
 
     @media (max-width: 479px) {
-      font-size: 28px;
+      font-size: clamp(24px, 6vw, 32px);
     }
   }
 
@@ -373,10 +387,15 @@ export const StyledDiceBackground = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 600px;
+    max-width: min(90vw, 800px);
+    min-height: 0; /* Allow flex shrinking */
 
     @media (max-width: 768px) {
-      max-width: 100%;
+      max-width: 95vw;
+    }
+
+    @media (max-width: 479px) {
+      max-width: 98vw;
     }
   }
 
@@ -385,86 +404,32 @@ export const StyledDiceBackground = styled.div`
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: clamp(8px, 2vh, 20px);
+    min-height: 0; /* Allow flex shrinking */
 
     @media (max-width: 479px) {
-      gap: 12px;
+      gap: clamp(6px, 1.5vh, 12px);
     }
   }
 
-  .result-marker {
-    position: absolute;
-    top: -55px;
-    transform: translateX(-50%);
-    z-index: 10;
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
-    @media (max-width: 479px) {
-      top: -45px;
-    }
-  }
-
-  .result-number {
-    background: linear-gradient(135deg, 
-      var(--deep-crimson-rose), 
-      var(--soft-purple-twilight)
-    );
-    color: var(--love-letter-gold);
-    border-radius: 12px;
-    padding: 8px 12px;
-    font-weight: 700;
-    font-size: 14px;
-    text-align: center;
-    box-shadow: 
-      0 8px 25px rgba(184, 51, 106, 0.4),
-      inset 0 1px 0 rgba(212, 165, 116, 0.3);
-    border: 1px solid rgba(212, 165, 116, 0.4);
-    animation: resultAppear 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    font-variant-numeric: tabular-nums;
-    font-family: 'Libre Baskerville', serif;
-
-    @media (max-width: 479px) {
-      font-size: 12px;
-      padding: 6px 10px;
-    }
-  }
-
-  .result-arrow {
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid var(--deep-crimson-rose);
-    margin: 0 auto;
-
-    @media (max-width: 479px) {
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 6px solid var(--deep-crimson-rose);
-    }
-  }
-
-  @keyframes resultAppear {
-    0% { transform: scale(0) rotate(180deg); opacity: 0; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  }
 
   .dice-track {
     position: relative;
-    height: 50px;
+    height: clamp(40px, 6vh, 70px);
     display: flex;
     align-items: center;
 
     @media (max-width: 479px) {
-      height: 40px;
+      height: clamp(35px, 5vh, 50px);
     }
   }
 
   .track-background {
     position: absolute;
     width: 100%;
-    height: 16px;
-    border-radius: 8px;
+    height: clamp(14px, 2.5vh, 24px);
+    border-radius: clamp(7px, 1.25vh, 12px);
     overflow: hidden;
     display: flex;
     box-shadow: 
@@ -473,7 +438,7 @@ export const StyledDiceBackground = styled.div`
     border: 1px solid rgba(212, 165, 116, 0.2);
 
     @media (max-width: 479px) {
-      height: 14px;
+      height: clamp(12px, 2vh, 18px);
     }
   }
 
@@ -508,12 +473,12 @@ export const StyledDiceBackground = styled.div`
   .track-labels {
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
-    gap: 12px;
+    margin-top: clamp(16px, 3vh, 24px);
+    gap: clamp(8px, 2vw, 16px);
 
     @media (max-width: 479px) {
-      gap: 8px;
-      margin-top: 6px;
+      gap: clamp(6px, 2vw, 12px);
+      margin-top: clamp(12px, 2vh, 18px);
     }
   }
 
@@ -522,41 +487,41 @@ export const StyledDiceBackground = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: clamp(2px, 0.5vh, 6px);
     background: linear-gradient(135deg, 
       rgba(10, 5, 17, 0.7) 0%, 
       rgba(139, 90, 158, 0.1) 100%
     );
     backdrop-filter: blur(8px);
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: clamp(6px, 1vh, 10px);
+    padding: clamp(6px, 1.2vh, 12px) clamp(8px, 1.5vw, 14px);
     border: 1px solid rgba(212, 165, 116, 0.2);
     flex: 1;
     font-family: 'DM Sans', sans-serif;
 
     @media (max-width: 479px) {
-      padding: 6px 8px;
-      gap: 2px;
+      padding: clamp(4px, 1vh, 8px) clamp(6px, 1.2vw, 10px);
+      gap: clamp(1px, 0.3vh, 3px);
     }
 
     span:first-child {
-      font-size: 9px;
+      font-size: clamp(7px, 1.2vw, 11px);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
 
       @media (max-width: 479px) {
-        font-size: 8px;
+        font-size: clamp(6px, 1.4vw, 9px);
       }
     }
 
     span:last-child {
-      font-size: 11px;
+      font-size: clamp(9px, 1.4vw, 13px);
       font-weight: 500;
       font-variant-numeric: tabular-nums;
 
       @media (max-width: 479px) {
-        font-size: 10px;
+        font-size: clamp(8px, 1.6vw, 11px);
       }
     }
   }
@@ -572,19 +537,40 @@ export const StyledDiceBackground = styled.div`
   /* Mobile responsive improvements */
   @media (max-width: 479px) {
     .dice-redesign {
-      padding: 10px;
+      padding: clamp(6px, 0.8vh, 12px);
+      gap: clamp(4px, 0.8vh, 8px);
     }
     
     .dice-header {
-      margin-bottom: 8px;
-    }
-    
-    .roll-target {
-      margin: 6px 0;
+      margin-bottom: clamp(4px, 0.6vh, 8px);
     }
     
     .dice-arena {
-      margin-top: 8px;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .dice-track-container {
+      height: 100%;
+      justify-content: space-around;
+    }
+  }
+
+  /* Extra small screens */
+  @media (max-width: 360px) {
+    .dice-redesign {
+      padding: 4px;
+      gap: 4px;
+    }
+    
+    .dice-header {
+      margin-bottom: 4px;
+      gap: 2px;
+    }
+    
+    .stat-card {
+      min-width: 65px;
+      padding: 6px 8px;
     }
   }
 

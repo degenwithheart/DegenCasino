@@ -137,29 +137,27 @@ export default function Dice() {
                     </div>
                     <div className="stat-label">Max Win</div>
                   </div>
-                </div>
-
-                {/* Roll Under Display */}
-                <div className="roll-target">
-                  <div className="target-circle">
-                    <div className="target-number">{rollUnderIndex + 1}</div>
-                    <div className="target-label">Roll Under</div>
+                  {/* Result Stat Card */}
+                  <div className={`stat-card ${resultIndex > -1 ? 'result-active' : 'result-inactive'}`}>
+                    <div className="stat-value">
+                      {resultIndex > -1 ? (resultIndex + 1) : '?'}
+                    </div>
+                    <div className="stat-label">Last Roll</div>
                   </div>
                 </div>
 
-                {/* Main Dice Area */}
+                {/* Main Dice Area - Expanded to use more space */}
                 <div className="dice-arena">
                   <div className="dice-track-container">
-                    {/* Result indicator */}
-                    {resultIndex > -1 && (
-                      <div 
-                        className="result-marker" 
-                        style={{ left: `${(resultIndex / 100) * 100}%` }}
-                      >
-                        <div className="result-number">{resultIndex + 1}</div>
-                        <div className="result-arrow"></div>
+                    {/* Roll Under Display - Moved inside arena for better space usage */}
+                    <div className="roll-target">
+                      <div className="target-circle">
+                        <div className="target-number">{rollUnderIndex + 1}</div>
+                        <div className="target-label">Roll Under</div>
                       </div>
-                    )}
+                    </div>
+
+
                     
                     {/* Custom Slider Track */}
                     <div className="dice-track">

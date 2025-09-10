@@ -468,7 +468,13 @@ function Mines() {
               />
             </MobileControls>
 
-            <DesktopControls>
+            <DesktopControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={start}
+              playDisabled={false}
+              playText="Start"
+            >
               <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
               <OptionSelector
                 label="Mines"
@@ -494,7 +500,13 @@ function Mines() {
               playText={totalGain > 0 ? 'Cash Out' : 'New Game'}
             />
             
-            <DesktopControls>
+            <DesktopControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={endGame}
+              playDisabled={loading || totalGain === 0}
+              playText={totalGain > 0 ? 'Cash Out' : 'New Game'}
+            >
               <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
               <EnhancedPlayButton 
                 onClick={endGame}
