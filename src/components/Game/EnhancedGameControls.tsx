@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PriceIndicator from "../UI/PriceIndicator";
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
+import { useTheme } from '../../themes/ThemeContext';
 import { Modal } from '../Modal/Modal';
 import { 
   WagerInputContainer, 

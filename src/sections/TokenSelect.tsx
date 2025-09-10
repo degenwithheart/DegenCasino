@@ -22,15 +22,16 @@ import { useWalletToast } from '../utils/wallet/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useReferralCount } from '../hooks/analytics/useReferralAnalytics'
 import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/user/referralTier'
+import { useTheme } from '../themes/ThemeContext'
 
-const GridContainer = styled.div<{ $isSingleToken: boolean }>`
+const GridContainer = styled.div<{ $isSingleToken: boolean; $theme?: any }>`
   display: grid;
   grid-template-columns: ${({ $isSingleToken }) => ($isSingleToken ? '1fr' : 'repeat(2, 1fr)')};
   gap: 16px;
-  background: rgba(24, 24, 24, 0.8);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.15);
-  border: 1px solid #ffd700;
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 4px 16px rgba(255, 215, 0, 0.15)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   padding: 16px;
 
   @media (max-width: 600px) {
@@ -41,10 +42,10 @@ const GridContainer = styled.div<{ $isSingleToken: boolean }>`
   }
 `
 
-const TokenCard = styled.button<{ $selected?: boolean }>`
+const TokenCard = styled.button<{ $selected?: boolean; $theme?: any }>`
   width: 100%;
-  background: ${({ $selected }) => ($selected ? 'rgba(255, 215, 0, 0.2)' : 'rgba(24, 24, 24, 0.8)')};
-  border: 1px solid ${({ $selected }) => ($selected ? '#ffd700' : 'rgba(255, 255, 255, 0.2)')};
+  background: ${({ $selected, $theme }) => ($selected ? `${$theme?.colors?.primary || '#ffd700'}20` : $theme?.colors?.background || 'rgba(24, 24, 24, 0.8)')};
+  border: 1px solid ${({ $selected, $theme }) => ($selected ? $theme?.colors?.primary || '#ffd700' : $theme?.colors?.border || 'rgba(255, 255, 255, 0.2)')};
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
@@ -170,6 +171,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
   const referralCount = useReferralCount(userAddress?.toBase58())
   const tierInfo = getReferralTierInfo(referralCount)
   const referralsToNext = getReferralsToNextTier(referralCount)
+  const { currentTheme } = useTheme()
 
   const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>(initialTab || 'live')
   const referral = useReferral()
@@ -515,12 +517,13 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
       ) : (
         <>
           <SectionHeading>{mode === 'free' ? 'Free Play Tokens' : 'Live Play Tokens'}</SectionHeading>
-          <GridContainer $isSingleToken={isSingleToken}>
+          <GridContainer $isSingleToken={isSingleToken} $theme={currentTheme}>
             {tokensToShow.map((pool, i) => (
               <TokenCard
                 key={i}
                 onClick={() => selectPool(pool)}
                 $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
+                $theme={currentTheme}
               >
                 <TokenSelectItem mint={pool.token} />
               </TokenCard>

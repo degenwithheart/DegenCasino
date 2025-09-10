@@ -55,20 +55,17 @@ const glowPulse = keyframes`
   }
 `
 
-export const Container = styled.div`
+export const Container = styled.div<{ $theme?: any }>`
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(15, 18, 27, 0.95) 0%, rgba(24, 24, 24, 0.95) 100%);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(15, 18, 27, 0.95) 0%, rgba(24, 24, 24, 0.95) 100%)'};
   border-radius: 20px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
+  border: 1px solid ${({ $theme }) => `${$theme?.colors?.primary || '#ffd700'}20`};
   backdrop-filter: blur(20px);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1)'};
 `
 
 export const Profit = styled.div<{$win: boolean}>`

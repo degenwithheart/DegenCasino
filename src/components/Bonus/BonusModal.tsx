@@ -8,6 +8,7 @@ import {
   BonusAmount, 
   FeatureList 
 } from './Bonus.styles'
+import { useTheme } from '../../themes/ThemeContext'
 
 interface BonusModalProps {
   onClose: () => void
@@ -15,6 +16,7 @@ interface BonusModalProps {
 
 const BonusInner: React.FC = () => {
   const balance = useUserBalance()
+  const { currentTheme } = useTheme()
 
   return (
     <div style={{ 
@@ -25,8 +27,8 @@ const BonusInner: React.FC = () => {
       fontFamily: "'JetBrains Mono', 'Orbitron', 'monospace'"
     }}>
       <HeaderSection>
-        <Title>BONUS SYSTEM</Title>
-        <Subtitle>Free Play Quantum Mechanics</Subtitle>
+        <Title $theme={currentTheme}>BONUS SYSTEM</Title>
+        <Subtitle $theme={currentTheme}>Free Play Quantum Mechanics</Subtitle>
       </HeaderSection>
 
       <BonusAmount>
@@ -47,6 +49,7 @@ const BonusInner: React.FC = () => {
 export const BonusContent = BonusInner
 
 const BonusModal: React.FC<BonusModalProps> = ({ onClose }) => {
+  const { currentTheme } = useTheme();
   return (
     <Modal onClose={onClose}>
       <BonusContent />

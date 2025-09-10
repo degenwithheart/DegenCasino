@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from './Icon'
+import { useTheme } from '../../themes/ThemeContext'
 
 const Container = styled.div`
   position: relative;
@@ -14,7 +15,7 @@ const Container = styled.div`
   }
 `
 
-const SliderButton = styled.button`
+const SliderButton = styled.button<{ $theme?: any }>`
   all: unset;
   position: absolute;
   font-size: 24px;
@@ -25,12 +26,12 @@ const SliderButton = styled.button`
   height: 100%;
   padding: 5px;
   cursor: pointer;
-  background: var(--background-color);
+  background: ${({ $theme }) => $theme?.colors?.background || 'var(--background-color)'};
   transition: opacity .2s;
   opacity: .5;
   &:hover {
     opacity: 1!important;
-    background: var(--background-color);
+    background: ${({ $theme }) => $theme?.colors?.background || 'var(--background-color)'};
   }
 `
 
@@ -61,6 +62,7 @@ export function SlideSection(props: React.PropsWithChildren) {
   const ref = React.useRef<HTMLDivElement>(null!)
   const leftArrow = React.useRef<HTMLButtonElement>(null!)
   const rightArrow = React.useRef<HTMLButtonElement>(null!)
+  const { currentTheme } = useTheme()
 
   const scroll = (x: number) => {
     const left = ref.current.clientWidth / 2 * x
@@ -80,13 +82,13 @@ export function SlideSection(props: React.PropsWithChildren) {
 
   return (
     <Container style={{ position: 'relative' }}>
-      <SliderButton ref={leftArrow} onClick={() => scroll(-1)}>
+      <SliderButton ref={leftArrow} onClick={() => scroll(-1)} $theme={currentTheme}>
         <Icon.ArrowLeft />
       </SliderButton>
-      <StyledContent onScroll={_scroll} ref={ref}>
+      <StyledContent onScroll={_scroll} ref={ref} $theme={currentTheme}>
         {props.children}
       </StyledContent>
-      <SliderButton ref={rightArrow} style={{ right: '0', left: 'unset' }} onClick={() => scroll(1)}>
+      <SliderButton ref={rightArrow} style={{ right: '0', left: 'unset' }} onClick={() => scroll(1)} $theme={currentTheme}>
         <Icon.ArrowRight />
       </SliderButton>
     </Container>

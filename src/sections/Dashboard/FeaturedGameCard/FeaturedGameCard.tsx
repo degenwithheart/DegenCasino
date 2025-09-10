@@ -3,12 +3,14 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { StyledFeaturedGameCard } from './FeaturedGameCard.styles'
+import { useTheme } from '../../../themes/ThemeContext'
 import { FEATURED_GAMES } from '../../../games/featuredGames'
 
 export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?: () => void }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { publicKey } = useWallet()
+  const { currentTheme } = useTheme()
 
   // Check if this game is actually featured
   const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id)
@@ -26,7 +28,7 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   }
 
   return (
-    <StyledFeaturedGameCard onClick={handleClick} $background={game.meta?.background}>
+    <StyledFeaturedGameCard onClick={handleClick} $background={game.meta?.background} $theme={currentTheme}>
       <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
       
       {/* Featured badge - only show if this game is actually featured */}

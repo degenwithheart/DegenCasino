@@ -1,4 +1,4 @@
-import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter, FaSearch, FaClipboardList } from 'react-icons/fa';
+import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter, FaSearch, FaClipboardList, FaCoins, FaShoppingCart } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -255,6 +255,20 @@ export const SIDEBAR_LINKS = [
     external: false,
   },
   {
+    to: '/token',
+    label: '$DGHRT',
+    icon: FaCoins,
+    showWhen: () => true,
+    external: false,
+  },
+  {
+    to: '/presale',
+    label: 'Presale',
+    icon: FaShoppingCart,
+    showWhen: () => true,
+    external: false,
+  },
+  {
     to: '/changelog',
     label: 'Changelog',
     icon: FaClipboardList,
@@ -295,6 +309,14 @@ export const FOOTER_LINKS = [
   {
     href: '/whitepaper',
     title: 'Whitepaper',
+  },
+  {
+    href: '/token',
+    title: '$DGHRT Token',
+  },
+  {
+    href: '/presale',
+    title: 'Presale',
   },
   {
     href: 'https://github.com/degenwithheart',

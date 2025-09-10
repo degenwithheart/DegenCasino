@@ -25,6 +25,7 @@ import {
   TokenValue,
   useReferral,
 } from 'gamba-react-ui-v2'
+import { useTheme } from '../themes/ThemeContext'
 
 // Keyframe animations matching casino style
 const neonPulse = keyframes`
@@ -48,23 +49,23 @@ const sparkle = keyframes`
   50% { opacity: 1; transform: scale(1.2); }
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ $theme?: any }>`
   height: auto;
   width: 600px;
   margin: 1rem auto;
   border-radius: 20px;
   padding: 2rem;
-  color: #fff;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   text-align: center;
   position: relative;
 
   /* Enhanced glassmorphism */
-  background: rgba(24, 24, 24, 0.8);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.4);
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.15)'};
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 12px 40px 0 rgba(31, 38, 135, 0.4)'};
 
   /* Casino gradient border effect */
   &::before {
@@ -74,7 +75,7 @@ const Container = styled.div`
     left: -3px;
     right: -3px;
     bottom: -3px;
-    background: linear-gradient(45deg, #ffd700, #a259ff, #ff00cc, #ffd700);
+    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, #ff00cc, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
     background-size: 300% 100%;
     border-radius: 20px;
     opacity: 0.3;
@@ -112,12 +113,12 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled.h3`
+const Header = styled.h3<{ $theme?: any }>`
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: #ffd700;
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   font-family: 'Luckiest Guy', cursive, sans-serif;
-  text-shadow: 0 0 12px #ffd700, 0 0 24px #a259ff;
+  text-shadow: 0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -295,6 +296,7 @@ const InfoText = styled.div`
     const toast = useToast()
     const walletModal = useWalletModal()
     const [removing, setRemoving] = useState(false)
+    const { currentTheme } = useTheme()
 
     const [selectedMint, setSelectedMint] = useState<PublicKey>(POOLS[0].token)
     const selectedToken = POOLS.find((t) => t.token.equals(selectedMint))
@@ -302,8 +304,8 @@ const InfoText = styled.div`
 
     return (
       <Modal onClose={() => user.set({ userModal: false, userModalInitialTab: undefined })}>
-        <Container>
-          <Header>Select a Token</Header>
+        <Container $theme={currentTheme}>
+          <Header $theme={currentTheme}>Select a Token</Header>
           <TokenSelect 
             setSelectedMint={setSelectedMint} 
             selectedMint={selectedMint} 
@@ -351,6 +353,7 @@ export function UserButton() {
   const handleWalletConnect = useHandleWalletConnect();
   const { mobile } = useIsCompact()
   const navigate = useNavigate()
+  const { currentTheme } = useTheme()
 
 
 

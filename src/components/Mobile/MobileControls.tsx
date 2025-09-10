@@ -3,6 +3,7 @@ import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled, { keyframes, css } from 'styled-components';
 import { tokenPriceService } from '../../services/TokenPriceService';
 import PriceIndicator from "../UI/PriceIndicator";
+import { useTheme } from '../../themes/ThemeContext';
 
 // Romantic animations for the mobile experience
 const romanticPulse = keyframes`
@@ -106,26 +107,18 @@ const glow = keyframes`
 `;
 
 // Main mobile controls container - romantic degen aesthetic
-const MobileControlsWrapper = styled.div`
+const MobileControlsWrapper = styled.div<{ $theme?: any }>`
   display: none;
   @media (max-width: 800px) {
     display: flex;
     flex-direction: column;
     width: 100%;
     padding: 20px;
-    background: linear-gradient(135deg, 
-      rgba(10, 5, 17, 0.95) 0%, 
-      rgba(139, 90, 158, 0.15) 30%,
-      rgba(184, 51, 106, 0.08) 70%,
-      rgba(10, 5, 17, 0.95) 100%
-    );
-    border: 1px solid rgba(212, 165, 116, 0.3);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(139, 90, 158, 0.15) 30%, rgba(184, 51, 106, 0.08) 70%, rgba(10, 5, 17, 0.95) 100%)'};
+    border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.3)'};
     border-radius: 24px;
     backdrop-filter: blur(20px) saturate(1.3);
-    box-shadow: 
-      0 8px 32px rgba(10, 5, 17, 0.6),
-      inset 0 1px 0 rgba(212, 165, 116, 0.2),
-      0 0 0 1px rgba(212, 165, 116, 0.1);
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 8px 32px rgba(10, 5, 17, 0.6), inset 0 1px 0 rgba(212, 165, 116, 0.2), 0 0 0 1px rgba(212, 165, 116, 0.1)'};
     gap: 18px;
     position: relative;
     overflow: hidden;
@@ -172,7 +165,7 @@ const MobileControlsWrapper = styled.div`
 `;
 
 // Desktop controls (hidden on mobile)
-const DesktopControlsWrapper = styled.div`
+const DesktopControlsWrapper = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: center;
   gap: 24px;
@@ -183,7 +176,7 @@ const DesktopControlsWrapper = styled.div`
 `;
 
 // Top row with wager and play button - romantic mobile layout
-const TopRow = styled.div`
+const TopRow = styled.div<{ $theme?: any }>`
   display: flex;
   align-items: flex-end;
   gap: 16px;
@@ -191,13 +184,13 @@ const TopRow = styled.div`
 `;
 
 // Wager section (left side) - romantic degen aesthetic
-const WagerSection = styled.div`
+const WagerSection = styled.div<{ $theme?: any }>`
   flex: 2;
   min-width: 0;
 `;
 
-const WagerLabel = styled.div`
-  color: var(--love-letter-gold);
+const WagerLabel = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 10px;
@@ -209,22 +202,15 @@ const WagerLabel = styled.div`
   opacity: 0.9;
 `;
 
-const WagerInputRow = styled.div`
+const WagerInputRow = styled.div<{ $theme?: any }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: linear-gradient(135deg, 
-    rgba(10, 5, 17, 0.85) 0%, 
-    rgba(139, 90, 158, 0.1) 50%,
-    rgba(10, 5, 17, 0.85) 100%
-  );
-  border: 1px solid rgba(212, 165, 116, 0.4);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.1) 50%, rgba(10, 5, 17, 0.85) 100%)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.4)'};
   border-radius: 16px;
   padding: 14px;
-  box-shadow: 
-    inset 0 2px 8px rgba(10, 5, 17, 0.4),
-    0 4px 16px rgba(212, 165, 116, 0.1),
-    0 0 0 1px rgba(212, 165, 116, 0.15);
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || 'inset 0 2px 8px rgba(10, 5, 17, 0.4), 0 4px 16px rgba(212, 165, 116, 0.1), 0 0 0 1px rgba(212, 165, 116, 0.15)'};
   backdrop-filter: blur(12px);
   animation: ${romanticPulse} 8s ease-in-out infinite;
   
@@ -250,19 +236,16 @@ const WagerInputRow = styled.div`
   }
 `;
 
-const PresetButtonsRow = styled.div`
+const PresetButtonsRow = styled.div<{ $theme?: any }>`
   display: flex;
   gap: 8px;
   justify-content: center;
 `;
 
-const PresetButton = styled.button`
-  background: linear-gradient(135deg, 
-    rgba(184, 51, 106, 0.2) 0%, 
-    rgba(139, 90, 158, 0.2) 100%
-  );
-  border: 1px solid rgba(212, 165, 116, 0.4);
-  color: var(--love-letter-gold);
+const PresetButton = styled.button<{ $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(184, 51, 106, 0.2) 0%, rgba(139, 90, 158, 0.2) 100%)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.4)'};
+  color: ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
   font-weight: 600;
   font-size: 11px;
   padding: 8px 14px;
@@ -271,22 +254,15 @@ const PresetButton = styled.button`
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 40px;
   text-shadow: 0 1px 3px rgba(10, 5, 17, 0.8);
-  box-shadow: 
-    0 2px 8px rgba(10, 5, 17, 0.3),
-    inset 0 1px 0 rgba(212, 165, 116, 0.1);
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 2px 8px rgba(10, 5, 17, 0.3), inset 0 1px 0 rgba(212, 165, 116, 0.1)'};
   font-family: 'DM Sans', sans-serif;
   backdrop-filter: blur(8px);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, 
-      rgba(184, 51, 106, 0.3) 0%, 
-      rgba(139, 90, 158, 0.3) 100%
-    );
-    border-color: rgba(212, 165, 116, 0.6);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(184, 51, 106, 0.3) 0%, rgba(139, 90, 158, 0.3) 100%)'};
+    border-color: ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.6)'};
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 
-      0 6px 16px rgba(184, 51, 106, 0.3),
-      inset 0 1px 0 rgba(212, 165, 116, 0.2);
+    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 6px 16px rgba(184, 51, 106, 0.3), inset 0 1px 0 rgba(212, 165, 116, 0.2)'};
   }
   
   &:active:not(:disabled) {
@@ -300,27 +276,23 @@ const PresetButton = styled.button`
 `;
 
 // Play button section (right side) - romantic degen aesthetic
-const PlaySection = styled.div`
+const PlaySection = styled.div<{ $theme?: any }>`
   flex: 1;
   display: flex;
   align-items: flex-end;
   min-width: 100px;
 `;
 
-const PlayButton = styled.button`
+const PlayButton = styled.button<{ $theme?: any }>`
   width: 100%;
   height: 56px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  background: linear-gradient(135deg, 
-    var(--deep-crimson-rose) 0%, 
-    var(--soft-purple-twilight) 30%, 
-    var(--love-letter-gold) 100%
-  );
-  border: 2px solid var(--love-letter-gold);
-  color: var(--deep-romantic-night);
+  background: ${({ $theme }) => $theme?.colors?.primary || 'linear-gradient(135deg, var(--deep-crimson-rose) 0%, var(--soft-purple-twilight) 30%, var(--love-letter-gold) 100%)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
+  color: ${({ $theme }) => $theme?.colors?.text || 'var(--deep-romantic-night)'};
   font-weight: 700;
   font-size: 16px;
   border-radius: 18px;
@@ -389,14 +361,14 @@ const PlayButton = styled.button`
 `;
 
 // Game options section - romantic degen aesthetic
-const GameOptionsSection = styled.div`
+const GameOptionsSection = styled.div<{ $theme?: any }>`
   display: flex;
   flex-direction: column;
   gap: 14px;
 `;
 
-const OptionLabel = styled.div`
-  color: var(--love-letter-gold);
+const OptionLabel = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 8px;
@@ -408,20 +380,20 @@ const OptionLabel = styled.div`
   opacity: 0.9;
 `;
 
-const OptionButtonGroup = styled.div`
+const OptionButtonGroup = styled.div<{ $theme?: any }>`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
 `;
 
-const OptionButton = styled.button<{ $selected?: boolean }>`
+const OptionButton = styled.button<{ $selected?: boolean; $theme?: any }>`
   background: ${props => props.$selected 
-    ? 'linear-gradient(135deg, var(--love-letter-gold) 0%, rgba(255, 235, 59, 0.9) 100%)'
-    : 'linear-gradient(135deg, rgba(184, 51, 106, 0.2) 0%, rgba(139, 90, 158, 0.2) 100%)'
+    ? (props.$theme?.colors?.primary || 'linear-gradient(135deg, var(--love-letter-gold) 0%, rgba(255, 235, 59, 0.9) 100%)')
+    : (props.$theme?.colors?.surface || 'linear-gradient(135deg, rgba(184, 51, 106, 0.2) 0%, rgba(139, 90, 158, 0.2) 100%)')
   };
-  border: 2px solid ${props => props.$selected ? 'var(--love-letter-gold)' : 'rgba(212, 165, 116, 0.4)'};
-  color: ${props => props.$selected ? 'var(--deep-romantic-night)' : 'var(--love-letter-gold)'};
+  border: 2px solid ${props => props.$selected ? (props.$theme?.colors?.primary || 'var(--love-letter-gold)') : (props.$theme?.colors?.border || 'rgba(212, 165, 116, 0.4)')};
+  color: ${props => props.$selected ? (props.$theme?.colors?.background || 'var(--deep-romantic-night)') : (props.$theme?.colors?.primary || 'var(--love-letter-gold)')};
   font-weight: 600;
   font-size: 13px;
   padding: 12px 18px;
@@ -502,19 +474,16 @@ const SwitchLabel = styled.div`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 `;
 
-const SliderContainer = styled.div`
+const SliderContainer = styled.div<{ $theme?: any }>`
   padding: 12px 16px;
-  background: linear-gradient(145deg, 
-    rgba(8, 8, 15, 0.6) 0%, 
-    rgba(12, 12, 20, 0.6) 100%
-  );
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(145deg, rgba(8, 8, 15, 0.6) 0%, rgba(12, 12, 20, 0.6) 100%)'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
   border-radius: 12px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: ${({ $theme }) => $theme?.effects?.glow || 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'};
 `;
 
-const SliderLabel = styled.div`
-  color: #ffd700;
+const SliderLabel = styled.div<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   font-size: 13px;
   font-weight: 600;
   text-align: center;
@@ -523,13 +492,13 @@ const SliderLabel = styled.div`
 `;
 
 // Popup overlay
-const PopupOverlay = styled.div<{ $isOpen: boolean }>`
+const PopupOverlay = styled.div<{ $isOpen: boolean; $theme?: any }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: ${({ $theme }) => $theme?.colors?.background ? `${$theme.colors.background}CC` : 'rgba(0, 0, 0, 0.7)'};
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -542,13 +511,9 @@ const PopupOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 // Popup container
-const PopupContainer = styled.div<{ $isOpen: boolean }>`
-  background: linear-gradient(145deg, 
-    rgba(18, 18, 28, 0.98) 0%, 
-    rgba(25, 25, 40, 0.98) 50%, 
-    rgba(20, 20, 35, 0.98) 100%
-  );
-  border: 2px solid rgba(255, 215, 0, 0.5);
+const PopupContainer = styled.div<{ $isOpen: boolean; $theme?: any }>`
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(145deg, rgba(18, 18, 28, 0.98) 0%, rgba(25, 25, 40, 0.98) 50%, rgba(20, 20, 35, 0.98) 100%)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.5)'};
   border-radius: 20px;
   padding: 24px;
   width: 90%;
@@ -563,13 +528,13 @@ const PopupContainer = styled.div<{ $isOpen: boolean }>`
 `;
 
 // Compact wager trigger button (devtools style: inner black rounded input with caret)
-const CompactWagerTrigger = styled.button`
+const CompactWagerTrigger = styled.button<{ $theme?: any }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 6px;
   background: transparent;
-  color: #fff;
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   border: none;
   cursor: pointer;
   min-width: 160px;
@@ -626,7 +591,7 @@ const CompactWagerTrigger = styled.button`
 `;
 
 // Popup close button
-const PopupCloseButton = styled.button`
+const PopupCloseButton = styled.button<{ $theme?: any }>`
   position: absolute;
   top: 12px;
   right: 12px;
@@ -634,8 +599,8 @@ const PopupCloseButton = styled.button`
   height: 32px;
   border-radius: 50%;
   background: rgba(255, 71, 87, 0.2);
-  border: 1px solid rgba(255, 71, 87, 0.4);
-  color: #ff4757;
+  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 71, 87, 0.4)'};
+  color: ${({ $theme }) => $theme?.colors?.text || '#ff4757'};
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
@@ -656,7 +621,7 @@ const PopupCloseButton = styled.button`
 `;
 
 // Enhanced wager input for popup
-const PopupWagerInput = styled.div`
+const PopupWagerInput = styled.div<{ $theme?: any }>`
   margin-bottom: 20px;
   display: flex;
   gap: 12px;
@@ -666,13 +631,10 @@ const PopupWagerInput = styled.div`
     flex: 1;
     width: 100%;
     padding: 16px 12px;
-    background: linear-gradient(145deg, 
-      rgba(8, 8, 15, 0.9) 0%, 
-      rgba(12, 12, 20, 0.9) 100%
-    );
-    border: 2px solid rgba(255, 215, 0, 0.4);
+    background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(145deg, rgba(8, 8, 15, 0.9) 0%, rgba(12, 12, 20, 0.9) 100%)'};
+    border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.4)'};
     border-radius: 12px;
-    color: #fff;
+    color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
     font-weight: 700;
     font-size: 18px;
     text-align: center;
@@ -695,13 +657,13 @@ const PopupWagerInput = styled.div`
   }
 `;
 
-const ConfirmButton = styled.button`
+const ConfirmButton = styled.button<{ $theme?: any }>`
   min-width: 88px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 2px solid rgba(34,197,94,0.15);
-  background: linear-gradient(145deg, #10b981 0%, #059669 100%);
-  color: #fff;
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(34,197,94,0.15)'};
+  background: ${({ $theme }) => $theme?.colors?.primary || 'linear-gradient(145deg, #10b981 0%, #059669 100%)'};
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   font-weight: 800;
   font-size: 14px;
   cursor: pointer;
@@ -713,21 +675,18 @@ const ConfirmButton = styled.button`
 `;
 
 // Enhanced preset buttons for popup
-const PopupPresetButtons = styled.div`
+const PopupPresetButtons = styled.div<{ $theme?: any }>`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 `;
 
-const PopupPresetButton = styled.button`
+const PopupPresetButton = styled.button<{ $theme?: any }>`
   padding: 14px 20px;
-  background: linear-gradient(145deg, 
-    rgba(0, 255, 225, 0.2) 0%, 
-    rgba(0, 200, 180, 0.2) 100%
-  );
-  border: 2px solid rgba(0, 255, 225, 0.4);
-  color: #fff;
+  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(145deg, rgba(0, 255, 225, 0.2) 0%, rgba(0, 200, 180, 0.2) 100%)'};
+  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(0, 255, 225, 0.4)'};
+  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
   font-weight: 700;
   font-size: 16px;
   border-radius: 12px;
@@ -757,8 +716,8 @@ const PopupPresetButton = styled.button`
 `;
 
 // Popup title
-const PopupTitle = styled.h3`
-  color: #ffd700;
+const PopupTitle = styled.h3<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   font-size: 18px;
   font-weight: 700;
   text-align: center;
@@ -809,6 +768,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   children
 }) => {
   const token = useCurrentToken();
+  const { currentTheme } = useTheme();
   const [priceAgeMs, setPriceAgeMs] = useState<number | null>(null);
   const [isPriceFetching, setIsPriceFetching] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -992,11 +952,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
 
   return (
     <>
-      <MobileControlsWrapper>
-        <TopRow>
-          <WagerSection>
-            <WagerLabel>💰 Bet Amount</WagerLabel>
-            <CompactWagerTrigger onClick={() => setIsPopupOpen(true)}>
+      <MobileControlsWrapper $theme={currentTheme}>
+        <TopRow $theme={currentTheme}>
+          <WagerSection $theme={currentTheme}>
+            <WagerLabel $theme={currentTheme}>💰 Bet Amount</WagerLabel>
+            <CompactWagerTrigger $theme={currentTheme} onClick={() => setIsPopupOpen(true)}>
               <div className="value-box">
                 <div className="value">{formattedDisplayValue}</div>
                 <div className="symbol">{token?.symbol ?? ''}</div>
@@ -1005,30 +965,30 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
             </CompactWagerTrigger>
           </WagerSection>
           
-          <PlaySection>
-            <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
+          <PlaySection $theme={currentTheme}>
+            <PlayButton $theme={currentTheme} onClick={handlePlayClick} disabled={playDisabled}>
               {playText}
             </PlayButton>
           </PlaySection>
         </TopRow>
         
         {children && (
-          <GameOptionsSection>
+          <GameOptionsSection $theme={currentTheme}>
             {children}
           </GameOptionsSection>
         )}
       </MobileControlsWrapper>
 
       {/* Popup Overlay */}
-      <PopupOverlay $isOpen={isPopupOpen}>
-        <PopupContainer $isOpen={isPopupOpen} ref={popupRef}>
-          <PopupCloseButton onClick={() => setIsPopupOpen(false)}>
+      <PopupOverlay $isOpen={isPopupOpen} $theme={currentTheme}>
+        <PopupContainer $isOpen={isPopupOpen} $theme={currentTheme} ref={popupRef}>
+          <PopupCloseButton $theme={currentTheme} onClick={() => setIsPopupOpen(false)}>
             ×
           </PopupCloseButton>
           
-          <PopupTitle>💰 Set Bet Amount</PopupTitle>
+          <PopupTitle $theme={currentTheme}>💰 Set Bet Amount</PopupTitle>
           
-            <PopupWagerInput>
+            <PopupWagerInput $theme={currentTheme}>
             <input
               type="text"
               value={popupInput === '' ? (displayValue === 0 ? '' : displayValue.toString()) : popupInput}
@@ -1040,18 +1000,19 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ color: 'rgba(255,215,0,0.95)', fontWeight: 800 }}>{token?.symbol ?? ''}</div>
-                <ConfirmButton onClick={confirmPopup}>Confirm</ConfirmButton>
+                <ConfirmButton $theme={currentTheme} onClick={confirmPopup}>Confirm</ConfirmButton>
               </div>
               <PriceIndicator token={token} showRefresh amount={undefined} />
             </div>
           </PopupWagerInput>
           
-          <PopupPresetButtons>
+          <PopupPresetButtons $theme={currentTheme}>
     {presetAmounts.map((amount) => {
               const exact = formatCryptoFromUsd(amount);
               const short = formatCryptoShort(amount);
               return (
                 <PopupPresetButton
+                  $theme={currentTheme}
                   key={amount}
                   onClick={() => handlePresetClick(amount)}
       disabled={!token?.usdPrice || isPriceFetching}
@@ -1088,14 +1049,17 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
   onSelect,
   disabled = false
 }) => {
+  const { currentTheme } = useTheme();
+  
   return (
     <>
-      <OptionLabel>🎯 {label}</OptionLabel>
-      <OptionButtonGroup>
+      <OptionLabel $theme={currentTheme}>🎯 {label}</OptionLabel>
+      <OptionButtonGroup $theme={currentTheme}>
         {options.map((option) => (
           <OptionButton
             key={String(option.value)}
             $selected={option.value === selected}
+            $theme={currentTheme}
             onClick={() => onSelect(option.value)}
             disabled={disabled}
           >
@@ -1128,9 +1092,11 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   value,
   children
 }) => {
+  const { currentTheme } = useTheme();
+  
   return (
-    <SliderContainer>
-      <SliderLabel>🎚️ {label}: {value.toFixed(2)}x</SliderLabel>
+    <SliderContainer $theme={currentTheme}>
+      <SliderLabel $theme={currentTheme}>🎚️ {label}: {value.toFixed(2)}x</SliderLabel>
       {children}
     </SliderContainer>
   );
@@ -1163,9 +1129,11 @@ export const DesktopControls: React.FC<{
   maxWager,
   children
 }) => {
+  const { currentTheme } = useTheme();
+  
   // If children are provided (legacy usage), use the simple wrapper
   if (children) {
-    return <DesktopControlsWrapper>{children}</DesktopControlsWrapper>;
+    return <DesktopControlsWrapper $theme={currentTheme}>{children}</DesktopControlsWrapper>;
   }
 
   // Otherwise, use the new comprehensive component

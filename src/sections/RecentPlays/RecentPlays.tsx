@@ -1,4 +1,4 @@
-// apps/plimport { ShareModal } from "../../components/Share/ShareModal";tform/src/sections/RecentPlays/RecentPlays.tsx
+// apps/platform/src/sections/RecentPlays/RecentPlays.tsx
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
 import { ShareModal } from "../../components/Share/ShareModal";
 import { useRecentPlays } from './useRecentPlays'
+import { useTheme } from '../../themes/ThemeContext'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
   const diff = Date.now() - time
@@ -221,6 +222,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
   const navigate = useNavigate()
+  const { currentTheme } = useTheme()
 
   return (
     <>
@@ -231,7 +233,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
         )
       }
 
-            <Container>
+            <Container $theme={currentTheme}>
         {/* Modern Header */}
         <div style={{
           display: 'flex',

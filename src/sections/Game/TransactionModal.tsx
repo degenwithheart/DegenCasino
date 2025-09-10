@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import { useTheme } from '../../themes/ThemeContext';
 
 const casinoMoveGradient = keyframes`
   0% { background-position: 0% 50%; }
@@ -77,6 +78,7 @@ export function TransactionModal(props: {onClose: () => void}) {
   const gamba = useGamba()
   const game = useAccount(getGameAddress(userAddress), decodeGame)
   const txStore = useTransactionStore()
+  const { currentTheme } = useTheme()
   const loadingState = useLoadingState()
   const status = Object.keys(game?.status ?? {})[0]
 

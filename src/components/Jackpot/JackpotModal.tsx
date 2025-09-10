@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components'
 import { Modal } from '../Modal/Modal'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../../constants'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useTheme } from '../../themes/ThemeContext'
 
 // Quantum animations
 const sparkle = keyframes`
@@ -38,22 +39,22 @@ const HeaderSection = styled.div`
   }
 `
 
-const Title = styled.h2`
-  color: #6ffaff;
+const Title = styled.h2<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.primary || '#6ffaff'};
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   letter-spacing: 0.15em;
-  text-shadow: 0 0 16px #6ffaffcc, 0 0 4px #fff;
+  text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#6ffaff'}cc, 0 0 4px #fff;
   font-family: 'Orbitron', 'JetBrains Mono', monospace;
 `
 
-const Subtitle = styled.p`
-  color: #a259ff;
+const Subtitle = styled.p<{ $theme?: any }>`
+  color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
   font-size: 0.9rem;
   margin: 0;
   letter-spacing: 0.1em;
-  text-shadow: 0 0 8px #a259ff88;
+  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
   font-family: 'JetBrains Mono', monospace;
 `
 
@@ -219,6 +220,7 @@ const JackpotInner: React.FC = () => {
   const token = useCurrentToken()
   const { connected } = useWallet()
   const meta = useTokenMeta(token?.mint)
+  const { currentTheme } = useTheme()
 
   // Calculate minimum wager in token amount ($1 USD for real tokens)
   const getMinimumWager = () => {
@@ -248,8 +250,8 @@ const JackpotInner: React.FC = () => {
       fontFamily: "'JetBrains Mono', 'Orbitron', 'monospace'"
     }}>
       <HeaderSection>
-        <Title>💰 JACKPOT SYSTEM</Title>
-        <Subtitle>Quantum Pool Mechanics</Subtitle>
+        <Title $theme={currentTheme}>💰 JACKPOT SYSTEM</Title>
+        <Subtitle $theme={currentTheme}>Quantum Pool Mechanics</Subtitle>
       </HeaderSection>
 
       <PoolStatsContainer>
@@ -323,6 +325,7 @@ const JackpotInner: React.FC = () => {
 export const JackpotContent = JackpotInner
 
 const JackpotModal: React.FC<JackpotModalProps> = ({ onClose }) => {
+  const { currentTheme } = useTheme();
   return (
     <Modal onClose={onClose}>
       <JackpotContent />

@@ -8,6 +8,7 @@ import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/an
 import { truncateString } from '../../utils'
 import { formatTierDisplay, getReferralTierInfo } from '../../utils/user/referralTier'
 import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
+import { useTheme } from '../../themes/ThemeContext'
 
 const quantumDissolve = keyframes`
   0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-5deg); }
@@ -377,6 +378,7 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
   const token = useCurrentToken()
   const leaderboard = useReferralLeaderboard(20)
   const [isLoading, setIsLoading] = useState(false)
+  const { currentTheme } = useTheme()
 
   const userKey = userAddress?.toBase58()
 

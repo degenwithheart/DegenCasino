@@ -14,6 +14,8 @@ import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
 const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
+const DGHRTToken = lazy(() => import('./sections/DGHRTToken/DGHRTToken'));
+const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/DGHRTPresale'));
 const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
 const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
@@ -196,6 +198,8 @@ export default function App() {
               <Route path="/select-token" element={<SelectTokenPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/whitepaper" element={<Whitepaper />} />
+              <Route path="/token" element={<DGHRTToken />} />
+              <Route path="/presale" element={<DGHRTPresale />} />
               <Route path="/aboutme" element={<AboutMe />} />
               <Route path="/audit" element={<FairnessAudit />} />
               <Route path="/changelog" element={<ChangelogPage />} />

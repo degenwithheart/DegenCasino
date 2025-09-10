@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { tokenPriceService } from '../../services/TokenPriceService';
+import { useTheme } from '../../themes/ThemeContext';
 
 interface PriceIndicatorProps {
   token?: any;
@@ -14,6 +15,7 @@ export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefre
   const [priceAgeMs, setPriceAgeMs] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' ? window.innerWidth <= 800 : false);
+  const { currentTheme } = useTheme();
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth <= 800);
@@ -114,13 +116,13 @@ export const PriceIndicator: React.FC<PriceIndicatorProps> = ({ token, showRefre
           borderRadius: 8,
           backdropFilter: 'blur(8px)'
         }}>
-          <span style={{ color: 'rgba(212, 165, 116, 0.8)', fontSize: 12, fontWeight: 600 }}>Token amount:</span>
+          <span style={{ color: `${currentTheme?.colors?.secondary || '#d4a574'}80`, fontSize: 12, fontWeight: 600 }}>Token amount:</span>
           <code style={{ 
-            color: 'var(--love-letter-gold)', 
+            color: currentTheme?.colors?.primary || '#d4a574', 
             fontWeight: 700, 
             fontSize: 13,
             fontFamily: "'JetBrains Mono', monospace",
-            background: 'rgba(212, 165, 116, 0.1)',
+            background: `${currentTheme?.colors?.primary || '#d4a574'}20`,
             padding: '2px 6px',
             borderRadius: 4
           }}>{String(amount)}</code>
