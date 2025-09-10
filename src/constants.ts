@@ -10,7 +10,20 @@ import { PublicKey } from '@solana/web3.js'
 import { FAKE_TOKEN_MINT, PoolToken, TokenMeta, makeHeliusTokenFetcher } from 'gamba-react-ui-v2'
 
 // Get RPC from the .env file or default to Syndica, not public RPC.
+// Note: This is now primarily used as fallback. The NetworkContext provides dynamic RPC endpoints.
 export const RPC_ENDPOINT = import.meta.env.VITE_RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1'
+
+// Network-specific configurations
+export const NETWORK_ENDPOINTS = {
+  mainnet: {
+    primary: import.meta.env.VITE_RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+    backup: import.meta.env.VITE_HELIUS_API_KEY ?? 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
+  },
+  devnet: {
+    primary: import.meta.env.VITE_DEVNET_RPC_ENDPOINT ?? 'https://api.devnet.solana.com',
+    backup: 'https://api.devnet.solana.com'
+  }
+} as const
 
 // Solana address that will receive fees when somebody plays on this platform
 export const PLATFORM_CREATOR_ADDRESS = new PublicKey(
@@ -40,6 +53,23 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 // Dashboard component visibility toggles
 export const DASHBOARD_SHOW_RECENT_PLAYS = false // Toggle to show/hide RecentPlays on dashboard
 export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboard on dashboard
+
+// Network feature toggles
+/** 
+ * Enable/disable Solana Devnet network support and toggle functionality
+ * 
+ * When set to true:
+ * - Users can toggle between Mainnet and Devnet in TokenSelect
+ * - DevnetWarning banner shows when on devnet
+ * - Network preference is saved to localStorage
+ * 
+ * When set to false:
+ * - Network is forced to mainnet-only
+ * - NetworkToggle component will not render
+ * - DevnetWarning will never show
+ * - All devnet functionality is disabled
+ */
+export const ENABLE_DEVNET_SUPPORT = false // Set to false to disable devnet toggle and force mainnet-only
 
 /** 
  * Referral Tier Mode:

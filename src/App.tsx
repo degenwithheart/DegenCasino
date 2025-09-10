@@ -24,6 +24,7 @@ import { AllGamesModal, TrollBox, Sidebar, Transaction, EmbeddedTransaction, Pla
 import Toasts from './sections/Toasts';
 import Footer from './sections/Footer';
 import styled from 'styled-components';
+import DevnetWarning from './components/Network/DevnetWarning';
 // Lazy load pages and components
 const Propagation = lazy(() => import('./pages/system/propagation'));
 const ChangelogPage = lazy(() => import('./pages/system/ChangelogPage'));
@@ -187,6 +188,7 @@ export default function App() {
         <Sidebar />
         <MainContent>
           <Toasts />
+          <DevnetWarning />
           {/* Only show WelcomeBanner after auto-connect attempt */}
           {autoConnectAttempted && !connected && <WelcomeBanner />}
           <Suspense fallback={<LoadingSpinner />}>

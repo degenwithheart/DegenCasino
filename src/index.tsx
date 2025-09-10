@@ -25,6 +25,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
+import { NetworkProvider, useNetwork } from './contexts/NetworkContext'
 
 import './styles.css'
 
@@ -40,6 +41,20 @@ function getInitialPool() {
     }
   } catch {}
   return DEFAULT_POOL
+}
+
+// Component that uses the network context to provide dynamic connection
+function NetworkAwareConnectionProvider({ children }: { children: React.ReactNode }) {
+  const { networkConfig } = useNetwork()
+  
+  return (
+    <ConnectionProvider
+      endpoint={networkConfig.rpcEndpoint}
+      config={{ commitment: 'processed' }}
+    >
+      {children}
+    </ConnectionProvider>
+  )
 }
 
 function Root() {
@@ -78,10 +93,8 @@ function PersistSelectedToken() {
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <ConnectionProvider
-        endpoint={RPC_ENDPOINT}
-        config={{ commitment: 'processed' }}
-      >
+      <NetworkProvider>
+        <NetworkAwareConnectionProvider>
         <WalletProvider autoConnect wallets={wallets}>
           <WalletModalProvider>
             <TokenMetaProvider
@@ -111,7 +124,8 @@ function PersistSelectedToken() {
             </TokenMetaProvider>
           </WalletModalProvider>
         </WalletProvider>
-      </ConnectionProvider>
+        </NetworkAwareConnectionProvider>
+      </NetworkProvider>
     </BrowserRouter>
   )
 }

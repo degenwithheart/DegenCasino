@@ -5,6 +5,7 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } f
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { useTheme } from '../../themes/ThemeContext'
 import { PLATFORM_CREATOR_ADDRESS, RPC_ENDPOINT } from '../../constants'
+import { useNetwork } from '../../contexts/NetworkContext'
 import {
   Container,
   Header,
@@ -61,6 +62,7 @@ const DGHRTPresalePage: React.FC = () => {
   const { connected, publicKey, connect } = useWallet()
   const { setVisible: setWalletModalVisible } = useWalletModal()
   const { currentTheme } = useTheme()
+  const { connection } = useNetwork()
 
   // Presale configuration
   const DGHRT_PRICE_PER_SOL = 1000000 // 1,000,000 DGHRT per 1 SOL
@@ -76,7 +78,6 @@ const DGHRTPresalePage: React.FC = () => {
   // Function to fetch token supply data from blockchain
   const fetchTokenSupply = async () => {
     try {
-      const connection = new Connection(RPC_ENDPOINT)
       
       // Try to fetch token mint info if address is valid
       if (DGHRT_MINT_ADDRESS !== 'DGHRTMintAddressWillBeSetWhenMinted') {
@@ -130,7 +131,6 @@ const DGHRTPresalePage: React.FC = () => {
   // Function to fetch creator wallet balance and calculate presale raised
   const fetchPresaleProgress = async () => {
     try {
-      const connection = new Connection(RPC_ENDPOINT)
       const balance = await connection.getBalance(PLATFORM_CREATOR_ADDRESS)
       const solBalance = balance / LAMPORTS_PER_SOL
       
@@ -204,7 +204,7 @@ const DGHRTPresalePage: React.FC = () => {
     try {
       // TODO: Implement actual SOL transfer when ready to go live
       /*
-      const connection = new Connection(RPC_ENDPOINT)
+      // connection is already available from useNetwork() hook
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey!,

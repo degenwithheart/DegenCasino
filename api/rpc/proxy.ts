@@ -8,30 +8,50 @@ export const config = {
 
 // RPC endpoints configuration with provider mapping
 const RPC_ENDPOINTS = {
+  // Mainnet endpoints
   'syndica-primary': { 
     url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
     provider: 'syndica' as const,
-    priority: 1
+    priority: 1,
+    network: 'mainnet' as const
   },
   'syndica-balance': { 
     url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
     provider: 'syndica' as const,
-    priority: 2
+    priority: 2,
+    network: 'mainnet' as const
   },
   'helius-backup': { 
     url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
     provider: 'helius' as const,
-    priority: 3
+    priority: 3,
+    network: 'mainnet' as const
   },
   'ankr-last-resort': { 
     url: 'https://rpc.ankr.com/solana',
     provider: 'public' as const,
-    priority: 4
+    priority: 4,
+    network: 'mainnet' as const
   },
   'solana-labs-last-resort': { 
     url: 'https://api.mainnet-beta.solana.com',
     provider: 'public' as const,
-    priority: 5
+    priority: 5,
+    network: 'mainnet' as const
+  },
+  
+  // Devnet endpoints
+  'devnet-primary': {
+    url: process.env.VITE_DEVNET_RPC_ENDPOINT || 'https://api.devnet.solana.com',
+    provider: 'public' as const,
+    priority: 1,
+    network: 'devnet' as const
+  },
+  'devnet-backup': {
+    url: 'https://api.devnet.solana.com',
+    provider: 'public' as const,
+    priority: 2,
+    network: 'devnet' as const
   }
 }
 

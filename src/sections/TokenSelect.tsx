@@ -23,22 +23,75 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useReferralCount } from '../hooks/analytics/useReferralAnalytics'
 import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/user/referralTier'
 import { useTheme } from '../themes/ThemeContext'
+import NetworkToggle from '../components/Network/NetworkToggle'
+import { useNetwork } from '../contexts/NetworkContext'
 
-const GridContainer = styled.div<{ $isSingleToken: boolean; $theme?: any }>`
-  display: grid;
-  grid-template-columns: ${({ $isSingleToken }) => ($isSingleToken ? '1fr' : 'repeat(2, 1fr)')};
-  gap: 16px;
+const TokensContainer = styled.div<{ $theme?: any }>`
   background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   border-radius: 12px;
   box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 4px 16px rgba(255, 215, 0, 0.15)'};
   border: 1px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
   padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+
+  /* Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.5);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(255, 215, 0, 0.7);
+    }
+  }
 
   @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 8px 2px;
+    padding: 12px;
     border-radius: 8px;
+    max-height: 350px;
+  }
+`
+
+const TokenSection = styled.div`
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`
+
+const TokenSectionTitle = styled.h3`
+  color: #ffd700;
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const TokenGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 `
 
@@ -46,22 +99,24 @@ const TokenCard = styled.button<{ $selected?: boolean; $theme?: any }>`
   width: 100%;
   background: ${({ $selected, $theme }) => ($selected ? `${$theme?.colors?.primary || '#ffd700'}20` : $theme?.colors?.background || 'rgba(24, 24, 24, 0.8)')};
   border: 1px solid ${({ $selected, $theme }) => ($selected ? $theme?.colors?.primary || '#ffd700' : $theme?.colors?.border || 'rgba(255, 255, 255, 0.2)')};
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px 12px;
   cursor: pointer;
   color: #ffd700;
   font-weight: 600;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   transition: background 0.3s, border-color 0.3s;
+  min-height: 52px;
 
   @media (max-width: 600px) {
-    padding: 8px 4px;
+    padding: 8px 10px;
     border-radius: 8px;
-    font-size: 0.98rem;
-    gap: 6px;
+    font-size: 0.9rem;
+    gap: 8px;
+    min-height: 48px;
   }
 
   &:hover {
@@ -127,43 +182,70 @@ function TokenSelectItem({ mint }: { mint: PublicKey }) {
 
   const isFreeToken = mint.equals(FAKE_TOKEN_MINT)
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        width: '100%',
-        padding: '2px 6px',
-        background: 'none',
-        justifyContent: 'flex-start',
-      }}
-    >
+    <>
       <img
         src={meta.image}
         alt={meta.symbol}
         style={{
-          height: 28,
-          width: 28,
+          height: 32,
+          width: 32,
           borderRadius: '50%',
           objectFit: 'cover',
           boxShadow: '0 0 4px #ffd70099',
           border: '1.2px solid #ffd700',
           background: '#181818',
+          flexShrink: 0,
         }}
       />
-      <span style={{ color: '#ffd700', fontWeight: 700 }}>{meta.symbol}</span>
-      <span style={{ color: '#ffd700', fontWeight: 700 }}>
-        {formattedBalance} {meta.symbol}
-      </span>
-      {isFreeToken && <span style={{ color: '#00ff88', fontWeight: 700 }}></span>}
-    </div>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'flex-start',
+        gap: 2,
+        flex: 1,
+        minWidth: 0
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 6,
+          width: '100%'
+        }}>
+          <span style={{ color: '#ffd700', fontWeight: 700, fontSize: '0.95rem' }}>
+            {meta.symbol}
+          </span>
+          {isFreeToken && (
+            <span style={{ 
+              color: '#00ff88', 
+              fontWeight: 600, 
+              fontSize: '0.75rem',
+              background: 'rgba(0,255,136,0.15)',
+              padding: '2px 6px',
+              borderRadius: '4px'
+            }}>
+              FREE
+            </span>
+          )}
+        </div>
+        <span style={{ 
+          color: 'rgba(255,215,0,0.7)', 
+          fontWeight: 500, 
+          fontSize: '0.8rem',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
+          {formattedBalance}
+        </span>
+      </div>
+    </>
   )
 }
 
 export default function TokenSelect({ setSelectedMint, selectedMint, initialTab }: {
   setSelectedMint?: (mint: PublicKey) => void,
   selectedMint?: PublicKey,
-  initialTab?: 'free' | 'live' | 'fees' | 'invite',
+  initialTab?: 'free' | 'live' | 'tokens' | 'fees' | 'invite',
 }) {
   const context = React.useContext(GambaPlatformContext)
   const selectedToken = useCurrentToken()
@@ -173,7 +255,9 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
   const referralsToNext = getReferralsToNextTier(referralCount)
   const { currentTheme } = useTheme()
 
-  const [mode, setMode] = React.useState<'free' | 'live' | 'fees' | 'invite'>(initialTab || 'live')
+  const [mode, setMode] = React.useState<'tokens' | 'fees' | 'invite'>(
+    initialTab === 'free' || initialTab === 'live' ? 'tokens' : initialTab || 'tokens'
+  )
   const referral = useReferral()
   const [removing, setRemoving] = React.useState(false)
   const toast = useToast()
@@ -189,20 +273,17 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
     localStorage.setItem('priorityFee', String(priorityFee))
   }, [priorityFee])
 
-  const getPools = (mode: 'free' | 'live' | 'fees') =>
-    mode === 'free'
-      ? POOLS.filter((p) => p.token.equals(FAKE_TOKEN_MINT))
-      : mode === 'live'
-        ? POOLS.filter((p) => !p.token.equals(FAKE_TOKEN_MINT))
-        : []
+  // Get all tokens (both free and live) for the combined view
+  const getAllTokens = () => {
+    return POOLS // Return all pools
+  }
 
-  const tokensToShow = getPools(mode as 'free' | 'live' | 'fees')
-  const isSingleToken = tokensToShow.length === 1
+  const tokensToShow = mode === 'tokens' ? getAllTokens() : []
 
-  const handleModeChange = (newMode: 'free' | 'live' | 'fees' | 'invite') => {
+  const handleModeChange = (newMode: 'tokens' | 'fees' | 'invite') => {
     setMode(newMode)
     if (newMode === 'fees' || newMode === 'invite') return
-    const pools = getPools(newMode as 'free' | 'live' | 'fees')
+    const pools = getAllTokens()
     if (setSelectedMint && pools.length > 0) {
       setSelectedMint(pools[0].token)
     }
@@ -227,11 +308,8 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
   return (
     <>
       <ToggleContainer>
-        <ToggleButton $active={mode === 'free'} onClick={() => handleModeChange('free')}>
-          Free Play
-        </ToggleButton>
-        <ToggleButton $active={mode === 'live'} onClick={() => handleModeChange('live')}>
-          Live Play
+        <ToggleButton $active={mode === 'tokens'} onClick={() => handleModeChange('tokens')}>
+          Tokens
         </ToggleButton>
         <ToggleButton $active={mode === 'fees'} onClick={() => handleModeChange('fees')}>
           Fees
@@ -516,19 +594,51 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
         </div>
       ) : (
         <>
-          <SectionHeading>{mode === 'free' ? 'Free Play Tokens' : 'Live Play Tokens'}</SectionHeading>
-          <GridContainer $isSingleToken={isSingleToken} $theme={currentTheme}>
-            {tokensToShow.map((pool, i) => (
-              <TokenCard
-                key={i}
-                onClick={() => selectPool(pool)}
-                $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
-                $theme={currentTheme}
-              >
-                <TokenSelectItem mint={pool.token} />
-              </TokenCard>
-            ))}
-          </GridContainer>
+          <NetworkToggle theme={currentTheme} />
+          <SectionHeading>Select Token</SectionHeading>
+          <TokensContainer $theme={currentTheme}>
+            {/* Free Play Tokens Section */}
+            {POOLS.filter((p) => p.token.equals(FAKE_TOKEN_MINT)).length > 0 && (
+              <TokenSection>
+                <TokenSectionTitle>
+                  🎮 Free Play
+                </TokenSectionTitle>
+                <TokenGrid>
+                  {POOLS.filter((p) => p.token.equals(FAKE_TOKEN_MINT)).map((pool, i) => (
+                    <TokenCard
+                      key={`free-${i}`}
+                      onClick={() => selectPool(pool)}
+                      $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
+                      $theme={currentTheme}
+                    >
+                      <TokenSelectItem mint={pool.token} />
+                    </TokenCard>
+                  ))}
+                </TokenGrid>
+              </TokenSection>
+            )}
+            
+            {/* Live Play Tokens Section */}
+            {POOLS.filter((p) => !p.token.equals(FAKE_TOKEN_MINT)).length > 0 && (
+              <TokenSection>
+                <TokenSectionTitle>
+                  💰 Live Play
+                </TokenSectionTitle>
+                <TokenGrid>
+                  {POOLS.filter((p) => !p.token.equals(FAKE_TOKEN_MINT)).map((pool, i) => (
+                    <TokenCard
+                      key={`live-${i}`}
+                      onClick={() => selectPool(pool)}
+                      $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
+                      $theme={currentTheme}
+                    >
+                      <TokenSelectItem mint={pool.token} />
+                    </TokenCard>
+                  ))}
+                </TokenGrid>
+              </TokenSection>
+            )}
+          </TokensContainer>
         </>
       )}
     </>

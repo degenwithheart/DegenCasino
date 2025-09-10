@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
 import { useTheme } from '../../themes/ThemeContext'
 import { RPC_ENDPOINT } from '../../constants'
+import { useNetwork } from '../../contexts/NetworkContext'
 
 /**
  * Embedded Transaction Component for displaying transaction details inline
@@ -130,10 +131,11 @@ export default function EmbeddedTransactionView({ txId, onLoad }: EmbeddedTransa
   const [transaction, setTransaction] = React.useState<GambaTransaction<"GameSettled"> | null>(null)
   const [loading, setLoading] = React.useState(true)
   const { currentTheme } = useTheme()
+  const { connection } = useNetwork()
 
   React.useEffect(() => {
     if (txId) {
-      fetchGambaTransaction(new Connection(RPC_ENDPOINT), txId)
+      fetchGambaTransaction(connection, txId)
         .then(result => {
           setTransaction(result)
           onLoad?.(result)
