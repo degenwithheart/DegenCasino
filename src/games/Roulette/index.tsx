@@ -251,25 +251,25 @@ export default function Roulette() {
           description={useGameMeta('roulette')?.description}
           gameState={phase === 'betting' ? 'playing' : phase === 'spinning' ? 'loading' : 'finished'}
         >
-          <GambaUi.Responsive>
-            {phase === 'betting' && (
-              <Wrapper onContextMenu={(e) => e.preventDefault()}>
-                <Stats wager={actualWager} />
-                <Results enableMotion={settings.enableMotion} />
-              </Wrapper>
-            )}
-            
-            {(phase === 'spinning' || phase === 'result') && (
-              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <RouletteWheel
-                  start={wheelSpinning}
-                  winningBet={parseInt(winningNumber)}
-                  onSpinningEnd={handleWheelSpinEnd}
-                  withAnimation={settings.enableMotion}
-                />
-              </div>
-            )}
-          </GambaUi.Responsive>
+            <GambaUi.Responsive>
+              {phase === 'betting' && (
+                <Wrapper onContextMenu={(e) => e.preventDefault()}>
+                  <Stats wager={actualWager} />
+                  <Results enableMotion={settings.enableMotion} />
+                </Wrapper>
+              )}
+              
+              {(phase === 'spinning' || phase === 'result') && (
+                <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <RouletteWheel
+                    start={wheelSpinning}
+                    winningBet={parseInt(winningNumber)}
+                    onSpinningEnd={handleWheelSpinEnd}
+                    withAnimation={settings.enableMotion}
+                  />
+                </div>
+              )}
+            </GambaUi.Responsive>
         </GameplayFrame>
       </GambaUi.Portal>
       <GambaUi.Portal target="controls">
@@ -292,7 +292,13 @@ export default function Roulette() {
           />
         </MobileControls>
         
-        <DesktopControls>
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={play}
+          playDisabled={!actualWager || balanceExceeded || maxPayoutExceeded || gamba.isPlaying || phase !== 'betting'}
+          playText="Spin"
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={Math.max(...bet.value)} />
           <GambaUi.Select
             options={CHIPS}

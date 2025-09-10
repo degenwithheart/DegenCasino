@@ -175,6 +175,7 @@ import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash 
 import { LoadingBar } from './LoadingBar'
 import { ProvablyFairModal } from './ProvablyFairModal'
 import { TransactionModal } from './TransactionModal'
+import { PortalSafetyMonitor } from '../../components/Game/PortalSafety'
 import { keyframes } from 'styled-components';
 
 // Animated CSS illustrations for each error type
@@ -822,6 +823,16 @@ function CustomRenderer() {
               </GameScalingProvider>
             )}
           </Screen>
+          {/* Portal Safety Monitor - actively prevents unsafe sizing */}
+          <PortalSafetyMonitor 
+            enforceSafety={true} 
+            debugMode={false}
+            onSafetyChange={(status) => {
+              if (!status.isSafe) {
+                console.warn('🚨 Portal Safety Warning:', status.reasons)
+              }
+            }}
+          />
           <LoadingBar />
           <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
             <div className="control-buttons">
