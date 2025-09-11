@@ -54,6 +54,20 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 export const DASHBOARD_SHOW_RECENT_PLAYS = false // Toggle to show/hide RecentPlays on dashboard
 export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboard on dashboard
 
+// Presale and Token page toggle
+/**
+ * Presale and Token page control toggle
+ * 
+ * When set to true:
+ * - Presale is active and visible
+ * - Token page is disabled/hidden
+ * 
+ * When set to false:
+ * - Token page is active and visible  
+ * - Presale is disabled/hidden
+ */
+export const PRESALE_ACTIVE = false // Set to false to disable presale and activate token page
+
 // Network feature toggles
 /** 
  * Enable/disable Solana Devnet network support and toggle functionality
@@ -178,6 +192,7 @@ export const TOS_HTML = `
 <p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
 <p><b>2. Legal Compliance:</b> Ensure online gambling and crypto gaming are legal where you live before playing.</p>
 <p><b>3. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer">BeGambleAware.org</a>.</p>
+<p><b>4. Optimal Display:</b> For the best gaming experience, we recommend using a 1920x1080 display resolution.</p>
 `
 
 /**
@@ -288,14 +303,14 @@ export const SIDEBAR_LINKS = [
     to: '/token',
     label: '$DGHRT',
     icon: FaCoins,
-    showWhen: () => true,
+    showWhen: () => !PRESALE_ACTIVE, // Show token page only when presale is NOT active
     external: false,
   },
   {
     to: '/presale',
     label: 'Presale',
     icon: FaShoppingCart,
-    showWhen: () => true,
+    showWhen: () => PRESALE_ACTIVE, // Show presale only when presale IS active
     external: false,
   },
   {
@@ -340,14 +355,18 @@ export const FOOTER_LINKS = [
     href: '/whitepaper',
     title: 'Whitepaper',
   },
-  {
-    href: '/token',
-    title: '$DGHRT Token',
-  },
-  {
-    href: '/presale',
-    title: 'Presale',
-  },
+  // Conditionally show token or presale link based on PRESALE_ACTIVE toggle
+  ...(PRESALE_ACTIVE ? [
+    {
+      href: '/presale',
+      title: 'Presale',
+    }
+  ] : [
+    {
+      href: '/token',
+      title: '$DGHRT Token',
+    }
+  ]),
   {
     href: 'https://github.com/degenwithheart',
     title: 'GitHub',
@@ -403,30 +422,6 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
   {
     href: 'https://x.com/DegenWithHeart',
     title: 'X',
-  },
-]
-
-// Mobile-only footer links (not shown on desktop)
-export const MOBILE_FOOTER_LINKS = [
-  {
-    href: '/',
-    title: 'Home',
-  },
-  {
-    href: '/${base58}/profile',
-    title: 'Profile',
-  },
-  {
-    label: 'Games',
-    title: 'Games',
-  },
-  {
-    href: '/audit',
-    title: 'Audit',
-  },
-  {
-    href: '/explorer',
-    title: 'Explorer',
   },
 ]
 

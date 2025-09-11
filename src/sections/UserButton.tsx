@@ -169,18 +169,18 @@ const TokenIcon = styled.img`
   }
 `;
 
-const WalletButtonWrapper = styled.div`
+const WalletButtonWrapper = styled.div<{ $theme?: any }>`
   text-align: center;
   position: relative;
 
   .gamba-button {
-    background: linear-gradient(90deg, #ffd700, #a259ff) !important;
+    background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}) !important;
     border: 2px solid transparent !important;
     border-radius: 16px !important;
     padding: 0.75rem 1.5rem !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
-    color: #222 !important;
+    color: ${({ $theme }) => $theme?.colors?.buttonText || '#222'} !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
     animation: ${neonPulse} 2s infinite alternate !important;
@@ -193,7 +193,7 @@ const WalletButtonWrapper = styled.div`
 
     &:hover {
       transform: scale(1.05) !important;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.5) !important;
+      box-shadow: 0 0 30px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}80` : 'rgba(255, 215, 0, 0.5)'} !important;
     }
   }
 `;
@@ -364,7 +364,7 @@ export function UserButton() {
       }
 
       {wallet.connected ? (
-        <WalletButtonWrapper>
+        <WalletButtonWrapper $theme={currentTheme}>
           <GambaUi.Button onClick={() => (mobile ? navigate('/select-token') : user.set({ userModal: true }))}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TokenIconAndBalance />
@@ -372,9 +372,11 @@ export function UserButton() {
           </GambaUi.Button>
         </WalletButtonWrapper>
       ) : (
-        <GambaUi.Button onClick={handleWalletConnect}>
-          {wallet.connecting ? 'Connecting...' : 'Connect'}
-        </GambaUi.Button>
+        <WalletButtonWrapper $theme={currentTheme}>
+          <GambaUi.Button onClick={handleWalletConnect}>
+            {wallet.connecting ? 'Connecting...' : 'Connect'}
+          </GambaUi.Button>
+        </WalletButtonWrapper>
       )}
     </>
   )

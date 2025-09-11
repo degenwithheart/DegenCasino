@@ -261,10 +261,10 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
 
 const Bonus = styled.button<{ $theme?: any }>`
   /* Romantic glassmorphism button */
-  background: rgba(212, 165, 116, 0.08);
+  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(212, 165, 116, 0.08)'};
   backdrop-filter: blur(8px);
   color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid rgba(212, 165, 116, 0.18);
+  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(212, 165, 116, 0.18)'};
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 14px;
@@ -287,7 +287,7 @@ const Bonus = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      rgba(212, 165, 116, 0.2), 
+      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(212, 165, 116, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -298,12 +298,12 @@ const Bonus = styled.button<{ $theme?: any }>`
     transform: translateY(-2px);
     color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
     border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    background: rgba(212, 165, 116, 0.15);
+    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(212, 165, 116, 0.15)'};
     box-shadow: 
-      0 8px 24px rgba(139, 90, 158, 0.15),
-      0 0 20px rgba(212, 165, 116, 0.3);
+      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(212, 165, 116, 0.3)'};
     outline: none;
-    text-shadow: 0 0 8px rgba(212, 165, 116, 0.4);
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(212, 165, 116, 0.4)'};
   }
 
   &:hover::before {
@@ -325,10 +325,10 @@ const Bonus = styled.button<{ $theme?: any }>`
 
 const JackpotBonus = styled.button<{ $theme?: any }>`
   /* Romantic glassmorphism jackpot button with enhanced glow */
-  background: rgba(184, 51, 106, 0.08);
+  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(184, 51, 106, 0.08)'};
   backdrop-filter: blur(8px);
   color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid rgba(184, 51, 106, 0.18);
+  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(184, 51, 106, 0.18)'};
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 14px;
@@ -351,7 +351,7 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      rgba(184, 51, 106, 0.2), 
+      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(184, 51, 106, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -360,14 +360,14 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
-    border-color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
-    background: rgba(184, 51, 106, 0.15);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#b8336a'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#b8336a'};
+    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(184, 51, 106, 0.15)'};
     box-shadow: 
-      0 8px 24px rgba(139, 90, 158, 0.15),
-      0 0 25px rgba(184, 51, 106, 0.4);
+      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 25px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
     outline: none;
-    text-shadow: 0 0 8px rgba(184, 51, 106, 0.4);
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
   }
 
   &:hover::before {
@@ -389,10 +389,10 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
 
 const ThemeButton = styled.button<{ $theme?: any }>`
   /* Romantic glassmorphism theme button */
-  background: rgba(139, 90, 158, 0.08);
+  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(139, 90, 158, 0.08)'};
   backdrop-filter: blur(8px);
   color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid rgba(139, 90, 158, 0.18);
+  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(139, 90, 158, 0.18)'};
   border-radius: 12px;
   padding: 8px 10px;
   font-size: 13px;
@@ -415,7 +415,7 @@ const ThemeButton = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      rgba(139, 90, 158, 0.2), 
+      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(139, 90, 158, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -424,14 +424,14 @@ const ThemeButton = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
-    border-color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
-    background: rgba(139, 90, 158, 0.15);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#8b5a9e'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#8b5a9e'};
+    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'};
     box-shadow: 
-      0 8px 24px rgba(139, 90, 158, 0.15),
-      0 0 20px rgba(139, 90, 158, 0.3);
+      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(139, 90, 158, 0.3)'};
     outline: none;
-    text-shadow: 0 0 8px rgba(139, 90, 158, 0.4);
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(139, 90, 158, 0.4)'};
   }
 
   &:hover::before {
@@ -447,6 +447,70 @@ const ThemeButton = styled.button<{ $theme?: any }>`
   @media (max-width: 600px) {
     padding: 5px 7px;
     font-size: 11px;
+    border-radius: 8px;
+  }
+`;
+
+const LeaderboardButton = styled.button<{ $theme?: any }>`
+  /* Romantic glassmorphism leaderboard button */
+  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(255, 175, 0, 0.08)'};
+  backdrop-filter: blur(8px);
+  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(255, 175, 0, 0.18)'};
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'DM Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(255, 175, 0, 0.2)'}, 
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  &:hover,
+  &:focus {
+    transform: translateY(-2px);
+    color: ${({ $theme }) => $theme?.colors?.primary || '#ffaf00'};
+    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffaf00'};
+    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(255, 175, 0, 0.15)'};
+    box-shadow: 
+      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(255, 175, 0, 0.3)'};
+    outline: none;
+    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(255, 175, 0, 0.4)'};
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+    padding: 5px 8px;
     border-radius: 8px;
   }
 `;
@@ -536,10 +600,10 @@ export default function Header() {
 
           {/* Leaderboard trigger */}
           {connected && (
-            <GambaUi.Button onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard">
+            <LeaderboardButton onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard" $theme={currentTheme}>
               🏆
               {!isCompact && ' Leaderboard'}
-            </GambaUi.Button>
+            </LeaderboardButton>
           )}
 
           {/* Theme selector trigger */}
