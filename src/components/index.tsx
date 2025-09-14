@@ -29,6 +29,8 @@ export type { GameplayEffectsRef } from './Game/GameplayFrame'
 export { default as GameScreenFrame, useGraphics, GraphicsProvider } from './Game/GameScreenFrame'
 export * from './Game/GameSplashScreen'
 export { default as LazyGameLoader } from './Game/LazyGameLoader'
+export { GameStatsHeader } from './Game/GameStatsHeader'
+export { GameControlsSection } from './Game/GameControlsSection'
 
 // Graphics
 export * from './Graphics/GraphicsSettings'

@@ -3,10 +3,11 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { 
   GRID_SIZE as MINES_GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR,
   SOUND_FINISH, SOUND_TICK, SOUND_WIN, SOUND_STEP, SOUND_EXPLODE
@@ -31,6 +32,7 @@ export default function MinesV2() {
     step: SOUND_STEP,
     finish: SOUND_FINISH,
   })
+  const { mobile: isMobile } = useIsCompact()
 
   // V2 Stats tracking (standardized pattern)
   const [stats, setStats] = React.useState({
@@ -84,8 +86,31 @@ export default function MinesV2() {
 
       previousBalance = balance
       return { bet: betArray, wager: levelWager, profit, balance, multiplier }
-    }).filter(x => Math.max(...x.bet) * x.wager < pool.maxPayout)
-  }, [wager, mineCount, pool.maxPayout])
+    })
+  }, [wager, mineCount])
+
+  // Pool restrictions
+  const maxMultiplier = React.useMemo(() => {
+    const config = BET_ARRAYS_V2['mines-v2']
+    // Calculate max possible multiplier for current mine count (full grid revealed)
+    return config.getMultiplier(mineCount, MINES_GRID_SIZE - mineCount)
+  }, [mineCount])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  // Clamp wager to not exceed pool limits
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [wager, maxWagerForPool, setWager])
+
+  const poolExceeded = React.useMemo(() => {
+    const maxCurrentLevelMultiplier = levels.length > 0 ? Math.max(...levels.map(l => l.multiplier)) : 1
+    return wager * maxCurrentLevelMultiplier > pool.maxPayout
+  }, [wager, levels, pool.maxPayout])
 
   // Game state calculations
   const remainingCells = MINES_GRID_SIZE - currentLevel
@@ -231,15 +256,10 @@ export default function MinesV2() {
     const padding = 20
     const gameAreaWidth = canvasWidth - padding * 2
     const gameAreaHeight = canvasHeight - padding * 2
-    const gridSize = Math.min(gameAreaWidth, gameAreaHeight - 100)
+    const gridSize = Math.min(gameAreaWidth, gameAreaHeight)
     const cellSize = gridSize / GRID_COLS
     const gridStartX = (canvasWidth - gridSize) / 2
     const gridStartY = (canvasHeight - gridSize) / 2
-
-    // Draw level info at top if game is started
-    if (started) {
-      drawLevelInfo(ctx, gridStartX, gridStartY - 80, canvasWidth)
-    }
 
     // Draw grid background
     ctx.fillStyle = 'rgba(26, 26, 46, 0.8)'
@@ -254,57 +274,6 @@ export default function MinesV2() {
 
       drawCell(ctx, x, y, cellSize, cells[i], i)
     }
-  }
-
-  // Draw level info as horizontal row
-  const drawLevelInfo = (ctx: CanvasRenderingContext2D, x: number, y: number, canvasWidth?: number) => {
-    const width = canvasWidth || ctx.canvas.width
-    const infoWidth = Math.min(600, width - 40)
-    const infoHeight = 60
-
-    // Background
-    ctx.fillStyle = 'rgba(26, 26, 46, 0.95)'
-    ctx.fillRect(x, y, infoWidth, infoHeight)
-
-    // Border
-    ctx.strokeStyle = 'rgba(147, 88, 255, 0.5)'
-    ctx.lineWidth = 2
-    ctx.strokeRect(x, y, infoWidth, infoHeight)
-
-    const itemWidth = infoWidth / 4
-    
-    // Level
-    ctx.fillStyle = '#9358ff'
-    ctx.font = 'bold 16px monospace'
-    ctx.textAlign = 'center'
-    ctx.fillText('LEVEL', x + itemWidth * 0.5, y + 25)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '14px monospace'
-    ctx.fillText(`${currentLevel + 1}/${levels.length}`, x + itemWidth * 0.5, y + 45)
-
-    // Current Multiplier
-    ctx.fillStyle = '#4caf50'
-    ctx.font = 'bold 16px monospace'
-    ctx.fillText('CURRENT', x + itemWidth * 1.5, y + 25)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '14px monospace'
-    ctx.fillText(`${getCurrentMultiplier().toFixed(2)}x`, x + itemWidth * 1.5, y + 45)
-
-    // Next Multiplier
-    ctx.fillStyle = '#ffeb3b'
-    ctx.font = 'bold 16px monospace'
-    ctx.fillText('NEXT', x + itemWidth * 2.5, y + 25)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '14px monospace'
-    ctx.fillText(`${getNextMultiplier().toFixed(2)}x`, x + itemWidth * 2.5, y + 45)
-
-    // Total Gain
-    ctx.fillStyle = '#4caf50'
-    ctx.font = 'bold 16px monospace'
-    ctx.fillText('TOTAL', x + itemWidth * 3.5, y + 25)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '14px monospace'
-    ctx.fillText(`${totalGain.toFixed(4)}`, x + itemWidth * 3.5, y + 45)
   }
 
   // Draw individual cell
@@ -403,79 +372,15 @@ export default function MinesV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          {/* Stats Header */}
-          <div style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            right: '20px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 80px 80px 80px 100px 120px 80px',
-            gap: '20px',
-            padding: '20px',
-            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(13, 6, 24, 0.95) 100%)',
-            borderRadius: '10px',
-            border: '1px solid rgba(147, 88, 255, 0.3)',
-            boxShadow: '0 8px 32px rgba(10, 5, 17, 0.4), inset 0 1px 0 rgba(147, 88, 255, 0.2)',
-            backdropFilter: 'blur(16px)',
-            zIndex: 100
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#9358ff' }}>
-                Mines v2
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>Strategic Mine Field • Variable RTP</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#9358ff' }}>
-                {stats.gamesPlayed}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>Games</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#4caf50' }}>
-                {stats.wins}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>Wins</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f44336' }}>
-                {stats.losses}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>Losses</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                color: stats.wins > stats.losses ? '#4caf50' : stats.wins < stats.losses ? '#f44336' : '#9358ff' 
-              }}>
-                {(() => {
-                  if (stats.wins === 0 && stats.losses === 0) return '0.00'
-                  if (stats.losses === 0) return '+∞'
-                  const ratio = stats.wins / stats.losses
-                  const prefix = ratio >= 1 ? '+' : '-'
-                  return `${prefix}${ratio.toFixed(2)}`
-                })()}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>W/L Ratio</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: stats.sessionProfit > 0 ? '#4caf50' : stats.sessionProfit < 0 ? '#f44336' : '#9358ff' }}>
-                <TokenValue amount={stats.sessionProfit} />
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(147, 88, 255, 0.8)' }}>Session Profit</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <EnhancedButton
-                onClick={resetStats}
-                disabled={gamba.isPlaying}
-                variant="secondary"
-              >
-                Reset
-              </EnhancedButton>
-            </div>
-          </div>
+          <GameStatsHeader
+            gameName="Mines v2"
+            gameMode="Strategic Mine Field • Variable RTP"
+            stats={stats}
+            onReset={resetStats}
+            theme="purple"
+            disabled={gamba.isPlaying}
+            isMobile={isMobile}
+          />
 
           {/* Canvas for game UI */}
           <div style={{
@@ -483,7 +388,7 @@ export default function MinesV2() {
             top: '140px',
             left: '20px',
             right: '20px',
-            bottom: '20px',
+            bottom: '120px', // Leave space for controls below
             borderRadius: '10px',
             overflow: 'hidden',
             border: '2px solid rgba(147, 88, 255, 0.4)'
@@ -498,6 +403,137 @@ export default function MinesV2() {
               onMouseDown={handleCanvasClick}
             />
           </div>
+
+          {/* Level Progress Display */}
+          <GameControlsSection>
+            {/* LEVEL */}
+            <div style={{
+              flex: '1',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(147, 88, 255, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(147, 88, 255, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(147, 88, 255, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(147, 88, 255, 0.2), inset 0 1px 0 rgba(147, 88, 255, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#9358ff',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                LEVELS
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: 'rgba(147, 88, 255, 0.9)',
+                fontWeight: '600'
+              }}>
+                {started ? `${currentLevel + 1}/${levels.length}` : `1/${levels.length}`}
+              </div>
+            </div>
+
+            {/* CURRENT */}
+            <div style={{
+              flex: '1',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#4caf50',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                BASE MULTIPLIER
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: 'rgba(76, 175, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {started ? `${getCurrentMultiplier().toFixed(2)}x` : `${levels[0]?.multiplier.toFixed(2) || '1.00'}x`}
+              </div>
+            </div>
+
+            {/* NEXT */}
+            <div style={{
+              flex: '1',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(255, 235, 59, 0.15) 0%, rgba(251, 192, 45, 0.25) 50%, rgba(255, 235, 59, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(255, 235, 59, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(255, 235, 59, 0.2), inset 0 1px 0 rgba(255, 235, 59, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#ffeb3b',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                NEXT MULTIPLIER
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: 'rgba(255, 235, 59, 0.9)',
+                fontWeight: '600'
+              }}>
+                {started ? `${getNextMultiplier().toFixed(2)}x` : (levels[1] ? `${levels[1].multiplier.toFixed(2)}x` : 'Start')}
+              </div>
+            </div>
+
+            {/* TOTAL */}
+            <div style={{
+              flex: '1',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#4caf50',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                TOTAL WON
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: 'rgba(76, 175, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {started ? totalGain.toFixed(4) : '0.0000'}
+              </div>
+            </div>
+          </GameControlsSection>
 
           <GameplayFrame
             ref={effectsRef}
@@ -521,7 +557,7 @@ export default function MinesV2() {
               wager={wager}
               setWager={setWager}
               onPlay={startGame}
-              playDisabled={false}
+              playDisabled={poolExceeded}
               playText="Start"
             >
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
@@ -549,10 +585,14 @@ export default function MinesV2() {
               wager={wager}
               setWager={setWager}
               onPlay={startGame}
-              playDisabled={false}
+              playDisabled={poolExceeded}
               playText="Start"
             >
-              <EnhancedWagerInput value={wager} onChange={setWager} />
+              <EnhancedWagerInput 
+                value={wager} 
+                onChange={setWager} 
+                multiplier={maxMultiplier}
+              />
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <label style={{ color: '#fff', minWidth: '60px' }}>Mines:</label>
                 <select
@@ -571,7 +611,7 @@ export default function MinesV2() {
                   ))}
                 </select>
               </div>
-              <EnhancedPlayButton onClick={startGame} wager={wager}>
+              <EnhancedPlayButton onClick={startGame} wager={wager} disabled={poolExceeded}>
                 Start
               </EnhancedPlayButton>
             </DesktopControls>
@@ -583,7 +623,7 @@ export default function MinesV2() {
               setWager={setWager}
               onPlay={endGame}
               playDisabled={loading || totalGain === 0}
-              playText={totalGain > 0 ? 'Cash Out' : 'New Game'}
+              playText={totalGain > 0 ? 'Cash' : 'New'}
             >
               {started && totalGain > 0 && (
                 <div style={{ marginTop: '10px' }}>
@@ -603,7 +643,7 @@ export default function MinesV2() {
               setWager={setWager}
               onPlay={endGame}
               playDisabled={loading || totalGain === 0}
-              playText={totalGain > 0 ? 'Cash Out' : 'New Game'}
+              playText={totalGain > 0 ? 'Cash' : 'New'}
             >
               {started && totalGain > 0 && (
                 <EnhancedButton 

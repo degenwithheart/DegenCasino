@@ -3,7 +3,8 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -21,6 +22,7 @@ export default function BlackJackV2() {
   const [initialWager, setInitialWager] = useWagerInput()
   const { settings } = useGraphics()
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  const { mobile: isMobile } = useIsCompact()
   
   const sounds = useSound({
     win: SOUND_WIN,
@@ -64,6 +66,26 @@ export default function BlackJackV2() {
 
   // Get configuration
   const config = BET_ARRAYS_V2['blackjack-v2']
+
+  // Pool restrictions
+  const maxMultiplier = React.useMemo(() => {
+    const betArray = config.calculateBetArray()
+    return Math.max(...betArray)
+  }, [config])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  // Clamp wager to not exceed pool limits
+  React.useEffect(() => {
+    if (initialWager > maxWagerForPool) {
+      setInitialWager(maxWagerForPool)
+    }
+  }, [initialWager, maxWagerForPool, setInitialWager])
+
+  const maxPayout = initialWager * maxMultiplier
+  const poolExceeded = maxPayout > pool.maxPayout
 
   // Card utilities
   const calculateHandValue = React.useCallback((cards: Card[]) => {
@@ -264,7 +286,7 @@ export default function BlackJackV2() {
   // Play button logic
   const getPlayText = () => {
     if (gameState === 'dealing') return "Dealing..."
-    return hasPlayed ? "New Game" : "Deal Cards"
+    return hasPlayed ? "New" : "Deal"
   }
   
   const getPlayAction = () => {
@@ -554,79 +576,20 @@ export default function BlackJackV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          {/* Header Stats */}
-          <div style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            right: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            zIndex: 1,
-            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.85) 100%)',
-            padding: '15px',
-            borderRadius: '16px',
-            border: '1px solid rgba(212, 165, 116, 0.3)',
-            boxShadow: '0 8px 32px rgba(10, 5, 17, 0.4), inset 0 1px 0 rgba(212, 165, 116, 0.2)',
-            backdropFilter: 'blur(16px)'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574' }}>
-                BlackJack v2
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Canvas 21 • 97% RTP</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#d4a574' }}>
-                {gameCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Games</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#4caf50' }}>
-                {winCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Wins</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f44336' }}>
-                {lossCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Losses</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                color: winCount > lossCount ? '#4caf50' : winCount < lossCount ? '#f44336' : '#d4a574' 
-              }}>
-                {(() => {
-                  if (winCount === 0 && lossCount === 0) return '0.00'
-                  if (lossCount === 0) return '+∞'
-                  const ratio = winCount / lossCount
-                  const prefix = ratio >= 1 ? '+' : '-'
-                  return `${prefix}${ratio.toFixed(2)}`
-                })()}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>W/L Ratio</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: totalProfit > 0 ? '#4caf50' : totalProfit < 0 ? '#f44336' : '#d4a574' }}>
-                <TokenValue amount={totalProfit} />
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Session Profit</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <EnhancedButton
-                onClick={resetSession}
-                disabled={gamba.isPlaying}
-                variant="secondary"
-              >
-                Reset
-              </EnhancedButton>
-            </div>
-          </div>
+          <GameStatsHeader
+            gameName="BlackJack v2"
+            gameMode="Canvas 21 • 97% RTP"
+            stats={{
+              gamesPlayed: gameCount,
+              wins: winCount,
+              losses: lossCount,
+              sessionProfit: totalProfit
+            }}
+            onReset={resetSession}
+            theme="gold"
+            disabled={gamba.isPlaying}
+            isMobile={isMobile}
+          />
 
           {/* Game Canvas */}
           <canvas 
@@ -638,15 +601,145 @@ export default function BlackJackV2() {
               top: '120px',
               left: '20px',
               right: '20px',
-              bottom: '20px',
+              bottom: '140px',
               width: 'calc(100% - 40px)',
-              height: 'calc(100% - 140px)',
+              height: 'calc(100% - 260px)',
               imageRendering: 'auto',
               borderRadius: '10px',
               border: '2px solid rgba(212, 165, 116, 0.4)',
               zIndex: 0
             }}
           />
+
+          <GameControlsSection>
+            {/* PLAYER HAND Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#4caf50',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                PLAYER HAND
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(76, 175, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {playerCards.length > 0 ? calculateHandValue(playerCards) : '-'}
+              </div>
+            </div>
+
+            {/* DEALER HAND Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(255, 152, 0, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#ff9800',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                DEALER HAND
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(255, 152, 0, 0.9)',
+                fontWeight: '600'
+              }}>
+                {dealerCards.length > 0 ? (showDealerCard ? calculateHandValue(dealerCards) : calculateHandValue([dealerCards[0]])) : '-'}
+              </div>
+            </div>
+
+            {/* WIN CHANCE Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(184, 51, 106, 0.15) 0%, rgba(136, 14, 79, 0.25) 50%, rgba(184, 51, 106, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(184, 51, 106, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(184, 51, 106, 0.2), inset 0 1px 0 rgba(184, 51, 106, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#b8336a',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                WIN CHANCE
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(184, 51, 106, 0.9)',
+                fontWeight: '600'
+              }}>
+                {gameState === 'idle' ? '-' : '~50%'}
+              </div>
+            </div>
+
+            {/* MULTIPLIER Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(139, 90, 158, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(139, 90, 158, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(139, 90, 158, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(139, 90, 158, 0.2), inset 0 1px 0 rgba(139, 90, 158, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#8b5a9e',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                MULTIPLIER
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(139, 90, 158, 0.9)',
+                fontWeight: '600'
+              }}>
+                {isBlackjack(playerCards) ? '2.50x' : '1.95x'}
+              </div>
+            </div>
+          </GameControlsSection>
 
           <GameplayFrame
             ref={effectsRef}
@@ -668,7 +761,7 @@ export default function BlackJackV2() {
           wager={initialWager}
           setWager={setInitialWager}
           onPlay={getPlayAction()}
-          playDisabled={gameState === 'dealing' || !pool || gamba.isPlaying}
+          playDisabled={gameState === 'dealing' || !pool || gamba.isPlaying || poolExceeded}
           playText={getPlayText()}
         />
         
@@ -676,9 +769,14 @@ export default function BlackJackV2() {
           wager={initialWager}
           setWager={setInitialWager}
           onPlay={getPlayAction()}
-          playDisabled={gameState === 'dealing' || !pool || gamba.isPlaying}
+          playDisabled={gameState === 'dealing' || !pool || gamba.isPlaying || poolExceeded}
           playText={getPlayText()}
-        />
+        >
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+          <EnhancedPlayButton disabled={gameState === 'dealing' || !pool || gamba.isPlaying || poolExceeded} onClick={getPlayAction()}>
+            {getPlayText()}
+          </EnhancedPlayButton>
+        </DesktopControls>
       </GambaUi.Portal>
     </>
   )

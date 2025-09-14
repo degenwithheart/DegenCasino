@@ -4,7 +4,8 @@ import { useGamba } from 'gamba-react-v2'
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -50,6 +51,7 @@ export default function DiceV2() {
   const [totalProfit, setTotalProfit] = useState(0)
   const [gameCount, setGameCount] = useState(0)
   const [winCount, setWinCount] = useState(0)
+  const { mobile: isMobile } = useIsCompact()
 
   const updateSliderValue = useCallback((canvasX: number, canvasWidth: number) => {
     // Slider bounds in canvas coordinates
@@ -229,9 +231,22 @@ export default function DiceV2() {
   const odds = Math.floor((rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES) * BET_ARRAYS_V2['dice-v2'].OUTCOMES)
   const multiplier = Number(BigInt(BET_ARRAYS_V2['dice-v2'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
 
-  const bet = React.useMemo(() => BET_ARRAYS_V2['dice-v2'].calculateBetArray(), [rollUnderIndex])
-
+  const bet = React.useMemo(() => BET_ARRAYS_V2['dice-v2'].calculateBetArray(rollUnderIndex), [rollUnderIndex])
   const maxWin = multiplier * wager
+
+  // Pool restrictions
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / multiplier
+  }, [pool.maxPayout, multiplier])
+
+  // Clamp wager to not exceed pool limits
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [wager, maxWagerForPool, setWager])
+
+  const poolExceeded = maxWin > pool.maxPayout
 
   const game = GambaUi.useGame()
 
@@ -595,70 +610,6 @@ export default function DiceV2() {
     ctx.textBaseline = 'middle'
     ctx.fillText(displayNumber.toString(), centerX, centerY)
 
-    // Draw "LUCKY NUMBER" label
-    ctx.fillStyle = 'rgba(212, 165, 116, 0.8)'
-    ctx.font = 'bold 18px Arial'
-    ctx.fillText('LUCKY NUMBER', centerX, centerY + NUMBER_DISPLAY_SIZE / 2 + 30)
-
-    // Draw canvas slider
-    const sliderY = CANVAS_HEIGHT - 100
-    const sliderLeft = 100
-    const sliderRight = CANVAS_WIDTH - 100
-    const sliderWidth = sliderRight - sliderLeft
-    const sliderHeight = 8
-    const handleRadius = 15
-
-    // Slider track
-    const trackGradient = ctx.createLinearGradient(sliderLeft, sliderY, sliderRight, sliderY)
-    trackGradient.addColorStop(0, '#d4a574')
-    trackGradient.addColorStop(1, '#b8336a')
-    ctx.fillStyle = trackGradient
-    ctx.fillRect(sliderLeft, sliderY - sliderHeight / 2, sliderWidth, sliderHeight)
-
-    // Slider track border
-    ctx.strokeStyle = 'rgba(212, 165, 116, 0.5)'
-    ctx.lineWidth = 2
-    ctx.strokeRect(sliderLeft, sliderY - sliderHeight / 2, sliderWidth, sliderHeight)
-
-    // Slider handle position
-    const handleX = sliderLeft + ((rollUnderIndex - 1) / (BET_ARRAYS_V2['dice-v2'].OUTCOMES - 2)) * sliderWidth
-
-    // Slider handle
-    const handleGradient = ctx.createRadialGradient(handleX, sliderY, 0, handleX, sliderY, handleRadius)
-    handleGradient.addColorStop(0, '#f4e9e1')
-    handleGradient.addColorStop(1, '#d4a574')
-    ctx.fillStyle = handleGradient
-    ctx.beginPath()
-    ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Slider handle border
-    ctx.strokeStyle = '#d4a574'
-    ctx.lineWidth = 3
-    ctx.stroke()
-
-    // Slider labels
-    ctx.fillStyle = 'rgba(244, 233, 225, 0.9)'
-    ctx.font = 'bold 16px Arial'
-    ctx.textAlign = 'left'
-    ctx.fillText('1', sliderLeft, sliderY - 35)
-    ctx.textAlign = 'right'
-    ctx.fillText('99', sliderRight, sliderY - 35)
-    ctx.textAlign = 'center'
-    ctx.fillText('Roll Under', centerX, sliderY - 25)
-
-    // Current value display
-    ctx.fillStyle = '#d4a574'
-    ctx.font = 'bold 20px Arial'
-    ctx.fillText(rollUnderIndex.toString(), handleX, sliderY + 35)
-
-    // Draw roll under target
-    if (rollUnderIndex > 0) {
-      ctx.fillStyle = 'rgba(244, 233, 225, 0.9)'
-      ctx.font = 'bold 20px Arial'
-      ctx.fillText(`Roll Under: ${rollUnderIndex}`, centerX, 50)
-    }
-
     ctx.restore()
   }, [luckyNumberState, rollUnderIndex, hasPlayed, gamba.isPlaying, lastGameResult, resultIndex, shouldRenderParticles, shouldRenderRunes, shouldRenderMysticalCircles, enableEffects, enableMotion])
 
@@ -695,7 +646,7 @@ export default function DiceV2() {
     sounds.play('play')
 
     // Use RTP config to get the bet array
-    const betArray = BET_ARRAYS_V2['dice-v2'].calculateBetArray()
+    const betArray = BET_ARRAYS_V2['dice-v2'].calculateBetArray(rollUnderIndex)
 
     console.log('🎲 BET ARRAY DEBUG:', {
       rollUnderIndex,
@@ -817,12 +768,34 @@ export default function DiceV2() {
     }
   }, [])
 
-  // Reset animation timing when animation starts
+  // Handle slider dragging
   useEffect(() => {
-    if (luckyNumberState.isAnimating && animationStartTimeRef.current === 0) {
-      animationStartTimeRef.current = performance.now()
+    if (!isDraggingSlider) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const sliderElement = document.querySelector('[data-slider-track]') as HTMLElement
+      if (!sliderElement) return
+
+      const rect = sliderElement.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const percentage = Math.max(0, Math.min(1, x / rect.width))
+      const newValue = Math.min(100, Math.max(1, Math.round(percentage * 100)))
+      setRollUnderIndex(newValue)
     }
-  }, [luckyNumberState.isAnimating])
+
+    const handleMouseUp = () => {
+      setIsDraggingSlider(false)
+      sounds.play('tick')
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDraggingSlider])
 
   return (
     <>
@@ -834,81 +807,20 @@ export default function DiceV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          {/* Header Stats */}
-          <div style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            right: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            zIndex: 1,
-            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.85) 100%)',
-            padding: '15px',
-            borderRadius: '16px',
-            border: '1px solid rgba(212, 165, 116, 0.3)',
-            boxShadow: '0 8px 32px rgba(10, 5, 17, 0.4), inset 0 1px 0 rgba(212, 165, 116, 0.2)',
-            backdropFilter: 'blur(16px)'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574' }}>
-                Dice v2
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>
-                Roll Under • {(rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES * 100).toFixed(0)}% • {multiplier.toFixed(2)}x
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#d4a574' }}>
-                {gameCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Games</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#4caf50' }}>
-                {winCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Wins</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f44336' }}>
-                {gameCount - winCount}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Losses</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                color: winCount > (gameCount - winCount) ? '#4caf50' : winCount < (gameCount - winCount) ? '#f44336' : '#d4a574' 
-              }}>
-                {(() => {
-                  const losses = gameCount - winCount
-                  if (winCount === 0 && losses === 0) return '0.00'
-                  if (losses === 0) return '+∞'
-                  const ratio = winCount / losses
-                  const prefix = ratio >= 1 ? '+' : '-'
-                  return `${prefix}${ratio.toFixed(2)}`
-                })()}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>W/L Ratio</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: totalProfit > 0 ? '#4caf50' : totalProfit < 0 ? '#f44336' : '#d4a574' }}>
-                <TokenValue amount={totalProfit} />
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Session Profit</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <EnhancedPlayButton
-                onClick={resetSession}
-                disabled={gamba.isPlaying}
-              >
-                Reset
-              </EnhancedPlayButton>
-            </div>
-          </div>
+          <GameStatsHeader
+            gameName="Dice v2"
+            gameMode={`Roll Under • ${(rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES * 100).toFixed(0)}% • ${multiplier.toFixed(2)}x`}
+            stats={{
+              gamesPlayed: gameCount,
+              wins: winCount,
+              losses: gameCount - winCount,
+              sessionProfit: totalProfit
+            }}
+            onReset={resetSession}
+            theme="gold"
+            disabled={gamba.isPlaying}
+            isMobile={isMobile}
+          />
 
           {/* Canvas Game Area */}
           <div style={{
@@ -916,7 +828,7 @@ export default function DiceV2() {
             top: '120px',
             left: '20px',
             right: '20px',
-            bottom: '20px',
+            bottom: '120px', // Leave space for slider below
             borderRadius: '10px',
             overflow: 'hidden',
             border: '2px solid rgba(212, 165, 116, 0.4)'
@@ -937,6 +849,236 @@ export default function DiceV2() {
               onTouchEnd={handleCanvasTouchEnd}
             />
           </div>
+
+          <GameControlsSection>
+            {/* WIN Zone Section */}
+            <div style={{
+              flex: '0 0 120px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#81c784',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                WIN ZONE
+              </div>
+              <div style={{
+                fontSize: '12px',
+                color: 'rgba(129, 199, 132, 0.9)',
+                fontWeight: '600'
+              }}>
+                {`1 - ${Math.min(99, rollUnderIndex)}`}
+              </div>
+            </div>
+
+            {/* Slider Section */}
+            <div style={{
+              flex: '1',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.9) 0%, rgba(139, 90, 158, 0.1) 50%, rgba(10, 5, 17, 0.9) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(212, 165, 116, 0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '8px 16px',
+              boxShadow: '0 4px 16px rgba(10, 5, 17, 0.4), inset 0 1px 0 rgba(212, 165, 116, 0.2)',
+              backdropFilter: 'blur(10px)',
+              position: 'relative'
+            }}>
+              {/* Slider Track */}
+              <div
+                data-slider-track
+                style={{
+                  width: '100%',
+                  height: '24px',
+                  background: `linear-gradient(to right, 
+                    rgba(76, 175, 80, 0.8) 0%, 
+                    rgba(76, 175, 80, 0.8) ${(Math.min(99, rollUnderIndex) / 100) * 100}%, 
+                    rgba(244, 67, 54, 0.8) ${(Math.min(99, rollUnderIndex) / 100) * 100}%, 
+                    rgba(244, 67, 54, 0.8) 100%)`,
+                  borderRadius: '12px',
+                  position: 'relative',
+                  border: '2px solid rgba(212, 165, 116, 0.5)',
+                  cursor: gamba.isPlaying || luckyNumberState.isAnimating ? 'not-allowed' : 'pointer',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                  overflow: 'visible'
+                }}
+                onClick={(e) => {
+                  if (gamba.isPlaying || luckyNumberState.isAnimating) return
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  const x = e.clientX - rect.left
+                  const percentage = Math.max(0, Math.min(1, x / rect.width))
+                  const newValue = Math.min(100, Math.max(1, Math.round(percentage * 100)))
+                  setRollUnderIndex(newValue)
+                  sounds.play('tick')
+                }}
+              >
+                {/* Min Label */}
+                <div style={{
+                  position: 'absolute',
+                  left: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#d4a574',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  1
+                </div>
+
+                {/* 25% Label */}
+                <div style={{
+                  position: 'absolute',
+                  left: '25%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  color: '#d4a574',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  25
+                </div>
+
+                {/* 50% Label */}
+                <div style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  color: '#d4a574',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  50
+                </div>
+
+                {/* 75% Label */}
+                <div style={{
+                  position: 'absolute',
+                  left: '75%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  color: '#d4a574',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  75
+                </div>
+
+                {/* Max Label */}
+                <div style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#d4a574',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  99
+                </div>
+
+                {/* Slider Handle */}
+                <div style={{
+                  position: 'absolute',
+                  left: `${(Math.min(99, rollUnderIndex) / 99) * 100}%`,
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '28px',
+                  height: '28px',
+                  background: 'linear-gradient(135deg, #ffd700 0%, #ffb74d 50%, #ff6b35 100%)',
+                  borderRadius: '50%',
+                  border: '3px solid rgba(212, 165, 116, 0.9)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 215, 0, 0.3)',
+                  cursor: gamba.isPlaying || luckyNumberState.isAnimating ? 'not-allowed' : 'pointer',
+                  zIndex: 15,
+                  transition: 'transform 0.1s ease'
+                }}
+                onMouseDown={(e) => {
+                  if (gamba.isPlaying || luckyNumberState.isAnimating) return
+                  setIsDraggingSlider(true)
+                  e.preventDefault()
+                }}
+                >
+                  {/* Current Value Label on Handle */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-35px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'rgba(10, 5, 17, 0.95)',
+                    color: '#d4a574',
+                    padding: '4px 8px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    border: '1px solid rgba(212, 165, 116, 0.5)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                    whiteSpace: 'nowrap',
+                    zIndex: 20
+                  }}>
+                    {rollUnderIndex}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* LOSE Zone Section */}
+            <div style={{
+              flex: '0 0 120px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(211, 47, 47, 0.25) 50%, rgba(244, 67, 54, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(244, 67, 54, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(244, 67, 54, 0.2), inset 0 1px 0 rgba(244, 67, 54, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#ef5350',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                LOSE ZONE
+              </div>
+              <div style={{
+                fontSize: '12px',
+                color: 'rgba(239, 83, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {Math.min(99, rollUnderIndex) + 1} - {BET_ARRAYS_V2['dice-v2'].OUTCOMES}
+              </div>
+            </div>
+          </GameControlsSection>
 
           <GameplayFrame
             ref={effectsRef}
@@ -962,7 +1104,7 @@ export default function DiceV2() {
           wager={wager}
           setWager={setWager}
           onPlay={hasPlayed ? resetGame : play}
-          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating)}
+          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded}
           playText={hasPlayed ? "New Game" : "Roll Lucky Number"}
         />
 
@@ -970,9 +1112,14 @@ export default function DiceV2() {
           wager={wager}
           setWager={setWager}
           onPlay={hasPlayed ? resetGame : play}
-          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating)}
+          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded}
           playText={hasPlayed ? "New Game" : "Roll Lucky Number"}
-        />
+        >
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={multiplier} />
+          <EnhancedPlayButton disabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded} onClick={hasPlayed ? resetGame : play}>
+            {hasPlayed ? "New Game" : "Roll Lucky Number"}
+          </EnhancedPlayButton>
+        </DesktopControls>
       </GambaUi.Portal>
     </>
   )

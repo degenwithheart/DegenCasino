@@ -1,4 +1,4 @@
-import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -39,9 +39,24 @@ export default function Plinko() {
   console.log('🎯 PLINKO COMPONENT LOADING...')
   const game = GambaUi.useGame()
   const gamba = useGamba()
+  const pool = useCurrentPool()
   const [wager, setWager] = useWagerInput()
   const [debug, setDebug] = React.useState(false)
   const [degen, setDegen] = React.useState(false)
+
+  // Pool restrictions
+  const maxMultiplierForPool = React.useMemo(() => {
+    const normalMax = Math.max(...PLINKO_CONFIG.normal)
+    const degenMax = Math.max(...PLINKO_CONFIG.degen)
+    return Math.max(normalMax, degenMax)
+  }, [])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplierForPool
+  }, [pool.maxPayout, maxMultiplierForPool])
+
+  const maxPayout = wager * maxMultiplierForPool
+  const poolExceeded = maxPayout > pool.maxPayout
   
   // Get graphics settings to check if effects are enabled
   const { settings } = useGraphics()
@@ -335,7 +350,7 @@ export default function Plinko() {
   const rows = degen ? PEGS.degen : PEGS.normal
   const buckets = degen ? BUCKETS.degen : BUCKETS.normal
   
-  // Calculate dynamic max multiplier
+  // Calculate dynamic max multiplier for current mode
   const maxMultiplier = React.useMemo(() => Math.max(...bet), [bet])
   
   const multipliers = bet // Use exact bet array - no duplicate removal!
@@ -605,7 +620,7 @@ export default function Plinko() {
           wager={wager}
           setWager={setWager}
           onPlay={() => play()}
-          playDisabled={false}
+          playDisabled={gamba.isPlaying || poolExceeded}
           playText="Play"
         >
           <SwitchControl
@@ -628,7 +643,7 @@ export default function Plinko() {
             checked={degen}
             onChange={setDegen}
           />
-          <EnhancedPlayButton onClick={() => play()}>
+          <EnhancedPlayButton onClick={() => play()} disabled={gamba.isPlaying || poolExceeded}>
             Play
           </EnhancedPlayButton>
         </DesktopControls>

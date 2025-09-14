@@ -1,4 +1,4 @@
-import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -29,9 +29,31 @@ export default function PlinkoRace() {
   console.log('🎯 PLINKO RACE COMPONENT LOADING...')
   const game = GambaUi.useGame()
   const gamba = useGamba()
+  const pool = useCurrentPool()
   const [wager, setWager] = useWagerInput()
   const [debug, setDebug] = React.useState(false)
   const [degen, setDegen] = React.useState(false)
+
+  // Pool restrictions
+  const maxMultiplier = React.useMemo(() => {
+    const normalMax = Math.max(...PLINKO_CONFIG.normal)
+    const degenMax = Math.max(...PLINKO_CONFIG.degen)
+    return Math.max(normalMax, degenMax)
+  }, [])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  const maxPayout = wager * maxMultiplier
+  const poolExceeded = maxPayout > pool.maxPayout
+
+  // useEffect to clamp wager like Plinko
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [maxWagerForPool, wager, setWager])
   
   // Get graphics settings to check if effects are enabled
   const { settings } = useGraphics()
@@ -183,13 +205,6 @@ export default function PlinkoRace() {
   const rows = degen ? PEGS.degen : PEGS.normal
   const buckets = degen ? BUCKETS.degen : BUCKETS.normal
   const multipliers = bet // Use exact bet array
-  
-  // Calculate maximum multiplier from both normal and degen modes
-  const maxMultiplier = React.useMemo(() => {
-    const normalMax = Math.max(...BET);
-    const degenMax = Math.max(...DEGEN_BET);
-    return Math.max(normalMax, degenMax);
-  }, []);
 
   return (
     <>
@@ -230,8 +245,8 @@ export default function PlinkoRace() {
           wager={wager}
           setWager={setWager}
           onPlay={() => {/* PlinkoRace uses multiplayer, no direct play */}}
-          playDisabled={true}
-          playText="Join Race"
+          playDisabled={true || poolExceeded}
+          playText="Join"
         >
           <SwitchControl
             label="Degen Mode"
@@ -247,7 +262,13 @@ export default function PlinkoRace() {
           />
         </MobileControls>
         
-        <DesktopControls>
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={() => {/* PlinkoRace uses multiplayer, no direct play */}}
+          playDisabled={true || poolExceeded}
+          playText="Join"
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <div>Degen:</div>
           <GambaUi.Switch

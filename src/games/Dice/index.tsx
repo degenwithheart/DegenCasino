@@ -43,7 +43,21 @@ export default function Dice() {
 
   const bet = React.useMemo(() => outcomes(odds), [rollUnderIndex])
 
+  // Implement Plinko pattern for pool restrictions
+  const maxMultiplier = multiplier
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
   const maxWin = multiplier * wager
+  const poolExceeded = maxWin > pool.maxPayout
+
+  // useEffect to clamp wager like Plinko
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [maxWagerForPool, wager, setWager])
 
   const game = GambaUi.useGame()
 
@@ -129,11 +143,7 @@ export default function Dice() {
                   </div>
                   <div className="stat-card">
                     <div className="stat-value">
-                      {maxWin > pool.maxPayout ? (
-                        <span className="error">TOO HIGH</span>
-                      ) : (
-                        <TokenValue suffix="" amount={maxWin} />
-                      )}
+                      <TokenValue suffix="" amount={maxWin} />
                     </div>
                     <div className="stat-label">Max Win</div>
                   </div>
@@ -209,7 +219,7 @@ export default function Dice() {
           wager={wager}
           setWager={setWager}
           onPlay={play}
-          playDisabled={false}
+          playDisabled={poolExceeded}
           playText="Roll"
         />
         
@@ -217,9 +227,18 @@ export default function Dice() {
           wager={wager}
           setWager={setWager}
           onPlay={play}
-          playDisabled={false}
+          playDisabled={poolExceeded}
           playText="Roll"
-        />
+        >
+          <EnhancedWagerInput 
+            value={wager} 
+            onChange={setWager} 
+            multiplier={maxMultiplier}
+          />
+          <EnhancedPlayButton onClick={play} wager={wager} disabled={poolExceeded}>
+            Roll
+          </EnhancedPlayButton>
+        </DesktopControls>
       </GambaUi.Portal>
     </>
   )

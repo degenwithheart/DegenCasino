@@ -2,7 +2,8 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -51,6 +52,7 @@ export default function MultiPokerV2() {
   const [initialWager, setInitialWager] = useWagerInput()
   const { settings } = useGraphics()
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  const { mobile: isMobile } = useIsCompact()
   
   const sounds = useSound({
     win: SOUND_WIN,
@@ -96,8 +98,12 @@ export default function MultiPokerV2() {
   const [chainLength, setChainLength] = React.useState(0)
   const [lastHandRank, setLastHandRank] = React.useState<number>(-1)
   const [chainHistory, setChainHistory] = React.useState<string[]>([])
-  const [showModeSelection, setShowModeSelection] = React.useState(true) // Start with mode selection
+  const [showModeSelection, setShowModeSelection] = React.useState(true) // Control which GameControlsSection to show
   const [hasPlayed, setHasPlayed] = React.useState(false) // Track if player has played like Dice-v2
+
+  // Derived state for UI
+  const currentHandType = hand?.name || (cards.length > 0 ? 'Revealing...' : null)
+  const currentMultiplier = hand?.payout || null
 
   // Debug effect to check canvas state
   React.useEffect(() => {
@@ -135,6 +141,23 @@ export default function MultiPokerV2() {
     const betArray = config.calculateBetArray()
     return Math.max(...betArray)
   }, [])
+
+  // Pool restrictions for compound wagering
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  // Clamp wager to not exceed pool limits (for mobile and manual input)
+  React.useEffect(() => {
+    if (initialWager > maxWagerForPool) {
+      setInitialWager(maxWagerForPool)
+    }
+  }, [initialWager, maxWagerForPool, setInitialWager])
+
+  const poolExceeded = React.useMemo(() => {
+    const effectiveWager = inProgress ? currentBalance : initialWager
+    return effectiveWager * maxMultiplier > pool.maxPayout
+  }, [inProgress, currentBalance, initialWager, maxMultiplier, pool.maxPayout])
 
   // Game logic functions - exactly like original
   const isValidChainProgression = (resultIndex: number): boolean => {
@@ -293,6 +316,37 @@ export default function MultiPokerV2() {
     ctx.restore()
   }
 
+  const drawModeSelectionCards = (ctx: CanvasRenderingContext2D) => {
+    // Draw 5 face-down card placeholders in the center
+    const startX = (CANVAS_WIDTH - (5 * CARD_WIDTH + 4 * CARD_SPACING)) / 2
+    const cardY = CANVAS_HEIGHT / 2 - CARD_HEIGHT / 2
+    
+    // Add subtle glow effect around cards during mode selection
+    ctx.save()
+    ctx.shadowColor = 'rgba(212, 165, 116, 0.3)'
+    ctx.shadowBlur = 10
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
+    
+    for (let i = 0; i < 5; i++) {
+      const cardX = startX + i * (CARD_WIDTH + CARD_SPACING)
+      drawCard(ctx, null, cardX, cardY, false) // null card, not revealed = shows card back
+    }
+    
+    ctx.restore()
+
+    // Add subtle "Choose Game Mode" text above cards
+    ctx.fillStyle = 'rgba(212, 165, 116, 0.7)'
+    ctx.font = 'bold 24px Arial'
+    ctx.textAlign = 'center'
+    ctx.fillText('Choose Game Mode', CANVAS_WIDTH / 2, cardY - 40)
+    
+    // Add subtle description below cards
+    ctx.fillStyle = 'rgba(212, 165, 116, 0.5)'
+    ctx.font = '16px Arial'
+    ctx.fillText('Select your poker variant from the controls below', CANVAS_WIDTH / 2, cardY + CARD_HEIGHT + 40)
+  }
+
   // Canvas drawing functions
   const drawCard = (ctx: CanvasRenderingContext2D, card: { rank: number; suit: number } | null, x: number, y: number, revealed: boolean) => {
     // Card background
@@ -371,75 +425,7 @@ export default function MultiPokerV2() {
     ctx.fillText(`${hand.payout}x Multiplier`, centerX, centerY + 18)
   }
 
-  const drawModeSelection = (ctx: CanvasRenderingContext2D) => {
-    console.log('🎨 drawModeSelection function called!')
-    // Don't clear background - let the degen background show through
-    
-    // Title
-    ctx.fillStyle = '#ffffff' // Bright white for visibility
-    ctx.font = 'bold 36px Arial'
-    ctx.textAlign = 'center'
-    ctx.fillText('Multi Poker V2', CANVAS_WIDTH/2, 80)
-    console.log('✅ Title drawn')
-    
-    ctx.fillStyle = '#cccccc' // Light gray for subtitle
-    ctx.font = '18px Arial'
-    ctx.fillText('Choose your game mode', CANVAS_WIDTH/2, 120)
-    console.log('✅ Subtitle drawn')
-    
-    // Mode buttons
-    const modes = [
-      { id: 'single', name: 'Single Hand', desc: 'Play independent hands' },
-      { id: 'chain', name: 'Chain Mode', desc: 'Build progressively better hands' },
-      { id: 'progressive', name: 'Progressive', desc: 'Any win continues the streak' }
-    ]
-    
-    const buttonWidth = 280
-    const buttonHeight = 80
-    const startY = 180
-    const spacing = 100
-    
-    modes.forEach((mode, index) => {
-      const x = CANVAS_WIDTH/2 - buttonWidth/2
-      const y = startY + index * spacing
-      const isSelected = gameMode === mode.id
-      
-      // Button background - use more visible colors
-      ctx.fillStyle = isSelected ? '#444444' : '#333333'
-      ctx.strokeStyle = isSelected ? '#ffffff' : '#666666'
-      ctx.lineWidth = 3
-      
-      ctx.beginPath()
-      ctx.roundRect(x, y, buttonWidth, buttonHeight, 12)
-      ctx.fill()
-      ctx.stroke()
-      
-      // Button text
-      ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 20px Arial'
-      ctx.textAlign = 'center'
-      ctx.fillText(mode.name, CANVAS_WIDTH/2, y + 30)
-      
-      ctx.fillStyle = '#cccccc'
-      ctx.font = '14px Arial'
-      ctx.fillText(mode.desc, CANVAS_WIDTH/2, y + 55)
-    })
-    
-    // Continue button if mode selected
-    const continueY = startY + modes.length * spacing + 20
-    ctx.fillStyle = '#666666'
-    ctx.strokeStyle = '#ffffff'
-    ctx.lineWidth = 2
-    
-    ctx.beginPath()
-    ctx.roundRect(CANVAS_WIDTH/2 - 100, continueY, 200, 50, 8)
-    ctx.fill()
-    ctx.stroke()
-    
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 18px Arial'
-    ctx.fillText('Start Game', CANVAS_WIDTH/2, continueY + 32)
-  }
+  // Mode selection now handled by GameControlsSection
 
   const drawBackButton = (ctx: CanvasRenderingContext2D) => {
     if (showModeSelection) return
@@ -529,9 +515,10 @@ export default function MultiPokerV2() {
     drawDegenGameBackground(ctx)
 
     if (showModeSelection) {
-      console.log('🎯 Drawing mode selection screen')
-      // Show mode selection screen
-      drawModeSelection(ctx)
+      console.log('🎯 Mode selection handled by GameControlsSection')
+      // Mode selection now handled by GameControlsSection - draw background and card placeholders
+      drawDegenGameBackground(ctx)
+      drawModeSelectionCards(ctx)
     } else {
       // Show game screen
       // Draw back button
@@ -574,13 +561,14 @@ export default function MultiPokerV2() {
   React.useEffect(() => {
     const canvas = canvasRef.current
     console.log('Canvas ref effect triggered:', { canvas: !!canvas, showModeSelection })
+    // Mode selection now handled by GameControlsSection
     if (canvas && showModeSelection) {
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        console.log('Drawing mode selection screen')
-        drawModeSelection(ctx)
-      } else {
-        console.log('Could not get canvas context')
+        console.log('Drawing background only for mode selection')
+        ctx.fillStyle = ROMANTIC_COLORS.background
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+        drawDegenGameBackground(ctx)
       }
     }
   }, [showModeSelection])
@@ -607,8 +595,10 @@ export default function MultiPokerV2() {
         if (canvas) {
           const ctx = canvas.getContext('2d')
           if (ctx) {
-            console.log('Emergency mode selection draw')
-            drawModeSelection(ctx)
+            console.log('Emergency background draw for mode selection')
+            ctx.fillStyle = ROMANTIC_COLORS.background
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+            drawDegenGameBackground(ctx)
           }
         }
       })
@@ -929,14 +919,14 @@ export default function MultiPokerV2() {
   // Play button logic matching Dice-v2
   const getPlayText = () => {
     if (gameMode === 'single') {
-      return hasPlayed ? "New Game" : "Deal Cards"
+      return hasPlayed ? "New" : "Deal"
     } else {
       if (!inProgress && hasPlayed) {
-        return "New Game"
+        return "New"
       } else if (canContinue) {
-        return gameMode === 'chain' ? "Continue Chain" : "Continue Streak"
+        return gameMode === 'chain' ? "Continue" : "Continue"
       } else {
-        return gameMode === 'chain' ? "Start Chain" : "Start Streak"
+        return gameMode === 'chain' ? "Start" : "Start"
       }
     }
   }
@@ -967,122 +957,669 @@ export default function MultiPokerV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          {/* Single canvas that's always mounted */}
+          <GameStatsHeader
+            gameName="MultiPoker v2"
+            gameMode={gameMode === 'single' ? 'Single Play • 99.5% RTP' : 
+                     gameMode === 'chain' ? 'Chain Mode • Progressive' : 
+                     'Progressive • Compound'}
+            stats={{
+              gamesPlayed: gameCount,
+              wins: winCount,
+              losses: lossCount,
+              sessionProfit: totalProfit
+            }}
+            onReset={handleResetStats}
+            theme="gold"
+            disabled={gamba.isPlaying}
+            isMobile={isMobile}
+          />
+
+          {/* Game Canvas */}
           <canvas 
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            onClick={handleCanvasClick}
             style={{ 
               position: 'absolute',
-              top: showModeSelection ? '0' : '120px',
-              left: showModeSelection ? '0' : '20px',
-              right: showModeSelection ? '0' : '20px',
-              bottom: showModeSelection ? '0' : '20px',
-              width: showModeSelection ? '100%' : 'calc(100% - 40px)',
-              height: showModeSelection ? '100%' : 'calc(100% - 140px)',
+              top: '120px',
+              left: '20px',
+              right: '20px',
+              bottom: '140px',
+              width: 'calc(100% - 40px)',
+              height: 'calc(100% - 260px)',
               imageRendering: 'auto',
-              cursor: 'pointer',
-              borderRadius: showModeSelection ? '0' : '10px',
-              border: showModeSelection ? 'none' : '2px solid rgba(212, 165, 116, 0.4)',
-              zIndex: showModeSelection ? 1 : 0
+              borderRadius: '10px',
+              border: '2px solid rgba(212, 165, 116, 0.4)',
+              zIndex: 0
             }}
           />
           
-          {!showModeSelection && (
-            <>
-              {/* Game Stats Header */}
-              <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                right: '20px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                zIndex: 1,
-                background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.85) 100%)',
-                padding: '15px',
-                borderRadius: '16px',
-                border: '1px solid rgba(212, 165, 116, 0.3)',
-                boxShadow: '0 8px 32px rgba(10, 5, 17, 0.4), inset 0 1px 0 rgba(212, 165, 116, 0.2)',
-                backdropFilter: 'blur(16px)'
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574' }}>
-                    MultiPoker v2
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>
-                    {gameMode === 'single' ? 'Single Play • 99.5% RTP' : 
-                     gameMode === 'chain' ? 'Chain Mode • Progressive' : 
-                     'Progressive • Compound'}
-                  </div>
+          {showModeSelection ? (
+            /* Mode Selection GameControlsSection */
+            <GameControlsSection>
+              {/* Single Mode */}
+              <div 
+                onClick={() => {
+                  setGameMode('single')
+                  setShowModeSelection(false)
+                }}
+                style={{
+                  flex: '1',
+                  height: '100%',
+                  background: gameMode === 'single' 
+                    ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(46, 125, 50, 0.35) 50%, rgba(76, 175, 80, 0.25) 100%)'
+                    : 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+                  borderRadius: '12px',
+                  border: `2px solid ${gameMode === 'single' ? 'rgba(76, 175, 80, 0.6)' : 'rgba(76, 175, 80, 0.4)'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}>
+                <div style={{
+                  fontSize: isMobile ? '11px' : '14px',
+                  fontWeight: 'bold',
+                  color: '#4caf50',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  marginBottom: '4px'
+                }}>
+                  SINGLE MODE
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#d4a574' }}>
-                    {gameCount}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Games</div>
+                <div style={{
+                  fontSize: isMobile ? '9px' : '11px',
+                  color: 'rgba(76, 175, 80, 0.8)',
+                  textAlign: 'center',
+                  lineHeight: '1.2',
+                  display: isMobile ? 'none' : 'block'
+                }}>
+                  Classic poker • One hand • Any win pays out
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#4caf50' }}>
-                    {winCount}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Wins</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f44336' }}>
-                    {lossCount}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Losses</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 'bold', 
-                    color: winCount > lossCount ? '#4caf50' : winCount < lossCount ? '#f44336' : '#d4a574' 
-                  }}>
-                    {(() => {
-                      if (winCount === 0 && lossCount === 0) return '0.00'
-                      if (lossCount === 0) return '+∞'
-                      const ratio = winCount / lossCount
-                      const prefix = ratio >= 1 ? '+' : '-'
-                      return `${prefix}${ratio.toFixed(2)}`
-                    })()}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>W/L Ratio</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: totalProfit > 0 ? '#4caf50' : totalProfit < 0 ? '#f44336' : '#d4a574' }}>
-                    <TokenValue amount={totalProfit} />
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>Session Profit</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <EnhancedButton
-                    onClick={handleResetStats}
-                    disabled={gamba.isPlaying}
-                    variant="secondary"
-                  >
-                    Reset
-                  </EnhancedButton>
-                </div>
-            </div>
+              </div>
 
-            <GameplayFrame
-              ref={effectsRef}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                pointerEvents: 'none',
-                zIndex: 1000
-              }}
-            />
-          </>
-        )}
+              {/* Chain Mode */}
+              <div 
+                onClick={() => {
+                  setGameMode('chain')
+                  setShowModeSelection(false)
+                }}
+                style={{
+                  flex: '1',
+                  height: '100%',
+                  background: gameMode === 'chain'
+                    ? 'linear-gradient(135deg, rgba(255, 152, 0, 0.25) 0%, rgba(245, 124, 0, 0.35) 50%, rgba(255, 152, 0, 0.25) 100%)'
+                    : 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+                  borderRadius: '12px',
+                  border: `2px solid ${gameMode === 'chain' ? 'rgba(255, 152, 0, 0.6)' : 'rgba(255, 152, 0, 0.4)'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}>
+                <div style={{
+                  fontSize: isMobile ? '11px' : '14px',
+                  fontWeight: 'bold',
+                  color: '#ff9800',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  marginBottom: '4px'
+                }}>
+                  CHAIN MODE
+                </div>
+                <div style={{
+                  fontSize: isMobile ? '9px' : '11px',
+                  color: 'rgba(255, 152, 0, 0.8)',
+                  textAlign: 'center',
+                  lineHeight: '1.2',
+                  display: isMobile ? 'none' : 'block'
+                }}>
+                  Progressive builds • Must beat last hand • Higher multipliers
+                </div>
+              </div>
+
+              {/* Progressive Mode */}
+              <div 
+                onClick={() => {
+                  setGameMode('progressive')
+                  setShowModeSelection(false)
+                }}
+                style={{
+                  flex: '1',
+                  height: '100%',
+                  background: gameMode === 'progressive'
+                    ? 'linear-gradient(135deg, rgba(184, 51, 106, 0.25) 0%, rgba(136, 14, 79, 0.35) 50%, rgba(184, 51, 106, 0.25) 100%)'
+                    : 'linear-gradient(135deg, rgba(184, 51, 106, 0.15) 0%, rgba(136, 14, 79, 0.25) 50%, rgba(184, 51, 106, 0.15) 100%)',
+                  borderRadius: '12px',
+                  border: `2px solid ${gameMode === 'progressive' ? 'rgba(184, 51, 106, 0.6)' : 'rgba(184, 51, 106, 0.4)'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0 4px 16px rgba(184, 51, 106, 0.2), inset 0 1px 0 rgba(184, 51, 106, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}>
+                <div style={{
+                  fontSize: isMobile ? '11px' : '14px',
+                  fontWeight: 'bold',
+                  color: '#b8336a',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  marginBottom: '4px'
+                }}>
+                  PROGRESSIVE
+                </div>
+                <div style={{
+                  fontSize: isMobile ? '9px' : '11px',
+                  color: 'rgba(184, 51, 106, 0.8)',
+                  textAlign: 'center',
+                  lineHeight: '1.2',
+                  display: isMobile ? 'none' : 'block'
+                }}>
+                  Compound wins • Straight+ only • Maximum risk & reward
+                </div>
+              </div>
+            </GameControlsSection>
+          ) : (
+            /* Mode-Specific GameControlsSection */
+            <GameControlsSection>
+              {/* Back Button */}
+              <div 
+                onClick={() => !inProgress && setShowModeSelection(true)}
+                style={{
+                  flex: isMobile ? '1' : '0 0 120px',
+                  height: '100%',
+                  background: inProgress 
+                    ? 'linear-gradient(135deg, rgba(100, 100, 100, 0.15) 0%, rgba(80, 80, 80, 0.25) 50%, rgba(100, 100, 100, 0.15) 100%)'
+                    : 'linear-gradient(135deg, rgba(139, 90, 158, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(139, 90, 158, 0.15) 100%)',
+                  borderRadius: '12px',
+                  border: inProgress 
+                    ? '2px solid rgba(100, 100, 100, 0.4)'
+                    : '2px solid rgba(139, 90, 158, 0.4)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: inProgress 
+                    ? '0 2px 8px rgba(100, 100, 100, 0.1), inset 0 1px 0 rgba(100, 100, 100, 0.2)'
+                    : '0 4px 16px rgba(139, 90, 158, 0.2), inset 0 1px 0 rgba(139, 90, 158, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  cursor: inProgress ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  opacity: inProgress ? 0.5 : 1
+                }}>
+                <div style={{
+                  fontSize: isMobile ? '11px' : '14px',
+                  fontWeight: 'bold',
+                  color: inProgress ? '#666' : '#8b5a9e',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  marginBottom: '2px'
+                }}>
+                  ←
+                </div>
+                <div style={{
+                  fontSize: isMobile ? '9px' : '11px',
+                  color: inProgress ? 'rgba(100, 100, 100, 0.7)' : 'rgba(139, 90, 158, 0.8)',
+                  textAlign: 'center'
+                }}>
+                  {inProgress ? 'LOCKED' : 'BACK'}
+                </div>
+              </div>
+
+              {/* Mode-Specific Stats */}
+              {gameMode === 'single' && (
+                <>
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(76, 175, 80, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#4caf50',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      HAND TYPE
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(76, 175, 80, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {currentHandType || 'Deal Cards'}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(255, 152, 0, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#ff9800',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      MULTIPLIER
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(255, 152, 0, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {currentMultiplier ? `${currentMultiplier.toFixed(2)}x` : '-'}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(21, 101, 192, 0.25) 50%, rgba(33, 150, 243, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(33, 150, 243, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(33, 150, 243, 0.2), inset 0 1px 0 rgba(33, 150, 243, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#2196f3',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      WIN CHANCE
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(33, 150, 243, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {Math.round((1 - (BET_ARRAYS_V2['multipoker-v2'].calculateBetArray().filter(x => x === 0).length / BET_ARRAYS_V2['multipoker-v2'].calculateBetArray().length)) * 100)}%
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: poolExceeded 
+                      ? 'linear-gradient(135deg, rgba(255, 0, 102, 0.25) 0%, rgba(220, 0, 85, 0.35) 50%, rgba(255, 0, 102, 0.25) 100%)'
+                      : 'linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(156, 39, 176, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: poolExceeded 
+                      ? '2px solid rgba(255, 0, 102, 0.6)' 
+                      : '2px solid rgba(156, 39, 176, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: poolExceeded 
+                      ? '0 4px 16px rgba(255, 0, 102, 0.3), inset 0 1px 0 rgba(255, 0, 102, 0.4)' 
+                      : '0 4px 16px rgba(156, 39, 176, 0.2), inset 0 1px 0 rgba(156, 39, 176, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: poolExceeded ? '#ff0066' : '#9c27b0',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      {poolExceeded ? 'POOL LIMIT' : 'CURRENT WAGER'}
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(156, 39, 176, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      <TokenValue amount={initialWager} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {gameMode === 'chain' && (
+                <>
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(255, 152, 0, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#ff9800',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      CHAIN LENGTH
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(255, 152, 0, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {chainLength}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(184, 51, 106, 0.15) 0%, rgba(136, 14, 79, 0.25) 50%, rgba(184, 51, 106, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(184, 51, 106, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(184, 51, 106, 0.2), inset 0 1px 0 rgba(184, 51, 106, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#b8336a',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      LAST HAND
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(184, 51, 106, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {lastHandRank >= 0 ? BET_ARRAYS_V2['multipoker-v2'].getHandName(lastHandRank) : 'None'}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(21, 101, 192, 0.25) 50%, rgba(33, 150, 243, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(33, 150, 243, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(33, 150, 243, 0.2), inset 0 1px 0 rgba(33, 150, 243, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#2196f3',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      NEXT TARGET
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(33, 150, 243, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {chainLength === 0 ? 'Straight+' : lastHandRank >= 0 ? BET_ARRAYS_V2['multipoker-v2'].getHandName(Math.min(lastHandRank + 1, 8)) : 'Beat Last'}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: poolExceeded 
+                      ? 'linear-gradient(135deg, rgba(255, 0, 102, 0.25) 0%, rgba(220, 0, 85, 0.35) 50%, rgba(255, 0, 102, 0.25) 100%)'
+                      : 'linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(156, 39, 176, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: poolExceeded 
+                      ? '2px solid rgba(255, 0, 102, 0.6)' 
+                      : '2px solid rgba(156, 39, 176, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: poolExceeded 
+                      ? '0 4px 16px rgba(255, 0, 102, 0.3), inset 0 1px 0 rgba(255, 0, 102, 0.4)' 
+                      : '0 4px 16px rgba(156, 39, 176, 0.2), inset 0 1px 0 rgba(156, 39, 176, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#9c27b0',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      COMPOUND WAGER
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(156, 39, 176, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      <TokenValue amount={chainLength > 0 ? currentBalance : initialWager} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {gameMode === 'progressive' && (
+                <>
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(184, 51, 106, 0.15) 0%, rgba(136, 14, 79, 0.25) 50%, rgba(184, 51, 106, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(184, 51, 106, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(184, 51, 106, 0.2), inset 0 1px 0 rgba(184, 51, 106, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#b8336a',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      PROGRESSION
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(184, 51, 106, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      Level {chainLength + 1}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(255, 152, 0, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#ff9800',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      RISK LEVEL
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(255, 152, 0, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {chainLength === 0 ? 'High' : chainLength < 3 ? 'Extreme' : 'Maximum'}
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.15) 0%, rgba(194, 24, 91, 0.25) 50%, rgba(233, 30, 99, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(233, 30, 99, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(233, 30, 99, 0.2), inset 0 1px 0 rgba(233, 30, 99, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#e91e63',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      MIN HAND
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(233, 30, 99, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      Straight+
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: 'linear-gradient(135deg, rgba(103, 58, 183, 0.15) 0%, rgba(81, 45, 168, 0.25) 50%, rgba(103, 58, 183, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(103, 58, 183, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 16px rgba(103, 58, 183, 0.2), inset 0 1px 0 rgba(103, 58, 183, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#673ab7',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      MAX MULTIPLIER
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(103, 58, 183, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      {maxMultiplier}x
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: isMobile ? '1' : '0 0 140px',
+                    height: '100%',
+                    background: poolExceeded 
+                      ? 'linear-gradient(135deg, rgba(255, 0, 102, 0.25) 0%, rgba(220, 0, 85, 0.35) 50%, rgba(255, 0, 102, 0.25) 100%)'
+                      : 'linear-gradient(135deg, rgba(0, 150, 136, 0.15) 0%, rgba(0, 121, 107, 0.25) 50%, rgba(0, 150, 136, 0.15) 100%)',
+                    borderRadius: '12px',
+                    border: poolExceeded 
+                      ? '2px solid rgba(255, 0, 102, 0.6)' 
+                      : '2px solid rgba(0, 150, 136, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: poolExceeded 
+                      ? '0 4px 16px rgba(255, 0, 102, 0.3), inset 0 1px 0 rgba(255, 0, 102, 0.4)' 
+                      : '0 4px 16px rgba(0, 150, 136, 0.2), inset 0 1px 0 rgba(0, 150, 136, 0.3)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '11px' : '14px',
+                      fontWeight: 'bold',
+                      color: '#009688',
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                      marginBottom: '4px'
+                    }}>
+                      COMPOUND WAGER
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '16px' : '18px',
+                      color: 'rgba(0, 150, 136, 0.9)',
+                      fontWeight: '600'
+                    }}>
+                      <TokenValue amount={chainLength > 0 ? currentBalance : initialWager} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </GameControlsSection>
+          )}
+
+          <GameplayFrame
+            ref={effectsRef}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: 'none',
+              zIndex: 1000
+            }}
+          />
         </div>
       </GambaUi.Portal>
 
@@ -1093,7 +1630,7 @@ export default function MultiPokerV2() {
               wager={initialWager}
               setWager={setInitialWager}
               onPlay={getPlayAction()}
-              playDisabled={revealing || !pool || (gamba.isPlaying)}
+              playDisabled={revealing || !pool || gamba.isPlaying || poolExceeded}
               playText={getPlayText()}
             >
               {canCashOut && (
@@ -1110,9 +1647,25 @@ export default function MultiPokerV2() {
               wager={initialWager}
               setWager={setInitialWager}
               onPlay={getPlayAction()}
-              playDisabled={revealing || !pool || (gamba.isPlaying)}
+              playDisabled={revealing || !pool || gamba.isPlaying || poolExceeded}
               playText={getPlayText()}
-            />
+            >
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+              {canCashOut && (
+                <EnhancedButton 
+                  variant="danger"
+                  onClick={handleCashOut}
+                >
+                  Cash Out (<TokenValue amount={totalProfit} />)
+                </EnhancedButton>
+              )}
+              <EnhancedPlayButton 
+                onClick={getPlayAction()} 
+                disabled={revealing || !pool || gamba.isPlaying || poolExceeded}
+              >
+                {getPlayText()}
+              </EnhancedPlayButton>
+            </DesktopControls>
           </>
         )}
       </GambaUi.Portal>

@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
 
-/**
- * Returns { compact, screenTooSmall, mobile } for responsive layouts.
- * compact: true if <= 1024px (tablet and below)
- * screenTooSmall: true if <= 480px (small mobile devices)
- * mobile: true if <= 700px (mobile devices)
- */
 export function useIsCompact() {
   const [compact, setCompact] = useState(() => window.innerWidth <= 1024);
   const [screenTooSmall, setScreenTooSmall] = useState(() => window.innerWidth <= 480);

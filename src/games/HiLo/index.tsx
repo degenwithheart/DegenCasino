@@ -481,7 +481,7 @@ export default function HiLo(props: HiLoConfig) {
               setWager={setInitialWager}
               onPlay={handleStart}
               playDisabled={!option || initialWager > maxWagerForBet}
-              playText={progressive ? "Start Progressive" : "Start"}
+              playText={progressive ? "Start" : "Start"}
             >
               <SwitchControl
                 label="Progressive Mode"
@@ -503,7 +503,7 @@ export default function HiLo(props: HiLoConfig) {
                 onChange={setProgressive}
               />
               <EnhancedPlayButton disabled={!option || initialWager > maxWagerForBet} onClick={handleStart}>
-                {progressive ? "Start Progressive" : "Start"}
+                Start
               </EnhancedPlayButton>
               {initialWager > maxWagerForBet && (
                 <EnhancedButton onClick={() => setInitialWager(maxWagerForBet)}>
@@ -519,7 +519,7 @@ export default function HiLo(props: HiLoConfig) {
               setWager={setInitialWager}
               onPlay={progressive ? play : handleStart}
               playDisabled={progressive ? !option : false}
-              playText={progressive ? "Continue" : "Play Again"}
+              playText={progressive ? "Continue" : "Again"}
             />
             
             <DesktopControls>
@@ -536,7 +536,7 @@ export default function HiLo(props: HiLoConfig) {
                 </EnhancedButton>
               )}
               <EnhancedPlayButton disabled={progressive ? !option : false} onClick={progressive ? play : handleStart}>
-                {progressive ? "Continue" : "Play Again"}
+                {progressive ? "Continue" : "Again"}
               </EnhancedPlayButton>
             </DesktopControls>
           </>

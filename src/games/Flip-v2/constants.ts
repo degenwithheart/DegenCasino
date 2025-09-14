@@ -31,7 +31,7 @@ export const ROMANTIC_COLORS = {
 
 // Game configuration
 export const FLIP_SETTINGS = {
-  MAX_COINS: 10,
+  MAX_COINS: 8,
   MIN_COINS: 1,
   DEFAULT_COINS: 1,
   DEFAULT_TARGET: 1

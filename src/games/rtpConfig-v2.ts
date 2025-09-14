@@ -23,15 +23,25 @@ export type GameV2Key = keyof typeof RTP_TARGETS_V2
 // Game configurations for V2 games
 export const BET_ARRAYS_V2 = {
   'dice-v2': {
-    OUTCOMES: 12,
-    outcomes: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-    calculateBetArray: () => {
-      const target = 0.96 // 96% RTP target
-      return [0, 0, 0, 0, 0, 0, 1.8, 3.6, 5.4, 7.2, 9.0, 11.0] // Multipliers for under values 1-11
+    OUTCOMES: 100, // 0-99 like original dice
+    outcomes: Array.from({length: 100}, (_, i) => i), // [0, 1, 2, ..., 99]
+    calculateBetArray: (rollUnder: number) => {
+      // Generate bet array for a given roll-under value (1-99)
+      const OUTCOMES = 100;
+      const betArray = Array(OUTCOMES).fill(0);
+      if (rollUnder > 0 && rollUnder <= 100) {
+        const winProbability = rollUnder / 100;
+        const fairMultiplier = 1 / winProbability;
+        const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['dice-v2'];
+        // Set winning outcomes (0 to rollUnder-1)
+        for (let i = 0; i < rollUnder; i++) {
+          betArray[i] = houseMultiplier;
+        }
+      }
+      return betArray;
     },
     outcomeToText: (outcome: number) => {
-      const labels = ['12 (Impossible)', '11', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1']
-      return labels[outcome] || 'Unknown'
+      return `Roll: ${outcome}`
     }
   },
   

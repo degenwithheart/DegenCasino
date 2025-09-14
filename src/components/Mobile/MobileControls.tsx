@@ -5,6 +5,7 @@ import { tokenPriceService } from '../../services/TokenPriceService';
 import PriceIndicator from "../UI/PriceIndicator";
 import { useTheme } from '../../themes/ThemeContext';
 import { EnhancedWagerInput, EnhancedPlayButton } from '../Game/EnhancedGameControls';
+import Slider from '../../games/Dice-v2/Slider';
 
 // Romantic animations for the mobile experience
 const romanticPulse = keyframes`
@@ -285,17 +286,22 @@ const PlaySection = styled.div<{ $theme?: any }>`
 `;
 
 const PlayButton = styled.button<{ $theme?: any }>`
-  width: 100%;
+  width: 56px;
   height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  max-width: 56px;
+  max-height: 56px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+    padding: 0;
   background: ${({ $theme }) => $theme?.colors?.primary || 'linear-gradient(135deg, var(--deep-crimson-rose) 0%, var(--soft-purple-twilight) 30%, var(--love-letter-gold) 100%)'};
   border: 2px solid ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
   color: ${({ $theme }) => $theme?.colors?.text || 'var(--deep-romantic-night)'};
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
   border-radius: 18px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -333,6 +339,11 @@ const PlayButton = styled.button<{ $theme?: any }>`
   & > * {
     position: relative;
     z-index: 2;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   &:hover:not(:disabled) {
@@ -968,7 +979,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           
           <PlaySection $theme={currentTheme}>
             <PlayButton $theme={currentTheme} onClick={handlePlayClick} disabled={playDisabled}>
-              {playText}
+              <span>{playText}</span>
             </PlayButton>
           </PlaySection>
         </TopRow>
@@ -1143,7 +1154,7 @@ export const DesktopControls: React.FC<{
       {/* Use individual Enhanced components for desktop */}
       <EnhancedWagerInput value={wager} onChange={setWager} />
       <EnhancedPlayButton onClick={onPlay} disabled={playDisabled}>
-        {playText}
+        <span>{playText}</span>
       </EnhancedPlayButton>
     </DesktopControlsWrapper>
   );

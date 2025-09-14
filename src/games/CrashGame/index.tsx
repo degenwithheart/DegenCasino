@@ -1,4 +1,4 @@
-import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import React from 'react'
 import styled from 'styled-components'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl } from '../../components'
@@ -30,7 +30,27 @@ export default function CrashGame() {
   const [currentMultiplier, setCurrentMultiplier] = React.useState(0)
   const [rocketState, setRocketState] = React.useState<'idle' | 'win' | 'crash'>('idle')
   const game = GambaUi.useGame()
+  const pool = useCurrentPool()
   const sound = useSound({ music: SOUND, crash: CRASH_SOUND, win: WIN_SOUND })
+
+  // Pool restrictions
+  const maxMultiplier = React.useMemo(() => {
+    return 1000 // Default high max for crash games
+  }, [])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  const maxPayout = wager * multiplierTarget
+  const poolExceeded = maxPayout > pool.maxPayout
+
+  // useEffect to clamp wager like Plinko
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [maxWagerForPool, wager, setWager])
   
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
@@ -147,6 +167,7 @@ export default function CrashGame() {
           <MultiplierText color={multiplierColor}>
             {currentMultiplier.toFixed(2)}x
           </MultiplierText>
+          
           <Rocket style={getRocketStyle()} />
         </ScreenWrapper>
         <GameplayFrame 
@@ -168,7 +189,7 @@ export default function CrashGame() {
           wager={wager}
           setWager={setWager}
           onPlay={play}
-          playDisabled={false}
+          playDisabled={poolExceeded}
           playText="Play"
         >
           <SliderControl
@@ -191,7 +212,7 @@ export default function CrashGame() {
               onChange={setMultiplierTarget}
             />
           </div>
-          <EnhancedPlayButton onClick={play}>
+          <EnhancedPlayButton onClick={play} disabled={poolExceeded}>
             Play
           </EnhancedPlayButton>
         </CrashDesktopControls>

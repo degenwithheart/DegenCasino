@@ -44,35 +44,18 @@ function Stats({ wager }: { wager: number }) {
 
   const multiplier = Math.max(...bet.value)
   const maxPayout = multiplier * wager
-  const maxPayoutExceeded = maxPayout > pool.maxPayout
   const balanceExceeded = wager > (balance.balance + balance.bonusBalance)
 
   return (
     <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <div>
-        {balanceExceeded ? (
-          <span style={{ color: '#ff0066' }}>
-            TOO HIGH
-          </span>
-        ) : (
-          <>
-            <TokenValue amount={wager} />
-          </>
-        )}
+        <TokenValue amount={wager} />
         <div>Wager</div>
       </div>
       <div>
         <div>
-          {maxPayoutExceeded ? (
-            <span style={{ color: '#ff0066' }}>
-              TOO HIGH
-            </span>
-          ) : (
-            <>
-              <TokenValue amount={maxPayout} />
-              ({multiplier.toFixed(2)}x)
-            </>
-          )}
+          <TokenValue amount={maxPayout} />
+          ({multiplier.toFixed(2)}x)
         </div>
         <div>Potential win</div>
       </div>
@@ -105,6 +88,25 @@ export default function Roulette() {
     lose: SOUND_LOSE,
     play: SOUND_PLAY,
   })
+
+  // Pool restrictions
+  const maxMultiplier = React.useMemo(() => {
+    return Math.max(...bet.value)
+  }, [])
+
+  const maxWagerForPool = React.useMemo(() => {
+    return pool.maxPayout / maxMultiplier
+  }, [pool.maxPayout, maxMultiplier])
+
+  // Clamp wager to not exceed pool limits
+  React.useEffect(() => {
+    if (wager > maxWagerForPool) {
+      setWager(maxWagerForPool)
+    }
+  }, [wager, maxWagerForPool, setWager])
+
+  const maxPayout = wager * maxMultiplier
+  const poolExceeded = maxPayout > pool.maxPayout
 
   // Calculate actual wager from chip placements
   const actualWager = totalChipValue.value * token.baseWager / 10_000
@@ -150,9 +152,8 @@ export default function Roulette() {
     }
   }
 
-  const multiplier = Math.max(...bet.value)
-  const maxPayout = multiplier * actualWager
-  const maxPayoutExceeded = maxPayout > pool.maxPayout
+  const actualMultiplier = Math.max(...bet.value)
+  const actualMaxPayout = actualMultiplier * actualWager
   const balanceExceeded = actualWager > (balance.balance + balance.bonusBalance)
 
   const play = async () => {
@@ -277,7 +278,7 @@ export default function Roulette() {
           wager={wager}
           setWager={setWager}
           onPlay={play}
-          playDisabled={!actualWager || balanceExceeded || maxPayoutExceeded || gamba.isPlaying || phase !== 'betting'}
+          playDisabled={!actualWager || balanceExceeded || poolExceeded || gamba.isPlaying || phase !== 'betting'}
           playText="Spin"
         >
           <GambaUi.Select
@@ -296,10 +297,10 @@ export default function Roulette() {
           wager={wager}
           setWager={setWager}
           onPlay={play}
-          playDisabled={!actualWager || balanceExceeded || maxPayoutExceeded || gamba.isPlaying || phase !== 'betting'}
+          playDisabled={!actualWager || balanceExceeded || poolExceeded || gamba.isPlaying || phase !== 'betting'}
           playText="Spin"
         >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={Math.max(...bet.value)} />
+          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
           <GambaUi.Select
             options={CHIPS}
             value={selectedChip.value}
@@ -317,7 +318,7 @@ export default function Roulette() {
             Clear
           </GambaUi.Button>
           <EnhancedPlayButton 
-            disabled={!actualWager || balanceExceeded || maxPayoutExceeded || phase !== 'betting'} 
+            disabled={!actualWager || balanceExceeded || poolExceeded || phase !== 'betting'} 
             onClick={play}
           >
             {phase === 'betting' ? 'Spin' : phase === 'spinning' ? 'Spinning...' : 'Result'}
