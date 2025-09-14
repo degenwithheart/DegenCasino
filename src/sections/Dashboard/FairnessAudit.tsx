@@ -94,7 +94,7 @@ import { HILO_CONFIG } from '../../games/rtpConfig'
 import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
 import { ROULETTE_CONFIG } from '../../games/rtpConfig'
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
-import { getBetArray as getProgressivePokerBetArray } from '../../games/MultiPoker/betArray'
+import { getBetArray as getProgressivePokerBetArray } from '../../games/MultiPoker-v2/betArray'
 import { ALL_GAMES } from '../../games/allGames'
 
 // NOTE: This audit tests the actual game implementations that players experience,

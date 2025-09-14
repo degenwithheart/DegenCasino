@@ -18,10 +18,22 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       name: 'Dice',
       background: '#000000CC',
       image: '/webp/games/dice.webp',
-      description: `The dice is an ancient confessional. Each slide of the bar is a whispered prayer, a bargain struck with fate in silence. When the cube tumbles, it does not simply fall — it sings, it judges, it reveals the hidden truth of risk. The higher you aim, the sweeter the promise of reward, yet the sharper the sting of ruin. Here, fortune is not loud or brash; she is subtle, like a lover who tests your patience. Each roll is fragile and fleeting, a heartbeat between triumph and collapse, and you are left holding your breath as if waiting for destiny to whisper its answer. Dice is not just a game of numbers, but a ritual of surrender, an intimate embrace with chance itself.`,
+      description: `Set your target, slide the bar, and dare the dice to fall beneath your chosen threshold. This is not mere chance — it is precision gambling, where you control the odds and the cube obeys only the laws of probability. Each roll under your number is a victory whispered by mathematics itself. The lower you set your target, the sweeter the multiplier becomes, yet the rarer the triumph. Here, fortune favors the bold who understand that sometimes winning means aiming low, that humility in numbers can birth the greatest rewards. Roll under is the art of restraint rewarded, where knowing when to be humble becomes the path to glory.`,
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Dice')),
+  },
+  {
+    id: 'dice-v2',
+    live: 'up',
+    meta: {
+      name: 'Dice v2',
+      background: '#000000CC',
+      image: '/webp/games/dice.webp',
+      description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./Dice-v2')),
   },
   {
     id: 'slots',
@@ -49,15 +61,15 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'flip',
-    live: 'down',
+    live: 'up',
     meta: {
       name: 'Flip',
       background: '#000000CC',
       image: '/webp/games/flip.webp',
-      description: `A coin spins in the air, silver caught between two truths. Heads or tails, love or loss, everything or nothing — it is the simplest duel with destiny, yet the most unforgiving. In that suspended arc, the world falls silent, breath held, heart clenched, waiting to see which way fortune leans. There is no room for strategy here, no shield of skill. Flip is raw instinct distilled to its purest form, a reminder that sometimes life comes down to a single choice, a single moment, a single fall. When the coin lands, so too does your fate — fast, final, and absolute. It is not just chance; it is the poetry of risk made visible.`,
+      description: `Launch a constellation of coins into the ethereal dance of probability, each one spinning its own tale of heads and tails. Set your target count and watch as multiple fates unfold simultaneously in the air above you, their golden surfaces catching light like falling stars. This is not one flip but a symphony of flips, each coin a note in a binomial ballad where mathematics becomes poetry. The more coins you dare to toss, the more complex the harmony becomes, yet the sweeter the potential reward. Choose your target wisely — for in this aerial ballet of chance, precision is rewarded and greed is punished. When they all settle, they speak in unison the language of calculated risk.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./Flip')),
+    app: React.lazy(() => import('./Flip-v2')),
   },
   {
     id: 'roulette',
@@ -93,7 +105,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       description: `The board lies still, but beneath it sleeps chaos. Each tile you touch could be a kiss of fortune or the sting of betrayal. Twenty-five choices stretch before you, each one daring you deeper into the labyrinth. With every reveal, the silence grows heavier, your breath shorter. Push forward and your winnings blossom, but so too does the shadow of loss. Mines is not just a puzzle — it is a lover’s test, demanding courage yet punishing recklessness. To succeed, you must balance greed with grace, bravery with restraint. And even when you fall, you’ll find yourself drawn back, because danger, like desire, is impossible to resist.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./Mines')),
+    app: React.lazy(() => import('./Mines-v2')),
   },
   {
     id: 'plinko',
@@ -121,15 +133,15 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'blackjack',
-    live: 'down',
+    live: 'up',
     meta: {
       name: 'BlackJack',
       background: '#000000CC',
       image: '/webp/games/blackjack.webp',
-      description: `Beneath the low light, you and the dealer engage in a silent war dressed as civility. Twenty-one is the dream, the edge of perfection, but each card is both weapon and wound. Will you hit, risking everything for one more breath of hope, or will you stand, daring fate to favor restraint? Bluff with your eyes, calculate with your heart, and pray the dealer falters before you do. Blackjack is not just arithmetic; it is intimacy, tension, and duel woven into velvet and smoke. Every hand is a heartbeat. Every choice, a confession. And every victory, no matter how small, feels like seduction.`,
+      description: `Twenty-one is the sacred number, the delicate balance between ambition and ruin. Each card dealt is a whispered promise, a step closer to perfection or a stumble toward collapse. Hit and you chase the dream of completion, stand and you trust in what fate has already given you. The dealer waits with infinite patience, their hidden card a secret that could shatter your confidence or crown your courage. This is not just mathematics — it is psychology made manifest, where knowing when to be satisfied is as crucial as knowing when to risk it all. In BlackJack, victory belongs not to the lucky, but to those who understand that sometimes the greatest triumph is knowing when you have enough.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./BlackJack')),
+    app: React.lazy(() => import('./BlackJack-v2')),
   },
   {
     id: 'multipoker',
@@ -138,9 +150,9 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       name: 'Multi Poker',
       background: '#000000CC',
       image: '/webp/games/multi-poker.webp',
-      description: `Three ways to play, one deck of destiny. Choose your path: Single Hand for classic poker thrills, Chain Mode where each hand must surpass the last or you lose everything, or Progressive Mode where any winning hand continues your streak. Start simple with pairs and straights, or dare the ultimate challenge of climbing the poker ladder — Two Pair, Three of a Kind, Full House, and beyond. Every mode offers its own rhythm of risk and reward, from the instant gratification of single hands to the heart-pounding tension of maintaining an unbroken chain. This is poker reimagined, where your strategy shapes your story and every deal writes a new chapter of fortune.`,
+      description: `Five cards arrive like old friends bearing secrets, each hand a story waiting to unfold across multiple stages of revelation. This is poker reimagined as a progressive journey where each round builds upon the last, each decision echoing through future possibilities. Watch as pairs bloom into trips, trips ascend to straights, and straights reach toward the holy grail of royal flush. The beauty lies not in a single perfect hand, but in the gradual construction of victory through patience and wisdom. Here, poker becomes architecture — each card placed with intention, each hold and fold a brushstroke in a masterpiece of calculated risk. Multi Poker rewards not just luck, but the art of progression itself.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./MultiPoker')),
+    app: React.lazy(() => import('./MultiPoker-v2')),
   },
 ]

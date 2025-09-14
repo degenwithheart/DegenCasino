@@ -19,17 +19,17 @@ const LoadingText = styled.div`
 
 // Lazy load all games
 const lazyGames = {
-  blackjack: lazy(() => import('../../games/BlackJack')),
+  blackjack: lazy(() => import('../../games/BlackJack-v2')),
   plinko: lazy(() => import('../../games/Plinko')),
   'plinko-race': lazy(() => import('../../games/PlinkoRace')),
   roulette: lazy(() => import('../../games/Roulette')),
   slots: lazy(() => import('../../games/Slots')),
-  mines: lazy(() => import('../../games/Mines')),
+  mines: lazy(() => import('../../games/Mines-v2')),
   crash: lazy(() => import('../../games/CrashGame')),
-  flip: lazy(() => import('../../games/Flip')),
+  flip: lazy(() => import('../../games/Flip-v2')),
   dice: lazy(() => import('../../games/Dice')),
   hilo: lazy(() => import('../../games/HiLo')),
-  'progressive-poker': lazy(() => import('../../games/MultiPoker')),
+  'progressive-poker': lazy(() => import('../../games/MultiPoker-v2')),
 };
 
 interface LazyGameLoaderProps {
