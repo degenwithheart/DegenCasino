@@ -30,6 +30,7 @@ import {
   SlotItem,
 } from './constants'
 import { generateBetArray, getSlotCombination, getWinningPaylines } from './utils'
+import { SLOTS_CONFIG } from '../rtpConfig'
 
 export default function Slots() {
   const game = GambaUi.useGame()
@@ -114,7 +115,7 @@ export default function Slots() {
   const bet = React.useMemo(
     () => {
       // Use rtpConfig to generate proper bet array based on pool constraints
-      const cappedMaxPayout = Math.min(pool.maxPayout, wager * 7)
+      const cappedMaxPayout = Math.min(pool.maxPayout, wager * Math.max(...SLOTS_CONFIG.betArray))
       return generateBetArray(cappedMaxPayout, wager)
     },
     [pool.maxPayout, wager],

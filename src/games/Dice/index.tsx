@@ -23,7 +23,7 @@ export default function Dice() {
   const [wager, setWager] = useWagerInput()
   const pool = useCurrentPool()
   const [resultIndex, setResultIndex] = React.useState(-1)
-  const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(100 / 2))
+  const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(DICE_CONFIG.OUTCOMES / 2))
   
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
@@ -38,8 +38,8 @@ export default function Dice() {
     tick: SOUND_TICK,
   })
 
-  const odds = Math.floor((rollUnderIndex / 100) * 100)
-  const multiplier = Number(BigInt(100 * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
+  const odds = Math.floor((rollUnderIndex / DICE_CONFIG.OUTCOMES) * DICE_CONFIG.OUTCOMES)
+  const multiplier = Number(BigInt(DICE_CONFIG.OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
 
   const bet = React.useMemo(() => outcomes(odds), [rollUnderIndex])
 
@@ -65,7 +65,7 @@ export default function Dice() {
     // Deterministically derive the revealed number from on-chain result index
     // so there is zero client-side influence over outcome presentation.
     // We map the resultIndex into either the winning interval [0, rollUnderIndex)
-    // or the losing interval [rollUnderIndex, 100) depending on payout.
+    // or the losing interval [rollUnderIndex, OUTCOMES) depending on payout.
     const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${rollUnderIndex}`
     const rng = makeDeterministicRng(seed)
     if (win) {
@@ -88,8 +88,8 @@ export default function Dice() {
         effectsRef.current?.screenShake(1, 600) // Medium shake
       }
     } else {
-      const span = 100 - rollUnderIndex
-      const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. 99
+      const span = DICE_CONFIG.OUTCOMES - rollUnderIndex
+      const value = rollUnderIndex + Math.floor(rng() * span) // rollUnderIndex .. OUTCOMES-1
       setResultIndex(value)
       sounds.play('lose')
       
@@ -120,7 +120,7 @@ export default function Dice() {
                 {/* Header Stats */}
                 <div className="dice-header">
                   <div className="stat-card">
-                    <div className="stat-value">{(rollUnderIndex / 100 * 100).toFixed(0)}%</div>
+                    <div className="stat-value">{(rollUnderIndex / DICE_CONFIG.OUTCOMES * 100).toFixed(0)}%</div>
                     <div className="stat-label">Win Chance</div>
                   </div>
                   <div className="stat-card highlight">
@@ -168,16 +168,16 @@ export default function Dice() {
                         ></div>
                         <div 
                           className="lose-zone" 
-                          style={{ width: `${100 - rollUnderIndex}%` }}
+                          style={{ width: `${DICE_CONFIG.OUTCOMES - rollUnderIndex}%` }}
                         ></div>
                       </div>
                       
                       {/* Slider Component */}
                       <Slider
                         disabled={gamba.isPlaying}
-                        range={[0, 100]}
+                        range={[0, DICE_CONFIG.OUTCOMES]}
                         min={1}
-                        max={100 - 5}
+                        max={DICE_CONFIG.OUTCOMES - 5}
                         value={rollUnderIndex}
                         onChange={(value) => {
                           setRollUnderIndex(value)
@@ -194,7 +194,7 @@ export default function Dice() {
                       </div>
                       <div className="label-lose">
                         <span>LOSE ZONE</span>
-                        <span>{rollUnderIndex + 2} - 100</span>
+                        <span>{rollUnderIndex + 2} - {DICE_CONFIG.OUTCOMES}</span>
                       </div>
                     </div>
                   </div>

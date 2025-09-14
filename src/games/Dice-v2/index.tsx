@@ -43,7 +43,7 @@ export default function DiceV2() {
   const [wager, setWager] = useWagerInput()
   const pool = useCurrentPool()
   const [resultIndex, setResultIndex] = useState(-1)
-  const [rollUnderIndex, setRollUnderIndex] = useState(Math.floor(100 / 2))
+  const [rollUnderIndex, setRollUnderIndex] = useState(7)
   const [isDraggingSlider, setIsDraggingSlider] = useState(false)
   const [hasPlayed, setHasPlayed] = useState(false)
   const [lastGameResult, setLastGameResult] = useState<'win' | 'lose' | null>(null)
@@ -59,7 +59,7 @@ export default function DiceV2() {
 
     if (canvasX >= sliderLeft && canvasX <= sliderRight) {
       const percentage = (canvasX - sliderLeft) / sliderWidth
-      const newValue = Math.max(1, Math.min(99, Math.round(percentage * 98) + 1))
+      const newValue = Math.max(1, Math.min(BET_ARRAYS_V2['dice-v2'].OUTCOMES - 1, Math.round(percentage * (BET_ARRAYS_V2['dice-v2'].OUTCOMES - 2)) + 1))
       setRollUnderIndex(newValue)
     }
   }, [])
@@ -226,8 +226,8 @@ export default function DiceV2() {
     tick: SOUND_TICK,
   })
 
-  const odds = Math.floor((rollUnderIndex / 100) * 100)
-  const multiplier = Number(BigInt(100 * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
+  const odds = Math.floor((rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES) * BET_ARRAYS_V2['dice-v2'].OUTCOMES)
+  const multiplier = Number(BigInt(BET_ARRAYS_V2['dice-v2'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
 
   const bet = React.useMemo(() => BET_ARRAYS_V2['dice-v2'].calculateBetArray(), [rollUnderIndex])
 
@@ -621,7 +621,7 @@ export default function DiceV2() {
     ctx.strokeRect(sliderLeft, sliderY - sliderHeight / 2, sliderWidth, sliderHeight)
 
     // Slider handle position
-    const handleX = sliderLeft + ((rollUnderIndex - 1) / 98) * sliderWidth
+    const handleX = sliderLeft + ((rollUnderIndex - 1) / (BET_ARRAYS_V2['dice-v2'].OUTCOMES - 2)) * sliderWidth
 
     // Slider handle
     const handleGradient = ctx.createRadialGradient(handleX, sliderY, 0, handleX, sliderY, handleRadius)
@@ -723,7 +723,7 @@ export default function DiceV2() {
       luckyNumber = Math.floor(rng() * rollUnderIndex)
     } else {
       // Losing numbers are rollUnderIndex and above
-      luckyNumber = rollUnderIndex + Math.floor(rng() * (100 - rollUnderIndex))
+      luckyNumber = rollUnderIndex + Math.floor(rng() * (BET_ARRAYS_V2['dice-v2'].OUTCOMES - rollUnderIndex))
     }
 
     console.log('🎲 DICE RESULT:', {
@@ -856,7 +856,7 @@ export default function DiceV2() {
                 Dice v2
               </div>
               <div style={{ fontSize: '12px', color: 'rgba(212, 165, 116, 0.8)' }}>
-                Roll Under • {(rollUnderIndex / 100 * 100).toFixed(0)}% • {multiplier.toFixed(2)}x
+                Roll Under • {(rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES * 100).toFixed(0)}% • {multiplier.toFixed(2)}x
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>

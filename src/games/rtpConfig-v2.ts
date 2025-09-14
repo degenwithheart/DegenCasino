@@ -23,6 +23,7 @@ export type GameV2Key = keyof typeof RTP_TARGETS_V2
 // Game configurations for V2 games
 export const BET_ARRAYS_V2 = {
   'dice-v2': {
+    OUTCOMES: 12,
     outcomes: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
     calculateBetArray: () => {
       const target = 0.96 // 96% RTP target
