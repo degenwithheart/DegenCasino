@@ -61,7 +61,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'flip',
-    live: 'up',
+    live: 'down',
     meta: {
       name: 'Flip',
       background: '#000000CC',
