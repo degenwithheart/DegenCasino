@@ -2,7 +2,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -950,22 +950,7 @@ export default function MultiPokerV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          <GameStatsHeader
-            gameName="MultiPoker v2"
-            gameMode={gameMode === 'single' ? 'Single Play • 99.5% RTP' : 
-                     gameMode === 'chain' ? 'Chain Mode • Progressive' : 
-                     'Progressive • Compound'}
-            stats={{
-              gamesPlayed: gameCount,
-              wins: winCount,
-              losses: lossCount,
-              sessionProfit: totalProfit
-            }}
-            onReset={handleResetStats}
-            theme="gold"
-            disabled={gamba.isPlaying}
-            isMobile={isMobile}
-          />
+          {/* Stats header removed - now rendered outside portal */}
 
           {/* Game Canvas */}
           <canvas 

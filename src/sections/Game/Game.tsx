@@ -87,7 +87,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
 
-import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal, FullscreenPortal } from '../../components'
+import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal, FullscreenPortal, GameStatsHeader } from '../../components'
 import { GameScalingProvider } from '../../contexts/GameScalingContext'
 
 // Direct import of Icon object from the Icon file
@@ -810,17 +810,22 @@ function CustomRenderer() {
             ) : null}
             <GambaUi.PortalTarget target="error" />
             {ready && (
-              <GameScalingProvider
-                options={{
-                  minHeight: 280,
-                  maxHeight: 900,
-                  controlsReservedSpace: 120,
-                  headerReservedSpace: 60,
-                  aggressiveScaling: true,
-                }}
-              >
-                <GambaUi.PortalTarget target="screen" />
-              </GameScalingProvider>
+              <>
+                {/* Stats header as separate portal area above screen */}
+                <GambaUi.PortalTarget target="stats" />
+                
+                <GameScalingProvider
+                  options={{
+                    minHeight: 280,
+                    maxHeight: 900,
+                    controlsReservedSpace: 120,
+                    headerReservedSpace: 60,
+                    aggressiveScaling: true,
+                  }}
+                >
+                  <GambaUi.PortalTarget target="screen" />
+                </GameScalingProvider>
+              </>
             )}
           </Screen>
           {/* Portal Safety Monitor - actively prevents unsafe sizing */}

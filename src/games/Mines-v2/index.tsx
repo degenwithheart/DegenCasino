@@ -3,7 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -365,20 +365,10 @@ export default function MinesV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          <GameStatsHeader
-            gameName="Mines v2"
-            gameMode="Strategic Mine Field • Variable RTP"
-            stats={stats}
-            onReset={resetStats}
-            theme="purple"
-            disabled={gamba.isPlaying}
-            isMobile={isMobile}
-          />
-
-          {/* Canvas for game UI */}
+          {/* Canvas for game UI - now starts from top since header is outside */}
           <div style={{
             position: 'absolute',
-            top: '140px',
+            top: '20px',
             left: '20px',
             right: '20px',
             bottom: '120px', // Leave space for controls below

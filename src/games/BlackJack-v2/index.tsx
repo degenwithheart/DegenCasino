@@ -3,7 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -569,34 +569,19 @@ export default function BlackJackV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          <GameStatsHeader
-            gameName="BlackJack v2"
-            gameMode="Canvas 21 • 97% RTP"
-            stats={{
-              gamesPlayed: gameCount,
-              wins: winCount,
-              losses: lossCount,
-              sessionProfit: totalProfit
-            }}
-            onReset={resetSession}
-            theme="gold"
-            disabled={gamba.isPlaying}
-            isMobile={isMobile}
-          />
-
-          {/* Game Canvas */}
+          {/* Game Canvas - now starts from top since header is outside */}
           <canvas 
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
             style={{ 
               position: 'absolute',
-              top: '120px',
+              top: '20px',
               left: '20px',
               right: '20px',
               bottom: '140px',
               width: 'calc(100% - 40px)',
-              height: 'calc(100% - 260px)',
+              height: 'calc(100% - 160px)',
               imageRendering: 'auto',
               borderRadius: '10px',
               border: '2px solid rgba(212, 165, 116, 0.4)',

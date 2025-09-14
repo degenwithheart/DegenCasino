@@ -4,7 +4,7 @@ import { useGamba } from 'gamba-react-v2'
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameStatsHeader, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -800,25 +800,10 @@ export default function DiceV2() {
           background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
           perspective: '100px'
         }}>
-          <GameStatsHeader
-            gameName="Dice v2"
-            gameMode={`Roll Under • ${(rollUnderIndex / BET_ARRAYS_V2['dice-v2'].OUTCOMES * 100).toFixed(0)}% • ${multiplier.toFixed(2)}x`}
-            stats={{
-              gamesPlayed: gameCount,
-              wins: winCount,
-              losses: gameCount - winCount,
-              sessionProfit: totalProfit
-            }}
-            onReset={resetSession}
-            theme="gold"
-            disabled={gamba.isPlaying}
-            isMobile={isMobile}
-          />
-
-          {/* Canvas Game Area */}
+          {/* Canvas Game Area - now starts from top since header is outside */}
           <div style={{
             position: 'absolute',
-            top: '120px',
+            top: '20px',
             left: '20px',
             right: '20px',
             bottom: '120px', // Leave space for slider below
