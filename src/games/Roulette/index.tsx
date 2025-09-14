@@ -98,13 +98,6 @@ export default function Roulette() {
     return pool.maxPayout / maxMultiplier
   }, [pool.maxPayout, maxMultiplier])
 
-  // Clamp wager to not exceed pool limits
-  React.useEffect(() => {
-    if (wager > maxWagerForPool) {
-      setWager(maxWagerForPool)
-    }
-  }, [wager, maxWagerForPool, setWager])
-
   const maxPayout = wager * maxMultiplier
   const poolExceeded = maxPayout > pool.maxPayout
 

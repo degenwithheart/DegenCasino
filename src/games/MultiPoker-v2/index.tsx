@@ -147,13 +147,6 @@ export default function MultiPokerV2() {
     return pool.maxPayout / maxMultiplier
   }, [pool.maxPayout, maxMultiplier])
 
-  // Clamp wager to not exceed pool limits (for mobile and manual input)
-  React.useEffect(() => {
-    if (initialWager > maxWagerForPool) {
-      setInitialWager(maxWagerForPool)
-    }
-  }, [initialWager, maxWagerForPool, setInitialWager])
-
   const poolExceeded = React.useMemo(() => {
     const effectiveWager = inProgress ? currentBalance : initialWager
     return effectiveWager * maxMultiplier > pool.maxPayout

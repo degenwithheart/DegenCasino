@@ -14,7 +14,8 @@ import {
   PresetButton,
   PresetContainer
 } from '../../sections/Game/Game.styles';
-import { useWagerLimits, validateWager } from '../../utils/general/wagerUtils';
+import { useWagerLimits, validateWager, roundToHumanFriendly } from '../../utils/general/wagerUtils';
+import { useWagerAdjustmentForControls } from '../../utils/general/useWagerAdjustment';
 
 // Wrapper for GambaUi.WagerInput with romantic styling
 const StyledWagerInputWrapper = styled.div`
@@ -241,18 +242,32 @@ export const EnhancedWagerInput: React.FC<{
   multiplier?: number;
 }> = ({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }) => {
   const token = useCurrentToken();
-  const wagerLimits = useWagerLimits(multiplier);
+  
+  // Use the unified wager adjustment hook for automatic clamping
+  const { 
+    minWager: calculatedMinWager, 
+    maxWager: calculatedMaxWager,
+    isValid,
+    poolExceeded
+  } = useWagerAdjustmentForControls(value, onChange, multiplier);
+  
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   
   // Use provided limits or fall back to calculated ones
-  const effectiveMinWager = minWager ?? wagerLimits.minWager;
-  const effectiveMaxWager = maxWager ?? wagerLimits.maxWager;
+  const effectiveMinWager = minWager ?? calculatedMinWager;
+  const effectiveMaxWager = maxWager ?? calculatedMaxWager;
   // Local input state so users can type leading zeros and decimals without the
   // parent value immediately clearing the field when it's 0.
   const displayValue = value / token.baseWager;
   const initial = displayValue === 0 ? '' : String(displayValue);
   const [inputValue, setInputValue] = useState<string>(initial);
   const focusedRef = useRef(false);
+
+  // Helper to convert wager amount to human-friendly display value
+  const toDisplayValue = (wagerAmount: number) => {
+    const rounded = roundToHumanFriendly(wagerAmount, token.baseWager);
+    return rounded / token.baseWager;
+  };
 
   // Helper to check if a value is within min/max wager
   const isWagerInRange = (wager: number) => {
@@ -281,21 +296,21 @@ export const EnhancedWagerInput: React.FC<{
           if (isWagerInRange(wagerAmount)) {
             onChange(wagerAmount);
           } else if (wagerAmount < effectiveMinWager) {
-            // Clamp and format to 4 decimals
-            const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
-            setInputValue(minDisplay);
+            // Clamp and format with human-friendly display
+            const minDisplayValue = toDisplayValue(effectiveMinWager);
+            setInputValue(minDisplayValue.toString());
             onChange(effectiveMinWager);
           } else if (wagerAmount > effectiveMaxWager) {
-            // Clamp and format to 4 decimals
-            const maxDisplay = (effectiveMaxWager / token.baseWager).toFixed(4);
-            setInputValue(maxDisplay);
+            // Clamp and format with human-friendly display
+            const maxDisplayValue = toDisplayValue(effectiveMaxWager);
+            setInputValue(maxDisplayValue.toString());
             onChange(effectiveMaxWager);
           }
         }
       } else if (v === '') {
         // empty means zero, but enforce minimum wager
-        const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
-        setInputValue(minDisplay);
+        const minDisplayValue = toDisplayValue(effectiveMinWager);
+        setInputValue(minDisplayValue.toString());
         onChange(effectiveMinWager);
       }
     }
@@ -306,8 +321,8 @@ export const EnhancedWagerInput: React.FC<{
     focusedRef.current = false;
     // normalize incomplete entries like '.' -> '0'
     if (inputValue === '.' || inputValue === '') {
-      const minDisplay = (effectiveMinWager / token.baseWager).toFixed(4);
-      setInputValue(minDisplay);
+      const minDisplayValue = toDisplayValue(effectiveMinWager);
+      setInputValue(minDisplayValue.toString());
       onChange(effectiveMinWager);
     } else {
       // ensure the displayed value matches the parsed numeric value formatting
@@ -318,8 +333,8 @@ export const EnhancedWagerInput: React.FC<{
         let clampedWager = wagerAmount;
         if (wagerAmount < effectiveMinWager) clampedWager = effectiveMinWager;
         if (wagerAmount > effectiveMaxWager) clampedWager = effectiveMaxWager;
-        const clampedDisplayValue = (clampedWager / token.baseWager).toFixed(4);
-        setInputValue(clampedDisplayValue);
+        const clampedDisplayValue = toDisplayValue(clampedWager);
+        setInputValue(clampedDisplayValue.toString());
         onChange(clampedWager);
       }
     }
@@ -386,7 +401,7 @@ export const EnhancedWagerInput: React.FC<{
                     fontWeight: 700, 
                     color: 'var(--love-letter-gold)'
                   }}>
-                    {(effectiveMinWager / token.baseWager).toFixed(4)} {token?.symbol}
+                    {toDisplayValue(effectiveMinWager)} {token?.symbol}
                   </span>
                 </div>
                 <div style={{ 
@@ -414,7 +429,7 @@ export const EnhancedWagerInput: React.FC<{
                     fontWeight: 700, 
                     color: 'var(--love-letter-gold)'
                   }}>
-                    {effectiveMaxWager === Infinity ? '∞' : (effectiveMaxWager / token.baseWager).toFixed(4)} {token?.symbol}
+                    {effectiveMaxWager === Infinity ? '∞' : toDisplayValue(effectiveMaxWager)} {token?.symbol}
                   </span>
                 </div>
               </WagerDetailsValue>

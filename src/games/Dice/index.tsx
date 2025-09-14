@@ -52,13 +52,6 @@ export default function Dice() {
   const maxWin = multiplier * wager
   const poolExceeded = maxWin > pool.maxPayout
 
-  // useEffect to clamp wager like Plinko
-  React.useEffect(() => {
-    if (wager > maxWagerForPool) {
-      setWager(maxWagerForPool)
-    }
-  }, [maxWagerForPool, wager, setWager])
-
   const game = GambaUi.useGame()
 
   const play = async () => {

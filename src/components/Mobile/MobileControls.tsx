@@ -6,6 +6,7 @@ import PriceIndicator from "../UI/PriceIndicator";
 import { useTheme } from '../../themes/ThemeContext';
 import { EnhancedWagerInput, EnhancedPlayButton } from '../Game/EnhancedGameControls';
 import Slider from '../../games/Dice-v2/Slider';
+import { roundToHumanFriendly } from '../../utils/general/wagerUtils';
 
 // Romantic animations for the mobile experience
 const romanticPulse = keyframes`
@@ -875,29 +876,25 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   const formatCryptoFromUsd = (usdAmount: number) => {
     const usdPrice = token?.usdPrice;
     const cryptoAmount = usdPrice ? (usdAmount / usdPrice) : usdAmount;
-    const decimals = (token && typeof token.decimals === 'number') ? token.decimals : 6;
-    const factor = Math.pow(10, Math.min(decimals, 8));
-    const rounded = Math.round(cryptoAmount * factor) / factor;
-    if (!rounded) return `0 ${token?.symbol ?? ''}`;
-    const s = rounded.toFixed(Math.min(decimals, 8)).replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
-    return `${s} ${token?.symbol ?? ''}`;
+    const cryptoAmountInTokens = cryptoAmount * token.baseWager;
+    const roundedAmount = roundToHumanFriendly(cryptoAmountInTokens, token.baseWager);
+    const displayValue = roundedAmount / token.baseWager;
+    if (!displayValue) return `0 ${token?.symbol ?? ''}`;
+    return `${displayValue} ${token?.symbol ?? ''}`;
   };
 
   // Short, user-friendly crypto formatter for preset buttons.
-  // Uses 3-4 significant digits for compactness (good for newbies).
+  // Uses human-friendly rounding for better UX
   const formatCryptoShort = (usdAmount: number) => {
     const usdPrice = token?.usdPrice;
     const cryptoAmount = usdPrice ? (usdAmount / usdPrice) : usdAmount;
     if (!cryptoAmount) return `0 ${token?.symbol ?? ''}`;
 
-    // Use 4 significant digits for compact display
-    let s = cryptoAmount.toPrecision(4);
-    // Avoid scientific notation for small numbers by using Number()
-    try { s = Number(s).toString(); } catch (e) { /* keep s */ }
+    const cryptoAmountInTokens = cryptoAmount * token.baseWager;
+    const roundedAmount = roundToHumanFriendly(cryptoAmountInTokens, token.baseWager);
+    const displayValue = roundedAmount / token.baseWager;
 
-    // Trim trailing zeros and dot
-    s = s.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
-    return `≈${s} ${token?.symbol ?? ''}`;
+    return `≈${displayValue} ${token?.symbol ?? ''}`;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -950,16 +947,13 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   };
 
   const displayValue = wager / token.baseWager;
-  // Format as crypto value: use token.decimals when available, fallback to 6
-  const decimals = (token && typeof token.decimals === 'number') ? token.decimals : 6;
-  const factor = Math.pow(10, Math.min(decimals, 8)); // cap at 8 for UI
-  const rounded = Math.round(displayValue * factor) / factor;
+  // Use human-friendly rounding for consistent display
+  const roundedWager = roundToHumanFriendly(wager, token.baseWager);
+  const roundedDisplayValue = roundedWager / token.baseWager;
 
   const formattedDisplayValue = (() => {
-    if (!rounded) return '0';
-    // Convert to string with up to `decimals` places, then trim unnecessary zeros
-    const s = rounded.toFixed(Math.min(decimals, 8));
-    return s.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+    if (!roundedDisplayValue) return '0';
+    return roundedDisplayValue.toString();
   })();
 
   return (

@@ -361,13 +361,6 @@ export default function FlipV2() {
     return pool.maxPayout / maxMultiplier
   }, [pool.maxPayout, maxMultiplier])
 
-  // Clamp wager to not exceed pool limits
-  React.useEffect(() => {
-    if (initialWager > maxWagerForPool) {
-      setInitialWager(maxWagerForPool)
-    }
-  }, [initialWager, maxWagerForPool, setInitialWager])
-
   const maxPayout = initialWager * maxMultiplier
   const poolExceeded = maxPayout > pool.maxPayout
 

@@ -239,13 +239,6 @@ export default function DiceV2() {
     return pool.maxPayout / multiplier
   }, [pool.maxPayout, multiplier])
 
-  // Clamp wager to not exceed pool limits
-  React.useEffect(() => {
-    if (wager > maxWagerForPool) {
-      setWager(maxWagerForPool)
-    }
-  }, [wager, maxWagerForPool, setWager])
-
   const poolExceeded = maxWin > pool.maxPayout
 
   const game = GambaUi.useGame()

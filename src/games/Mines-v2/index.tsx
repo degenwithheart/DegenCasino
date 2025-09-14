@@ -100,13 +100,6 @@ export default function MinesV2() {
     return pool.maxPayout / maxMultiplier
   }, [pool.maxPayout, maxMultiplier])
 
-  // Clamp wager to not exceed pool limits
-  React.useEffect(() => {
-    if (wager > maxWagerForPool) {
-      setWager(maxWagerForPool)
-    }
-  }, [wager, maxWagerForPool, setWager])
-
   const poolExceeded = React.useMemo(() => {
     const maxCurrentLevelMultiplier = levels.length > 0 ? Math.max(...levels.map(l => l.multiplier)) : 1
     return wager * maxCurrentLevelMultiplier > pool.maxPayout

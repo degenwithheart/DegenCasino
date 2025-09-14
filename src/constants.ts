@@ -125,8 +125,6 @@ const lp = (tokenMint: PublicKey | string, poolAuthority?: PublicKey | string): 
 export const POOLS = [
   lp('So11111111111111111111111111111111111111112'),
   lp('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
-  lp('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'),
-  lp('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'),
   lp(FAKE_TOKEN_MINT),
 ]
 
@@ -156,24 +154,6 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     baseWager: 1e6,
     decimals: 6,
     usdPrice: 0.999781,
-  },
-  {
-    mint: new PublicKey('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'),
-    name: 'Jupiter',
-    symbol: 'JUP',
-    image: 'https://static.jup.ag/jup/icon.png',
-    baseWager: 1e9,
-    decimals: 9,
-    usdPrice: 0.498918,
-  },
-  {
-    mint: new PublicKey('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263'),
-    name: 'Bonk',
-    symbol: 'BONK',
-    image: 'https://quei6zhlcfsxdfyes577gy7bkxmuz7qqakyt72xlbkyh7fysmoza.arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I',
-    baseWager: 1e9,
-    decimals: 9,
-    usdPrice: 0.00002029,
   },
   {
     mint: FAKE_TOKEN_MINT,
@@ -221,8 +201,6 @@ export async function updateTokenPrices() {
   const coingeckoMap: { [mint: string]: string } = {
     'So11111111111111111111111111111111111111112': 'solana',
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': 'usd-coin',
-    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN': 'jupiter-exchange-solana',
-    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 'bonk',
   };
 
   // Build CoinGecko IDs list
