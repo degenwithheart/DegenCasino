@@ -95,6 +95,9 @@ export default function Plinko() {
   // Restore multi-ball support
   const [ballCount, setBallCount] = React.useState<number>(1)
   
+  // Controls modal state
+  const [showControls, setShowControls] = React.useState(false)
+  
   // Bucket scoreboard state
   const [activeBuckets, setActiveBuckets] = React.useState<Set<number>>(new Set())
   const [bucketHits, setBucketHits] = React.useState<Map<number, number>>(new Map())
@@ -673,283 +676,244 @@ export default function Plinko() {
             />
             </div>
           </GameScreenFrame>
+          
+          {/* Custom Settings Modal - automatically switches to custom mode */}
+          {showControls && (
+            <div style={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.85)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '20px'
+            }}>
+              <div style={{ 
+                background: 'linear-gradient(135deg, rgba(24, 24, 24, 0.98) 0%, rgba(32, 32, 40, 0.95) 100%)',
+                borderRadius: '16px',
+                border: '2px solid rgba(156, 39, 176, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                padding: '24px',
+                width: '95vw',
+                maxWidth: '900px',
+                position: 'relative'
+              }}>
+                {/* Header Section */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '24px',
+                  paddingBottom: '16px',
+                  borderBottom: '1px solid rgba(156, 39, 176, 0.3)'
+                }}>
+                  <div>
+                    <h2 style={{
+                      margin: 0,
+                      fontSize: '24px',
+                      fontWeight: 'bold',
+                      background: 'linear-gradient(90deg, #9c27b0, #e91e63)',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent'
+                    }}>
+                      Plinko Settings
+                    </h2>
+                    <p style={{
+                      margin: '4px 0 0 0',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      fontSize: '14px',
+                      fontStyle: 'italic'
+                    }}>
+                      Customize your Plinko board configuration
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowControls(false)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '50%',
+                      width: '40px',
+                      height: '40px',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                {/* Horizontal Controls Layout */}
+                <div style={{
+                  display: 'flex',
+                  gap: '24px',
+                  alignItems: 'flex-start'
+                }}>
+                  {/* Rows Control */}
+                  <div style={{
+                    flex: 1,
+                    background: 'rgba(0, 230, 118, 0.05)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: '1px solid rgba(0, 230, 118, 0.2)'
+                  }}>
+                    <div style={{
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      color: '#00e676',
+                      marginBottom: '12px'
+                    }}>
+                      ROWS ({customRows})
+                    </div>
+                    <p style={{
+                      fontSize: '12px',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      margin: '0 0 16px 0',
+                      lineHeight: '1.4'
+                    }}>
+                      More rows create more randomness and wider ball distribution.
+                    </p>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '8px'
+                    }}>
+                      {[10, 12, 14, 16, 18, 20].map(count => (
+                        <button
+                          key={count}
+                          onClick={() => setCustomRows(count)}
+                          disabled={gamba.isPlaying}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: `2px solid ${customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.4)'}`,
+                            background: customRows === count 
+                              ? 'linear-gradient(135deg, rgba(0, 230, 118, 0.3) 0%, rgba(0, 200, 83, 0.4) 100%)'
+                              : 'linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 200, 83, 0.2) 100%)',
+                            color: customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.8)',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                            opacity: gamba.isPlaying ? 0.5 : 1,
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Buckets Control */}
+                  <div style={{
+                    flex: 1,
+                    background: 'rgba(0, 188, 212, 0.05)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: '1px solid rgba(0, 188, 212, 0.2)'
+                  }}>
+                    <div style={{
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      color: '#00bcd4',
+                      marginBottom: '12px'
+                    }}>
+                      BUCKETS ({customBuckets})
+                    </div>
+                    <p style={{
+                      fontSize: '12px',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      margin: '0 0 16px 0',
+                      lineHeight: '1.4'
+                    }}>
+                      Fewer buckets mean higher multipliers on edges but lower hit frequency.
+                    </p>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '8px'
+                    }}>
+                      {[6, 8, 10, 12, 14, 16].map(count => (
+                        <button
+                          key={count}
+                          onClick={() => setCustomBuckets(count)}
+                          disabled={gamba.isPlaying}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: `2px solid ${customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.4)'}`,
+                            background: customBuckets === count 
+                              ? 'linear-gradient(135deg, rgba(0, 188, 212, 0.3) 0%, rgba(0, 172, 193, 0.4) 100%)'
+                              : 'linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 172, 193, 0.2) 100%)',
+                            color: customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.8)',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                            opacity: gamba.isPlaying ? 0.5 : 1,
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Current Config Display */}
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(142, 36, 170, 0.05) 100%)',
+                  borderRadius: '12px',
+                  padding: 'clamp(16px, 3vw, 24px)',
+                  border: '1px solid rgba(156, 39, 176, 0.3)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: 'clamp(14px, 3vw, 16px)',
+                    fontWeight: 'bold',
+                    color: '#9c27b0',
+                    marginBottom: '8px'
+                  }}>
+                    CURRENT CONFIG
+                  </div>
+                  <div style={{
+                    fontSize: 'clamp(12px, 2.5vw, 14px)',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    lineHeight: '1.5'
+                  }}>
+                    🎯 <strong>{customMode ? 'Custom' : degen ? 'Degen' : 'Normal'}</strong> Mode • 
+                    📏 <strong>{rows}</strong> Rows • 
+                    🪣 <strong>{buckets}</strong> Buckets • 
+                    ⚡ <strong>{ballCount}</strong> Ball{ballCount > 1 ? 's' : ''} • 
+                    💰 Max: <strong>{Math.max(...bet).toFixed(2)}x</strong>
+                  </div>
+                </div>
+
+                {/* Footer Info */}
+                <div style={{
+                  textAlign: 'center',
+                  paddingTop: 'clamp(16px, 3vw, 20px)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: 'clamp(10px, 2vw, 12px)',
+                  marginTop: 'clamp(16px, 3vw, 20px)'
+                }}>
+                  💡 {customMode ? 'Experiment with different combinations to find your perfect risk/reward balance' : 'Use the controls above to quickly switch modes and ball counts'}
+                </div>
+              </div>
+            </div>
+          )}
         </StyledPlinkoBackground>
-      </GambaUi.Portal>
-      
-      <GambaUi.Portal target="gamecontrols">
-        <GameControlsSection height={100} gap={16}>
-        {/* Mode Selection */}
-        <div style={{
-          flex: '1',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#ffd700',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-            marginBottom: '4px'
-          }}>
-            MODE
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            flexWrap: 'wrap',
-            justifyContent: 'center'
-          }}>
-            <button
-              onClick={() => { setCustomMode(false); setDegen(false) }}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '8px',
-                border: `2px solid ${!customMode && !degen ? '#4caf50' : 'rgba(76, 175, 80, 0.4)'}`,
-                background: !customMode && !degen 
-                  ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.3) 0%, rgba(46, 125, 50, 0.4) 100%)'
-                  : 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(46, 125, 50, 0.2) 100%)',
-                color: '#4caf50',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                opacity: gamba.isPlaying ? 0.5 : 1,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Normal
-            </button>
-            <button
-              onClick={() => { setCustomMode(false); setDegen(true) }}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '8px',
-                border: `2px solid ${!customMode && degen ? '#ff9800' : 'rgba(255, 152, 0, 0.4)'}`,
-                background: !customMode && degen 
-                  ? 'linear-gradient(135deg, rgba(255, 152, 0, 0.3) 0%, rgba(245, 124, 0, 0.4) 100%)'
-                  : 'linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(245, 124, 0, 0.2) 100%)',
-                color: '#ff9800',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                opacity: gamba.isPlaying ? 0.5 : 1,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Degen
-            </button>
-            <button
-              onClick={() => setCustomMode(true)}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '8px',
-                border: `2px solid ${customMode ? '#9c27b0' : 'rgba(156, 39, 176, 0.4)'}`,
-                background: customMode 
-                  ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.3) 0%, rgba(142, 36, 170, 0.4) 100%)'
-                  : 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(142, 36, 170, 0.2) 100%)',
-                color: '#9c27b0',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                opacity: gamba.isPlaying ? 0.5 : 1,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Custom
-            </button>
-          </div>
-        </div>
-
-        {/* Rows Control (Custom Mode Only) */}
-        {customMode && (
-          <div style={{
-            flex: '1',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              color: '#ffd700',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              marginBottom: '4px'
-            }}>
-              ROWS
-            </div>
-            <div style={{
-              display: 'flex',
-              gap: '6px',
-              flexWrap: 'wrap',
-              justifyContent: 'center'
-            }}>
-              {[10, 12, 14, 16, 18, 20].map(count => (
-                <button
-                  key={count}
-                  onClick={() => setCustomRows(count)}
-                  disabled={gamba.isPlaying}
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    border: `1px solid ${customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.4)'}`,
-                    background: customRows === count 
-                      ? 'linear-gradient(135deg, rgba(0, 230, 118, 0.3) 0%, rgba(0, 200, 83, 0.4) 100%)'
-                      : 'linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 200, 83, 0.2) 100%)',
-                    color: customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.8)',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                    opacity: gamba.isPlaying ? 0.5 : 1,
-                    transition: 'all 0.2s ease',
-                    minWidth: '28px'
-                  }}
-                >
-                  {count}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Buckets Control (Custom Mode Only) */}
-        {customMode && (
-          <div style={{
-            flex: '1',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              color: '#ffd700',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              marginBottom: '4px'
-            }}>
-              BUCKETS
-            </div>
-            <div style={{
-              display: 'flex',
-              gap: '6px',
-              flexWrap: 'wrap',
-              justifyContent: 'center'
-            }}>
-              {[6, 8, 10, 12, 14, 16].map(count => (
-                <button
-                  key={count}
-                  onClick={() => setCustomBuckets(count)}
-                  disabled={gamba.isPlaying}
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    border: `1px solid ${customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.4)'}`,
-                    background: customBuckets === count 
-                      ? 'linear-gradient(135deg, rgba(0, 188, 212, 0.3) 0%, rgba(0, 172, 193, 0.4) 100%)'
-                      : 'linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 172, 193, 0.2) 100%)',
-                    color: customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.8)',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                    opacity: gamba.isPlaying ? 0.5 : 1,
-                    transition: 'all 0.2s ease',
-                    minWidth: '28px'
-                  }}
-                >
-                  {count}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Ball Count Control */}
-        <div style={{
-          flex: '1',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#ffd700',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-            marginBottom: '4px'
-          }}>
-            BALLS
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: '6px',
-            flexWrap: 'wrap',
-            justifyContent: 'center'
-          }}>
-            {[1, 3, 5, 10].map(count => (
-              <button
-                key={count}
-                onClick={() => setBallCount(count)}
-                disabled={gamba.isPlaying}
-                style={{
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  border: `1px solid ${ballCount === count ? '#ff5722' : 'rgba(255, 87, 34, 0.4)'}`,
-                  background: ballCount === count 
-                    ? 'linear-gradient(135deg, rgba(255, 87, 34, 0.3) 0%, rgba(244, 81, 30, 0.4) 100%)'
-                    : 'linear-gradient(135deg, rgba(255, 87, 34, 0.1) 0%, rgba(244, 81, 30, 0.2) 100%)',
-                  color: ballCount === count ? '#ff5722' : 'rgba(255, 87, 34, 0.8)',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                  opacity: gamba.isPlaying ? 0.5 : 1,
-                  transition: 'all 0.2s ease',
-                  minWidth: '28px'
-                }}
-              >
-                {count}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Display */}
-        <div style={{
-          flex: '1.5',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: '#ffd700',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-          }}>
-            CONFIG
-          </div>
-          <div style={{
-            fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.8)',
-            textAlign: 'center',
-            lineHeight: '1.2'
-          }}>
-            {rows} Rows • {buckets} Buckets<br/>
-            Max: {Math.max(...bet).toFixed(2)}x
-          </div>
-        </div>
-      </GameControlsSection>
       </GambaUi.Portal>
       
       <GambaUi.Portal target="controls">
@@ -960,12 +924,110 @@ export default function Plinko() {
           playDisabled={gamba.isPlaying || poolExceeded}
           playText="Play"
         >
-          <SwitchControl
-            label="Degen Mode"
-            checked={degen}
-            onChange={setDegen}
-            disabled={gamba.isPlaying}
-          />
+          {/* Mode Toggle + Balls Dropdown + Settings */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            {/* Normal|Degen Toggle */}
+            <div style={{
+              display: 'flex',
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '2px',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <button
+                onClick={() => { setCustomMode(false); setDegen(false) }}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: !customMode && !degen 
+                    ? 'linear-gradient(135deg, #4caf50, #45a049)'
+                    : 'transparent',
+                  color: !customMode && !degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                  opacity: gamba.isPlaying ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Normal
+              </button>
+              <button
+                onClick={() => { setCustomMode(false); setDegen(true) }}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: !customMode && degen 
+                    ? 'linear-gradient(135deg, #ff9800, #f57c00)'
+                    : 'transparent',
+                  color: !customMode && degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                  opacity: gamba.isPlaying ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Degen
+              </button>
+            </div>
+
+            {/* Balls Dropdown */}
+            <select
+              value={ballCount}
+              onChange={(e) => setBallCount(Number(e.target.value))}
+              disabled={gamba.isPlaying}
+              style={{
+                padding: '4px 8px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 87, 34, 0.4)',
+                background: 'rgba(255, 87, 34, 0.1)',
+                color: '#ff5722',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1
+              }}
+            >
+              {[1, 3, 5, 10].map(count => (
+                <option key={count} value={count} style={{ background: '#1a1a1a', color: '#ff5722' }}>
+                  {count} Ball{count > 1 ? 's' : ''}
+                </option>
+              ))}
+            </select>
+
+            {/* Settings Button - Always visible */}
+            <button
+              onClick={() => { setCustomMode(true); setShowControls(true) }}
+              disabled={gamba.isPlaying}
+              style={{
+                padding: '4px 8px',
+                borderRadius: '8px',
+                border: '1px solid rgba(156, 39, 176, 0.4)',
+                background: 'rgba(156, 39, 176, 0.1)',
+                color: '#9c27b0',
+                fontSize: '12px',
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ⚙️
+            </button>
+          </div>
         </MobileControls>
         
         <DesktopControls
@@ -974,12 +1036,118 @@ export default function Plinko() {
           onPlay={() => play()}
         >
           <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
-          <div>Degen:</div>
-          <GambaUi.Switch
-            disabled={gamba.isPlaying}
-            checked={degen}
-            onChange={setDegen}
-          />
+          
+          {/* Controls Container - EXACTLY like wager input */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.1) 50%, rgba(10, 5, 17, 0.85) 100%)',
+            border: '1px solid rgba(212, 165, 116, 0.4)',
+            borderRadius: '16px',
+            padding: '14px',
+            boxShadow: 'inset 0 2px 8px rgba(10, 5, 17, 0.4), 0 4px 16px rgba(212, 165, 116, 0.1), 0 0 0 1px rgba(212, 165, 116, 0.15)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            width: 'fit-content'
+          }}>
+            {/* Mode Toggle (where number input would be) */}
+            <div style={{
+              display: 'flex',
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              padding: '2px',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <button
+                onClick={() => { setCustomMode(false); setDegen(false) }}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: !customMode && !degen 
+                    ? 'linear-gradient(135deg, #4caf50, #45a049)'
+                    : 'transparent',
+                  color: !customMode && !degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                  opacity: gamba.isPlaying ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Normal
+              </button>
+              <button
+                onClick={() => { setCustomMode(false); setDegen(true) }}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: !customMode && degen 
+                    ? 'linear-gradient(135deg, #ff9800, #f57c00)'
+                    : 'transparent',
+                  color: !customMode && degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                  opacity: gamba.isPlaying ? 0.5 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Degen
+              </button>
+            </div>
+            
+            {/* Balls Dropdown (where token would be) */}
+            <select
+              value={ballCount}
+              onChange={(e) => setBallCount(Number(e.target.value))}
+              disabled={gamba.isPlaying}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(212, 165, 116, 0.9)',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1,
+                outline: 'none',
+                fontFamily: 'Libre Baskerville, serif'
+              }}
+            >
+              {[1, 3, 5, 10].map(count => (
+                <option key={count} value={count} style={{ background: '#1a1a1a', color: '#ff5722' }}>
+                  {count} Ball{count > 1 ? 's' : ''}
+                </option>
+              ))}
+            </select>
+
+            {/* Settings Button (where info icon would be) */}
+            <button
+              onClick={() => { setCustomMode(true); setShowControls(true) }}
+              disabled={gamba.isPlaying}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(212, 165, 116, 0.9)',
+                fontSize: '16px',
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0',
+                minWidth: '24px',
+                height: '24px'
+              }}
+            >
+              ⚙️
+            </button>
+          </div>
+          
           <EnhancedPlayButton onClick={() => play()} disabled={gamba.isPlaying || poolExceeded}>
             Play
           </EnhancedPlayButton>

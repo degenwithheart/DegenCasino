@@ -343,7 +343,6 @@ export const EnhancedWagerInput: React.FC<{
   return (
     <>
       <WagerInputContainer>
-        <WagerLabel>Bet Amount</WagerLabel>
         <StyledWagerInputWrapper>
           <input
             type="text"
