@@ -12,4 +12,7 @@ dist
 docs
 new
 node_modules
-scripts
+
+# Ignore all scripts except compress-build.mjs
+scripts/*
+!scripts/compress-build.mjs
