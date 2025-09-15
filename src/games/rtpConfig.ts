@@ -32,6 +32,7 @@ export const RTP_TARGETS = {
   crash: 0.96,       // Crash: 4% house edge, win rate depends on target multiplier
   slots: 0.94,       // Slots: 6% house edge, ~15% win rate (high volatility)
   plinko: 0.95,      // Plinko: 5% house edge, always pays something (100% win rate)
+  plinkorace: 0.95,  // PlinkoRace: 5% house edge, multiplayer variant of plinko
   blackjack: 0.97,   // Blackjack: 3% house edge, ~42% win rate
   progressivepoker: 0.96, // Progressive Power Poker: 4% house edge, 35% win rate
   roulette: 0.973,   // Roulette: 2.7% house edge (European), ~47% win rate for even-money bets
@@ -202,6 +203,51 @@ plinko: {
     get degen() {
       if (!(this as any)._degenCache) {
         (this as any)._degenCache = this._createMultipliers(this.BUCKETS.degen, RTP_TARGETS.plinko, 'degen');
+      }
+      return (this as any)._degenCache as number[];
+    }
+  },
+
+  // PLINKORACE: Multiplayer variant of Plinko game configuration
+  // - Uses same peg/bucket mechanics as regular plinko
+  // - normal/degen: Arrays of bucket multipliers for each mode (same as plinko)
+  plinkorace: {
+    PEGS: { normal: 14, degen: 16 }, // Number of rows of pegs
+    BUCKETS: { normal: 8, degen: 10 }, // Number of buckets at bottom
+    _binomialProb(n: number, k: number) {
+      let coeff = 1;
+      for (let i = 1; i <= k; i++) {
+        coeff = coeff * (n - (k - i)) / i;
+      }
+      return coeff / Math.pow(2, n);
+    },
+    _probabilities(n: number) {
+      const probs: number[] = [];
+      for (let k = 0; k <= n; k++) probs.push(this._binomialProb(n, k));
+      return probs;
+    },
+    _createMultipliers(n: number, targetRTP: number, volatility: 'normal' | 'degen') {
+      const probs = this._probabilities(n);
+      const center = n / 2;
+      const pow = volatility === 'degen' ? 2.2 : 1.8;
+      const raw: number[] = probs.map((_, i) => {
+        const d = Math.abs(i - center);
+        return 1 + Math.pow(d + (volatility === 'degen' ? 0.4 : 0.2), pow);
+      });
+      if (volatility === 'degen') raw[raw.length - 1] *= 2.5;
+      const expectedRaw = raw.reduce((s, w, i) => s + w * probs[i], 0);
+      const scale = targetRTP / expectedRaw;
+      return raw.map(w => parseFloat((w * scale).toFixed(2)));
+    },
+    get normal() {
+      if (!(this as any)._normalCache) {
+        (this as any)._normalCache = this._createMultipliers(this.BUCKETS.normal, RTP_TARGETS.plinkorace, 'normal');
+      }
+      return (this as any)._normalCache as number[];
+    },
+    get degen() {
+      if (!(this as any)._degenCache) {
+        (this as any)._degenCache = this._createMultipliers(this.BUCKETS.degen, RTP_TARGETS.plinkorace, 'degen');
       }
       return (this as any)._degenCache as number[];
     }

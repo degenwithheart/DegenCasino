@@ -44,7 +44,7 @@ import {
   MethodologyCard,
   MethodologyList,
   Footer
-} from './FairnessAudit.styles'
+} from '../FairnessAudit/FairnessAudit.styles'
 
 // Constants
 const LTA_PLAYS = 1000000 // 1 million plays for long-term analysis
@@ -243,15 +243,22 @@ export default function FairnessAudit() {
     return [
       { game:'Flip Duel', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.flip, '50% win'), targetRtp:0.96, note:'50% win chance coin flip', status:'ok', betVector:realBets.flip },
       { game:'Dice (50%)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.dice, '50% roll-under'), targetRtp:0.96, note:'50% chance to win dice roll', status:'ok', betVector:realBets.dice },
+      { game:'Dice v2', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.dice, 'mystical 8-ball'), targetRtp:0.95, note:'Enhanced dice with visual effects', status:'ok', betVector:realBets.dice },
       { game:'Mines (sample step)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.mines, '5 mines, 1 reveal'), targetRtp:0.96, note:'Minesweeper game with 5 mines', status:'ok', betVector:realBets.mines },
       { game:'HiLo (HI mid-rank)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.hilo, 'rank 6 HI'), targetRtp:0.96, note:'Card guessing game (higher)', status:'ok', betVector:realBets.hilo },
       { game:'Crash (1.5x sample)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.crash, '1.5x target'), targetRtp:0.96, note:'Cash out before crash at 1.5x', status:'ok', betVector:realBets.crash },
       { game:'Plinko Standard', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.plinkoStd, 'standard mode'), targetRtp:0.96, note:'Ball drop game (standard)', status:'ok', betVector:realBets.plinkoStd },
       { game:'Plinko Degen', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.plinkoDegen, 'degen mode'), targetRtp:0.96, note:'Ball drop game (high risk)', status:'ok', betVector:realBets.plinkoDegen },
+      { game:'PlinkoRace', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.plinkoStd, 'multiplayer mode'), targetRtp:0.95, note:'Multiplayer plinko racing', status:'ok', betVector:realBets.plinkoStd },
       { game:'Slots (dynamic)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.slots, 'generated array'), targetRtp:0.96, note:'Slot machine game', status:'ok', betVector:realBets.slots },
       { game:'Blackjack (solo)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.blackjack, 'scaled payouts'), targetRtp:0.96, note:'Classic card game vs house', status:'ok', betVector:realBets.blackjack },
       { game:'Blackjack Duel', onChain:true, noLocalRng:true, rtp:calculateRtp([realBets.flip[0], 0], 'PvP'), targetRtp:0.96, note:'Player vs player blackjack', status:'ok', betVector:[realBets.flip[0], 0] },
-      { game:'Progressive Poker', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.progressivepoker, 'poker hand payouts'), targetRtp:0.96, note:'Progressive video poker game', status:'ok', betVector:realBets.progressivepoker },
+      { game:'Multi Poker', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.progressivepoker, 'poker hand payouts'), targetRtp:0.96, note:'Progressive multi-stage poker', status:'ok', betVector:realBets.progressivepoker },
+      { game:'Crypto Chart v2', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.crash, 'crypto simulation'), targetRtp:0.95, note:'Cryptocurrency trading game', status:'ok', betVector:realBets.crash },
+      { game:'Double or Nothing v2', onChain:true, noLocalRng:true, rtp:calculateRtp([2, 0], 'button challenge'), targetRtp:0.94, note:'Risk multiplier button game', status:'ok', betVector:[2, 0] },
+      { game:'Virtual Horse Racing v2', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.roulette, '8-horse race'), targetRtp:0.95, note:'Enhanced horse racing simulation', status:'ok', betVector:realBets.roulette },
+      { game:'Keno v2', onChain:true, noLocalRng:true, rtp:calculateRtp([4, 0, 0, 0, 0], 'number lottery'), targetRtp:0.95, note:'40-number cosmic lottery', status:'ok', betVector:[4, 0, 0, 0, 0] },
+      { game:'Limbo v2', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.crash, 'multiplier ladder'), targetRtp:0.95, note:'Mystical multiplier climbing', status:'ok', betVector:realBets.crash },
       { game:'Roulette (Red bet)', onChain:true, noLocalRng:true, rtp:calculateRtp(realBets.roulette, 'red bet example'), targetRtp:0.97, note:'European roulette red bet (18/37 win)', status:'ok', betVector:realBets.roulette },
     ]
   },[seed])
@@ -274,23 +281,30 @@ export default function FairnessAudit() {
     // Map game names to their identifiers in allGames
     const gameMapping: Record<string, string> = {
       'Flip Duel': 'flip',
-      'Dice (50%)': 'dice', 
+      'Dice (50%)': 'dice',
+      'Dice v2': 'dice-v2', 
       'Mines (sample step)': 'mines',
       'HiLo (HI mid-rank)': 'hilo',
       'Crash (1.5x sample)': 'crash',
       'Plinko Standard': 'plinko',
       'Plinko Degen': 'plinko', // Both plinko variants map to same game
+      'PlinkoRace': 'plinkorace',
       'Slots (dynamic)': 'slots',
       'Blackjack (solo)': 'blackjack',
       'Blackjack Duel': 'blackjack', // Both blackjack variants map to same game
-      'Progressive Poker': 'progressivepoker',
+      'Multi Poker': 'multipoker',
+      'Crypto Chart v2': 'cryptochartgame-v2',
+      'Double or Nothing v2': 'doubleornothing-v2',
+      'Virtual Horse Racing v2': 'fancyvirtualhorseracing-v2',
+      'Keno v2': 'keno-v2',
+      'Limbo v2': 'limbo-v2',
       'Roulette (Red bet)': 'roulette'
     }
 
     return rows.map(row => {
       const gameId = gameMapping[row.game]
       const gameData = ALL_GAMES.find((g: any) => g.id === gameId)
-      const isLive = gameData?.live === 'up'
+      const isLive = gameData?.live === 'up' || gameData?.live === 'new'
       
       return {
         name: row.game.split(' (')[0], // Remove parenthetical details
