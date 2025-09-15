@@ -1020,12 +1020,12 @@ export default function MultiPokerV2() {
             height={CANVAS_HEIGHT}
             style={{ 
               position: 'absolute',
-              top: '120px',
+              top: '20px',
               left: '20px',
               right: '20px',
-              bottom: '140px',
+              bottom: '120px',
               width: 'calc(100% - 40px)',
-              height: 'calc(100% - 260px)',
+              height: 'calc(100% - 140px)',
               imageRendering: 'auto',
               borderRadius: '10px',
               border: '2px solid rgba(212, 165, 116, 0.4)',
