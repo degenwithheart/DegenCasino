@@ -159,6 +159,40 @@ plinko: {
       const scale = targetRTP / expectedRaw;
       return raw.map(w => parseFloat((w * scale).toFixed(2)));
     },
+    createCustomMultipliers(buckets: number, rows: number, volatility: 'normal' | 'degen') {
+      // Generate dynamic multipliers for custom configuration
+      // Use Gaussian distribution for better bucket probability modeling
+      const probs: number[] = [];
+      for (let k = 0; k < buckets; k++) {
+        // Calculate probability for landing in each bucket
+        // Based on rows peg bounces, distributed across buckets
+        const p = rows > 0 ? Math.exp(-Math.pow((k - (buckets - 1) / 2) / (rows / 4), 2) / 2) : 1 / buckets;
+        probs.push(p);
+      }
+      
+      // Normalize probabilities
+      const totalProb = probs.reduce((sum, p) => sum + p, 0);
+      const normalizedProbs = probs.map(p => p / totalProb);
+      
+      // Create multipliers with volatility curve
+      const center = (buckets - 1) / 2;
+      const pow = volatility === 'degen' ? 2.2 : 1.8;
+      const raw: number[] = normalizedProbs.map((_, i) => {
+        const d = Math.abs(i - center);
+        return 1 + Math.pow(d + (volatility === 'degen' ? 0.4 : 0.2), pow);
+      });
+      
+      // Apply extra multiplier to edge buckets for degen mode
+      if (volatility === 'degen') {
+        raw[0] *= 2.5;
+        raw[raw.length - 1] *= 2.5;
+      }
+      
+      // Scale to target RTP
+      const expectedRaw = raw.reduce((s, w, i) => s + w * normalizedProbs[i], 0);
+      const scale = RTP_TARGETS.plinko / expectedRaw;
+      return raw.map(w => parseFloat((w * scale).toFixed(2)));
+    },
     get normal() {
       if (!(this as any)._normalCache) {
         (this as any)._normalCache = this._createMultipliers(this.BUCKETS.normal, RTP_TARGETS.plinko, 'normal');

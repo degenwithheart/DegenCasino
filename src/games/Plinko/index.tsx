@@ -380,9 +380,34 @@ export default function Plinko() {
   const pegAnimations = React.useRef<Record<number, number>>({})
   const bucketAnimations = React.useRef<Record<number, number>>({})
 
-  const bet = degen ? DEGEN_BET : BET
+  // Dynamic bet array calculation for custom mode
+  const bet = React.useMemo(() => {
+    if (customMode) {
+      // Use centralized custom multiplier generation from RTP config
+      return PLINKO_CONFIG.createCustomMultipliers(customBuckets, customRows, degen ? 'degen' : 'normal')
+    }
+    return degen ? DEGEN_BET : BET
+  }, [customMode, customBuckets, customRows, degen])
+  
   const rows = customMode ? customRows : (degen ? PEGS.degen : PEGS.normal)
   const buckets = customMode ? customBuckets : (degen ? BUCKETS.degen : BUCKETS.normal)
+  
+  // Dynamic ball and peg sizing based on row count
+  const dynamicBallRadius = React.useMemo(() => {
+    // Base radius at 14 rows, scale down/up based on actual rows
+    const baseRadius = 9;
+    const baseRows = 14;
+    const scaleFactor = Math.max(0.5, Math.min(1.5, baseRows / rows));
+    return baseRadius * scaleFactor;
+  }, [rows])
+  
+  const dynamicPegRadius = React.useMemo(() => {
+    // Base radius at 14 rows, scale down/up based on actual rows  
+    const baseRadius = 11;
+    const baseRows = 14;
+    const scaleFactor = Math.max(0.7, Math.min(1.3, baseRows / rows));
+    return baseRadius * scaleFactor;
+  }, [rows])
   
   // Calculate dynamic max multiplier for current mode
   const maxMultiplier = React.useMemo(() => Math.max(...bet), [bet])
@@ -476,6 +501,9 @@ export default function Plinko() {
       return;
     }
     
+    console.log(`🎯 PLINKO PLAY: rows=${rows}, buckets=${buckets}, multipliers.length=${multipliers.length}`);
+    console.log(`🎯 BALL/PEG SIZES: ballRadius=${dynamicBallRadius}, pegRadius=${dynamicPegRadius}`);
+    
     // Clear scoreboard hits when starting new game
     setBucketHits(new Map())
     setActiveBuckets(new Set())
@@ -488,6 +516,7 @@ export default function Plinko() {
     for (let i = 0; i < plays; i++) {
       await game.play({ wager, bet: Array.from(bet) })
       const result = await game.result()
+      console.log(`🎯 BALL ${i + 1}: result=${result.multiplier}, payout=${result.payout}`);
       totalPayout += result.payout
       // DO NOT plinko.reset() here; we want multiple concurrent balls
       plinko.run(result.multiplier)
@@ -583,12 +612,12 @@ export default function Plinko() {
                     const animationEffect = settings.enableMotion ? animation : 0
                     ctx.fillStyle = 'hsla(' + pegHue + ', 75%, 60%, ' + (1 + animationEffect * 2) * .2 + ')'
                     ctx.beginPath()
-                    ctx.arc(0, 0, PEG_RADIUS + 4, 0, Math.PI * 2)
+                    ctx.arc(0, 0, dynamicPegRadius + 4, 0, Math.PI * 2)
                     ctx.fill()
                     const light = 75 + animationEffect * 25
                     ctx.fillStyle = 'hsla(' + pegHue + ', 85%, ' + light + '%, 1)'
                     ctx.beginPath()
-                    ctx.arc(0, 0, PEG_RADIUS, 0, Math.PI * 2)
+                    ctx.arc(0, 0, dynamicPegRadius, 0, Math.PI * 2)
                     ctx.fill()
                     ctx.restore()
                   }
@@ -600,11 +629,11 @@ export default function Plinko() {
                       ctx.translate(position.x, position.y)
                       ctx.fillStyle = 'hsla(' + (i * 420 % 360) + ', 75%, 90%, .2)'
                       ctx.beginPath()
-                      ctx.arc(0, 0, PLINKO_RAIUS * 1.5, 0, Math.PI * 2)
+                      ctx.arc(0, 0, dynamicBallRadius * 1.5, 0, Math.PI * 2)
                       ctx.fill()
                       ctx.fillStyle = 'hsla(' + (i * 420 % 360) + ', 75%, 75%, 1)'
                       ctx.beginPath()
-                      ctx.arc(0, 0, PLINKO_RAIUS, 0, Math.PI * 2)
+                      ctx.arc(0, 0, dynamicBallRadius, 0, Math.PI * 2)
                       ctx.fill()
                       ctx.restore()
                     }
@@ -792,19 +821,21 @@ export default function Plinko() {
                         <button
                           key={count}
                           onClick={() => setCustomRows(count)}
-                          disabled={gamba.isPlaying}
+                          disabled={gamba.isPlaying || count === 18 || count === 20}
                           style={{
                             padding: '8px 12px',
                             borderRadius: '8px',
-                            border: `2px solid ${customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.4)'}`,
+                            border: `2px solid ${customRows === count ? '#00e676' : (count === 18 || count === 20) ? 'rgba(128, 128, 128, 0.4)' : 'rgba(0, 230, 118, 0.4)'}`,
                             background: customRows === count 
                               ? 'linear-gradient(135deg, rgba(0, 230, 118, 0.3) 0%, rgba(0, 200, 83, 0.4) 100%)'
-                              : 'linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 200, 83, 0.2) 100%)',
-                            color: customRows === count ? '#00e676' : 'rgba(0, 230, 118, 0.8)',
+                              : (count === 18 || count === 20) 
+                                ? 'linear-gradient(135deg, rgba(128, 128, 128, 0.1) 0%, rgba(96, 96, 96, 0.2) 100%)'
+                                : 'linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 200, 83, 0.2) 100%)',
+                            color: customRows === count ? '#00e676' : (count === 18 || count === 20) ? 'rgba(128, 128, 128, 0.6)' : 'rgba(0, 230, 118, 0.8)',
                             fontSize: '12px',
                             fontWeight: 'bold',
-                            cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                            opacity: gamba.isPlaying ? 0.5 : 1,
+                            cursor: gamba.isPlaying || count === 18 || count === 20 ? 'not-allowed' : 'pointer',
+                            opacity: gamba.isPlaying || count === 18 || count === 20 ? 0.5 : 1,
                             transition: 'all 0.2s ease'
                           }}
                         >
@@ -847,19 +878,21 @@ export default function Plinko() {
                         <button
                           key={count}
                           onClick={() => setCustomBuckets(count)}
-                          disabled={gamba.isPlaying}
+                          disabled={gamba.isPlaying || count === 14 || count === 16}
                           style={{
                             padding: '8px 12px',
                             borderRadius: '8px',
-                            border: `2px solid ${customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.4)'}`,
+                            border: `2px solid ${customBuckets === count ? '#00bcd4' : (count === 14 || count === 16) ? 'rgba(128, 128, 128, 0.4)' : 'rgba(0, 188, 212, 0.4)'}`,
                             background: customBuckets === count 
                               ? 'linear-gradient(135deg, rgba(0, 188, 212, 0.3) 0%, rgba(0, 172, 193, 0.4) 100%)'
-                              : 'linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 172, 193, 0.2) 100%)',
-                            color: customBuckets === count ? '#00bcd4' : 'rgba(0, 188, 212, 0.8)',
+                              : (count === 14 || count === 16)
+                                ? 'linear-gradient(135deg, rgba(128, 128, 128, 0.1) 0%, rgba(96, 96, 96, 0.2) 100%)'
+                                : 'linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 172, 193, 0.2) 100%)',
+                            color: customBuckets === count ? '#00bcd4' : (count === 14 || count === 16) ? 'rgba(128, 128, 128, 0.6)' : 'rgba(0, 188, 212, 0.8)',
                             fontSize: '12px',
                             fontWeight: 'bold',
-                            cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                            opacity: gamba.isPlaying ? 0.5 : 1,
+                            cursor: gamba.isPlaying || count === 14 || count === 16 ? 'not-allowed' : 'pointer',
+                            opacity: gamba.isPlaying || count === 14 || count === 16 ? 0.5 : 1,
                             transition: 'all 0.2s ease'
                           }}
                         >
