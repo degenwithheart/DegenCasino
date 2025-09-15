@@ -267,35 +267,35 @@ export default function FlipV2() {
           rows = 1
           // Large coins for few coins - maximize visibility
           const maxCoinSize = Math.min(availableWidth / cols * 0.8, availableHeight * 0.9)
-          coinSize = Math.min(250, maxCoinSize)  // Increased from 180
+          coinSize = Math.min(500, maxCoinSize)  // Increased from 180
           horizontalSpacing = (availableWidth - cols * coinSize) / Math.max(1, cols - 1)
           verticalSpacing = 0
         } else if (numCoins <= 8) {
           cols = 4
           rows = 2
           const maxCoinSize = Math.min(availableWidth / cols * 0.85, availableHeight / rows * 0.85)
-          coinSize = Math.min(190, maxCoinSize)  // Increased from 140
+          coinSize = Math.min(500, maxCoinSize)  // Increased from 140
           horizontalSpacing = (availableWidth - cols * coinSize) / (cols - 1)
           verticalSpacing = (availableHeight - rows * coinSize) / (rows - 1)
         } else if (numCoins <= 12) {
           cols = 4
           rows = 3
           const maxCoinSize = Math.min(availableWidth / cols * 0.9, availableHeight / rows * 0.9)
-          coinSize = Math.min(140, maxCoinSize)  // Increased from 100
+          coinSize = Math.min(500, maxCoinSize)  // Increased from 140
           horizontalSpacing = (availableWidth - cols * coinSize) / (cols - 1)
           verticalSpacing = (availableHeight - rows * coinSize) / (rows - 1)
         } else if (numCoins <= 16) {
           cols = 4
           rows = 4
           const maxCoinSize = Math.min(availableWidth / cols * 0.95, availableHeight / rows * 0.95)
-          coinSize = Math.min(110, maxCoinSize)  // Increased from 80
+          coinSize = Math.min(500, maxCoinSize)  // Increased from 80
           horizontalSpacing = (availableWidth - cols * coinSize) / (cols - 1)
           verticalSpacing = (availableHeight - rows * coinSize) / (cols - 1)
         } else {
           cols = 5
           rows = 4
           const maxCoinSize = Math.min(availableWidth / cols * 0.95, availableHeight / rows * 0.95)
-          coinSize = Math.min(90, maxCoinSize)  // Increased from 65
+          coinSize = Math.min(500, maxCoinSize)  // Increased from 65
           horizontalSpacing = (availableWidth - cols * coinSize) / (cols - 1)
           verticalSpacing = (availableHeight - rows * coinSize) / (rows - 1)
         }
