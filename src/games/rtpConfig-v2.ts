@@ -16,6 +16,11 @@ export const RTP_TARGETS_V2 = {
   'flip-v2': 0.96,        // Flip V2: 4% house edge
   'blackjack-v2': 0.97,   // BlackJack V2: 3% house edge
   'mines-v2': 0.96,       // Mines V2: 4% house edge
+  'cryptochartgame-v2': 0.95, // Crypto Chart Game V2: 5% house edge
+  'doubleornothing-v2': 0.94, // Double or Nothing V2: 6% house edge
+  'fancyvirtualhorseracing-v2': 0.95, // Fancy Virtual Horse Racing V2: 5% house edge
+  'keno-v2': 0.95,        // Keno V2: 5% house edge
+  'limbo-v2': 0.95,       // Limbo V2: 5% house edge
 } as const
 
 export type GameV2Key = keyof typeof RTP_TARGETS_V2
@@ -242,6 +247,174 @@ export const BET_ARRAYS_V2 = {
     // Calculate next multiplier if player continues
     getNextMultiplier: (mineCount: number, currentRevealed: number) => {
       return BET_ARRAYS_V2['mines-v2'].getMultiplier(mineCount, currentRevealed + 1)
+    }
+  },
+
+  'cryptochartgame-v2': {
+    calculateBetArray: (targetMultiplier: number) => {
+      // Create 1000 outcomes for granular control
+      const OUTCOMES = 1000
+      const betArray = Array(OUTCOMES).fill(0)
+      
+      // Calculate win probability based on target multiplier
+      // Higher targets = lower win probability
+      const baseProbability = 0.5
+      const difficultyFactor = Math.max(0.1, 1 / Math.log(targetMultiplier + 1))
+      const winProbability = Math.min(0.9, baseProbability * difficultyFactor)
+      
+      const winOutcomes = Math.floor(OUTCOMES * winProbability)
+      const houseEdge = 1 - RTP_TARGETS_V2['cryptochartgame-v2']
+      const fairMultiplier = 1 / winProbability
+      const adjustedMultiplier = fairMultiplier * (1 - houseEdge)
+      
+      // Set winning outcomes
+      for (let i = 0; i < winOutcomes; i++) {
+        betArray[i] = adjustedMultiplier
+      }
+      
+      return betArray
+    },
+    outcomeToText: (outcome: number, targetMultiplier: number) => {
+      const OUTCOMES = 1000
+      const winProbability = Math.min(0.9, 0.5 * Math.max(0.1, 1 / Math.log(targetMultiplier + 1)))
+      const winOutcomes = Math.floor(OUTCOMES * winProbability)
+      
+      if (outcome < winOutcomes) {
+        return `MOON 🚀 (${targetMultiplier.toFixed(2)}x)`
+      } else {
+        return `RUGGED 💥 (${(1 + Math.random() * (targetMultiplier - 1)).toFixed(2)}x)`
+      }
+    }
+  },
+
+  'doubleornothing-v2': {
+    calculateBetArray: (mode: number) => {
+      const modes = [
+        { multiplier: 1.88, outcomes: 2 }, // 2x mode with 6% house edge
+        { multiplier: 2.82, outcomes: 3 }, // 3x mode with 6% house edge  
+        { multiplier: 9.4, outcomes: 10 }  // 10x mode with 6% house edge
+      ]
+      
+      const selectedMode = modes[mode] || modes[0]
+      const betArray = Array(selectedMode.outcomes).fill(0)
+      
+      // Last outcome wins with the multiplier
+      betArray[selectedMode.outcomes - 1] = selectedMode.multiplier
+      
+      return betArray
+    },
+    getModeName: (mode: number) => {
+      const names = ['2x', '3x', '10x']
+      return names[mode] || '2x'
+    },
+    getModeLabels: (mode: number) => {
+      const labels = [
+        ['Double!', 'Nothing'],
+        ['Triple!', 'Nothing'],
+        ['Degen!', 'Nothing']
+      ]
+      return labels[mode] || labels[0]
+    }
+  },
+
+  'fancyvirtualhorseracing-v2': {
+    calculateBetArray: () => {
+      // 8 horses with varying odds
+      const baseMultipliers = [10, 8, 6, 4.5, 3.5, 2.8, 2.2, 1.8]
+      const houseEdge = 1 - RTP_TARGETS_V2['fancyvirtualhorseracing-v2']
+      
+      return baseMultipliers.map(multiplier => multiplier * (1 - houseEdge))
+    },
+    getHorseName: (index: number) => {
+      const names = [
+        'Lightning Bolt', 'Thunder Strike', 'Wind Runner', 'Fire Storm',
+        'Ocean Wave', 'Mountain Peak', 'Solar Flare', 'Lunar Eclipse'
+      ]
+      return names[index] || `Horse ${index + 1}`
+    },
+    getHorseOdds: (index: number) => {
+      const odds = ['10:1', '8:1', '6:1', '4.5:1', '3.5:1', '2.8:1', '2.2:1', '1.8:1']
+      return odds[index] || '1:1'
+    }
+  },
+
+  'keno-v2': {
+    GRID_SIZE: 40,
+    MAX_SELECTION: 10,
+    DRAW_COUNT: 10, // Numbers drawn per game
+    
+    calculateBetArray: (selectedCount: number) => {
+      // Keno payouts based on how many selected numbers match drawn numbers
+      const outcomes = selectedCount + 1 // 0 to selectedCount matches
+      const betArray = Array(outcomes).fill(0)
+      
+      if (selectedCount === 0) return betArray
+      
+      const houseEdge = 1 - RTP_TARGETS_V2['keno-v2']
+      
+      // Paytable for different hit counts (simplified for v2)
+      const payouts = {
+        1: [0, 3],                    // 1 selected: 0 hits = 0x, 1 hit = 3x
+        2: [0, 1, 9],                 // 2 selected: 0=0x, 1=1x, 2=9x
+        3: [0, 1, 2, 16],             // 3 selected: 0=0x, 1=1x, 2=2x, 3=16x
+        4: [0, 0.5, 2, 6, 25],        // 4 selected: and so on...
+        5: [0, 0.5, 1, 3, 15, 50],
+        6: [0, 0.5, 1, 2, 3, 30, 75],
+        7: [0, 0.5, 0.5, 1, 6, 12, 36, 100],
+        8: [0, 0.5, 0.5, 1, 2, 4, 20, 80, 500],
+        9: [0, 0.5, 0.5, 1, 1, 5, 10, 50, 200, 1000],
+        10: [0, 0, 0.5, 1, 2, 5, 15, 40, 100, 250, 1800]
+      }
+      
+      const basePayout = payouts[selectedCount as keyof typeof payouts] || payouts[1]
+      
+      // Apply house edge
+      for (let i = 0; i < Math.min(basePayout.length, outcomes); i++) {
+        betArray[i] = basePayout[i] * (1 - houseEdge)
+      }
+      
+      return betArray
+    },
+    
+    getHitCountText: (hits: number, selected: number) => {
+      if (hits === 0) return 'No Hits'
+      if (hits === selected) return `Perfect! ${hits}/${selected}`
+      return `${hits}/${selected} Hits`
+    }
+  },
+
+  'limbo-v2': {
+    calculateBetArray: (targetMultiplier: number) => {
+      // Limbo: try to reach target multiplier
+      // Simple bet array where win occurs if random value >= target
+      const outcomes = 1000 // 0-999 for granular control
+      const betArray = Array(outcomes).fill(0)
+      
+      // Calculate win probability (simplified limbo mechanics)
+      const winProbability = 1 / targetMultiplier
+      const winOutcomes = Math.floor(outcomes * winProbability)
+      
+      const houseEdge = 1 - RTP_TARGETS_V2['limbo-v2']
+      const adjustedMultiplier = targetMultiplier * (1 - houseEdge)
+      
+      // Set winning outcomes (first X outcomes win)
+      for (let i = 0; i < winOutcomes; i++) {
+        betArray[i] = adjustedMultiplier
+      }
+      
+      return betArray
+    },
+    
+    calculateResultMultiplier: (resultIndex: number, targetMultiplier: number, won: boolean) => {
+      if (won) {
+        // Winner gets target + some bonus
+        const bonus = (resultIndex % 100) / 500 // 0-0.2 bonus multiplier
+        return targetMultiplier + (targetMultiplier * bonus)
+      } else {
+        // Loser gets a value between 1 and target
+        const normalized = (resultIndex % 1000) / 1000
+        return 1 + (normalized * (targetMultiplier - 1))
+      }
     }
   },
 } as const

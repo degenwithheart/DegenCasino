@@ -25,7 +25,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'dice-v2',
-    live: 'down',
+    live: 'up',
     meta: {
       name: 'Dice v2',
       background: '#000000CC',
@@ -61,7 +61,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'flip',
-    live: 'down',
+    live: 'up',
     meta: {
       name: 'Flip',
       background: '#000000CC',
@@ -73,7 +73,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'roulette',
-    live: 'new',
+    live: 'down',
     meta: {
       name: 'Roulette',
       background: '#000000CC',
@@ -154,5 +154,65 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./MultiPoker-v2')),
+  },
+  {
+    id: 'cryptochartgame-v2',
+    live: 'new',
+    meta: {
+      name: 'Crypto Chart v2',
+      background: '#000000CC',
+      image: '/webp/games/crypto-chart.webp',
+      description: `Enter the volatile world of cryptocurrency trading where fortunes are made and lost in milliseconds. Set your target multiplier and watch as the market dances to the rhythm of chaos and opportunity. Will your chosen coin moon to astronomical heights, or will it get rugged before reaching your target? This is more than gambling — it's a simulation of the wild west of digital assets, where diamond hands are forged and paper hands are revealed. The chart never lies, but it often surprises. Navigate the peaks and valleys of price action in this romantic dance with financial destiny.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./CryptoChartGame-v2')),
+  },
+  {
+    id: 'doubleornothing-v2',
+    live: 'new',
+    meta: {
+      name: 'Double or Nothing v2',
+      background: '#000000CC',
+      image: '/webp/games/double-or-nothing.webp',
+      description: `The ultimate test of nerves and fortune distilled to its purest essence. Choose your poison: double your money with a coin flip, triple it with dice gods, or go full degen for the 10x moonshot. Each button hides a destiny — one leads to glory, the others to the void of nothing. This is capitalism in its rawest form, where greed meets probability in a beautiful, devastating embrace. The suspense builds as buttons reveal their secrets, and in that moment of revelation, you discover whether you're blessed by fortune or humbled by mathematics.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./DoubleOrNothing-v2')),
+  },
+  {
+    id: 'fancyvirtualhorseracing-v2',
+    live: 'new',
+    meta: {
+      name: 'Virtual Horse Racing v2',
+      background: '#000000CC',
+      image: '/webp/games/horse-racing.webp',
+      description: `Feel the thunder of hooves on digital dirt as eight magnificent steeds compete for glory in the most romantic of all sports. Each horse carries a story, a dream, and odds that whisper of both triumph and heartbreak. Lightning Bolt strikes like fate itself, while Lunar Eclipse moves with mysterious elegance through the pack. Choose your champion and watch as they gallop toward destiny, their every stride a heartbeat in the symphony of competition. This is not just racing — it's poetry in motion, where the finish line separates dreamers from believers.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./FancyVirtualHorseRacing-v2')),
+  },
+  {
+    id: 'keno-v2',
+    live: 'new',
+    meta: {
+      name: 'Keno v2',
+      background: '#000000CC',
+      image: '/webp/games/keno.webp',
+      description: `Enter the realm of numerical destiny where forty spheres hold the keys to fortune. Select your sacred numbers with the wisdom of the ancients, then watch as ten golden orbs emerge from the cosmic lottery to determine your fate. Each chosen number is a prayer whispered to Lady Luck herself, each match a love letter from the universe. The more selections you dare to make, the greater the potential for romantic triumph, yet the sweeter becomes each successful prediction. This is Keno — where mathematics dances with mysticism, and every draw brings the possibility of perfect numerical harmony.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./Keno-v2')),
+  },
+  {
+    id: 'limbo-v2',
+    live: 'new',
+    meta: {
+      name: 'Limbo v2',
+      background: '#000000CC',
+      image: '/webp/games/limbo.webp',
+      description: `Ascend the mystical ladder of multipliers where each rung brings both greater glory and deeper peril. Set your target in the heavens and watch as the cosmic counter climbs toward your chosen destiny. Will you reach the stars, or will fate crash your dreams back to earth? The higher you dare to aim, the rarer the air becomes, yet the sweeter the oxygen of victory tastes. This is Limbo — the ultimate test of greed versus wisdom, where knowing when to dream big and when to stay humble becomes the difference between earthly riches and celestial bankruptcy.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./Limbo-v2')),
   },
 ]
