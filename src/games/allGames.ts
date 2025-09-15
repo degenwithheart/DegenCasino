@@ -25,7 +25,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'dice-v2',
-    live: 'new',
+    live: 'up',
     meta: {
       name: 'Dice v2',
       background: '#000000CC',
@@ -49,7 +49,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'plinkorace',
-    live: 'up',
+    live: 'down',
     meta: {
       name: 'PlinkoRace',
       background: '#000000CC',
