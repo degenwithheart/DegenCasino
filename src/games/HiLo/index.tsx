@@ -3,6 +3,8 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -189,6 +191,28 @@ export default function HiLo(props: HiLoConfig) {
   // Get graphics settings to check if motion is enabled
   const { settings } = useGraphics()
   
+  // Mobile detection for responsive stats display
+  const { mobile: isMobile } = useIsCompact()
+
+  // Game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    sessionProfit: 0,
+    bestWin: 0
+  })
+
+  const handleResetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
+  }
+  
   // Effects system for enhanced visual feedback
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
@@ -329,11 +353,35 @@ export default function HiLo(props: HiLoConfig) {
           setProfit(0)
         }, 150)
       }
+
+      // Update game statistics
+      const profit = result.payout - wager
+      const isWin = result.payout > 0
+      
+      setGameStats(prev => ({
+        gamesPlayed: prev.gamesPlayed + 1,
+        wins: isWin ? prev.wins + 1 : prev.wins,
+        losses: isWin ? prev.losses : prev.losses + 1,
+        sessionProfit: prev.sessionProfit + profit,
+        bestWin: profit > prev.bestWin ? profit : prev.bestWin
+      }))
     }, 450)
   }
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="HiLo"
+          gameMode={progressive ? "Progressive" : "Normal"}
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <StyledHiLoBackground>
           {/* Romantic card background elements */}

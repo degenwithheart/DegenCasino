@@ -6,6 +6,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { 
@@ -57,6 +58,25 @@ export default function BlackJackV2() {
   
   // Load card back image
   const [cardBackImg, setCardBackImg] = React.useState<HTMLImageElement | null>(null)
+  
+  // Comprehensive game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    sessionProfit: 0,
+    bestWin: 0
+  })
+
+  const handleResetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
+  }
   
   React.useEffect(() => {
     const img = new Image()
@@ -231,6 +251,17 @@ export default function BlackJackV2() {
         const profit = result.payout - initialWager
         setTotalProfit(prev => prev + profit)
         setGameCount(prev => prev + 1)
+        
+        // Update comprehensive game statistics
+        const isWin = won
+        setGameStats(prev => ({
+          gamesPlayed: prev.gamesPlayed + 1,
+          wins: prev.wins + (isWin ? 1 : 0),
+          losses: prev.losses + (isWin ? 0 : 1),
+          sessionProfit: prev.sessionProfit + profit,
+          bestWin: Math.max(prev.bestWin, profit)
+        }))
+        
         if (won) {
           setWinCount(prev => prev + 1)
           sounds.play('win')
@@ -561,6 +592,18 @@ export default function BlackJackV2() {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="BlackJack"
+          gameMode="V2"
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <div style={{
           width: '100%',

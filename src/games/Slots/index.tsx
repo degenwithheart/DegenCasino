@@ -2,8 +2,10 @@ import { GameResult } from 'gamba-core-v2'
 import { EffectTest, GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React, { useEffect, useRef } from 'react'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { ItemPreview } from './ItemPreview'
 import { Reel } from './Reel'
@@ -36,18 +38,27 @@ export default function Slots() {
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   
-  // Responsive mode based on screen size
-  const [isMobile, setIsMobile] = React.useState(false)
-  
-  React.useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768) // Mobile breakpoint
-    }
-    
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
-    return () => window.removeEventListener('resize', checkScreenSize)
-  }, [])
+  // Mobile detection using the hook
+  const { mobile: isMobile } = useIsCompact()
+
+  // Game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    sessionProfit: 0,
+    bestWin: 0
+  })
+
+  const handleResetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
+  }
   
   // Dynamic values based on screen size
   const slotMode: SlotMode = isMobile ? 'classic' : 'wide'
@@ -210,6 +221,20 @@ export default function Slots() {
           effectsRef.current?.loseFlash() // Use theme's loseGlow color
           effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
         }
+
+        // Update game statistics
+        if (result) {
+          const profit = result.payout - wager
+          const isWin = result.payout > 0
+          
+          setGameStats(prev => ({
+            gamesPlayed: prev.gamesPlayed + 1,
+            wins: isWin ? prev.wins + 1 : prev.wins,
+            losses: isWin ? prev.losses : prev.losses + 1,
+            sessionProfit: prev.sessionProfit + profit,
+            bestWin: profit > prev.bestWin ? profit : prev.bestWin
+          }))
+        }
       }, FINAL_DELAY)
     }
   }
@@ -280,6 +305,18 @@ export default function Slots() {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Slots"
+          gameMode="Classic"
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <StyledSlotsBackground>
           {/* Enhanced background for Slots game */}

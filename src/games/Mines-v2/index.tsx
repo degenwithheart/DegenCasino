@@ -5,6 +5,7 @@ import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useGameMeta } from '../useGameMeta'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -35,12 +36,23 @@ export default function MinesV2() {
   const { mobile: isMobile } = useIsCompact()
 
   // V2 Stats tracking (standardized pattern)
-  const [stats, setStats] = React.useState({
+  const [gameStats, setGameStats] = React.useState({
     gamesPlayed: 0,
     wins: 0,
     losses: 0,
     sessionProfit: 0,
+    bestWin: 0
   })
+
+  const handleResetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
+  }
 
   // Game state
   const [wager, setWager] = useWagerInput()
@@ -61,11 +73,12 @@ export default function MinesV2() {
 
   // Reset stats
   const resetStats = () => {
-    setStats({
+    setGameStats({
       gamesPlayed: 0,
       wins: 0,
       losses: 0,
       sessionProfit: 0,
+      bestWin: 0
     })
   }
 
@@ -183,11 +196,13 @@ export default function MinesV2() {
         sounds.play('mine')
 
         // Update stats for loss
-        setStats(prev => ({
+        const profit = -wager
+        setGameStats(prev => ({
           ...prev,
           gamesPlayed: prev.gamesPlayed + 1,
           losses: prev.losses + 1,
-          sessionProfit: prev.sessionProfit - wager,
+          sessionProfit: prev.sessionProfit + profit,
+          bestWin: Math.max(prev.bestWin, profit)
         }))
 
         if (effectsRef.current) {
@@ -211,11 +226,12 @@ export default function MinesV2() {
 
           // Update stats for win
           const profit = result.payout - wager
-          setStats(prev => ({
+          setGameStats(prev => ({
             ...prev,
             gamesPlayed: prev.gamesPlayed + 1,
             wins: prev.wins + 1,
             sessionProfit: prev.sessionProfit + profit,
+            bestWin: Math.max(prev.bestWin, profit)
           }))
 
           if (effectsRef.current) {
@@ -357,6 +373,18 @@ export default function MinesV2() {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Mines"
+          gameMode="V2"
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <div style={{
           width: '100%',

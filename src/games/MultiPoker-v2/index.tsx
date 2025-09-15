@@ -5,6 +5,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { 
@@ -100,6 +101,15 @@ export default function MultiPokerV2() {
   const [chainHistory, setChainHistory] = React.useState<string[]>([])
   const [showModeSelection, setShowModeSelection] = React.useState(true) // Control which GameControlsSection to show
   const [hasPlayed, setHasPlayed] = React.useState(false) // Track if player has played like Dice-v2
+
+  // Comprehensive game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    sessionProfit: 0,
+    bestWin: 0
+  })
 
   // Derived state for UI
   const currentHandType = hand?.name || (cards.length > 0 ? 'Revealing...' : null)
@@ -781,6 +791,17 @@ export default function MultiPokerV2() {
         setHandCount(prev => prev + 1)
         setWinCount(prev => prev + 1)
         setGameCount(prev => prev + 1)
+        
+        // Update comprehensive game statistics
+        const profit = result.payout - currentWager
+        setGameStats(prev => ({
+          gamesPlayed: prev.gamesPlayed + 1,
+          wins: prev.wins + 1,
+          losses: prev.losses,
+          sessionProfit: prev.sessionProfit + profit,
+          bestWin: Math.max(prev.bestWin, profit)
+        }))
+        
         setShowingResult(true)
         setHasPlayed(true) // Mark as played when result is shown
         
@@ -806,12 +827,32 @@ export default function MultiPokerV2() {
           setHandCount(prev => prev + 1)
           setLossCount(prev => prev + 1)
           setGameCount(prev => prev + 1)
+          
+          // Update comprehensive game statistics for single mode loss
+          const profit = -currentWager
+          setGameStats(prev => ({
+            gamesPlayed: prev.gamesPlayed + 1,
+            wins: prev.wins,
+            losses: prev.losses + 1,
+            sessionProfit: prev.sessionProfit + profit,
+            bestWin: Math.max(prev.bestWin, profit)
+          }))
         } else {
           setCurrentBalance(0)
           setTotalProfit(-initialWager)
           setHandCount(prev => prev + 1)
           setLossCount(prev => prev + 1)
           setGameCount(prev => prev + 1)
+          
+          // Update comprehensive game statistics for chain/progressive mode loss
+          const profit = -initialWager
+          setGameStats(prev => ({
+            gamesPlayed: prev.gamesPlayed + 1,
+            wins: prev.wins,
+            losses: prev.losses + 1,
+            sessionProfit: prev.sessionProfit + profit,
+            bestWin: Math.max(prev.bestWin, profit)
+          }))
         }
         setShowingResult(true)
         setHasPlayed(true) // Mark as played when result is shown
@@ -902,6 +943,14 @@ export default function MultiPokerV2() {
     setLossCount(0)
     setGameCount(0)
     setChainHistory([])
+    // Reset comprehensive game stats
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
   }
 
   // Game state helpers - updated to match Dice-v2 pattern
@@ -942,6 +991,18 @@ export default function MultiPokerV2() {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="MultiPoker"
+          gameMode="V2"
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <div style={{
           width: '100%',

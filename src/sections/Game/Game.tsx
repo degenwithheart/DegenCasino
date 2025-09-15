@@ -467,7 +467,7 @@ function CustomRenderer() {
               width: '100%',
               height: '99%',
               overflow: 'hidden',
-              borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
+              borderRadius: 'clamp(16px, 2vw, 24px)',
               border: '2px solid rgba(255,215,0,.4)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
               boxShadow: '0 10px 50px -10px #ff008866, 0 0 0 1px #000',
@@ -479,23 +479,23 @@ function CustomRenderer() {
             }}>
               <div style={{
                 textAlign: 'center',
-                padding: window.innerWidth <= 640 ? '1.5rem' : window.innerWidth <= 768 ? '2rem' : '3rem',
-                maxWidth: window.innerWidth <= 640 ? '320px' : '500px',
+                padding: 'clamp(1.5rem, 4vw, 3rem)',
+                maxWidth: 'clamp(320px, 80vw, 500px)',
               }}>
                 <div style={{
-                  width: window.innerWidth <= 640 ? 120 : window.innerWidth <= 768 ? 140 : 160,
-                  height: window.innerWidth <= 640 ? 120 : window.innerWidth <= 768 ? 140 : 160,
-                  margin: window.innerWidth <= 640 ? '0 auto 1.5rem' : '0 auto 2rem',
-                  borderRadius: window.innerWidth <= 640 ? 24 : 32,
+                  width: 'clamp(120px, 20vw, 160px)',
+                  height: 'clamp(120px, 20vw, 160px)',
+                  margin: '0 auto clamp(1.5rem, 3vw, 2rem)',
+                  borderRadius: 'clamp(24px, 4vw, 32px)',
                   background: 'linear-gradient(145deg,#201826,#110b14)',
-                  padding: window.innerWidth <= 640 ? 8 : 12,
+                  padding: 'clamp(8px, 1.5vw, 12px)',
                   position: 'relative',
                   boxShadow: '0 8px 32px -8px #ffae0055, 0 0 0 1px #ffffff0f, 0 0 24px -4px #ff6ec744'
                 }}>
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    borderRadius: window.innerWidth <= 640 ? 24 : 32,
+                    borderRadius: 'clamp(24px, 4vw, 32px)',
                     background: 'radial-gradient(circle at 30% 30%, rgba(255,215,0,0.3), transparent 70%)',
                     pointerEvents: 'none',
                     mixBlendMode: 'overlay'
@@ -503,7 +503,7 @@ function CustomRenderer() {
                   <div style={{
                     width: '100%',
                     height: '100%',
-                    borderRadius: window.innerWidth <= 640 ? 20 : 24,
+                    borderRadius: 'clamp(20px, 3vw, 24px)',
                     background: '#0d0d11',
                     display: 'flex',
                     alignItems: 'center',
@@ -540,7 +540,7 @@ function CustomRenderer() {
                               display: flex; 
                               align-items: center; 
                               justify-content: center; 
-                              font-size: ${window.innerWidth <= 640 ? '2.5rem' : '4rem'}; 
+                              font-size: clamp(2.5rem, 5vw, 4rem); 
                               color: #ffd700;
                             ">🎮</div>
                           `
@@ -550,7 +550,7 @@ function CustomRenderer() {
                   </div>
                 </div>
                 <h1 style={{ 
-                  fontSize: window.innerWidth <= 640 ? 32 : window.innerWidth <= 768 ? 40 : 48, 
+                  fontSize: 'clamp(32px, 6vw, 48px)', 
                   margin: '0 0 1rem 0', 
                   background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
                   WebkitBackgroundClip: 'text', 
@@ -560,21 +560,21 @@ function CustomRenderer() {
                   {game.meta.name}
                 </h1>
                 <p style={{ 
-                  fontSize: window.innerWidth <= 640 ? 14 : window.innerWidth <= 768 ? 16 : 18, 
+                  fontSize: 'clamp(14px, 2.5vw, 18px)', 
                   lineHeight: 1.6, 
                   color: '#ffffffc9', 
-                  margin: window.innerWidth <= 640 ? '0 0 2rem 0' : window.innerWidth <= 768 ? '0 0 2.5rem 0' : '0 0 3rem 0' 
+                  margin: '0 0 clamp(2rem, 4vw, 3rem) 0' 
                 }}>
                   Ready to test your luck? Click start when you're ready to play!
                 </p>
                 <button 
                   onClick={handleSplashStart} 
                   style={{
-                    width: window.innerWidth <= 640 ? '160px' : '200px', 
-                    padding: window.innerWidth <= 640 ? '14px 20px' : '18px 24px', 
-                    fontSize: window.innerWidth <= 640 ? 16 : 18, 
+                    width: 'clamp(160px, 30vw, 200px)', 
+                    padding: 'clamp(14px, 2.5vw, 18px) clamp(20px, 4vw, 24px)', 
+                    fontSize: 'clamp(16px, 2.5vw, 18px)', 
                     fontWeight: 700,
-                    borderRadius: window.innerWidth <= 640 ? 12 : 16, 
+                    borderRadius: 'clamp(12px, 2vw, 16px)', 
                     border: '1px solid #ffffff22', 
                     cursor: 'pointer',
                     background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
@@ -618,7 +618,7 @@ function CustomRenderer() {
               width: '100%',
               height: '99%',
               overflow: 'hidden',
-              borderRadius: window.innerWidth <= 640 ? '16px' : '24px',
+              borderRadius: 'clamp(16px, 2vw, 24px)',
               border: '2px solid rgba(255,215,0,.35)',
               background: 'linear-gradient(160deg,#121217 0%,#1d0b24 60%,#2d0040 100%)',
               boxShadow: '0 10px 50px -10px #ff008866, 0 0 0 1px #000',
@@ -629,34 +629,34 @@ function CustomRenderer() {
               <button onClick={() => { setInfo(false); setProvablyFair(false) }}
                 style={{
                   position: 'absolute', 
-                  top: window.innerWidth <= 640 ? 8 : 10, 
-                  right: window.innerWidth <= 640 ? 8 : 10, 
-                  width: window.innerWidth <= 640 ? 36 : 42, 
-                  height: window.innerWidth <= 640 ? 36 : 42,
+                  top: 'clamp(8px, 1.5vw, 10px)', 
+                  right: 'clamp(8px, 1.5vw, 10px)', 
+                  width: 'clamp(36px, 6vw, 42px)', 
+                  height: 'clamp(36px, 6vw, 42px)',
                   borderRadius: '50%', border: '1px solid #ffffff22',
                   background: 'linear-gradient(135deg,#ff0066,#ffae00)', color: 'white',
                   fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 18px #ff006655',
-                  fontSize: window.innerWidth <= 640 ? '14px' : '16px'
+                  fontSize: 'clamp(14px, 2.5vw, 16px)'
                 }}>✕</button>
               {info && (
                 <div style={{ 
-                  padding: window.innerWidth <= 640 ? '40px 20px 24px 20px' : window.innerWidth <= 768 ? '48px 32px 32px 32px' : '56px 48px 40px 48px' 
+                  padding: 'clamp(24px, 6vw, 48px) clamp(20px, 4vw, 48px) clamp(24px, 4vw, 40px) clamp(20px, 4vw, 48px)' 
                 }}>
-                  <div style={{ textAlign: 'center', marginBottom: window.innerWidth <= 640 ? 20 : 28 }}>
+                  <div style={{ textAlign: 'center', marginBottom: 'clamp(20px, 4vw, 28px)' }}>
                     <div style={{
-                      width: window.innerWidth <= 640 ? 100 : window.innerWidth <= 768 ? 120 : 140,
-                      height: window.innerWidth <= 640 ? 100 : window.innerWidth <= 768 ? 120 : 140,
-                      margin: window.innerWidth <= 640 ? '0 auto 18px' : '0 auto 26px',
-                      borderRadius: window.innerWidth <= 640 ? 24 : 32,
+                      width: 'clamp(100px, 18vw, 140px)',
+                      height: 'clamp(100px, 18vw, 140px)',
+                      margin: '0 auto clamp(18px, 3vw, 26px)',
+                      borderRadius: 'clamp(24px, 4vw, 32px)',
                       background: 'linear-gradient(145deg,#201826,#110b14)',
-                      padding: window.innerWidth <= 640 ? 8 : 10,
+                      padding: 'clamp(8px, 1.5vw, 10px)',
                       position: 'relative',
                       boxShadow: '0 6px 28px -6px #ffae0055, 0 0 0 1px #ffffff0f, 0 0 18px -2px #ff6ec744'
                     }}>
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        borderRadius: window.innerWidth <= 640 ? 24 : 32,
+                        borderRadius: 'clamp(24px, 4vw, 32px)',
                         background: 'radial-gradient(circle at 30% 30%, rgba(255,215,0,0.25), transparent 70%)',
                         pointerEvents: 'none',
                         mixBlendMode: 'overlay'
@@ -664,7 +664,7 @@ function CustomRenderer() {
                       <div style={{
                         width: '100%',
                         height: '100%',
-                        borderRadius: window.innerWidth <= 640 ? 20 : 24,
+                        borderRadius: 'clamp(20px, 3vw, 24px)',
                         background: '#0d0d11',
                         display: 'flex',
                         alignItems: 'center',
@@ -685,7 +685,7 @@ function CustomRenderer() {
                       </div>
                     </div>
                     <h1 style={{ 
-                      fontSize: window.innerWidth <= 640 ? 24 : window.innerWidth <= 768 ? 28 : 34, 
+                      fontSize: 'clamp(24px, 5vw, 34px)', 
                       margin: 0, 
                       background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
                       WebkitBackgroundClip: 'text', 
@@ -694,17 +694,17 @@ function CustomRenderer() {
                     }}>{game.meta.name}</h1>
                   </div>
                   <p style={{ 
-                    fontSize: window.innerWidth <= 640 ? 14 : 16, 
+                    fontSize: 'clamp(14px, 2.5vw, 16px)', 
                     lineHeight: 1.6, 
                     color: '#ffffffc9', 
-                    margin: window.innerWidth <= 640 ? '0 0 20px' : '0 0 28px' 
+                    margin: 'clamp(0px, 0px, 0px) 0 clamp(20px, 4vw, 28px) 0' 
                   }}>{game.meta.description}</p>
                   <button onClick={() => setInfo(false)} style={{
                     width: '100%', 
-                    padding: window.innerWidth <= 640 ? '12px 16px' : '15px 20px', 
-                    fontSize: window.innerWidth <= 640 ? 14 : 16, 
+                    padding: 'clamp(12px, 2.5vw, 15px) clamp(16px, 3vw, 20px)', 
+                    fontSize: 'clamp(14px, 2.5vw, 16px)', 
                     fontWeight: 600,
-                    borderRadius: window.innerWidth <= 640 ? 12 : 14, 
+                    borderRadius: 'clamp(12px, 2vw, 14px)', 
                     border: '1px solid #ffffff22', 
                     cursor: 'pointer',
                     background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
@@ -716,7 +716,7 @@ function CustomRenderer() {
               )}
               {provablyFair && (
                 <div style={{ 
-                  padding: window.innerWidth <= 640 ? '40px 20px 24px 20px' : window.innerWidth <= 768 ? '48px 32px 32px 32px' : '56px 48px 40px 48px' 
+                  padding: 'clamp(40px, 8vw, 56px) clamp(20px, 4vw, 48px) clamp(24px, 5vw, 40px) clamp(20px, 4vw, 48px)' 
                 }}>
                   <ProvablyFairModal onClose={() => setProvablyFair(false)} inline />
                 </div>
@@ -758,12 +758,15 @@ function CustomRenderer() {
       )}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
         <Container key={`game-container-${renderKey}`}>
+          {/* Stats header as separate area above game screen */}
+          {ready && <GambaUi.PortalTarget target="stats" />}
+          
           <Screen>
             {!ready ? (
               <Splash>
                 <svg 
-                  width={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
-                  height={window.innerWidth <= 640 ? "120" : window.innerWidth <= 768 ? "150" : "180"} 
+                  width="clamp(120px, 25vw, 180px)" 
+                  height="clamp(120px, 25vw, 180px)" 
                   viewBox="0 0 180 180" 
                   fill="none" 
                   xmlns="http://www.w3.org/2000/svg" 
@@ -785,7 +788,7 @@ function CustomRenderer() {
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fontFamily="'Luckiest Guy', cursive, sans-serif"
-                      fontSize={window.innerWidth <= 640 ? "24" : window.innerWidth <= 768 ? "30" : "36"}
+                      fontSize="clamp(24px, 5vw, 36px)"
                       fill="#ffd700"
                       letterSpacing="2"
                       style={{
@@ -810,22 +813,17 @@ function CustomRenderer() {
             ) : null}
             <GambaUi.PortalTarget target="error" />
             {ready && (
-              <>
-                {/* Stats header as separate portal area above screen */}
-                <GambaUi.PortalTarget target="stats" />
-                
-                <GameScalingProvider
-                  options={{
-                    minHeight: 280,
-                    maxHeight: 900,
-                    controlsReservedSpace: 120,
-                    headerReservedSpace: 60,
-                    aggressiveScaling: true,
-                  }}
-                >
-                  <GambaUi.PortalTarget target="screen" />
-                </GameScalingProvider>
-              </>
+              <GameScalingProvider
+                options={{
+                  minHeight: 280,
+                  maxHeight: 900,
+                  controlsReservedSpace: 120,
+                  headerReservedSpace: 60,
+                  aggressiveScaling: true,
+                }}
+              >
+                <GambaUi.PortalTarget target="screen" />
+              </GameScalingProvider>
             )}
           </Screen>
           {/* Portal Safety Monitor - actively prevents unsafe sizing */}

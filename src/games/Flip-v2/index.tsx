@@ -6,6 +6,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { 
@@ -68,6 +69,25 @@ export default function FlipV2() {
       size: number
     }>
   })
+
+  // Comprehensive game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    sessionProfit: 0,
+    bestWin: 0
+  })
+
+  const handleResetStats = () => {
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
+  }
 
   // Quality-based settings
   const particleCount = settings.quality === 'ultra' ? 50 :
@@ -677,6 +697,15 @@ export default function FlipV2() {
         sounds.play('win')
         setTotalProfit(prev => prev + gameResult.winnings)
         setWinCount(prev => prev + 1)
+        
+        // Update comprehensive game statistics for win
+        setGameStats(prev => ({
+          gamesPlayed: prev.gamesPlayed + 1,
+          wins: prev.wins + 1,
+          losses: prev.losses,
+          sessionProfit: prev.sessionProfit + gameResult.winnings,
+          bestWin: Math.max(prev.bestWin, gameResult.winnings)
+        }))
       } else {
         // LOSE
         if (effectsRef.current) {
@@ -690,6 +719,15 @@ export default function FlipV2() {
         sounds.play('lose')
         setTotalProfit(prev => prev + gameResult.winnings)
         setLossCount(prev => prev + 1)
+        
+        // Update comprehensive game statistics for loss
+        setGameStats(prev => ({
+          gamesPlayed: prev.gamesPlayed + 1,
+          wins: prev.wins,
+          losses: prev.losses + 1,
+          sessionProfit: prev.sessionProfit + gameResult.winnings,
+          bestWin: Math.max(prev.bestWin, gameResult.winnings)
+        }))
       }
       
       setGameCount(prev => prev + 1)
@@ -732,6 +770,18 @@ export default function FlipV2() {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Flip"
+          gameMode="V2"
+          rtp="95"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <div style={{
           width: '100%',
@@ -742,10 +792,10 @@ export default function FlipV2() {
         }}>
           {/* Stats header removed - now rendered outside portal */}
 
-          {/* Canvas for game UI - Always visible */}
+          {/* Canvas for game UI - Now uses full available space since stats moved outside */}
           <div style={{
             position: 'absolute',
-            top: '120px',
+            top: '20px',
             left: '20px',
             right: '20px',
             bottom: '140px',
