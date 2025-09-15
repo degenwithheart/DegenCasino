@@ -16,3 +16,5 @@ node_modules
 # Ignore all scripts except compress-build.mjs
 scripts/*
 !scripts/compress-build.mjs
+!scripts/generate-changelog.mjs
+!scripts/monitor-rpc.mjs
