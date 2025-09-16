@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useTheme } from '../../../themes/ThemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { Container, Tabs, Section } from './Whitepaper.styles'
 
 const tabs = ['Overview', 'Token', 'Fairness', 'Roadmap']
@@ -7,20 +7,20 @@ const tabs = ['Overview', 'Token', 'Fairness', 'Roadmap']
 const WhitepaperTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Overview')
   const [visible, setVisible] = useState(false)
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   useEffect(() => {
     setVisible(true)
   }, [])
 
   return (
-    <Container visible={visible} $theme={currentTheme}>
+    <Container visible={visible} $colorScheme={currentColorScheme}>
       <h1>🕯️ The Sacred Scrolls of Degen Casino �️</h1>
       <p style={{ fontStyle: 'italic', color: '#ccc', marginBottom: '2rem', textAlign: 'center', opacity: 0.9 }}>
         <em>This isn't just a casino — it's a serenade of risk, a love letter to the chain, written in the flickering candlelight of our digital temple.</em>
       </p>
 
-      <Tabs $theme={currentTheme}>
+      <Tabs $colorScheme={currentColorScheme}>
         {tabs.map(tab => (
           <button
             key={tab}
@@ -33,7 +33,7 @@ const WhitepaperTabs: React.FC = () => {
       </Tabs>
 
       {activeTab === 'Overview' && (
-        <Section $theme={currentTheme}>
+        <Section $colorScheme={currentColorScheme}>
           <h2>🏛️ The Palace of Chance 🏛️</h2>
           <p><strong>Degen Casino</strong> is the on-chain rebellion, a symphony of risk where every bet becomes a verse in our eternal ballad.</p>
           <p>Just provably fair games, settled instantly by code, not committees — pure, unadulterated blockchain poetry.</p>
@@ -50,7 +50,7 @@ const WhitepaperTabs: React.FC = () => {
       )}
 
       {activeTab === 'Token' && (
-        <Section $theme={currentTheme}>
+        <Section $colorScheme={currentColorScheme}>
           <h2>💎 The Heart Token: $DGHRT 💎</h2>
           <p><strong>$DGHRT</strong> is the emotional and financial heartbeat of our casino sanctuary, pulsing with the rhythm of true degen passion.</p>
           <ul>
@@ -72,7 +72,7 @@ const WhitepaperTabs: React.FC = () => {
       )}
 
       {activeTab === 'Fairness' && (
-        <Section $theme={currentTheme}>
+        <Section $colorScheme={currentColorScheme}>
           <h2>⚖️ No Middlemen, Just Sacred Code ⚖️</h2>
           <p>No gimmicks. No bonuses. No custodians. Just the pure, unfiltered truth of the blockchain.</p>
           <p>Every transaction settles on-chain — powered by Solana + Gamba contracts, our eternal witnesses.</p>
@@ -86,7 +86,7 @@ const WhitepaperTabs: React.FC = () => {
       )}
 
       {activeTab === 'Roadmap' && (
-        <Section $theme={currentTheme}>
+        <Section $colorScheme={currentColorScheme}>
           <h2>👑 Your Identity: The Degen With Heart 👑</h2>
           <p><strong>"Building is my love language."</strong></p>
           <p>I'm <strong>Stuart / @DegenWithHeart</strong> — a full-stack dev with code in my veins and DeFi in my chest, crafting digital realms from pure passion.</p>

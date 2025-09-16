@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useNetwork } from '../../contexts/NetworkContext'
 import { ENABLE_DEVNET_SUPPORT } from '../../constants'
 
-const DevnetWarningBanner = styled.div<{ $theme?: any }>`
+const DevnetWarningBanner = styled.div<{ $colorScheme?: any }>`
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   padding: 12px 20px;
@@ -63,10 +63,10 @@ const WarningText = styled.div`
 `
 
 interface DevnetWarningProps {
-  theme?: any
+  colorScheme?: any
 }
 
-export default function DevnetWarning({ theme }: DevnetWarningProps) {
+export default function DevnetWarning({ colorScheme }: DevnetWarningProps) {
   const { isDevnet, networkConfig } = useNetwork()
 
   if (!ENABLE_DEVNET_SUPPORT || !isDevnet) {
@@ -74,7 +74,7 @@ export default function DevnetWarning({ theme }: DevnetWarningProps) {
   }
 
   return (
-    <DevnetWarningBanner $theme={theme}>
+    <DevnetWarningBanner $colorScheme={colorScheme}>
       <WarningIcon>⚠️</WarningIcon>
       <WarningText>
         <span className="highlight">TESTING MODE:</span> You are connected to{' '}

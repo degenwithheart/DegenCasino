@@ -11,13 +11,13 @@ import { useReferral, useTokenBalance, useCurrentToken, GambaUi } from "gamba-re
 import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../utils/user/userProfileUtils';
 import { ReferralDashboard } from '../../components';
 import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 import { ProfileContainer, ProfileHeader, SectionBox, CasinoButton, AvatarContainer, DefaultAvatar } from './UserProfile.styles';
 
 export function Profile() {
   const wallet = useWallet();
   const navigate = useNavigate();
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   const [username, setUsername] = useState("Guest");
   const [bio, setBio] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -86,8 +86,8 @@ export function Profile() {
 
   return (
     <>
-      <ProfileContainer $theme={currentTheme}>
-        <ProfileHeader $theme={currentTheme}>
+      <ProfileContainer $colorScheme={currentColorScheme}>
+        <ProfileHeader $colorScheme={currentColorScheme}>
           <h1>👤 User Profile 🎰</h1>
         </ProfileHeader>
 

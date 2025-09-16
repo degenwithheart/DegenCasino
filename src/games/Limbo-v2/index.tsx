@@ -10,7 +10,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 
 // Enhanced Components imports
 import { EnhancedWagerInput, EnhancedPlayButton } from '../../components/Game/EnhancedGameControls'
-import { GameControlsSection } from '../../components'
+import { GameControlsSection, GameStatsHeader, GameplayFrame, MobileControls, DesktopControls } from '../../components'
 
 interface Particle {
   x: number
@@ -127,6 +127,9 @@ export default function LimboGame({}: LimboGameProps) {
   const [gameWon, setGameWon] = useState<boolean | null>(null)
   const [lastPayout, setLastPayout] = useState<number>(0)
   const [isDragging, setIsDragging] = useState<boolean>(false)
+  
+  // Stats tracking
+  const isMobile = window.innerWidth <= 768
   
   // Canvas refs
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -474,85 +477,130 @@ export default function LimboGame({}: LimboGameProps) {
 
   return (
     <>
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Limbo"
+          gameMode="V2"
+          rtp="95"
+          stats={{
+            gamesPlayed: 0,
+            wins: 0,
+            losses: 0,
+            sessionProfit: 0,
+            bestWin: lastPayout || 0
+          }}
+          onReset={() => {
+            setGameState(GAME_STATES.IDLE)
+            setTargetMultiplier(GAME_CONFIG.DEFAULT_MULTIPLIER)
+            setCurrentMultiplier(1.0)
+            setResultMultiplier(0)
+            setGameWon(null)
+            setLastPayout(0)
+            setParticles([])
+          }}
+        />
+      </GambaUi.Portal>
+      
       <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <GameContainer>
-            <CanvasContainer>
-              <Canvas
-                ref={canvasRef}
-                width={GAME_CONFIG.CANVAS_WIDTH}
-                height={GAME_CONFIG.CANVAS_HEIGHT}
-                onMouseDown={handleCanvasMouseDown}
-                onMouseMove={handleCanvasMouseMove}
-                onMouseUp={handleCanvasMouseUp}
-                onMouseLeave={handleCanvasMouseUp}
-              />
-              
-              <GameInfo>
-                <h3>Limbo v2</h3>
-                <div className="info-row">
-                  <span className="label">Target:</span>
-                  <span className="value">{targetMultiplier.toFixed(2)}x</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Win Chance:</span>
-                  <span className="value">{winChance.toFixed(2)}%</span>
-                </div>
-                {gameState === GAME_STATES.COMPLETE && (
-                  <div className="info-row">
-                    <span className="label">Result:</span>
-                    <span className="value" style={{ color: gameWon ? GAME_CONFIG.COLORS.successGreen : GAME_CONFIG.COLORS.dangerRed }}>
-                      {gameWon ? `Won ${lastPayout.toFixed(2)}` : 'Lost'}
-                    </span>
-                  </div>
-                )}
-              </GameInfo>
-              
-              <StatsDisplay>
-                <h4>Game Stats</h4>
-                <div className="stat-row">
-                  <span>Multiplier:</span>
-                  <span>{targetMultiplier.toFixed(2)}x</span>
-                </div>
-                <div className="stat-row">
-                  <span>Win Chance:</span>
-                  <span>{winChance.toFixed(2)}%</span>
-                </div>
-                <div className="stat-row">
-                  <span>Potential Payout:</span>
-                  <span>
-                    <TokenValue
-                      mint={pool.token}
-                      suffix={selectedToken?.symbol}
-                      amount={potentialPayout}
-                    />
+        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <canvas
+            ref={canvasRef}
+            width={GAME_CONFIG.CANVAS_WIDTH}
+            height={GAME_CONFIG.CANVAS_HEIGHT}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
+            onMouseLeave={handleCanvasMouseUp}
+            style={{
+              border: `2px solid ${GAME_CONFIG.COLORS.accent}`,
+              borderRadius: '8px',
+              background: GAME_CONFIG.COLORS.background,
+              cursor: isDragging ? 'grabbing' : 'grab'
+            }}
+          />
+          
+          <GameControlsSection>
+            <div className="game-info-section">
+              <div className="info-item">
+                <span className="label">Target:</span>
+                <span className="value">{targetMultiplier.toFixed(2)}x</span>
+              </div>
+              <div className="info-item">
+                <span className="label">Current:</span>
+                <span className="value">{currentMultiplier.toFixed(2)}x</span>
+              </div>
+              <div className="info-item">
+                <span className="label">Win Chance:</span>
+                <span className="value">{winChance.toFixed(2)}%</span>
+              </div>
+              <div className="info-item">
+                <span className="label">Potential:</span>
+                <span className="value">
+                  <TokenValue
+                    mint={pool.token}
+                    suffix={selectedToken?.symbol}
+                    amount={potentialPayout}
+                  />
+                </span>
+              </div>
+              {gameState === GAME_STATES.COMPLETE && (
+                <div className="info-item">
+                  <span className="label">Result:</span>
+                  <span className="value" style={{ color: gameWon ? GAME_CONFIG.COLORS.successGreen : GAME_CONFIG.COLORS.dangerRed }}>
+                    {gameWon ? `Won ${lastPayout.toFixed(2)}` : 'Lost'}
                   </span>
                 </div>
-              </StatsDisplay>
-            </CanvasContainer>
-          </GameContainer>
-        </GambaUi.Responsive>
+              )}
+            </div>
+          </GameControlsSection>
+          
+          <GameplayFrame>
+            <div style={{ 
+              textAlign: 'center', 
+              color: GAME_CONFIG.COLORS.accent,
+              fontSize: '14px',
+              marginTop: '10px'
+            }}>
+              Drag the handle on the chart to set your target multiplier
+            </div>
+          </GameplayFrame>
+        </div>
       </GambaUi.Portal>
       
       <GambaUi.Portal target="controls">
-        <EnhancedWagerInput 
-          value={wager} 
-          onChange={setWager}
-          disabled={gameState !== GAME_STATES.IDLE}
-        />
-        <EnhancedPlayButton
-          onClick={resetGame}
-          disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.ANIMATING}
-        >
-          Reset
-        </EnhancedPlayButton>
-        <EnhancedPlayButton
-          onClick={play}
-          disabled={gameState !== GAME_STATES.IDLE}
-        >
-          {gameState === GAME_STATES.PLAYING ? 'Playing...' : 
-           gameState === GAME_STATES.ANIMATING ? 'Animating...' : 'Play'}
-        </EnhancedPlayButton>
+        {isMobile ? (
+          <MobileControls
+            wager={wager}
+            setWager={setWager}
+            onPlay={play}
+            playDisabled={gameState !== GAME_STATES.IDLE}
+            playText={gameState === GAME_STATES.PLAYING ? 'Playing...' : 
+                     gameState === GAME_STATES.ANIMATING ? 'Animating...' : 'Play'}
+          >
+            <EnhancedPlayButton
+              onClick={resetGame}
+              disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.ANIMATING}
+            >
+              Reset
+            </EnhancedPlayButton>
+          </MobileControls>
+        ) : (
+          <DesktopControls
+            wager={wager}
+            setWager={setWager}
+            onPlay={play}
+            playDisabled={gameState !== GAME_STATES.IDLE}
+            playText={gameState === GAME_STATES.PLAYING ? 'Playing...' : 
+                     gameState === GAME_STATES.ANIMATING ? 'Animating...' : 'Play'}
+          >
+            <EnhancedPlayButton
+              onClick={resetGame}
+              disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.ANIMATING}
+            >
+              Reset
+            </EnhancedPlayButton>
+          </DesktopControls>
+        )}
       </GambaUi.Portal>
     </>
   )

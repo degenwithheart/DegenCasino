@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { sparkle } from '../../themes/globalThemes'
+import { sparkle } from '../../themes/globalColorSchemes'
 
 export const HeaderSection = styled.div`
   text-align: center;
@@ -17,22 +17,22 @@ export const HeaderSection = styled.div`
   }
 `
 
-export const Title = styled.h2<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.primary || '#6ffaff'};
+export const Title = styled.h2<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#6ffaff'};
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   letter-spacing: 0.15em;
-  text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#6ffaff'}cc, 0 0 4px #fff;
+  text-shadow: 0 0 16px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#6ffaff'}cc, 0 0 4px #fff;
   font-family: 'Orbitron', 'JetBrains Mono', monospace;
 `
 
-export const Subtitle = styled.p<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+export const Subtitle = styled.p<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'};
   font-size: 0.9rem;
   margin: 0;
   letter-spacing: 0.1em;
-  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
+  text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}88;
   font-family: 'JetBrains Mono', monospace;
 `
 

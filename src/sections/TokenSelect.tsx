@@ -22,15 +22,15 @@ import { useWalletToast } from '../utils/wallet/solanaWalletToast'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useReferralCount } from '../hooks/analytics/useReferralAnalytics'
 import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../utils/user/referralTier'
-import { useTheme } from '../themes/ThemeContext'
+import { useColorScheme } from '../themes/ColorSchemeContext'
 import NetworkToggle from '../components/Network/NetworkToggle'
 import { useNetwork } from '../contexts/NetworkContext'
 
-const TokensContainer = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
+const TokensContainer = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   border-radius: 12px;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 4px 16px rgba(255, 215, 0, 0.15)'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 4px 16px rgba(255, 215, 0, 0.15)'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   padding: 16px;
   max-height: 400px;
   overflow-y: auto;
@@ -95,10 +95,10 @@ const TokenGrid = styled.div`
   }
 `
 
-const TokenCard = styled.button<{ $selected?: boolean; $theme?: any }>`
+const TokenCard = styled.button<{ $selected?: boolean; $colorScheme?: any }>`
   width: 100%;
-  background: ${({ $selected, $theme }) => ($selected ? `${$theme?.colors?.primary || '#ffd700'}20` : $theme?.colors?.background || 'rgba(24, 24, 24, 0.8)')};
-  border: 1px solid ${({ $selected, $theme }) => ($selected ? $theme?.colors?.primary || '#ffd700' : $theme?.colors?.border || 'rgba(255, 255, 255, 0.2)')};
+  background: ${({ $selected, $colorScheme }) => ($selected ? `${$colorScheme?.colors?.primary || '#ffd700'}20` : $colorScheme?.colors?.background || 'rgba(24, 24, 24, 0.8)')};
+  border: 1px solid ${({ $selected, $colorScheme }) => ($selected ? $colorScheme?.colors?.primary || '#ffd700' : $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.2)')};
   border-radius: 10px;
   padding: 10px 12px;
   cursor: pointer;
@@ -253,7 +253,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
   const referralCount = useReferralCount(userAddress?.toBase58())
   const tierInfo = getReferralTierInfo(referralCount)
   const referralsToNext = getReferralsToNextTier(referralCount)
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   const [mode, setMode] = React.useState<'tokens' | 'fees' | 'invite'>(
     initialTab === 'free' || initialTab === 'live' ? 'tokens' : initialTab || 'tokens'
@@ -594,9 +594,9 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
         </div>
       ) : (
         <>
-          <NetworkToggle theme={currentTheme} />
+          <NetworkToggle colorScheme={currentColorScheme} />
           <SectionHeading>Select Token</SectionHeading>
-          <TokensContainer $theme={currentTheme}>
+          <TokensContainer $colorScheme={currentColorScheme}>
             {/* Free Play Tokens Section */}
             {POOLS.filter((p) => p.token.equals(FAKE_TOKEN_MINT)).length > 0 && (
               <TokenSection>
@@ -609,7 +609,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
                       key={`free-${i}`}
                       onClick={() => selectPool(pool)}
                       $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
-                      $theme={currentTheme}
+                      $colorScheme={currentColorScheme}
                     >
                       <TokenSelectItem mint={pool.token} />
                     </TokenCard>
@@ -630,7 +630,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
                       key={`live-${i}`}
                       onClick={() => selectPool(pool)}
                       $selected={selectedMint && typeof selectedMint.equals === 'function' ? selectedMint.equals(pool.token) : selectedToken?.mint.equals(pool.token)}
-                      $theme={currentTheme}
+                      $colorScheme={currentColorScheme}
                     >
                       <TokenSelectItem mint={pool.token} />
                     </TokenCard>

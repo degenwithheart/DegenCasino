@@ -4,11 +4,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { SIDEBAR_LINKS } from '../../constants';
 import { useWallet } from '@solana/wallet-adapter-react';
 import styled, { css } from 'styled-components';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 const SIDEBAR_WIDTH = 80;
 
-const SidebarContainer = styled.nav<{ $theme?: any }>`
+const SidebarContainer = styled.nav<{ $colorScheme?: any }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -47,7 +47,7 @@ const SidebarList = styled.ul`
 	width: 100%;
 `;
 
-const SidebarItem = styled.li<{ $active?: boolean; $theme?: any }>`
+const SidebarItem = styled.li<{ $active?: boolean; $colorScheme?: any }>`
 	width: 100%;
 	display: flex;
 	justify-content: center;
@@ -96,7 +96,7 @@ const SidebarItem = styled.li<{ $active?: boolean; $theme?: any }>`
 	}
 `;
 
-const CasinoLogo = styled.div<{ $theme?: any }>`
+const CasinoLogo = styled.div<{ $colorScheme?: any }>`
 	margin: 2rem 0 2.5rem;
 	display: flex;
 	align-items: center;
@@ -131,11 +131,11 @@ const CasinoLogo = styled.div<{ $theme?: any }>`
 export default function Sidebar() {
 	const { connected, publicKey } = useWallet();
 	const location = useLocation();
-	const { currentTheme } = useTheme();
+	const { currentColorScheme } = useColorScheme();
 
 	return (
-		<SidebarContainer $theme={currentTheme}>
-			<CasinoLogo $theme={currentTheme}>
+		<SidebarContainer $colorScheme={currentColorScheme}>
+			<CasinoLogo $colorScheme={currentColorScheme}>
 				<img src="/webp/fakemoney.webp" alt="Casino Logo" />
 			</CasinoLogo>
 			<SidebarList>
@@ -154,7 +154,7 @@ export default function Sidebar() {
 							: false;
 					if (link.external) {
 						return (
-							<SidebarItem key={i} $theme={currentTheme}>
+							<SidebarItem key={i} $colorScheme={currentColorScheme}>
 								<a href={to as string} target="_blank" rel="noopener noreferrer">
 									<link.icon />
 									<span style={{ fontSize: '0.8rem' }}>{link.label}</span>
@@ -165,7 +165,7 @@ export default function Sidebar() {
 					if (link.label === 'Games') {
 						// Games button triggers modal, handled in App.tsx context
 						return (
-							<SidebarItem key={i} $theme={currentTheme}>
+							<SidebarItem key={i} $colorScheme={currentColorScheme}>
 								<button
 									type="button"
 									onClick={() => {
@@ -179,7 +179,7 @@ export default function Sidebar() {
 						);
 					}
 					return (
-						<SidebarItem key={i} $active={isActive} $theme={currentTheme}>
+						<SidebarItem key={i} $active={isActive} $colorScheme={currentColorScheme}>
 							<Link to={to as string}>
 								<link.icon />
 								<span style={{ fontSize: '0.8rem' }}>{link.label}</span>

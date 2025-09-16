@@ -2,15 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { getErrorCode, getErrorMessageForCode } from "../../constants/errorCodes";
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
-const ModalOverlay = styled.div<{ $theme?: any }>`
+const ModalOverlay = styled.div<{ $colorScheme?: any }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: ${({ $theme }) => $theme?.colors?.surface ? `${$theme.colors.surface}65` : 'rgba(10, 20, 40, 0.65)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `${$colorScheme.colors.surface}65` : 'rgba(10, 20, 40, 0.65)'};
   z-index: 3000;
   display: flex;
   align-items: center;
@@ -20,19 +20,19 @@ const ModalOverlay = styled.div<{ $theme?: any }>`
   box-sizing: border-box;
 `;
 
-const ModalContent = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(30, 34, 44, 0.92)'};
+const ModalContent = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(30, 34, 44, 0.92)'};
   border-radius: 22px;
   padding: 40px 32px 28px 32px;
   min-width: 340px;
   max-width: 500px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 8px 40px 0 rgba(0,0,0,0.55), 0 1.5px 0 rgba(255,255,255,0.04) inset'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 8px 40px 0 rgba(0,0,0,0.55), 0 1.5px 0 rgba(255,255,255,0.04) inset'};
   font-family: 'JetBrains Mono', 'Fira Mono', 'monospace';
-  color: ${({ $theme }) => $theme?.colors?.text || '#eaf6fb'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#eaf6fb'};
   position: relative;
-  border: 1.5px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255,255,255,0.08)'};
+  border: 1.5px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255,255,255,0.08)'};
   backdrop-filter: blur(12px);
 
   @media (max-width: 600px) {
@@ -101,11 +101,11 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ open, onClose, title = '
   const errorCode = getErrorCode(stackOrMessage);
   const errorMessage = getErrorMessageForCode(errorCode);
   const isDev = import.meta.env.MODE !== 'production';
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
 
   return ReactDOM.createPortal(
-    <ModalOverlay onClick={onClose} $theme={currentTheme}>
-      <ModalContent onClick={e => e.stopPropagation()} $theme={currentTheme}>
+    <ModalOverlay onClick={onClose} $colorScheme={currentColorScheme}>
+      <ModalContent onClick={e => e.stopPropagation()} $colorScheme={currentColorScheme}>
         <CloseButton onClick={onClose} aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 5L15 15" stroke="white" strokeWidth="2" strokeLinecap="round"/>

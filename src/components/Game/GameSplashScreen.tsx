@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { GambaUi } from 'gamba-react-ui-v2'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 interface GameSplashScreenProps {
   gameName: string
@@ -54,7 +54,7 @@ const shimmer = keyframes`
 `
 
 // Styled Components
-const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $theme?: any }>`
+const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $colorScheme?: any }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,15 +71,15 @@ const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $theme?
   }
 `
 
-const GameIconContainer = styled.div<{ $theme?: any }>`
+const GameIconContainer = styled.div<{ $colorScheme?: any }>`
   position: relative;
   width: 120px;
   height: 120px;
   margin-bottom: 2rem;
   border-radius: 24px;
-  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(145deg, #201826, #110b14)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'linear-gradient(145deg, #201826, #110b14)'};
   padding: 8px;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.1)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.1)'};
   
   &::before {
     content: '';
@@ -110,11 +110,11 @@ const GameIconContainer = styled.div<{ $theme?: any }>`
   }
 `
 
-const GameIcon = styled.div<{ $theme?: any }>`
+const GameIcon = styled.div<{ $colorScheme?: any }>`
   width: 100%;
   height: 100%;
   border-radius: 18px;
-  background: ${({ $theme }) => $theme?.colors?.background || '#0d0d11'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.background || '#0d0d11'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,11 +134,11 @@ const GameIcon = styled.div<{ $theme?: any }>`
   }
 `
 
-const GameTitle = styled.h1<{ $theme?: any }>`
+const GameTitle = styled.h1<{ $colorScheme?: any }>`
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 1rem 0;
-  background: ${({ $theme }) => $theme?.colors?.primary ? `linear-gradient(90deg, ${$theme.colors.primary}, ${$theme.colors.secondary || $theme.colors.primary}, ${$theme.colors.accent || $theme.colors.primary})` : 'linear-gradient(90deg, #ffe27a, #ff5ba5, #a259ff)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `linear-gradient(90deg, ${$colorScheme.colors.primary}, ${$colorScheme.colors.secondary || $colorScheme.colors.primary}, ${$colorScheme.colors.accent || $colorScheme.colors.primary})` : 'linear-gradient(90deg, #ffe27a, #ff5ba5, #a259ff)'};
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -151,16 +151,16 @@ const GameTitle = styled.h1<{ $theme?: any }>`
   }
 `
 
-const StartButton = styled.button<{ $theme?: any }>`
+const StartButton = styled.button<{ $colorScheme?: any }>`
   padding: 16px 48px;
   font-size: 1.2rem;
   font-weight: 700;
   border: none;
   border-radius: 16px;
-  background: ${({ $theme }) => $theme?.colors?.primary || 'linear-gradient(135deg, #ffae00, #ff0066)'};
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary || 'linear-gradient(135deg, #ffae00, #ff0066)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   cursor: pointer;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 8px 24px rgba(255, 0, 102, 0.4), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 8px 24px rgba(255, 0, 102, 0.4), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2)'};
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -204,9 +204,9 @@ const StartButton = styled.button<{ $theme?: any }>`
   }
 `
 
-const WelcomeText = styled.p<{ $theme?: any }>`
+const WelcomeText = styled.p<{ $colorScheme?: any }>`
   font-size: 1.1rem;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255,255,255,0.8)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255,255,255,0.8)'};
   margin: 0 0 2rem 0;
   line-height: 1.5;
   max-width: 300px;
@@ -218,7 +218,7 @@ const WelcomeText = styled.p<{ $theme?: any }>`
 `
 
 export function GameSplashScreen({ gameName, gameImage, onStart, visible }: GameSplashScreenProps) {
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const [isExiting, setIsExiting] = React.useState(false)
 
   const handleStart = () => {

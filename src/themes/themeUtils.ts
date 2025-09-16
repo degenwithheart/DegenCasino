@@ -1,19 +1,19 @@
-import { GlobalTheme } from './globalThemes';
+import { GlobalColorScheme } from './globalColorSchemes';
 
 /**
- * Utility functions for theme management and styling
+ * Utility functions for colorScheme management and styling
  */
 
 /**
- * Get a theme value with fallback
+ * Get a colorScheme value with fallback
  */
-export const getThemeValue = (
-  theme: GlobalTheme,
+export const getColorSchemeValue = (
+  colorScheme: GlobalColorScheme,
   path: string,
   fallback?: any
 ): any => {
   const keys = path.split('.');
-  let value: any = theme;
+  let value: any = colorScheme;
 
   for (const key of keys) {
     if (value && typeof value === 'object' && key in value) {
@@ -27,14 +27,14 @@ export const getThemeValue = (
 };
 
 /**
- * Get color from theme with opacity support
+ * Get color from colorScheme with opacity support
  */
-export const getThemeColor = (
-  theme: GlobalTheme,
+export const getColorSchemeColor = (
+  colorScheme: GlobalColorScheme,
   colorKey: string,
   opacity?: number
 ): string => {
-  const color = getThemeValue(theme, `colors.${colorKey}`);
+  const color = getColorSchemeValue(colorScheme, `colors.${colorKey}`);
   if (!color) return '#000000';
 
   if (opacity !== undefined && opacity < 1) {
@@ -51,43 +51,43 @@ export const getThemeColor = (
 };
 
 /**
- * Get typography styles from theme
+ * Get typography styles from colorScheme
  */
 export const getTypography = (
-  theme: GlobalTheme,
+  colorScheme: GlobalColorScheme,
   variant: 'fontFamily' | 'headingColor' | 'bodyColor'
 ) => {
-  return getThemeValue(theme, `typography.${variant}`, {});
+  return getColorSchemeValue(colorScheme, `typography.${variant}`, {});
 };
 
 /**
- * Get animation styles from theme
+ * Get animation styles from colorScheme
  */
 export const getAnimation = (
-  theme: GlobalTheme,
+  colorScheme: GlobalColorScheme,
   animationKey: string
 ) => {
-  return getThemeValue(theme, `animations.${animationKey}`, {});
+  return getColorSchemeValue(colorScheme, `animations.${animationKey}`, {});
 };
 
 /**
- * Get effect styles from theme
+ * Get effect styles from colorScheme
  */
 export const getEffect = (
-  theme: GlobalTheme,
+  colorScheme: GlobalColorScheme,
   effectKey: string
 ) => {
-  return getThemeValue(theme, `effects.${effectKey}`, {});
+  return getColorSchemeValue(colorScheme, `effects.${effectKey}`, {});
 };
 
 /**
- * Get pattern styles from theme
+ * Get pattern styles from colorScheme
  */
 export const getPattern = (
-  theme: GlobalTheme,
+  colorScheme: GlobalColorScheme,
   patternKey: string
 ) => {
-  return getThemeValue(theme, `patterns.${patternKey}`, {});
+  return getColorSchemeValue(colorScheme, `patterns.${patternKey}`, {});
 };
 
 /**
@@ -97,17 +97,17 @@ export const createThemeVariable = (
   property: string,
   value: string
 ): string => {
-  return `--theme-${property}: ${value};`;
+  return `--colorScheme-${property}: ${value};`;
 };
 
 /**
- * Get all theme CSS custom properties
+ * Get all colorScheme CSS custom properties
  */
-export const getThemeVariables = (theme: GlobalTheme): string => {
+export const getColorSchemeVariables = (colorScheme: GlobalColorScheme): string => {
   const variables: string[] = [];
 
   // Colors
-  Object.entries(theme.colors).forEach(([key, value]) => {
+  Object.entries(colorScheme.colors).forEach(([key, value]) => {
     if (typeof value === 'string') {
       variables.push(createThemeVariable(`color-${key}`, value));
     } else if (typeof value === 'object' && value !== null) {
@@ -121,21 +121,21 @@ export const getThemeVariables = (theme: GlobalTheme): string => {
   });
 
   // Effects
-  Object.entries(theme.effects).forEach(([key, value]) => {
+  Object.entries(colorScheme.effects).forEach(([key, value]) => {
     if (typeof value === 'string') {
       variables.push(createThemeVariable(`effect-${key}`, value));
     }
   });
 
   // Patterns
-  Object.entries(theme.patterns).forEach(([key, value]) => {
+  Object.entries(colorScheme.patterns).forEach(([key, value]) => {
     if (typeof value === 'string') {
       variables.push(createThemeVariable(`pattern-${key}`, value));
     }
   });
 
   // Typography
-  Object.entries(theme.typography).forEach(([key, value]) => {
+  Object.entries(colorScheme.typography).forEach(([key, value]) => {
     if (typeof value === 'string') {
       variables.push(createThemeVariable(`typography-${key}`, value));
     }
@@ -145,11 +145,11 @@ export const getThemeVariables = (theme: GlobalTheme): string => {
 };
 
 /**
- * Apply theme to CSS variables
+ * Apply colorScheme to CSS variables
  */
-export const applyThemeVariables = (theme: GlobalTheme): void => {
+export const applyColorSchemeVariables = (colorScheme: GlobalColorScheme): void => {
   const root = document.documentElement;
-  const variables = getThemeVariables(theme);
+  const variables = getColorSchemeVariables(colorScheme);
 
   // Apply each variable
   variables.split('\n').forEach(variable => {
@@ -163,12 +163,12 @@ export const applyThemeVariables = (theme: GlobalTheme): void => {
 /**
  * Theme transition utility
  */
-export const createThemeTransition = (
-  theme: GlobalTheme,
+export const createColorSchemeTransition = (
+  colorScheme: GlobalColorScheme,
   properties: string[] = ['color', 'background-color', 'border-color']
 ): string => {
-  const duration = getThemeValue(theme, 'animations.duration', '0.3s');
-  const easing = getThemeValue(theme, 'animations.easing', 'ease-in-out');
+  const duration = getColorSchemeValue(colorScheme, 'animations.duration', '0.3s');
+  const easing = getColorSchemeValue(colorScheme, 'animations.easing', 'ease-in-out');
 
   return properties
     .map(prop => `${prop} ${duration} ${easing}`)
@@ -176,10 +176,10 @@ export const createThemeTransition = (
 };
 
 /**
- * Responsive theme value utility
+ * Responsive colorScheme value utility
  */
 export const getResponsiveValue = (
-  theme: GlobalTheme,
+  colorScheme: GlobalColorScheme,
   baseValue: any,
   breakpoints?: { mobile?: any; tablet?: any; desktop?: any }
 ): any => {

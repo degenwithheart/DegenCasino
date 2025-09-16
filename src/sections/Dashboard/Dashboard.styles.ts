@@ -1,7 +1,7 @@
 import styled, { keyframes, css } from "styled-components";
 
 // Romantic Serenade Keyframe animations
-export const romanticPulse = keyframes<{ $theme?: any }>`
+export const romanticPulse = keyframes<{ $colorScheme?: any }>`
   0% { 
     box-shadow: 
       0 0 30px rgba(212, 165, 116, 0.4), 
@@ -54,7 +54,7 @@ export const dreamlikeFloat = keyframes`
 `;
 
 // Romantic animated accent bar
-export const AccentBar = styled.div<{ $theme?: any }>`
+export const AccentBar = styled.div<{ $colorScheme?: any }>`
   height: 4px;
   width: 100%;
   border-radius: 8px;
@@ -86,7 +86,7 @@ export const CasinoSparkles = styled.div`
 // Global Dashboard wrapper with romantic glassmorphism styling
 interface CompactDivProps {
   $compact?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 export const DashboardWrapper = styled.div<CompactDivProps>`
   max-width: none; /* Let main handle max-width */
@@ -190,7 +190,7 @@ export type CompactProps = {
   $compact?: boolean;
 };
 
-export const GameSliderWrapper = styled.div<{ $theme?: any }>`
+export const GameSliderWrapper = styled.div<{ $colorScheme?: any }>`
   width: 100%;
   display: flex;
   gap: 1.5rem;
@@ -201,7 +201,7 @@ export const GameSliderWrapper = styled.div<{ $theme?: any }>`
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: ${({ $theme }) => `rgba(255, 255, 255, 0.1) ${$theme?.colors?.surface || 'transparent'}`};
+  scrollbar-color: ${({ $colorScheme }) => `rgba(255, 255, 255, 0.1) ${$colorScheme?.colors?.surface || 'transparent'}`};
   scroll-behavior: smooth;
 
   /* Ensure minimum touch target size */
@@ -215,17 +215,17 @@ export const GameSliderWrapper = styled.div<{ $theme?: any }>`
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    background-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     border-radius: 4px;
-    border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+    border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+    background-color: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'};
   }
 
   &::-webkit-scrollbar-track {
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
     border-radius: 4px;
   }
 
@@ -261,7 +261,7 @@ export const GameSliderWrapper = styled.div<{ $theme?: any }>`
 `;
 
 // Glassy wrapper for game cards in slider with neon effects
-export const GameCardWrapper = styled.div<CompactProps & { $theme?: any }>`
+export const GameCardWrapper = styled.div<CompactProps & { $colorScheme?: any }>`
   width: ${({ $compact }) => ($compact ? '180px' : '200px')};
   height: ${({ $compact }) => ($compact ? '162px' : '180px')};
   max-width: 220px;
@@ -284,8 +284,8 @@ export const GameCardWrapper = styled.div<CompactProps & { $theme?: any }>`
 
   &:hover {
     transform: scale(1.03) rotate(-1deg);
-    box-shadow: 0 0 32px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}cc, 0 0 64px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}88;
-    border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: 0 0 32px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}cc, 0 0 64px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}88;
+    border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     z-index: 10;
   }
 
@@ -296,7 +296,7 @@ export const GameCardWrapper = styled.div<CompactProps & { $theme?: any }>`
     left: -2px;
     right: -2px;
     bottom: -2px;
-    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+    background: linear-gradient(45deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}, ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#ff00cc'}, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
     border-radius: 1rem;
     opacity: 0;
     z-index: -1;
@@ -363,8 +363,8 @@ export const SectionWrapper = styled.div<CompactDivProps>`
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: 0 0 24px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}22;
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: 0 0 24px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}22;
     transform: translateY(-2px);
   }
 
@@ -376,8 +376,8 @@ export const SectionWrapper = styled.div<CompactDivProps>`
     margin-bottom: 1.5rem;
     font-family: 'Luckiest Guy', cursive, sans-serif;
     font-size: ${({ $compact }) => ($compact ? '1.2rem' : '2rem')};
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'};
     letter-spacing: 1px;
   }
 
@@ -403,7 +403,7 @@ export const SectionWrapper = styled.div<CompactDivProps>`
   }
 `;
 
-export const ConnectButton = styled.button<CompactDivProps & { $theme?: any }>`
+export const ConnectButton = styled.button<CompactDivProps & { $colorScheme?: any }>`
   margin: 2rem auto 0;
   display: block;
   padding: ${({ $compact }) => ($compact ? '0.7rem 1.2rem' : '1rem 2.5rem')};
@@ -440,7 +440,7 @@ export const ConnectButton = styled.button<CompactDivProps & { $theme?: any }>`
   }
 `;
 
-export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $theme?: any }>`
+export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $colorScheme?: any }>`
   /* Romantic glassmorphism toggle button */
   background: ${({ $active }) => $active 
     ? 'rgba(212, 165, 116, 0.15)' 

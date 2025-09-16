@@ -17,7 +17,7 @@ export const moveGradient = keyframes`
   100% { background-position: 100% 50%; }
 `
 
-export const StyledFooter = styled.footer<{ $theme?: any }>`
+export const StyledFooter = styled.footer<{ $colorScheme?: any }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -25,10 +25,10 @@ export const StyledFooter = styled.footer<{ $theme?: any }>`
   width: 100vw;
   height: 72px;
   padding: 0 48px;
-  background: ${({ $theme }) => $theme?.colors?.background || 'rgba(24, 24, 24, 0.9)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.background || 'rgba(24, 24, 24, 0.9)'};
   backdrop-filter: blur(20px);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
-  border-top: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  border-top: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
   box-sizing: border-box;
 
   display: flex;
@@ -36,7 +36,7 @@ export const StyledFooter = styled.footer<{ $theme?: any }>`
   justify-content: space-between;
 
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: ${({ $theme }) => $theme?.colors?.text || '#ddd'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#ddd'};
   z-index: 1000;
 
   &::before {
@@ -49,8 +49,8 @@ export const StyledFooter = styled.footer<{ $theme?: any }>`
     background: linear-gradient(
       90deg,
       transparent 0%,
-      ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}11 25%,
-      ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}11 75%,
+      ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}11 25%,
+      ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}11 75%,
       transparent 100%
     );
     opacity: 0.6;
@@ -252,7 +252,7 @@ export const GradientBorder = styled.div`
   opacity: 0.7;
 `
 
-export const StyledConnectionStatus = styled.div<{ $theme?: any }>`
+export const StyledConnectionStatus = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   margin-right: 24px;
@@ -266,7 +266,7 @@ export const StyledConnectionStatus = styled.div<{ $theme?: any }>`
   }
 `
 
-export const FooterLinks = styled.ul<{ $theme?: any }>`
+export const FooterLinks = styled.ul<{ $colorScheme?: any }>`
   display: flex;
   list-style: none;
   margin: 0;
@@ -277,7 +277,7 @@ export const FooterLinks = styled.ul<{ $theme?: any }>`
     margin: 0;
     
     a {
-      color: ${({ $theme }) => $theme?.colors?.text || '#ddd'};
+      color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#ddd'};
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 500;
@@ -306,7 +306,7 @@ export const FooterLinks = styled.ul<{ $theme?: any }>`
   }
 `
 
-export const MobileFooter = styled.div<{ $theme?: any }>`
+export const MobileFooter = styled.div<{ $colorScheme?: any }>`
   display: none;
   
   @media (max-width: 480px) {

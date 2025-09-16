@@ -34,7 +34,7 @@ const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
-import { ThemeProvider } from './themes/ThemeContext';
+import { ColorSchemeProvider } from './themes/ColorSchemeContext';
 
 // Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
@@ -168,7 +168,7 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider>
+    <ColorSchemeProvider>
       <GraphicsProvider>
         <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
           {showGamesModal && (
@@ -221,6 +221,6 @@ export default function App() {
         <CacheDebugWrapper />
       </GamesModalContext.Provider>
       </GraphicsProvider>
-    </ThemeProvider>
+    </ColorSchemeProvider>
   );
 }

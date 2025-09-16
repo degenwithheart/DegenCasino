@@ -40,7 +40,7 @@ export const candlestickGlow = keyframes`
 export const sparkle = loveLetterSparkle;
 export const moveGradient = romanticGradientMove;
 
-export const ModalContent = styled.div<{ $theme?: any }>`
+export const ModalContent = styled.div<{ $colorScheme?: any }>`
   /* Desktop/base: cap at 700px while respecting dynamic viewport (handles mobile browser UI) */
   width: min(700px, 96dvw);
   min-width: 0;
@@ -49,13 +49,13 @@ export const ModalContent = styled.div<{ $theme?: any }>`
   margin-bottom: 1rem;
   margin-top: 1rem;
   padding: clamp(1rem, 4vw, 2rem);
-  background: ${({ $theme }) => $theme?.colors?.surface || 'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.95) 100%)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.95) 100%)'};
   border-radius: 24px;
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.3)'};
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 16px 48px rgba(10, 5, 17, 0.8), 0 8px 24px rgba(212, 165, 116, 0.1), inset 0 1px 0 rgba(212, 165, 116, 0.2)'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(212, 165, 116, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 16px 48px rgba(10, 5, 17, 0.8), 0 8px 24px rgba(212, 165, 116, 0.1), inset 0 1px 0 rgba(212, 165, 116, 0.2)'};
   backdrop-filter: blur(30px) saturate(1.5);
   position: relative;
-  color: ${({ $theme }) => $theme?.colors?.text || 'var(--love-letter-gold)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'var(--love-letter-gold)'};
   font-family: 'DM Sans', sans-serif;
   animation: ${candlestickGlow} 4s ease-in-out infinite;
 
@@ -150,15 +150,15 @@ export const HeaderSection = styled.div`
   }
 `;
 
-export const Title = styled.h1<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.primary || 'var(--love-letter-gold)'};
+export const Title = styled.h1<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || 'var(--love-letter-gold)'};
   font-size: clamp(1.4rem, 5vw, 2.2rem);
   font-weight: 600;
   margin: 0 0 0.5rem 0;
   letter-spacing: 0.1em;
   text-shadow: 
-    0 0 16px ${({ $theme }) => $theme?.colors?.primary || 'rgba(212, 165, 116, 0.6)'},
-    0 0 4px ${({ $theme }) => $theme?.colors?.primary || 'rgba(212, 165, 116, 0.4)'};
+    0 0 16px ${({ $colorScheme }) => $colorScheme?.colors?.primary || 'rgba(212, 165, 116, 0.6)'},
+    0 0 4px ${({ $colorScheme }) => $colorScheme?.colors?.primary || 'rgba(212, 165, 116, 0.4)'};
   font-family: 'Libre Baskerville', serif;
   position: relative;
   z-index: 10;

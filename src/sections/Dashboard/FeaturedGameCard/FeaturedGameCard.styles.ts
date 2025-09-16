@@ -6,19 +6,19 @@ export const featuredGlow = keyframes`
   100% { box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88; }
 `;
 
-export const StyledFeaturedGameCard = styled.div<{ $background: string; $theme?: any }>`
+export const StyledFeaturedGameCard = styled.div<{ $background: string; $colorScheme?: any }>`
   width: 100%;
   aspect-ratio: 1/.9;
   background: ${(props) => props.$background};
   border-radius: 14px;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   font-size: 26px;
   font-weight: bold;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px #ffd700cc, 0 0 64px #a259ff88'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px #ffd700cc, 0 0 64px #a259ff88'};
   animation: ${featuredGlow} 1.5s infinite alternate;
   display: flex;
   align-items: center;

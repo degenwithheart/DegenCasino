@@ -40,7 +40,7 @@ const SIDEBAR_WIDTH = 80;
 interface ContainerProps {
   $compact?: boolean;
   visible?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 export const Container = styled.div<ContainerProps>`
   max-width: none; /* Let main handle max-width */
@@ -63,7 +63,7 @@ export const Container = styled.div<ContainerProps>`
 
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(20px)')};
-  color: ${({ $theme }) => $theme?.colors?.textPrimary || '#e8d5c4'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textPrimary || '#e8d5c4'};
   overflow: hidden;
 
   &:hover {
@@ -130,7 +130,7 @@ export const Container = styled.div<ContainerProps>`
   }
 `;
 
-export const Tabs = styled.div<{ $theme?: any }>`
+export const Tabs = styled.div<{ $colorScheme?: any }>`
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
@@ -207,7 +207,7 @@ export const Tabs = styled.div<{ $theme?: any }>`
   }
 `
 
-export const Section = styled.section<{ $theme?: any }>`
+export const Section = styled.section<{ $colorScheme?: any }>`
   line-height: 1.8;
   font-size: 1.1rem;
   position: relative;
@@ -217,8 +217,8 @@ export const Section = styled.section<{ $theme?: any }>`
     font-family: 'Luckiest Guy', cursive;
     font-size: 3rem;
     margin-bottom: 0.5rem;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
     animation: ${loveLetterFloat} 4s ease-in-out infinite;
     text-align: center;
     position: relative;
@@ -250,10 +250,10 @@ export const Section = styled.section<{ $theme?: any }>`
     font-family: 'Luckiest Guy', cursive;
     font-size: 2.2rem;
     margin-bottom: 1.5rem;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 15px rgba(212, 165, 116, 0.5)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 15px rgba(212, 165, 116, 0.5)'};
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+    border-bottom: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
     position: relative;
     animation: ${dreamlikeFloat} 5s ease-in-out infinite;
 
@@ -264,7 +264,7 @@ export const Section = styled.section<{ $theme?: any }>`
       left: 0;
       width: 0;
       height: 2px;
-      background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(90deg, #d4a574, #b8336a, #8b5a9e)'};
+      background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(90deg, #d4a574, #b8336a, #8b5a9e)'};
       transition: width 0.8s ease;
     }
 
@@ -275,7 +275,7 @@ export const Section = styled.section<{ $theme?: any }>`
 
   p, ul {
     margin-bottom: 1.5rem;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#e8d5c4'};
     font-weight: 500;
     opacity: 0.95;
   }
@@ -302,24 +302,24 @@ export const Section = styled.section<{ $theme?: any }>`
 
   strong {
     font-weight: 700;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
   }
 
   em {
     font-style: italic;
-    color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
     font-weight: 500;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 6px rgba(139, 90, 158, 0.3)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 6px rgba(139, 90, 158, 0.3)'};
   }
 
   a {
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
     text-decoration: none;
     transition: all 0.4s ease;
     position: relative;
     font-weight: 600;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
 
     &::after {
       content: '';
@@ -328,13 +328,13 @@ export const Section = styled.section<{ $theme?: any }>`
       left: 0;
       width: 0;
       height: 2px;
-      background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
+      background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
       transition: width 0.4s ease;
     }
 
     &:hover {
-      color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
-      text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px rgba(139, 90, 158, 0.6)'};
+      color: ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
+      text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px rgba(139, 90, 158, 0.6)'};
       
       &::after {
         width: 100%;

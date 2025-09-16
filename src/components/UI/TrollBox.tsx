@@ -5,7 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants';
 import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 
 function getProfileUsername(publicKey: string | undefined): string {
@@ -66,7 +66,7 @@ const romanticGlow = keyframes`
   }
 `
 
-const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $theme?: any }>`
+const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colorScheme?: any }>`
   position: fixed;
   bottom: ${({ $isMaximized }) => ($isMaximized ? '5vh' : $isMaximized ? '16px' : '100px')};
   right: ${({ $isMaximized }) => ($isMaximized ? '5vw' : $isMaximized ? '16px' : '20px')};
@@ -205,19 +205,19 @@ const ContentContainer = styled.div<{ $isMinimized: boolean }>`
   pointer-events: ${({ $isMinimized }) => ($isMinimized ? 'none' : 'auto')};
 `
 
-const Header = styled.div<{ $theme?: any }>`
+const Header = styled.div<{ $colorScheme?: any }>`
   padding: 12px 18px 10px 18px;
-  border-bottom: 1.5px solid ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}22;
+  border-bottom: 1.5px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}22;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}22 0%, ${({ $theme }) => $theme?.colors?.accent || '#ff9500'}22 100%);
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  background: linear-gradient(90deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}22 0%, ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#ff9500'}22 100%);
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   cursor: pointer;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   font-size: 1.08em;
   letter-spacing: 0.5px;
-  text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}44;
+  text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}44;
 `
 
 const HeaderTitle = styled.span`
@@ -225,24 +225,24 @@ const HeaderTitle = styled.span`
   font-size: 0.9rem;
 `
 
-const HeaderStatus = styled.span<{ $theme?: any }>`
+const HeaderStatus = styled.span<{ $colorScheme?: any }>`
   font-size: 0.7rem;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#a0a0a0'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#a0a0a0'};
   opacity: 0.8;
   margin: 0 8px;
 `
 
-const MinimizeButton = styled.button<{ $theme?: any }>`
+const MinimizeButton = styled.button<{ $colorScheme?: any }>`
   background: none;
   border: none;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#a0a0a0'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#a0a0a0'};
   padding: 4px;
   cursor: pointer;
   border-radius: 4px;
 
   &:hover {
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255,255,255,0.1)'};
-    color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255,255,255,0.1)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   }
 `
 
@@ -284,18 +284,18 @@ const MessageItem = styled.div<{ $isOwn?: boolean }>`
   position: relative;
 `
 
-const Username = styled.strong<{ userColor: string; $theme?: any }>`
+const Username = styled.strong<{ userColor: string; $colorScheme?: any }>`
   font-weight: 700;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   margin-right: 0.7em;
   font-size: 1.08em;
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 6px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}30;
+  text-shadow: 0 1px 6px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}30;
 `
 
-const Timestamp = styled.span<{ $theme?: any }>`
+const Timestamp = styled.span<{ $colorScheme?: any }>`
   font-size: 0.78em;
-  color: ${({ $theme }) => $theme?.colors?.secondary || '#b6aaff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b6aaff'};
   opacity: 0.8;
   margin-left: auto;
   font-weight: 400;
@@ -310,13 +310,13 @@ const InputRow = styled.div`
   position: relative;
 `
 
-const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $theme?: any }>`
+const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $colorScheme?: any }>`
   position: absolute;
   bottom: 2px;
   right: 80px;
   font-size: 0.75rem;
-  color: ${({ $isAtLimit, $isNearLimit, $theme }) => 
-    $isAtLimit ? $theme?.colors?.error || '#ff6b6b' : $isNearLimit ? $theme?.colors?.warning || '#ffa500' : $theme?.colors?.textSecondary || '#888'};
+  color: ${({ $isAtLimit, $isNearLimit, $colorScheme }) => 
+    $isAtLimit ? $colorScheme?.colors?.error || '#ff6b6b' : $isNearLimit ? $colorScheme?.colors?.warning || '#ffa500' : $colorScheme?.colors?.textSecondary || '#888'};
   background: rgba(0, 0, 0, 0.7);
   padding: 2px 6px;
   border-radius: 4px;
@@ -325,36 +325,36 @@ const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $th
   z-index: 1;
 `
 
-const TextInput = styled.input<{ $theme?: any }>`
+const TextInput = styled.input<{ $colorScheme?: any }>`
   flex: 1;
   background: transparent;
   border: none;
   padding: 10px;
-  color: ${({ $theme }) => $theme?.colors?.text || '#eee'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#eee'};
   outline: none;
   font-size: 0.9rem;
 
   &::placeholder {
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#777'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#777'};
     opacity: 0.8;
   }
 `
 
-const SendBtn = styled.button<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.secondary || '#5e47ff'};
+const SendBtn = styled.button<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#5e47ff'};
   border: none;
   padding: 0 12px;
   cursor: pointer;
   font-weight: 600;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   font-size: 0.9rem;
 
   &:hover:not(:disabled) {
-    background: ${({ $theme }) => $theme?.colors?.secondary ? `${$theme.colors.secondary}dd` : '#6f5aff'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.secondary ? `${$colorScheme.colors.secondary}dd` : '#6f5aff'};
   }
 
   &:active:not(:disabled) {
-    background: ${({ $theme }) => $theme?.colors?.secondary ? `${$theme.colors.secondary}bb` : '#4d38cc'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.secondary ? `${$colorScheme.colors.secondary}bb` : '#4d38cc'};
     transform: scale(0.98);
   }
 
@@ -375,7 +375,7 @@ const LoadingText = styled.div`
 export default function TrollBox() {
   const { publicKey, connected } = useWallet()
   const walletModal = useWalletModal()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   
   // Initialize states from localStorage with fallbacks
   const [isMinimized, setIsMinimized] = useState(() => {
@@ -559,22 +559,22 @@ export default function TrollBox() {
   }, [isMinimized, isMaximized])
 
   return (
-    <Wrapper $isMinimized={isMinimized} $isMaximized={isMaximized} $theme={currentTheme}>
+    <Wrapper $isMinimized={isMinimized} $isMaximized={isMaximized} $colorScheme={currentColorScheme}>
       {isMinimized && (
         <ExpandIconWrapper onClick={toggleMinimize}>
           <ChatIcon />
         </ExpandIconWrapper>
       )}
       <ContentContainer $isMinimized={isMinimized}>
-        <Header $theme={currentTheme}>
+        <Header $colorScheme={currentColorScheme}>
           <HeaderTitle>Serenade Chat</HeaderTitle>
-          <HeaderStatus $theme={currentTheme}>
+          <HeaderStatus $colorScheme={currentColorScheme}>
             {messages.length ? `${messages.length} msgs` : 'Connecting…'}
           </HeaderStatus>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             {isCreator && (
               <MinimizeButton
-                $theme={currentTheme}
+                $colorScheme={currentColorScheme}
                 onClick={clearChat}
                 title={isClearing ? 'Clearing…' : 'Clear chat'}
                 disabled={isClearing}
@@ -583,10 +583,10 @@ export default function TrollBox() {
                 {isClearing ? '…' : 'Clear'}
               </MinimizeButton>
             )}
-            <MinimizeButton $theme={currentTheme} onClick={toggleMinimize} title="Minimize">
+            <MinimizeButton $colorScheme={currentColorScheme} onClick={toggleMinimize} title="Minimize">
               <MinimizeIcon />
             </MinimizeButton>
-            <MinimizeButton $theme={currentTheme} onClick={toggleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
+            <MinimizeButton $colorScheme={currentColorScheme} onClick={toggleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
               <MaximizeIcon />
             </MinimizeButton>
           </div>
@@ -597,8 +597,8 @@ export default function TrollBox() {
           {messages.map((m, i) => (
             <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                <Username $theme={currentTheme} userColor={userColors[m.user]}>{m.user}</Username>
-                <Timestamp $theme={currentTheme}>{fmtTime(m.ts)}</Timestamp>
+                <Username $colorScheme={currentColorScheme} userColor={userColors[m.user]}>{m.user}</Username>
+                <Timestamp $colorScheme={currentColorScheme}>{fmtTime(m.ts)}</Timestamp>
               </div>
               <div style={{ color: '#fff', fontSize: '1em', wordBreak: 'break-word', marginTop: 2 }}>{m.text}</div>
             </MessageItem>
@@ -606,7 +606,7 @@ export default function TrollBox() {
         </Log>
         <InputRow>
           <TextInput
-            $theme={currentTheme}
+            $colorScheme={currentColorScheme}
             ref={inputRef}
             value={text}
             placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
@@ -622,14 +622,14 @@ export default function TrollBox() {
             maxLength={MAX_CHARS}
           />
           <CharCounter 
-            $theme={currentTheme}
+            $colorScheme={currentColorScheme}
             $isNearLimit={isNearLimit} 
             $isAtLimit={isAtLimit}
           >
             {remainingChars}
           </CharCounter>
           <SendBtn
-            $theme={currentTheme}
+            $colorScheme={currentColorScheme}
             onClick={send}
             disabled={
               !connected ||

@@ -18,7 +18,7 @@ export const GAME_CONFIG = {
   GRID_START_X: 200,
   GRID_START_Y: 150,
   
-  // Colors (romantic degen theme)
+  // Colors (romantic degen colorScheme)
   COLORS: {
     background: '#0f0f23',
     gridBackground: 'rgba(212, 165, 116, 0.1)',

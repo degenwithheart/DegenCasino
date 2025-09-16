@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 import {
   Container,
   TokenHeader,
@@ -13,7 +13,7 @@ import {
 
 const DGHRTTokenPage: React.FC = () => {
   const [visible, setVisible] = useState(false)
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   useEffect(() => {
     setVisible(true)
@@ -21,7 +21,7 @@ const DGHRTTokenPage: React.FC = () => {
 
   return (
     <ResponsiveContainer>
-      <Container visible={visible} $theme={currentTheme}>
+      <Container visible={visible} $colorScheme={currentColorScheme}>
         <TokenHeader>
           <img 
             src="/png/images/$DGHRT.png" 
@@ -39,26 +39,26 @@ const DGHRTTokenPage: React.FC = () => {
         </TokenHeader>
 
         <TokenStats>
-          <StatCard $theme={currentTheme}>
+          <StatCard $colorScheme={currentColorScheme}>
             <h3>🏦 Max Supply</h3>
             <div className="stat-value">1B</div>
             <div className="stat-label">DGHRT Tokens</div>
           </StatCard>
 
-          <StatCard $theme={currentTheme}>
+          <StatCard $colorScheme={currentColorScheme}>
             <h3>⏰ Launch Date</h3>
             <div className="stat-value">Q3 2026</div>
             <div className="stat-label">Planned Launch</div>
           </StatCard>
 
-          <StatCard $theme={currentTheme}>
+          <StatCard $colorScheme={currentColorScheme}>
             <h3>🎯 Distribution</h3>
             <div className="stat-value">100%</div>
             <div className="stat-label">Via Gameplay Claims</div>
           </StatCard>
         </TokenStats>
 
-        <BuySection $theme={currentTheme}>
+        <BuySection $colorScheme={currentColorScheme}>
           <h2>🚀 Get $DGHRT Tokens</h2>
           <div className="coming-soon">Coming Q3 2026</div>
           <div className="description">
@@ -71,7 +71,7 @@ const DGHRTTokenPage: React.FC = () => {
           </div>
         </BuySection>
 
-        <TokenomicsSection $theme={currentTheme}>
+        <TokenomicsSection $colorScheme={currentColorScheme}>
           <h2>🌟 Tokenomics of Love</h2>
           <div className="tokenomics-grid">
             <div className="tokenomics-item">
@@ -106,7 +106,7 @@ const DGHRTTokenPage: React.FC = () => {
           </div>
         </TokenomicsSection>
 
-        <UtilitySection $theme={currentTheme}>
+        <UtilitySection $colorScheme={currentColorScheme}>
           <h2>⚡ Token Utilities</h2>
           <ul className="utility-list">
             <li>Bet with your soul on exclusive house-edge games that test fortune's limits</li>
@@ -120,7 +120,7 @@ const DGHRTTokenPage: React.FC = () => {
           </ul>
         </UtilitySection>
         
-        <BuySection $theme={currentTheme}>
+        <BuySection $colorScheme={currentColorScheme}>
           <h2>🔗 Important Links</h2>
           <div className="description">
             <strong>Contract Address:</strong> TBD (To be deployed Q3 2026)<br/>

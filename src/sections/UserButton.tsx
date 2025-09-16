@@ -25,7 +25,7 @@ import {
   TokenValue,
   useReferral,
 } from 'gamba-react-ui-v2'
-import { useTheme } from '../themes/ThemeContext'
+import { useColorScheme } from '../themes/ColorSchemeContext'
 
 // Keyframe animations matching casino style
 const neonPulse = keyframes`
@@ -49,23 +49,23 @@ const sparkle = keyframes`
   50% { opacity: 1; transform: scale(1.2); }
 `;
 
-const Container = styled.div<{ $theme?: any }>`
+const Container = styled.div<{ $colorScheme?: any }>`
   height: auto;
   width: 600px;
   margin: 1rem auto;
   border-radius: 20px;
   padding: 2rem;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   text-align: center;
   position: relative;
 
   /* Enhanced glassmorphism */
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
   backdrop-filter: blur(20px);
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.15)'};
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 12px 40px 0 rgba(31, 38, 135, 0.4)'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.15)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 12px 40px 0 rgba(31, 38, 135, 0.4)'};
 
   /* Casino gradient border effect */
   &::before {
@@ -75,7 +75,7 @@ const Container = styled.div<{ $theme?: any }>`
     left: -3px;
     right: -3px;
     bottom: -3px;
-    background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, #ff00cc, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+    background: linear-gradient(45deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}, #ff00cc, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
     background-size: 300% 100%;
     border-radius: 20px;
     opacity: 0.3;
@@ -113,12 +113,12 @@ const Container = styled.div<{ $theme?: any }>`
   }
 `;
 
-const Header = styled.h3<{ $theme?: any }>`
+const Header = styled.h3<{ $colorScheme?: any }>`
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   font-family: 'Luckiest Guy', cursive, sans-serif;
-  text-shadow: 0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+  text-shadow: 0 0 12px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, 0 0 24px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'};
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -169,18 +169,18 @@ const TokenIcon = styled.img`
   }
 `;
 
-const WalletButtonWrapper = styled.div<{ $theme?: any }>`
+const WalletButtonWrapper = styled.div<{ $colorScheme?: any }>`
   text-align: center;
   position: relative;
 
   .gamba-button {
-    background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}) !important;
+    background: linear-gradient(90deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}) !important;
     border: 2px solid transparent !important;
     border-radius: 16px !important;
     padding: 0.75rem 1.5rem !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
-    color: ${({ $theme }) => $theme?.colors?.buttonText || '#222'} !important;
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.buttonText || '#222'} !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
     animation: ${neonPulse} 2s infinite alternate !important;
@@ -193,7 +193,7 @@ const WalletButtonWrapper = styled.div<{ $theme?: any }>`
 
     &:hover {
       transform: scale(1.05) !important;
-      box-shadow: 0 0 30px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}80` : 'rgba(255, 215, 0, 0.5)'} !important;
+      box-shadow: 0 0 30px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}80` : 'rgba(255, 215, 0, 0.5)'} !important;
     }
   }
 `;
@@ -296,7 +296,7 @@ const InfoText = styled.div`
     const toast = useToast()
     const walletModal = useWalletModal()
     const [removing, setRemoving] = useState(false)
-    const { currentTheme } = useTheme()
+    const { currentColorScheme } = useColorScheme()
 
     const [selectedMint, setSelectedMint] = useState<PublicKey>(POOLS[0].token)
     const selectedToken = POOLS.find((t) => t.token.equals(selectedMint))
@@ -304,8 +304,8 @@ const InfoText = styled.div`
 
     return (
       <Modal onClose={() => user.set({ userModal: false, userModalInitialTab: undefined })}>
-        <Container $theme={currentTheme}>
-          <Header $theme={currentTheme}>Select a Token</Header>
+        <Container $colorScheme={currentColorScheme}>
+          <Header $colorScheme={currentColorScheme}>Select a Token</Header>
           <TokenSelect 
             setSelectedMint={setSelectedMint} 
             selectedMint={selectedMint} 
@@ -353,7 +353,7 @@ export function UserButton() {
   const handleWalletConnect = useHandleWalletConnect();
   const { mobile } = useIsCompact()
   const navigate = useNavigate()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
 
 
@@ -364,7 +364,7 @@ export function UserButton() {
       }
 
       {wallet.connected ? (
-        <WalletButtonWrapper $theme={currentTheme}>
+        <WalletButtonWrapper $colorScheme={currentColorScheme}>
           <GambaUi.Button onClick={() => (mobile ? navigate('/select-token') : user.set({ userModal: true }))}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TokenIconAndBalance />
@@ -372,7 +372,7 @@ export function UserButton() {
           </GambaUi.Button>
         </WalletButtonWrapper>
       ) : (
-        <WalletButtonWrapper $theme={currentTheme}>
+        <WalletButtonWrapper $colorScheme={currentColorScheme}>
           <GambaUi.Button onClick={handleWalletConnect}>
             {wallet.connecting ? 'Connecting...' : 'Connect'}
           </GambaUi.Button>

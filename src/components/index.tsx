@@ -63,7 +63,7 @@ export * from './Referral/ReferralLeaderboardModal'
 export * from './Share/ShareModal'
 
 // Theme
-export * from './Theme/ThemeSelector'
+export * from './Theme/ColorSchemeSelector'
 
 // Transaction
 export { default as EmbeddedTransaction } from './Transaction/EmbeddedTransaction'

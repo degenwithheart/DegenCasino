@@ -138,7 +138,7 @@ export const StyledSlotsBackground = styled.div`
     animation: ${loveLetterTwinkle} 10s ease-in-out infinite;
   }
 
-  /* Override GameScreenFrame's backgrounds to show romantic theme */
+  /* Override GameScreenFrame's backgrounds to show romantic colorScheme */
   & .absolute.inset-\\[2px\\].rounded-\\[0\\.65rem\\].bg-\\[\\#0c0c11\\] {
     background: transparent !important;
   }

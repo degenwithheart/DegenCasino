@@ -1,15 +1,15 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
-const Wrapper = styled.div<{ $visible: boolean; $anchor: 'top' | 'bottom'; $theme?: any }>`
+const Wrapper = styled.div<{ $visible: boolean; $anchor: 'top' | 'bottom'; $colorScheme?: any }>`
   opacity: 0;
   transition: transform .2s ease, opacity .2s;
   position: absolute;
   visibility: hidden;
   z-index: 1000;
   right: 0;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   min-width: 100%;
   white-space: nowrap;
   min-width: max-content;
@@ -30,7 +30,7 @@ const Wrapper = styled.div<{ $visible: boolean; $anchor: 'top' | 'bottom'; $them
   `}
   & > div {
     display: grid;
-    background: ${({ $theme }) => $theme?.colors?.surface || '#15151f'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || '#15151f'};
     border-radius: 10px;
     overflow: hidden;
     padding: 5px;
@@ -39,7 +39,7 @@ const Wrapper = styled.div<{ $visible: boolean; $anchor: 'top' | 'bottom'; $them
 `
 
 export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWithChildren<{visible: boolean, anchor?: 'bottom' | 'top'}>) {
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const ref = React.useRef<HTMLDivElement>(null!)
 
   const anchor = React.useMemo(
@@ -56,7 +56,7 @@ export function Dropdown({ visible, children, anchor: _anchor }: React.PropsWith
       ref={ref}
       $anchor={anchor}
       $visible={visible}
-      $theme={currentTheme}
+      $colorScheme={currentColorScheme}
     >
       <div>
         {children}

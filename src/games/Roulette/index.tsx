@@ -196,8 +196,8 @@ export default function Roulette() {
       
       // 🎉 TRIGGER ROULETTE WIN EFFECTS
       console.log(`🎉 WIN! Gamba payout: ${gameResult.payout}, multiplier: ${gameResult.multiplier}`)
-      effectsRef.current?.winFlash() // Use theme's winGlow color
-      effectsRef.current?.particleBurst(50, 50) // Use theme's particleWin color
+      effectsRef.current?.winFlash() // Use colorScheme's winGlow color
+      effectsRef.current?.particleBurst(50, 50) // Use colorScheme's particleWin color
       
       // Visual celebration based on actual result.multiplier from Gamba
       if (gameResult.multiplier >= 35) {
@@ -224,7 +224,7 @@ export default function Roulette() {
       console.log('💔 No payout from Gamba.result')
       
       // 💥 TRIGGER ROULETTE LOSE EFFECTS
-      effectsRef.current?.loseFlash() // Use theme's loseGlow color
+      effectsRef.current?.loseFlash() // Use colorScheme's loseGlow color
       effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
     }
     

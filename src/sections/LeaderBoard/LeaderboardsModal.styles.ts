@@ -23,7 +23,7 @@ const sparkle = keyframes`
   50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
 `;
 
-export const ModalContent = styled.div<{ $theme?: any }>`
+export const ModalContent = styled.div<{ $colorScheme?: any }>`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -112,7 +112,7 @@ export const HeaderSection = styled.div`
   }
 `
 
-export const Title = styled.h1<{ $theme?: any }>`
+export const Title = styled.h1<{ $colorScheme?: any }>`
   color: #6ffaff;
   font-size: 2rem;
   font-weight: 700;
@@ -133,7 +133,7 @@ export const Title = styled.h1<{ $theme?: any }>`
   }
 `
 
-export const Subtitle = styled.p<{ $theme?: any }>`
+export const Subtitle = styled.p<{ $colorScheme?: any }>`
   color: #a259ff;
   font-size: 1rem;
   margin: 0;
@@ -142,7 +142,7 @@ export const Subtitle = styled.p<{ $theme?: any }>`
   text-shadow: 0 0 8px #a259ff88;
 `
 
-export const TabRow = styled.div<{ $theme?: any }>`
+export const TabRow = styled.div<{ $colorScheme?: any }>`
   display: flex;
   gap: 8px;
   background: rgba(20, 30, 60, 0.6);
@@ -154,7 +154,7 @@ export const TabRow = styled.div<{ $theme?: any }>`
   box-shadow: 0 0 16px rgba(111, 250, 255, 0.1);
 `
 
-export const TabButton = styled.button<{ $selected: boolean; $theme?: any }>`
+export const TabButton = styled.button<{ $selected: boolean; $colorScheme?: any }>`
   flex: 1;
   padding: 0.75rem 1rem;
   border: none;
@@ -197,7 +197,7 @@ export const LeaderboardList = styled.div`
   gap: 0.75rem;
 `
 
-export const ListHeader = styled.div<{ $theme?: any }>`
+export const ListHeader = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
@@ -218,7 +218,7 @@ export const HeaderRank = styled.div`flex: 0 0 60px; text-align: center;`
 export const HeaderPlayer = styled.div`flex: 1; padding-left: 0.5rem;`
 export const HeaderVolume = styled.div`flex: 0 0 120px; text-align: right;`
 
-export const RankItem = styled.div<{ $isTop3?: boolean; $theme?: any }>`
+export const RankItem = styled.div<{ $isTop3?: boolean; $colorScheme?: any }>`
   display: flex;
   align-items: center;
   padding: 1rem;
@@ -244,7 +244,7 @@ export const RankItem = styled.div<{ $isTop3?: boolean; $theme?: any }>`
   `}
 `
 
-export const RankNumber = styled.div<{ rank: number; $theme?: any }>`
+export const RankNumber = styled.div<{ rank: number; $colorScheme?: any }>`
   flex: 0 0 60px;
   font-weight: 700;
   font-size: 1.1rem;
@@ -275,7 +275,7 @@ export const RankNumber = styled.div<{ rank: number; $theme?: any }>`
   `}
 `
 
-export const PlayerInfo = styled.div<{ $theme?: any }>`
+export const PlayerInfo = styled.div<{ $colorScheme?: any }>`
   flex: 1;
   padding-left: 0.75rem;
   font-size: 1rem;
@@ -288,7 +288,7 @@ export const PlayerInfo = styled.div<{ $theme?: any }>`
   font-family: 'JetBrains Mono', monospace;
 `
 
-export const VolumeAmount = styled.div<{ $theme?: any }>`
+export const VolumeAmount = styled.div<{ $colorScheme?: any }>`
   flex: 0 0 120px;
   text-align: right;
   font-size: 1rem;
@@ -298,7 +298,7 @@ export const VolumeAmount = styled.div<{ $theme?: any }>`
   font-family: 'JetBrains Mono', monospace;
 `
 
-export const LoadingText = styled.p<{ $theme?: any }>`
+export const LoadingText = styled.p<{ $colorScheme?: any }>`
   text-align: center;
   color: #6ffaff;
   padding: 3rem 0;
@@ -315,7 +315,7 @@ export const LoadingText = styled.p<{ $theme?: any }>`
   }
 `
 
-export const ErrorText = styled.p<{ $theme?: any }>`
+export const ErrorText = styled.p<{ $colorScheme?: any }>`
   text-align: center;
   color: #ef4444;
   padding: 3rem 0;
@@ -325,7 +325,7 @@ export const ErrorText = styled.p<{ $theme?: any }>`
   font-family: 'JetBrains Mono', monospace;
 `
 
-export const EmptyStateText = styled.p<{ $theme?: any }>`
+export const EmptyStateText = styled.p<{ $colorScheme?: any }>`
   text-align: center;
   color: #a259ff;
   padding: 3rem 0;

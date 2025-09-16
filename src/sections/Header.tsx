@@ -12,14 +12,14 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from '../components'
 import LeaderboardsModal from '../sections/LeaderBoard/LeaderboardsModal'
-import { BonusModal, JackpotModal, ThemeSelector } from '../components'
+import { BonusModal, JackpotModal, ColorSchemeSelector } from '../components'
 import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_ADDRESS } from '../constants'
 import { useMediaQuery } from '../hooks/ui/useMediaQuery'
 import TokenSelect from './TokenSelect'
 import { UserButton } from './UserButton'
 import { ENABLE_LEADERBOARD } from '../constants'
 import { useIsCompact } from '../hooks/ui/useIsCompact'
-import { useTheme } from '../themes/ThemeContext'
+import { useColorScheme } from '../themes/ColorSchemeContext'
 
 /* ─────── Romantic Degen Serenade Animations ───────────────────────────────────────────── */
 
@@ -67,7 +67,7 @@ const candlestickGlow = keyframes`
 
 /* ─────── styled ───────────────────────────────────────────── */
 
-const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
+const StyledHeader = styled.div<{ offset?: number; $colorScheme?: any }>`
   position: fixed;
   top: ${({ offset }) => offset ?? 0}px;
   left: 0;
@@ -144,7 +144,7 @@ const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
   }
 `
 
-const Logo = styled(NavLink)<{ $theme?: any }>`
+const Logo = styled(NavLink)<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -156,7 +156,7 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
     height: 42px;
     width: auto;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 0 12px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'});
+    filter: drop-shadow(0 0 12px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'});
     border-radius: 12px;
     object-fit: contain;
     animation: ${candlestickGlow} 3s infinite ease-in-out;
@@ -165,13 +165,13 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
   span {
     font-size: 1.5rem;
     font-weight: 700;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
     white-space: nowrap;
     user-select: none;
     font-family: 'Libre Baskerville', 'DM Sans', serif;
     text-shadow: 
-      0 0 20px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'}, 
-      0 0 40px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'},
+      0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'}, 
+      0 0 40px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b8336a'},
       0 0 8px rgba(244, 233, 225, 0.4);
     letter-spacing: 0.5px;
     animation: ${romanticPulse} 3s infinite ease-in-out;
@@ -188,22 +188,22 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
     right: -12px;
     font-size: 0.6em;
     opacity: 0.7;
-    color: ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b8336a'};
     animation: ${loveLetterFloat} 4s infinite ease-in-out;
   }
 
   &:hover {
     img {
       transform: scale(1.1) rotate(3deg);
-      filter: drop-shadow(0 0 20px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'})
-              drop-shadow(0 0 30px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'});
+      filter: drop-shadow(0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'})
+              drop-shadow(0 0 30px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b8336a'});
     }
     
     span {
       transform: scale(1.05) translateY(-2px);
       text-shadow: 
-        0 0 30px ${({ $theme }) => $theme?.colors?.primary || '#d4a574'}, 
-        0 0 60px ${({ $theme }) => $theme?.colors?.secondary || '#b8336a'},
+        0 0 30px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'}, 
+        0 0 60px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b8336a'},
         0 0 12px rgba(244, 233, 225, 0.6);
     }
 
@@ -259,12 +259,12 @@ const Logo = styled(NavLink)<{ $theme?: any }>`
   }
 `
 
-const Bonus = styled.button<{ $theme?: any }>`
+const Bonus = styled.button<{ $colorScheme?: any }>`
   /* Romantic glassmorphism button */
-  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(212, 165, 116, 0.08)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}14` : 'rgba(212, 165, 116, 0.08)'};
   backdrop-filter: blur(8px);
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(212, 165, 116, 0.18)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}2E` : 'rgba(212, 165, 116, 0.18)'};
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 14px;
@@ -287,7 +287,7 @@ const Bonus = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(212, 165, 116, 0.2)'}, 
+      ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}33` : 'rgba(212, 165, 116, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -296,14 +296,14 @@ const Bonus = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(212, 165, 116, 0.15)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(212, 165, 116, 0.15)'};
     box-shadow: 
-      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
-      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(212, 165, 116, 0.3)'};
+      0 8px 24px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}4D` : 'rgba(212, 165, 116, 0.3)'};
     outline: none;
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(212, 165, 116, 0.4)'};
+    text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}66` : 'rgba(212, 165, 116, 0.4)'};
   }
 
   &:hover::before {
@@ -323,12 +323,12 @@ const Bonus = styled.button<{ $theme?: any }>`
   }
 `
 
-const JackpotBonus = styled.button<{ $theme?: any }>`
+const JackpotBonus = styled.button<{ $colorScheme?: any }>`
   /* Romantic glassmorphism jackpot button with enhanced glow */
-  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(184, 51, 106, 0.08)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}14` : 'rgba(184, 51, 106, 0.08)'};
   backdrop-filter: blur(8px);
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(184, 51, 106, 0.18)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}2E` : 'rgba(184, 51, 106, 0.18)'};
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 14px;
@@ -351,7 +351,7 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(184, 51, 106, 0.2)'}, 
+      ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}33` : 'rgba(184, 51, 106, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -360,14 +360,14 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#b8336a'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#b8336a'};
-    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(184, 51, 106, 0.15)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#b8336a'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#b8336a'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(184, 51, 106, 0.15)'};
     box-shadow: 
-      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
-      0 0 25px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
+      0 8px 24px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 25px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
     outline: none;
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
+    text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}66` : 'rgba(184, 51, 106, 0.4)'};
   }
 
   &:hover::before {
@@ -387,12 +387,12 @@ const JackpotBonus = styled.button<{ $theme?: any }>`
   }
 `;
 
-const ThemeButton = styled.button<{ $theme?: any }>`
-  /* Romantic glassmorphism theme button */
-  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(139, 90, 158, 0.08)'};
+const ThemeButton = styled.button<{ $colorScheme?: any }>`
+  /* Romantic glassmorphism colorScheme button */
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}14` : 'rgba(139, 90, 158, 0.08)'};
   backdrop-filter: blur(8px);
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(139, 90, 158, 0.18)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}2E` : 'rgba(139, 90, 158, 0.18)'};
   border-radius: 12px;
   padding: 8px 10px;
   font-size: 13px;
@@ -415,7 +415,7 @@ const ThemeButton = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(139, 90, 158, 0.2)'}, 
+      ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}33` : 'rgba(139, 90, 158, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -424,14 +424,14 @@ const ThemeButton = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#8b5a9e'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#8b5a9e'};
-    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#8b5a9e'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#8b5a9e'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'};
     box-shadow: 
-      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
-      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(139, 90, 158, 0.3)'};
+      0 8px 24px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}4D` : 'rgba(139, 90, 158, 0.3)'};
     outline: none;
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(139, 90, 158, 0.4)'};
+    text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}66` : 'rgba(139, 90, 158, 0.4)'};
   }
 
   &:hover::before {
@@ -451,12 +451,12 @@ const ThemeButton = styled.button<{ $theme?: any }>`
   }
 `;
 
-const LeaderboardButton = styled.button<{ $theme?: any }>`
+const LeaderboardButton = styled.button<{ $colorScheme?: any }>`
   /* Romantic glassmorphism leaderboard button */
-  background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}14` : 'rgba(255, 175, 0, 0.08)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}14` : 'rgba(255, 175, 0, 0.08)'};
   backdrop-filter: blur(8px);
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}2E` : 'rgba(255, 175, 0, 0.18)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}2E` : 'rgba(255, 175, 0, 0.18)'};
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 14px;
@@ -479,7 +479,7 @@ const LeaderboardButton = styled.button<{ $theme?: any }>`
     height: 100%;
     background: linear-gradient(90deg, 
       transparent, 
-      ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}33` : 'rgba(255, 175, 0, 0.2)'}, 
+      ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}33` : 'rgba(255, 175, 0, 0.2)'}, 
       transparent
     );
     transition: left 0.5s ease;
@@ -488,14 +488,14 @@ const LeaderboardButton = styled.button<{ $theme?: any }>`
   &:hover,
   &:focus {
     transform: translateY(-2px);
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffaf00'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffaf00'};
-    background: ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(255, 175, 0, 0.15)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffaf00'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffaf00'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(255, 175, 0, 0.15)'};
     box-shadow: 
-      0 8px 24px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
-      0 0 20px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}4D` : 'rgba(255, 175, 0, 0.3)'};
+      0 8px 24px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}26` : 'rgba(139, 90, 158, 0.15)'},
+      0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}4D` : 'rgba(255, 175, 0, 0.3)'};
     outline: none;
-    text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary ? `${$theme.colors.primary}66` : 'rgba(255, 175, 0, 0.4)'};
+    text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary ? `${$colorScheme.colors.primary}66` : 'rgba(255, 175, 0, 0.4)'};
   }
 
   &:hover::before {
@@ -541,7 +541,7 @@ export default function Header() {
   const balance = useUserBalance()
   const { compact: isCompact, mobile } = useIsCompact()
   const navigate = useNavigate()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const { connected } = useWallet()
 
   const [bonusHelp, setBonusHelp] = React.useState(false)
@@ -572,27 +572,27 @@ export default function Header() {
       {/* Theme selector modal */}
       {showThemeSelector && (
         <Modal onClose={() => setShowThemeSelector(false)}>
-          <ThemeSelector />
+          <ColorSchemeSelector />
         </Modal>
       )}
 
       {/* Header bar */}
       <StyledHeader>
-        <Logo to="/" $theme={currentTheme}>
+        <Logo to="/" $colorScheme={currentColorScheme}>
           <img alt="DegenHeart.casino logo" src="/png/images/logo.png" />
           {!isCompact && <span>DegenHeart.casino</span>}
         </Logo>
 
         <RightGroup $isCompact={isCompact}>
           {connected && pool.jackpotBalance > 0 && (
-            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $theme={currentTheme}>
+            <JackpotBonus onClick={() => (mobile ? navigate('/jackpot') : setJackpotHelp(true))} aria-label="Jackpot info" $colorScheme={currentColorScheme}>
               💰
               {!isCompact && 'Jackpot'}
             </JackpotBonus>
           )}
 
           {connected && (
-            <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $theme={currentTheme}>
+            <Bonus onClick={() => (mobile ? navigate('/bonus') : setBonusHelp(true))} aria-label="Bonus info" $colorScheme={currentColorScheme}>
               ✨
               {!isCompact && 'Bonus'}
             </Bonus>
@@ -600,7 +600,7 @@ export default function Header() {
 
           {/* Leaderboard trigger */}
           {connected && (
-            <LeaderboardButton onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard" $theme={currentTheme}>
+            <LeaderboardButton onClick={() => (mobile ? navigate('/leaderboard') : setShowLeaderboard(true))} aria-label="Show Leaderboard" $colorScheme={currentColorScheme}>
               🏆
               {!isCompact && ' Leaderboard'}
             </LeaderboardButton>
@@ -608,7 +608,7 @@ export default function Header() {
 
           {/* Theme selector trigger */}
           {connected && (
-            <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $theme={currentTheme}>
+            <ThemeButton onClick={() => setShowThemeSelector(true)} aria-label="Choose Theme" $colorScheme={currentColorScheme}>
               🎨
               {!isCompact && ' Theme'}
             </ThemeButton>

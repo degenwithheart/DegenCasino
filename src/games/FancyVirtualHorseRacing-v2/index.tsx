@@ -655,46 +655,45 @@ export default function FancyVirtualHorseRacingV2() {
 
   return (
     <>
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Virtual Horse Racing"
+          gameMode="V2"
+          rtp="95"
+          stats={{
+            gamesPlayed: gameCount,
+            wins: winCount,
+            losses: lossCount,
+            sessionProfit: totalProfit,
+            bestWin: lastPayout || 0
+          }}
+          onReset={() => {
+            setGameCount(0)
+            setWinCount(0)
+            setLossCount(0)
+            setTotalProfit(0)
+            setLastPayout(null)
+          }}
+        />
+      </GambaUi.Portal>
+      
       <GambaUi.Portal target="screen">
         <GambaUi.Responsive>
           <GameplayFrame ref={effectsRef}>
-      {/* Game Stats Header */}
-      <GameStatsHeader
-        gameName="Virtual Horse Racing"
-        gameMode="Derby"
-        rtp="95%"
-        stats={{
-          gamesPlayed: gameCount,
-          wins: winCount,
-          losses: lossCount,
-          sessionProfit: totalProfit,
-          bestWin: lastPayout || 0
-        }}
-      />
-
-      {/* Canvas Game Area */}
-      <div style={{ 
-        position: 'relative', 
-        width: '100%', 
-        height: '600px',
-        background: ROMANTIC_COLORS.background,
-        borderRadius: '12px',
-        overflow: 'hidden'
-      }}>
-        <canvas 
-          ref={canvasRef}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-          onClick={handleCanvasClick}
-          onMouseMove={handleCanvasMove}
-          onMouseLeave={() => setHoverHorse(null)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            background: ROMANTIC_COLORS.background,
-            cursor: raceState === 'betting' && !isPlaying ? 'pointer' : 'default'
-          }}
+        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <canvas 
+            ref={canvasRef}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+            onClick={handleCanvasClick}
+            onMouseMove={handleCanvasMove}
+            onMouseLeave={() => setHoverHorse(null)}
+            style={{
+              border: `2px solid ${ROMANTIC_COLORS.gold}`,
+              borderRadius: '8px',
+              background: ROMANTIC_COLORS.background,
+              cursor: raceState === 'betting' && !isPlaying ? 'pointer' : 'default'
+            }}
         />
         
         {/* Game Result Overlay */}
@@ -814,21 +813,34 @@ export default function FancyVirtualHorseRacingV2() {
       </GambaUi.Portal>
       
       <GambaUi.Portal target="controls">
-        <EnhancedWagerInput 
-          value={initialWager} 
-          onChange={setInitialWager}
-          disabled={isPlaying}
-        />
-        <EnhancedPlayButton
-          onClick={play}
-          disabled={!canPlay}
-        >
-          {isPlaying ? 'Racing...' : 'Start Race'}
-        </EnhancedPlayButton>
-        {raceState !== 'betting' && (
-          <EnhancedPlayButton onClick={resetRace}>
-            New Race
-          </EnhancedPlayButton>
+        {isMobile ? (
+          <MobileControls
+            wager={initialWager}
+            setWager={setInitialWager}
+            onPlay={play}
+            playDisabled={!canPlay}
+            playText={isPlaying ? 'Racing...' : 'Start Race'}
+          >
+            {raceState !== 'betting' && (
+              <EnhancedPlayButton onClick={resetRace}>
+                New Race
+              </EnhancedPlayButton>
+            )}
+          </MobileControls>
+        ) : (
+          <DesktopControls
+            wager={initialWager}
+            setWager={setInitialWager}
+            onPlay={play}
+            playDisabled={!canPlay}
+            playText={isPlaying ? 'Racing...' : 'Start Race'}
+          >
+            {raceState !== 'betting' && (
+              <EnhancedPlayButton onClick={resetRace}>
+                New Race
+              </EnhancedPlayButton>
+            )}
+          </DesktopControls>
         )}
       </GambaUi.Portal>
     </>

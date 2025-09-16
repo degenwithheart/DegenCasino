@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { Modal } from '../Modal/Modal'
 import { PLATFORM_SHARABLE_URL } from '../../constants'
 import { extractMetadata } from '../../utils'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 const Container = styled.div`
   maxwidth: 380px;
@@ -56,10 +56,10 @@ const GameIcon = styled.img`
   object-fit: cover;
 `
 
-const ProfitDisplay = styled.div<{ $isProfit: boolean; $theme?: any }>`
+const ProfitDisplay = styled.div<{ $isProfit: boolean; $colorScheme?: any }>`
   font-size: 24px;
   font-weight: 700;
-  color: ${props => props.$isProfit ? (props.$theme?.colors?.success || '#10b981') : (props.$theme?.colors?.error || '#ef4444')};
+  color: ${props => props.$isProfit ? (props.$colorScheme?.colors?.success || '#10b981') : (props.$colorScheme?.colors?.error || '#ef4444')};
   text-align: center;
 
   .multiplier {
@@ -70,9 +70,9 @@ const ProfitDisplay = styled.div<{ $isProfit: boolean; $theme?: any }>`
   }
 `
 
-const BrandingSection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(18, 18, 23, 0.8)'};
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
+const BrandingSection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(18, 18, 23, 0.8)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
   font-style: italic;
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@ const BrandingSection = styled.div<{ $theme?: any }>`
 
   .platform-name {
     font-weight: 600;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ff6666'};
   }
 `
 
@@ -104,7 +104,7 @@ const ButtonGroup = styled.div`
 export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSettled'>, onClose: () => void}) {
   const navigate = useNavigate()
   const { publicKey: connectedWallet } = useWallet()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const { game, gameId: extractedGameId } = extractMetadata(event)
 
   // Fallback: manually parse metadata if extractMetadata fails
@@ -181,7 +181,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
             <GameResult>
               <TokenIcon src={tokenMeta.image} alt={tokenMeta.symbol} />
 
-              <ProfitDisplay $isProfit={isProfit} $theme={currentTheme}>
+              <ProfitDisplay $isProfit={isProfit} $colorScheme={currentColorScheme}>
                 <div>
                   {isProfit ? '+' : '-'}
                   <TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
@@ -355,7 +355,7 @@ export function ShareModal({ event, onClose }: {event: GambaTransaction<'GameSet
               </div>
             </div>
 
-            <BrandingSection $theme={currentTheme}>
+            <BrandingSection $colorScheme={currentColorScheme}>
               <img src="/webp/$DGHRT.webp" alt="DegenHeart" />
               <div>
                 play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>

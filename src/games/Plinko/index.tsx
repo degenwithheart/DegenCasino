@@ -574,7 +574,7 @@ export default function Plinko() {
                 const s = Math.min(xx, yy)
 
                 ctx.clearRect(0, 0, size.width, size.height)
-                // Remove dark background to show cyan gravity theme
+                // Remove dark background to show cyan gravity colorScheme
                 // ctx.fillStyle = '#0b0b13'
                 // ctx.fillRect(0, 0, size.width, size.height)
                 ctx.save()

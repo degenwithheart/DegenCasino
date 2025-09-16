@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 const CasinoModalContent = styled.div`
   width: 100%;
@@ -76,7 +76,7 @@ export function ProvablyFairModal(props: ProvablyFairModalProps) {
   const [initializing, setInitializing] = React.useState(false)
   const program = useGambaProgram()
   const sendTransaction = useSendTransaction()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   const initialize = async () => {
     try {

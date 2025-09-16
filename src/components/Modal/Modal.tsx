@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 interface Props extends React.PropsWithChildren {
   onClose?: () => void;
@@ -65,7 +65,7 @@ function useQuantumParticles(canvasRef: React.RefObject<HTMLCanvasElement>) {
 
 export const Modal: React.FC<Props> = ({ children, onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   useQuantumParticles(canvasRef);
 
   // Close on ESC
@@ -78,7 +78,7 @@ export const Modal: React.FC<Props> = ({ children, onClose }) => {
   }, [onClose]);
 
   return (
-    <Overlay $theme={currentTheme}>
+    <Overlay $colorScheme={currentColorScheme}>
       <ParticleField ref={canvasRef} />
       <Portal>
         <EnergyRing />

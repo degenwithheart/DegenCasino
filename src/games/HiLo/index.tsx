@@ -314,7 +314,7 @@ export default function HiLo(props: HiLoConfig) {
 
         // 🃏 TRIGGER HILO WIN EFFECTS
         console.log('🃏 HILO WIN! Correct prediction')
-        effectsRef.current?.winFlash() // Use theme's winGlow color
+        effectsRef.current?.winFlash() // Use colorScheme's winGlow color
         effectsRef.current?.particleBurst(50, 60, undefined, 8) // Card flip particles
         effectsRef.current?.screenShake(0.8, 500) // Light shake for win
 
@@ -341,7 +341,7 @@ export default function HiLo(props: HiLoConfig) {
 
         // 💔 TRIGGER HILO LOSE EFFECTS
         console.log('💔 HILO LOSE! Wrong prediction')
-        effectsRef.current?.loseFlash() // Use theme's loseGlow color
+        effectsRef.current?.loseFlash() // Use colorScheme's loseGlow color
         effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
 
         // Progressive: Reset on loss after animations

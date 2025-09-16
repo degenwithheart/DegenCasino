@@ -6,7 +6,7 @@ import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
 import { GambaTransaction } from 'gamba-core-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
 
 interface PlayerResponse {
@@ -16,11 +16,11 @@ interface PlayerResponse {
   wins: number
 }
 
-const PlayerContainer = styled.div<{ $theme?: any }>`
+const PlayerContainer = styled.div<{ $colorScheme?: any }>`
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
 `
 
 const StatsRow = styled.div`
@@ -39,21 +39,21 @@ const StatCard = styled.div`
   text-align: center;
 `
 
-const StatValue = styled.div<{ $theme?: any }>`
+const StatValue = styled.div<{ $colorScheme?: any }>`
   font-size: 32px;
   font-weight: bold;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   margin-bottom: 4px;
 `
 
-const StatLabel = styled.div<{ $theme?: any }>`
+const StatLabel = styled.div<{ $colorScheme?: any }>`
   font-size: 14px;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#888'};
 `
 
-const PlayerSection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+const PlayerSection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 32px;
@@ -77,9 +77,9 @@ const PlayerAvatar = styled.div`
   font-size: 20px;
 `
 
-const PlayerName = styled.h2<{ $theme?: any }>`
+const PlayerName = styled.h2<{ $colorScheme?: any }>`
   margin: 0;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ff6666'};
   font-family: monospace;
   font-size: 18px;
   font-weight: 500;
@@ -89,14 +89,14 @@ const AddressSection = styled.div`
   margin-bottom: 20px;
 `
 
-const AddressLabel = styled.div<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
+const AddressLabel = styled.div<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#888'};
   font-size: 14px;
   margin-bottom: 8px;
 `
 
-const AddressValue = styled.div<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+const AddressValue = styled.div<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   font-family: monospace;
   font-size: 14px;
   display: flex;
@@ -104,30 +104,30 @@ const AddressValue = styled.div<{ $theme?: any }>`
   gap: 8px;
 `
 
-const CopyButton = styled.button<{ $theme?: any }>`
+const CopyButton = styled.button<{ $colorScheme?: any }>`
   background: none;
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.2)'};
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.2)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#888'};
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   
   &:hover {
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
   }
 `
 
-const RecentPlaysSection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+const RecentPlaysSection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 12px;
   padding: 24px;
 `
 
-const SectionTitle = styled.h3<{ $theme?: any }>`
+const SectionTitle = styled.h3<{ $colorScheme?: any }>`
   margin: 0 0 20px 0;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   font-size: 18px;
   font-weight: 500;
 `
@@ -136,51 +136,51 @@ const PlaysTable = styled.div`
   width: 100%;
 `
 
-const TableHeader = styled.div<{ $theme?: any }>`
+const TableHeader = styled.div<{ $colorScheme?: any }>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+  border-bottom: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   font-size: 14px;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#888'};
   font-weight: 500;
 `
 
-const TableRow = styled.div<{ $theme?: any }>`
+const TableRow = styled.div<{ $colorScheme?: any }>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.05)'};
+  border-bottom: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.05)'};
   align-items: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.02)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.02)'};
   }
 `
 
-const PlatformCell = styled.div<{ $theme?: any }>`
+const PlatformCell = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ff6666'};
   font-size: 14px;
 `
 
-const PlayerCell = styled.div<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ff6666'};
+const PlayerCell = styled.div<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ff6666'};
   font-family: monospace;
   font-size: 14px;
 `
 
-const TokenCell = styled.div<{ $theme?: any }>`
+const TokenCell = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   font-size: 14px;
 `
 
@@ -190,48 +190,48 @@ const TokenIcon = styled.img`
   border-radius: 50%;
 `
 
-const PayoutCell = styled.div<{ $isWin: boolean; $theme?: any }>`
+const PayoutCell = styled.div<{ $isWin: boolean; $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${props => props.$isWin ? (props.$theme?.colors?.success || '#4ade80') : (props.$theme?.colors?.text || 'white')};
+  color: ${props => props.$isWin ? (props.$colorScheme?.colors?.success || '#4ade80') : (props.$colorScheme?.colors?.text || 'white')};
   font-size: 14px;
 `
 
-const MultiplierBadge = styled.span<{ $isWin: boolean; $theme?: any }>`
-  background: ${props => props.$isWin ? 'rgba(74, 222, 128, 0.2)' : (props.$theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)')};
-  color: ${props => props.$isWin ? (props.$theme?.colors?.success || '#4ade80') : (props.$theme?.colors?.textSecondary || '#888')};
+const MultiplierBadge = styled.span<{ $isWin: boolean; $colorScheme?: any }>`
+  background: ${props => props.$isWin ? 'rgba(74, 222, 128, 0.2)' : (props.$colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.1)')};
+  color: ${props => props.$isWin ? (props.$colorScheme?.colors?.success || '#4ade80') : (props.$colorScheme?.colors?.textSecondary || '#888')};
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
 `
 
-const TimeCell = styled.div<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#888'};
+const TimeCell = styled.div<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#888'};
   font-size: 14px;
 `
 
-const LoadMoreButton = styled.button<{ $theme?: any }>`
+const LoadMoreButton = styled.button<{ $colorScheme?: any }>`
   width: 100%;
   padding: 12px;
   margin-top: 16px;
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
   border-radius: 8px;
-  color: ${({ $theme }) => $theme?.colors?.text || 'white'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || 'white'};
   cursor: pointer;
   font-size: 14px;
   
   &:hover {
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
   }
 `
 
-const EmptyState = styled.div<{ $theme?: any }>`
+const EmptyState = styled.div<{ $colorScheme?: any }>`
   text-align: center;
   padding: 40px 20px;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#666'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#666'};
   font-size: 14px;
 `
 
@@ -248,7 +248,7 @@ function TimeDiff({ time }: { time: number }) {
   return <span>Just now</span>
 }
 
-function PlayerPlayRow({ play, theme }: { play: any; theme?: any }) {
+function PlayerPlayRow({ play, colorScheme }: { play: any; colorScheme?: any }) {
   const navigate = useNavigate()
   
   // Create PublicKey objects for proper component usage
@@ -273,16 +273,16 @@ function PlayerPlayRow({ play, theme }: { play: any; theme?: any }) {
   }
 
   return (
-    <TableRow $theme={theme} onClick={handleClick}>
-      <PlatformCell $theme={theme}>
+    <TableRow $colorScheme={colorScheme} onClick={handleClick}>
+      <PlatformCell $colorScheme={colorScheme}>
         🎰 DegenCasino
       </PlatformCell>
-      <PlayerCell $theme={theme}>{play.user.slice(0, 4)}...{play.user.slice(-4)}</PlayerCell>
-      <TokenCell $theme={theme}>
+      <PlayerCell $colorScheme={colorScheme}>{play.user.slice(0, 4)}...{play.user.slice(-4)}</PlayerCell>
+      <TokenCell $colorScheme={colorScheme}>
         <TokenIcon src={token.image} alt={token.symbol} />
         <TokenValue amount={wager} mint={tokenMint} />
       </TokenCell>
-      <PayoutCell $theme={theme} $isWin={isWin}>
+      <PayoutCell $colorScheme={colorScheme} $isWin={isWin}>
         <TokenIcon src={token.image} alt={token.symbol} />
         <TokenValue amount={payout} mint={tokenMint} />
         {isWin && <MultiplierBadge $isWin={isWin}>{multiplier.toFixed(2)}x</MultiplierBadge>}
@@ -295,7 +295,7 @@ function PlayerPlayRow({ play, theme }: { play: any; theme?: any }) {
 }
 
 export function PlayerView() {
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const { address } = useParams<{address: string}>()
   const [playerData, setPlayerData] = React.useState<PlayerResponse | null>(null)
   const [recentPlays, setRecentPlays] = React.useState<any[]>([])
@@ -391,48 +391,48 @@ export function PlayerView() {
   const wins = playerData?.wins || 0
 
   return (
-    <PlayerContainer $theme={currentTheme}>
+    <PlayerContainer $colorScheme={currentColorScheme}>
       <ExplorerHeader />
       <StatsRow>
         <StatCard>
-          <StatValue $theme={currentTheme}>${volume.toFixed(2)}</StatValue>
-          <StatLabel $theme={currentTheme}>Volume</StatLabel>
+          <StatValue $colorScheme={currentColorScheme}>${volume.toFixed(2)}</StatValue>
+          <StatLabel $colorScheme={currentColorScheme}>Volume</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue $theme={currentTheme}>${profit.toFixed(2)}</StatValue>
-          <StatLabel $theme={currentTheme}>Profit</StatLabel>
+          <StatValue $colorScheme={currentColorScheme}>${profit.toFixed(2)}</StatValue>
+          <StatLabel $colorScheme={currentColorScheme}>Profit</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue $theme={currentTheme}>{plays}</StatValue>
-          <StatLabel $theme={currentTheme}>Plays</StatLabel>
+          <StatValue $colorScheme={currentColorScheme}>{plays}</StatValue>
+          <StatLabel $colorScheme={currentColorScheme}>Plays</StatLabel>
         </StatCard>
         <StatCard>
-          <StatValue $theme={currentTheme}>{wins}</StatValue>
-          <StatLabel $theme={currentTheme}>Wins</StatLabel>
+          <StatValue $colorScheme={currentColorScheme}>{wins}</StatValue>
+          <StatLabel $colorScheme={currentColorScheme}>Wins</StatLabel>
         </StatCard>
       </StatsRow>
 
-      <PlayerSection $theme={currentTheme}>
+      <PlayerSection $colorScheme={currentColorScheme}>
         <PlayerHeader>
           <PlayerAvatar>🎮</PlayerAvatar>
-          <PlayerName $theme={currentTheme}>{address ? `${address.slice(0, 6)}...${address.slice(-6)}` : 'Unknown Player'}</PlayerName>
+          <PlayerName $colorScheme={currentColorScheme}>{address ? `${address.slice(0, 6)}...${address.slice(-6)}` : 'Unknown Player'}</PlayerName>
         </PlayerHeader>
         
         <AddressSection>
-          <AddressLabel $theme={currentTheme}>Address:</AddressLabel>
-          <AddressValue $theme={currentTheme}>
+          <AddressLabel $colorScheme={currentColorScheme}>Address:</AddressLabel>
+          <AddressValue $colorScheme={currentColorScheme}>
             {address}
-            <CopyButton $theme={currentTheme} onClick={copyAddress}>Copy</CopyButton>
+            <CopyButton $colorScheme={currentColorScheme} onClick={copyAddress}>Copy</CopyButton>
           </AddressValue>
         </AddressSection>
       </PlayerSection>
 
-      <RecentPlaysSection $theme={currentTheme}>
-        <SectionTitle $theme={currentTheme}>Recent Plays</SectionTitle>
+      <RecentPlaysSection $colorScheme={currentColorScheme}>
+        <SectionTitle $colorScheme={currentColorScheme}>Recent Plays</SectionTitle>
         
         {recentPlays.slice(0, 10).length > 0 ? (
           <PlaysTable>
-            <TableHeader $theme={currentTheme}>
+            <TableHeader $colorScheme={currentColorScheme}>
               <div>Platform</div>
               <div>Player</div>
               <div>Wager</div>
@@ -440,11 +440,11 @@ export function PlayerView() {
               <div>Time</div>
             </TableHeader>
             {recentPlays.slice(0, 10).map((play, index) => (
-              <PlayerPlayRow key={play.signature || index} play={play} theme={currentTheme} />
+              <PlayerPlayRow key={play.signature || index} play={play} colorScheme={currentColorScheme} />
             ))}
           </PlaysTable>
         ) : loading ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: currentTheme?.colors?.textSecondary || '#666' }}>
+          <div style={{ padding: '20px', textAlign: 'center', color: currentColorScheme?.colors?.textSecondary || '#666' }}>
             Loading recent plays...
           </div>
         ) : (

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { FOOTER_LINKS } from '../../../constants'
-import { useTheme } from '../../../themes/ThemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { Container, HeaderSection, ProfileImage, TextInfo, SectionHeading, Content, HeartDecoration, CandlestickDecoration, MarketLoversOverlay } from './AboutMe.styles'
 
 const AboutMe: React.FC = () => {
   const [visible, setVisible] = useState(false)
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   useEffect(() => {
     setVisible(true)
@@ -16,7 +16,7 @@ const AboutMe: React.FC = () => {
   )
 
   return (
-    <Container visible={visible} $theme={currentTheme}>
+    <Container visible={visible} $colorScheme={currentColorScheme}>
       <MarketLoversOverlay />
       <HeartDecoration>💖</HeartDecoration>
       <HeartDecoration>💕</HeartDecoration>
@@ -25,16 +25,16 @@ const AboutMe: React.FC = () => {
       <CandlestickDecoration />
       <CandlestickDecoration />
       <CandlestickDecoration />
-      <HeaderSection $theme={currentTheme}>
-        <ProfileImage src="/webp/images/pfp.webp" alt="Degen Serenade PFP" $theme={currentTheme} />
-        <TextInfo $theme={currentTheme}>
+      <HeaderSection $colorScheme={currentColorScheme}>
+        <ProfileImage src="/webp/images/pfp.webp" alt="Degen Serenade PFP" $colorScheme={currentColorScheme} />
+        <TextInfo $colorScheme={currentColorScheme}>
           <h1>Degen Serenade</h1>
           <p>Heart on-chain, soul in code — a romantic builder dancing between candlesticks and palace dreams. Updated September 2025</p>
         </TextInfo>
       </HeaderSection>
 
-      <Content $theme={currentTheme}>
-        <SectionHeading $theme={currentTheme}>Who is Degen Serenade?</SectionHeading>
+      <Content $colorScheme={currentColorScheme}>
+        <SectionHeading $colorScheme={currentColorScheme}>Who is Degen Serenade?</SectionHeading>
         <p>
           I'm <strong>Stuart</strong> — a romantic builder weaving love letters in Solana's blockchain realm, 
           where every smart contract whispers sweet promises of decentralization.
@@ -44,7 +44,7 @@ const AboutMe: React.FC = () => {
           that users can trust like old lovers — faithful, transparent, and eternally devoted.
         </p>
 
-        <SectionHeading $theme={currentTheme}>Vision & Mission</SectionHeading>
+        <SectionHeading $colorScheme={currentColorScheme}>Vision & Mission</SectionHeading>
         <p>
           Creator of this casino platform and the sacred <strong>$DGHRT token</strong>, my mission dances 
           like candlelight against temple walls: fuse secure blockchain artistry with fun, fair entertainment 
@@ -55,7 +55,7 @@ const AboutMe: React.FC = () => {
           and <em>community-centric as a love song</em> — where every transaction tells a story of trust.
         </p>
 
-        <SectionHeading $theme={currentTheme}>Life On & Off the Chain</SectionHeading>
+        <SectionHeading $colorScheme={currentColorScheme}>Life On & Off the Chain</SectionHeading>
         <p>
           By day, I chase <strong>AI ghosts</strong> through neural networks. By night, I dance in <strong>AR/VR dreams</strong> 
           where pixels become poetry. I'm a full-stack storm chaser, backend thumper, frontend dreamweaver, 
@@ -67,7 +67,7 @@ const AboutMe: React.FC = () => {
           and sung through deployment pipelines.
         </p>
 
-        <SectionHeading $theme={currentTheme}>Connect & Collaborate</SectionHeading>
+        <SectionHeading $colorScheme={currentColorScheme}>Connect & Collaborate</SectionHeading>
         <p>
           Want to vibe, collab, or dive deep into smart contract spelunking? Let's write code love letters together:
         </p>

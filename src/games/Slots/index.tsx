@@ -198,8 +198,8 @@ export default function Slots() {
           
           // 🎉 TRIGGER SLOTS WIN EFFECTS
           console.log('🎰 SLOTS WIN! Triggering visual effects')
-          effectsRef.current?.winFlash() // Use theme's winGlow color
-          effectsRef.current?.particleBurst(50, 40) // Use theme's particleWin color
+          effectsRef.current?.winFlash() // Use colorScheme's winGlow color
+          effectsRef.current?.particleBurst(50, 40) // Use colorScheme's particleWin color
           
           // Check for legendary wins (multiple winning lines)
           if (finalWinningLines.length >= 3) {
@@ -218,7 +218,7 @@ export default function Slots() {
           
           // 💥 TRIGGER SLOTS LOSE EFFECTS
           console.log('💥 SLOTS LOSE! Triggering lose effects')
-          effectsRef.current?.loseFlash() // Use theme's loseGlow color
+          effectsRef.current?.loseFlash() // Use colorScheme's loseGlow color
           effectsRef.current?.screenShake(0.5, 300) // Light shake for loss
         }
 

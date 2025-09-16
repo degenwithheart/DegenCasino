@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 // Keyframe animations matching dashboard style
 const moveGradient = keyframes`
@@ -16,7 +16,7 @@ const sparkle = keyframes`
 
 interface CompactProps {
   $compact?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 
 const ExplorerHeaderContainer = styled.div<CompactProps>`
@@ -28,14 +28,14 @@ const ExplorerHeaderContainer = styled.div<CompactProps>`
 const ExplorerTitle = styled.h1<CompactProps>`
   font-size: ${({ $compact }) => ($compact ? '2.5rem' : '3rem')};
   font-family: 'Luckiest Guy', cursive, sans-serif;
-  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+  background: linear-gradient(90deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}, ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#ff00cc'}, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
   background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 1rem;
   animation: ${moveGradient} 3s linear infinite;
-  text-shadow: 0 0 30px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}80;
+  text-shadow: 0 0 30px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}80;
   
   @media (max-width: 768px) {
     font-size: ${({ $compact }) => ($compact ? '2rem' : '2.5rem')};
@@ -44,7 +44,7 @@ const ExplorerTitle = styled.h1<CompactProps>`
 
 const ExplorerSubtitle = styled.p<CompactProps>`
   font-size: ${({ $compact }) => ($compact ? '1.1rem' : '1.3rem')};
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
   margin-bottom: ${({ $compact }) => ($compact ? '1.5rem' : '2rem')};
   font-weight: 300;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -57,10 +57,10 @@ const AccentBar = styled.div<CompactProps>`
   max-width: 400px;
   margin: 0 auto ${({ $compact }) => ($compact ? '1.5rem' : '2rem')};
   border-radius: 3px;
-  background: linear-gradient(90deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+  background: linear-gradient(90deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}, ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#ff00cc'}, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
   background-size: 300% 100%;
   animation: ${moveGradient} 3s linear infinite;
-  box-shadow: 0 0 20px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}66;
+  box-shadow: 0 0 20px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}66;
 `
 
 const CasinoSparkles = styled.div`
@@ -79,14 +79,14 @@ const CasinoSparkles = styled.div`
 
 export function ExplorerHeader() {
   const isCompact = useIsCompact()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   
   return (
     <ExplorerHeaderContainer $compact={!!isCompact}>
       <CasinoSparkles>✨🎰✨</CasinoSparkles>
-      <ExplorerTitle $compact={!!isCompact} $theme={currentTheme}>🔍 DegenCasino Explorer</ExplorerTitle>
-      <AccentBar $compact={!!isCompact} $theme={currentTheme} />
-      <ExplorerSubtitle $compact={!!isCompact} $theme={currentTheme}>
+      <ExplorerTitle $compact={!!isCompact} $colorScheme={currentColorScheme}>🔍 DegenCasino Explorer</ExplorerTitle>
+      <AccentBar $compact={!!isCompact} $colorScheme={currentColorScheme} />
+      <ExplorerSubtitle $compact={!!isCompact} $colorScheme={currentColorScheme}>
         Explore transactions, players, and platform statistics
       </ExplorerSubtitle>
     </ExplorerHeaderContainer>

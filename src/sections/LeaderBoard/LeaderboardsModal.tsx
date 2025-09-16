@@ -7,7 +7,7 @@ import {
   Period,
   Player,
 } from '../../hooks/data/useLeaderboardData'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 import {
   ModalContent,
@@ -44,7 +44,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   creator,
 }) => {
   const [period, setPeriod] = useState<Period>('weekly') // default
-  const theme = useTheme()
+  const colorScheme = useColorScheme()
 
   const {
     data: leaderboard,
@@ -53,21 +53,21 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   } = useLeaderboardData(period, creator)
 
   return (
-    <ModalContent $theme={theme}>
+    <ModalContent $colorScheme={colorScheme}>
       {/* ────── header ────── */}
       <HeaderSection>
-        <Title $theme={theme}>Leaderboard</Title>
-        <Subtitle $theme={theme}>
+        <Title $colorScheme={colorScheme}>Leaderboard</Title>
+        <Subtitle $colorScheme={colorScheme}>
           Top players by volume{' '}
           {period === 'weekly' ? 'this week' : 'this month'} (USD)
         </Subtitle>
       </HeaderSection>
 
       {/* ────── tabs ────── */}
-      <TabRow $theme={theme}>
+      <TabRow $colorScheme={colorScheme}>
         <TabButton
           $selected={period === 'weekly'}
-          $theme={theme}
+          $colorScheme={colorScheme}
           onClick={() => setPeriod('weekly')}
           disabled={loading}
         >
@@ -76,7 +76,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
 
         <TabButton
           $selected={period === 'monthly'}
-          $theme={theme}
+          $colorScheme={colorScheme}
           onClick={() => setPeriod('monthly')}
           disabled={loading}
         >
@@ -86,12 +86,12 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
 
       {/* ────── body ────── */}
       {loading ? (
-        <LoadingText $theme={theme}>Loading...</LoadingText>
+        <LoadingText $colorScheme={colorScheme}>Loading...</LoadingText>
       ) : error ? (
-        <ErrorText $theme={theme}>{error}</ErrorText>
+        <ErrorText $colorScheme={colorScheme}>{error}</ErrorText>
       ) : leaderboard && leaderboard.length > 0 ? (
         <LeaderboardList>
-          <ListHeader $theme={theme}>
+          <ListHeader $colorScheme={colorScheme}>
             <HeaderRank>Rank</HeaderRank>
             <HeaderPlayer>Player</HeaderPlayer>
             <HeaderVolume>Volume&nbsp;(USD)</HeaderVolume>
@@ -100,16 +100,16 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
           {leaderboard.map((entry: Player, index) => {
             const rank = index + 1
             return (
-              <RankItem key={entry.user} $isTop3={rank <= 3} $theme={theme}>
-                <RankNumber rank={rank} $theme={theme}>{rank > 3 ? rank : ''}</RankNumber>
-                <PlayerInfo $theme={theme} title={entry.user}>{entry.user}</PlayerInfo>
-                <VolumeAmount $theme={theme}>{formatVolume(entry.usd_volume)}</VolumeAmount>
+              <RankItem key={entry.user} $isTop3={rank <= 3} $colorScheme={colorScheme}>
+                <RankNumber rank={rank} $colorScheme={colorScheme}>{rank > 3 ? rank : ''}</RankNumber>
+                <PlayerInfo $colorScheme={colorScheme} title={entry.user}>{entry.user}</PlayerInfo>
+                <VolumeAmount $colorScheme={colorScheme}>{formatVolume(entry.usd_volume)}</VolumeAmount>
               </RankItem>
             )
           })}
         </LeaderboardList>
       ) : (
-        <EmptyStateText $theme={theme}>Coming soon.</EmptyStateText>
+        <EmptyStateText $colorScheme={colorScheme}>Coming soon.</EmptyStateText>
       )}
     </ModalContent>
   )

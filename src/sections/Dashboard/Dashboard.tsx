@@ -12,7 +12,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_RECENT_PLAYS, DASHBOARD_SHOW_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
-import { useTheme } from "../../themes/ThemeContext";
+import { useColorScheme } from "../../themes/ColorSchemeContext";
 import {
   AccentBar,
   CasinoSparkles,
@@ -43,7 +43,7 @@ export function Dashboard() {
   const { compact, screenTooSmall } = useIsCompact();
   const handleWalletConnect = useHandleWalletConnect();
   const { openGamesModal } = useContext(GamesModalContext);
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
@@ -53,7 +53,7 @@ export function Dashboard() {
   const liveNewGames = GAMES().filter(g => g.live === 'new');
 
   return (
-    <DashboardWrapper $compact={compact} $theme={currentTheme}>
+    <DashboardWrapper $compact={compact} $colorScheme={currentColorScheme}>
       <CasinoSparkles>✨</CasinoSparkles>
       <WelcomeBanner />
       <EnhancedTickerTape />
@@ -71,7 +71,7 @@ export function Dashboard() {
             <ToggleButton
               $active={activeSection === 'games'}
               $compact={compact}
-              $theme={currentTheme}
+              $colorScheme={currentColorScheme}
               onClick={() => setActiveSection('games')}
             >
               🃏 All Games
@@ -80,7 +80,7 @@ export function Dashboard() {
               <ToggleButton
                 $active={activeSection === 'plays'}
                 $compact={compact}
-                $theme={currentTheme}
+                $colorScheme={currentColorScheme}
                 onClick={() => setActiveSection('plays')}
               >
                 🕹️ Recent Plays
@@ -90,7 +90,7 @@ export function Dashboard() {
               <ToggleButton
                 $active={activeSection === 'referrals'}
                 $compact={compact}
-                $theme={currentTheme}
+                $colorScheme={currentColorScheme}
                 onClick={() => setActiveSection('referrals')}
               >
                 🏆 Referral Leaders

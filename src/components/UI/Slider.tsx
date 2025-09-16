@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from './Icon'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 const Container = styled.div`
   position: relative;
@@ -15,7 +15,7 @@ const Container = styled.div`
   }
 `
 
-const SliderButton = styled.button<{ $theme?: any }>`
+const SliderButton = styled.button<{ $colorScheme?: any }>`
   all: unset;
   position: absolute;
   font-size: 24px;
@@ -26,16 +26,16 @@ const SliderButton = styled.button<{ $theme?: any }>`
   height: 100%;
   padding: 5px;
   cursor: pointer;
-  background: ${({ $theme }) => $theme?.colors?.background || 'var(--background-color)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.background || 'var(--background-color)'};
   transition: opacity .2s;
   opacity: .5;
   &:hover {
     opacity: 1!important;
-    background: ${({ $theme }) => $theme?.colors?.background || 'var(--background-color)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.background || 'var(--background-color)'};
   }
 `
 
-const StyledContent = styled.div<{ $theme?: any }>`
+const StyledContent = styled.div<{ $colorScheme?: any }>`
   display: flex;
   gap: 15px;
   width: 100%;
@@ -48,7 +48,7 @@ const StyledContent = styled.div<{ $theme?: any }>`
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${({ $theme }) => $theme?.colors?.border || '#cccccc'}33;
+    background-color: ${({ $colorScheme }) => $colorScheme?.colors?.border || '#cccccc'}33;
   }
 
   & > * {
@@ -62,7 +62,7 @@ export function SlideSection(props: React.PropsWithChildren) {
   const ref = React.useRef<HTMLDivElement>(null!)
   const leftArrow = React.useRef<HTMLButtonElement>(null!)
   const rightArrow = React.useRef<HTMLButtonElement>(null!)
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   const scroll = (x: number) => {
     const left = ref.current.clientWidth / 2 * x
@@ -82,13 +82,13 @@ export function SlideSection(props: React.PropsWithChildren) {
 
   return (
     <Container style={{ position: 'relative' }}>
-      <SliderButton ref={leftArrow} onClick={() => scroll(-1)} $theme={currentTheme}>
+      <SliderButton ref={leftArrow} onClick={() => scroll(-1)} $colorScheme={currentColorScheme}>
         <Icon.ArrowLeft />
       </SliderButton>
-      <StyledContent onScroll={_scroll} ref={ref} $theme={currentTheme}>
+      <StyledContent onScroll={_scroll} ref={ref} $colorScheme={currentColorScheme}>
         {props.children}
       </StyledContent>
-      <SliderButton ref={rightArrow} style={{ right: '0', left: 'unset' }} onClick={() => scroll(1)} $theme={currentTheme}>
+      <SliderButton ref={rightArrow} style={{ right: '0', left: 'unset' }} onClick={() => scroll(1)} $colorScheme={currentColorScheme}>
         <Icon.ArrowRight />
       </SliderButton>
     </Container>

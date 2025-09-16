@@ -5,8 +5,8 @@ declare const __APP_VERSION__: string | undefined
 import { Modal } from '../Modal/Modal'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { setPrefetchUserOverride } from '../../hooks/system/usePrefetch'
-const ThemeSelectorLazy = React.lazy(() => import('../Theme/ThemeSelector').then(m => ({ default: m.ThemeSelector })))
-import { useTheme } from '../../themes/ThemeContext'
+const ThemeSelectorLazy = React.lazy(() => import('../Theme/ColorSchemeSelector').then(m => ({ default: m.ColorSchemeSelector })))
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS } from '../../constants'
 import * as S from './Settings.styles'
 
@@ -41,7 +41,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const autoAdapt = useUserStore(s => !!s.autoAdapt)
   const adaptiveRaf = useUserStore(s => s.adaptiveRaf !== false)
   const autoReduced = useUserStore(s => s.autoAdapt && (s.reduceMotion || s.lessGlow))
-  const { setTheme } = useTheme()
+  const { setColorScheme } = useColorScheme()
   const set = useUserStore(s => s.set)
 
   // Derived constants for external links & addresses (sourced from main constants file)
@@ -75,8 +75,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     set({ dataSaver: false, particlesEnabled: true, prefetchLevel: 'conservative', reduceMotion:false, lessGlow:false, tickerInterval:15000, imageQuality:'balanced', deferAudio:true, progressiveImages:true, backgroundThrottle:true, cacheWarmup:true, fontSlim:true, autoAdapt:true })
     setPrefetchUserOverride(null as any)
     try {
-      // Reset theme to a known default (assuming 'default' key exists) else first key
-      if (setTheme) setTheme('default')
+      // Reset colorScheme to a known default (assuming 'default' key exists) else first key
+      if (setColorScheme) setColorScheme('default')
     } catch(_) {}
   }
 

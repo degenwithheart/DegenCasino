@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 // Romantic Serenade Animations
 const loveLetterFloat = keyframes`
@@ -31,15 +31,15 @@ const candlestickSparkle = keyframes`
   }
 `;
 
-const ChangelogContainer = styled.div<{ $theme?: any }>`
+const ChangelogContainer = styled.div<{ $colorScheme?: any }>`
   max-width: 100vw;
   border-radius: 16px;
   margin: 0 auto;
   padding: 1rem;
-  color: ${({ $theme }) => $theme?.colors?.textPrimary || '#e8d5c4'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textPrimary || '#e8d5c4'};
   min-height: 100vh;
-  background: ${({ $theme }) => $theme?.patterns?.background || 'linear-gradient(135deg, #0a0511 0%, #1a0b2e 50%, #2d1b4e 100%)'};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.background || 'linear-gradient(135deg, #0a0511 0%, #1a0b2e 50%, #2d1b4e 100%)'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
   position: relative;
   overflow: hidden;
   
@@ -50,7 +50,7 @@ const ChangelogContainer = styled.div<{ $theme?: any }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(184, 54, 106, 0.1) 0%, transparent 50%)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(184, 54, 106, 0.1) 0%, transparent 50%)'};
     pointer-events: none;
   }
   
@@ -60,19 +60,19 @@ const ChangelogContainer = styled.div<{ $theme?: any }>`
   }
 `;
 
-const Title = styled.h1<{ $theme?: any }>`
+const Title = styled.h1<{ $colorScheme?: any }>`
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-align: center;
-  background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a, #8b5a9e)'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a, #8b5a9e)'};
   background-size: 300% 100%;
   animation: ${loveLetterFloat} 6s ease-in-out infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-family: 'Luckiest Guy', cursive, sans-serif;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
   position: relative;
   z-index: 2;
   
@@ -116,10 +116,10 @@ const ChangelogList = styled.ul`
   margin: 0;
 `;
 
-const ChangelogItem = styled.li<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.6)'};
+const ChangelogItem = styled.li<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.6)'};
   backdrop-filter: blur(15px);
-  border: 2px solid ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
   border-radius: 16px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -134,7 +134,7 @@ const ChangelogItem = styled.li<{ $theme?: any }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.05) 0%, transparent 50%)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.05) 0%, transparent 50%)'};
     pointer-events: none;
   }
 
@@ -145,7 +145,7 @@ const ChangelogItem = styled.li<{ $theme?: any }>`
     left: 0;
     right: 0;
     height: 3px;
-    background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(90deg, #d4a574, #b8336a, #8b5a9e)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(90deg, #d4a574, #b8336a, #8b5a9e)'};
     opacity: 0;
     transition: opacity 0.4s ease;
   }
@@ -156,10 +156,10 @@ const ChangelogItem = styled.li<{ $theme?: any }>`
   }
 
   &:hover {
-    background: ${({ $theme }) => $theme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.8)'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.8)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
     transform: translateY(-4px) scale(1.01);
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 15px 40px rgba(212, 165, 116, 0.3), 0 0 60px rgba(184, 54, 106, 0.2)'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 15px 40px rgba(212, 165, 116, 0.3), 0 0 60px rgba(184, 54, 106, 0.2)'};
 
     &::after {
       opacity: 1;
@@ -180,10 +180,10 @@ const ChangelogContent = styled.div`
   }
 `;
 
-const DateBadge = styled.span<{ $theme?: any }>`
+const DateBadge = styled.span<{ $colorScheme?: any }>`
   display: inline-block;
-  background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
-  color: ${({ $theme }) => $theme?.colors?.background || '#0a0511'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.background || '#0a0511'};
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -193,7 +193,7 @@ const DateBadge = styled.span<{ $theme?: any }>`
   align-self: flex-start;
   position: relative;
   z-index: 2;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 4px 15px rgba(212, 165, 116, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 4px 15px rgba(212, 165, 116, 0.3)'};
   animation: ${romanticPulse} 4s ease-in-out infinite;
   
   @media (min-width: 640px) {
@@ -204,10 +204,10 @@ const DateBadge = styled.span<{ $theme?: any }>`
   }
 `;
 
-const ChangeDescription = styled.span<{ $theme?: any }>`
+const ChangeDescription = styled.span<{ $colorScheme?: any }>`
   font-size: 0.9rem;
   line-height: 1.6;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#e8d5c4'};
   flex: 1;
   position: relative;
   z-index: 2;
@@ -220,10 +220,10 @@ const ChangeDescription = styled.span<{ $theme?: any }>`
   }
 `;
 
-const Subtitle = styled.p<{ $theme?: any }>`
+const Subtitle = styled.p<{ $colorScheme?: any }>`
   text-align: center;
   font-size: 1rem;
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#e8d5c4'};
   margin-bottom: 2rem;
   padding: 0 1rem;
   line-height: 1.5;
@@ -273,17 +273,17 @@ const changelogData: ChangelogEntry[] = [
   {
     version: "v3.3.8",
     date: "2025-09-14",
-    description: "Comprehensive theme system redesign with modernized color palettes, improved contrast ratios, enhanced typography scaling, and sophisticated visual hierarchy for better user interface consistency."
+    description: "Comprehensive colorScheme system redesign with modernized color palettes, improved contrast ratios, enhanced typography scaling, and sophisticated visual hierarchy for better user interface consistency."
   },
   {
     version: "v3.3.7",
     date: "2025-09-13",
-    description: "Enhanced theme architecture with dynamic theming capabilities, improved CSS variable management, and streamlined styling framework for consistent visual experience across all platform components."
+    description: "Enhanced colorScheme architecture with dynamic theming capabilities, improved CSS variable management, and streamlined styling framework for consistent visual experience across all platform components."
   },
   {
     version: "v3.3.6",
     date: "2025-09-08",
-    description: "Enhanced theme consistency across dashboard components with refined visual elements, improved emoji rendering, and polished user interface styling for Terms, AboutMe, and Whitepaper sections."
+    description: "Enhanced colorScheme consistency across dashboard components with refined visual elements, improved emoji rendering, and polished user interface styling for Terms, AboutMe, and Whitepaper sections."
   },
   {
     version: "v3.3.5",
@@ -1002,30 +1002,30 @@ const changelogData: ChangelogEntry[] = [
   }
 ];
 
-const ChangelogItemComponent: React.FC<{ entry: ChangelogEntry; theme?: any }> = ({ entry, theme }) => {
+const ChangelogItemComponent: React.FC<{ entry: ChangelogEntry; colorScheme?: any }> = ({ entry, colorScheme }) => {
   return (
-    <ChangelogItem $theme={theme}>
+    <ChangelogItem $colorScheme={colorScheme}>
       <ChangelogContent>
-        <DateBadge $theme={theme}>{entry.version} - {entry.date}</DateBadge>
-        <ChangeDescription $theme={theme}>{entry.description}</ChangeDescription>
+        <DateBadge $colorScheme={colorScheme}>{entry.version} - {entry.date}</DateBadge>
+        <ChangeDescription $colorScheme={colorScheme}>{entry.description}</ChangeDescription>
       </ChangelogContent>
     </ChangelogItem>
   );
 };
 
 export const ChangelogPage: React.FC = () => {
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
 
   return (
-    <ChangelogContainer $theme={currentTheme}>
-      <Title $theme={currentTheme}>🕯️ Chronicles of the Casino Cathedral 🕯️</Title>
-      <Subtitle $theme={currentTheme}>
+    <ChangelogContainer $colorScheme={currentColorScheme}>
+      <Title $colorScheme={currentColorScheme}>🕯️ Chronicles of the Casino Cathedral 🕯️</Title>
+      <Subtitle $colorScheme={currentColorScheme}>
         <em>Each entry a verse in our eternal ballad, tracking the romantic evolution of our digital realm where love letters meet code and passion flows through every update.</em>
       </Subtitle>
       
       <ChangelogList>
         {changelogData.map((entry, index) => (
-          <ChangelogItemComponent key={index} entry={entry} theme={currentTheme} />
+          <ChangelogItemComponent key={index} entry={entry} colorScheme={currentColorScheme} />
         ))}
       </ChangelogList>
     </ChangelogContainer>

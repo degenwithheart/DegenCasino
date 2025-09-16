@@ -422,78 +422,235 @@ export default function CryptoChartGameV2() {
 
   return (
     <>
-      <GambaUi.Portal target="screen">
-        <GambaUi.Responsive>
-          <GameplayFrame ref={effectsRef}>
-            {/* Game Stats Header */}
-            <GameStatsHeader
-              gameName="Crypto Chart"
-              gameMode="Trade"
-              rtp="95%"
-              stats={{
-                gamesPlayed: gameCount,
-                wins: winCount,
-                losses: lossCount,
-                sessionProfit: totalProfit,
-                bestWin: lastPayout || 0
-              }}
-            />
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Crypto Chart"
+          gameMode="V2"
+          rtp="95"
+          stats={{
+            gamesPlayed: gameCount,
+            wins: winCount,
+            losses: lossCount,
+            sessionProfit: totalProfit,
+            bestWin: lastPayout || 0
+          }}
+          onReset={() => {
+            setGameCount(0)
+            setWinCount(0)
+            setLossCount(0)
+            setTotalProfit(0)
+            setLastPayout(0)
+          }}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
 
-            {/* Canvas Game Area */}
-            <div style={{ 
-              position: 'relative', 
-              width: '100%', 
-              height: '600px',
+      <GambaUi.Portal target="screen">
+        <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          background: ROMANTIC_COLORS.background,
+          perspective: '100px'
+        }}>
+          {/* Canvas Game Area */}
+          <canvas 
+            ref={canvasRef}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              right: '20px',
+              bottom: '140px',
+              width: 'calc(100% - 40px)',
+              height: 'calc(100% - 160px)',
+              objectFit: 'contain',
               background: ROMANTIC_COLORS.background,
               borderRadius: '12px',
-              overflow: 'hidden'
+              border: '2px solid rgba(212, 165, 116, 0.4)',
+              zIndex: 0
+            }}
+          />
+          
+          {/* Game Result Overlay */}
+          {(gameState === 'win' || gameState === 'crash') && !isPlaying && (
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(0, 0, 0, 0.9)',
+              borderRadius: '16px',
+              padding: '32px',
+              textAlign: 'center',
+              color: gameState === 'win' ? CHART_COLORS.bullish : CHART_COLORS.bearish,
+              border: `2px solid ${gameState === 'win' ? CHART_COLORS.bullish : CHART_COLORS.bearish}`,
+              backdropFilter: 'blur(10px)',
+              zIndex: 100
             }}>
-              <canvas 
-                ref={canvasRef}
-                width={CANVAS_WIDTH}
-                height={CANVAS_HEIGHT}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  background: ROMANTIC_COLORS.background
-                }}
-              />
-              
-              {/* Game Result Overlay */}
-              {(gameState === 'win' || gameState === 'crash') && !isPlaying && (
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  background: 'rgba(0, 0, 0, 0.9)',
-                  borderRadius: '16px',
-                  padding: '32px',
-                  textAlign: 'center',
-                  color: gameState === 'win' ? CHART_COLORS.bullish : CHART_COLORS.bearish,
-                  border: `2px solid ${gameState === 'win' ? CHART_COLORS.bullish : CHART_COLORS.bearish}`,
-                  backdropFilter: 'blur(10px)'
-                }}>
-                  <div style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>
-                    {gameState === 'win' ? '🚀 MOON!' : '💥 RUGGED!'}
-                  </div>
-                  <div style={{ fontSize: '20px', color: ROMANTIC_COLORS.light, marginBottom: '8px' }}>
-                    Target: {targetMultiplier.toFixed(2)}x
-                  </div>
-                  <div style={{ fontSize: '20px', color: ROMANTIC_COLORS.light, marginBottom: '16px' }}>
-                    Result: {finalMultiplier.toFixed(2)}x
-                  </div>
-                  {lastPayout && (
-                    <div style={{ fontSize: '18px', color: ROMANTIC_COLORS.gold, fontWeight: 'bold' }}>
-                      Won: <TokenValue amount={lastPayout} />
-                    </div>
-                  )}
+              <div style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>
+                {gameState === 'win' ? '🚀 MOON!' : '💥 RUGGED!'}
+              </div>
+              <div style={{ fontSize: '20px', color: ROMANTIC_COLORS.light, marginBottom: '8px' }}>
+                Target: {targetMultiplier.toFixed(2)}x
+              </div>
+              <div style={{ fontSize: '20px', color: ROMANTIC_COLORS.light, marginBottom: '16px' }}>
+                Result: {finalMultiplier.toFixed(2)}x
+              </div>
+              {lastPayout && (
+                <div style={{ fontSize: '18px', color: ROMANTIC_COLORS.gold, fontWeight: 'bold' }}>
+                  Won: <TokenValue amount={lastPayout} />
                 </div>
               )}
             </div>
-          </GameplayFrame>
-        </GambaUi.Responsive>
+          )}
+
+          <GameControlsSection>
+            {/* Target Multiplier Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#4caf50',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                TARGET
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(76, 175, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {targetMultiplier.toFixed(2)}x
+              </div>
+            </div>
+
+            {/* Current Multiplier Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.25) 50%, rgba(255, 152, 0, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(255, 152, 0, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(255, 152, 0, 0.2), inset 0 1px 0 rgba(255, 152, 0, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#ff9800',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                CURRENT
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(255, 152, 0, 0.9)',
+                fontWeight: '600'
+              }}>
+                {currentMultiplier.toFixed(2)}x
+              </div>
+            </div>
+
+            {/* Win Chance Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(184, 51, 106, 0.15) 0%, rgba(136, 14, 79, 0.25) 50%, rgba(184, 51, 106, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(184, 51, 106, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(184, 51, 106, 0.2), inset 0 1px 0 rgba(184, 51, 106, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#b8336a',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                WIN CHANCE
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(184, 51, 106, 0.9)',
+                fontWeight: '600'
+              }}>
+                {gameState === 'idle' ? '-' : `${(100 / targetMultiplier).toFixed(1)}%`}
+              </div>
+            </div>
+
+            {/* Potential Payout Section */}
+            <div style={{
+              flex: isMobile ? '1' : '0 0 140px',
+              height: '100%',
+              background: 'linear-gradient(135deg, rgba(139, 90, 158, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(139, 90, 158, 0.15) 100%)',
+              borderRadius: '12px',
+              border: '2px solid rgba(139, 90, 158, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 16px rgba(139, 90, 158, 0.2), inset 0 1px 0 rgba(139, 90, 158, 0.3)',
+              backdropFilter: 'blur(8px)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '11px' : '14px',
+                fontWeight: 'bold',
+                color: '#8b5a9e',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                marginBottom: '4px'
+              }}>
+                POTENTIAL
+              </div>
+              <div style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: 'rgba(139, 90, 158, 0.9)',
+                fontWeight: '600'
+              }}>
+                <TokenValue amount={initialWager * targetMultiplier} />
+              </div>
+            </div>
+          </GameControlsSection>
+
+          <GameplayFrame
+            ref={effectsRef}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: 'none',
+              zIndex: 1000
+            }}
+          />
+        </div>
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">

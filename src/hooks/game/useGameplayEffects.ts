@@ -68,13 +68,13 @@ export function useGameplayEffects(): GameplayEffects {
   }
   
   const winFlash = (color?: string, intensity = 1.2) => { // Higher default intensity for accessibility
-    // Use theme's winGlow color if no color specified
+    // Use colorScheme's winGlow color if no color specified
     const effectColor = color || settings.customTheme?.winGlow || '#00ff00'
     flash(effectColor, 1000 * intensity) // Longer duration for accessibility
   }
   
   const loseFlash = (color?: string, intensity = 1.2) => { // Higher default intensity for accessibility
-    // Use theme's loseGlow color if no color specified
+    // Use colorScheme's loseGlow color if no color specified
     const effectColor = color || settings.customTheme?.loseGlow || '#ff0040'
     flash(effectColor, 800 * intensity) // Longer duration for accessibility
   }
@@ -107,7 +107,7 @@ export function useGameplayEffects(): GameplayEffects {
       return
     }
     
-    // Use theme's particleWin color if no color specified
+    // Use colorScheme's particleWin color if no color specified
     const effectColor = color || settings.customTheme?.particleWin || '#ffd700'
     
     console.log('♿ Accessibility particle burst triggered:', { x, y, color: effectColor, count })

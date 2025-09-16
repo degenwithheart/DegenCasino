@@ -293,7 +293,7 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     gradientAccent: 'linear-gradient(135deg, #00c853, #4caf50)',
     shadowColor: '#00c85340',
     glowColor: '#64dd1760',
-    description: 'Mystical jade-inspired theme with Eastern elegance',
+    description: 'Mystical jade-inspired colorScheme with Eastern elegance',
     category: 'nature',
     isDarkMode: true
   },
@@ -467,7 +467,7 @@ interface GameScreenFrameProps {
   title?: string
   /** Game description for enhanced theming */
   description?: string
-  /** Custom colors to override theme [primary, secondary, tertiary] */
+  /** Custom colors to override colorScheme [primary, secondary, tertiary] */
   colors?: [string, string, string?]
   /** Game state for visual feedback */
   gameState?: 'loading' | 'playing' | 'finished' | 'error'
@@ -496,7 +496,7 @@ function hashHue(input: string): number {
 function generateThemeColors(
   seed: string, 
   customColors?: [string, string, string?],
-  theme?: CustomTheme
+  colorScheme?: CustomTheme
 ): [string, string, string] {
   // Use custom colors if provided
   if (customColors) {
@@ -504,10 +504,10 @@ function generateThemeColors(
     return [customColors[0], customColors[1], customColors[2] || customColors[0]]
   }
   
-  // Use theme colors if available
-  if (theme) {
-    console.log('🎨 Using theme colors:', theme.name, [theme.primary, theme.secondary, theme.tertiary])
-    return [theme.primary, theme.secondary, theme.tertiary]
+  // Use colorScheme colors if available
+  if (colorScheme) {
+    console.log('🎨 Using colorScheme colors:', colorScheme.name, [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary])
+    return [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary]
   }
   
   // Generate deterministic colors from seed
@@ -591,35 +591,35 @@ export default function GameScreenFrame({
   // Determine effective settings (local overrides global)
   const shouldShowEffects = localEffects !== undefined ? localEffects : settings.enableEffects
   const shouldAnimate = localMotion !== undefined ? localMotion : settings.enableMotion
-  const theme = settings.customTheme
+  const colorScheme = settings.customTheme
   
   console.log('🎮 GameScreenFrame Settings:', {
     quality: settings.quality,
     enableEffects: settings.enableEffects,
     enableMotion: settings.enableMotion,
     customTheme: settings.customTheme,
-    themeExists: !!theme,
-    themeName: theme?.name
+    themeExists: !!colorScheme,
+    themeName: colorScheme?.name
   })
   
-  // Generate theme colors only if a custom theme is selected
+  // Generate colorScheme colors only if a custom colorScheme is selected
   const seed = title || description || 'game'
-  const themeColors = useMemo(() => {
-    console.log('🎨 GameScreenFrame - Generating themeColors:', { 
-      theme: theme?.name || 'none', 
-      hasTheme: !!theme, 
+  const colorSchemeColors = useMemo(() => {
+    console.log('🎨 GameScreenFrame - Generating colorSchemeColors:', { 
+      colorScheme: colorScheme?.name || 'none', 
+      hasTheme: !!colorScheme, 
       hasColors: !!colors,
-      shouldReturnNull: (!theme && !colors)
+      shouldReturnNull: (!colorScheme && !colors)
     })
-    // For default theme (no custom theme), return null to use original CSS
-    if (!theme && !colors) {
-      console.log('🎨 GameScreenFrame - Returning null (default theme)')
+    // For default colorScheme (no custom colorScheme), return null to use original CSS
+    if (!colorScheme && !colors) {
+      console.log('🎨 GameScreenFrame - Returning null (default colorScheme)')
       return null
     }
-    const generated = generateThemeColors(seed, colors, theme)
+    const generated = generateThemeColors(seed, colors, colorScheme)
     console.log('🎨 GameScreenFrame - Generated colors:', generated)
     return generated
-  }, [seed, colors, theme])
+  }, [seed, colors, colorScheme])
   
   // Quality-based rendering decisions combined with effects/motion settings
   const qualitySettings = useMemo(() => {
@@ -684,23 +684,23 @@ export default function GameScreenFrame({
         }
       case 'error':
         return { 
-          borderColor: theme?.danger || '#ff4444',
-          boxShadow: shouldShowEffects ? `0 0 20px ${theme?.danger || '#ff4444'}50` : undefined
+          borderColor: colorScheme?.danger || '#ff4444',
+          boxShadow: shouldShowEffects ? `0 0 20px ${colorScheme?.danger || '#ff4444'}50` : undefined
         }
       case 'finished':
         return { 
-          borderColor: theme?.success || '#44ff44',
-          boxShadow: shouldShowEffects ? `0 0 20px ${theme?.success || '#44ff44'}50` : undefined
+          borderColor: colorScheme?.success || '#44ff44',
+          boxShadow: shouldShowEffects ? `0 0 20px ${colorScheme?.success || '#44ff44'}50` : undefined
         }
       default:
         return {}
     }
-  }, [gameState, settings.quality, shouldShowEffects, theme])
+  }, [gameState, settings.quality, shouldShowEffects, colorScheme])
   
   // LOW QUALITY MODE: Minimal rendering for performance
   if (settings.quality === 'low') {
-    // For default theme, don't apply any custom styling
-    if (!theme) {
+    // For default colorScheme, don't apply any custom styling
+    if (!colorScheme) {
       return (
         <div className="w-full h-full relative">
           {settings.performanceMode && (
@@ -715,10 +715,10 @@ export default function GameScreenFrame({
       )
     }
     
-    // For custom themes, apply theme styling
-    const backgroundColor = theme.background || '#0a0a0f'
-    const lowQualityGradient = theme.gradientPrimary || 
-      `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}15, ${backgroundColor})`
+    // For custom themes, apply colorScheme styling
+    const backgroundColor = colorScheme.background || '#0a0a0f'
+    const lowQualityGradient = colorScheme.gradientPrimary || 
+      `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}15, ${backgroundColor})`
     
     return (
       <div 
@@ -746,8 +746,8 @@ export default function GameScreenFrame({
   
   // MEDIUM+ QUALITY MODE: Full visual effects based on settings
   
-  // For default theme, don't apply any custom styling
-  if (!theme) {
+  // For default colorScheme, don't apply any custom styling
+  if (!colorScheme) {
     return (
       <div className="relative w-full h-full group">
         {children}
@@ -755,10 +755,10 @@ export default function GameScreenFrame({
     )
   }
   
-  // For custom themes, apply theme styling
-  const backgroundColor = theme.background
-  const backgroundGradient = theme.gradientPrimary || 
-    `linear-gradient(135deg, ${backgroundColor}, ${theme.primary}20, ${theme.secondary}15, ${backgroundColor})`
+  // For custom themes, apply colorScheme styling
+  const backgroundColor = colorScheme.background
+  const backgroundGradient = colorScheme.gradientPrimary || 
+    `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}20, ${colorScheme.secondary}15, ${backgroundColor})`
 
   // Use regular div when transforms are disabled to avoid layout conflicts
   const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer
@@ -816,21 +816,21 @@ export default function GameScreenFrame({
       )}
       
       {/* ANIMATED BORDER SYSTEM with enhanced motion visibility */}
-      {qualitySettings.showBorder && shouldAnimate && shouldShowEffects && themeColors ? (
+      {qualitySettings.showBorder && shouldAnimate && shouldShowEffects && colorSchemeColors ? (
         <motion.div
           className="absolute inset-0 rounded-xl pointer-events-none"
           style={{
             padding: `${qualitySettings.borderWidth}px`,
-            background: `linear-gradient(135deg, ${themeColors[0]}, ${themeColors[1]}, ${themeColors[2]})`
+            background: `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`
           }}
           animate={{ 
             background: [
-              `linear-gradient(135deg, ${themeColors[0]}, ${themeColors[1]}, ${themeColors[2]})`,
-              `linear-gradient(180deg, ${themeColors[1]}, ${themeColors[2]}, ${themeColors[0]})`,
-              `linear-gradient(225deg, ${themeColors[2]}, ${themeColors[0]}, ${themeColors[1]})`,
-              `linear-gradient(270deg, ${themeColors[0]}, ${themeColors[2]}, ${themeColors[1]})`,
-              `linear-gradient(315deg, ${themeColors[1]}, ${themeColors[0]}, ${themeColors[2]})`,
-              `linear-gradient(135deg, ${themeColors[0]}, ${themeColors[1]}, ${themeColors[2]})`
+              `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`,
+              `linear-gradient(180deg, ${colorSchemeColors[1]}, ${colorSchemeColors[2]}, ${colorSchemeColors[0]})`,
+              `linear-gradient(225deg, ${colorSchemeColors[2]}, ${colorSchemeColors[0]}, ${colorSchemeColors[1]})`,
+              `linear-gradient(270deg, ${colorSchemeColors[0]}, ${colorSchemeColors[2]}, ${colorSchemeColors[1]})`,
+              `linear-gradient(315deg, ${colorSchemeColors[1]}, ${colorSchemeColors[0]}, ${colorSchemeColors[2]})`,
+              `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`
             ],
             scale: [1, 1.02, 1, 0.98, 1],
             rotate: [0, 1, 0, -1, 0]
@@ -846,13 +846,13 @@ export default function GameScreenFrame({
             style={{ backgroundColor: 'transparent' }}
           />
         </motion.div>
-      ) : qualitySettings.showBorder && shouldShowEffects && themeColors ? (
+      ) : qualitySettings.showBorder && shouldShowEffects && colorSchemeColors ? (
         /* STATIC BORDER when motion is disabled but effects are enabled */
         <div
           className="absolute inset-0 rounded-xl pointer-events-none opacity-80"
           style={{
             padding: `${qualitySettings.borderWidth}px`,
-            background: `linear-gradient(135deg, ${themeColors[0]}, ${themeColors[1]}, ${themeColors[2]})`
+            background: `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`
           }}
         >
           <div 
@@ -863,11 +863,11 @@ export default function GameScreenFrame({
       ) : null}
       
       {/* CORNER GLOW EFFECTS (High/Ultra quality) */}
-      {qualitySettings.showGlow && shouldShowEffects && themeColors && (
+      {qualitySettings.showGlow && shouldShowEffects && colorSchemeColors && (
         <>
           {[0, 1, 2, 3].map(corner => {
-            // Use theme glow color if available, otherwise use generated theme colors
-            const glowColor = theme?.glowColor || themeColors[corner % 3]
+            // Use colorScheme glow color if available, otherwise use generated colorScheme colors
+            const glowColor = colorScheme?.glowColor || colorSchemeColors[corner % 3]
             return shouldAnimate ? (
               <motion.div
                 key={corner}
@@ -910,13 +910,13 @@ export default function GameScreenFrame({
       )}
       
       {/* SCANLINE EFFECT (Ultra quality only) */}
-      {qualitySettings.showScanline && shouldShowEffects && themeColors && (
+      {qualitySettings.showScanline && shouldShowEffects && colorSchemeColors && (
         <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
           {shouldAnimate ? (
             <motion.div
               className="absolute w-full h-1 opacity-30"
               style={{
-                background: `linear-gradient(90deg, transparent, ${themeColors[0]}, transparent)`,
+                background: `linear-gradient(90deg, transparent, ${colorSchemeColors[0]}, transparent)`,
                 filter: 'blur(1px)'
               }}
               animate={{ y: ['0%', '100%'] }}
@@ -930,7 +930,7 @@ export default function GameScreenFrame({
             <div
               className="absolute w-full h-1 opacity-20"
               style={{
-                background: `linear-gradient(90deg, transparent, ${themeColors[0]}, transparent)`,
+                background: `linear-gradient(90deg, transparent, ${colorSchemeColors[0]}, transparent)`,
                 filter: 'blur(1px)',
                 top: '50%'
               }}
@@ -940,7 +940,7 @@ export default function GameScreenFrame({
       )}
       
       {/* ENHANCED PARTICLE EFFECTS (High/Ultra quality) - Much more visible */}
-      {qualitySettings.showParticles && shouldShowEffects && themeColors && (
+      {qualitySettings.showParticles && shouldShowEffects && colorSchemeColors && (
         <>
           {[...Array(settings.quality === 'ultra' ? 12 : 8)].map((_, i) => (
             shouldAnimate ? (
@@ -950,8 +950,8 @@ export default function GameScreenFrame({
                 style={{
                   width: settings.quality === 'ultra' ? '6px' : '4px',
                   height: settings.quality === 'ultra' ? '6px' : '4px',
-                  backgroundColor: themeColors[i % 3],
-                  boxShadow: `0 0 10px ${themeColors[i % 3]}`,
+                  backgroundColor: colorSchemeColors[i % 3],
+                  boxShadow: `0 0 10px ${colorSchemeColors[i % 3]}`,
                   filter: 'blur(0.5px)',
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`
@@ -976,7 +976,7 @@ export default function GameScreenFrame({
                 style={{
                   width: '3px',
                   height: '3px',
-                  backgroundColor: themeColors[i % 3],
+                  backgroundColor: colorSchemeColors[i % 3],
                   filter: 'blur(0.5px)',
                   left: `${20 + (i * 8)}%`,
                   top: `${25 + (i * 7)}%`

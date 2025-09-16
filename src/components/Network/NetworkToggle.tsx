@@ -15,13 +15,13 @@ const NetworkToggleContainer = styled.div`
   border: 1px solid rgba(255, 215, 0, 0.2);
 `
 
-const NetworkLabel = styled.span<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.7)'};
+const NetworkLabel = styled.span<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.7)'};
   font-size: 0.9rem;
   font-weight: 600;
 `
 
-const NetworkButton = styled.button<{ $active: boolean; $isDevnet: boolean; $theme?: any }>`
+const NetworkButton = styled.button<{ $active: boolean; $isDevnet: boolean; $colorScheme?: any }>`
   padding: 8px 16px;
   background: ${({ $active, $isDevnet }) => 
     $active 
@@ -109,10 +109,10 @@ const StatusIndicator = styled.div<{ $isDevnet: boolean }>`
 `
 
 interface NetworkToggleProps {
-  theme?: any
+  colorScheme?: any
 }
 
-export default function NetworkToggle({ theme }: NetworkToggleProps) {
+export default function NetworkToggle({ colorScheme }: NetworkToggleProps) {
   const { network, switchNetwork, isDevnet, isMainnet, networkConfig } = useNetwork()
 
   // Don't render the toggle if devnet support is disabled
@@ -150,11 +150,11 @@ export default function NetworkToggle({ theme }: NetworkToggleProps) {
   return (
     <div>
       <NetworkToggleContainer>
-        <NetworkLabel $theme={theme}>Network:</NetworkLabel>
+        <NetworkLabel $colorScheme={colorScheme}>Network:</NetworkLabel>
         <NetworkButton
           $active={isMainnet}
           $isDevnet={false}
-          $theme={theme}
+          $colorScheme={colorScheme}
           onClick={() => handleNetworkSwitch('mainnet')}
           title="Switch to Solana Mainnet"
         >
@@ -163,7 +163,7 @@ export default function NetworkToggle({ theme }: NetworkToggleProps) {
         <NetworkButton
           $active={isDevnet}
           $isDevnet={true}
-          $theme={theme}
+          $colorScheme={colorScheme}
           onClick={() => handleNetworkSwitch('devnet')}
           title="Switch to Solana Devnet (Testing)"
         >

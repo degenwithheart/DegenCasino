@@ -4,7 +4,7 @@ import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOT
 import ConnectionStatus from '../components/Connection/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
-import { useTheme } from '../themes/ThemeContext';
+import { useColorScheme } from '../themes/ColorSchemeContext';
 import { liveGlow, moveGradient } from './Footer.styles';
 // ––––– Romantic Serenade Animations ––––– //
 
@@ -36,7 +36,7 @@ const dreamlikeFloat = keyframes`
 
 // ––––– Styled Components ––––– //
 
-const StyledFooter = styled.footer<{ $theme?: any }>`
+const StyledFooter = styled.footer<{ $colorScheme?: any }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -58,7 +58,7 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
   justify-content: space-between;
 
   font-family: 'DM Sans', 'Inter', sans-serif;
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
   z-index: 1000;
 
   /* Leave space for scrollbar on desktop devices with mouse */
@@ -107,7 +107,7 @@ const StyledFooter = styled.footer<{ $theme?: any }>`
   }
 `
 
-const MobileFooter = styled.footer<{ $theme?: any }>`
+const MobileFooter = styled.footer<{ $colorScheme?: any }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -130,7 +130,7 @@ const MobileFooter = styled.footer<{ $theme?: any }>`
   font-size: 0.9rem;
   font-family: 'DM Sans', sans-serif;
   padding: 0 4px;
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
 
   /* Mobile romantic overlay */
   &::before {
@@ -171,7 +171,7 @@ const MobileFooter = styled.footer<{ $theme?: any }>`
   }
 `;
 
-const FooterLinks = styled.ul<{ $theme?: any }>`
+const FooterLinks = styled.ul<{ $colorScheme?: any }>`
   display: flex;
   gap: 24px;
   margin: 0;
@@ -184,7 +184,7 @@ const FooterLinks = styled.ul<{ $theme?: any }>`
   }
 
   a {
-    color: ${({ $theme }) => $theme?.colors?.text || '#ddd'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#ddd'};
     text-decoration: none;
     font-size: 15px;
     transition: all 0.3s ease;
@@ -193,11 +193,11 @@ const FooterLinks = styled.ul<{ $theme?: any }>`
     border: 1px solid transparent;
 
     &:hover {
-      color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-      background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 215, 0, 0.1)'};
-      border: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
-      box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 12px rgba(255, 215, 0, 0.2)'};
-      text-shadow: 0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+      color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+      background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 215, 0, 0.1)'};
+      border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
+      box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 12px rgba(255, 215, 0, 0.2)'};
+      text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
       transform: translateY(-2px);
     }
 
@@ -208,7 +208,7 @@ const FooterLinks = styled.ul<{ $theme?: any }>`
       left: -1px;
       right: -1px;
       bottom: -1px;
-      background: linear-gradient(45deg, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'}, ${({ $theme }) => $theme?.colors?.accent || '#ff00cc'}, ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+      background: linear-gradient(45deg, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'}, ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#ff00cc'}, ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
       border-radius: 8px;
       opacity: 0;
       z-index: -1;
@@ -272,14 +272,14 @@ const StyledConnectionStatus = styled.div`
 function Footer() {
   const { connected, publicKey } = useWallet();
   const location = useLocation();
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   return (
     <>
-      <StyledFooter $theme={currentTheme}>
+      <StyledFooter $colorScheme={currentColorScheme}>
         <StyledConnectionStatus>
           <ConnectionStatus />
         </StyledConnectionStatus>
-        <FooterLinks $theme={currentTheme}>
+        <FooterLinks $colorScheme={currentColorScheme}>
           {FOOTER_LINKS.map((link) => (
             <li key={link.href}>
               <a href={link.href} rel="noopener noreferrer">
@@ -290,7 +290,7 @@ function Footer() {
         </FooterLinks>
       </StyledFooter>
 
-      <MobileFooter $theme={currentTheme}>
+      <MobileFooter $colorScheme={currentColorScheme}>
         {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
           // Special handling for Games modal trigger (only available when connected)
           if ('label' in link && link.label === 'Games') {

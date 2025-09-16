@@ -1,16 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useCurrentPool, useSound, useWagerInput, TokenValue } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
 import { useToast } from '../../hooks/ui/useToast'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
+import { useGraphics } from '../../components/Game/GameScreenFrame'
 
 import { GAME_CONFIG, PAYTABLE, GAME_STATES, type GameState } from './constants'
 import { KENO_SOUNDS } from './sounds'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 
 // Enhanced Components imports
-import { EnhancedWagerInput, EnhancedPlayButton } from '../../components/Game/EnhancedGameControls'
-import { GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 
 interface Particle {
   x: number
@@ -118,6 +121,9 @@ export default function KenoGame({}: KenoGameProps) {
   const gamba = useGamba()
   const pool = useCurrentPool()
   const [wager, setWager] = useWagerInput()
+  const { settings } = useGraphics()
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  const { mobile: isMobile } = useIsCompact()
   
   // Game state
   const [gameState, setGameState] = useState<GameState>(GAME_STATES.IDLE)
@@ -127,6 +133,13 @@ export default function KenoGame({}: KenoGameProps) {
   const [gameWon, setGameWon] = useState<boolean | null>(null)
   const [hitCount, setHitCount] = useState<number>(0)
   const [lastWin, setLastWin] = useState<number>(0)
+  
+  // Stats tracking
+  const [totalProfit, setTotalProfit] = useState(0)
+  const [gameCount, setGameCount] = useState(0)
+  const [winCount, setWinCount] = useState(0)
+  const [lossCount, setLossCount] = useState(0)
+  const [lastPayout, setLastPayout] = useState(0)
   
   // Canvas refs
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -451,6 +464,30 @@ export default function KenoGame({}: KenoGameProps) {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Keno"
+          gameMode="V2"
+          rtp="95"
+          stats={{
+            gamesPlayed: gameCount,
+            wins: winCount,
+            losses: lossCount,
+            sessionProfit: totalProfit,
+            bestWin: lastPayout || 0
+          }}
+          onReset={() => {
+            setGameCount(0)
+            setWinCount(0)
+            setLossCount(0)
+            setTotalProfit(0)
+            setLastPayout(0)
+          }}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <GambaUi.Responsive>
           <GameContainer>

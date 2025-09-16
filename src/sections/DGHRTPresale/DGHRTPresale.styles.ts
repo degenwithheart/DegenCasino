@@ -24,7 +24,7 @@ export const floatLogo = keyframes`
 
 interface ContainerProps {
   visible?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -32,8 +32,8 @@ export const Container = styled.div<ContainerProps>`
   margin: 2rem auto;
   padding: 3rem;
   
-  background: ${({ $theme }) => 
-    $theme?.colors?.containerBackground || 
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.containerBackground || 
     `linear-gradient(135deg, 
       rgba(18, 18, 22, 0.95) 0%, 
       rgba(30, 20, 35, 0.9) 50%, 
@@ -104,9 +104,9 @@ export const Header = styled.div`
   }
 `;
 
-export const PresaleCard = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const PresaleCard = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   
@@ -293,9 +293,9 @@ export const PurchaseButton = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-export const PresaleInfo = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const PresaleInfo = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   

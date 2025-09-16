@@ -217,7 +217,7 @@ export const retroFlicker = keyframes`
 `;
 
 // Theme type definitions
-export interface GlobalTheme {
+export interface GlobalColorScheme {
   name: string;
   description: string;
   colors: {
@@ -285,7 +285,7 @@ export interface GlobalTheme {
 }
 
 // Default Theme (Current Dashboard Styling)
-export const defaultTheme: GlobalTheme = {
+export const defaultColorScheme: GlobalColorScheme = {
   name: 'Default',
   description: 'The timeless casino experience with gold accents',
   colors: {
@@ -372,7 +372,7 @@ export const defaultTheme: GlobalTheme = {
 };
 
 // Enhanced Cyberpunk Neon Grid Theme
-export const cyberpunkTheme: GlobalTheme = {
+export const cyberpunkColorScheme: GlobalColorScheme = {
   name: 'Cyberpunk Matrix',
   description: 'Neural-linked cyber casino with glitch aesthetics and holographic displays',
   colors: {
@@ -464,7 +464,7 @@ export const cyberpunkTheme: GlobalTheme = {
 };
 
 // Immersive Casino Floor Theme
-export const casinoFloorTheme: GlobalTheme = {
+export const casinoFloorColorScheme: GlobalColorScheme = {
   name: 'Casino Floor',
   description: '3D casino atmosphere with velvet textures',
   colors: {
@@ -552,7 +552,7 @@ export const casinoFloorTheme: GlobalTheme = {
 };
 
 // Crystal Glass Luxury Theme
-export const crystalTheme: GlobalTheme = {
+export const crystalColorScheme: GlobalColorScheme = {
   name: 'Crystal Luxury',
   description: 'Premium glass panels with diamond accents and deep luxury tones',
   colors: {
@@ -640,7 +640,7 @@ export const crystalTheme: GlobalTheme = {
 };
 
 // Surreal Romantic Degen Trader Theme - Jazz at Midnight
-export const romanticDegenTheme: GlobalTheme = {
+export const romanticDegenColorScheme: GlobalColorScheme = {
   name: 'Romantic Degen Serenade',
   description: 'Surreal romantic degen trader aesthetic - candlestick cathedral with love letter gold, soft neon glow, and jazz-at-midnight atmosphere',
   colors: {
@@ -724,7 +724,7 @@ export const romanticDegenTheme: GlobalTheme = {
 };
 
 // Space Casino Theme
-export const spaceTheme: GlobalTheme = {
+export const spaceColorScheme: GlobalColorScheme = {
   name: 'Space Casino',
   description: 'Cosmic casino with nebula backgrounds',
   colors: {
@@ -812,7 +812,7 @@ export const spaceTheme: GlobalTheme = {
 };
 
 // Retro Arcade Theme
-export const retroTheme: GlobalTheme = {
+export const retroColorScheme: GlobalColorScheme = {
   name: 'Retro Arcade',
   description: 'Classic arcade styling with modern UX',
   colors: {
@@ -900,7 +900,7 @@ export const retroTheme: GlobalTheme = {
 };
 
 // Carnival Extravaganza Theme
-export const carnivalTheme: GlobalTheme = {
+export const carnivalColorScheme: GlobalColorScheme = {
   name: 'Carnival Fun',
   description: 'Playful carnival atmosphere with bright colors',
   colors: {
@@ -988,23 +988,23 @@ export const carnivalTheme: GlobalTheme = {
 };
 
 // All available themes
-export const globalThemes = {
-  default: defaultTheme,
-  romanticDegen: romanticDegenTheme,
-  cyberpunk: cyberpunkTheme,
-  casinoFloor: casinoFloorTheme,
-  crystal: crystalTheme,
-  space: spaceTheme,
-  retro: retroTheme,
-  carnival: carnivalTheme,
+export const globalColorSchemes = {
+  default: defaultColorScheme,
+  romanticDegen: romanticDegenColorScheme,
+  cyberpunk: cyberpunkColorScheme,
+  casinoFloor: casinoFloorColorScheme,
+  crystal: crystalColorScheme,
+  space: spaceColorScheme,
+  retro: retroColorScheme,
+  carnival: carnivalColorScheme,
 };
 
-export type ThemeKey = keyof typeof globalThemes;
+export type ColorSchemeKey = keyof typeof globalColorSchemes;
 
 // Theme utility functions
-export const getThemeValue = (theme: GlobalTheme, path: string, fallback: string = ''): string => {
+export const getColorSchemeValue = (colorScheme: GlobalColorScheme, path: string, fallback: string = ''): string => {
   const keys = path.split('.');
-  let value: any = theme;
+  let value: any = colorScheme;
 
   for (const key of keys) {
     value = value?.[key];
@@ -1014,97 +1014,97 @@ export const getThemeValue = (theme: GlobalTheme, path: string, fallback: string
   return typeof value === 'string' ? value : fallback;
 };
 
-export const createThemeStyles = (theme: GlobalTheme) => ({
+export const createColorSchemeStyles = (colorScheme: GlobalColorScheme) => ({
   // Button styles
   button: {
     primary: `
-      background: ${theme.colors.button.primary};
-      border: 2px solid ${theme.colors.button.primary};
-      color: ${theme.colors.text};
-      box-shadow: ${theme.effects.buttonGlow};
+      background: ${colorScheme.colors.button.primary};
+      border: 2px solid ${colorScheme.colors.button.primary};
+      color: ${colorScheme.colors.text};
+      box-shadow: ${colorScheme.effects.buttonGlow};
 
       &:hover {
-        background: ${theme.colors.button.hover};
-        border-color: ${theme.colors.button.hover};
+        background: ${colorScheme.colors.button.hover};
+        border-color: ${colorScheme.colors.button.hover};
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px ${theme.colors.button.primary}60;
+        box-shadow: 0 8px 24px ${colorScheme.colors.button.primary}60;
       }
 
       &:active {
-        background: ${theme.colors.button.active};
+        background: ${colorScheme.colors.button.active};
         transform: translateY(0);
       }
 
       &:disabled {
-        background: ${theme.colors.button.disabled};
+        background: ${colorScheme.colors.button.disabled};
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
       }
     `,
     secondary: `
-      background: ${theme.colors.button.secondary};
-      border: 2px solid ${theme.colors.button.secondary};
-      color: ${theme.colors.text};
+      background: ${colorScheme.colors.button.secondary};
+      border: 2px solid ${colorScheme.colors.button.secondary};
+      color: ${colorScheme.colors.text};
 
       &:hover {
-        background: ${theme.colors.button.hover};
-        border-color: ${theme.colors.button.hover};
+        background: ${colorScheme.colors.button.hover};
+        border-color: ${colorScheme.colors.button.hover};
       }
     `,
   },
 
   // Input styles
   input: `
-    background: ${theme.colors.input.background};
-    border: 2px solid ${theme.colors.input.border};
-    color: ${theme.colors.text};
+    background: ${colorScheme.colors.input.background};
+    border: 2px solid ${colorScheme.colors.input.border};
+    color: ${colorScheme.colors.text};
 
     &::placeholder {
-      color: ${theme.colors.input.placeholder};
+      color: ${colorScheme.colors.input.placeholder};
     }
 
     &:focus {
-      border-color: ${theme.colors.input.focus};
-      box-shadow: 0 0 12px ${theme.colors.input.focus}40;
+      border-color: ${colorScheme.colors.input.focus};
+      box-shadow: 0 0 12px ${colorScheme.colors.input.focus}40;
     }
   `,
 
   // Card styles
   card: `
-    background: ${theme.colors.card.background};
-    border: 2px solid ${theme.colors.card.border};
-    box-shadow: ${theme.effects.shadow};
+    background: ${colorScheme.colors.card.background};
+    border: 2px solid ${colorScheme.colors.card.border};
+    box-shadow: ${colorScheme.effects.shadow};
 
     &:hover {
-      background: ${theme.colors.card.hover};
-      border-color: ${theme.colors.primary};
+      background: ${colorScheme.colors.card.hover};
+      border-color: ${colorScheme.colors.primary};
       transform: translateY(-4px);
-      box-shadow: 0 12px 32px ${theme.colors.shadow};
+      box-shadow: 0 12px 32px ${colorScheme.colors.shadow};
     }
   `,
 
   // Modal styles
   modal: `
-    background: ${theme.colors.modal.background};
-    border: 2px solid ${theme.colors.border};
-    box-shadow: 0 20px 60px ${theme.colors.shadow};
+    background: ${colorScheme.colors.modal.background};
+    border: 2px solid ${colorScheme.colors.border};
+    box-shadow: 0 20px 60px ${colorScheme.colors.shadow};
   `,
 
   modalOverlay: `
-    background: ${theme.colors.modal.overlay};
+    background: ${colorScheme.colors.modal.overlay};
   `,
 });
 
 /**
- * Get stored theme from localStorage
+ * Get stored colorScheme from localStorage
  */
-export const getStoredTheme = (): ThemeKey => {
+export const getStoredColorScheme = (): ColorSchemeKey => {
   if (typeof window === 'undefined') return 'default';
   try {
-    const stored = localStorage.getItem('selectedTheme');
-    if (stored && stored in globalThemes) {
-      return stored as ThemeKey;
+    const stored = localStorage.getItem('selectedColorScheme');
+    if (stored && stored in globalColorSchemes) {
+      return stored as ColorSchemeKey;
     }
     return 'default';
   } catch {
@@ -1113,12 +1113,12 @@ export const getStoredTheme = (): ThemeKey => {
 };
 
 /**
- * Set stored theme in localStorage
+ * Set stored colorScheme in localStorage
  */
-export const setStoredTheme = (themeName: ThemeKey): void => {
+export const setStoredColorScheme = (themeName: ColorSchemeKey): void => {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('selectedTheme', themeName);
+    localStorage.setItem('selectedColorScheme', themeName);
   } catch {
     // Ignore localStorage errors (e.g., in private browsing)
   }

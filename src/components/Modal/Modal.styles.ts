@@ -39,11 +39,11 @@ export const candlelightRing = keyframes`
 export const quantumDissolve = loveLetterDissolve;
 export const rotateRing = candlelightRing;
 
-export const Overlay = styled.div<{ $theme?: any }>`
+export const Overlay = styled.div<{ $colorScheme?: any }>`
   position: fixed;
   inset: 0;
-  background: ${({ $theme }) => $theme?.colors?.surface ? 
-    `radial-gradient(ellipse at center, ${$theme.colors.surface}60, ${$theme.colors.background}95 100%)` :
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? 
+    `radial-gradient(ellipse at center, ${$colorScheme.colors.surface}60, ${$colorScheme.colors.background}95 100%)` :
     'radial-gradient(ellipse at center, var(--deep-romantic-night) 60%, rgba(10, 5, 17, 0.95) 100%)'
   };
   backdrop-filter: blur(10px) saturate(1.2);

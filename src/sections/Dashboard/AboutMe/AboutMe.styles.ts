@@ -137,7 +137,7 @@ export const loversDrift = keyframes`
 interface ContainerProps {
   $compact?: boolean;
   visible?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 export const Container = styled.div<ContainerProps>`
   max-width: none;
@@ -160,7 +160,7 @@ export const Container = styled.div<ContainerProps>`
 
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ visible }) => (visible ? 'translateY(0)' : 'translateY(30px)')};
-  color: ${({ $theme }) => $theme?.colors?.text || '#f4e9e1'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#f4e9e1'};
   overflow: hidden;
 
   &:hover {
@@ -343,7 +343,7 @@ export const MarketLoversOverlay = styled.div`
   }
 `;
 
-export const HeaderSection = styled.div<{ $theme?: any }>`
+export const HeaderSection = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 2.5rem;
@@ -388,21 +388,21 @@ export const HeaderSection = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const ProfileImage = styled.img<{ $theme?: any }>`
+export const ProfileImage = styled.img<{ $colorScheme?: any }>`
   width: 160px;
   height: 160px;
   border-radius: 16px;
   object-fit: cover;
-  border: 3px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(212, 165, 116, 0.4)'};
+  border: 3px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(212, 165, 116, 0.4)'};
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 2;
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 12px 32px rgba(10, 5, 17, 0.4)'};
-  background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(212, 165, 116, 0.05)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 12px 32px rgba(10, 5, 17, 0.4)'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(212, 165, 116, 0.05)'};
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 40px rgba(212, 165, 116, 0.4)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 40px rgba(212, 165, 116, 0.4)'};
     transform: translateY(-4px) scale(1.03);
     filter: brightness(1.1) saturate(1.2);
   }
@@ -426,7 +426,7 @@ export const ProfileImage = styled.img<{ $theme?: any }>`
   }
 `;
 
-export const TextInfo = styled.div<{ $theme?: any }>`
+export const TextInfo = styled.div<{ $colorScheme?: any }>`
   flex: 1;
   position: relative;
   z-index: 2;
@@ -435,10 +435,10 @@ export const TextInfo = styled.div<{ $theme?: any }>`
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Libre Baskerville', 'DM Sans', Georgia, serif"};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Libre Baskerville', 'DM Sans', Georgia, serif"};
     letter-spacing: 2.5px;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 20px rgba(212, 165, 116, 0.6)'};
     position: relative;
 
     &::after {
@@ -454,12 +454,12 @@ export const TextInfo = styled.div<{ $theme?: any }>`
 
   p {
     font-style: italic;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#e8d5c4'};
     font-size: 1.25rem;
     line-height: 1.6;
     font-weight: 500;
     opacity: 0.95;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(184, 51, 106, 0.3)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(184, 51, 106, 0.3)'};
   }
 
   @media (max-width: 768px) {
@@ -507,17 +507,17 @@ export const TextInfo = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const SectionHeading = styled.h2<{ $theme?: any }>`
+export const SectionHeading = styled.h2<{ $colorScheme?: any }>`
   margin-top: 3rem;
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
   font-weight: 700;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Libre Baskerville', 'DM Sans', Georgia, serif"};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+  font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Libre Baskerville', 'DM Sans', Georgia, serif"};
   letter-spacing: 1.5px;
   position: relative;
   z-index: 2;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 16px rgba(212, 165, 116, 0.5)'};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 16px rgba(212, 165, 116, 0.5)'};
 
   &::before {
     content: '';
@@ -526,9 +526,9 @@ export const SectionHeading = styled.h2<{ $theme?: any }>`
     left: 0;
     width: 60px;
     height: 3px;
-    background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
     border-radius: 2px;
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.4)'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.4)'};
   }
 
   &::after {
@@ -569,7 +569,7 @@ export const SectionHeading = styled.h2<{ $theme?: any }>`
   }
 `;
 
-export const Content = styled.div<{ $theme?: any }>`
+export const Content = styled.div<{ $colorScheme?: any }>`
   line-height: 1.8;
   font-size: 1.1rem;
   margin-top: 1.5rem;
@@ -579,18 +579,18 @@ export const Content = styled.div<{ $theme?: any }>`
   p,
   ul {
     margin-bottom: 1.5rem;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#e8d5c4'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#e8d5c4'};
     font-weight: 500;
     opacity: 0.95;
   }
 
   a {
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
     text-decoration: none;
     transition: all 0.4s ease;
     position: relative;
     font-weight: 600;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
 
     &::after {
       content: '';
@@ -599,13 +599,13 @@ export const Content = styled.div<{ $theme?: any }>`
       left: 0;
       width: 0;
       height: 2px;
-      background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
+      background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
       transition: width 0.4s ease;
     }
 
     &:hover {
-      color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
-      text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px rgba(139, 90, 158, 0.6)'};
+      color: ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
+      text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px rgba(139, 90, 158, 0.6)'};
       
       &::after {
         width: 100%;
@@ -615,15 +615,15 @@ export const Content = styled.div<{ $theme?: any }>`
 
   strong {
     font-weight: 700;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
   }
 
   em {
     font-style: italic;
-    color: ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
     font-weight: 500;
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 6px rgba(139, 90, 158, 0.3)'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 6px rgba(139, 90, 158, 0.3)'};
   }
 
   @media (max-width: 768px) {

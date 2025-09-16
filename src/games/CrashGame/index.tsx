@@ -120,12 +120,12 @@ export default function CrashGame() {
       // ✨ TRIGGER CRASH GAME EFFECTS
       if (win) {
         console.log('🚀 CRASH WIN! Rocket reached target')
-        effectsRef.current?.winFlash() // Use theme's winGlow color
+        effectsRef.current?.winFlash() // Use colorScheme's winGlow color
         effectsRef.current?.particleBurst(70, 30, undefined, 12) // Rocket trail particles
         effectsRef.current?.screenShake(1, 600) // Medium shake for win
       } else {
         console.log('💥 CRASH! Rocket exploded')
-        effectsRef.current?.loseFlash() // Use theme's loseGlow color
+        effectsRef.current?.loseFlash() // Use colorScheme's loseGlow color
         effectsRef.current?.particleBurst(70, 30, undefined, 20) // Explosion particles
         effectsRef.current?.screenShake(2, 800) // Strong shake for crash
       }

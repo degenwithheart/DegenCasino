@@ -24,7 +24,7 @@ export const floatAnimation = keyframes`
 
 interface ContainerProps {
   visible?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -33,8 +33,8 @@ export const Container = styled.div<ContainerProps>`
   padding: 3rem;
   
   /* Romantic glassmorphism background */
-  background: ${({ $theme }) => 
-    $theme?.colors?.containerBackground || 
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.containerBackground || 
     `linear-gradient(135deg, 
       rgba(18, 18, 22, 0.95) 0%, 
       rgba(30, 20, 35, 0.9) 50%, 
@@ -99,9 +99,9 @@ export const TokenStats = styled.div`
   margin-bottom: 3rem;
 `;
 
-export const StatCard = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const StatCard = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   
@@ -138,9 +138,9 @@ export const StatCard = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const BuySection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const BuySection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   
@@ -172,9 +172,9 @@ export const BuySection = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const TokenomicsSection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const TokenomicsSection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   
@@ -220,9 +220,9 @@ export const TokenomicsSection = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const UtilitySection = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => 
-    $theme?.colors?.cardBackground || 
+export const UtilitySection = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => 
+    $colorScheme?.colors?.cardBackground || 
     'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
   };
   

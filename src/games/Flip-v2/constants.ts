@@ -10,7 +10,7 @@ export const SOUND_LOSE = '/sounds/lose.mp3'
 export const SOUND_PLAY = '/sounds/play.mp3'
 export const SOUND_COIN = '/sounds/coin.mp3'
 
-// Color scheme - romantic casino theme with degen background system
+// Color scheme - romantic casino colorScheme with degen background system
 export const ROMANTIC_COLORS = {
   background: '#1a0f2e',
   dark: '#2a1810',

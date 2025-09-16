@@ -16,7 +16,7 @@ interface GameStatsHeaderProps {
   rtp?: string
   stats: GameStats
   onReset?: () => void
-  theme?: 'purple' | 'gold'
+  colorScheme?: 'purple' | 'gold'
   disabled?: boolean
   isMobile?: boolean
 }
@@ -27,7 +27,7 @@ export function GameStatsHeader({
   rtp,
   stats,
   onReset,
-  theme = 'gold',
+  colorScheme = 'gold',
   disabled = false,
   isMobile = false
 }: GameStatsHeaderProps) {

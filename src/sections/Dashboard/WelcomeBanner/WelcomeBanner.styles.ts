@@ -57,7 +57,7 @@ export const neonPulse = romanticPulse;
 export const fadeInOut = dreamlikeFadeInOut;
 export const sparkle = candlestickSparkle;
 
-export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $theme?: any }>`
+export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $colorScheme?: any }>`
   margin: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '2rem 0' : '0'
   };
@@ -80,27 +80,27 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
   pointer-events: ${({ $isVisible, $isLoading }) =>
     $isLoading || !$isVisible ? 'none' : 'auto'
   };
-  background: ${({ $isVisible, $isLoading, $theme }) =>
-    $isLoading || $isVisible ? ($theme?.colors?.surface || 'rgba(15, 15, 35, 0.6)') : 'transparent'
+  background: ${({ $isVisible, $isLoading, $colorScheme }) =>
+    $isLoading || $isVisible ? ($colorScheme?.colors?.surface || 'rgba(15, 15, 35, 0.6)') : 'transparent'
   };
   border-radius: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '20px' : '0'
   };
-  border: ${({ $isVisible, $isLoading, $theme }) =>
-    $isLoading || $isVisible ? `2px solid ${$theme?.colors?.border || '#2a2a4a'}` : 'none'
+  border: ${({ $isVisible, $isLoading, $colorScheme }) =>
+    $isLoading || $isVisible ? `2px solid ${$colorScheme?.colors?.border || '#2a2a4a'}` : 'none'
   };
   position: relative;
   backdrop-filter: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? 'blur(12px)' : 'none'
   };
-  box-shadow: ${({ $isVisible, $isLoading, $theme }) =>
-    $isLoading || $isVisible ? ($theme?.effects?.shadow || '0 12px 40px rgba(0, 0, 0, 0.4)') : 'none'
+  box-shadow: ${({ $isVisible, $isLoading, $colorScheme }) =>
+    $isLoading || $isVisible ? ($colorScheme?.effects?.shadow || '0 12px 40px rgba(0, 0, 0, 0.4)') : 'none'
   };
 
-  ${({ $isVisible, $isLoading, $theme }) => ($isLoading || $isVisible) && `
+  ${({ $isVisible, $isLoading, $colorScheme }) => ($isLoading || $isVisible) && `
     &:hover {
-      border-color: ${$theme?.colors?.primary || '#ffd700'};
-      box-shadow: ${$theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
+      border-color: ${$colorScheme?.colors?.primary || '#ffd700'};
+      box-shadow: ${$colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
       transform: translateY(-4px);
     }
 
@@ -108,7 +108,7 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
       content: '';
       position: absolute;
       inset: 0;
-      background: ${$theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
+      background: ${$colorScheme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
       border-radius: 18px;
       pointer-events: none;
       opacity: 0.8;
@@ -164,25 +164,25 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
   }
 `;
 
-export const Banner = styled.div<{ $theme?: any }>`
+export const Banner = styled.div<{ $colorScheme?: any }>`
   position: relative;
   border-radius: 16px;
   width: 100%;
   min-height: 200px;
   overflow: hidden;
-  background: ${({ $theme }) => $theme?.patterns?.background || `
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.background || `
     radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%), 
     radial-gradient(circle at 80% 20%, rgba(162, 89, 255, 0.08) 0%, transparent 50%),
     linear-gradient(135deg, rgba(15, 15, 35, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%)
   `};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || '#2a2a4a'};
   margin-bottom: 1.5rem;
   transition: all 0.4s ease;
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 32px rgba(0, 0, 0, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 8px 32px rgba(0, 0, 0, 0.3)'};
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
     transform: translateY(-3px);
   }
 
@@ -193,7 +193,7 @@ export const Banner = styled.div<{ $theme?: any }>`
     left: -50%;
     width: 200%;
     height: 200%;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || `
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || `
       radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 50%)
     `};
     animation: ${loveLetterFloat} 8s infinite ease-in-out;
@@ -205,11 +205,11 @@ export const Banner = styled.div<{ $theme?: any }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ $theme }) => $theme?.patterns?.gradient ? `
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient ? `
       linear-gradient(135deg, 
-        ${$theme.patterns.gradient.replace('linear-gradient(135deg, ', '').replace(')', '')}
+        ${$colorScheme.patterns.gradient.replace('linear-gradient(135deg, ', '').replace(')', '')}
       ), 
-      ${$theme.colors?.surface || 'rgba(26, 26, 46, 0.8)'}
+      ${$colorScheme.colors?.surface || 'rgba(26, 26, 46, 0.8)'}
     ` : `
       linear-gradient(135deg, 
         rgba(255, 215, 0, 0.05) 0%, 
@@ -245,17 +245,17 @@ export const Banner = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const BannerBottomBar = styled.div<{ $theme?: any }>`
+export const BannerBottomBar = styled.div<{ $colorScheme?: any }>`
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   height: 80px;
-  background: ${({ $theme }) => $theme?.colors?.background ? `
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.background ? `
     linear-gradient(180deg, 
       transparent 0%, 
-      ${$theme.colors.background}60 50%,
-      ${$theme.colors.background}95 100%
+      ${$colorScheme.colors.background}60 50%,
+      ${$colorScheme.colors.background}95 100%
     )
   ` : 'linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.9) 100%)'};
   display: flex;
@@ -267,7 +267,7 @@ export const BannerBottomBar = styled.div<{ $theme?: any }>`
   pointer-events: none;
   padding: 0 1.5rem;
   backdrop-filter: blur(12px);
-  border-top: 1px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  border-top: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
 
   @media (max-width: 768px) {
     height: 70px;
@@ -284,13 +284,13 @@ export const BannerBottomBar = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const Heading = styled.h2<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+export const Heading = styled.h2<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   font-size: 2.8rem;
   font-weight: 700;
   text-align: center;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 16px #ffd700, 0 0 32px rgba(162, 89, 255, 0.6)'};
-  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Luckiest Guy', cursive, sans-serif"};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 16px #ffd700, 0 0 32px rgba(162, 89, 255, 0.6)'};
+  font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Luckiest Guy', cursive, sans-serif"};
   letter-spacing: 2.5px;
   margin-bottom: 0.75rem;
   line-height: 1.1;
@@ -304,9 +304,9 @@ export const Heading = styled.h2<{ $theme?: any }>`
     display: block;
     margin-top: 0.5rem;
     opacity: 0.95;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#ffffff'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px rgba(162, 89, 255, 0.8)'};
-    font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#ffffff'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px rgba(162, 89, 255, 0.8)'};
+    font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Arial', sans-serif"};
     letter-spacing: 1.2px;
     animation: ${dreamlikeFadeInOut} 6s ease-in-out infinite;
   }
@@ -371,7 +371,7 @@ export const Heading = styled.h2<{ $theme?: any }>`
   }
 `;
 
-export const JackpotTicker = styled.div<{ $theme?: any }>`
+export const JackpotTicker = styled.div<{ $colorScheme?: any }>`
   width: 100%;
   min-height: 56px;
   display: flex;
@@ -380,21 +380,21 @@ export const JackpotTicker = styled.div<{ $theme?: any }>`
   text-align: center;
   font-size: 1.35rem;
   font-weight: 600;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  background: ${({ $theme }) => $theme?.colors?.surface ? `
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
-      ${$theme.colors.surface}60 0%, 
-      ${$theme.colors.background}80 100%
+      ${$colorScheme.colors.surface}60 0%, 
+      ${$colorScheme.colors.background}80 100%
     )
   ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
   border-radius: 16px;
   padding: 1.5rem 2rem;
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
   transition: all 0.4s ease;
   gap: 1.2rem;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
-  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px #ffd700'};
+  font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Arial', sans-serif"};
   letter-spacing: 0.8px;
   backdrop-filter: blur(12px);
   position: relative;
@@ -404,14 +404,14 @@ export const JackpotTicker = styled.div<{ $theme?: any }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
     opacity: 0.6;
     border-radius: 14px;
   }
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
     transform: translateY(-2px);
   }
 
@@ -437,14 +437,14 @@ export const JackpotTicker = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const HeroOverlay = styled.div<{ $theme?: any }>`
+export const HeroOverlay = styled.div<{ $colorScheme?: any }>`
   position: absolute;
   inset: 0;
-  background: ${({ $theme }) => $theme?.colors?.surface ? `
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
-      ${$theme.colors.surface}40 0%, 
-      ${$theme.colors.background}60 50%, 
-      ${$theme.colors.surface}20 100%
+      ${$colorScheme.colors.surface}40 0%, 
+      ${$colorScheme.colors.background}60 50%, 
+      ${$colorScheme.colors.surface}20 100%
     )
   ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 15, 35, 0.8) 100%)'};
   padding: 2rem;
@@ -465,12 +465,12 @@ export const HeroOverlay = styled.div<{ $theme?: any }>`
     font-size: 2rem;
     padding: 0.5rem 1.2rem;
     opacity: 0.8;
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
     border-radius: 12px;
-    border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
+    border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.3)'};
     backdrop-filter: blur(6px);
     animation: ${loveLetterFloat} 4s infinite ease-in-out;
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 16px rgba(255, 215, 0, 0.3)'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 16px rgba(255, 215, 0, 0.3)'};
   }
 
   &::after {
@@ -480,13 +480,13 @@ export const HeroOverlay = styled.div<{ $theme?: any }>`
     left: 20px;
     font-size: 2rem;
     padding: 0.5rem 1.2rem;
-    background: ${({ $theme }) => $theme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255, 255, 255, 0.1)'};
     border-radius: 12px;
-    border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(162, 89, 255, 0.3)'};
+    border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(162, 89, 255, 0.3)'};
     backdrop-filter: blur(6px);
     animation: ${candlestickSparkle} 3s infinite 1s;
     opacity: 0.8;
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 16px rgba(162, 89, 255, 0.3)'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 16px rgba(162, 89, 255, 0.3)'};
   }
 
   @media (max-width: 768px) {
@@ -520,7 +520,7 @@ export const HeroOverlay = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const FeatureGrid = styled.div<{ $theme?: any }>`
+export const FeatureGrid = styled.div<{ $colorScheme?: any }>`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
@@ -535,14 +535,14 @@ export const FeatureGrid = styled.div<{ $theme?: any }>`
 
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'} transparent;
+    scrollbar-color: ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'} transparent;
 
     &::-webkit-scrollbar {
       height: 6px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
+      background-color: ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 255, 255, 0.1)'};
       border-radius: 3px;
     }
 
@@ -553,29 +553,29 @@ export const FeatureGrid = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const FeatureCard = styled.div<{ $theme?: any }>`
-  background: ${({ $theme }) => $theme?.colors?.surface ? `
+export const FeatureCard = styled.div<{ $colorScheme?: any }>`
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
-      ${$theme.colors.surface}80 0%, 
-      ${$theme.colors.background}90 100%
+      ${$colorScheme.colors.surface}80 0%, 
+      ${$colorScheme.colors.background}90 100%
     )
   ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.9) 100%)'};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || '#2a2a4a'};
   border-radius: 16px;
   padding: 2rem;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   text-align: center;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   backdrop-filter: blur(10px);
   overflow: hidden;
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(162, 89, 255, 0.03))'};
     opacity: 0.6;
     border-radius: 14px;
     transition: opacity 0.4s ease;
@@ -583,8 +583,8 @@ export const FeatureCard = styled.div<{ $theme?: any }>`
 
   &:hover {
     transform: translateY(-6px) scale(1.02);
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.3)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     
     &::before {
       opacity: 0.8;
@@ -594,8 +594,8 @@ export const FeatureCard = styled.div<{ $theme?: any }>`
   h3 {
     margin: 0 0 1rem;
     font-size: 1.4rem;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px #ffd700'};
     font-weight: 700;
     position: relative;
     z-index: 2;
@@ -606,7 +606,7 @@ export const FeatureCard = styled.div<{ $theme?: any }>`
     margin: 0;
     font-size: 1.1rem;
     opacity: 0.95;
-    color: ${({ $theme }) => $theme?.colors?.textSecondary || '#c0c0c0'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#c0c0c0'};
     line-height: 1.6;
     position: relative;
     z-index: 2;
@@ -637,26 +637,26 @@ export const FeatureCard = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const QuotesSection = styled.div<{ $theme?: any }>`
+export const QuotesSection = styled.div<{ $colorScheme?: any }>`
   margin: 1.5rem 0;
   padding: 1rem;
-  background: ${({ $theme }) => $theme?.colors?.surface ? `
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
-      ${$theme.colors.surface}60 0%, 
-      ${$theme.colors.background}80 100%
+      ${$colorScheme.colors.surface}60 0%, 
+      ${$colorScheme.colors.background}80 100%
     )
   ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
   border-radius: 16px;
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
   backdrop-filter: blur(12px);
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
     transform: translateY(-2px);
   }
 
@@ -664,7 +664,7 @@ export const QuotesSection = styled.div<{ $theme?: any }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
     opacity: 0.6;
     border-radius: 14px;
   }
@@ -682,7 +682,7 @@ export const QuotesSection = styled.div<{ $theme?: any }>`
   }
 `;
 
-export const QuotesTicker = styled.div<{ $theme?: any }>`
+export const QuotesTicker = styled.div<{ $colorScheme?: any }>`
   width: 100%;
   min-height: 56px;
   display: flex;
@@ -691,21 +691,21 @@ export const QuotesTicker = styled.div<{ $theme?: any }>`
   text-align: center;
   font-size: 1.35rem;
   font-weight: 600;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-  background: ${({ $theme }) => $theme?.colors?.surface ? `
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
-      ${$theme.colors.surface}60 0%, 
-      ${$theme.colors.background}80 100%
+      ${$colorScheme.colors.surface}60 0%, 
+      ${$colorScheme.colors.background}80 100%
     )
   ` : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 15, 35, 0.6) 100%)'};
   border-radius: 16px;
   padding: 1.5rem 2rem;
-  box-shadow: ${({ $theme }) => $theme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
-  border: 2px solid ${({ $theme }) => $theme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.shadow || '0 8px 24px rgba(0, 0, 0, 0.3)'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255, 215, 0, 0.2)'};
   transition: all 0.4s ease;
   gap: 1.2rem;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 12px #ffd700'};
-  font-family: ${({ $theme }) => $theme?.typography?.fontFamily || "'Arial', sans-serif"};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 12px #ffd700'};
+  font-family: ${({ $colorScheme }) => $colorScheme?.typography?.fontFamily || "'Arial', sans-serif"};
   letter-spacing: 0.8px;
   backdrop-filter: blur(12px);
   position: relative;
@@ -715,14 +715,14 @@ export const QuotesTicker = styled.div<{ $theme?: any }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(162, 89, 255, 0.05))'};
     opacity: 0.6;
     border-radius: 14px;
   }
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px rgba(255, 215, 0, 0.4)'};
     transform: translateY(-2px);
   }
 

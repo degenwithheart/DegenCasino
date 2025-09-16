@@ -18,7 +18,7 @@ export const sparkle = keyframes`
   50% { opacity: 1; transform: rotate(180deg) scale(1.2); }
 `
 
-export const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
+export const StyledHeader = styled.div<{ offset?: number; $colorScheme?: any }>`
   position: fixed;
   top: ${({ offset }) => offset ?? 0}px;
   left: 0;
@@ -57,7 +57,7 @@ export const StyledHeader = styled.div<{ offset?: number; $theme?: any }>`
   }
 `
 
-export const Logo = styled(NavLink)<{ $theme?: any }>`
+export const Logo = styled(NavLink)<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -76,18 +76,18 @@ export const Logo = styled(NavLink)<{ $theme?: any }>`
   img {
     height: 42px;
     transition: all 0.3s ease-in-out;
-    filter: drop-shadow(0 0 8px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+    filter: drop-shadow(0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
     border-radius: 8px;
   }
 
   span {
     font-size: 1.5rem;
     font-weight: bold;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     white-space: nowrap;
     user-select: none;
     font-family: 'Luckiest Guy', cursive, sans-serif;
-    text-shadow: 0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $theme }) => $theme?.colors?.secondary || '#a259ff'};
+    text-shadow: 0 0 16px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}, 0 0 32px ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#a259ff'};
     letter-spacing: 1px;
     animation: ${neonPulse} 2s infinite alternate;
     background: none !important;
@@ -97,7 +97,7 @@ export const Logo = styled(NavLink)<{ $theme?: any }>`
   &:hover {
     img {
       transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 0 16px ${({ $theme }) => $theme?.colors?.primary || '#ffd700'});
+      filter: drop-shadow(0 0 16px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'});
     }
     
     span {
@@ -122,9 +122,9 @@ export const Logo = styled(NavLink)<{ $theme?: any }>`
   }
 `
 
-export const Bonus = styled.button<{ $theme?: any }>`
+export const Bonus = styled.button<{ $colorScheme?: any }>`
   background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   border: none;
   padding: 8px 10px;
   font-size: 14px;
@@ -138,7 +138,7 @@ export const Bonus = styled.button<{ $theme?: any }>`
   backdrop-filter: none;
 
   &:hover {
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     transform: translateY(-1px);
   }
 
@@ -148,9 +148,9 @@ export const Bonus = styled.button<{ $theme?: any }>`
   }
 `
 
-export const JackpotBonus = styled.button<{ $theme?: any }>`
+export const JackpotBonus = styled.button<{ $colorScheme?: any }>`
   background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   border: none;
   padding: 8px 10px;
   font-size: 14px;
@@ -164,7 +164,7 @@ export const JackpotBonus = styled.button<{ $theme?: any }>`
   backdrop-filter: none;
 
   &:hover {
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     transform: translateY(-1px);
   }
 
@@ -174,9 +174,9 @@ export const JackpotBonus = styled.button<{ $theme?: any }>`
   }
 `
 
-export const ThemeButton = styled.button<{ $theme?: any }>`
+export const ThemeButton = styled.button<{ $colorScheme?: any }>`
   background: transparent;
-  color: ${({ $theme }) => $theme?.colors?.text || '#fff'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   border: none;
   padding: 8px 10px;
   font-size: 14px;
@@ -190,7 +190,7 @@ export const ThemeButton = styled.button<{ $theme?: any }>`
   backdrop-filter: none;
 
   &:hover {
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     transform: translateY(-1px);
   }
 

@@ -10,7 +10,7 @@ import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
 import { ShareModal } from "../../components/Share/ShareModal";
 import { useRecentPlays } from './useRecentPlays'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
   const diff = Date.now() - time
@@ -222,7 +222,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
   const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
   const md = useMediaQuery('md')
   const navigate = useNavigate()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
 
   return (
     <>
@@ -233,7 +233,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
         )
       }
 
-            <Container $theme={currentTheme}>
+            <Container $colorScheme={currentColorScheme}>
         {/* Modern Header */}
         <div style={{
           display: 'flex',

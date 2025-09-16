@@ -20,7 +20,7 @@ export const GAME_CONFIG = {
   SLIDER_HEIGHT: 20,
   SLIDER_HANDLE_SIZE: 30,
   
-  // Colors (romantic degen theme)
+  // Colors (romantic degen colorScheme)
   COLORS: {
     background: '#0f0f23',
     multiplierBackground: 'rgba(212, 165, 116, 0.1)',

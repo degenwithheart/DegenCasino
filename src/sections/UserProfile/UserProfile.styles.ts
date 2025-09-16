@@ -31,19 +31,19 @@ interface ProfileContainerProps {
   $compact?: boolean;
 }
 
-export const ProfileContainer = styled.div<ProfileContainerProps & { $theme?: any }>`
+export const ProfileContainer = styled.div<ProfileContainerProps & { $colorScheme?: any }>`
   max-width: none; /* Let main handle max-width */
   padding: ${({ $compact }) => ($compact ? '2rem' : '3rem')};
   margin: 2rem 0; /* Only vertical margins */
-  background: ${({ $theme }) => $theme?.colors?.background || '#0f0f23'};
+  background: ${({ $colorScheme }) => $colorScheme?.colors?.background || '#0f0f23'};
   border-radius: 12px;
-  border: 1px solid ${({ $theme }) => $theme?.colors?.border || '#2a2a4a'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || '#2a2a4a'};
   position: relative;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 24px rgba(255, 215, 0, 0.2)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 24px rgba(255, 215, 0, 0.2)'};
     transform: translateY(-2px);
   }
 
@@ -64,14 +64,14 @@ export const ProfileContainer = styled.div<ProfileContainerProps & { $theme?: an
   }
 `;
 
-export const ProfileHeader = styled.div<{ $theme?: any }>`
+export const ProfileHeader = styled.div<{ $colorScheme?: any }>`
   text-align: center;
   margin-bottom: 4rem;
 
   h1 {
     font-family: 'Luckiest Guy', cursive;
     font-size: 3rem;
-    color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+    color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
     margin-bottom: 1rem;
   }
 

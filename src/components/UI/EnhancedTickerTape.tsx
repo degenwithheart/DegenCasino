@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTokenPrices } from '../../hooks/data/useTokenPrices';
 import styled, { keyframes, css } from 'styled-components';
 import { useTokenPriceService } from '../../hooks/data/useTokenPriceService';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 // Romantic Serenade Animations
 const loveLetterFloat = keyframes`
@@ -42,7 +42,7 @@ export function EnhancedTickerTape() {
   const [shouldScroll, setShouldScroll] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   
   // Use the existing Gamba hook for basic token data
   const tokenMetadata = useTokenPrices();
@@ -155,16 +155,16 @@ export function EnhancedTickerTape() {
         $isIncreasing={!!isIncreasing}
         $isSignificant={!!isSignificantChange}
         $isLiveData={!!isLiveData}
-        $theme={currentTheme}
+        $colorScheme={currentColorScheme}
         title={`${token.symbol} - ${isLiveData ? 'Live API data' : 'Fallback data'} | Change: ${priceChange.toFixed(2)}%`}
         style={isComingSoon ? { cursor: 'not-allowed', opacity: 0.7 } : { cursor: 'pointer' }}
       >
         <TokenImage src={token.image} alt={token.symbol} />
-        {!isMobile && <TokenSymbol $theme={currentTheme}>{token.symbol}</TokenSymbol>}
+        {!isMobile && <TokenSymbol $colorScheme={currentColorScheme}>{token.symbol}</TokenSymbol>}
         <PriceDisplay 
           $isIncreasing={!!isIncreasing} 
           $hasChange={!!hasRecentChange && Math.abs(priceChange) > 0.1}
-          $theme={currentTheme}
+          $colorScheme={currentColorScheme}
         >
           {isComingSoon
             ? '💕 Coming Soon 💕'
@@ -174,16 +174,16 @@ export function EnhancedTickerTape() {
         </PriceDisplay>
         {/* Show price change arrows and percentage */}
         {hasRecentChange && Math.abs(priceChange) > 0.1 && (
-          <ChangeIndicator $isIncreasing={!!isIncreasing} $theme={currentTheme}>
+          <ChangeIndicator $isIncreasing={!!isIncreasing} $colorScheme={currentColorScheme}>
             {isIncreasing ? '💗↗' : '💔↘'} {Math.abs(priceChange).toFixed(1)}%
           </ChangeIndicator>
         )}
         {/* Small data source indicator in corner */}
         {isLiveData && (
-          <DataSourceBadge $isLive={true} $theme={currentTheme} style={{ fontSize: '10px', padding: '1px 3px' }}>💖 LIVE</DataSourceBadge>
+          <DataSourceBadge $isLive={true} $colorScheme={currentColorScheme} style={{ fontSize: '10px', padding: '1px 3px' }}>💖 LIVE</DataSourceBadge>
         )}
         {/* Show trending fire for "hot" tokens */}
-        {isTrending && <TrendingBadge $theme={currentTheme}>🔥💕</TrendingBadge>}
+        {isTrending && <TrendingBadge $colorScheme={currentColorScheme}>🔥💕</TrendingBadge>}
       </TokenItem>
     );
 
@@ -204,17 +204,17 @@ export function EnhancedTickerTape() {
   return (
     <TickerTapeWrapper 
       ref={wrapperRef} 
-      $theme={currentTheme}
+      $colorScheme={currentColorScheme}
       style={isMobile ? { overflowX: 'auto', overflowY: 'hidden' } : {}}
     >
       {isMobile ? (
-        <TickerContentMobile $theme={currentTheme}>
+        <TickerContentMobile $colorScheme={currentColorScheme}>
           {tokenMetadata?.map((token: any) => 
             renderTokenItem(token, token.mint.toBase58())
           )}
         </TickerContentMobile>
       ) : (
-        <TickerContent ref={contentRef} $shouldScroll={shouldScroll} $theme={currentTheme}>
+        <TickerContent ref={contentRef} $shouldScroll={shouldScroll} $colorScheme={currentColorScheme}>
           {tokenMetadata?.map((token: any) => 
             renderTokenItem(token, token.mint.toBase58())
           )}
@@ -226,16 +226,16 @@ export function EnhancedTickerTape() {
 
 // Styled Components
 
-const TickerTapeWrapper = styled.div<{ $theme?: any }>`
+const TickerTapeWrapper = styled.div<{ $colorScheme?: any }>`
   padding: 20px;
   overflow: hidden;
-  background: ${({ $theme }) => $theme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.8)'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.8)'};
   backdrop-filter: blur(15px);
   border-radius: 16px;
-  border: 2px solid ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+  border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
   margin-bottom: 1.2rem;
   position: relative;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 20px rgba(212, 165, 116, 0.4), 0 0 40px rgba(184, 54, 106, 0.2)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 20px rgba(212, 165, 116, 0.4), 0 0 40px rgba(184, 54, 106, 0.2)'};
   
   &::before {
     content: '';
@@ -244,7 +244,7 @@ const TickerTapeWrapper = styled.div<{ $theme?: any }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(184, 54, 106, 0.1) 0%, transparent 50%)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(184, 54, 106, 0.1) 0%, transparent 50%)'};
     pointer-events: none;
     border-radius: 14px;
   }
@@ -254,7 +254,7 @@ const TickerTapeWrapper = styled.div<{ $theme?: any }>`
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'} rgba(26, 11, 46, 0.5);
+    scrollbar-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'} rgba(26, 11, 46, 0.5);
   }
   
   &::-webkit-scrollbar {
@@ -264,13 +264,13 @@ const TickerTapeWrapper = styled.div<{ $theme?: any }>`
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+    background: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
     border-radius: 4px;
     box-shadow: 0 0 6px rgba(212, 165, 116, 0.5);
   }
 `;
 
-const TickerContent = styled.div<{ $shouldScroll: boolean; $theme?: any }>`
+const TickerContent = styled.div<{ $shouldScroll: boolean; $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 3.5rem;
@@ -278,7 +278,7 @@ const TickerContent = styled.div<{ $shouldScroll: boolean; $theme?: any }>`
   will-change: transform;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   font-size: 1.1rem;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
   position: relative;
   z-index: 2;
   
@@ -290,14 +290,14 @@ const TickerContent = styled.div<{ $shouldScroll: boolean; $theme?: any }>`
   `}
 `;
 
-const TickerContentMobile = styled.div<{ $theme?: any }>`
+const TickerContentMobile = styled.div<{ $colorScheme?: any }>`
   display: flex;
   align-items: center;
   gap: 1.1rem;
   white-space: nowrap;
   font-family: 'Luckiest Guy', cursive, sans-serif;
   font-size: 1.1rem;
-  color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
   min-width: max-content;
   width: fit-content;
   padding: 0.2rem 0.2rem 0.2rem 0.4rem;
@@ -310,16 +310,16 @@ const TokenItem = styled.span<{
   $isIncreasing?: boolean; 
   $isSignificant?: boolean;
   $isLiveData?: boolean;
-  $theme?: any;
+  $colorScheme?: any;
 }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 1.2rem 0.4rem 0.4rem;
   border-radius: 20px;
-  background: ${({ $theme }) => $theme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.6)'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.glassmorphism || 'rgba(26, 11, 46, 0.6)'};
   backdrop-filter: blur(10px);
-  border: 1px solid ${({ $theme }) => $theme?.colors?.accent || '#8b5a9e'};
+  border: 1px solid ${({ $colorScheme }) => $colorScheme?.colors?.accent || '#8b5a9e'};
   position: relative;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
@@ -330,7 +330,7 @@ const TokenItem = styled.span<{
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${({ $theme }) => $theme?.patterns?.overlay || 'radial-gradient(circle at 50% 50%, rgba(212, 165, 116, 0.1) 0%, transparent 70%)'};
+    background: ${({ $colorScheme }) => $colorScheme?.patterns?.overlay || 'radial-gradient(circle at 50% 50%, rgba(212, 165, 116, 0.1) 0%, transparent 70%)'};
     pointer-events: none;
     border-radius: 19px;
   }
@@ -349,12 +349,12 @@ const TokenItem = styled.span<{
     border: 1px solid rgba(255, 165, 0, 0.5);
   `}
   
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.3)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.3)'};
   
   &:hover {
     transform: translateY(-2px) scale(1.02);
-    border-color: ${({ $theme }) => $theme?.colors?.primary || '#d4a574'};
-    box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 20px rgba(212, 165, 116, 0.5), 0 0 40px rgba(184, 54, 106, 0.3)'};
+    border-color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#d4a574'};
+    box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 20px rgba(212, 165, 116, 0.5), 0 0 40px rgba(184, 54, 106, 0.3)'};
   }
   
   @media (max-width: 600px) {
@@ -380,15 +380,15 @@ const TokenImage = styled.img`
   }
 `;
 
-const TokenSymbol = styled.span<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.textPrimary || '#e8d5c4'};
+const TokenSymbol = styled.span<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.textPrimary || '#e8d5c4'};
   font-weight: 600;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 8px rgba(212, 165, 116, 0.4)'};
   position: relative;
   z-index: 2;
 `;
 
-const PriceDisplay = styled.span<{ $isIncreasing?: boolean; $hasChange?: boolean; $theme?: any }>`
+const PriceDisplay = styled.span<{ $isIncreasing?: boolean; $hasChange?: boolean; $colorScheme?: any }>`
   margin-left: 6px;
   font-weight: 700;
   color: ${props => 
@@ -396,15 +396,15 @@ const PriceDisplay = styled.span<{ $isIncreasing?: boolean; $hasChange?: boolean
       ? props.$isIncreasing 
         ? '#22c55e' 
         : '#ef4444'
-      : props.$theme?.colors?.textPrimary || '#e8d5c4'
+      : props.$colorScheme?.colors?.textPrimary || '#e8d5c4'
   };
   transition: color 2s ease;
-  text-shadow: ${({ $theme }) => $theme?.effects?.textGlow || '0 0 6px rgba(212, 165, 116, 0.3)'};
+  text-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.textGlow || '0 0 6px rgba(212, 165, 116, 0.3)'};
   position: relative;
   z-index: 2;
 `;
 
-const ChangeIndicator = styled.span<{ $isIncreasing: boolean; $theme?: any }>`
+const ChangeIndicator = styled.span<{ $isIncreasing: boolean; $colorScheme?: any }>`
   font-size: 0.8rem;
   margin-left: 4px;
   color: ${props => props.$isIncreasing ? '#22c55e' : '#ef4444'};
@@ -415,13 +415,13 @@ const ChangeIndicator = styled.span<{ $isIncreasing: boolean; $theme?: any }>`
   z-index: 2;
 `;
 
-const DataSourceBadge = styled.span<{ $isLive: boolean; $theme?: any }>`
+const DataSourceBadge = styled.span<{ $isLive: boolean; $colorScheme?: any }>`
   position: absolute;
   top: -2px;
   right: -2px;
   font-size: 8px;
   background: ${props => props.$isLive ? 
-    props.$theme?.patterns?.gradient || 'linear-gradient(135deg, #22c55e, #16a34a)' : 
+    props.$colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #22c55e, #16a34a)' : 
     'linear-gradient(135deg, #ff9500, #f97316)'
   };
   color: #fff;
@@ -429,22 +429,22 @@ const DataSourceBadge = styled.span<{ $isLive: boolean; $theme?: any }>`
   padding: 1px 3px;
   font-weight: 700;
   opacity: 0.9;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 6px rgba(212, 165, 116, 0.4)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 6px rgba(212, 165, 116, 0.4)'};
   animation: ${romanticPulse} 3s ease-in-out infinite;
 `;
 
-const TrendingBadge = styled.span<{ $theme?: any }>`
+const TrendingBadge = styled.span<{ $colorScheme?: any }>`
   position: absolute;
   top: -4px;
   right: -4px;
   font-size: 12px;
-  background: ${({ $theme }) => $theme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
-  color: ${({ $theme }) => $theme?.colors?.background || '#0a0511'};
+  background: ${({ $colorScheme }) => $colorScheme?.patterns?.gradient || 'linear-gradient(135deg, #d4a574, #b8336a)'};
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.background || '#0a0511'};
   border-radius: 12px;
   padding: 1px 4px;
   font-weight: 700;
   animation: ${heartbeatPulse} 2s infinite;
-  box-shadow: ${({ $theme }) => $theme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.6)'};
+  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 12px rgba(212, 165, 116, 0.6)'};
 `;
 
 export default EnhancedTickerTape;

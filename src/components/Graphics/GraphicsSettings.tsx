@@ -112,11 +112,11 @@ const ToggleSwitch = styled.div<{ $enabled: boolean }>`
   }
 `
 
-const ThemePreview = styled.div<{ theme: CustomTheme }>`
+const ColorSchemePreview = styled.div<{ colorScheme: CustomTheme }>`
   width: 60px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(45deg, ${props => props.theme.primary}, ${props => props.theme.secondary}, ${props => props.theme.tertiary});
+  background: linear-gradient(45deg, ${props => props.colorScheme.primary}, ${props => props.colorScheme.secondary}, ${props => props.colorScheme.tertiary});
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -237,12 +237,12 @@ export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
       newSettings = settingsWithoutTheme
       console.log('🎨 Setting to default - removed customTheme property')
     } else {
-      const theme = PREDEFINED_THEMES[themeName]
+      const colorScheme = PREDEFINED_THEMES[themeName]
       newSettings = { 
         ...localSettings, 
-        customTheme: theme
+        customTheme: colorScheme
       }
-      console.log('🎨 Setting custom theme:', theme?.name)
+      console.log('🎨 Setting custom colorScheme:', colorScheme?.name)
     }
     
     console.log('🎨 Final newSettings:', newSettings)
@@ -350,17 +350,17 @@ export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
                 if (!('customTheme' in localSettings) || !localSettings.customTheme) {
                   return 'default'
                 }
-                // Find the key that matches the theme
-                const themeKey = Object.entries(PREDEFINED_THEMES).find(
-                  ([_, theme]) => theme.name === localSettings.customTheme?.name
+                // Find the key that matches the colorScheme
+                const colorSchemeKey = Object.entries(PREDEFINED_THEMES).find(
+                  ([_, colorScheme]) => colorScheme.name === localSettings.customTheme?.name
                 )?.[0]
-                return themeKey || 'default'
+                return colorSchemeKey || 'default'
               })()}
               onChange={e => handleThemeChange(e.target.value)}
             >
               <option value="default">Default</option>
-              {Object.entries(PREDEFINED_THEMES).map(([key, theme]) => (
-                <option key={key} value={key}>{theme.name}</option>
+              {Object.entries(PREDEFINED_THEMES).map(([key, colorScheme]) => (
+                <option key={key} value={key}>{colorScheme.name}</option>
               ))}
             </Select>
           </SettingRow>
@@ -382,7 +382,7 @@ export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
                   flexShrink: 0
                 }}
                 onClick={() => {
-                  console.log('🎨 Default theme clicked!')
+                  console.log('🎨 Default colorScheme clicked!')
                   handleThemeChange('default')
                 }}
                 title="Default Theme"
@@ -394,18 +394,18 @@ export function GraphicsSettingsInner({ onClose }: GraphicsSettingsProps) {
               </div>
             </div>
             {/* Custom Themes */}
-            {Object.entries(PREDEFINED_THEMES).map(([key, theme]) => (
+            {Object.entries(PREDEFINED_THEMES).map(([key, colorScheme]) => (
               <div key={key} style={{ textAlign: 'center', minWidth: '80px', flexShrink: 0 }}>
-                <ThemePreview
-                  theme={theme}
+                <ColorSchemePreview
+                  colorScheme={colorScheme}
                   onClick={() => handleThemeChange(key)}
-                  title={theme.name}
+                  title={colorScheme.name}
                   style={{
-                    borderColor: localSettings.customTheme?.name === theme.name ? '#6ffaff' : 'transparent'
+                    borderColor: localSettings.customTheme?.name === colorScheme.name ? '#6ffaff' : 'transparent'
                   }}
                 />
                 <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: '1.2' }}>
-                  {theme.name}
+                  {colorScheme.name}
                 </div>
               </div>
             ))}

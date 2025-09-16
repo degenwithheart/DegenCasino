@@ -9,7 +9,7 @@ import {
   HorizontalScroll, 
   MenuCardWrapper 
 } from './AllGamesModal.styles';
-import { useTheme } from '../../themes/ThemeContext';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 // Filter by meta.tag for 'Singleplayer' and 'Multiplayer'
 const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Singleplayer');
@@ -22,20 +22,20 @@ type AllGamesModalContentProps = {
 
 
 const AllGamesModalContent: React.FC<AllGamesModalContentProps> = ({ onGameClick }) => {
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   return (
-    <ModalContent $theme={currentTheme}>
+    <ModalContent $colorScheme={currentColorScheme}>
       <HeaderSection>
-        <Title $theme={currentTheme}>ALL GAMES</Title>
+        <Title $colorScheme={currentColorScheme}>ALL GAMES</Title>
       </HeaderSection>
       <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ 
-          color: currentTheme?.colors?.primary || '#6ffaff', 
+          color: currentColorScheme?.colors?.primary || '#6ffaff', 
           fontSize: '1.2rem', 
           margin: '0 0 0.5rem 0', 
           fontWeight: 600,
           fontFamily: "'JetBrains Mono', monospace",
-          textShadow: `0 0 8px ${currentTheme?.colors?.primary || '#6ffaff'}88`
+          textShadow: `0 0 8px ${currentColorScheme?.colors?.primary || '#6ffaff'}88`
         }}>Singleplayer</h2>
         <HorizontalScroll>
           {SINGLEPLAYER_GAMES.map(game => (

@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal } from '../Modal/Modal'
 import { TOS_HTML } from '../../constants'
 import styled, { keyframes } from 'styled-components'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -15,8 +15,8 @@ const HeaderSection = styled.div`
   position: relative;
 `
 
-const Title = styled.h2<{ $theme?: any }>`
-  color: ${({ $theme }) => $theme?.colors?.primary || '#ffd700'};
+const Title = styled.h2<{ $colorScheme?: any }>`
+  color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
@@ -120,7 +120,7 @@ interface TOSModalProps {
 }
 
 const TOSInner: React.FC<{ onAccept: () => void }> = ({ onAccept }) => {
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   return (
     <div style={{ 
       maxWidth: '500px', 
@@ -130,7 +130,7 @@ const TOSInner: React.FC<{ onAccept: () => void }> = ({ onAccept }) => {
       fontFamily: "'JetBrains Mono', 'Orbitron', 'monospace'"
     }}>
       <HeaderSection>
-        <Title $theme={currentTheme}>📜 TERMS OF SERVICE</Title>
+        <Title $colorScheme={currentColorScheme}>📜 TERMS OF SERVICE</Title>
         <Subtitle>Legal Compliance & Guidelines</Subtitle>
       </HeaderSection>
 
@@ -152,7 +152,7 @@ export const TOSContent: React.FC<{ onAccept: () => void }> = ({ onAccept }) => 
 )
 
 const TOSModal: React.FC<TOSModalProps> = ({ onClose, onAccept }) => {
-  const { currentTheme } = useTheme();
+  const { currentColorScheme } = useColorScheme();
   const handleAccept = () => {
     onAccept()
     onClose()

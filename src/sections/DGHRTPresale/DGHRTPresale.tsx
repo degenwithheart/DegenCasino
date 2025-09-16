@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import { useTheme } from '../../themes/ThemeContext'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { PLATFORM_CREATOR_ADDRESS, RPC_ENDPOINT } from '../../constants'
 import { useNetwork } from '../../contexts/NetworkContext'
 import {
@@ -61,7 +61,7 @@ const DGHRTPresalePage: React.FC = () => {
 
   const { connected, publicKey, connect } = useWallet()
   const { setVisible: setWalletModalVisible } = useWalletModal()
-  const { currentTheme } = useTheme()
+  const { currentColorScheme } = useColorScheme()
   const { connection } = useNetwork()
 
   // Presale configuration
@@ -242,7 +242,7 @@ const DGHRTPresalePage: React.FC = () => {
 
   return (
     <ResponsiveContainer>
-      <Container visible={visible} $theme={currentTheme}>
+      <Container visible={visible} $colorScheme={currentColorScheme}>
         <Header>
           <img 
             src="/png/images/$DGHRT.png" 
@@ -259,7 +259,7 @@ const DGHRTPresalePage: React.FC = () => {
           </p>
         </Header>
 
-        <PresaleCard $theme={currentTheme}>
+        <PresaleCard $colorScheme={currentColorScheme}>
           <WalletSection>
             <label>Select Wallet</label>
             {connected ? (
@@ -363,7 +363,7 @@ const DGHRTPresalePage: React.FC = () => {
           )}
         </PresaleCard>
 
-        <PresaleInfo $theme={currentTheme}>
+        <PresaleInfo $colorScheme={currentColorScheme}>
           <h3>🚀 Presale Information</h3>
           <div className="info-item">
             <span className="label">Total Supply:</span>
