@@ -410,3 +410,25 @@ export const ENABLE_TROLLBOX = true // Requires setup in vercel (check tutorial 
 export const FEATURED_GAME_INLINE = false 
 export const FEATURED_GAME_ID: string | undefined = 'jackpot'   // ← put game id or leave undefined
 
+// ===================================
+// THEME & UI CONFIGURATION
+// ===================================
+
+/** Enable/disable theme selector in the UI */
+export const ENABLE_THEME_SELECTOR = true
+
+/** Enable/disable color scheme selector in the UI */
+export const ENABLE_COLOR_SCHEME_SELECTOR = true
+
+/** Default layout theme to load on first visit */
+export const DEFAULT_LAYOUT_THEME = 'default' // 'default' | 'holy-grail'
+
+/** Default color scheme to load on first visit */
+export const DEFAULT_COLOR_SCHEME = 'default' // 'default' | 'romanticDegen' | 'cyberpunk' | etc.
+
+/** Show theme selector in header (if false, only in settings modal) */
+export const SHOW_THEME_BUTTON_IN_HEADER = true
+
+/** Enable experimental layout themes (Holy Grail, etc.) */
+export const ENABLE_EXPERIMENTAL_THEMES = true // Set to true when theme system is fully implemented
+

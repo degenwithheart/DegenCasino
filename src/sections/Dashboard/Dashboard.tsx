@@ -165,3 +165,5 @@ export function Dashboard() {
     </DashboardWrapper>
   );
 }
+
+export default Dashboard;

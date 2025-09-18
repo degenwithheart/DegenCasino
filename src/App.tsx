@@ -34,10 +34,105 @@ const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
-import { ColorSchemeProvider } from './themes/ColorSchemeContext';
+import { UnifiedThemeProvider, useTheme } from './themes/UnifiedThemeContext';
 
 // Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
+
+// Theme-aware content component that renders based on current layout theme
+function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean }) {
+  const { connected } = useWallet();
+  const { 
+    currentLayoutTheme, 
+    resolveComponent 
+  } = useTheme();
+
+  // Resolve theme-specific components or fall back to defaults
+  const HeaderComponent = resolveComponent('components', 'Header') || Header;
+  const FooterComponent = resolveComponent('components', 'Footer') || Footer;
+  const DashboardComponent = resolveComponent('sections', 'Dashboard') || Dashboard;
+
+  // Check if this is a Holy Grail theme that uses a layout wrapper
+  const isHolyGrailTheme = currentLayoutTheme.id === 'holy-grail';
+
+  // For Holy Grail theme, wrap everything in the Holy Grail layout
+  if (isHolyGrailTheme) {
+    // Import the Holy Grail layout dynamically
+    const HolyGrailLayout = React.lazy(() => import('./themes/layouts/holy-grail/HolyGrailLayout'));
+    
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <HolyGrailLayout>
+          <Toasts />
+          <DevnetWarning />
+          <Routes>
+            <Route path="/" element={<DashboardComponent />} />
+            <Route path="/jackpot" element={<JackpotPage />} />
+            <Route path="/bonus" element={<BonusPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/select-token" element={<SelectTokenPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/token" element={<DGHRTToken />} />
+            <Route path="/presale" element={<DGHRTPresale />} />
+            <Route path="/aboutme" element={<AboutMe />} />
+            <Route path="/audit" element={<FairnessAudit />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/propagation" element={<Propagation />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/explorer" element={<ExplorerIndex />} />
+            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+            <Route path="/explorer/player/:address" element={<PlayerView />} />
+            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+            <Route path="/:wallet/profile" element={<UserProfile />} />
+            <Route path="/game/:wallet/:gameId" element={<Game />} />
+          </Routes>
+          {ENABLE_TROLLBOX && connected && <TrollBox />}
+        </HolyGrailLayout>
+      </Suspense>
+    );
+  }
+
+  // For default theme, use the traditional layout structure
+  return (
+    <>
+      <HeaderComponent />
+      <Sidebar />
+      <MainContent>
+        <Toasts />
+        <DevnetWarning />
+        {/* Only show WelcomeBanner after auto-connect attempt */}
+        {autoConnectAttempted && !connected && <WelcomeBanner />}
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<DashboardComponent />} />
+            <Route path="/jackpot" element={<JackpotPage />} />
+            <Route path="/bonus" element={<BonusPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/select-token" element={<SelectTokenPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/token" element={<DGHRTToken />} />
+            <Route path="/presale" element={<DGHRTPresale />} />
+            <Route path="/aboutme" element={<AboutMe />} />
+            <Route path="/audit" element={<FairnessAudit />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/propagation" element={<Propagation />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/explorer" element={<ExplorerIndex />} />
+            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+            <Route path="/explorer/player/:address" element={<PlayerView />} />
+            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+            <Route path="/:wallet/profile" element={<UserProfile />} />
+            <Route path="/game/:wallet/:gameId" element={<Game />} />
+          </Routes>
+        </Suspense>
+      </MainContent>
+      <FooterComponent />
+      {ENABLE_TROLLBOX && connected && <TrollBox />}
+    </>
+  );
+}
 
 const LoadingSpinner = () => (
   <div style={{ 
@@ -168,7 +263,7 @@ export default function App() {
   }, []);
 
   return (
-    <ColorSchemeProvider>
+    <UnifiedThemeProvider>
       <GraphicsProvider>
         <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
           {showGamesModal && (
@@ -184,43 +279,10 @@ export default function App() {
         )}
         <ScrollToTop />
         <ErrorHandler />
-        <Header />
-        <Sidebar />
-        <MainContent>
-          <Toasts />
-          <DevnetWarning />
-          {/* Only show WelcomeBanner after auto-connect attempt */}
-          {autoConnectAttempted && !connected && <WelcomeBanner />}
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/jackpot" element={<JackpotPage />} />
-              <Route path="/bonus" element={<BonusPage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/select-token" element={<SelectTokenPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/whitepaper" element={<Whitepaper />} />
-              <Route path="/token" element={<DGHRTToken />} />
-              <Route path="/presale" element={<DGHRTPresale />} />
-              <Route path="/aboutme" element={<AboutMe />} />
-              <Route path="/audit" element={<FairnessAudit />} />
-              <Route path="/changelog" element={<ChangelogPage />} />
-              <Route path="/propagation" element={<Propagation />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/explorer" element={<ExplorerIndex />} />
-              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-              <Route path="/explorer/player/:address" element={<PlayerView />} />
-              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-              <Route path="/:wallet/profile" element={<UserProfile />} />
-              <Route path="/game/:wallet/:gameId" element={<Game />} />
-            </Routes>
-          </Suspense>
-        </MainContent>
-        <Footer />
-        {ENABLE_TROLLBOX && connected && <TrollBox />}
+        <AppContent autoConnectAttempted={autoConnectAttempted} />
         <CacheDebugWrapper />
       </GamesModalContext.Provider>
       </GraphicsProvider>
-    </ColorSchemeProvider>
+    </UnifiedThemeProvider>
   );
 }

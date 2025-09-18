@@ -2,6 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useColorScheme } from '../../themes/ColorSchemeContext';
 import { ColorSchemeKey, globalColorSchemes, GlobalColorScheme } from '../../themes/globalColorSchemes';
+import { LayoutThemeKey, AVAILABLE_LAYOUT_THEMES } from '../../themes/layouts';
+import { useTheme } from '../../themes/UnifiedThemeContext';
+import { 
+  ENABLE_THEME_SELECTOR, 
+  ENABLE_COLOR_SCHEME_SELECTOR, 
+  ENABLE_EXPERIMENTAL_THEMES 
+} from '../../constants';
 
 const ColorSchemeSelectorContainer = styled.div<{ currentColorScheme: any }>`
   display: flex;
@@ -66,6 +73,81 @@ const ScrollContainer = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
   }
+`;
+
+const LayoutThemeOption = styled.div<{ currentColorScheme: any; isActive: boolean }>`
+  position: relative;
+  width: 140px;
+  height: 100px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid ${props => props.isActive ? props.currentColorScheme.colors.accent : 'transparent'};
+  overflow: hidden;
+  flex-shrink: 0;
+  background: ${props => props.currentColorScheme.colors.surface};
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+      ${props => props.currentColorScheme.colors.backgroundSecondary} 0%,
+      ${props => props.currentColorScheme.colors.background} 100%
+    );
+    opacity: 0.8;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px ${props => props.currentColorScheme.colors.accent}40;
+  }
+
+  ${props => props.isActive && `
+    animation: glow 2s infinite;
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 10px ${props.currentColorScheme.colors.accent}; }
+      50% { box-shadow: 0 0 20px ${props.currentColorScheme.colors.accent}; }
+    }
+  `}
+`;
+
+const LayoutThemeName = styled.div<{ currentColorScheme: any }>`
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  color: ${props => props.currentColorScheme.colors.text};
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  text-align: center;
+`;
+
+const LayoutThemeIcon = styled.div<{ currentColorScheme: any }>`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  z-index: 1;
+`;
+
+const LayoutThemeDescription = styled.div<{ currentColorScheme: any }>`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  color: ${props => props.currentColorScheme.colors.textSecondary};
+  font-size: 0.625rem;
+  z-index: 1;
+  text-align: center;
+  opacity: 0.8;
 `;
 
 const ColorSchemeOption = styled.div<{ currentColorScheme: any; isActive: boolean; colorSchemeColors: any }>`
@@ -162,17 +244,42 @@ interface ThemeSelectorProps {
 }
 
 export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className }) => {
+  // Get unified theme context for layout theme functionality
+  const { 
+    layoutThemeKey, 
+    setLayoutTheme, 
+    availableLayoutThemes,
+    currentLayoutTheme 
+  } = useTheme();
+  
   const { colorSchemeKey, setColorScheme, currentColorScheme } = useColorScheme();
-
-  const handleThemeChange = (newThemeKey: ColorSchemeKey) => {
-    setColorScheme(newThemeKey);
+  
+  const handleColorSchemeChange = (newColorSchemeKey: ColorSchemeKey) => {
+    setColorScheme(newColorSchemeKey);
   };
 
-  // Define actual themes (layout/structure) vs color schemes
-  const actualThemes = {
-    default: globalColorSchemes.default
+  // Use the real layout themes from the registry
+  const layoutThemes = availableLayoutThemes;
+
+  const handleLayoutThemeChange = (newLayoutThemeKey: string) => {
+    console.log('Layout theme change requested:', newLayoutThemeKey);
+    
+    // Check if it's a valid layout theme key
+    if (newLayoutThemeKey in AVAILABLE_LAYOUT_THEMES) {
+      try {
+        setLayoutTheme(newLayoutThemeKey as LayoutThemeKey);
+        console.log('✅ Successfully switched to', newLayoutThemeKey, 'theme!');
+      } catch (error) {
+        console.error('❌ Failed to switch theme:', error);
+        alert('Failed to switch theme. Please try again.');
+      }
+    } else {
+      console.warn('Unknown layout theme:', newLayoutThemeKey);
+      alert('🚧 This theme is not yet available!');
+    }
   };
 
+  // Color schemes for the bottom row
   const colorSchemes = {
     default: globalColorSchemes.default,
     romanticDegen: globalColorSchemes.romanticDegen,
@@ -186,33 +293,46 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
 
   return (
     <ColorSchemeSelectorContainer className={className} currentColorScheme={currentColorScheme}>
-      <Title currentColorScheme={currentColorScheme}>Theme & Style Customization</Title>
+      <Title currentColorScheme={currentColorScheme}>
+        {ENABLE_THEME_SELECTOR && ENABLE_COLOR_SCHEME_SELECTOR ? 'Theme & Style Customization' : 
+         ENABLE_THEME_SELECTOR ? 'Theme Selection' : 
+         'Color Scheme Selection'}
+      </Title>
       
-      {/* Themes Section */}
-      <SectionContainer>
-        <SectionHeader>
-          <SectionTitle currentColorScheme={currentColorScheme}>🏗️ Themes (Layout & Structure)</SectionTitle>
-          <SectionDescription currentColorScheme={currentColorScheme}>
-            Choose the overall layout and structural design of your casino
-          </SectionDescription>
-        </SectionHeader>
-        <ScrollContainer>
-          {Object.entries(actualThemes).map(([key, colorScheme]) => (
-            <ColorSchemeOption
-              key={key}
-              currentColorScheme={currentColorScheme}
-              isActive={colorSchemeKey === key}
-              colorSchemeColors={colorScheme.colors}
-              onClick={() => handleThemeChange(key as ColorSchemeKey)}
-            >
-              <ColorSchemePreview colorSchemeColors={colorScheme.colors} />
-              <ColorSchemeName currentColorScheme={currentColorScheme}>{colorScheme.name}</ColorSchemeName>
-            </ColorSchemeOption>
-          ))}
-        </ScrollContainer>
-      </SectionContainer>
+      {/* Layout Themes Section - Only show if enabled and experimental themes are on */}
+      {ENABLE_THEME_SELECTOR && ENABLE_EXPERIMENTAL_THEMES && (
+        <SectionContainer>
+          <SectionHeader>
+            <SectionTitle currentColorScheme={currentColorScheme}>🏗️ Layout Themes</SectionTitle>
+            <SectionDescription currentColorScheme={currentColorScheme}>
+              Choose the overall layout and structural design of your casino. Holy Grail is now fully functional!
+            </SectionDescription>
+          </SectionHeader>
+          <ScrollContainer>
+            {Object.entries(layoutThemes).map(([key, layoutTheme]) => (
+              <LayoutThemeOption
+                key={key}
+                currentColorScheme={currentColorScheme}
+                isActive={layoutThemeKey === key}
+                onClick={() => handleLayoutThemeChange(key)}
+              >
+                <LayoutThemeDescription currentColorScheme={currentColorScheme}>
+                  {layoutTheme.description}
+                </LayoutThemeDescription>
+                <LayoutThemeIcon currentColorScheme={currentColorScheme}>
+                  {key === 'holy-grail' ? '🏛️' : '📱'}
+                </LayoutThemeIcon>
+                <LayoutThemeName currentColorScheme={currentColorScheme}>
+                  {layoutTheme.name}
+                </LayoutThemeName>
+              </LayoutThemeOption>
+            ))}
+          </ScrollContainer>
+        </SectionContainer>
+      )}
 
-      {/* Color Schemes Section */}
+      {/* Color Schemes Section - Only show if enabled */}
+      {ENABLE_COLOR_SCHEME_SELECTOR && (
       <SectionContainer>
         <SectionHeader>
           <SectionTitle currentColorScheme={currentColorScheme}>🌈 Color Schemes</SectionTitle>
@@ -227,7 +347,7 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
               currentColorScheme={currentColorScheme}
               isActive={colorSchemeKey === key}
               colorSchemeColors={colorScheme.colors}
-              onClick={() => handleThemeChange(key as ColorSchemeKey)}
+              onClick={() => handleColorSchemeChange(key as ColorSchemeKey)}
             >
               <ColorSchemePreview colorSchemeColors={colorScheme.colors} />
               <ColorSchemeName currentColorScheme={currentColorScheme}>{colorScheme.name}</ColorSchemeName>
@@ -235,6 +355,7 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
           ))}
         </ScrollContainer>
       </SectionContainer>
+      )}
     </ColorSchemeSelectorContainer>
   );
 };
