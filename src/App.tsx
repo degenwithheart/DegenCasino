@@ -11,13 +11,13 @@ import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
-const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
-const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
-const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
-const DGHRTToken = lazy(() => import('./sections/DGHRTToken/DGHRTToken'));
-const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/DGHRTPresale'));
-const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
-const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
+const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/ThemedAboutMe'));
+const TermsPage = lazy(() => import('./sections/Dashboard/Terms/ThemedTerms'));
+const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/ThemedWhitepaper'));
+const DGHRTToken = lazy(() => import('./sections/DGHRTToken/ThemedDGHRTToken'));
+const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/ThemedDGHRTPresale'));
+const FairnessAudit = lazy(() => import('./sections/FairnessAudit/ThemedFairnessAudit'));
+const UserProfile = lazy(() => import('./sections/UserProfile/ThemedUserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
 import Header from './sections/Header';
 import { AllGamesModal, TrollBox, Sidebar, Transaction, EmbeddedTransaction, PlayerView, CacheDebugWrapper, PlatformView, ExplorerIndex, GraphicsProvider } from './components';
@@ -26,14 +26,14 @@ import Footer from './sections/Footer';
 import styled from 'styled-components';
 import DevnetWarning from './components/Network/DevnetWarning';
 // Lazy load pages and components
-const Propagation = lazy(() => import('./pages/system/propagation'));
-const ChangelogPage = lazy(() => import('./pages/system/ChangelogPage'));
+const Propagation = lazy(() => import('./pages/system/ThemedPropagation'));
+const ChangelogPage = lazy(() => import('./pages/system/ThemedChangelogPage'));
 // Lazy load pages
-const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
-const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
-const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
-const BonusPage = lazy(() => import('./pages/features/BonusPage'));
-const AdminPage = lazy(() => import('./pages/system/AdminPage'));
+const JackpotPage = lazy(() => import('./pages/features/ThemedJackpotPage'));
+const LeaderboardPage = lazy(() => import('./pages/features/ThemedLeaderboardPage'));
+const SelectTokenPage = lazy(() => import('./pages/features/ThemedSelectTokenPage'));
+const BonusPage = lazy(() => import('./pages/features/ThemedBonusPage'));
+const AdminPage = lazy(() => import('./pages/system/ThemedAdminPage'));
 import { UnifiedThemeProvider, useTheme } from './themes/UnifiedThemeContext';
 
 // Loading component for lazy-loaded routes
@@ -51,6 +51,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
   const HeaderComponent = resolveComponent('components', 'Header') || Header;
   const FooterComponent = resolveComponent('components', 'Footer') || Footer;
   const DashboardComponent = resolveComponent('sections', 'Dashboard') || Dashboard;
+  const GameComponent = resolveComponent('sections', 'Game') || Game;
 
   // Check if this is a Holy Grail theme that uses a layout wrapper
   const isHolyGrailTheme = currentLayoutTheme.id === 'holy-grail';
@@ -85,7 +86,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/explorer/player/:address" element={<PlayerView />} />
             <Route path="/explorer/transaction/:txId" element={<Transaction />} />
             <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<Game />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
           </Routes>
           {ENABLE_TROLLBOX && connected && <TrollBox />}
         </HolyGrailLayout>
@@ -124,7 +125,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/explorer/player/:address" element={<PlayerView />} />
             <Route path="/explorer/transaction/:txId" element={<Transaction />} />
             <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<Game />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
           </Routes>
         </Suspense>
       </MainContent>
