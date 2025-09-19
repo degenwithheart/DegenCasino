@@ -5,7 +5,7 @@ import { LayoutTheme, LayoutThemeKey } from './layouts';
 /**
  * Component Type Definitions
  */
-export type ComponentCategory = 'components' | 'sections' | 'pages';
+export type ComponentCategory = 'components' | 'sections';
 export type ComponentName = string;
 
 /**
@@ -15,7 +15,6 @@ export type ComponentName = string;
 interface DefaultComponentRegistry {
   components: Record<string, React.ComponentType<any>>;
   sections: Record<string, React.ComponentType<any>>;
-  pages: Record<string, React.ComponentType<any>>;
 }
 
 /**

@@ -44,10 +44,6 @@ function createDefaultComponentRegistry() {
       Header: React.lazy(() => import('../sections/Header')),
       Footer: React.lazy(() => import('../sections/Footer')),
       Dashboard: React.lazy(() => import('../sections/Dashboard/Dashboard')),
-      UserProfile: React.lazy(() => import('../sections/UserProfile/UserProfile')),
-    },
-    pages: {
-      TermsPage: React.lazy(() => import('../sections/Dashboard/Terms/Terms')),
     },
   };
 }/**
@@ -89,7 +85,6 @@ interface UnifiedThemeProviderProps {
   defaultComponentRegistry?: {
     components: Record<string, React.ComponentType<any>>;
     sections: Record<string, React.ComponentType<any>>;
-    pages: Record<string, React.ComponentType<any>>;
   };
 }
 
