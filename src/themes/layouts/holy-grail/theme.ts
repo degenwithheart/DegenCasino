@@ -1,22 +1,6 @@
-import { 
-  Header, 
-  Footer, 
-  UserProfile, 
-  JackpotPage,
-  BonusPage,
-  LeaderboardPage,
-  SelectTokenPage,
-  DGHRTTokenPage,
-  AboutMePage,
-  FairnessAuditPage,
-  ChangelogPage,
-  AdminPage,
-  DGHRTPresalePage,
-  PropagationPage
-} from './index'
 import { LayoutTheme } from '../index'
-import Terms from './Terms'
-import HolyGrailGame from './Game'
+import { Header } from './index'
+import { Footer } from './index'
 
 export const holyGrailTheme: LayoutTheme = {
   id: 'holy-grail',
@@ -27,28 +11,6 @@ export const holyGrailTheme: LayoutTheme = {
   components: {
     Header,
     Footer,
-  },
-  
-  // Section overrides for custom game experience
-  sections: {
-    Game: HolyGrailGame,
-    UserProfile,
-  },
-  
-  // Page overrides for routes
-  pages: {
-    TermsPage: Terms,
-    JackpotPage,
-    BonusPage,
-    LeaderboardPage,
-    SelectTokenPage,
-    DGHRTTokenPage,
-    AboutMePage,
-    FairnessAuditPage,
-    ChangelogPage,
-    AdminPage,
-    DGHRTPresalePage,
-    PropagationPage,
   },
   
   config: {

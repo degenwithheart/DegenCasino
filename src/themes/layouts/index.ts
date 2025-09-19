@@ -37,12 +37,6 @@ export interface LayoutTheme {
     WhitepaperPage?: React.ComponentType<any>;
     SelectTokenPage?: React.ComponentType<any>;
     AllGamesPage?: React.ComponentType<any>;
-    DGHRTTokenPage?: React.ComponentType<any>;
-    DGHRTPresalePage?: React.ComponentType<any>;
-    AboutMePage?: React.ComponentType<any>;
-    FairnessAuditPage?: React.ComponentType<any>;
-    ChangelogPage?: React.ComponentType<any>;
-    PropagationPage?: React.ComponentType<any>;
     // Add more as needed
   };
   
