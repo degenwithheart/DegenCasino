@@ -2,6 +2,7 @@
 import { StoreApi, create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { PublicKey } from '@solana/web3.js'
+import { DEFAULT_GAME_MODE, GAME_CAPABILITIES } from '../../constants'
 
 export interface UserStore {
   /** Show disclaimer if first time user */
@@ -42,6 +43,22 @@ export interface UserStore {
   autoAdapt?: boolean
   /** Adaptive RAF enabled */
   adaptiveRaf?: boolean
+  
+  /** Global game render mode preference */
+  gameRenderMode?: '2D' | '3D'
+  
+  /** Per-game render mode preferences */
+  perGameModePreferences?: Record<string, '2D' | '3D'>
+  
+  /** Set global render mode */
+  setGlobalRenderMode: (mode: '2D' | '3D') => void
+  
+  /** Set render mode for specific game */
+  setGameRenderMode: (gameId: string, mode: '2D' | '3D') => void
+  
+  /** Get effective render mode for a game (per-game override or global) */
+  getGameRenderMode: (gameId: string) => '2D' | '3D'
+  
   markGameAsPlayed: (gameId: string, played: boolean) => void
   set: (partial: Partial<UserStore> | ((state: UserStore) => Partial<UserStore>), replace?: boolean) => void
 }
@@ -71,6 +88,51 @@ export const useUserStore = create(
       fontSlim: true,
       autoAdapt: true,
       adaptiveRaf: true,
+      
+      gameRenderMode: DEFAULT_GAME_MODE,
+      perGameModePreferences: {},
+      
+      setGlobalRenderMode: (mode) => {
+        set({ gameRenderMode: mode })
+      },
+      
+      setGameRenderMode: (gameId, mode) => {
+        const currentPreferences = get().perGameModePreferences || {}
+        set({ 
+          perGameModePreferences: {
+            ...currentPreferences,
+            [gameId]: mode
+          }
+        })
+      },
+      
+      getGameRenderMode: (gameId) => {
+        const state = get()
+        const gameCapabilities = GAME_CAPABILITIES[gameId as keyof typeof GAME_CAPABILITIES]
+        
+        if (!gameCapabilities) {
+          return state.gameRenderMode || DEFAULT_GAME_MODE
+        }
+        
+        // Check per-game preference first
+        const perGameMode = state.perGameModePreferences?.[gameId]
+        if (perGameMode && 
+            ((perGameMode === '2D' && gameCapabilities.supports2D) || 
+             (perGameMode === '3D' && gameCapabilities.supports3D))) {
+          return perGameMode
+        }
+        
+        // Fall back to global preference if supported
+        const globalMode = state.gameRenderMode || DEFAULT_GAME_MODE
+        if ((globalMode === '2D' && gameCapabilities.supports2D) || 
+            (globalMode === '3D' && gameCapabilities.supports3D)) {
+          return globalMode
+        }
+        
+        // Fall back to game's default
+        return gameCapabilities.default
+      },
+      
       markGameAsPlayed: (gameId, played) => {
         const gamesPlayed = new Set(get().gamesPlayed)
         if (played) {

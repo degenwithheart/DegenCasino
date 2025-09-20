@@ -50,6 +50,148 @@ export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
+// 2D/3D Toggle Feature Configuration
+export const FEATURE_FLAGS = {
+  TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
+  ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
+} as const
+
+export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users
+
+export const GAME_RENDER_MODES = {
+  TWO_D: '2D',
+  THREE_D: '3D',
+} as const
+
+// Game capability flags - defines which games support which modes
+export const GAME_CAPABILITIES = {
+  'dice': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'dice-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'slots': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'plinko': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'roulette': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'limbo': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'mines-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'keno': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'keno-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'blackjack': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'blackjack-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'flip-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'hilo': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'doubleornothing': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'doubleornothing-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'crash': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'crashgame': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'cryptochartgame': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'cryptochartgame-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'fancyvirtualhorseracing': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'fancyvirtualhorseracing-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'multipoker': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'multipoker-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'limbo-v2': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'plinkorace': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  }
+} as const
+
 // Dashboard component visibility toggles
 export const DASHBOARD_SHOW_RECENT_PLAYS = false // Toggle to show/hide RecentPlays on dashboard
 export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboard on dashboard

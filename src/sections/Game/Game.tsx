@@ -176,6 +176,7 @@ import { LoadingBar } from './LoadingBar'
 import { ProvablyFairModal } from './ProvablyFairModal'
 import { TransactionModal } from './TransactionModal'
 import { PortalSafetyMonitor } from '../../components/Game/PortalSafety'
+import { RenderModeToggle } from '../../components/Game/RenderModeToggle'
 import { keyframes } from 'styled-components';
 
 // Animated CSS illustrations for each error type
@@ -845,6 +846,7 @@ function CustomRenderer() {
               </IconButton>
             </div>
             <MetaControls>
+              <RenderModeToggle gameId={game?.id} />
               <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
                 <Icon.Info />
               </IconButton>

@@ -153,6 +153,7 @@ import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash 
 import { LoadingBar } from '../../../sections/Game/LoadingBar'
 import { ProvablyFairModal } from '../../../sections/Game/ProvablyFairModal'
 import { TransactionModal } from '../../../sections/Game/TransactionModal'
+import { RenderModeToggle } from '../../../components/Game/RenderModeToggle'
 import { PortalSafetyMonitor } from '../../../components/Game/PortalSafety'
 import { keyframes } from 'styled-components';
 
@@ -787,6 +788,7 @@ function CustomRenderer() {
               </IconButton>
             </div>
             <MetaControls>
+              <RenderModeToggle gameId={game?.id} />
               <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
                 <Icon.Info />
               </IconButton>
