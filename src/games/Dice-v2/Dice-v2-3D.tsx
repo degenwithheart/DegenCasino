@@ -1,9 +1,11 @@
-import { GambaUi } from 'gamba-react-ui-v2'
+import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
 import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { OrbitControls, PerspectiveCamera, Text, Sphere, Box } from '@react-three/drei'
+import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import GameScreenFrame from '../../components/Game/GameScreenFrame'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useDiceV2GameLogic } from './sharedLogic'
 
 const Container3D = styled.div`
@@ -34,7 +36,7 @@ const ComingSoonOverlay = styled.div`
   background: rgba(0, 0, 0, 0.8);
   padding: 40px;
   border-radius: 20px;
-  border: 2px solid rgba(255, 215, 0, 0.5);
+  border: 2px solid rgba(255, 193, 7, 0.5);
   text-align: center;
   z-index: 10;
   backdrop-filter: blur(10px);
@@ -63,7 +65,7 @@ const ToggleHint = styled.p`
   font-style: italic;
 `
 
-// Simple 3D scene with floating dice and mystical elements
+// 3D Dice Scene with floating elements
 const Scene3D: React.FC = () => {
   return (
     <>
@@ -71,23 +73,37 @@ const Scene3D: React.FC = () => {
       <ambientLight intensity={0.4} />
       <pointLight position={[10, 10, 10]} intensity={0.8} color="#ffd700" />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#d4a574" />
+      <pointLight position={[0, 10, 0]} intensity={0.6} color="#4a90e2" />
       
       {/* Camera */}
-      <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
+      <PerspectiveCamera makeDefault position={[0, 5, 10]} fov={50} />
       
       {/* Controls */}
       <OrbitControls 
         enablePan={false}
-        enableZoom={false}
+        enableZoom={true}
         autoRotate
-        autoRotateSpeed={1}
-        maxPolarAngle={Math.PI / 2}
-        minPolarAngle={Math.PI / 2}
+        autoRotateSpeed={0.5}
+        maxPolarAngle={Math.PI / 1.5}
+        minPolarAngle={Math.PI / 4}
+        maxDistance={15}
+        minDistance={5}
       />
       
-      {/* Simple floating cube representing dice */}
+      {/* Floating dice - multiple cubes */}
       <mesh position={[0, 0, 0]} rotation={[0.5, 0.5, 0]}>
         <boxGeometry args={[2, 2, 2]} />
+        <meshStandardMaterial 
+          color="#ffffff" 
+          metalness={0.3}
+          roughness={0.4}
+          emissive="#ffd700"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      <mesh position={[-3, 1, -1]} rotation={[1, 0.3, 0.7]}>
+        <boxGeometry args={[1.5, 1.5, 1.5]} />
         <meshStandardMaterial 
           color="#ffffff" 
           metalness={0.3}
@@ -97,29 +113,62 @@ const Scene3D: React.FC = () => {
         />
       </mesh>
       
-      {/* Mystical ring around the dice */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <torusGeometry args={[4, 0.1, 16, 100]} />
+      <mesh position={[3, -1, 1]} rotation={[0.2, 1.2, 0.4]}>
+        <boxGeometry args={[1.8, 1.8, 1.8]} />
         <meshStandardMaterial 
-          color="#d4a574" 
-          emissive="#d4a574"
+          color="#ffffff" 
+          metalness={0.3}
+          roughness={0.4}
+          emissive="#ffd700"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      {/* Floating "Coming Soon" text */}
+      <Text
+        position={[0, 8, 0]}
+        fontSize={1}
+        color="#ffd700"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        3D Dice
+      </Text>
+      
+      <Text
+        position={[0, 7, 0]}
+        fontSize={0.6}
+        color="#d4a574"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        Coming Soon
+      </Text>
+      
+      {/* Mystical floating rings */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 2, 0]}>
+        <torusGeometry args={[6, 0.1, 16, 100]} />
+        <meshStandardMaterial 
+          color="#ffd700" 
+          emissive="#ffd700"
           emissiveIntensity={0.3}
           transparent
           opacity={0.6}
         />
       </mesh>
       
-      {/* Floating "Coming Soon" text */}
-      <Text
-        position={[0, -3, 0]}
-        fontSize={0.8}
-        color="#ffd700"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-      >
-        3D Mode Coming Soon
-      </Text>
+      <mesh rotation={[Math.PI / 3, 0, 0]} position={[0, 2, 0]}>
+        <torusGeometry args={[4, 0.05, 16, 100]} />
+        <meshStandardMaterial 
+          color="#d4a574" 
+          emissive="#d4a574"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.4}
+        />
+      </mesh>
     </>
   )
 }
@@ -128,21 +177,28 @@ export default function DiceV2Renderer3D() {
   const {
     wager,
     setWager,
-    hasPlayed,
-    play,
-    resetGame,
-    multiplier,
-    poolExceeded,
-    isPlaying,
-    isAnimating
+    gameStats,
+    handleResetStats,
+    mobile
   } = useDiceV2GameLogic()
 
-  // For 3D mode, we still use the same game logic but show coming soon message
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Dice"
+          gameMode="3D (Coming Soon)"
+          rtp="98"
+          stats={gameStats}
+          onReset={handleResetStats}
+          isMobile={mobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <Container3D>
-          <Suspense fallback={<LoadingFallback>Loading 3D Scene...</LoadingFallback>}>
+          <Suspense fallback={<LoadingFallback>Loading 3D Dice Scene...</LoadingFallback>}>
             <Canvas>
               <Scene3D />
             </Canvas>
@@ -151,8 +207,9 @@ export default function DiceV2Renderer3D() {
           <ComingSoonOverlay>
             <ComingSoonTitle>🎲 3D Dice Coming Soon!</ComingSoonTitle>
             <ComingSoonSubtitle>
-              Experience the magic 8-ball in stunning 3D with realistic physics,<br />
-              interactive sphere rotation, and immersive visual effects.
+              Experience Dice like never before with realistic 3D physics,<br />
+              interactive camera controls, immersive lighting effects,<br />
+              and stunning visual dice rolling in full 3D space.
             </ComingSoonSubtitle>
             <ToggleHint>
               Toggle back to 2D mode to play the current version
@@ -165,22 +222,30 @@ export default function DiceV2Renderer3D() {
         <MobileControls
           wager={wager}
           setWager={setWager}
-          onPlay={hasPlayed ? resetGame : play}
-          playDisabled={true} // Disabled in 3D coming soon mode
+          onPlay={() => {}}
+          playDisabled={true}
           playText="3D Mode Coming Soon"
         />
-
+        
         <DesktopControls
           wager={wager}
           setWager={setWager}
-          onPlay={hasPlayed ? resetGame : play}
-          playDisabled={true} // Disabled in 3D coming soon mode
-          playText="3D Mode Coming Soon"
+          onPlay={() => {}}
+          playDisabled={true}
         >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={multiplier} disabled />
-          <EnhancedPlayButton disabled onClick={() => {}}>
+          <EnhancedWagerInput 
+            value={wager} 
+            onChange={setWager} 
+            disabled={true}
+          />
+          
+          <EnhancedPlayButton 
+            onClick={() => {}} 
+            disabled={true}
+          >
             3D Mode Coming Soon
           </EnhancedPlayButton>
+          
         </DesktopControls>
       </GambaUi.Portal>
     </>

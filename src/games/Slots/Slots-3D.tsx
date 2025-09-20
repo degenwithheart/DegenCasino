@@ -1,63 +1,178 @@
-import React, { useRef } from 'react'
-import { EffectTest, GambaUi } from 'gamba-react-ui-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
+import React, { Suspense } from 'react'
+import styled from 'styled-components'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, PerspectiveCamera, Text, Sphere, Box } from '@react-three/drei'
+import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import GameScreenFrame from '../../components/Game/GameScreenFrame'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
-import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
-import { useGraphics } from '../../components/Game/GameScreenFrame'
-import { useIsCompact } from '../../hooks/ui/useIsCompact'
-import { useGameMeta } from '../useGameMeta'
-import { ItemPreview } from './ItemPreview'
-import { Reel } from './Reel'
-import { StyledSlots } from './Slots.styles'
-import { StyledSlotsBackground } from './SlotsBackground.enhanced.styles'
-import {
-  DEFAULT_SLOT_MODE,
-  SlotMode,
-  getNumSlots,
-  getNumReels,
-  getNumRows,
-  getNumPaylines,
-  SLOT_ITEMS,
-} from './constants'
 import { useSlotsGameLogic } from './sharedLogic'
 
-export default function Slots3D() {
-  // Use shared game logic
+const Container3D = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #0a0511 0%, #1a1a2e 50%, #16213e 100%);
+  border-radius: 12px;
+  overflow: hidden;
+`
+
+const LoadingFallback = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  font-size: 18px;
+  background: linear-gradient(135deg, #0a0511 0%, #1a1a2e 50%, #16213e 100%);
+`
+
+const ComingSoonOverlay = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 152, 0, 0.5);
+  text-align: center;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+`
+
+const ComingSoonTitle = styled.h2`
+  color: #ff9800;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+`
+
+const ComingSoonSubtitle = styled.p`
+  color: #ff5722;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+`
+
+const ToggleHint = styled.p`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+  font-style: italic;
+`
+
+// 3D Slots Scene with spinning reels
+const Scene3D: React.FC = () => {
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.4} />
+      <pointLight position={[10, 10, 10]} intensity={0.8} color="#ff9800" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff5722" />
+      <pointLight position={[0, 10, 0]} intensity={0.6} color="#4a90e2" />
+      
+      {/* Camera */}
+      <PerspectiveCamera makeDefault position={[0, 5, 10]} fov={50} />
+      
+      {/* Controls */}
+      <OrbitControls 
+        enablePan={false}
+        enableZoom={true}
+        autoRotate
+        autoRotateSpeed={0.5}
+        maxPolarAngle={Math.PI / 1.5}
+        minPolarAngle={Math.PI / 4}
+        maxDistance={15}
+        minDistance={5}
+      />
+      
+      {/* Slot reels - 3 cylinders */}
+      {Array.from({ length: 3 }).map((_, index) => (
+        <mesh key={index} position={[index * 2.5 - 2.5, 0, 0]} rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[1, 1, 3, 32]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            metalness={0.3}
+            roughness={0.4}
+            emissive="#ff9800"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+      ))}
+      
+      {/* Slot machine frame */}
+      <mesh position={[0, 0, -1]}>
+        <boxGeometry args={[8, 5, 0.5]} />
+        <meshStandardMaterial 
+          color="#ff5722" 
+          metalness={0.5}
+          roughness={0.3}
+          emissive="#ff5722"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      {/* Floating "Coming Soon" text */}
+      <Text
+        position={[0, 8, 0]}
+        fontSize={1}
+        color="#ff9800"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        3D Slots
+      </Text>
+      
+      <Text
+        position={[0, 7, 0]}
+        fontSize={0.6}
+        color="#ff5722"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        Coming Soon
+      </Text>
+      
+      {/* Mystical floating rings */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 2, 0]}>
+        <torusGeometry args={[6, 0.1, 16, 100]} />
+        <meshStandardMaterial 
+          color="#ff9800" 
+          emissive="#ff9800"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+      
+      <mesh rotation={[Math.PI / 3, 0, 0]} position={[0, 2, 0]}>
+        <torusGeometry args={[4, 0.05, 16, 100]} />
+        <meshStandardMaterial 
+          color="#ff5722" 
+          emissive="#ff5722"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.4}
+        />
+      </mesh>
+    </>
+  )
+}
+
+export default function SlotsRenderer3D() {
   const {
     wager,
-    bet,
-    maxMultiplier,
-    isValid,
-    spinning,
-    result,
-    combination,
-    revealedSlots,
-    good,
-    winningPaylines,
-    winningSymbol,
-    gameStats,
     setWager,
-    play,
+    gameStats,
     handleResetStats,
+    mobile
   } = useSlotsGameLogic()
-
-  const effectsRef = useRef<GameplayEffectsRef>(null)
-  const { settings } = useGraphics()
-  
-  // Mobile detection using the hook
-  const { mobile: isMobile } = useIsCompact()
-  
-  // Dynamic values based on screen size
-  const slotMode: SlotMode = isMobile ? 'classic' : 'wide'
-  const NUM_REELS = getNumReels(slotMode)
-  const NUM_ROWS = getNumRows(slotMode)
-  const NUM_SLOTS = getNumSlots(slotMode)
-  const NUM_PAYLINES = getNumPaylines(slotMode)
-
-  // DISABLED play function for 3D mode
-  const handlePlay = () => {
-    console.log('🎰 3D Slots - Coming Soon! This mode is not yet available.')
-  }
 
   return (
     <>
@@ -65,140 +180,64 @@ export default function Slots3D() {
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="Slots"
-          gameMode="3D Mode (Coming Soon)"
+          gameMode="3D (Coming Soon)"
           rtp="95"
           stats={gameStats}
           onReset={handleResetStats}
-          isMobile={isMobile}
+          isMobile={mobile}
         />
       </GambaUi.Portal>
 
       <GambaUi.Portal target="screen">
-        <StyledSlotsBackground>
-          {/* Enhanced background for Slots game */}
-          <div className="slots-bg-elements" />
-          <div className="casino-bg-elements" />
-          <div className="decorative-overlay" />
+        <Container3D>
+          <Suspense fallback={<LoadingFallback>Loading 3D Slots Scene...</LoadingFallback>}>
+            <Canvas>
+              <Scene3D />
+            </Canvas>
+          </Suspense>
           
-          <StyledSlots>
-            <GameplayFrame 
-              ref={effectsRef}
-              {...(useGameMeta('slots') && { 
-                title: useGameMeta('slots')!.name, 
-                description: useGameMeta('slots')!.description 
-              })}
-              disableContainerTransforms={true}
-            >
-              {/* 3D Mode Coming Soon Overlay */}
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0, 0, 0, 0.7)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10,
-                backdropFilter: 'blur(5px)',
-              }}>
-                <div style={{
-                  color: 'white',
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                  padding: '2rem',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '1rem',
-                  border: '2px solid rgba(255, 255, 255, 0.2)',
-                }}>
-                  🎰 3D Mode<br />
-                  <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>Coming Soon!</span>
-                </div>
-              </div>
-
-              {good && <EffectTest src={winningSymbol?.image || combination[0].image} />}
-              <GambaUi.Responsive>
-                <div className="slots-content">
-                  <div className={'slots'}>
-                    <div className="winning-line-display">
-                      <ItemPreview 
-                        betArray={[...bet]} 
-                        winningMultiplier={winningSymbol?.multiplier}
-                        isWinning={good}
-                      />
-                    </div>
-                    <div className={`slots-reels ${settings.enableMotion ? 'motion-enabled' : 'motion-disabled'}`}>
-                      {/* ECG-style winning line */}
-                      <div className={`ecg-winning-line ${good ? 'active' : ''}`}></div>
-                      
-                      {/* Left Arrow */}
-                      <div className="winning-line-arrow winning-line-arrow-left">
-                        <div className="arrow-icon">▶</div>
-                      </div>
-                      
-                      {Array.from({ length: NUM_REELS }).map((_, reelIndex) => {
-                        const reelItems = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
-                          return combination[slotIndex] || SLOT_ITEMS[0] // Fallback if undefined
-                        })
-                        
-                        const reelGoodSlots = Array.from({ length: NUM_ROWS }).map((_, rowIndex) => {
-                          const slotIndex = reelIndex * NUM_ROWS + rowIndex
-                          return good && winningPaylines.some(line => line.payline.includes(slotIndex))
-                        })
-                        
-                        const reelRevealed = revealedSlots > reelIndex * NUM_ROWS
-                        
-                        return (
-                          <Reel
-                            key={reelIndex}
-                            reelIndex={reelIndex}
-                            revealed={reelRevealed}
-                            good={reelGoodSlots}
-                            items={reelItems}
-                            isSpinning={spinning && !reelRevealed}
-                            enableMotion={settings.enableMotion}
-                          />
-                        )
-                      })}
-                      
-                      {/* Right Arrow */}
-                      <div className="winning-line-arrow winning-line-arrow-right">
-                        <div className="arrow-icon">◀</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </GambaUi.Responsive>
-            </GameplayFrame>
-          </StyledSlots>
-        </StyledSlotsBackground>
+          <ComingSoonOverlay>
+            <ComingSoonTitle>🎰 3D Slots Coming Soon!</ComingSoonTitle>
+            <ComingSoonSubtitle>
+              Experience Slots like never before with realistic 3D physics,<br />
+              interactive camera controls, immersive lighting effects,<br />
+              and stunning visual reels spinning in full 3D space.
+            </ComingSoonSubtitle>
+            <ToggleHint>
+              Toggle back to 2D mode to play the current version
+            </ToggleHint>
+          </ComingSoonOverlay>
+        </Container3D>
       </GambaUi.Portal>
-      
+
       <GambaUi.Portal target="controls">
-        {/* EXACT SAME CONTROLS AS 2D BUT DISABLED */}
         <MobileControls
           wager={wager}
           setWager={setWager}
-          onPlay={handlePlay}
+          onPlay={() => {}}
           playDisabled={true}
-          playText="Coming Soon"
+          playText="3D Mode Coming Soon"
         />
         
         <DesktopControls
           wager={wager}
           setWager={setWager}
-          onPlay={handlePlay}
+          onPlay={() => {}}
           playDisabled={true}
-          playText="Coming Soon"
         >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+          <EnhancedWagerInput 
+            value={wager} 
+            onChange={setWager} 
+            disabled={true}
+          />
           
-          <EnhancedPlayButton disabled={true} onClick={handlePlay}>
-            Coming Soon
+          <EnhancedPlayButton 
+            onClick={() => {}} 
+            disabled={true}
+          >
+            3D Mode Coming Soon
           </EnhancedPlayButton>
+          
         </DesktopControls>
       </GambaUi.Portal>
     </>

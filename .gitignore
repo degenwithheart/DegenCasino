@@ -1,6 +1,5 @@
 # Ignore environment file
 .env
-**/gamba_integration_guide.txt
 .DS_Store
 **/.DS_Store
 .venv
@@ -9,8 +8,6 @@
 .vercel
 .vite
 dist
-docs
-new
 node_modules
 
 # Ignore all scripts except compress-build.mjs

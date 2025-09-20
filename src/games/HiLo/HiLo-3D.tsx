@@ -1,244 +1,264 @@
-import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
-import { useGamba } from 'gamba-react-v2'
-import React from 'react'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
+import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
+import React, { Suspense } from 'react'
+import styled from 'styled-components'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, PerspectiveCamera, Text, Sphere, Box } from '@react-three/drei'
+import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import GameScreenFrame from '../../components/Game/GameScreenFrame'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
-import { useIsCompact } from '../../hooks/ui/useIsCompact'
-import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS } from './constants'
-import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
-import { useGraphics } from '../../components/Game/GameScreenFrame'
-import { useGameMeta } from '../useGameMeta'
-import { StyledHiLoBackground } from './HiLoBackground.enhanced.styles'
 
-export default function HiLo3D() {
-  const game = GambaUi.useGame()
-  const gamba = useGamba()
-  const pool = useCurrentPool()
-  const [initialWager, setInitialWager] = useWagerInput()
-  const { settings } = useGraphics()
-  const { mobile: isMobile } = useIsCompact()
-  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+const Container3D = styled.div\`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #0e4b2a 0%, #1a5c3a 50%, #266b4a 100%);
+  border-radius: 12px;
+  overflow: hidden;
+\`
 
-  // Game state - SAME AS 2D
-  const [claiming, setClaiming] = React.useState(false)
-  const [profit, setProfit] = React.useState(0)
-  const [option, setOption] = React.useState<'hi' | 'lo'>('hi')
-  const [hoveredOption, hoverOption] = React.useState<'hi' | 'lo'>()
-  const [inProgress, setInProgress] = React.useState(false)
-  const [currentBalance, setCurrentBalance] = React.useState(0)
-  const [totalProfit, setTotalProfit] = React.useState(0)
-  const [handCount, setHandCount] = React.useState(0)
-  const [progressive, setProgressive] = React.useState(true) // Toggle between normal and progressive modes
+const LoadingFallback = styled.div\`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  font-size: 18px;
+  background: linear-gradient(135deg, #0e4b2a 0%, #1a5c3a 50%, #266b4a 100%);
+\`
 
-  // Comprehensive game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
+const ComingSoonOverlay = styled.div\`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 20px;
+  border: 2px solid rgba(76, 175, 80, 0.5);
+  text-align: center;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+\`
+
+const ComingSoonTitle = styled.h2\`
+  color: #4caf50;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+\`
+
+const ComingSoonSubtitle = styled.p\`
+  color: #81c784;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+\`
+
+const ToggleHint = styled.p\`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+  font-style: italic;
+\`
+
+// 3D HiLo Scene with card towers and green theme
+const Scene3D: React.FC = () => {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight position={[10, 10, 10]} intensity={0.8} color="#4caf50" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#81c784" />
+      <pointLight position={[0, 10, 0]} intensity={0.6} color="#2e7d32" />
+      
+      <PerspectiveCamera makeDefault position={[0, 8, 12]} fov={50} />
+      
+      <OrbitControls 
+        enablePan={false}
+        enableZoom={true}
+        autoRotate
+        autoRotateSpeed={0.6}
+        maxPolarAngle={Math.PI / 1.5}
+        minPolarAngle={Math.PI / 4}
+        maxDistance={18}
+        minDistance={6}
+      />
+      
+      {Array.from({ length: 13 }).map((_, index) => (
+        <mesh key={\`card-\${index}\`} position={[index * 0.8 - 5, index * 0.3, 0]} rotation={[0, 0, 0.1]}>
+          <boxGeometry args={[1.2, 1.8, 0.1]} />
+          <meshStandardMaterial 
+            color="#ffffff" 
+            metalness={0.3}
+            roughness={0.4}
+            emissive="#4caf50"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+      ))}
+      
+      <mesh position={[-3, 1, 3]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[1.2, 1.8, 0.1]} />
+        <meshStandardMaterial 
+          color="#ff5722" 
+          metalness={0.4}
+          roughness={0.3}
+          emissive="#ff5722"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      <mesh position={[3, 1, 3]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[1.2, 1.8, 0.1]} />
+        <meshStandardMaterial 
+          color="#2196f3" 
+          metalness={0.4}
+          roughness={0.3}
+          emissive="#2196f3"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      
+      <mesh position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial 
+          color="#0e4b2a" 
+          metalness={0.2}
+          roughness={0.8}
+          emissive="#0e4b2a"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+      
+      <Text
+        position={[0, 8, 0]}
+        fontSize={1.2}
+        color="#4caf50"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        3D HiLo
+      </Text>
+      
+      <Text
+        position={[0, 6.8, 0]}
+        fontSize={0.6}
+        color="#81c784"
+        anchorX="center"
+        anchorY="middle"
+        font="/fonts/Inter-Bold.woff"
+      >
+        Coming Soon
+      </Text>
+      
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3, 0]}>
+        <torusGeometry args={[6, 0.12, 16, 100]} />
+        <meshStandardMaterial 
+          color="#4caf50" 
+          emissive="#4caf50"
+          emissiveIntensity={0.4}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+      
+      <mesh rotation={[Math.PI / 4, 0, 0]} position={[0, 3, 0]}>
+        <torusGeometry args={[4, 0.08, 16, 100]} />
+        <meshStandardMaterial 
+          color="#81c784" 
+          emissive="#81c784"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+    </>
+  )
+}
+
+export default function HiLoRenderer3D() {
+  const gameStats = {
     gamesPlayed: 0,
     wins: 0,
     losses: 0,
     sessionProfit: 0,
     bestWin: 0
-  })
+  }
 
   const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
+    // Mock function for 3D mode
   }
 
-  // DISABLED functions for 3D mode
-  const handleStart = () => {
-    console.log('🃏 3D HiLo - Coming Soon! This mode is not yet available.')
-  }
-
-  const play = () => {
-    console.log('🃏 3D HiLo - Coming Soon! This mode is not yet available.')
-  }
-
-  const handleCashOut = () => {
-    console.log('🃏 3D HiLo - Coming Soon! This mode is not yet available.')
-  }
-
-  // Helper calculations
-  const maxWagerForBet = pool?.maxPayout ? Math.floor(pool.maxPayout / 2) : 0
-  const maxMultiplier = 2 // Simplified for 3D
+  const [wager, setWager] = React.useState(0.1)
+  const mobile = false
 
   return (
     <>
-      {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="HiLo"
-          gameMode="3D Mode (Coming Soon)"
-          rtp="95"
+          gameMode="3D (Coming Soon)"
+          rtp="99"
           stats={gameStats}
           onReset={handleResetStats}
-          isMobile={isMobile}
+          isMobile={mobile}
         />
       </GambaUi.Portal>
 
       <GambaUi.Portal target="screen">
-        <StyledHiLoBackground>
-          <GameplayFrame 
-            ref={effectsRef}
-            {...(useGameMeta('hilo') && { 
-              title: useGameMeta('hilo')!.name, 
-              description: useGameMeta('hilo')!.description 
-            })}
-          >
-            {/* 3D Mode Coming Soon Overlay */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 10,
-              backdropFilter: 'blur(5px)',
-            }}>
-              <div style={{
-                color: 'white',
-                fontSize: '2rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                padding: '2rem',
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '1rem',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-              }}>
-                🃏 3D Mode<br />
-                <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>Coming Soon!</span>
-              </div>
-            </div>
-
-            <GambaUi.Responsive>
-              {/* Game content placeholder */}
-              <div style={{ 
-                padding: '2rem',
-                textAlign: 'center',
-                color: 'white',
-                opacity: 0.3
-              }}>
-                <h2>HiLo Card Game</h2>
-                <p>Guess if the next card will be higher or lower</p>
-                
-                {/* Option buttons - DISABLED */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '20px', 
-                  justifyContent: 'center',
-                  marginTop: '2rem'
-                }}>
-                  <EnhancedButton
-                    onClick={() => setOption('hi')}
-                    variant={option === 'hi' ? 'primary' : 'secondary'}
-                    disabled={true}
-                  >
-                    Higher ⬆️
-                  </EnhancedButton>
-                  <EnhancedButton
-                    onClick={() => setOption('lo')}
-                    variant={option === 'lo' ? 'primary' : 'secondary'}
-                    disabled={true}
-                  >
-                    Lower ⬇️
-                  </EnhancedButton>
-                </div>
-              </div>
-            </GambaUi.Responsive>
-          </GameplayFrame>
-        </StyledHiLoBackground>
+        <Container3D>
+          <Suspense fallback={<LoadingFallback>Loading 3D HiLo Scene...</LoadingFallback>}>
+            <Canvas>
+              <Scene3D />
+            </Canvas>
+          </Suspense>
+          
+          <ComingSoonOverlay>
+            <ComingSoonTitle>📈 3D HiLo Coming Soon!</ComingSoonTitle>
+            <ComingSoonSubtitle>
+              Experience HiLo like never before with dynamic 3D card stacks,<br />
+              realistic physics simulations, immersive betting interface,<br />
+              and stunning visual feedback for wins and losses.
+            </ComingSoonSubtitle>
+            <ToggleHint>
+              Toggle back to 2D mode to play the current version
+            </ToggleHint>
+          </ComingSoonOverlay>
+        </Container3D>
       </GambaUi.Portal>
-      
+
       <GambaUi.Portal target="controls">
-        {/* EXACT SAME CONTROLS AS 2D BUT DISABLED */}
-        {!inProgress ? (
-          <>
-            <MobileControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
-              <SwitchControl
-                label="Progressive Mode"
-                checked={progressive}
-                onChange={setProgressive}
-                disabled={true}
-              />
-            </MobileControls>
-            
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
-              <EnhancedWagerInput
-                value={initialWager}
-                onChange={setInitialWager}
-                multiplier={maxMultiplier}
-              />
-              <div>Progressive:</div>
-              <GambaUi.Switch
-                checked={progressive}
-                onChange={setProgressive}
-                disabled={true}
-              />
-              <EnhancedPlayButton disabled={true} onClick={handleStart}>
-                Coming Soon
-              </EnhancedPlayButton>
-              {initialWager > maxWagerForBet && (
-                <EnhancedButton onClick={() => setInitialWager(maxWagerForBet)} disabled={true}>
-                  Set max
-                </EnhancedButton>
-              )}
-            </DesktopControls>
-          </>
-        ) : (
-          <>
-            <MobileControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={progressive ? play : handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            />
-            
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={progressive ? play : handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
-              <EnhancedWagerInput
-                value={initialWager}
-                onChange={setInitialWager}
-                disabled={true}
-                multiplier={maxMultiplier}
-              />
-              <TokenValue amount={currentBalance} />
-              {progressive && (
-                <EnhancedButton disabled={true} onClick={handleCashOut}>
-                  Cash Out
-                </EnhancedButton>
-              )}
-              <EnhancedPlayButton disabled={true} onClick={progressive ? play : handleStart}>
-                Coming Soon
-              </EnhancedPlayButton>
-            </DesktopControls>
-          </>
-        )}
+        <MobileControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={() => {}}
+          playDisabled={true}
+          playText="3D Mode Coming Soon"
+        />
+        
+        <DesktopControls
+          wager={wager}
+          setWager={setWager}
+          onPlay={() => {}}
+          playDisabled={true}
+        >
+          <EnhancedWagerInput 
+            value={wager} 
+            onChange={setWager} 
+            disabled={true}
+          />
+          
+          <EnhancedPlayButton 
+            onClick={() => {}} 
+            disabled={true}
+          >
+            3D Mode Coming Soon
+          </EnhancedPlayButton>
+          
+        </DesktopControls>
       </GambaUi.Portal>
     </>
   )
