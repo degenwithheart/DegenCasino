@@ -12,18 +12,6 @@ export interface ExtendedGameBundle extends GameBundle {
 
 export const ALL_GAMES: ExtendedGameBundle[] = [
   {
-    id: 'dice',
-    live: 'up',
-    meta: {
-      name: 'Dice',
-      background: '#000000CC',
-      image: '/webp/games/dice.webp',
-      description: `Set your target, slide the bar, and dare the dice to fall beneath your chosen threshold. This is not mere chance — it is precision gambling, where you control the odds and the cube obeys only the laws of probability. Each roll under your number is a victory whispered by mathematics itself. The lower you set your target, the sweeter the multiplier becomes, yet the rarer the triumph. Here, fortune favors the bold who understand that sometimes winning means aiming low, that humility in numbers can birth the greatest rewards. Roll under is the art of restraint rewarded, where knowing when to be humble becomes the path to glory.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./Dice')),
-  },
-  {
     id: 'dice-v2',
     live: 'up',
     meta: {

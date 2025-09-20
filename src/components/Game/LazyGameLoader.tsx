@@ -27,7 +27,6 @@ const lazyGames = {
   mines: lazy(() => import('../../games/Mines-v2')),
   crash: lazy(() => import('../../games/CrashGame')),
   flip: lazy(() => import('../../games/Flip-v2')),
-  dice: lazy(() => import('../../games/Dice')),
   hilo: lazy(() => import('../../games/HiLo')),
   'progressive-poker': lazy(() => import('../../games/MultiPoker-v2')),
 };
