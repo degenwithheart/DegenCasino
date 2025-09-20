@@ -28,7 +28,7 @@ export const ExampleUnifiedTheme: React.FC = () => {
   console.log('Current Color Scheme:', currentColorScheme.name);
 
   // Change themes
-  const handleLayoutChange = () => setLayoutTheme('holy-grail');
+  const handleLayoutChange = () => setLayoutTheme('degenheart');
   const handleColorChange = () => setColorScheme('cyberpunk');
 
   // Resolve components

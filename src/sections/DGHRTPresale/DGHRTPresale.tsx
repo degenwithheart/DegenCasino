@@ -7,18 +7,24 @@ import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { PLATFORM_CREATOR_ADDRESS, RPC_ENDPOINT } from '../../constants'
 import { useNetwork } from '../../contexts/NetworkContext'
 import {
-  Container,
+  UnifiedResponsiveContainer,
+  UnifiedPageContainer,
+  UnifiedPageTitle,
+  UnifiedSectionHeading,
+  UnifiedContent,
+  UnifiedCard,
+  UnifiedGrid,
+  UnifiedButton,
+  UnifiedStat
+} from '../../components/UI/UnifiedStyles'
+import {
   Header,
-  PresaleCard,
   WalletSection,
   PaymentTokenSection,
   AmountSection,
   QuickAmountButton,
   ReceiveSection,
-  PurchaseButton,
-  PresaleInfo,
-  StatusMessage,
-  ResponsiveContainer
+  StatusMessage
 } from './DGHRTPresale.styles'
 
 /**
@@ -241,25 +247,32 @@ const DGHRTPresalePage: React.FC = () => {
   const progressPercentage = (presaleRaised / PRESALE_GOAL) * 100
 
   return (
-    <ResponsiveContainer>
-      <Container visible={visible} $colorScheme={currentColorScheme}>
+    <UnifiedResponsiveContainer>
+      <UnifiedPageContainer visible={visible}>
         <Header>
           <img 
             src="/png/images/$DGHRT.png" 
             alt="DGHRT Token" 
             className="logo"
+            style={{
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              border: '3px solid #ffd700',
+              marginBottom: '2rem'
+            }}
             onError={(e) => {
               // Fallback if image doesn't exist
               e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiByeD0iNjAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxMjAiIHkyPSIxMjAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI2Q0YTU3NCIvPgo8c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI2I4MzY2YSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNkNGE1NzQiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8dGV4dCB4PSI2MCIgeT0iNzAiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KOPC90ZXh0Pgo8L3N2Zz4K'
             }}
           />
-          <h1>💎 $DGHRT Presale 💎</h1>
+          <UnifiedPageTitle>💎 $DGHRT Presale 💎</UnifiedPageTitle>
           <p className="subtitle">
             <em>Get your Heart Tokens before public launch</em>
           </p>
         </Header>
 
-        <PresaleCard $colorScheme={currentColorScheme}>
+        <UnifiedCard>
           <WalletSection>
             <label>Select Wallet</label>
             {connected ? (
@@ -273,22 +286,13 @@ const DGHRTPresalePage: React.FC = () => {
                 ✅ Wallet Connected: {publicKey?.toBase58().slice(0, 8)}...
               </div>
             ) : (
-              <button 
+              <UnifiedButton 
+                variant="primary"
                 onClick={() => setWalletModalVisible(true)}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  border: '1px solid rgba(212, 165, 116, 0.3)',
-                  borderRadius: '12px',
-                  background: 'rgba(212, 165, 116, 0.1)',
-                  color: '#d4a574',
-                  cursor: 'pointer',
-                  fontSize: '1.1rem',
-                  fontWeight: '500'
-                }}
+                style={{ width: '100%' }}
               >
                 Connect Wallet
-              </button>
+              </UnifiedButton>
             )}
           </WalletSection>
 
@@ -349,83 +353,89 @@ const DGHRTPresalePage: React.FC = () => {
             </div>
           </ReceiveSection>
 
-          <PurchaseButton 
+          <UnifiedButton 
+            variant="primary"
             onClick={handlePurchase}
             disabled={!solAmount || parseFloat(solAmount) < MIN_SOL_AMOUNT}
+            style={{ width: '100%', marginTop: '1rem' }}
           >
             {connected ? 'Purchase DGHRT' : 'Connect Wallet'}
-          </PurchaseButton>
+          </UnifiedButton>
 
           {statusMessage && (
             <StatusMessage type={statusMessage.type}>
               {statusMessage.message}
             </StatusMessage>
           )}
-        </PresaleCard>
+        </UnifiedCard>
 
-        <PresaleInfo $colorScheme={currentColorScheme}>
-          <h3>🚀 Presale Information</h3>
-          <div className="info-item">
-            <span className="label">Total Supply:</span>
-            <span className="value">
-              {loading ? 'Loading...' : tokenSupply.total > 0 ? tokenSupply.total.toLocaleString() : '0'} DGHRT
-            </span>
-          </div>
-          <div className="info-item">
-            <span className="label">Tokens Sold:</span>
-            <span className="value">
-              {loading ? 'Loading...' : tokenSupply.sold.toLocaleString()} DGHRT
-            </span>
-          </div>
-          <div className="info-item">
-            <span className="label">Tokens Remaining:</span>
-            <span className="value">
-              {loading ? 'Loading...' : tokenSupply.remaining.toLocaleString()} DGHRT
-            </span>
-          </div>
-          <div className="info-item">
-            <span className="label">Price per SOL:</span>
-            <span className="value">{DGHRT_PRICE_PER_SOL.toLocaleString()} DGHRT</span>
-          </div>
-          <div className="info-item">
-            <span className="label">Minimum Purchase:</span>
-            <span className="value">{MIN_SOL_AMOUNT} SOL</span>
-          </div>
-          <div className="info-item">
-            <span className="label">Maximum Purchase:</span>
-            <span className="value">{MAX_SOL_AMOUNT} SOL</span>
-          </div>
-          <div className="info-item">
-            <span className="label">SOL Raised:</span>
-            <span className="value">
-              {loading ? 'Loading...' : `${presaleRaised.toFixed(2)}/${PRESALE_GOAL} SOL (${progressPercentage.toFixed(1)}%)`}
-            </span>
-          </div>
-          <div className="info-item">
-            <span className="label">Token Status:</span>
-            <span className="value">
-              {tokenMintAddress ? (
-                <span style={{ color: '#22c55e' }}>✅ Minted</span>
-              ) : (
-                <span style={{ color: '#f59e0b' }}>🔜 Not Yet Minted</span>
-              )}
-            </span>
-          </div>
-          <div className="info-item">
-            <span className="label">Network:</span>
-            <span className="value">Solana</span>
-          </div>
-          <div className="info-item">
-            <span className="label">Token Standard:</span>
-            <span className="value">SPL Token</span>
-          </div>
-        </PresaleInfo>
+        <UnifiedCard>
+          <UnifiedSectionHeading>🚀 Presale Information</UnifiedSectionHeading>
+          <UnifiedContent>
+            <UnifiedGrid columns="repeat(auto-fit, minmax(250px, 1fr))">
+              <UnifiedStat>
+                <div className="stat-label">Total Supply</div>
+                <div className="stat-value">
+                  {loading ? 'Loading...' : tokenSupply.total > 0 ? tokenSupply.total.toLocaleString() : '0'} DGHRT
+                </div>
+              </UnifiedStat>
+              
+              <UnifiedStat>
+                <div className="stat-label">Tokens Sold</div>
+                <div className="stat-value">
+                  {loading ? 'Loading...' : tokenSupply.sold.toLocaleString()} DGHRT
+                </div>
+              </UnifiedStat>
+              
+              <UnifiedStat>
+                <div className="stat-label">Tokens Remaining</div>
+                <div className="stat-value">
+                  {loading ? 'Loading...' : tokenSupply.remaining.toLocaleString()} DGHRT
+                </div>
+              </UnifiedStat>
+              
+              <UnifiedStat>
+                <div className="stat-label">Price per SOL</div>
+                <div className="stat-value">{DGHRT_PRICE_PER_SOL.toLocaleString()} DGHRT</div>
+              </UnifiedStat>
+              
+              <UnifiedStat>
+                <div className="stat-label">Min/Max Purchase</div>
+                <div className="stat-value">{MIN_SOL_AMOUNT} - {MAX_SOL_AMOUNT} SOL</div>
+              </UnifiedStat>
+              
+              <UnifiedStat>
+                <div className="stat-label">SOL Raised</div>
+                <div className="stat-value">
+                  {loading ? 'Loading...' : `${presaleRaised.toFixed(2)}/${PRESALE_GOAL} SOL (${progressPercentage.toFixed(1)}%)`}
+                </div>
+              </UnifiedStat>
+            </UnifiedGrid>
+            
+            <div style={{ marginTop: '2rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>Token Status:</strong>{' '}
+                {tokenMintAddress ? (
+                  <span style={{ color: '#22c55e' }}>✅ Minted</span>
+                ) : (
+                  <span style={{ color: '#f59e0b' }}>🔜 Not Yet Minted</span>
+                )}
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>Network:</strong> Solana
+              </div>
+              <div>
+                <strong>Token Standard:</strong> SPL Token
+              </div>
+            </div>
+          </UnifiedContent>
+        </UnifiedCard>
 
         <div style={{ 
           marginTop: '2rem', 
           textAlign: 'center', 
           fontSize: '0.9rem', 
-          color: '#ccc', 
+          color: 'var(--text-secondary)', 
           opacity: 0.8 
         }}>
           <em>
@@ -433,8 +443,8 @@ const DGHRTPresalePage: React.FC = () => {
             Presale will begin when $DGHRT token is officially minted.
           </em>
         </div>
-      </Container>
-    </ResponsiveContainer>
+      </UnifiedPageContainer>
+    </UnifiedResponsiveContainer>
   )
 }
 

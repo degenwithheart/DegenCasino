@@ -320,7 +320,7 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
                   {layoutTheme.description}
                 </LayoutThemeDescription>
                 <LayoutThemeIcon currentColorScheme={currentColorScheme}>
-                  {key === 'holy-grail' ? '🏛️' : '📱'}
+                  {key === 'degenheart' ? '🏛️' : '📱'}
                 </LayoutThemeIcon>
                 <LayoutThemeName currentColorScheme={currentColorScheme}>
                   {layoutTheme.name}

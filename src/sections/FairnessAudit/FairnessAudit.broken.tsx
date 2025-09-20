@@ -1,20 +1,21 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { 
+  UnifiedPageContainer, 
+  UnifiedPageTitle, 
+  UnifiedCard, 
+  UnifiedSectionHeading, 
+  UnifiedContent,
+  UnifiedResponsiveContainer,
+  UnifiedGrid,
+  UnifiedStat,
+  UnifiedButton 
+} from '../../components/UI/UnifiedStyles'
 import {
-  Wrap,
-  Container,
-  HeroSection,
-  MainTitle,
-  MainSubtitle,
-  DashboardGrid,
-  MainContent,
-  Sidebar,
   QuickStats,
   StatusHeader,
   StatsTitle,
   StatItem,
-  Card,
-  CardTitle,
   ControlPanel,
   ControlGrid,
   RefreshButton,
@@ -26,10 +27,6 @@ import {
   ControlGroup,
   CheckboxLabel,
   StatusInfo,
-  StatsGrid,
-  StatCard,
-  StatValue,
-  StatLabel,
   LoadingSpinner,
   TableWrapper,
   Table,
@@ -44,7 +41,7 @@ import {
   MethodologyCard,
   MethodologyList,
   Footer
-} from '../FairnessAudit/FairnessAudit.styles'
+} from './FairnessAudit.styles'
 
 // Constants
 const LTA_PLAYS = 1000000 // 1 million plays for long-term analysis
@@ -166,8 +163,8 @@ const getRealBetArrays = () => {
     // BlackJack - use actual game implementation
     blackjack: [...BLACKJACK_CONFIG.betArray],
     
-    // Flip - use actual game implementation
-    flip: FLIP_CONFIG.calculateBetArray(1, 1, 'heads'), // [1.98, 0] - 50% win rate coin flip
+    // Flip - use actual game implementation (heads scenario)
+    flip: FLIP_CONFIG.calculateBetArray(1, 1, 'heads'), // 1 coin, need 1 head, betting heads
     
     // Dice - use actual game implementation (50% odds example)
     dice: DICE_CONFIG.calculateBetArray(50),
@@ -343,32 +340,34 @@ export default function FairnessAudit() {
   }, [gameSummary])
 
   return (
-    <Wrap>
-      <Container>
-        <HeroSection>
-          <MainTitle>Game Fairness Audit</MainTitle>
-          <MainSubtitle>
-            Comprehensive real-time validation of Return-to-Player (RTP) rates and edge case scenarios.
-            Our transparent testing ensures every game maintains its promised fairness standards.
-          </MainSubtitle>
-        </HeroSection>
+    <UnifiedResponsiveContainer>
+      <UnifiedPageContainer visible={true}>
+        <UnifiedPageTitle>Game Fairness Audit</UnifiedPageTitle>
+        <p style={{ 
+          fontSize: '1.2rem', 
+          color: 'var(--text-secondary)', 
+          textAlign: 'center', 
+          margin: '0 0 2rem 0',
+          fontStyle: 'italic'
+        }}>
+          Comprehensive real-time validation of Return-to-Player (RTP) rates and edge case scenarios.
+          Our transparent testing ensures every game maintains its promised fairness standards.
+        </p>
 
-        <DashboardGrid>
-          <MainContent>
-            <Card variant="primary">
-              <StatusHeader status={error ? 'error' : loading ? 'loading' : 'success'}>
-                <div className="status-info">
-                  <span className="status-icon">
-                    {error ? '❌' : loading ? '⏳' : '✅'}
-                  </span>
-                  <span className="status-text">
-                    {error ? 'Testing Failed' : loading ? 'Running Tests...' : 'All Systems Healthy'}
-                  </span>
-                </div>
-                <div className="last-updated">
-                  Last verified: <span className="time">{new Date().toLocaleTimeString()}</span>
-                </div>
-              </StatusHeader>
+        <UnifiedCard>
+          <StatusHeader status={error ? 'error' : loading ? 'loading' : 'success'}>
+            <div className="status-info">
+              <span className="status-icon">
+                {error ? '❌' : loading ? '⏳' : '✅'}
+              </span>
+              <span className="status-text">
+                {error ? 'Testing Failed' : loading ? 'Running Tests...' : 'All Systems Healthy'}
+              </span>
+            </div>
+            <div className="last-updated">
+              Last verified: <span className="time">{new Date().toLocaleTimeString()}</span>
+            </div>
+          </StatusHeader>
 
               <ControlPanel>
                 <ControlRow>
@@ -840,24 +839,30 @@ export default function FairnessAudit() {
               </div>
             </QuickStats>
 
-            <MethodologyCard>
-              <h3 style={{ margin: '0 0 1rem', color: '#ffd700' }}>How We Ensure Fair Play</h3>
-              <MethodologyList>
-                <li><strong>Real Game Code:</strong> We test the actual code that runs our games, not fake versions.</li>
-                <li><strong>Random Selection:</strong> Every game outcome is randomly selected using fair mathematical principles.</li>
-                <li><strong>Live Testing:</strong> All games are continuously tested using the same logic players experience.</li>
-                <li><strong>Accurate Results:</strong> Test results should closely match our target payout percentages.</li>
-                <li><strong>Always Updated:</strong> When we improve games, these fairness reports automatically update too.</li>
-              </MethodologyList>
-            </MethodologyCard>
-          </Sidebar>
-        </DashboardGrid>
+        <UnifiedCard>
+          <UnifiedSectionHeading>How We Ensure Fair Play</UnifiedSectionHeading>
+          <UnifiedContent>
+            <MethodologyList>
+              <li><strong>Real Game Code:</strong> We test the actual code that runs our games, not fake versions.</li>
+              <li><strong>Random Selection:</strong> Every game outcome is randomly selected using fair mathematical principles.</li>
+              <li><strong>Live Testing:</strong> All games are continuously tested using the same logic players experience.</li>
+              <li><strong>Accurate Results:</strong> Test results should closely match our target payout percentages.</li>
+              <li><strong>Always Updated:</strong> When we improve games, these fairness reports automatically update too.</li>
+            </MethodologyList>
+          </UnifiedContent>
+        </UnifiedCard>
 
-        <Footer>
+        <div style={{ 
+          marginTop: '2rem', 
+          textAlign: 'center', 
+          fontSize: '0.9rem', 
+          color: 'var(--text-secondary)', 
+          opacity: 0.8 
+        }}>
           <p>Report generated {new Date().toLocaleString()}. This audit uses our actual game code to ensure accuracy.</p>
-          <p><Link to="/">← Back to Casino</Link></p>
-        </Footer>
-      </Container>
-    </Wrap>
+          <p><Link to="/" style={{ color: '#ffd700' }}>← Back to Casino</Link></p>
+        </div>
+      </UnifiedPageContainer>
+    </UnifiedResponsiveContainer>
   )
 }

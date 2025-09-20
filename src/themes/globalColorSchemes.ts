@@ -1,4 +1,5 @@
 import { keyframes } from 'styled-components';
+import { DEFAULT_COLOR_SCHEME } from '../constants';
 
 // Base animations that can be used across themes
 export const neonPulse = keyframes`
@@ -1001,6 +1002,9 @@ export const globalColorSchemes = {
 
 export type ColorSchemeKey = keyof typeof globalColorSchemes;
 
+// Export the default color scheme constant for external use
+export { DEFAULT_COLOR_SCHEME };
+
 // Theme utility functions
 export const getColorSchemeValue = (colorScheme: GlobalColorScheme, path: string, fallback: string = ''): string => {
   const keys = path.split('.');
@@ -1100,15 +1104,15 @@ export const createColorSchemeStyles = (colorScheme: GlobalColorScheme) => ({
  * Get stored colorScheme from localStorage
  */
 export const getStoredColorScheme = (): ColorSchemeKey => {
-  if (typeof window === 'undefined') return 'default';
+  if (typeof window === 'undefined') return DEFAULT_COLOR_SCHEME as ColorSchemeKey;
   try {
     const stored = localStorage.getItem('selectedColorScheme');
     if (stored && stored in globalColorSchemes) {
       return stored as ColorSchemeKey;
     }
-    return 'default';
+    return DEFAULT_COLOR_SCHEME as ColorSchemeKey;
   } catch {
-    return 'default';
+    return DEFAULT_COLOR_SCHEME as ColorSchemeKey;
   }
 };
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, createContext, useContext } from 'react'
 import styled from 'styled-components'
 import { useColorScheme } from '../../ColorSchemeContext'
 import Header from './Header'
@@ -6,6 +6,15 @@ import Footer from './Footer'
 import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import MainContent from './MainContent'
+import { Modal } from './components/Modal'
+import AllGamesModalContent from '../../../components/AllGamesModal/AllGamesModal'
+
+// Create a local games modal context for degen theme
+const DegenGamesModalContext = createContext<{ openGamesModal: () => void }>({ 
+  openGamesModal: () => {} 
+})
+
+export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
 
 const LayoutContainer = styled.div<{ $colorScheme: any }>`
   display: grid;
@@ -13,7 +22,7 @@ const LayoutContainer = styled.div<{ $colorScheme: any }>`
   width: 100%;
   background: ${props => props.$colorScheme.colors.background};
   
-  /* Holy Grail Grid Layout */
+  /* DegenHeart Grid Layout */
   grid-template-areas: 
     "header header header"
     "left   main   right"
@@ -75,6 +84,14 @@ const GridMain = styled.main`
   margin-bottom: 10px;
   overflow-y: auto;
   padding: 1rem;
+  width: 100%;
+  max-width: none;
+  
+  /* Ensure all child content uses full available width */
+  > * {
+    width: 100%;
+    max-width: none;
+  }
   
   @media (max-width: 768px) {
     margin-top: 0;
@@ -115,36 +132,46 @@ const GridFooter = styled.footer`
   }
 `
 
-interface HolyGrailLayoutProps {
+interface DegenHeartLayoutProps {
   children: React.ReactNode
 }
 
-const HolyGrailLayout: React.FC<HolyGrailLayoutProps> = ({ children }) => {
+const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const { currentColorScheme } = useColorScheme()
+  const [showGamesModal, setShowGamesModal] = useState(false)
 
   return (
-    <LayoutContainer $colorScheme={currentColorScheme}>
-      <GridHeader>
-        <Header />
-      </GridHeader>
-      
-      <GridLeftSidebar>
-        <LeftSidebar />
-      </GridLeftSidebar>
-      
-      <GridMain>
-        {children || <MainContent />}
-      </GridMain>
-      
-      <GridRightSidebar>
-        <RightSidebar />
-      </GridRightSidebar>
-      
-      <GridFooter>
-        <Footer />
-      </GridFooter>
-    </LayoutContainer>
+    <DegenGamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
+      <LayoutContainer $colorScheme={currentColorScheme}>
+        <GridHeader>
+          <Header />
+        </GridHeader>
+        
+        <GridLeftSidebar>
+          <LeftSidebar />
+        </GridLeftSidebar>
+        
+        <GridMain>
+          {children || <MainContent />}
+        </GridMain>
+        
+        <GridRightSidebar>
+          <RightSidebar />
+        </GridRightSidebar>
+        
+        <GridFooter>
+          <Footer />
+        </GridFooter>
+        
+        {/* Degen Games Modal - renders in viewport mode covering main content area */}
+        {showGamesModal && (
+          <Modal variant="viewport" onClose={() => setShowGamesModal(false)}>
+            <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
+          </Modal>
+        )}
+      </LayoutContainer>
+    </DegenGamesModalContext.Provider>
   )
 }
 
-export default HolyGrailLayout
+export default DegenHeartLayout

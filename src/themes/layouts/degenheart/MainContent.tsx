@@ -8,8 +8,8 @@ import { useHandleWalletConnect } from '../../../sections/walletConnect'
 import { ALL_GAMES } from '../../../games/allGames'
 import { TOKEN_METADATA } from '../../../constants'
 
-// Mystical animations for the Holy Grail dashboard
-const holyGlow = keyframes`
+// Romantic animations for the DegenHeart Casino dashboard
+const heartGlow = keyframes`
   0%, 100% {
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
     transform: translateY(0px);
@@ -20,7 +20,7 @@ const holyGlow = keyframes`
   }
 `
 
-const grailFloat = keyframes`
+const heartFloat = keyframes`
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
   }
@@ -82,7 +82,7 @@ const WelcomeSection = styled.section<{ $colorScheme: any }>`
   }
 `
 
-const GrailTitle = styled.h1<{ $colorScheme: any }>`
+const HeartTitle = styled.h1<{ $colorScheme: any }>`
   font-size: 3.5rem;
   font-weight: 900;
   color: ${props => props.$colorScheme.colors.accent};
@@ -101,7 +101,7 @@ const GrailTitle = styled.h1<{ $colorScheme: any }>`
   -webkit-text-fill-color: transparent;
   
   text-shadow: 0 0 30px ${props => props.$colorScheme.colors.accent}60;
-  ${css`animation: ${grailFloat} 6s ease-in-out infinite;`}
+  ${css`animation: ${heartFloat} 6s ease-in-out infinite;`}
   
   @media (max-width: 768px) {
     font-size: 2.5rem;
@@ -143,7 +143,7 @@ const StatCard = styled.div<{ $colorScheme: any }>`
   &:hover {
     transform: translateY(-4px);
     border-color: ${props => props.$colorScheme.colors.accent};
-    ${css`animation: ${holyGlow} 2s ease-in-out infinite;`}
+    ${css`animation: ${heartGlow} 2s ease-in-out infinite;`}
   }
   
   &::before {
@@ -411,12 +411,12 @@ const MainContent: React.FC = () => {
   return (
     <DashboardContainer $colorScheme={currentColorScheme}>
       <WelcomeSection $colorScheme={currentColorScheme}>
-        <GrailTitle $colorScheme={currentColorScheme}>
-          The Holy Grail Casino
-        </GrailTitle>
+        <HeartTitle $colorScheme={currentColorScheme}>
+          DegenHeart Casino
+        </HeartTitle>
         <WelcomeText $colorScheme={currentColorScheme}>
-          Welcome to the legendary realm where fortune meets destiny. 
-          Experience provably fair gaming in the most sacred of all casino layouts.
+          Welcome to the Casino of Chaos where romance meets risk in a jazz-at-midnight atmosphere. 
+          Experience provably fair gaming in the most elegant of all casino layouts.
         </WelcomeText>
       </WelcomeSection>
 
@@ -441,7 +441,7 @@ const MainContent: React.FC = () => {
 
       <GamesSection>
         <SectionTitle $colorScheme={currentColorScheme}>
-          Sacred Games Collection
+          Romantic Degen Games Collection
         </SectionTitle>
         
         <GameFilters>
@@ -474,7 +474,7 @@ const MainContent: React.FC = () => {
               Connect Your Wallet to Play
             </h3>
             <p style={{ marginBottom: '1.5rem', color: currentColorScheme.colors.text + '80' }}>
-              Join the Holy Grail Casino experience with provably fair gaming
+              Join the DegenHeart Casino experience with provably fair gaming
             </p>
             <ConnectButton $colorScheme={currentColorScheme} onClick={handleConnectWallet}>
               Connect Wallet

@@ -6,7 +6,7 @@ import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
 import { useColorScheme } from '../../ColorSchemeContext'
 import { SIDEBAR_LINKS } from '../../../constants'
 import { ALL_GAMES } from '../../../games/allGames'
-import { GamesModalContext } from '../../../sections/Dashboard/Dashboard'
+import { useDegenGamesModal } from './DegenHeartLayout'
 
 const SidebarContainer = styled.aside<{ $colorScheme: any }>`
   background: linear-gradient(180deg, 
@@ -175,7 +175,7 @@ const LeftSidebar: React.FC = () => {
   const location = useLocation()
   const { connected, publicKey } = useWallet()
   const pool = useCurrentPool()
-  const { openGamesModal } = useContext(GamesModalContext)
+  const { openGamesModal } = useDegenGamesModal()
 
   // Calculate real statistics from available data
   const realStats = useMemo(() => {

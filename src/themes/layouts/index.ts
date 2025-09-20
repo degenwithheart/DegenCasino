@@ -1,6 +1,6 @@
 // Layout Theme Registry and Definitions
 import React from 'react';
-import { holyGrailTheme } from './holy-grail/index';
+import { degenHeartTheme } from './degenheart/index';
 
 /**
  * Layout Theme Definition Interface
@@ -57,8 +57,8 @@ export interface LayoutTheme {
 export const AVAILABLE_LAYOUT_THEMES: Record<string, LayoutTheme> = {
   default: {
     id: 'default',
-    name: 'Default Layout',
-    description: 'The standard casino layout with familiar navigation and structure',
+    name: 'Degen Original',
+    description: '2-Column layout',
     config: {
       enableSidebar: false,
       headerStyle: 'sticky',
@@ -69,8 +69,10 @@ export const AVAILABLE_LAYOUT_THEMES: Record<string, LayoutTheme> = {
     // No component overrides - uses existing src/components/ and src/sections/
   },
   
-  'holy-grail': holyGrailTheme,
+  'degenheart': degenHeartTheme,
 };
+
+import { DEFAULT_LAYOUT_THEME } from '../../constants';
 
 /**
  * Layout Theme Keys
@@ -80,7 +82,7 @@ export type LayoutThemeKey = keyof typeof AVAILABLE_LAYOUT_THEMES;
 /**
  * Default Layout Theme
  */
-export const DEFAULT_LAYOUT_THEME: LayoutThemeKey = 'default';
+export { DEFAULT_LAYOUT_THEME };
 
 /**
  * Get Layout Theme by Key

@@ -8,11 +8,11 @@ import { useHandleWalletConnect } from '../../../sections/walletConnect'
 import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins } from 'react-icons/fa'
 import { SIDEBAR_LINKS } from '../../../constants'
 import { useToast } from '../../../hooks/ui/useToast'
-import { Modal } from '../../../components'
+import { Modal } from './components/Modal'
 import { ColorSchemeSelector } from '../../../components'
 import TokenSelect from '../../../sections/TokenSelect'
 
-const grailGlow = keyframes`
+const heartGlow = keyframes`
   0%, 100% {
     filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
   }
@@ -70,7 +70,7 @@ const LogoSection = styled.div`
 const LogoIcon = styled(FaGem)<{ $colorScheme: any }>`
   font-size: 2rem;
   color: ${props => props.$colorScheme.colors.accent};
-  ${css`animation: ${grailGlow} 2s ease-in-out infinite;`}
+  ${css`animation: ${heartGlow} 2s ease-in-out infinite;`}
 `
 
 const LogoText = styled.h1<{ $colorScheme: any }>`
@@ -427,7 +427,7 @@ const Header: React.FC = () => {
       <LogoSection onClick={handleLogoClick}>
         <LogoIcon $colorScheme={currentColorScheme} />
         <LogoText $colorScheme={currentColorScheme}>
-          Holy Grail
+          DegenHeart
         </LogoText>
       </LogoSection>
 
@@ -553,14 +553,14 @@ const Header: React.FC = () => {
     
     {/* Theme selector modal - outside header container */}
     {showThemeSelector && (
-      <Modal onClose={() => setShowThemeSelector(false)}>
+      <Modal variant="viewport" onClose={() => setShowThemeSelector(false)}>
         <ColorSchemeSelector />
       </Modal>
     )}
 
     {/* Token selector modal - outside header container */}
     {showTokenSelect && (
-      <Modal onClose={() => setShowTokenSelect(false)}>
+      <Modal variant="viewport" onClose={() => setShowTokenSelect(false)}>
         <div style={{ maxWidth: '500px', width: '100%' }}>
           <TokenSelect />
         </div>

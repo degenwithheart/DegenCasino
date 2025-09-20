@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
-import { Container, Title, Subtitle, Selector, SectionHeading, Content, Flag } from './Terms.styles'
+import { 
+  UnifiedPageContainer, 
+  UnifiedPageTitle, 
+  UnifiedCard, 
+  UnifiedSectionHeading, 
+  UnifiedContent,
+  UnifiedResponsiveContainer 
+} from '../../../components/UI/UnifiedStyles'
+import { Selector, Flag } from './Terms.styles'
 
 type ContinentKey = 'AU' | 'EU' | 'AMERICAS' | 'ASIA'
 
@@ -57,137 +65,141 @@ const Terms: React.FC = () => {
   const data = continents[continent]
 
   return (
-    <Container visible={visible} $colorScheme={currentColorScheme}>
-      <Title $colorScheme={currentColorScheme}>⚖️ Terms of the Heart ⚖️</Title>
-      <Subtitle $colorScheme={currentColorScheme}>
-        In the flickering candlelight of our casino temple, understand the sacred bonds between player and house.
-      </Subtitle>
-
-      <Selector $colorScheme={currentColorScheme}>
-        <label>Choose your romantic realm:</label>
-        {(Object.entries(continents) as [ContinentKey, typeof data][]).map(
-          ([key, val]) => (
-            <button
-              key={key}
-              onClick={() => setContinent(key)}
-              className={key === continent ? 'active' : ''}
-              aria-pressed={key === continent}
-            >
-              <Flag>{val.flag}</Flag> {val.name}
-            </button>
-          )
-        )}
-      </Selector>
-
-      <Content $colorScheme={currentColorScheme}>
-        <p>
-          <strong>💍 Age of Consent:</strong> {data.ageRequirement}
+    <UnifiedResponsiveContainer>
+      <UnifiedPageContainer visible={visible}>
+        <UnifiedPageTitle>⚖️ Terms of the Heart ⚖️</UnifiedPageTitle>
+        <p style={{ 
+          fontSize: '1.2rem', 
+          color: 'var(--text-secondary)', 
+          textAlign: 'center', 
+          margin: '0 0 2rem 0',
+          fontStyle: 'italic'
+        }}>
+          In the flickering candlelight of our casino temple, understand the sacred bonds between player and house.
         </p>
 
-        {data.gamblingWarning && (
-          <>
-            <SectionHeading $colorScheme={currentColorScheme}>🌹 Sacred Warnings 🌹</SectionHeading>
-            <p><em>{data.gamblingWarning}</em></p>
-          </>
-        )}
+        <UnifiedCard>
+          <Selector $colorScheme={currentColorScheme}>
+            <label>Choose your romantic realm:</label>
+            {(Object.entries(continents) as [ContinentKey, typeof data][]).map(
+              ([key, val]) => (
+                <button
+                  key={key}
+                  onClick={() => setContinent(key)}
+                  className={key === continent ? 'active' : ''}
+                  aria-pressed={key === continent}
+                >
+                  <Flag>{val.flag}</Flag> {val.name}
+                </button>
+              )
+            )}
+          </Selector>
+        </UnifiedCard>
 
-        <SectionHeading $colorScheme={currentColorScheme}>💎 The Nature of Our Sacred Ground 💎</SectionHeading>
-        <p>
-          <strong>🏛️ Temple of Transparency:</strong> All gameplay unfolds like a love letter written in code, 
-          executed on-chain through sacred smart contracts, ensuring every moment is transparent and fair.
-        </p>
-        <p>
-          <strong>🔑 Your Sovereign Heart:</strong> You hold the keys to your own treasure, maintaining full control 
-          of your funds at all times. Each bet and blessing flows directly through the blockchain's embrace.
-        </p>
+        <UnifiedCard>
+          <UnifiedContent>
+            <p>
+              <strong>💍 Age of Consent:</strong> {data.ageRequirement}
+            </p>
 
-        <p>
-          <strong>🎭 Provably Fair Romance:</strong> Every game is a sonnet of transparency, verifiable on the 
-          eternal Solana blockchain where truth lives forever.
-        </p>
-        <p>
-          <strong>⚡ The Dance of Risk:</strong> Crypto assets waltz with inherent risk, including the potential 
-          loss of your treasures. You accept this passionate dance with full awareness of its consequences.
-        </p>
+            {data.gamblingWarning && (
+              <>
+                <UnifiedSectionHeading>🌹 Sacred Warnings 🌹</UnifiedSectionHeading>
+                <p><em>{data.gamblingWarning}</em></p>
+              </>
+            )}
 
-        <SectionHeading $colorScheme={currentColorScheme}>🌟 Wallet's Sacred Union 🌟</SectionHeading>
-        <p>
-          <strong>💫 Chosen Vessels:</strong> Your Solana wallet must join our sacred circle to participate 
-          in the casino's midnight mass.
-        </p>
-        <p>
-          <strong>💰 Network's Tribute:</strong> The blockchain demands its offerings in the form of gas and 
-          network fees - a small price for entry into our realm.
-        </p>
+            <UnifiedSectionHeading>💎 The Nature of Our Sacred Ground 💎</UnifiedSectionHeading>
+            <p>
+              <strong>🏛️ Temple of Transparency:</strong> All gameplay unfolds like a love letter written in code, 
+              executed on-chain through sacred smart contracts, ensuring every moment is transparent and fair.
+            </p>
+            <p>
+              <strong>🔑 Your Sovereign Heart:</strong> You hold the keys to your own treasure, maintaining full control 
+              over your wallet. We never touch nor store your precious assets, ensuring true sovereignty.
+            </p>
+            <p>
+              <strong>🌟 Provably Fair Romance:</strong> Each bet is a cryptographic promise, verifiable through our 
+              eternal ledger, ensuring the dance between chance and destiny remains untainted.
+            </p>
+            <p>
+              <strong>🎭 No House of Mirrors:</strong> We offer no bonuses, promotional treasures, or honeyed words 
+              that might cloud judgment. Pure gameplay, untainted by deceptive allure.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>🎲 The Art of Responsible Romance 🎲</SectionHeading>
-        <p>
-          <strong>🌙 No Promises Under Starlight:</strong> We offer no guarantees of winnings or golden returns. 
-          Gambling is a dance with fortune's fickle heart.
-        </p>
-        <p>
-          <strong>🛡️ Guardian of Your Own Soul:</strong> If the casino's siren song grows too strong, 
-          seek wisdom from professionals and use the tools we provide for your protection.
-        </p>
+            <UnifiedSectionHeading>🌟 Wallet's Sacred Union 🌟</UnifiedSectionHeading>
+            <p>
+              By connecting your digital heart (wallet) to our temple, you consent to the mystical binding that 
+              allows gameplay. This connection is ephemeral, broken the moment you close our gates or disconnect 
+              your vessel.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>⚔️ Forbidden Enchantments ⚔️</SectionHeading>
-        <ul>
-          <li>Thou shalt not violate the sacred laws or speak false prophecies to our temple.</li>
-          <li>No mechanical familiars (bots) or dark magic (automation) shall disturb our sacred rituals.</li>
-          <li>Attempts to unweave our smart contract spells or exploit our mystical systems are forbidden.</li>
-        </ul>
+            <UnifiedSectionHeading>🎲 The Art of Responsible Romance 🎲</UnifiedSectionHeading>
+            <p>
+              <strong>Gamble only with the tenderness you can afford to lose.</strong> Set limits like boundaries 
+              around your heart. If gambling becomes more shadow than light, seek guidance from organizations 
+              dedicated to healing.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>👑 Treasures of the Mind 👑</SectionHeading>
-        <p>
-          All creations, symbols, and intellectual pearls belong to the <strong>DegenHeart Foundation</strong>. 
-          Unauthorized theft or reproduction of our romantic works is strictly forbidden.
-        </p>
+            <UnifiedSectionHeading>⚔️ Forbidden Enchantments ⚔️</UnifiedSectionHeading>
+            <p>
+              You shall not use dark magic (automated tools, bots, cheats) to gain unfair advantage, 
+              nor shall you attempt to break our sacred seals (hack or exploit our platform).
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>🔮 Secrets and Transparency 🔮</SectionHeading>
-        <p>
-          The blockchain keeps its own diary - all transactions become part of the eternal ledger. 
-          We guard only what is necessary, keeping your deepest secrets safe while honoring transparency.
-        </p>
+            <UnifiedSectionHeading>👑 Treasures of the Mind 👑</UnifiedSectionHeading>
+            <p>
+              All intellectual treasures within our temple belong to <strong>DegenHeart Foundation</strong>. 
+              You may partake in the experience but not claim ownership of our mystical designs.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>⚠️ No Promises in the Moonlight ⚠️</SectionHeading>
-        <p>
-          Our temple stands "as is" beneath the stars, offering no warranties beyond the honesty of our code. 
-          We promise no merchantability, fitness for purpose, or protection from the night's uncertainties.
-        </p>
+            <UnifiedSectionHeading>🔮 Secrets and Transparency 🔮</UnifiedSectionHeading>
+            <p>
+              We honor your privacy like a secret whispered between lovers. Personal data is handled with 
+              utmost care, collected only when necessary for the sacred function of gameplay.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>💔 Limitations of a Broken Heart 💔</SectionHeading>
-        <p>
-          To the fullest extent the law allows, <strong>DegenHeart Foundation</strong> bears no responsibility 
-          for indirect sorrows, unexpected losses, or punitive damages. Our maximum liability remains at $100 
-          or your total devotion to our platform over six moons, whichever brings greater comfort.
-        </p>
+            <UnifiedSectionHeading>⚠️ No Promises in the Moonlight ⚠️</UnifiedSectionHeading>
+            <p>
+              Our temple stands "as is" beneath the stars, offering no warranties beyond the honesty of our code. 
+              We promise no merchantability, fitness for purpose, or protection from the night's uncertainties.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>🛡️ Shield of Mutual Protection 🛡️</SectionHeading>
-        <p>
-          You pledge to protect <strong>DegenHeart Foundation</strong> and its allied houses from claims, 
-          damages, and sorrows arising from your journey through our realm.
-        </p>
+            <UnifiedSectionHeading>💔 Limitations of a Broken Heart 💔</UnifiedSectionHeading>
+            <p>
+              To the fullest extent the law allows, <strong>DegenHeart Foundation</strong> bears no responsibility 
+              for indirect sorrows, unexpected losses, or punitive damages. Our maximum liability remains at $100 
+              or your total devotion to our platform over six moons, whichever brings greater comfort.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>⚖️ Laws of the Heart & Resolution of Disputes ⚖️</SectionHeading>
-        <p><em>{data.disputeResolution}</em></p>
+            <UnifiedSectionHeading>🛡️ Shield of Mutual Protection 🛡️</UnifiedSectionHeading>
+            <p>
+              You pledge to protect <strong>DegenHeart Foundation</strong> and its allied houses from claims, 
+              damages, and sorrows arising from your journey through our realm.
+            </p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>🚪 When the Dance Must End 🚪</SectionHeading>
-        <p>
-          We reserve the right to close the temple doors to you at any moment, without warning bells, 
-          should you break the sacred covenant of these terms.
-        </p>
+            <UnifiedSectionHeading>⚖️ Laws of the Heart & Resolution of Disputes ⚖️</UnifiedSectionHeading>
+            <p><em>{data.disputeResolution}</em></p>
 
-        <SectionHeading $colorScheme={currentColorScheme}>📜 The Final Verse 📜</SectionHeading>
-        <p>
-          These terms form the complete ballad between your heart and <strong>DegenHeart Foundation</strong>. 
-          Should any verse prove unsingable, the remaining stanzas shall continue their eternal song.
-        </p>
+            <UnifiedSectionHeading>🚪 When the Dance Must End 🚪</UnifiedSectionHeading>
+            <p>
+              We reserve the right to close the temple doors to you at any moment, without warning bells, 
+              should you break the sacred covenant of these terms.
+            </p>
 
-        <p style={{ fontStyle: 'italic', marginTop: '2rem', textAlign: 'center', opacity: 0.8 }}>
-          <em>💕 Please gamble with the wisdom of the heart. Our temple exists for the joy of the game alone. 💕</em>
-        </p>
-      </Content>
-    </Container>
+            <UnifiedSectionHeading>📜 The Final Verse 📜</UnifiedSectionHeading>
+            <p>
+              These terms form the complete ballad between your heart and <strong>DegenHeart Foundation</strong>. 
+              Should any verse prove unsingable, the remaining stanzas shall continue their eternal song.
+            </p>
+
+            <p style={{ fontStyle: 'italic', marginTop: '2rem', textAlign: 'center', opacity: 0.8 }}>
+              <em>💕 Please gamble with the wisdom of the heart. Our temple exists for the joy of the game alone. 💕</em>
+            </p>
+          </UnifiedContent>
+        </UnifiedCard>
+      </UnifiedPageContainer>
+    </UnifiedResponsiveContainer>
   )
 }
 

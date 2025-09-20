@@ -51,18 +51,26 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
   const HeaderComponent = resolveComponent('components', 'Header') || Header;
   const FooterComponent = resolveComponent('components', 'Footer') || Footer;
   const DashboardComponent = resolveComponent('sections', 'Dashboard') || Dashboard;
+  
+  // Resolve Game component through theme system (falls back to default if no themed version)
+  const GameComponent = resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game'));
 
   // Check if this is a Holy Grail theme that uses a layout wrapper
-  const isHolyGrailTheme = currentLayoutTheme.id === 'holy-grail';
+  const isDegenHeartTheme = currentLayoutTheme.id === 'degenheart';
+  
+  // Conditionally use degen Modal for degen theme
+  const ModalComponent = isDegenHeartTheme 
+    ? React.lazy(() => import('./themes/layouts/degenheart/components/Modal').then(m => ({ default: m.Modal })))
+    : Modal;
 
-  // For Holy Grail theme, wrap everything in the Holy Grail layout
-  if (isHolyGrailTheme) {
-    // Import the Holy Grail layout dynamically
-    const HolyGrailLayout = React.lazy(() => import('./themes/layouts/holy-grail/HolyGrailLayout'));
+  // For DegenHeart theme, wrap everything in the DegenHeart layout
+  if (isDegenHeartTheme) {
+    // Import the DegenHeart layout dynamically
+    const DegenHeartLayout = React.lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
     
     return (
       <Suspense fallback={<LoadingSpinner />}>
-        <HolyGrailLayout>
+        <DegenHeartLayout>
           <Toasts />
           <DevnetWarning />
           <Routes>
@@ -85,10 +93,10 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/explorer/player/:address" element={<PlayerView />} />
             <Route path="/explorer/transaction/:txId" element={<Transaction />} />
             <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<Game />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
           </Routes>
           {ENABLE_TROLLBOX && connected && <TrollBox />}
-        </HolyGrailLayout>
+        </DegenHeartLayout>
       </Suspense>
     );
   }
@@ -124,7 +132,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/explorer/player/:address" element={<PlayerView />} />
             <Route path="/explorer/transaction/:txId" element={<Transaction />} />
             <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<Game />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
           </Routes>
         </Suspense>
       </MainContent>

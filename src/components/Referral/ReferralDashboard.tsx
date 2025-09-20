@@ -18,6 +18,8 @@ const Container = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   position: relative;
+  width: 100%;
+  max-width: none;
   
   &::before {
     content: '🎁';

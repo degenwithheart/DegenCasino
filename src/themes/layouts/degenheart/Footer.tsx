@@ -1,7 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useNavigate } from 'react-router-dom'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { useColorScheme } from '../../ColorSchemeContext'
-import { FOOTER_LINKS } from '../../../constants'
+import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants'
 import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart } from 'react-icons/fa'
 
 const FooterContainer = styled.footer<{ $colorScheme: any }>`
@@ -34,10 +36,7 @@ const FooterContainer = styled.footer<{ $colorScheme: any }>`
   }
   
   @media (max-width: 768px) {
-    flex-direction: column;
-    height: auto;
-    padding: 1rem;
-    gap: 1rem;
+    display: none; /* Hide desktop footer on mobile to avoid overlap with mobile footer */
   }
 `
 
@@ -168,8 +167,52 @@ const StatusText = styled.span<{ $colorScheme: any }>`
   gap: 0.5rem;
 `
 
+const MobileFooter = styled.nav<{ $colorScheme: any }>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(135deg, 
+    ${props => props.$colorScheme.colors.surface}95,
+    ${props => props.$colorScheme.colors.background}90
+  );
+  backdrop-filter: blur(15px);
+  border-top: 2px solid ${props => props.$colorScheme.colors.accent}30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0 1rem;
+  z-index: 1000;
+  
+  @media (min-width: 769px) {
+    display: none; /* Hide on desktop */
+  }
+  
+  a, button {
+    color: ${props => props.$colorScheme.colors.accent};
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    
+    &:hover {
+      background: ${props => props.$colorScheme.colors.accent}15;
+      transform: translateY(-1px);
+    }
+  }
+`
+
 const Footer: React.FC = () => {
   const { currentColorScheme } = useColorScheme()
+  const navigate = useNavigate()
+  const { connected, publicKey } = useWallet()
 
   const socialIcons = {
     Twitter: FaTwitter,
@@ -182,16 +225,34 @@ const Footer: React.FC = () => {
     if (href.startsWith('http')) {
       window.open(href, '_blank', 'noopener,noreferrer')
     } else {
-      // Handle internal navigation or other actions
-      console.log(`Navigate to ${label}: ${href}`)
+      // Handle internal navigation
+      navigate(href)
+    }
+  }
+
+  const handleMobileLinkClick = (link: any) => {
+    // Special handling for Games modal trigger (only available when connected)
+    if ('label' in link && link.label === 'Games') {
+      window.dispatchEvent(new CustomEvent('openGamesModal'))
+      return
+    }
+    
+    // Regular navigation links - handle dynamic href replacement
+    const href = typeof link.href === 'string' && link.href.includes('${base58}') 
+      ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
+      : link.href
+      
+    if (href) {
+      handleLinkClick(href, link.title)
     }
   }
 
   return (
-    <FooterContainer $colorScheme={currentColorScheme}>
+    <>
+      <FooterContainer $colorScheme={currentColorScheme}>
       <LeftSection>
         <CopyrightText $colorScheme={currentColorScheme}>
-          <span>© 2024 Holy Grail Casino</span>
+          <span>© 2024 DegenHeart.Casino</span>
           <span>Made with</span>
           <HeartIcon $colorScheme={currentColorScheme} />
           <span>on Solana</span>
@@ -224,17 +285,17 @@ const Footer: React.FC = () => {
         <SocialLinks>
           <SocialLink
             $colorScheme={currentColorScheme}
-            href="https://twitter.com/holygratilcasino"
+            href="https://x.com/DegenWithHeart"
             target="_blank"
             rel="noopener noreferrer"
-            title="Follow us on Twitter"
+            title="Follow us on X"
           >
             <FaTwitter />
           </SocialLink>
           
           <SocialLink
             $colorScheme={currentColorScheme}
-            href="https://discord.gg/holygrailcasino"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             title="Join our Discord"
@@ -244,7 +305,7 @@ const Footer: React.FC = () => {
           
           <SocialLink
             $colorScheme={currentColorScheme}
-            href="https://t.me/holygrailcasino"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             title="Join our Telegram"
@@ -254,7 +315,7 @@ const Footer: React.FC = () => {
           
           <SocialLink
             $colorScheme={currentColorScheme}
-            href="https://github.com/holygrailcasino"
+            href="https://github.com/degenwithheart"
             target="_blank"
             rel="noopener noreferrer"
             title="View our GitHub"
@@ -264,6 +325,43 @@ const Footer: React.FC = () => {
         </SocialLinks>
       </RightSection>
     </FooterContainer>
+
+    {/* Mobile Footer - shows different links based on wallet connection state */}
+    <MobileFooter $colorScheme={currentColorScheme}>
+      {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
+        // Special handling for Games modal trigger (only available when connected)
+        if ('label' in link && link.label === 'Games') {
+          return (
+            <button
+              key={link.title}
+              type="button"
+              onClick={() => handleMobileLinkClick(link)}
+            >
+              {link.title}
+            </button>
+          )
+        }
+        
+        // Regular navigation links
+        const href = typeof link.href === 'string' && link.href.includes('${base58}') 
+          ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
+          : link.href
+          
+        return (
+          <a
+            key={link.title}
+            href={href}
+            onClick={(e) => {
+              e.preventDefault()
+              handleMobileLinkClick(link)
+            }}
+          >
+            {link.title}
+          </a>
+        )
+      })}
+    </MobileFooter>
+  </>
   )
 }
 

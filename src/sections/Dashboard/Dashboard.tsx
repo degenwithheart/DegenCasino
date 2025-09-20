@@ -13,11 +13,13 @@ import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_RECENT_PLAYS, DASHBOARD_SHOW_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useColorScheme } from "../../themes/ColorSchemeContext";
+import { 
+  UnifiedPageContainer, 
+  UnifiedCard, 
+  UnifiedSectionHeading,
+  UnifiedResponsiveContainer 
+} from "../../components/UI/UnifiedStyles";
 import {
-  AccentBar,
-  CasinoSparkles,
-  DashboardWrapper,
-  CompactProps,
   GameSliderWrapper,
   GameCardWrapper,
   Grid,
@@ -25,6 +27,32 @@ import {
   ConnectButton,
   ToggleButton
 } from "./Dashboard.styles";
+import styled, { keyframes } from 'styled-components';
+
+// Animated gradient line keyframes
+const loveLetterGradient = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+// Romantic animated accent bar (gradient line)
+const AccentBar = styled.div`
+  height: 4px;
+  width: 100%;
+  border-radius: 8px;
+  margin: 0.5rem 0 1.5rem;
+  background: linear-gradient(90deg, 
+    rgba(212, 165, 116, 0.8) 0%, 
+    rgba(184, 51, 106, 0.6) 25%, 
+    rgba(139, 90, 158, 0.7) 50%, 
+    rgba(184, 51, 106, 0.6) 75%, 
+    rgba(212, 165, 116, 0.8) 100%
+  );
+  background-size: 300% 100%;
+  animation: ${loveLetterGradient} 6s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.3);
+`;
 
 export function GameSlider({ compact }: { compact?: boolean }) {
   return (
@@ -44,6 +72,7 @@ export function Dashboard() {
   const handleWalletConnect = useHandleWalletConnect();
   const { openGamesModal } = useContext(GamesModalContext);
   const { currentColorScheme } = useColorScheme();
+  const [visible, setVisible] = useState(false);
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
@@ -52,117 +81,122 @@ export function Dashboard() {
   const multiplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'new');
   const liveNewGames = GAMES().filter(g => g.live === 'new');
 
+  useEffect(() => {
+    setVisible(true);
+  }, []);
+
   return (
-    <DashboardWrapper $compact={compact} $colorScheme={currentColorScheme}>
-      <CasinoSparkles>✨</CasinoSparkles>
-      <WelcomeBanner />
-      <EnhancedTickerTape />
+    <UnifiedResponsiveContainer>
+      <UnifiedPageContainer visible={visible}>
+        <WelcomeBanner />
+        <AccentBar />
+        <EnhancedTickerTape />
 
-      {connected && (
-        <>
-          {/* Toggle Buttons */}
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: compact ? '0.8rem' : '1.5rem', 
-            margin: '2rem 0',
-            flexWrap: 'wrap'
-          }}>
-            <ToggleButton
-              $active={activeSection === 'games'}
-              $compact={compact}
-              $colorScheme={currentColorScheme}
-              onClick={() => setActiveSection('games')}
-            >
-              🃏 All Games
-            </ToggleButton>
-            {DASHBOARD_SHOW_RECENT_PLAYS && (
+        {connected && (
+          <>
+            {/* Toggle Buttons */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              gap: compact ? '0.8rem' : '1.5rem', 
+              margin: '2rem 0',
+              flexWrap: 'wrap'
+            }}>
               <ToggleButton
-                $active={activeSection === 'plays'}
+                $active={activeSection === 'games'}
                 $compact={compact}
                 $colorScheme={currentColorScheme}
-                onClick={() => setActiveSection('plays')}
+                onClick={() => setActiveSection('games')}
               >
-                🕹️ Recent Plays
+                🃏 All Games
               </ToggleButton>
+              {DASHBOARD_SHOW_RECENT_PLAYS && (
+                <ToggleButton
+                  $active={activeSection === 'plays'}
+                  $compact={compact}
+                  $colorScheme={currentColorScheme}
+                  onClick={() => setActiveSection('plays')}
+                >
+                  🕹️ Recent Plays
+                </ToggleButton>
+              )}
+              {DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
+                <ToggleButton
+                  $active={activeSection === 'referrals'}
+                  $compact={compact}
+                  $colorScheme={currentColorScheme}
+                  onClick={() => setActiveSection('referrals')}
+                >
+                  🏆 Referral Leaders
+                </ToggleButton>
+              )}
+            </div>
+
+            {/* Toggle Content */}
+            {activeSection === 'games' && (
+              <>
+                <UnifiedCard>
+                  <UnifiedSectionHeading>Featured Games</UnifiedSectionHeading>
+                  <AccentBar />
+                  <GameSlider compact={compact} />
+                </UnifiedCard>
+                
+                <UnifiedCard>
+                  <UnifiedSectionHeading>Singleplayer Games</UnifiedSectionHeading>
+                  <AccentBar />
+                  <GameSliderWrapper>
+                    {singleplayerGames.map((game) => (
+                      <GameCardWrapper key={game.id} $compact={compact}>
+                        <FeaturedGameCard game={game} />
+                      </GameCardWrapper>
+                    ))}
+                  </GameSliderWrapper>
+                </UnifiedCard>
+                
+                <UnifiedCard>
+                  <UnifiedSectionHeading>Multiplayer Games</UnifiedSectionHeading>
+                  <AccentBar />
+                  <GameSliderWrapper>
+                    {multiplayerGames.map((game) => (
+                      <GameCardWrapper key={game.id} $compact={compact}>
+                        <FeaturedGameCard game={game} />
+                      </GameCardWrapper>
+                    ))}
+                  </GameSliderWrapper>
+                </UnifiedCard>
+                
+                <UnifiedCard>
+                  <UnifiedSectionHeading>Coming Soon</UnifiedSectionHeading>
+                  <AccentBar />
+                  <GameSliderWrapper>
+                    {liveNewGames.map((game) => (
+                      <GameCardWrapper key={game.id} $compact={compact}>
+                        <FeaturedGameCard game={game} />
+                      </GameCardWrapper>
+                    ))}
+                  </GameSliderWrapper>
+                </UnifiedCard>
+              </>
             )}
-            {DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
-              <ToggleButton
-                $active={activeSection === 'referrals'}
-                $compact={compact}
-                $colorScheme={currentColorScheme}
-                onClick={() => setActiveSection('referrals')}
-              >
-                🏆 Referral Leaders
-              </ToggleButton>
+
+            {activeSection === 'plays' && DASHBOARD_SHOW_RECENT_PLAYS && (
+              <UnifiedCard>
+                <AccentBar />
+                <RecentPlays showAllPlatforms={false} />
+              </UnifiedCard>
             )}
-          </div>
 
-          {/* Toggle Content */}
-          {activeSection === 'games' && (
-            <>
-              <AccentBar />
-              <SectionWrapper $compact={compact}>
-                <h2>Featured Games</h2>
-                <GameSlider compact={compact} />
-              </SectionWrapper>
-              
-              <AccentBar />
-              <SectionWrapper $compact={compact}>
-                <h2>Singleplayer Games</h2>
-                <GameSliderWrapper>
-                  {singleplayerGames.map((game) => (
-                    <GameCardWrapper key={game.id} $compact={compact}>
-                      <FeaturedGameCard game={game} />
-                    </GameCardWrapper>
-                  ))}
-                </GameSliderWrapper>
-              </SectionWrapper>
-              <AccentBar />
-              <SectionWrapper $compact={compact}>
-                <h2>Multiplayer Games</h2>
-                <GameSliderWrapper>
-                  {multiplayerGames.map((game) => (
-                    <GameCardWrapper key={game.id} $compact={compact}>
-                      <FeaturedGameCard game={game} />
-                    </GameCardWrapper>
-                  ))}
-                </GameSliderWrapper>
-              </SectionWrapper>
-              <AccentBar />
-              <SectionWrapper $compact={compact}>
-                <h2>Coming Soon</h2>
-                <GameSliderWrapper>
-                  {liveNewGames.map((game) => (
-                    <GameCardWrapper key={game.id} $compact={compact}>
-                      <FeaturedGameCard game={game} />
-                    </GameCardWrapper>
-                  ))}
-                </GameSliderWrapper>
-              </SectionWrapper>
-              <AccentBar />
-            </>
-          )}
-
-          {activeSection === 'plays' && DASHBOARD_SHOW_RECENT_PLAYS && (
-            <SectionWrapper $compact={compact}>
-              <RecentPlays showAllPlatforms={false} />
-            </SectionWrapper>
-          )}
-
-          {activeSection === 'referrals' && DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
-            <>
-              <AccentBar />
-              <SectionWrapper $compact={compact}>
+            {activeSection === 'referrals' && DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
+              <UnifiedCard>
+                <AccentBar />
                 <FullReferralLeaderboard />
-              </SectionWrapper>
-              <AccentBar />
-            </>
-          )}
-        </>
-      )}
+              </UnifiedCard>
+            )}
+          </>
+        )}
 
-    </DashboardWrapper>
+      </UnifiedPageContainer>
+    </UnifiedResponsiveContainer>
   );
 }
 

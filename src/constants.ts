@@ -393,14 +393,6 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
     href: '/explorer',
     title: 'Explorer',
   },
-  {
-    href: 'https://github.com/degenwithheart',
-    title: 'GitHub',
-  },
-  {
-    href: 'https://x.com/DegenWithHeart',
-    title: 'X',
-  },
 ]
 
 export const ENABLE_LEADERBOARD = true 
@@ -421,10 +413,10 @@ export const ENABLE_THEME_SELECTOR = true
 export const ENABLE_COLOR_SCHEME_SELECTOR = true
 
 /** Default layout theme to load on first visit */
-export const DEFAULT_LAYOUT_THEME = 'default' // 'default' | 'holy-grail'
+export const DEFAULT_LAYOUT_THEME = 'degenheart' // 'default' | 'degenheart'
 
 /** Default color scheme to load on first visit */
-export const DEFAULT_COLOR_SCHEME = 'default' // 'default' | 'romanticDegen' | 'cyberpunk' | etc.
+export const DEFAULT_COLOR_SCHEME = 'romanticDegen' // 'default' | 'romanticDegen' | 'cyberpunk' | etc.
 
 /** Show theme selector in header (if false, only in settings modal) */
 export const SHOW_THEME_BUTTON_IN_HEADER = true

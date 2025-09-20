@@ -1,16 +1,22 @@
 import { LayoutTheme } from '../index'
 import { Header } from './index'
 import { Footer } from './index'
+import { Game } from './index'
 
-export const holyGrailTheme: LayoutTheme = {
-  id: 'holy-grail',
-  name: 'Holy Grail Layout',
-  description: 'A mystical casino experience with the legendary Holy Grail CSS Grid layout featuring fixed header, footer, and elegant three-column design',
+export const degenHeartTheme: LayoutTheme = {
+  id: 'degenheart',
+  name: 'DegenHeart New',
+  description: '3-Column layout',
   
   // The main layout wrapper component
   components: {
     Header,
     Footer,
+  },
+  
+  // Sections with themed overrides
+  sections: {
+    Game,
   },
   
   config: {

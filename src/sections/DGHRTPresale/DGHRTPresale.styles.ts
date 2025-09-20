@@ -1,142 +1,46 @@
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
-// Heartbeat animation for the presale
-export const heartbeatPulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-`;
-
-export const presaleGlow = keyframes`
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(212, 165, 116, 0.3), 0 0 40px rgba(184, 54, 106, 0.2);
-    border-color: rgba(212, 165, 116, 0.4);
-  }
-  50% { 
-    box-shadow: 0 0 40px rgba(212, 165, 116, 0.6), 0 0 80px rgba(184, 54, 106, 0.4);
-    border-color: rgba(212, 165, 116, 0.8);
-  }
-`;
-
-export const floatLogo = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-`;
-
-interface ContainerProps {
-  visible?: boolean;
-  $colorScheme?: any;
-}
-
-export const Container = styled.div<ContainerProps>`
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 3rem;
-  
-  background: ${({ $colorScheme }) => 
-    $colorScheme?.colors?.containerBackground || 
-    `linear-gradient(135deg, 
-      rgba(18, 18, 22, 0.95) 0%, 
-      rgba(30, 20, 35, 0.9) 50%, 
-      rgba(25, 15, 30, 0.95) 100%
-    )`
-  };
-  
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  border-radius: 24px;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(212, 165, 116, 0.1);
-  
-  opacity: ${({ visible }) => (visible ? 1 : 0)};
-  transform: translateY(${({ visible }) => (visible ? '0' : '20px')});
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: ${presaleGlow} 4s ease-in-out infinite;
-
-  @media (max-width: 768px) {
-    margin: 1rem;
-    padding: 2rem 1.5rem;
-  }
-`;
-
+// Header section for the presale page
 export const Header = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
-  
+  margin-bottom: 2rem;
+
   .logo {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    margin: 0 auto 2rem;
-    display: block;
-    animation: ${floatLogo} 3s ease-in-out infinite;
-    box-shadow: 0 10px 30px rgba(212, 165, 116, 0.3);
-    border: 3px solid rgba(212, 165, 116, 0.4);
-  }
-
-  h1 {
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, #d4a574 0%, #b8366a 50%, #d4a574 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
-    text-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
-    animation: ${heartbeatPulse} 2s ease-in-out infinite;
+    border: 3px solid #ffd700;
+    margin-bottom: 2rem;
   }
 
   .subtitle {
-    color: #ccc;
-    font-style: italic;
-    opacity: 0.9;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
   }
+`
 
-  @media (max-width: 768px) {
-    .logo {
-      width: 100px;
-      height: 100px;
-    }
-    
-    h1 {
-      font-size: 2rem;
-    }
-  }
-`;
-
-export const PresaleCard = styled.div<{ $colorScheme?: any }>`
-  background: ${({ $colorScheme }) => 
-    $colorScheme?.colors?.cardBackground || 
-    'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
-  };
-  
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 20px;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
-`;
-
+// Wallet connection section
 export const WalletSection = styled.div`
   margin-bottom: 2rem;
-  
+
   label {
     display: block;
-    color: #d4a574;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
   }
-`;
+`
 
+// Payment token selection section  
 export const PaymentTokenSection = styled.div`
   margin-bottom: 2rem;
-  
+
   label {
     display: block;
-    color: #d4a574;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
   }
 
   .token-info {
@@ -144,200 +48,128 @@ export const PaymentTokenSection = styled.div`
     align-items: center;
     gap: 0.5rem;
     padding: 1rem;
-    background: rgba(212, 165, 116, 0.1);
-    border-radius: 12px;
-    margin-top: 0.5rem;
-    
+    background: var(--slate-1);
+    border: 1px solid var(--slate-6);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+
     img {
       width: 24px;
       height: 24px;
+      border-radius: 50%;
     }
-    
+
     .token-name {
-      color: #fff;
-      font-weight: 500;
+      font-weight: 600;
+      color: var(--text-primary);
     }
   }
 
   .token-note {
-    color: #ccc;
     font-size: 0.9rem;
-    margin-top: 0.5rem;
-    opacity: 0.8;
+    color: var(--text-secondary);
+    font-style: italic;
   }
-`;
+`
 
+// Amount input section
 export const AmountSection = styled.div`
   margin-bottom: 2rem;
-  
+
   label {
     display: block;
-    color: #d4a574;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
   }
 
   .amount-input-container {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--slate-1);
+    border: 1px solid var(--slate-6);
+    border-radius: 8px;
     margin-bottom: 1rem;
-    
+
     input {
       flex: 1;
-      padding: 1rem;
-      border: 1px solid rgba(212, 165, 116, 0.3);
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.3);
-      color: #fff;
-      font-size: 1.1rem;
-      
-      &:focus {
-        outline: none;
-        border-color: rgba(212, 165, 116, 0.6);
-        box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
-      }
-      
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      font-weight: 600;
+      outline: none;
+
       &::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-secondary);
       }
     }
-    
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+
     .token-symbol {
-      color: #d4a574;
       font-weight: 600;
-      min-width: 60px;
+      color: var(--text-primary);
     }
   }
 
   .quick-amounts {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1rem;
     flex-wrap: wrap;
   }
-`;
+`
 
+// Quick amount buttons
 export const QuickAmountButton = styled.button`
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 8px;
-  background: rgba(212, 165, 116, 0.1);
-  color: #d4a574;
-  font-weight: 500;
+  border: 1px solid var(--slate-6);
+  border-radius: 6px;
+  background: var(--slate-1);
+  color: var(--text-primary);
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: rgba(212, 165, 116, 0.6);
-    background: rgba(212, 165, 116, 0.2);
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-`;
+  transition: all 0.2s ease;
 
+  &:hover {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+  }
+`
+
+// Receive amount section
 export const ReceiveSection = styled.div`
   margin-bottom: 2rem;
-  
+
   label {
     display: block;
-    color: #d4a574;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
   }
 
   .receive-amount {
-    padding: 1rem;
-    border: 1px solid rgba(212, 165, 116, 0.3);
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    color: #fff;
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 700;
+    color: #ffd700;
     text-align: center;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 1rem;
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
   }
-`;
+`
 
-export const PurchaseButton = styled.button<{ disabled?: boolean }>`
-  width: 100%;
-  padding: 1.5rem;
-  border: none;
-  border-radius: 16px;
-  background: ${({ disabled }) => disabled 
-    ? 'linear-gradient(135deg, rgba(100, 100, 100, 0.5) 0%, rgba(80, 80, 80, 0.5) 100%)'
-    : 'linear-gradient(135deg, #d4a574 0%, #b8366a 50%, #d4a574 100%)'
-  };
-  color: ${({ disabled }) => disabled ? '#999' : '#fff'};
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.3s ease;
-  animation: ${({ disabled }) => disabled ? 'none' : heartbeatPulse} 2s ease-in-out infinite;
-  
-  &:hover {
-    transform: ${({ disabled }) => disabled ? 'none' : 'translateY(-2px)'};
-    box-shadow: ${({ disabled }) => disabled ? 'none' : '0 10px 30px rgba(212, 165, 116, 0.4)'};
-  }
-  
-  &:active {
-    transform: ${({ disabled }) => disabled ? 'none' : 'translateY(0)'};
-  }
-`;
-
-export const PresaleInfo = styled.div<{ $colorScheme?: any }>`
-  background: ${({ $colorScheme }) => 
-    $colorScheme?.colors?.cardBackground || 
-    'linear-gradient(135deg, rgba(30, 20, 35, 0.8) 0%, rgba(25, 15, 30, 0.9) 100%)'
-  };
-  
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  
-  h3 {
-    color: #d4a574;
-    margin-bottom: 1rem;
-    font-size: 1.3rem;
-  }
-  
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(212, 165, 116, 0.1);
-    color: #ccc;
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    .label {
-      font-weight: 500;
-    }
-    
-    .value {
-      color: #fff;
-      font-weight: bold;
-    }
-  }
-`;
-
+// Status message for feedback
 export const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 8px;
   margin-top: 1rem;
-  text-align: center;
   font-weight: 500;
   
   ${({ type }) => {
@@ -355,6 +187,7 @@ export const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
           color: #ef4444;
         `;
       case 'info':
+      default:
         return `
           background: rgba(59, 130, 246, 0.1);
           border: 1px solid rgba(59, 130, 246, 0.3);
@@ -362,17 +195,4 @@ export const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
         `;
     }
   }}
-`;
-
-export const ResponsiveContainer = styled.div`
-  @media (max-width: 768px) {
-    ${QuickAmountButton} {
-      flex: 1;
-      min-width: calc(50% - 0.25rem);
-    }
-    
-    ${AmountSection} .quick-amounts {
-      gap: 0.5rem;
-    }
-  }
-`;
+`

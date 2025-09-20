@@ -10,6 +10,7 @@ import { useUserStore } from '../../hooks/data/useUserStore'
 
 const Container = styled.div`
   width: 100%;
+  max-width: none;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 16px;
