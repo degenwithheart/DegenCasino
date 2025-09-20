@@ -286,7 +286,7 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     image: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
     baseWager: 1e9,
     decimals: 9,
-    usdPrice: 202.89,
+    usdPrice: 232.89,
   },
   {
     mint: new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),

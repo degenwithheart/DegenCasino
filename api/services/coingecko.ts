@@ -36,7 +36,7 @@ async function coingeckoHandler(req: Request): Promise<Response> {
         
         console.warn('CoinGecko API failed, trying CoinMarketCap fallback')
       } catch (error) {
-        console.warn('CoinGecko API error:', error.message)
+        console.warn('CoinGecko API error:', error instanceof Error ? error.message : String(error))
       }
       
       // Fallback to CoinMarketCap
@@ -80,7 +80,7 @@ async function coingeckoHandler(req: Request): Promise<Response> {
         
         console.warn('CoinMarketCap API failed, using cached fallback')
       } catch (error) {
-        console.warn('CoinMarketCap API error:', error.message)
+        console.warn('CoinMarketCap API error:', error instanceof Error ? error.message : String(error))
       }
       
       // If both APIs fail, throw error to use hardcoded fallback
@@ -99,11 +99,11 @@ async function coingeckoHandler(req: Request): Promise<Response> {
     })
     
   } catch (error) {
-    console.error('CoinGecko proxy error:', error)
+    console.error('CoinGecko proxy error:', error instanceof Error ? error.message : String(error))
     
     // Return fallback prices
     const fallbackPrices = {
-      'solana': { usd: 150 },
+      'solana': { usd: 230 },
       'usd-coin': { usd: 1 },
       'jupiter-exchange': { usd: 0.85 },
       'bonk': { usd: 0.000025 }
