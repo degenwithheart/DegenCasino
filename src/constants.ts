@@ -52,7 +52,7 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
 // 2D/3D Toggle Feature Configuration
 export const FEATURE_FLAGS = {
-  TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
+  TOGGLE_2D_3D_MODE: false, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
 } as const
 
