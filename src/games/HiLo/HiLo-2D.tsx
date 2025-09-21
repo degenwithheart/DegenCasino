@@ -539,11 +539,7 @@ export default function HiLo(props: HiLoConfig) {
               />
             </MobileControls>
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={handleStart}
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -574,12 +570,7 @@ export default function HiLo(props: HiLoConfig) {
               playText={progressive ? "Continue" : "Again"}
             />
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={progressive ? play : handleStart}
-              playDisabled={progressive ? !option : false}
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}

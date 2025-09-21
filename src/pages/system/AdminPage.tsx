@@ -522,7 +522,7 @@ const AdminPage: React.FC = () => {
     
     // RPC Endpoint Breakdown (when data exists)
     if (data.rpcEndpoints) {
-      const totalRpc = Object.values(data.rpcEndpoints).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0) as number;
+      const totalRpc = Object.values(data.rpcEndpoints).reduce((sum: number, val: any) => sum + (val || 0), 0);
       if (totalRpc > 0) {
         result += `🔌 RPC ENDPOINT BREAKDOWN:\n`;
         const rpc = data.rpcEndpoints;

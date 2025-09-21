@@ -1,268 +1,53 @@
-import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
-import React, { Suspense } from 'react'
-import styled from 'styled-components'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Text, Sphere, Box } from '@react-three/drei'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
-import GameScreenFrame from '../../components/Game/GameScreenFrame'
+import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { useGamba } from 'gamba-react-v2'
+import React from 'react'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
+import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { MINE_SELECT } from './constants'
 
-const Container3D = styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: linear-gradient(135deg, #0a0511 0%, #1a1a2e 50%, #16213e 100%);
-  border-radius: 12px;
-  overflow: hidden;
-`
+export default function Mines3D() {
+  const game = GambaUi.useGame()
+  const gamba = useGamba()
+  const pool = useCurrentPool()
+  const [wager, setWager] = useWagerInput()
+  const { mobile: isMobile } = useIsCompact()
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
 
-const LoadingFallback = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: white;
-  font-size: 18px;
-  background: linear-gradient(135deg, #0a0511 0%, #1a1a2e 50%, #16213e 100%);
-`
+  // Game state - SAME AS 2D
+  const [mineCount, setMineCount] = React.useState(3)
+  const [started, setStarted] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const [totalGain, setTotalGain] = React.useState(0)
 
-const ComingSoonOverlay = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  padding: 40px;
-  border-radius: 20px;
-  border: 2px solid rgba(244, 67, 54, 0.5);
-  text-align: center;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-`
-
-const ComingSoonTitle = styled.h2`
-  color: #f44336;
-  font-size: 32px;
-  font-weight: bold;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-`
-
-const ComingSoonSubtitle = styled.p`
-  color: #ff8a80;
-  font-size: 16px;
-  margin: 0 0 24px 0;
-  line-height: 1.4;
-`
-
-const ToggleHint = styled.p`
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  margin: 0;
-  font-style: italic;
-`
-
-// 3D Mines Scene with mine field
-const Scene3D: React.FC = () => {
-  return (
-    <>
-      {/* Lighting */}
-      <ambientLight intensity={0.4} />
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#f44336" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff8a80" />
-      <pointLight position={[0, 10, 0]} intensity={0.6} color="#4a90e2" />
-      
-      {/* Camera */}
-      <PerspectiveCamera makeDefault position={[0, 5, 10]} fov={50} />
-      
-      {/* Controls */}
-      <OrbitControls 
-        enablePan={false}
-        enableZoom={true}
-        autoRotate
-        autoRotateSpeed={0.5}
-        maxPolarAngle={Math.PI / 1.5}
-        minPolarAngle={Math.PI / 4}
-        maxDistance={15}
-        minDistance={5}
-      />
-      
-      {/* Mine field grid - 5x5 tiles */}
-      {Array.from({ length: 25 }).map((_, index) => {
-        const row = Math.floor(index / 5)
-        const col = index % 5
-        return (
-          <mesh key={index} position={[col * 1.2 - 2.4, 0, row * 1.2 - 2.4]} rotation={[0, 0, 0]}>
-            <boxGeometry args={[1, 0.1, 1]} />
-            <meshStandardMaterial 
-              color="#424242" 
-              metalness={0.3}
-              roughness={0.4}
-              emissive="#f44336"
-              emissiveIntensity={0.05}
-            />
-          </mesh>
-        )
-      })}
-      
-      {/* Floating mines - scattered around */}
-      {Array.from({ length: 3 }).map((_, index) => (
-        <Sphere
-          key={index}
-          position={[
-            (Math.random() - 0.5) * 8,
-            Math.random() * 2 + 1,
-            (Math.random() - 0.5) * 8
-          ]}
-          args={[0.3, 16, 16]}
-        >
-          <meshStandardMaterial 
-            color="#f44336"
-            emissive="#f44336"
-            emissiveIntensity={0.3}
-            metalness={0.5}
-            roughness={0.2}
-          />
-        </Sphere>
-      ))}
-      
-      {/* Floating "Coming Soon" text */}
-      <Text
-        position={[0, 8, 0]}
-        fontSize={1}
-        color="#f44336"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-      >
-        3D Mines
-      </Text>
-      
-      <Text
-        position={[0, 7, 0]}
-        fontSize={0.6}
-        color="#ff8a80"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-      >
-        Coming Soon
-      </Text>
-      
-      {/* Mystical floating rings */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 2, 0]}>
-        <torusGeometry args={[6, 0.1, 16, 100]} />
-        <meshStandardMaterial 
-          color="#f44336" 
-          emissive="#f44336"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.6}
-        />
-      </mesh>
-      
-      <mesh rotation={[Math.PI / 3, 0, 0]} position={[0, 2, 0]}>
-        <torusGeometry args={[4, 0.05, 16, 100]} />
-        <meshStandardMaterial 
-          color="#ff8a80" 
-          emissive="#ff8a80"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.4}
-        />
-      </mesh>
-    </>
-  )
-}
-
-export default function MinesRenderer3D() {
-  // Mock game logic for 3D mode
-  const gameStats = {
+  // Game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
     gamesPlayed: 0,
     wins: 0,
     losses: 0,
     sessionProfit: 0,
     bestWin: 0
-  }
+  })
 
   const handleResetStats = () => {
-    // Mock function for 3D mode
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
   }
 
-  const [wager, setWager] = React.useState(0.1)
-  const mobile = false
+  // DISABLED functions for 3D mode
+  const startGame = () => {
+    console.log('💣 3D Mines - Coming Soon! This mode is not yet available.')
+  }
 
-  return (
-    <>
-      {/* Stats Portal - positioned above game screen */}
-      <GambaUi.Portal target="stats">
-        <GameStatsHeader
-          gameName="Mines"
-          gameMode="3D (Coming Soon)"
-          rtp="97"
-          stats={gameStats}
-          onReset={handleResetStats}
-          isMobile={mobile}
-        />
-      </GambaUi.Portal>
-
-      <GambaUi.Portal target="screen">
-        <Container3D>
-          <Suspense fallback={<LoadingFallback>Loading 3D Mines Scene...</LoadingFallback>}>
-            <Canvas>
-              <Scene3D />
-            </Canvas>
-          </Suspense>
-          
-          <ComingSoonOverlay>
-            <ComingSoonTitle>💣 3D Mines Coming Soon!</ComingSoonTitle>
-            <ComingSoonSubtitle>
-              Experience Mines like never before with realistic 3D physics,<br />
-              interactive camera controls, immersive lighting effects,<br />
-              and stunning visual mine field in full 3D space.
-            </ComingSoonSubtitle>
-            <ToggleHint>
-              Toggle back to 2D mode to play the current version
-            </ToggleHint>
-          </ComingSoonOverlay>
-        </Container3D>
-      </GambaUi.Portal>
-
-      <GambaUi.Portal target="controls">
-        <MobileControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => {}}
-          playDisabled={true}
-          playText="3D Mode Coming Soon"
-        />
-        
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => {}}
-          playDisabled={true}
-        >
-          <EnhancedWagerInput 
-            value={wager} 
-            onChange={setWager} 
-            disabled={true}
-          />
-          
-          <EnhancedPlayButton 
-            onClick={() => {}} 
-            disabled={true}
-          >
-            3D Mode Coming Soon
-          </EnhancedPlayButton>
-          
-        </DesktopControls>
-      </GambaUi.Portal>
-    </>
-  )
-}
+  const endGame = () => {
     console.log('💣 3D Mines - Coming Soon! This mode is not yet available.')
   }
 

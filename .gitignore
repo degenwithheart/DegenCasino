@@ -15,3 +15,25 @@ scripts/*
 !scripts/compress-build.mjs
 !scripts/generate-changelog.mjs
 !scripts/monitor-rpc.mjs
+
+# Ignore backup and temporary files
+*.bak
+*.old.*
+*.original.*
+*.broken.*
+*.temp
+*.tmp
+
+# Ignore development files
+**/ThemeLayoutWrapper.tsx
+**/game3DConfigs.ts
+**/ComingSoon3D.tsx
+**/AppRoutes.tsx
+**/themeRegistration.ts
+**/themeAutoDiscovery.ts
+**/themeConfig.ts
+
+# Ignore standardization guides and demos
+*_STANDARDIZATION_GUIDE.md
+DEMO_*.tsx
+THEME_CREATION_GUIDE.md

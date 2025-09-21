@@ -1,36 +1,24 @@
 {
   "include": ["src"],
-  "exclude": [
-    "api",
-    "**/*.old.*",
-    "**/*.broken.*", 
-    "**/*.original.*",
-    "**/*.test.*",
-    "**/__tests__/**/*",
-    "node_modules"
-  ],
+  "exclude": ["api"],
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
     },
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
     "types": ["vite/client"],
     "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "downlevelIteration": true,
-    "useDefineForClassFields": true,
-    "noImplicitAny": false,
-    "strictNullChecks": false
+    "jsx": "react-jsx"
   }
 }

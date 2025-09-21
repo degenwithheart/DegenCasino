@@ -1,14 +1,10 @@
 // Central Theme System Exports
 // This file exports the complete theme infrastructure
 
-// Theme Registration (import to auto-register themes)
-import './layouts/degenheart/themeRegistration';
-
 // Layout Theme System
 export * from './layouts';
 export * from './themeResolver';
 export * from './themedComponents';
-export * from './themeConfig';
 
 // Unified Theme Context (Layout + Color Schemes)
 export * from './UnifiedThemeContext';

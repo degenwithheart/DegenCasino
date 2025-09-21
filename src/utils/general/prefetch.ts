@@ -1,5 +1,5 @@
 // src/utils/prefetch.ts
-import { cache, CacheKeys, CacheTTL } from '../cache/cache';
+import { cache, CacheKeys, CacheTTL } from './cache';
 
 export interface PrefetchConfig {
   enabled: boolean;

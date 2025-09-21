@@ -1,278 +1,331 @@
-import { GambaUi, TokenValue } from 'gamba-react-ui-v2'
-import React, { Suspense } from 'react'
-import styled from 'styled-components'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Text, Sphere, Box } from '@react-three/drei'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
-import GameScreenFrame from '../../components/Game/GameScreenFrame'
+import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { useGamba } from 'gamba-react-v2'
+import React from 'react'
+import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
+import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { 
+  CANVAS_WIDTH, CANVAS_HEIGHT, ROMANTIC_COLORS, FLIP_SETTINGS
+} from './constants'
 
-const Container3D = styled.div\`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #6b3e2e 100%);
-  border-radius: 12px;
-  overflow: hidden;
-\`
+// Import local sounds
+import SOUND_COIN_FLIP from './sounds/coin.mp3'
+import SOUND_WIN_FLIP from './sounds/win.mp3'
+import SOUND_LOSE_FLIP from './sounds/lose.mp3'
+import SOUND_PLAY_FLIP from './sounds/play.mp3'
 
-const LoadingFallback = styled.div\`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: white;
-  font-size: 18px;
-  background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #6b3e2e 100%);
-\`
+// Import coin images
+import HEADS_IMAGE from './images/heads.webp'
+import TAILS_IMAGE from './images/tails.webp'
 
-const ComingSoonOverlay = styled.div\`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  padding: 40px;
-  border-radius: 20px;
-  border: 2px solid rgba(218, 165, 32, 0.5);
-  text-align: center;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-\`
+export default function FlipV2_3D() {
+  const game = GambaUi.useGame()
+  const gamba = useGamba()
+  const pool = useCurrentPool()
+  const [initialWager, setInitialWager] = useWagerInput()
+  const { settings } = useGraphics()
+  const { mobile: isMobile } = useIsCompact()
+  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  
+  const sounds = useSound({
+    win: SOUND_WIN_FLIP,
+    lose: SOUND_LOSE_FLIP,
+    coin: SOUND_COIN_FLIP,
+    play: SOUND_PLAY_FLIP,
+  })
 
-const ComingSoonTitle = styled.h2\`
-  color: #daa520;
-  font-size: 32px;
-  font-weight: bold;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-\`
+  // Canvas ref
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const animationRef = React.useRef<number>()
+  
+  // Game state - SAME AS 2D
+  const [side, setSide] = React.useState<'heads' | 'tails'>('heads')
+  const [numCoins, setNumCoins] = React.useState(1) // 1 to FLIP_SETTINGS.MAX_COINS coins
+  const [atLeastK, setAtLeastK] = React.useState(1) // at least K wins
+  const [totalProfit, setTotalProfit] = React.useState(0)
+  const [gameCount, setGameCount] = React.useState(0)
+  const [winCount, setWinCount] = React.useState(0)
+  const [lossCount, setLossCount] = React.useState(0)
+  const [inProgress, setInProgress] = React.useState(false)
+  const [hasPlayed, setHasPlayed] = React.useState(false)
+  const [flipping, setFlipping] = React.useState(false)
+  const [coinResults, setCoinResults] = React.useState<number[]>(Array(FLIP_SETTINGS.MAX_COINS).fill(0))
 
-const ComingSoonSubtitle = styled.p\`
-  color: #f4d03f;
-  font-size: 16px;
-  margin: 0 0 24px 0;
-  line-height: 1.4;
-\`
-
-const ToggleHint = styled.p\`
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  margin: 0;
-  font-style: italic;
-\`
-
-// 3D Flip Scene with spinning coins
-const Scene3D: React.FC = () => {
-  return (
-    <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[10, 10, 10]} intensity={0.8} color="#daa520" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#f4d03f" />
-      <pointLight position={[0, 10, 0]} intensity={0.6} color="#cd853f" />
-      
-      <PerspectiveCamera makeDefault position={[0, 5, 10]} fov={50} />
-      
-      <OrbitControls 
-        enablePan={false}
-        enableZoom={true}
-        autoRotate
-        autoRotateSpeed={1.2}
-        maxPolarAngle={Math.PI / 1.5}
-        minPolarAngle={Math.PI / 4}
-        maxDistance={15}
-        minDistance={5}
-      />
-      
-      {Array.from({ length: 6 }).map((_, index) => (
-        <mesh 
-          key={\`coin-\${index}\`} 
-          position={[
-            Math.cos(index * Math.PI / 3) * 3, 
-            Math.sin(index * 0.5) * 2 + 1, 
-            Math.sin(index * Math.PI / 3) * 3
-          ]} 
-          rotation={[index * 0.5, index * 0.3, 0]}
-        >
-          <cylinderGeometry args={[1, 1, 0.2, 32]} />
-          <meshStandardMaterial 
-            color="#daa520" 
-            metalness={0.8}
-            roughness={0.2}
-            emissive="#daa520"
-            emissiveIntensity={0.3}
-          />
-        </mesh>
-      ))}
-      
-      <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-        <cylinderGeometry args={[1.5, 1.5, 0.3, 32]} />
-        <meshStandardMaterial 
-          color="#f4d03f" 
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#f4d03f"
-          emissiveIntensity={0.4}
-        />
-      </mesh>
-      
-      <mesh position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial 
-          color="#2c1810" 
-          metalness={0.1}
-          roughness={0.9}
-          emissive="#2c1810"
-          emissiveIntensity={0.1}
-        />
-      </mesh>
-      
-      <Text
-        position={[0, 7, 0]}
-        fontSize={1.2}
-        color="#daa520"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-      >
-        3D Coin Flip
-      </Text>
-      
-      <Text
-        position={[0, 5.8, 0]}
-        fontSize={0.6}
-        color="#f4d03f"
-        anchorX="center"
-        anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-      >
-        Coming Soon
-      </Text>
-      
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3, 0]}>
-        <torusGeometry args={[5, 0.1, 16, 100]} />
-        <meshStandardMaterial 
-          color="#daa520" 
-          emissive="#daa520"
-          emissiveIntensity={0.4}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-      
-      <mesh rotation={[Math.PI / 3, 0, 0]} position={[0, 3, 0]}>
-        <torusGeometry args={[3.5, 0.08, 16, 100]} />
-        <meshStandardMaterial 
-          color="#f4d03f" 
-          emissive="#f4d03f"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.5}
-        />
-      </mesh>
-      
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Sphere 
-          key={\`light-\${index}\`}
-          position={[
-            Math.cos(index * Math.PI / 2) * 8, 
-            4, 
-            Math.sin(index * Math.PI / 2) * 8
-          ]} 
-          args={[0.2, 16, 16]}
-        >
-          <meshStandardMaterial 
-            color="#daa520"
-            emissive="#daa520"
-            emissiveIntensity={0.8}
-          />
-        </Sphere>
-      ))}
-    </>
-  )
-}
-
-export default function FlipRenderer3D() {
-  const gameStats = {
+  // Comprehensive game statistics tracking
+  const [gameStats, setGameStats] = React.useState({
     gamesPlayed: 0,
     wins: 0,
     losses: 0,
     sessionProfit: 0,
     bestWin: 0
-  }
+  })
 
   const handleResetStats = () => {
-    // Mock function for 3D mode
+    setGameStats({
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      sessionProfit: 0,
+      bestWin: 0
+    })
   }
 
-  const [wager, setWager] = React.useState(0.1)
-  const mobile = false
+  // DISABLED play function for 3D mode
+  const play = () => {
+    console.log('🪙 3D Flip - Coming Soon! This mode is not yet available.')
+  }
+
+  // Helper functions (same as 2D)
+  const isValid = !flipping && !!pool
+  const totalWager = initialWager * numCoins
+  const poolExceeded = totalWager > (pool?.maxPayout || 0)
+  
+  // Calculate multiplier based on current settings
+  const getMultiplier = () => {
+    try {
+      const config = BET_ARRAYS_V2['flip-v2']
+      const betArray = config.calculateBetArray(numCoins, atLeastK, side)
+      return Math.max(...betArray)
+    } catch {
+      return 2.0
+    }
+  }
+
+  const maxMultiplier = getMultiplier()
+
+  const getPlayAction = () => play
+  const getPlayText = () => "Coming Soon"
+
+  // Make sure atLeastK doesn't exceed numCoins
+  React.useEffect(() => {
+    if (atLeastK > numCoins) {
+      setAtLeastK(numCoins)
+    }
+  }, [numCoins, atLeastK])
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
-          gameName="Coin Flip"
-          gameMode="3D (Coming Soon)"
-          rtp="98"
+          gameName="Flip"
+          gameMode="3D Mode (Coming Soon)"
+          rtp="95"
           stats={gameStats}
           onReset={handleResetStats}
-          isMobile={mobile}
+          isMobile={isMobile}
         />
       </GambaUi.Portal>
 
       <GambaUi.Portal target="screen">
-        <Container3D>
-          <Suspense fallback={<LoadingFallback>Loading 3D Coin Flip Scene...</LoadingFallback>}>
-            <Canvas>
-              <Scene3D />
-            </Canvas>
-          </Suspense>
-          
-          <ComingSoonOverlay>
-            <ComingSoonTitle>🪙 3D Coin Flip Coming Soon!</ComingSoonTitle>
-            <ComingSoonSubtitle>
-              Experience coin flipping like never before with realistic 3D physics,<br />
-              spinning coin animations, dynamic lighting effects,<br />
-              and immersive sound design in full 3D space.
-            </ComingSoonSubtitle>
-            <ToggleHint>
-              Toggle back to 2D mode to play the current version
-            </ToggleHint>
-          </ComingSoonOverlay>
-        </Container3D>
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          background: `linear-gradient(135deg, ${ROMANTIC_COLORS.purple} 0%, ${ROMANTIC_COLORS.background} 100%)`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          overflow: 'hidden'
+        }}>
+          {/* 3D Mode Coming Soon Overlay */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            backdropFilter: 'blur(5px)',
+          }}>
+            <div style={{
+              color: 'white',
+              fontSize: '2rem',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              padding: '2rem',
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '1rem',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+            }}>
+              🪙 3D Mode<br />
+              <span style={{ fontSize: '1.2rem', opacity: 0.8 }}>Coming Soon!</span>
+            </div>
+          </div>
+
+          {/* Game Controls - SIMPLIFIED */}
+          <div style={{ zIndex: 3, display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '400px' }}>
+            {/* Side selection */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <EnhancedButton 
+                onClick={() => setSide('heads')}
+                variant={side === 'heads' ? 'primary' : 'secondary'}
+                disabled={true}
+              >
+                <img src={HEADS_IMAGE} alt="Heads" style={{ width: '24px', height: '24px', marginRight: '8px' }} />
+                Heads
+              </EnhancedButton>
+              <EnhancedButton 
+                onClick={() => setSide('tails')}
+                variant={side === 'tails' ? 'primary' : 'secondary'}
+                disabled={true}
+              >
+                <img src={TAILS_IMAGE} alt="Tails" style={{ width: '24px', height: '24px', marginRight: '8px' }} />
+                Tails
+              </EnhancedButton>
+            </div>
+
+            {/* Number of coins */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                Number of Coins:
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <EnhancedButton
+                  onClick={() => setNumCoins(Math.max(1, numCoins - 1))}
+                  disabled={true}
+                >
+                  -
+                </EnhancedButton>
+                <span style={{ 
+                  color: 'white', 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  minWidth: '24px',
+                  textAlign: 'center'
+                }}>
+                  {numCoins}
+                </span>
+                <EnhancedButton
+                  onClick={() => setNumCoins(Math.min(FLIP_SETTINGS.MAX_COINS, numCoins + 1))}
+                  disabled={true}
+                >
+                  +
+                </EnhancedButton>
+              </div>
+            </div>
+
+            {/* At least K wins */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                At Least Wins:
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <EnhancedButton
+                  onClick={() => setAtLeastK(Math.max(1, atLeastK - 1))}
+                  disabled={true}
+                >
+                  -
+                </EnhancedButton>
+                <span style={{ 
+                  color: 'white', 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  minWidth: '24px',
+                  textAlign: 'center'
+                }}>
+                  {atLeastK}
+                </span>
+                <EnhancedButton
+                  onClick={() => setAtLeastK(Math.min(numCoins, atLeastK + 1))}
+                  disabled={true}
+                >
+                  +
+                </EnhancedButton>
+              </div>
+            </div>
+
+            {/* Multiplier display */}
+            <div style={{
+              padding: '12px',
+              background: 'rgba(76, 175, 80, 0.1)',
+              borderRadius: '8px',
+              border: '2px solid rgba(76, 175, 80, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#4caf50',
+                marginBottom: '4px'
+              }}>
+                MULTIPLIER
+              </div>
+              <div style={{
+                fontSize: '18px',
+                color: 'rgba(76, 175, 80, 0.9)',
+                fontWeight: '600'
+              }}>
+                {`${getMultiplier().toFixed(2)}x`}
+              </div>
+            </div>
+          </div>
+
+          <GameplayFrame
+            ref={effectsRef}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: 'none',
+              zIndex: 1000
+            }}
+          />
+        </div>
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">
+        {/* EXACT SAME CONTROLS AS 2D BUT DISABLED */}
         <MobileControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => {}}
+          wager={initialWager}
+          setWager={setInitialWager}
+          onPlay={getPlayAction()}
           playDisabled={true}
-          playText="3D Mode Coming Soon"
+          playText={getPlayText()}
         />
         
         <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => {}}
+          wager={initialWager}
+          setWager={setInitialWager}
+          onPlay={getPlayAction()}
           playDisabled={true}
+          playText={getPlayText()}
         >
-          <EnhancedWagerInput 
-            value={wager} 
-            onChange={setWager} 
-            disabled={true}
-          />
-          
-          <EnhancedPlayButton 
-            onClick={() => {}} 
-            disabled={true}
-          >
-            3D Mode Coming Soon
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+          <EnhancedPlayButton disabled={true} onClick={getPlayAction()}>
+            {getPlayText()}
           </EnhancedPlayButton>
-          
         </DesktopControls>
       </GambaUi.Portal>
     </>
