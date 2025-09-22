@@ -251,6 +251,46 @@ interface ChangelogEntry {
 
 const changelogData: ChangelogEntry[] = [
   {
+    version: "v3.5.0",
+    date: "2025-09-22",
+    description: "Major theme system overhaul with advanced theme awareness functions and comprehensive 3D game infrastructure foundation. Implemented next-generation theming capabilities with dynamic color scheme management, sophisticated visual effects, and preparation for immersive 3D gaming experiences."
+  },
+  {
+    version: "v3.4.9",
+    date: "2025-09-21",
+    description: "Enhanced theme system with improved color scheme consistency, refined visual elements, and comprehensive theme configuration updates. Cleaned up development files and updated repository structure for better project organization and security."
+  },
+  {
+    version: "v3.4.8",
+    date: "2025-09-20",
+    description: "Comprehensive theme settings expansion with multiple theme configuration updates, enhanced color palette management, and improved visual consistency across all platform components."
+  },
+  {
+    version: "v3.4.7",
+    date: "2025-09-19",
+    description: "Advanced theme customization features with expanded theme settings, improved color scheme options, and enhanced visual personalization capabilities for users."
+  },
+  {
+    version: "v3.4.6",
+    date: "2025-09-18",
+    description: "Continued theme system enhancements with additional theme configuration options, improved visual design elements, and refined user interface styling."
+  },
+  {
+    version: "v3.4.5",
+    date: "2025-09-16",
+    description: "System themes modernization with updated visual design language, improved color schemes, and enhanced theme consistency across the platform."
+  },
+  {
+    version: "v3.4.4",
+    date: "2025-09-15",
+    description: "Enhanced accessibility settings integration across all game pages with improved user interface options, better navigation support, and comprehensive accessibility features for inclusive gaming experience."
+  },
+  {
+    version: "v3.4.3",
+    date: "2025-09-15",
+    description: "Advanced game auditing system improvements with enhanced fairness verification, comprehensive audit reporting, and optimized repository structure through selective script management and security enhancements."
+  },
+  {
     version: "v3.4.2",
     date: "2025-09-15",
     description: "Enhanced game auditing system with comprehensive fairness verification tools and improved audit reporting functionality. Streamlined repository management by removing unnecessary scripts and optimizing build processes for better performance and security."
