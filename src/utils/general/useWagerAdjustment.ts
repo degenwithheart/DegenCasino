@@ -3,6 +3,7 @@ import { useCurrentPool, useCurrentToken, useTokenMeta } from 'gamba-react-ui-v2
 import { BET_ARRAYS } from '../../games/rtpConfig'
 import { BET_ARRAYS_V2 } from '../../games/rtpConfig-v2'
 import { getMinimumWager, getMaximumWager } from './wagerUtils'
+import { FEATURE_FLAGS } from '../../constants'
 
 /**
  * Game configuration mapping for dynamic multiplier calculation
@@ -190,6 +191,9 @@ export const useWagerAdjustment = (
   // Automatic wager adjustment effect
   useEffect(() => {
     if (!pool || !token || !meta) return
+    
+    // Only apply automatic adjustment if the feature flag is enabled
+    if (!FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) return
 
     let adjustedWager = wager
 
@@ -246,6 +250,9 @@ export const useWagerAdjustmentForControls = (
   // Automatic adjustment effect
   useEffect(() => {
     if (!pool || !token || !meta) return
+    
+    // Only apply automatic adjustment if the feature flag is enabled
+    if (!FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) return
 
     let adjustedWager = wager
 

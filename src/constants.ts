@@ -54,6 +54,7 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 export const FEATURE_FLAGS = {
   TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
+  ENABLE_WAGER_AUTO_ADJUSTMENT: false, // Auto-adjust wager input to min/max limits when user types out of bounds
 } as const
 
 export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users

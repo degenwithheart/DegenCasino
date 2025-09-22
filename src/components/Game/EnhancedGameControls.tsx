@@ -16,6 +16,7 @@ import {
 } from '../../sections/Game/Game.styles';
 import { useWagerLimits, validateWager, roundToHumanFriendly } from '../../utils/general/wagerUtils';
 import { useWagerAdjustmentForControls } from '../../utils/general/useWagerAdjustment';
+import { FEATURE_FLAGS } from '../../constants';
 
 // Wrapper for GambaUi.WagerInput with romantic styling
 const StyledWagerInputWrapper = styled.div`
@@ -295,20 +296,27 @@ export const EnhancedWagerInput: React.FC<{
           // Only allow if in range
           if (isWagerInRange(wagerAmount)) {
             onChange(wagerAmount);
-          } else if (wagerAmount < effectiveMinWager) {
-            // Clamp and format with human-friendly display
-            const minDisplayValue = toDisplayValue(effectiveMinWager);
-            setInputValue(minDisplayValue.toString());
-            onChange(effectiveMinWager);
-          } else if (wagerAmount > effectiveMaxWager) {
-            // Clamp and format with human-friendly display
-            const maxDisplayValue = toDisplayValue(effectiveMaxWager);
-            setInputValue(maxDisplayValue.toString());
-            onChange(effectiveMaxWager);
+          } else if (FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
+            // AUTO-ADJUSTMENT ENABLED: Clamp to min/max limits
+            if (wagerAmount < effectiveMinWager) {
+              // Auto-adjust to minimum
+              const minDisplayValue = toDisplayValue(effectiveMinWager);
+              setInputValue(minDisplayValue.toString());
+              onChange(effectiveMinWager);
+            } else if (wagerAmount > effectiveMaxWager) {
+              // Auto-adjust to maximum
+              const maxDisplayValue = toDisplayValue(effectiveMaxWager);
+              setInputValue(maxDisplayValue.toString());
+              onChange(effectiveMaxWager);
+            }
+          } else {
+            // AUTO-ADJUSTMENT DISABLED: Allow out-of-bounds values but don't call onChange
+            // The input will show the typed value but won't update the parent component
+            // This allows for validation feedback without auto-correction
           }
         }
-      } else if (v === '') {
-        // empty means zero, but enforce minimum wager
+      } else if (v === '' && FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
+        // empty means zero, but enforce minimum wager (only if auto-adjustment enabled)
         const minDisplayValue = toDisplayValue(effectiveMinWager);
         setInputValue(minDisplayValue.toString());
         onChange(effectiveMinWager);
@@ -319,23 +327,44 @@ export const EnhancedWagerInput: React.FC<{
   const handleFocus = () => { focusedRef.current = true; };
   const handleBlur = () => {
     focusedRef.current = false;
-    // normalize incomplete entries like '.' -> '0'
-    if (inputValue === '.' || inputValue === '') {
-      const minDisplayValue = toDisplayValue(effectiveMinWager);
-      setInputValue(minDisplayValue.toString());
-      onChange(effectiveMinWager);
+    
+    if (FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
+      // AUTO-ADJUSTMENT ENABLED: Normalize and clamp values on blur
+      if (inputValue === '.' || inputValue === '') {
+        const minDisplayValue = toDisplayValue(effectiveMinWager);
+        setInputValue(minDisplayValue.toString());
+        onChange(effectiveMinWager);
+      } else {
+        // ensure the displayed value matches the parsed numeric value formatting
+        const numericValue = parseFloat(inputValue);
+        if (!isNaN(numericValue)) {
+          const wagerAmount = numericValue * token.baseWager;
+          // Clamp the wager amount within min/max limits
+          let clampedWager = wagerAmount;
+          if (wagerAmount < effectiveMinWager) clampedWager = effectiveMinWager;
+          if (wagerAmount > effectiveMaxWager) clampedWager = effectiveMaxWager;
+          const clampedDisplayValue = toDisplayValue(clampedWager);
+          setInputValue(clampedDisplayValue.toString());
+          onChange(clampedWager);
+        }
+      }
     } else {
-      // ensure the displayed value matches the parsed numeric value formatting
-      const numericValue = parseFloat(inputValue);
-      if (!isNaN(numericValue)) {
-        const wagerAmount = numericValue * token.baseWager;
-        // Clamp the wager amount within min/max limits
-        let clampedWager = wagerAmount;
-        if (wagerAmount < effectiveMinWager) clampedWager = effectiveMinWager;
-        if (wagerAmount > effectiveMaxWager) clampedWager = effectiveMaxWager;
-        const clampedDisplayValue = toDisplayValue(clampedWager);
-        setInputValue(clampedDisplayValue.toString());
-        onChange(clampedWager);
+      // AUTO-ADJUSTMENT DISABLED: Only normalize formatting, don't clamp values
+      if (inputValue === '.' || inputValue === '') {
+        setInputValue('0');
+        // Don't call onChange for invalid values when auto-adjustment is disabled
+      } else {
+        const numericValue = parseFloat(inputValue);
+        if (!isNaN(numericValue)) {
+          const wagerAmount = numericValue * token.baseWager;
+          // Only update if the value is within valid range
+          if (isWagerInRange(wagerAmount)) {
+            const displayValue = toDisplayValue(wagerAmount);
+            setInputValue(displayValue.toString());
+            onChange(wagerAmount);
+          }
+          // If out of range and auto-adjustment disabled, keep the input as-is for validation feedback
+        }
       }
     }
   };
