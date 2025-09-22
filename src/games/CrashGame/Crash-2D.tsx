@@ -3,6 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
@@ -60,24 +61,8 @@ export default function CrashGame() {
   // Mobile detection for responsive stats display
   const { mobile: isMobile } = useIsCompact()
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('crash')
   
   // Effects system for enhanced visual feedback
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
@@ -175,16 +160,7 @@ export default function CrashGame() {
     console.log('win', win)
 
     // Update game statistics
-    const profit = result.payout - wager
-    const isWin = result.payout > 0
-    
-    setGameStats(prev => ({
-      gamesPlayed: prev.gamesPlayed + 1,
-      wins: isWin ? prev.wins + 1 : prev.wins,
-      losses: isWin ? prev.losses : prev.losses + 1,
-      sessionProfit: prev.sessionProfit + profit,
-      bestWin: profit > prev.bestWin ? profit : prev.bestWin
-    }))
+    gameStats.updateStats(result.payout)
 
     sound.play('music')
     doTheIntervalThing(0, multiplierResult, win)
@@ -198,8 +174,8 @@ export default function CrashGame() {
           gameName="Crash"
           gameMode="Rocket"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

@@ -7,7 +7,7 @@ import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
 import { FaTrophy, FaFire, FaCrown, FaGamepad, FaCoins, FaUsers, FaChartLine, FaShieldAlt, FaChartBar, FaDice, FaStar } from 'react-icons/fa'
 import { ALL_GAMES } from '../../../games/allGames'
 import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData'
-import { useGameStats } from '../../../hooks/game/useGameStats'
+import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats'
 import { RTP_TARGETS } from '../../../games/rtpConfig'
 import { RTP_TARGETS_V2 } from '../../../games/rtpConfig-v2'
 
@@ -229,8 +229,9 @@ export const RightSidebar: React.FC = () => {
   const pool = useCurrentPool()
   const { data: leaderboardData, loading: leaderboardLoading } = useLeaderboardData('weekly', '')
   
-  // Initialize game stats hook for game routes
-  const gameStats = useGameStats()
+  // Initialize stats hooks
+  const globalStats = useGlobalGameStats() // For user profile sidebar
+  const gameStats = useGameStats() // For individual game routes (will be overridden below)
 
   // Hot games data
   const hotGames = useMemo(() => [
@@ -277,8 +278,41 @@ export const RightSidebar: React.FC = () => {
             <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
               {connected ? (
                 <>
-                  <div style={{ marginBottom: '0.5rem' }}>Games Played: <strong>Loading...</strong></div>
-                  <div style={{ marginBottom: '0.5rem' }}>Total Winnings: <strong>Loading...</strong></div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    Games Played: <strong style={{ color: currentColorScheme.colors.accent }}>
+                      {globalStats.stats.gamesPlayed}
+                    </strong>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    Win Rate: <strong style={{ 
+                      color: globalStats.winRate > 60 ? '#00ff41' : globalStats.winRate < 30 ? '#dc143c' : currentColorScheme.colors.accent 
+                    }}>
+                      {globalStats.winRate.toFixed(1)}%
+                    </strong>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    Total Wins: <strong style={{ color: '#00ff41' }}>
+                      {globalStats.stats.wins}
+                    </strong>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    Total Losses: <strong style={{ color: '#dc143c' }}>
+                      {globalStats.stats.losses}
+                    </strong>
+                  </div>
+                  {globalStats.stats.gamesPlayed > 0 && (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      fontSize: '0.8rem', 
+                      fontStyle: 'italic', 
+                      marginTop: '1rem',
+                      color: globalStats.isOnFire ? '#00ff41' : globalStats.isRekt ? '#dc143c' : 'inherit'
+                    }}>
+                      {globalStats.isOnFire && '🔥 You\'re on fire across all games!'}
+                      {globalStats.isRekt && '💀 Tough run - maybe take a break?'}
+                      {!globalStats.isOnFire && !globalStats.isRekt && '🎯 Steady gaming across all games!'}
+                    </div>
+                  )}
                 </>
               ) : (
                 <div style={{ opacity: 0.7 }}>Connect wallet to view your statistics</div>
@@ -397,6 +431,9 @@ export const RightSidebar: React.FC = () => {
       const currentGame = ALL_GAMES.find(game => game.id.toLowerCase() === gameId.toLowerCase())
       
       if (currentGame) {
+        // Use game-specific stats for this game
+        const currentGameStats = useGameStats(gameId)
+        
         return (
           <>
             <Section $colorScheme={currentColorScheme}>
@@ -432,7 +469,7 @@ export const RightSidebar: React.FC = () => {
                       color: currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
-                      {gameStats.stats.gamesPlayed}
+                      {currentGameStats.stats.gamesPlayed}
                     </div>
                     <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase' }}>
                       Games
@@ -442,15 +479,15 @@ export const RightSidebar: React.FC = () => {
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ 
                       fontWeight: 'bold', 
-                      color: gameStats.stats.gamesPlayed > 0 
-                        ? (gameStats.stats.wins / gameStats.stats.gamesPlayed) * 100 > 60 
+                      color: currentGameStats.stats.gamesPlayed > 0 
+                        ? (currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100 > 60 
                           ? '#00ff41' 
                           : currentColorScheme.colors.accent
                         : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
-                      {gameStats.stats.gamesPlayed > 0 
-                        ? `${((gameStats.stats.wins / gameStats.stats.gamesPlayed) * 100).toFixed(1)}%`
+                      {currentGameStats.stats.gamesPlayed > 0 
+                        ? `${((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100).toFixed(1)}%`
                         : '0%'
                       }
                     </div>
@@ -462,10 +499,10 @@ export const RightSidebar: React.FC = () => {
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ 
                       fontWeight: 'bold', 
-                      color: gameStats.stats.wins > gameStats.stats.losses ? '#00ff41' : currentColorScheme.colors.accent,
+                      color: currentGameStats.stats.wins > currentGameStats.stats.losses ? '#00ff41' : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
-                      {gameStats.stats.wins}
+                      {currentGameStats.stats.wins}
                     </div>
                     <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase' }}>
                       Wins
@@ -475,10 +512,10 @@ export const RightSidebar: React.FC = () => {
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ 
                       fontWeight: 'bold', 
-                      color: gameStats.stats.losses > gameStats.stats.wins ? '#dc143c' : currentColorScheme.colors.accent,
+                      color: currentGameStats.stats.losses > currentGameStats.stats.wins ? '#dc143c' : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
-                      {gameStats.stats.losses}
+                      {currentGameStats.stats.losses}
                     </div>
                     <div style={{ fontSize: '0.7rem', opacity: 0.8, textTransform: 'uppercase' }}>
                       Losses
@@ -486,26 +523,12 @@ export const RightSidebar: React.FC = () => {
                   </div>
                 </div>
                 
-                <div style={{ marginBottom: '0.5rem' }}>
-                  Session P&L: <strong style={{ 
-                    color: gameStats.stats.sessionProfit >= 0 ? '#00ff41' : '#dc143c' 
-                  }}>
-                    <TokenValue amount={gameStats.stats.sessionProfit} />
-                  </strong>
-                </div>
-                
-                <div style={{ marginBottom: '0.5rem' }}>
-                  Best Win: <strong style={{ color: currentColorScheme.colors.accent }}>
-                    <TokenValue amount={gameStats.stats.bestWin} />
-                  </strong>
-                </div>
-                
-                {gameStats.stats.gamesPlayed > 0 && (
+                {currentGameStats.stats.gamesPlayed > 0 && (
                   <>
                     <div style={{ fontSize: '0.8rem', opacity: 0.7, textAlign: 'center', fontStyle: 'italic', marginBottom: '1rem' }}>
-                      {((gameStats.stats.wins / gameStats.stats.gamesPlayed) * 100) > 60 
+                      {((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100) > 60 
                         ? '🔥 You\'re on fire! Keep it up!'
-                        : ((gameStats.stats.wins / gameStats.stats.gamesPlayed) * 100) < 30 && gameStats.stats.gamesPlayed > 5
+                        : ((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100) < 30 && currentGameStats.stats.gamesPlayed > 5
                         ? '💀 Tough session, maybe take a break?'
                         : '🎯 Steady gaming, good luck!'
                       }
@@ -513,7 +536,7 @@ export const RightSidebar: React.FC = () => {
                     
                     <div style={{ textAlign: 'center' }}>
                       <button
-                        onClick={() => gameStats.resetStats()}
+                        onClick={() => currentGameStats.resetStats()}
                         style={{
                           background: 'rgba(220, 20, 60, 0.15)',
                           border: '1px solid rgba(220, 20, 60, 0.3)',

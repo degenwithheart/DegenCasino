@@ -6,8 +6,6 @@ interface GameStats {
   gamesPlayed: number
   wins: number
   losses: number
-  sessionProfit: number
-  bestWin: number
 }
 
 interface GameStatsHeaderProps {
@@ -184,54 +182,6 @@ export function GameStatsHeader({
             fontWeight: '600'
           }}>LOSSES</div>
         </div>
-
-        {/* SESSION PROFIT - Show on desktop, condensed on mobile */}
-        {!isMobile && (
-          <div style={{ textAlign: 'center', minWidth: '70px', flexShrink: 0 }}>
-            <div style={{ 
-              fontSize: '17px', 
-              fontWeight: '900', 
-              color: stats.sessionProfit >= 0 ? degenColors.neonGreen : degenColors.crimsonRed,
-              textShadow: stats.sessionProfit >= 0 
-                ? `0 0 12px ${degenColors.neonGreen}, 0 0 18px rgba(0, 255, 65, 0.7)`
-                : `0 0 12px ${degenColors.crimsonRed}, 0 0 18px rgba(220, 20, 60, 0.7)`,
-              filter: 'brightness(1.1)'
-            }}>
-              <TokenValue amount={stats.sessionProfit} />
-            </div>
-            <div style={{ 
-              fontSize: '11px', 
-              color: stats.sessionProfit >= 0 ? 'rgba(0, 255, 65, 0.9)' : 'rgba(220, 20, 60, 0.9)',
-              textShadow: stats.sessionProfit >= 0 
-                ? '0 0 6px rgba(0, 255, 65, 0.5)'
-                : '0 0 6px rgba(220, 20, 60, 0.5)',
-              fontWeight: '600'
-            }}>PROFIT</div>
-          </div>
-        )}
-        
-        {/* BEST WIN - Desktop only */}
-        {!isMobile && (
-          <div style={{ textAlign: 'center', minWidth: '70px', flexShrink: 0 }}>
-            <div style={{ 
-              fontSize: '17px', 
-              fontWeight: '900', 
-              color: stats.bestWin > 0 ? degenColors.neonOrange : degenColors.neonBlue,
-              textShadow: stats.bestWin > 0 
-                ? `0 0 15px ${degenColors.neonOrange}, 0 0 25px rgba(255, 64, 0, 0.8)`
-                : `0 0 10px ${degenColors.neonBlue}`,
-              filter: 'brightness(1.1)'
-            }}>
-              <TokenValue amount={stats.bestWin} />
-            </div>
-            <div style={{ 
-              fontSize: '11px', 
-              color: 'rgba(255, 165, 0, 0.9)',
-              textShadow: '0 0 6px rgba(255, 165, 0, 0.5)',
-              fontWeight: '600'
-            }}>BEST HIT</div>
-          </div>
-        )}
       </div>
       
       {/* RESET BUTTON - Desktop only */}

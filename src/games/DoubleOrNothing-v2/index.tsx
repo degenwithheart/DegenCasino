@@ -109,9 +109,7 @@ export default function DoubleOrNothingV2() {
           stats={{
             gamesPlayed: gameCount,
             wins: winCount,
-            losses: lossCount,
-            sessionProfit: totalProfit,
-            bestWin: lastPayout || 0
+            losses: lossCount
           }}
           onReset={() => {
             setGameCount(0)

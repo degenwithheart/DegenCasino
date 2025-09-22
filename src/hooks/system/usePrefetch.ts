@@ -38,7 +38,7 @@ function idle(cb: () => void) {
 function getUserSettings() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useUserStore } = require('../hooks/useUserStore')
+    const { useUserStore } = require('../data/useUserStore')
     return useUserStore.getState()
   } catch { return {} as any }
 }
@@ -100,15 +100,15 @@ export function heuristicPrefetch(pathname: string) {
   if (level === 'off') return
   const rules: Array<[RegExp, Array<[string, PrefetchTask]>]> = [
     [/^\/$/, [
-      ['game-core', () => import('../sections/Game/Game')],
-      ['explorer-index', () => import('../components/Explorer/ExplorerIndex')],
+      ['game-core', () => import('../../sections/Game/Game')],
+      ['explorer-index', () => import('../../components/Explorer/ExplorerIndex')],
     ]],
     [/^\/game\//, [
-      ['explorer-transaction', () => import('../components/Transaction/Transaction')],
+      ['explorer-transaction', () => import('../../components/Transaction/Transaction')],
     ]],
     [/^\/explorer/, [
-      ['platform-view', () => import('../components/Platform/PlatformView')],
-      ['player-view', () => import('../components/Platform/PlayerView')],
+      ['platform-view', () => import('../../components/Platform/PlatformView')],
+      ['player-view', () => import('../../components/Platform/PlayerView')],
     ]],
   ]
   rules.forEach(([re, list]) => { if (re.test(pathname)) {

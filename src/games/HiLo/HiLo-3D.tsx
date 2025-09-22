@@ -3,6 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -30,24 +31,8 @@ export default function HiLo3D() {
   const [handCount, setHandCount] = React.useState(0)
   const [progressive, setProgressive] = React.useState(true) // Toggle between normal and progressive modes
 
-  // Comprehensive game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('hilo')
 
   // DISABLED functions for 3D mode
   const handleStart = () => {
@@ -74,8 +59,8 @@ export default function HiLo3D() {
           gameName="HiLo"
           gameMode="3D Mode (Coming Soon)"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

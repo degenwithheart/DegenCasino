@@ -5,6 +5,7 @@ import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { ItemPreview } from './ItemPreview'
@@ -41,24 +42,8 @@ export default function Slots() {
   // Mobile detection using the hook
   const { mobile: isMobile } = useIsCompact()
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('slots')
   
   // Dynamic values based on screen size
   const slotMode: SlotMode = isMobile ? 'classic' : 'wide'
@@ -224,16 +209,8 @@ export default function Slots() {
 
         // Update game statistics
         if (result) {
-          const profit = result.payout - wager
           const isWin = result.payout > 0
-          
-          setGameStats(prev => ({
-            gamesPlayed: prev.gamesPlayed + 1,
-            wins: isWin ? prev.wins + 1 : prev.wins,
-            losses: isWin ? prev.losses : prev.losses + 1,
-            sessionProfit: prev.sessionProfit + profit,
-            bestWin: profit > prev.bestWin ? profit : prev.bestWin
-          }))
+          gameStats.updateStats(isWin ? result.payout : 0)
         }
       }, FINAL_DELAY)
     }
@@ -311,8 +288,8 @@ export default function Slots() {
           gameName="Slots"
           gameMode="Classic"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

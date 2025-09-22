@@ -495,9 +495,7 @@ export default function LimboGame({}: LimboGameProps) {
           stats={{
             gamesPlayed: 0,
             wins: 0,
-            losses: 0,
-            sessionProfit: 0,
-            bestWin: lastPayout || 0
+            losses: 0
           }}
           onReset={() => {
             setGameState(GAME_STATES.IDLE)

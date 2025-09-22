@@ -6,6 +6,7 @@ import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { MINE_SELECT } from './constants'
 
@@ -23,24 +24,8 @@ export default function Mines3D() {
   const [loading, setLoading] = React.useState(false)
   const [totalGain, setTotalGain] = React.useState(0)
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('mines-v2')
 
   // DISABLED functions for 3D mode
   const startGame = () => {
@@ -64,8 +49,8 @@ export default function Mines3D() {
           gameName="Mines"
           gameMode="3D Mode (Coming Soon)"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

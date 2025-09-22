@@ -6,6 +6,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -70,23 +71,11 @@ export default function FlipV2() {
     }>
   })
 
-  // Comprehensive game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
+  // Game statistics with localStorage persistence
+  const gameStats = useGameStats('flip-v2')
 
   const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
+    // Stats are now reset through gameStats.resetStats in GameStatsHeader
   }
 
   // Quality-based settings
@@ -699,13 +688,7 @@ export default function FlipV2() {
         setWinCount(prev => prev + 1)
         
         // Update comprehensive game statistics for win
-        setGameStats(prev => ({
-          gamesPlayed: prev.gamesPlayed + 1,
-          wins: prev.wins + 1,
-          losses: prev.losses,
-          sessionProfit: prev.sessionProfit + gameResult.winnings,
-          bestWin: Math.max(prev.bestWin, gameResult.winnings)
-        }))
+        gameStats.updateStats(gameResult.winnings)
       } else {
         // LOSE
         if (effectsRef.current) {
@@ -721,13 +704,7 @@ export default function FlipV2() {
         setLossCount(prev => prev + 1)
         
         // Update comprehensive game statistics for loss
-        setGameStats(prev => ({
-          gamesPlayed: prev.gamesPlayed + 1,
-          wins: prev.wins,
-          losses: prev.losses + 1,
-          sessionProfit: prev.sessionProfit + gameResult.winnings,
-          bestWin: Math.max(prev.bestWin, gameResult.winnings)
-        }))
+        gameStats.updateStats(0)
       }
       
       setGameCount(prev => prev + 1)
@@ -776,8 +753,8 @@ export default function FlipV2() {
           gameName="Flip"
           gameMode="V2"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

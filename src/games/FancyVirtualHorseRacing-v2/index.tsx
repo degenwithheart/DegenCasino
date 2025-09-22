@@ -673,9 +673,7 @@ export default function FancyVirtualHorseRacingV2() {
           stats={{
             gamesPlayed: gameCount,
             wins: winCount,
-            losses: lossCount,
-            sessionProfit: totalProfit,
-            bestWin: lastPayout || 0
+            losses: lossCount
           }}
           onReset={() => {
             setGameCount(0)

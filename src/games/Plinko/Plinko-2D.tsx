@@ -8,6 +8,7 @@ import { GameControlsSection } from '../../components/Game/GameControlsSection'
 import { OptionSelector } from '../../components/Mobile/MobileControls'
 import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
@@ -48,29 +49,13 @@ export default function PlinkoRenderer2D() {
   const [debug, setDebug] = React.useState(false)
   const [degen, setDegen] = React.useState(false)
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('plinko')
 
   // Custom configuration state  
   const [customMode, setCustomMode] = React.useState(false)
   const [customRows, setCustomRows] = React.useState(14)
   const [customBuckets, setCustomBuckets] = React.useState(8)
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
 
   // Pool restrictions
   const maxMultiplierForPool = React.useMemo(() => {
@@ -526,13 +511,7 @@ export default function PlinkoRenderer2D() {
     const profit = totalPayout - totalWager
     const isWin = totalPayout > totalWager
     
-    setGameStats(prev => ({
-      gamesPlayed: prev.gamesPlayed + 1,
-      wins: prev.wins + (isWin ? 1 : 0),
-      losses: prev.losses + (isWin ? 0 : 1),
-      sessionProfit: prev.sessionProfit + profit,
-      bestWin: Math.max(prev.bestWin, profit)
-    }))
+    gameStats.updateStats(totalPayout)
   }
 
   return (
@@ -543,8 +522,8 @@ export default function PlinkoRenderer2D() {
           gameName="Plinko"
           gameMode={degen ? "Degen" : "Normal"}
           rtp={degen ? "95" : "98"}
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={mobile}
         />
       </GambaUi.Portal>

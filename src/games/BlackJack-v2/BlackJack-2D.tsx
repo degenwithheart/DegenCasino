@@ -4,6 +4,7 @@ import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
@@ -59,24 +60,8 @@ export default function BlackJackV2() {
   // Load card back image
   const [cardBackImg, setCardBackImg] = React.useState<HTMLImageElement | null>(null)
   
-  // Comprehensive game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('blackjack-v2')
   
   React.useEffect(() => {
     const img = new Image()
@@ -254,13 +239,7 @@ export default function BlackJackV2() {
         
         // Update comprehensive game statistics
         const isWin = won
-        setGameStats(prev => ({
-          gamesPlayed: prev.gamesPlayed + 1,
-          wins: prev.wins + (isWin ? 1 : 0),
-          losses: prev.losses + (isWin ? 0 : 1),
-          sessionProfit: prev.sessionProfit + profit,
-          bestWin: Math.max(prev.bestWin, profit)
-        }))
+        gameStats.updateStats(isWin ? 1 : 0)
         
         if (won) {
           setWinCount(prev => prev + 1)
@@ -598,8 +577,8 @@ export default function BlackJackV2() {
           gameName="BlackJack"
           gameMode="V2"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

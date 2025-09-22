@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useGameMeta } from '../useGameMeta'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { PLINKO_CONFIG } from '../rtpConfig'
 
 // Use centralized bet arrays from rtpConfig
@@ -28,29 +29,13 @@ export function usePlinkoGameLogic() {
   const [debug, setDebug] = useState(false)
   const [degen, setDegen] = useState(false)
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = useState<GameStats>({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('plinko')
 
   // Custom configuration state  
   const [customMode, setCustomMode] = useState(false)
   const [customRows, setCustomRows] = useState(14)
   const [customBuckets, setCustomBuckets] = useState(8)
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
 
   // Pool restrictions
   const maxMultiplierForPool = useMemo(() => {
@@ -309,13 +294,7 @@ export function usePlinkoGameLogic() {
       const profit = totalPayout - totalWager
       const isWin = totalPayout > totalWager
       
-      setGameStats(prev => ({
-        gamesPlayed: prev.gamesPlayed + 1,
-        wins: prev.wins + (isWin ? 1 : 0),
-        losses: prev.losses + (isWin ? 0 : 1),
-        sessionProfit: prev.sessionProfit + profit,
-        bestWin: Math.max(prev.bestWin, profit)
-      }))
+      gameStats.updateStats(profit)
       
     } catch (error) {
       console.error('❌ Play failed:', error)
@@ -339,7 +318,6 @@ export function usePlinkoGameLogic() {
     
     // Statistics
     gameStats,
-    handleResetStats,
     
     // Custom configuration
     customMode,

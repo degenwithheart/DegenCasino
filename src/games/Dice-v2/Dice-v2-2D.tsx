@@ -7,6 +7,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -50,24 +51,8 @@ export default function DiceV2Renderer2D() {
   const [hasPlayed, setHasPlayed] = useState(false)
   const [lastGameResult, setLastGameResult] = useState<'win' | 'lose' | null>(null)
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('dice-v2')
   const [totalProfit, setTotalProfit] = useState(0)
   const [gameCount, setGameCount] = useState(0)
   const [winCount, setWinCount] = useState(0)
@@ -705,15 +690,7 @@ export default function DiceV2Renderer2D() {
 
     // Update comprehensive game statistics
     const profit = result.payout - wager
-    const isWin = result.payout > 0
-    
-    setGameStats(prev => ({
-      gamesPlayed: prev.gamesPlayed + 1,
-      wins: prev.wins + (isWin ? 1 : 0),
-      losses: prev.losses + (isWin ? 0 : 1),
-      sessionProfit: prev.sessionProfit + profit,
-      bestWin: Math.max(prev.bestWin, profit)
-    }))
+    gameStats.updateStats(profit)
 
     // Start lucky number animation with a small delay to ensure state is ready
     // If motion is disabled, skip the delay and show result immediately
@@ -830,8 +807,8 @@ export default function DiceV2Renderer2D() {
           gameName="Dice"
           gameMode="V2"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

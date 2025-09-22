@@ -5,6 +5,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -55,23 +56,11 @@ export default function FlipV2_3D() {
   const [flipping, setFlipping] = React.useState(false)
   const [coinResults, setCoinResults] = React.useState<number[]>(Array(FLIP_SETTINGS.MAX_COINS).fill(0))
 
-  // Comprehensive game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
+  // Game statistics with localStorage persistence
+  const gameStats = useGameStats('flip-v2')
 
   const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
+    // Stats are now reset through gameStats.resetStats in GameStatsHeader
   }
 
   // DISABLED play function for 3D mode
@@ -115,8 +104,8 @@ export default function FlipV2_3D() {
           gameName="Flip"
           gameMode="3D Mode (Coming Soon)"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

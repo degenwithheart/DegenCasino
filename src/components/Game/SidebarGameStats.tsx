@@ -7,8 +7,6 @@ interface GameStats {
   gamesPlayed: number
   wins: number
   losses: number
-  sessionProfit: number
-  bestWin: number
 }
 
 interface SidebarGameStatsProps {
@@ -185,22 +183,6 @@ export function SidebarGameStats({
             {stats.losses}
           </StatValue>
           <StatLabel>LOSSES</StatLabel>
-        </StatItem>
-      </StatsGrid>
-
-      <StatsGrid>
-        <StatItem>
-          <StatValue $color={stats.sessionProfit >= 0 ? degenColors.neonGreen : degenColors.crimsonRed}>
-            <TokenValue amount={stats.sessionProfit} />
-          </StatValue>
-          <StatLabel>SESSION P&L</StatLabel>
-        </StatItem>
-
-        <StatItem>
-          <StatValue $color={degenColors.neonOrange}>
-            <TokenValue amount={stats.bestWin} />
-          </StatValue>
-          <StatLabel>BEST WIN</StatLabel>
         </StatItem>
       </StatsGrid>
 

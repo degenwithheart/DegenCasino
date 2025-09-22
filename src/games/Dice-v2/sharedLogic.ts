@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 
 // Canvas-based lucky number display game configuration
@@ -45,14 +46,8 @@ export const useDiceV2GameLogic = () => {
   const [hasPlayed, setHasPlayed] = useState(false)
   const [lastGameResult, setLastGameResult] = useState<'win' | 'lose' | null>(null)
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('dice-v2')
 
   const [totalProfit, setTotalProfit] = useState(0)
   const [gameCount, setGameCount] = useState(0)
@@ -104,16 +99,6 @@ export const useDiceV2GameLogic = () => {
   // Calculate if pool will be exceeded
   const maxPayout = wager * multiplier
   const poolExceeded = maxPayout > (pool?.maxPayout ?? 0)
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
 
   const updateSliderValue = useCallback((canvasX: number, canvasWidth: number) => {
     // Slider bounds in canvas coordinates
@@ -329,15 +314,7 @@ export const useDiceV2GameLogic = () => {
 
     // Update comprehensive game statistics
     const profit = result.payout - wager
-    const isWin = result.payout > 0
-    
-    setGameStats(prev => ({
-      gamesPlayed: prev.gamesPlayed + 1,
-      wins: prev.wins + (isWin ? 1 : 0),
-      losses: prev.losses + (isWin ? 0 : 1),
-      sessionProfit: prev.sessionProfit + profit,
-      bestWin: Math.max(prev.bestWin, profit)
-    }))
+    gameStats.updateStats(profit)
 
     // Start lucky number animation with a small delay to ensure state is ready
     // If motion is disabled, skip the delay and show result immediately
@@ -431,7 +408,6 @@ export const useDiceV2GameLogic = () => {
     play,
     resetGame,
     resetSession,
-    handleResetStats,
     updateSliderValue,
     createParticleBurst,
     

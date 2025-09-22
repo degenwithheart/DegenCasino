@@ -8,6 +8,7 @@ import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { 
   GRID_SIZE as MINES_GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR,
@@ -35,24 +36,8 @@ export default function MinesV2() {
   })
   const { mobile: isMobile } = useIsCompact()
 
-  // V2 Stats tracking (standardized pattern)
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('mines-v2')
 
   // Game state
   const [wager, setWager] = useWagerInput()
@@ -70,17 +55,6 @@ export default function MinesV2() {
   // Graphics settings
   const { settings } = useGraphics()
   const enableMotion = settings.enableMotion
-
-  // Reset stats
-  const resetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
 
   // Progressive betting levels calculation (like original Mines)
   const levels = React.useMemo(() => {
@@ -196,14 +170,7 @@ export default function MinesV2() {
         sounds.play('mine')
 
         // Update stats for loss
-        const profit = -wager
-        setGameStats(prev => ({
-          ...prev,
-          gamesPlayed: prev.gamesPlayed + 1,
-          losses: prev.losses + 1,
-          sessionProfit: prev.sessionProfit + profit,
-          bestWin: Math.max(prev.bestWin, profit)
-        }))
+        gameStats.updateStats(0)
 
         if (effectsRef.current) {
           effectsRef.current.loseFlash('#ff4444', 2)
@@ -225,14 +192,7 @@ export default function MinesV2() {
           setGamePhase('won')
 
           // Update stats for win
-          const profit = result.payout - wager
-          setGameStats(prev => ({
-            ...prev,
-            gamesPlayed: prev.gamesPlayed + 1,
-            wins: prev.wins + 1,
-            sessionProfit: prev.sessionProfit + profit,
-            bestWin: Math.max(prev.bestWin, profit)
-          }))
+          gameStats.updateStats(result.payout)
 
           if (effectsRef.current) {
             effectsRef.current.winFlash('#4caf50', 3)
@@ -379,8 +339,8 @@ export default function MinesV2() {
           gameName="Mines"
           gameMode="V2"
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

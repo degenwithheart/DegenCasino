@@ -483,9 +483,7 @@ export default function KenoGame({}: KenoGameProps) {
           stats={{
             gamesPlayed: gameCount,
             wins: winCount,
-            losses: lossCount,
-            sessionProfit: totalProfit,
-            bestWin: lastPayout || 0
+            losses: lossCount
           }}
           onReset={() => {
             setGameCount(0)

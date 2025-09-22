@@ -1,2 +1,2 @@
-import Slider from '../Dice/Slider'
+import Slider from '../CrashGame/Slider'
 export default Slider

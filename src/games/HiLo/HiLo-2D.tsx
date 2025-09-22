@@ -4,6 +4,7 @@ import React from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles'
@@ -194,24 +195,8 @@ export default function HiLo(props: HiLoConfig) {
   // Mobile detection for responsive stats display
   const { mobile: isMobile } = useIsCompact()
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('hilo')
   
   // Effects system for enhanced visual feedback
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
@@ -355,16 +340,7 @@ export default function HiLo(props: HiLoConfig) {
       }
 
       // Update game statistics
-      const profit = result.payout - wager
-      const isWin = result.payout > 0
-      
-      setGameStats(prev => ({
-        gamesPlayed: prev.gamesPlayed + 1,
-        wins: isWin ? prev.wins + 1 : prev.wins,
-        losses: isWin ? prev.losses : prev.losses + 1,
-        sessionProfit: prev.sessionProfit + profit,
-        bestWin: profit > prev.bestWin ? profit : prev.bestWin
-      }))
+      gameStats.updateStats(result.payout)
     }, 450)
   }
 
@@ -376,8 +352,8 @@ export default function HiLo(props: HiLoConfig) {
           gameName="HiLo"
           gameMode={progressive ? "Progressive" : "Normal"}
           rtp="95"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>
@@ -539,7 +515,13 @@ export default function HiLo(props: HiLoConfig) {
               />
             </MobileControls>
             
-            <DesktopControls>
+            <DesktopControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={handleStart}
+              playDisabled={!option || initialWager > maxWagerForBet}
+              playText={progressive ? "Start" : "Start"}
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -570,7 +552,13 @@ export default function HiLo(props: HiLoConfig) {
               playText={progressive ? "Continue" : "Again"}
             />
             
-            <DesktopControls>
+            <DesktopControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={progressive ? play : handleStart}
+              playDisabled={progressive ? !option : false}
+              playText={progressive ? "Continue" : "Again"}
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}

@@ -3,6 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
@@ -46,24 +47,8 @@ export default function Crash3D() {
   const maxPayout = wager * multiplierTarget
   const poolExceeded = maxPayout > pool.maxPayout
 
-  // Game statistics tracking
-  const [gameStats, setGameStats] = React.useState({
-    gamesPlayed: 0,
-    wins: 0,
-    losses: 0,
-    sessionProfit: 0,
-    bestWin: 0
-  })
-
-  const handleResetStats = () => {
-    setGameStats({
-      gamesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      sessionProfit: 0,
-      bestWin: 0
-    })
-  }
+  // Game statistics tracking - using centralized hook
+  const gameStats = useGameStats('crash')
 
   // DISABLED play function for 3D mode
   const play = () => {
@@ -78,8 +63,8 @@ export default function Crash3D() {
           gameName="Crash"
           gameMode="3D Mode (Coming Soon)"
           rtp="99"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={isMobile}
         />
       </GambaUi.Portal>

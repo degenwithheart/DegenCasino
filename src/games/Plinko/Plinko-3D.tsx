@@ -206,7 +206,6 @@ export default function PlinkoRenderer3D() {
     setBallCount,
     play,
     resetGame,
-    handleResetStats,
     maxWagerForPool,
     poolExceeded,
     mobile,
@@ -222,8 +221,8 @@ export default function PlinkoRenderer3D() {
           gameName="Plinko"
           gameMode="3D (Coming Soon)"
           rtp="98"
-          stats={gameStats}
-          onReset={handleResetStats}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
           isMobile={mobile}
         />
       </GambaUi.Portal>
