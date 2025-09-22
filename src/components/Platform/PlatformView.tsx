@@ -10,6 +10,14 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import {
+  UnifiedPageContainer,
+  UnifiedPageTitle,
+  UnifiedSection,
+  UnifiedSectionTitle,
+  UnifiedContent,
+  UnifiedGrid
+} from '../UI/UnifiedDesign'
 
 const API_ENDPOINT = 'https://api.gamba.so'
 
@@ -678,38 +686,39 @@ export function PlatformView() {
   })
 
   return (
-    <PlatformContainer $colorScheme={currentColorScheme}>
+    <UnifiedPageContainer $colorScheme={currentColorScheme}>
       <ExplorerHeader />
 
-      {/* Game Status Overview */}
-      <GameStatusContainer $colorScheme={currentColorScheme}>
-        <GameStatusHeader $colorScheme={currentColorScheme}>
-          📊 PLATFORM STATISTICS
-        </GameStatusHeader>
-        <StatusGrid>
-          <StatusCard $colorScheme={currentColorScheme}>
-            <StatusValue $colorScheme={currentColorScheme}>${calculatedVolume.toFixed(2)}</StatusValue>
-            <StatusLabel $colorScheme={currentColorScheme}>VOLUME</StatusLabel>
-          </StatusCard>
-          <StatusCard $colorScheme={currentColorScheme}>
-            <StatusValue $colorScheme={currentColorScheme}>${estimatedFees.toFixed(2)}</StatusValue>
-            <StatusLabel $colorScheme={currentColorScheme}>ESTIMATED FEES</StatusLabel>
-          </StatusCard>
-          <StatusCard $colorScheme={currentColorScheme}>
-            <StatusValue $colorScheme={currentColorScheme}>{recentPlays.length}</StatusValue>
-            <StatusLabel $colorScheme={currentColorScheme}>PLAYS</StatusLabel>
-          </StatusCard>
-          <StatusCard $colorScheme={currentColorScheme}>
-            <StatusValue $colorScheme={currentColorScheme}>{new Set(recentPlays.map(play => play.user)).size}</StatusValue>
-            <StatusLabel $colorScheme={currentColorScheme}>PLAYERS</StatusLabel>
-          </StatusCard>
-        </StatusGrid>
-      </GameStatusContainer>
+      <UnifiedContent $colorScheme={currentColorScheme}>
+        {/* Game Status Overview */}
+        <GameStatusContainer $colorScheme={currentColorScheme}>
+          <GameStatusHeader $colorScheme={currentColorScheme}>
+            📊 PLATFORM STATISTICS
+          </GameStatusHeader>
+          <StatusGrid>
+            <StatusCard $colorScheme={currentColorScheme}>
+              <StatusValue $colorScheme={currentColorScheme}>${calculatedVolume.toFixed(2)}</StatusValue>
+              <StatusLabel $colorScheme={currentColorScheme}>VOLUME</StatusLabel>
+            </StatusCard>
+            <StatusCard $colorScheme={currentColorScheme}>
+              <StatusValue $colorScheme={currentColorScheme}>${estimatedFees.toFixed(2)}</StatusValue>
+              <StatusLabel $colorScheme={currentColorScheme}>ESTIMATED FEES</StatusLabel>
+            </StatusCard>
+            <StatusCard $colorScheme={currentColorScheme}>
+              <StatusValue $colorScheme={currentColorScheme}>{recentPlays.length}</StatusValue>
+              <StatusLabel $colorScheme={currentColorScheme}>PLAYS</StatusLabel>
+            </StatusCard>
+            <StatusCard $colorScheme={currentColorScheme}>
+              <StatusValue $colorScheme={currentColorScheme}>{new Set(recentPlays.map(play => play.user)).size}</StatusValue>
+              <StatusLabel $colorScheme={currentColorScheme}>PLAYERS</StatusLabel>
+            </StatusCard>
+          </StatusGrid>
+        </GameStatusContainer>
 
-      {/* All Plays Section */}
-      <RecentPlaysTable>
-        <Section $colorScheme={currentColorScheme}>
-          <SectionTitle $colorScheme={currentColorScheme}>All Plays</SectionTitle>
+        {/* All Plays Section */}
+        <RecentPlaysTable>
+          <UnifiedSection $colorScheme={currentColorScheme}>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>All Plays</UnifiedSectionTitle>
           <TableHeader $colorScheme={currentColorScheme}>
             <div>Player</div>
             <div>Wager</div>
@@ -734,8 +743,9 @@ export function PlatformView() {
               No games found
             </div>
           )}
-        </Section>
+        </UnifiedSection>
       </RecentPlaysTable>
-    </PlatformContainer>
+      </UnifiedContent>
+    </UnifiedPageContainer>
   )
 }

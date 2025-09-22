@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import TokenSelect from '../../sections/TokenSelect'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 
 const PageWrapper = styled.div<{ $colorScheme?: any }>`
   position: fixed;
@@ -140,11 +141,18 @@ const Subtitle = styled.p<{ $colorScheme?: any }>`
 `;
 
 export default function SelectTokenPage() {
+  // SEO for Select Token page
+  const seoHelmet = usePageSEO(
+    "Select Token", 
+    "Choose your preferred cryptocurrency to play with! Select from SOL, USDC, and other supported tokens"
+  )
+
   const navigate = useNavigate()
   const colorScheme = useColorScheme()
 
   return (
     <PageWrapper $colorScheme={colorScheme}>
+      {seoHelmet}
       <Header $colorScheme={colorScheme}>
         <Title $colorScheme={colorScheme}>🪙 Select Token</Title>
         <BackButton $colorScheme={colorScheme} onClick={() => navigate(-1)} aria-label="Go back">

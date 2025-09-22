@@ -7,6 +7,7 @@ import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFr
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoRaceBackground } from './PlinkoRaceBackground.enhanced.styles'
 import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import type { PublicKey } from '@solana/web3.js'
 
 // Import PlinkoRace specific components
@@ -26,6 +27,14 @@ const PEGS = PLINKO_CONFIG.PEGS
 const BUCKETS = PLINKO_CONFIG.BUCKETS
 
 export default function PlinkoRace() {
+  // SEO for PlinkoRace game
+  const seoHelmet = useGameSEO({
+    gameName: "Plinko Race",
+    description: "Multiplayer Plinko racing! Compete with other players as balls race down through pegs to the finish",
+    rtp: 98,
+    maxWin: "1000x"
+  })
+
   console.log('🎯 PLINKO RACE COMPONENT LOADING...')
   const game = GambaUi.useGame()
   const gamba = useGamba()
@@ -208,6 +217,7 @@ export default function PlinkoRace() {
 
   return (
     <>
+      {seoHelmet}
       <GambaUi.Portal target="screen">
         <StyledPlinkoRaceBackground>
           {/* Velocity vortex background elements */}

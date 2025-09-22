@@ -1,12 +1,21 @@
 import React, { Suspense } from 'react'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GAME_CAPABILITIES } from '../../constants'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 // Lazy load 2D and 3D components
 const Flip2D = React.lazy(() => import('./Flip-2D'))
 const Flip3D = React.lazy(() => import('./Flip-3D'))
 
 export default function FlipWrapper() {
+  // SEO for Flip game
+  const seoHelmet = useGameSEO({
+    gameName: "Coin Flip",
+    description: "Simple coin flip game with 50/50 odds! Choose heads or tails and double your money with this classic gambling game",
+    rtp: 98,
+    maxWin: "2x"
+  })
+
   // Get current render mode for this game
   const renderMode = useUserStore(state => state.getGameRenderMode('flip-v2'))
   
@@ -19,8 +28,11 @@ export default function FlipWrapper() {
   console.log('🎲 Flip Wrapper - Render Mode:', renderMode, 'Supports3D:', gameSupports3D, 'ShouldRender3D:', shouldRender3D)
   
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {shouldRender3D ? <Flip3D /> : <Flip2D />}
-    </Suspense>
+    <>
+      {seoHelmet}
+      <Suspense fallback={<div>Loading...</div>}>
+        {shouldRender3D ? <Flip3D /> : <Flip2D />}
+      </Suspense>
+    </>
   )
 }

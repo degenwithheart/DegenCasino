@@ -7,9 +7,9 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useColorScheme } from "../../../themes/ColorSchemeContext";
 import { QUOTES } from "../../../constants/QuotesVault";
 import { 
-  UnifiedCard,
-  UnifiedSectionHeading 
-} from '../../../components/UI/UnifiedStyles';
+  UnifiedSection,
+  UnifiedPageTitle 
+} from '../../../components/UI/UnifiedDesign';
 import styled, { keyframes } from 'styled-components';
 
 // Animated gradient line keyframes
@@ -93,11 +93,7 @@ export function WelcomeBanner() {
   if (!shouldShow) return null;
 
   return (
-    <UnifiedCard>
-      <UnifiedSectionHeading style={{ textAlign: 'center' }}>
-        🎰 Welcome to the Casino of Chaos 🎰
-      </UnifiedSectionHeading>
-      
+    <UnifiedSection title="🎰 Welcome to the Casino of Chaos 🎰">
       {/* Gradient Line */}
       <AccentBar />
       
@@ -177,6 +173,6 @@ export function WelcomeBanner() {
 
       {/* Bottom Gradient Line */}
       <AccentBar style={{ margin: '1.5rem 0 0.5rem' }} />
-    </UnifiedCard>
+    </UnifiedSection>
   );
 }

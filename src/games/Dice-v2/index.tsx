@@ -1,12 +1,21 @@
 import React from 'react'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GAME_CAPABILITIES } from '../../constants'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 // Lazy load both renderers
 const DiceV2Renderer2D = React.lazy(() => import('./Dice-v2-2D'))
 const DiceV2Renderer3D = React.lazy(() => import('./Dice-v2-3D'))
 
 const DiceV2Game: React.FC = () => {
+  // SEO for Dice game
+  const seoHelmet = useGameSEO({
+    gameName: "Dice",
+    description: "Roll the dice and predict the outcome! Classic dice game with customizable win chances and instant payouts",
+    rtp: 96,
+    maxWin: "100x"
+  })
+
   // Use the reactive selector pattern to ensure re-renders
   const currentMode = useUserStore(state => state.getGameRenderMode('dice-v2'))
   
@@ -32,6 +41,7 @@ const DiceV2Game: React.FC = () => {
 
   return (
     <div key={renderKey}>
+      {seoHelmet}
       <React.Suspense fallback={<div>Loading dice game...</div>}>
         {effectiveMode === '2D' ? <DiceV2Renderer2D /> : <DiceV2Renderer3D />}
       </React.Suspense>

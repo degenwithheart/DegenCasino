@@ -8,6 +8,7 @@ import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { 
   SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_GALLOP, SOUND_FINISH,
   CANVAS_WIDTH, CANVAS_HEIGHT, TRACK_WIDTH, TRACK_HEIGHT, TRACK_PADDING,
@@ -40,6 +41,14 @@ interface Particle {
 }
 
 export default function FancyVirtualHorseRacingV2() {
+  // SEO for Virtual Horse Racing game
+  const seoHelmet = useGameSEO({
+    gameName: "Virtual Horse Racing",
+    description: "Bet on virtual horses and watch them race to the finish! Pick your favorite and experience the thrill of the track",
+    rtp: 97,
+    maxWin: "100x"
+  })
+
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -655,6 +664,7 @@ export default function FancyVirtualHorseRacingV2() {
 
   return (
     <>
+      {seoHelmet}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="Virtual Horse Racing"

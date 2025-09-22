@@ -1,16 +1,16 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 import { 
   UnifiedPageContainer, 
   UnifiedPageTitle, 
-  UnifiedCard, 
-  UnifiedSectionHeading, 
+  UnifiedSection,
+  UnifiedSectionTitle, 
   UnifiedContent,
-  UnifiedResponsiveContainer,
   UnifiedGrid,
-  UnifiedStat,
   UnifiedButton 
-} from '../../components/UI/UnifiedStyles'
+} from '../../components/UI/UnifiedDesign'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
 import {
   StatusHeader,
   ControlPanel,
@@ -178,6 +178,14 @@ const getRealBetArrays = () => {
 }
 
 export default function FairnessAudit() {
+  // SEO for Fairness Audit page
+  const seoHelmet = usePageSEO(
+    "Fairness Audit", 
+    "Verify our provably fair gaming algorithms. Real-time fairness testing and audit results for all casino games"
+  )
+
+  const { currentColorScheme } = useColorScheme()
+  
   const [seed, setSeed] = useState(0)
   const [ltaMode, setLtaMode] = useState(false)
   const [edgeCaseData, setEdgeCaseData] = useState<EdgeCaseResponse | null>(null)
@@ -257,21 +265,23 @@ export default function FairnessAudit() {
   }, [rows])
 
   return (
-    <UnifiedResponsiveContainer>
-      <UnifiedPageContainer visible={true}>
-        <UnifiedPageTitle>Game Fairness Audit</UnifiedPageTitle>
-        <p style={{ 
-          fontSize: '1.2rem', 
-          color: 'var(--text-secondary)', 
+    <>
+      {seoHelmet}
+      <UnifiedPageContainer $colorScheme={currentColorScheme}>
+        <UnifiedPageTitle $colorScheme={currentColorScheme}>Game Fairness Audit</UnifiedPageTitle>
+        
+        <UnifiedContent $colorScheme={currentColorScheme} style={{ 
           textAlign: 'center', 
-          margin: '0 0 2rem 0',
-          fontStyle: 'italic'
+          marginBottom: '2rem',
+          fontSize: '1.1rem',
+          fontStyle: 'italic',
+          opacity: 0.9
         }}>
           Comprehensive real-time validation of Return-to-Player (RTP) rates and edge case scenarios.
           Our transparent testing ensures every game maintains its promised fairness standards.
-        </p>
+        </UnifiedContent>
 
-        <UnifiedCard>
+        <UnifiedSection $colorScheme={currentColorScheme}>
           <StatusHeader status={error ? 'error' : loading ? 'loading' : 'success'}>
             <div className="status-info">
               <span className="status-icon">
@@ -289,7 +299,7 @@ export default function FairnessAudit() {
           <ControlPanel>
             <ControlRow>
               <ControlGroup>
-                <UnifiedButton variant="primary" onClick={refresh}>
+                <UnifiedButton $colorScheme={currentColorScheme} onClick={refresh}>
                   🔄 Refresh Data
                 </UnifiedButton>
                 <CheckboxLabel>
@@ -306,33 +316,93 @@ export default function FairnessAudit() {
               </StatusInfo>
             </ControlRow>
           </ControlPanel>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>Game Status Overview</UnifiedSectionHeading>
-          <UnifiedGrid columns="repeat(auto-fit, minmax(200px, 1fr))">
-            <UnifiedStat>
-              <div className="stat-value">{summaryStats.totalGames}</div>
-              <div className="stat-label">Total Games</div>
-            </UnifiedStat>
-            <UnifiedStat>
-              <div className="stat-value">{summaryStats.liveGames}</div>
-              <div className="stat-label">Live Games</div>
-            </UnifiedStat>
-            <UnifiedStat>
-              <div className="stat-value">{summaryStats.onChainGames}</div>
-              <div className="stat-label">On-Chain Verified</div>
-            </UnifiedStat>
-            <UnifiedStat>
-              <div className="stat-value">{summaryStats.trulyRandomGames}</div>
-              <div className="stat-label">Truly Random</div>
-            </UnifiedStat>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>Game Status Overview</UnifiedSectionTitle>
+          <UnifiedGrid style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem'
+          }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid rgba(255, 215, 0, 0.2)',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '2rem', 
+                fontWeight: 'bold', 
+                color: '#ffd700',
+                marginBottom: '0.5rem'
+              }}>
+                {summaryStats.totalGames}
+              </div>
+              <div style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Total Games</div>
+            </div>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid rgba(255, 215, 0, 0.2)',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '2rem', 
+                fontWeight: 'bold', 
+                color: '#ffd700',
+                marginBottom: '0.5rem'
+              }}>
+                {summaryStats.liveGames}
+              </div>
+              <div style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Live Games</div>
+            </div>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid rgba(255, 215, 0, 0.2)',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '2rem', 
+                fontWeight: 'bold', 
+                color: '#ffd700',
+                marginBottom: '0.5rem'
+              }}>
+                {summaryStats.onChainGames}
+              </div>
+              <div style={{ color: 'rgba(255, 255, 255, 0.8)' }}>On-Chain Verified</div>
+            </div>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid rgba(255, 215, 0, 0.2)',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '2rem', 
+                fontWeight: 'bold', 
+                color: '#ffd700',
+                marginBottom: '0.5rem'
+              }}>
+                {summaryStats.trulyRandomGames}
+              </div>
+              <div style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Truly Random</div>
+            </div>
           </UnifiedGrid>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>RTP Analysis Results</UnifiedSectionHeading>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>RTP Analysis Results</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             {loading ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
                 <LoadingSpinner />
@@ -401,11 +471,11 @@ export default function FairnessAudit() {
               </TableWrapper>
             )}
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>How We Ensure Fair Play</UnifiedSectionHeading>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>How We Ensure Fair Play</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             <MethodologyList>
               <li><strong>Real Game Code:</strong> We test the actual code that runs our games, not fake versions.</li>
               <li><strong>Random Selection:</strong> Every game outcome is randomly selected using fair mathematical principles.</li>
@@ -414,19 +484,18 @@ export default function FairnessAudit() {
               <li><strong>Always Updated:</strong> When we improve games, these fairness reports automatically update too.</li>
             </MethodologyList>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <div style={{ 
+        <UnifiedContent $colorScheme={currentColorScheme} style={{ 
           marginTop: '2rem', 
           textAlign: 'center', 
           fontSize: '0.9rem', 
-          color: 'var(--text-secondary)', 
           opacity: 0.8 
         }}>
           <p>Report generated {new Date().toLocaleString()}. This audit uses our actual game code to ensure accuracy.</p>
           <p><Link to="/" style={{ color: '#ffd700' }}>← Back to Casino</Link></p>
-        </div>
+        </UnifiedContent>
       </UnifiedPageContainer>
-    </UnifiedResponsiveContainer>
+    </>
   )
 }

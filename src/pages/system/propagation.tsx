@@ -12,6 +12,14 @@ function useThrottle(callback: () => void, delay: number) {
 }
 import styled, { keyframes } from 'styled-components'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import {
+  UnifiedPageContainer,
+  UnifiedPageTitle,
+  UnifiedSection,
+  UnifiedSectionTitle,
+  UnifiedContent,
+  UnifiedGrid
+} from '../../components/UI/UnifiedDesign';
 
 type ProviderResult = {
   provider: string;
@@ -33,12 +41,12 @@ type Status = {
 // Casino animations
 const neonPulse = keyframes`
   0% { 
-    box-shadow: 0 0 24px var(--secondary-color, #a259ff88), 0 0 48px var(--primary-color, #ffd70044);
-    border-color: var(--primary-color, #ffd70044);
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.3), 0 0 48px rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.4);
   }
   100% { 
-    box-shadow: 0 0 48px var(--primary-color, #ffd700cc), 0 0 96px var(--secondary-color, #a259ff88);
-    border-color: var(--primary-color, #ffd700aa);
+    box-shadow: 0 0 48px rgba(255, 215, 0, 0.6), 0 0 96px rgba(255, 215, 0, 0.4);
+    border-color: rgba(255, 215, 0, 0.8);
   }
 `;
 
@@ -49,7 +57,42 @@ const sparkle = keyframes`
 
 const moveGradient = keyframes`
   0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const StatusCard = styled.div<{ $isOnline: boolean; $colorScheme?: any }>`
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 2px solid ${props => props.$isOnline ? 'rgba(16, 185, 129, 0.4)' : 'rgba(220, 38, 127, 0.4)'};
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${props => props.$isOnline 
+      ? 'radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)'
+      : 'radial-gradient(circle at 30% 20%, rgba(220, 38, 127, 0.05) 0%, transparent 50%)'
+    };
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: ${props => props.$isOnline ? 'rgba(16, 185, 129, 0.8)' : 'rgba(220, 38, 127, 0.8)'};
+    box-shadow: ${props => props.$isOnline 
+      ? '0 20px 60px rgba(16, 185, 129, 0.2)'
+      : '0 20px 60px rgba(220, 38, 127, 0.2)'
+    };
+  }
 `;
 
 const PageContainer = styled.div<{ $colorScheme?: any }>`
@@ -237,64 +280,6 @@ const CardsGrid = styled.div`
   
   @media (min-width: 1280px) {
     grid-template-columns: repeat(4, 1fr);
-  }
-`
-
-const StatusCard = styled.div<{ $isOnline: boolean; $colorScheme?: any }>`
-  position: relative;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 2px solid;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(20px);
-  cursor: pointer;
-  overflow: hidden;
-  
-  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(24, 24, 24, 0.8)'};
-  
-  border-color: ${({ $isOnline, $colorScheme }) => $isOnline 
-    ? $colorScheme?.colors?.success || 'rgba(16, 185, 129, 0.4)'
-    : $colorScheme?.colors?.error || 'rgba(220, 38, 127, 0.4)'};
-
-  box-shadow: ${({ $isOnline, $colorScheme }) => $isOnline 
-    ? `0 0 24px ${$colorScheme?.colors?.success || 'rgba(16, 185, 129, 0.2)'}`
-    : `0 0 24px ${$colorScheme?.colors?.error || 'rgba(220, 38, 127, 0.2)'}`};
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: ${({ $isOnline, $colorScheme }) => $isOnline 
-      ? `radial-gradient(circle at 50% 50%, ${$colorScheme?.colors?.success || 'rgba(16, 185, 129, 0.1)'} 0%, transparent 70%)`
-      : `radial-gradient(circle at 50% 50%, ${$colorScheme?.colors?.error || 'rgba(220, 38, 127, 0.1)'} 0%, transparent 70%)`};
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: ${({ $isOnline, $colorScheme }) => $isOnline 
-      ? `linear-gradient(90deg, ${$colorScheme?.colors?.success || '#10b981'}, ${$colorScheme?.colors?.primary || '#34d399'}, ${$colorScheme?.colors?.success || '#10b981'})`
-      : `linear-gradient(90deg, ${$colorScheme?.colors?.error || '#dc2626'}, ${$colorScheme?.colors?.secondary || '#f87171'}, ${$colorScheme?.colors?.error || '#dc2626'})`};
-    background-size: 200% 100%;
-    animation: ${moveGradient} 3s linear infinite;
-    z-index: 1;
-  }
-  
-  &:hover {
-    transform: scale(1.05) rotate(1deg);
-    box-shadow: ${({ $isOnline, $colorScheme }) => $isOnline 
-      ? `0 0 48px ${$colorScheme?.colors?.success || 'rgba(16, 185, 129, 0.4)'}`
-      : `0 0 48px ${$colorScheme?.colors?.error || 'rgba(220, 38, 127, 0.4)'}`};
-    border-color: ${({ $isOnline, $colorScheme }) => $isOnline ? ($colorScheme?.colors?.success || '#10b981') : ($colorScheme?.colors?.error || '#dc2626')};
   }
 `
 
@@ -497,7 +482,7 @@ export default function PropagationPage() {
   const [domain, setDomain] = useState('')
   const [statusList, setStatusList] = useState<Status[]>([])
   const [loading, setLoading] = useState(false)
-  const colorScheme = useColorScheme()
+  const { currentColorScheme } = useColorScheme()
 
   // Throttle DNS API call to once per 60 seconds, singular, only when page is mounted
   const THROTTLE_MS = 60000; // 60 seconds
@@ -577,40 +562,65 @@ export default function PropagationPage() {
 
   if (!domain) {
     return (
-      <PageContainer>
-        <ContentWrapper>
-          <div style={{ padding: '1rem', textAlign: 'center', color: '#dc2626' }}>
-            Missing domain query parameter
-          </div>
-        </ContentWrapper>
-      </PageContainer>
+      <UnifiedPageContainer $colorScheme={currentColorScheme}>
+        <UnifiedContent $colorScheme={currentColorScheme} style={{ 
+          padding: '1rem', 
+          textAlign: 'center', 
+          color: '#dc2626' 
+        }}>
+          Missing domain query parameter
+        </UnifiedContent>
+      </UnifiedPageContainer>
     )
   }
 
   return (
-    <PageContainer $colorScheme={colorScheme}>
-      <ContentWrapper $colorScheme={colorScheme}>
-        <HeaderSection>
-          <MainTitle $colorScheme={colorScheme}>
-            🌍 Server Status
-          </MainTitle>
-        </HeaderSection>
+    <UnifiedPageContainer $colorScheme={currentColorScheme}>
+      <UnifiedPageTitle $colorScheme={currentColorScheme} style={{
+        fontFamily: 'Luckiest Guy, cursive, sans-serif',
+        letterSpacing: '2px'
+      }}>
+        🌍 Server Status
+      </UnifiedPageTitle>
 
-        {loading && (
-          <LoadingSection>
-            <LoadingBox $colorScheme={colorScheme}>
-              <LoadingContent $colorScheme={colorScheme}>
+      {loading && (
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedContent $colorScheme={currentColorScheme} style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '5rem 0',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '16px',
+              padding: '2.5rem',
+              border: '1px solid rgba(255, 215, 0, 0.2)'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.5rem'
+              }}>
                 <div className="spinner"></div>
                 <p>Checking server status...</p>
-              </LoadingContent>
-            </LoadingBox>
-          </LoadingSection>
-        )}
+              </div>
+            </div>
+          </UnifiedContent>
+        </UnifiedSection>
+      )}
 
-        {!loading && (
-          <CardsGrid>
+      {!loading && (
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedGrid style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: '1.5rem'
+          }}>
             {statusList.map(({ location, country, code, status, providers }) => (
-              <StatusCard key={`${location}-${code}`} $isOnline={status === 'online'} $colorScheme={colorScheme}>
+              <StatusCard key={`${location}-${code}`} $isOnline={status === 'online'} $colorScheme={currentColorScheme}>
                 <CardHeader>
                   <FlagEmoji $isOnline={status === 'online'}>
                     {getFlag(code)}
@@ -668,29 +678,30 @@ export default function PropagationPage() {
                 </CardContent>
               </StatusCard>
             ))}
-          </CardsGrid>
-        )}
+          </UnifiedGrid>
+        </UnifiedSection>
+      )}
 
-        {!loading && statusList.length > 0 && (
-          <StatsSection>
-            <StatsContainer>
-              <StatItem>
-                <StatDot $color="#10b981" />
-                <StatText $color="#6ee7b7">
-                  {statusList.filter(s => s.status === 'online').length} Online
-                </StatText>
-              </StatItem>
-              <Divider />
-              <StatItem>
-                <StatDot $color="#dc2626" />
-                <StatText $color="#fca5a5">
-                  {statusList.filter(s => s.status === 'offline').length} Offline
-                </StatText>
-              </StatItem>
-            </StatsContainer>
-          </StatsSection>
-        )}
-      </ContentWrapper>
-    </PageContainer>
+      {!loading && statusList.length > 0 && (
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>Statistics</UnifiedSectionTitle>
+          <StatsContainer>
+            <StatItem>
+              <StatDot $color="#10b981" />
+              <StatText $color="#6ee7b7">
+                {statusList.filter(s => s.status === 'online').length} Online
+              </StatText>
+            </StatItem>
+            <Divider />
+            <StatItem>
+              <StatDot $color="#dc2626" />
+              <StatText $color="#fca5a5">
+                {statusList.filter(s => s.status === 'offline').length} Offline
+              </StatText>
+            </StatItem>
+          </StatsContainer>
+        </UnifiedSection>
+      )}
+    </UnifiedPageContainer>
   )
 }

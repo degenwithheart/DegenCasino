@@ -8,6 +8,7 @@ import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { 
   SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_DOUBLE, SOUND_NOTHING,
   CANVAS_WIDTH, CANVAS_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_SPACING,
@@ -27,6 +28,14 @@ interface Particle {
 }
 
 export default function DoubleOrNothingV2() {
+  // SEO for DoubleOrNothing game
+  const seoHelmet = useGameSEO({
+    gameName: "Double or Nothing",
+    description: "Risk it all for double! High-stakes decision game where you can double your winnings or lose everything",
+    rtp: 95,
+    maxWin: "2x"
+  })
+
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -90,6 +99,7 @@ export default function DoubleOrNothingV2() {
 
   return (
     <>
+      {seoHelmet}
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

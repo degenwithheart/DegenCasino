@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../../hooks/ui/useGameSEO'
 import { 
   UnifiedPageContainer, 
   UnifiedPageTitle, 
-  UnifiedCard, 
-  UnifiedSectionHeading, 
-  UnifiedContent,
-  UnifiedResponsiveContainer 
-} from '../../../components/UI/UnifiedStyles'
+  UnifiedSubtitle,
+  UnifiedSection, 
+  UnifiedSectionTitle, 
+  UnifiedContent
+} from '../../../components/UI/UnifiedDesign'
 import { Selector, Flag } from './Terms.styles'
 
 type ContinentKey = 'AU' | 'EU' | 'AMERICAS' | 'ASIA'
@@ -54,6 +55,12 @@ const continents: Record<
 }
 
 const Terms: React.FC = () => {
+  // SEO for Terms page
+  const seoHelmet = usePageSEO(
+    "Terms of Service", 
+    "Read our Terms of Service and legal agreements for using DegenHeart Casino. Age requirements and dispute resolution by region."
+  )
+
   const [visible, setVisible] = useState(false)
   const [continent, setContinent] = useState<ContinentKey>('EU')
   const { currentColorScheme } = useColorScheme()
@@ -65,20 +72,15 @@ const Terms: React.FC = () => {
   const data = continents[continent]
 
   return (
-    <UnifiedResponsiveContainer>
-      <UnifiedPageContainer visible={visible}>
-        <UnifiedPageTitle>⚖️ Terms of the Heart ⚖️</UnifiedPageTitle>
-        <p style={{ 
-          fontSize: '1.2rem', 
-          color: 'var(--text-secondary)', 
-          textAlign: 'center', 
-          margin: '0 0 2rem 0',
-          fontStyle: 'italic'
-        }}>
+    <>
+      {seoHelmet}
+      <UnifiedPageContainer $colorScheme={currentColorScheme}>
+        <UnifiedPageTitle $colorScheme={currentColorScheme}>⚖️ Terms of the Heart ⚖️</UnifiedPageTitle>
+        <UnifiedSubtitle $colorScheme={currentColorScheme}>
           In the flickering candlelight of our casino temple, understand the sacred bonds between player and house.
-        </p>
+        </UnifiedSubtitle>
 
-        <UnifiedCard>
+        <UnifiedSection $colorScheme={currentColorScheme}>
           <Selector $colorScheme={currentColorScheme}>
             <label>Choose your romantic realm:</label>
             {(Object.entries(continents) as [ContinentKey, typeof data][]).map(
@@ -94,22 +96,22 @@ const Terms: React.FC = () => {
               )
             )}
           </Selector>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             <p>
               <strong>💍 Age of Consent:</strong> {data.ageRequirement}
             </p>
 
             {data.gamblingWarning && (
               <>
-                <UnifiedSectionHeading>🌹 Sacred Warnings 🌹</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🌹 Sacred Warnings 🌹</UnifiedSectionTitle>
                 <p><em>{data.gamblingWarning}</em></p>
               </>
             )}
 
-            <UnifiedSectionHeading>💎 The Nature of Our Sacred Ground 💎</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>💎 The Nature of Our Sacred Ground 💎</UnifiedSectionTitle>
             <p>
               <strong>🏛️ Temple of Transparency:</strong> All gameplay unfolds like a love letter written in code, 
               executed on-chain through sacred smart contracts, ensuring every moment is transparent and fair.
@@ -127,67 +129,67 @@ const Terms: React.FC = () => {
               that might cloud judgment. Pure gameplay, untainted by deceptive allure.
             </p>
 
-            <UnifiedSectionHeading>🌟 Wallet's Sacred Union 🌟</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🌟 Wallet's Sacred Union 🌟</UnifiedSectionTitle>
             <p>
               By connecting your digital heart (wallet) to our temple, you consent to the mystical binding that 
               allows gameplay. This connection is ephemeral, broken the moment you close our gates or disconnect 
               your vessel.
             </p>
 
-            <UnifiedSectionHeading>🎲 The Art of Responsible Romance 🎲</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🎲 The Art of Responsible Romance 🎲</UnifiedSectionTitle>
             <p>
               <strong>Gamble only with the tenderness you can afford to lose.</strong> Set limits like boundaries 
               around your heart. If gambling becomes more shadow than light, seek guidance from organizations 
               dedicated to healing.
             </p>
 
-            <UnifiedSectionHeading>⚔️ Forbidden Enchantments ⚔️</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>⚔️ Forbidden Enchantments ⚔️</UnifiedSectionTitle>
             <p>
               You shall not use dark magic (automated tools, bots, cheats) to gain unfair advantage, 
               nor shall you attempt to break our sacred seals (hack or exploit our platform).
             </p>
 
-            <UnifiedSectionHeading>👑 Treasures of the Mind 👑</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>👑 Treasures of the Mind 👑</UnifiedSectionTitle>
             <p>
               All intellectual treasures within our temple belong to <strong>DegenHeart Foundation</strong>. 
               You may partake in the experience but not claim ownership of our mystical designs.
             </p>
 
-            <UnifiedSectionHeading>🔮 Secrets and Transparency 🔮</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🔮 Secrets and Transparency 🔮</UnifiedSectionTitle>
             <p>
               We honor your privacy like a secret whispered between lovers. Personal data is handled with 
               utmost care, collected only when necessary for the sacred function of gameplay.
             </p>
 
-            <UnifiedSectionHeading>⚠️ No Promises in the Moonlight ⚠️</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>⚠️ No Promises in the Moonlight ⚠️</UnifiedSectionTitle>
             <p>
               Our temple stands "as is" beneath the stars, offering no warranties beyond the honesty of our code. 
               We promise no merchantability, fitness for purpose, or protection from the night's uncertainties.
             </p>
 
-            <UnifiedSectionHeading>💔 Limitations of a Broken Heart 💔</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>💔 Limitations of a Broken Heart 💔</UnifiedSectionTitle>
             <p>
               To the fullest extent the law allows, <strong>DegenHeart Foundation</strong> bears no responsibility 
               for indirect sorrows, unexpected losses, or punitive damages. Our maximum liability remains at $100 
               or your total devotion to our platform over six moons, whichever brings greater comfort.
             </p>
 
-            <UnifiedSectionHeading>🛡️ Shield of Mutual Protection 🛡️</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🛡️ Shield of Mutual Protection 🛡️</UnifiedSectionTitle>
             <p>
               You pledge to protect <strong>DegenHeart Foundation</strong> and its allied houses from claims, 
               damages, and sorrows arising from your journey through our realm.
             </p>
 
-            <UnifiedSectionHeading>⚖️ Laws of the Heart & Resolution of Disputes ⚖️</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>⚖️ Laws of the Heart & Resolution of Disputes ⚖️</UnifiedSectionTitle>
             <p><em>{data.disputeResolution}</em></p>
 
-            <UnifiedSectionHeading>🚪 When the Dance Must End 🚪</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🚪 When the Dance Must End 🚪</UnifiedSectionTitle>
             <p>
               We reserve the right to close the temple doors to you at any moment, without warning bells, 
               should you break the sacred covenant of these terms.
             </p>
 
-            <UnifiedSectionHeading>📜 The Final Verse 📜</UnifiedSectionHeading>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>📜 The Final Verse 📜</UnifiedSectionTitle>
             <p>
               These terms form the complete ballad between your heart and <strong>DegenHeart Foundation</strong>. 
               Should any verse prove unsingable, the remaining stanzas shall continue their eternal song.
@@ -197,9 +199,9 @@ const Terms: React.FC = () => {
               <em>💕 Please gamble with the wisdom of the heart. Our temple exists for the joy of the game alone. 💕</em>
             </p>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
       </UnifiedPageContainer>
-    </UnifiedResponsiveContainer>
+    </>
   )
 }
 

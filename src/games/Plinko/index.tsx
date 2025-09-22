@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GAME_CAPABILITIES } from '../../constants'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 // Lazy load the 2D and 3D components
 const PlinkoRenderer2D = lazy(() => import('./Plinko-2D'))
@@ -20,6 +21,14 @@ const LoadingFallback = () => (
 )
 
 export default function Plinko() {
+  // SEO for Plinko game
+  const seoHelmet = useGameSEO({
+    gameName: "Plinko",
+    description: "Drop balls and watch them bounce through pegs to win! Classic Plinko game with multiple difficulty levels and big multipliers",
+    rtp: 98,
+    maxWin: "1000x"
+  })
+
   // Use the reactive selector pattern to ensure re-renders
   const currentMode = useUserStore(state => state.getGameRenderMode('plinko'))
   const gameSupports3D = GAME_CAPABILITIES.plinko?.supports3D ?? false
@@ -39,6 +48,7 @@ export default function Plinko() {
   
   return (
     <div key={renderKey}>
+      {seoHelmet}
       <Suspense fallback={<LoadingFallback />}>
         {shouldUse3D ? <PlinkoRenderer3D /> : <PlinkoRenderer2D />}
       </Suspense>

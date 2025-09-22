@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { LeaderboardsContent } from '../../sections/LeaderBoard/LeaderboardsModal'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 
 const PageWrapper = styled.div<{ $colorScheme?: any }>`
   position: fixed;
@@ -140,10 +141,17 @@ const LeaderboardContainer = styled.div<{ $colorScheme?: any }>`
 `;
 
 export default function LeaderboardPage() {
+  // SEO for Leaderboard page
+  const seoHelmet = usePageSEO(
+    "Leaderboard", 
+    "Check out the top players and biggest wins! See who's leading in our casino competitions and rankings"
+  )
+
   const navigate = useNavigate()
 
   return (
     <PageWrapper>
+      {seoHelmet}
       <Header>
         <Title>🏆 Leaderboard</Title>
         <BackButton onClick={() => navigate(-1)} aria-label="Go back">

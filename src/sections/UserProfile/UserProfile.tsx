@@ -12,7 +12,12 @@ import { generateUsernameFromWallet, generateDegenStoryFromWallet } from '../../
 import { ReferralDashboard } from '../../components';
 import { ReferralLeaderboardModal, useReferralLeaderboardModal } from '../../components';
 import { useColorScheme } from '../../themes/ColorSchemeContext';
-import { ProfileContainer, ProfileHeader, SectionBox, CasinoButton, AvatarContainer, DefaultAvatar } from './UserProfile.styles';
+import { 
+  UnifiedPageContainer, 
+  UnifiedPageTitle, 
+  UnifiedSection
+} from '../../components/UI/UnifiedDesign';
+import { AvatarContainer, DefaultAvatar } from './UserProfile.styles';
 
 export function Profile() {
   const wallet = useWallet();
@@ -21,7 +26,6 @@ export function Profile() {
   const [username, setUsername] = useState("Guest");
   const [bio, setBio] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const { balance, bonusBalance } = useTokenBalance();
   const currentToken = useCurrentToken();
   const referral = useReferral();
@@ -69,12 +73,6 @@ export function Profile() {
     }
   }, [autoConnectAttempted, wallet.connected, wallet.connecting, navigate]);
 
-  const getSectionStyle = (index: number) => ({
-    ...sectionBoxStyleBase,
-    ...(mounted ? sectionBoxStyleVisible : {}),
-    ...(hoverIndex === index ? hoverStyle : {}),
-  });
-
   const removeInvite = async () => {
     try {
       setRemoving(true);
@@ -86,81 +84,79 @@ export function Profile() {
 
   return (
     <>
-      <ProfileContainer $colorScheme={currentColorScheme}>
-        <ProfileHeader $colorScheme={currentColorScheme}>
-          <h1>👤 User Profile 🎰</h1>
-        </ProfileHeader>
+      <UnifiedPageContainer>
+        <UnifiedPageTitle>👤 User Profile 🎰</UnifiedPageTitle>
 
-      {/* Banner container */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: 1500,
-          height: 300,
-          margin: "0 auto 3rem auto",
-          borderRadius: 12,
-          overflow: "hidden",
-          border: "1px solid #2a2a4a",
-          background: "#0f0f23",
-        }}
-      >
-          {/* Banner image */}
-          <img
-            src="/webp/images/casino.webp"
-            alt="Banner"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "fill",
-              display: "block",
-              userSelect: "none",
-              pointerEvents: "none",
-            }}
-          />
-
-          {avatarUrl ? (
-            <AvatarContainer>
-              <img
-                src={avatarUrl}
-                alt="User Avatar"
-              />
-            </AvatarContainer>
-          ) : (
-            <DefaultAvatar>
-              <FaUser size={40} color="#ccc" />
-            </DefaultAvatar>
-          )}
-
-          {/* Username overlay */}
+        {/* Enhanced Banner Section with Avatar */}
+        <UnifiedSection>
           <div
             style={{
-              position: "absolute",
-              background: "rgba(255, 255, 255, 0.15)",
-              padding: "1.5rem",
-              borderRadius: "12px 12px 0 0",
+              position: "relative",
               width: "100%",
-              bottom: 0,
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-              transition: "0.4s",
-              opacity: 1,
-              transform: "translateY(0)",
-              color: "#fff",
-              fontSize: 24,
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
+              height: 300,
+              borderRadius: 12,
+              overflow: "hidden",
+              border: "1px solid #2a2a4a",
+              background: "#0f0f23",
+              marginBottom: "2rem",
             }}
           >
-            <span>{username}</span>
+            {/* Banner image */}
+            <img
+              src="/webp/images/casino.webp"
+              alt="Banner"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "fill",
+                display: "block",
+                userSelect: "none",
+                pointerEvents: "none",
+              }}
+            />
+
+            {avatarUrl ? (
+              <AvatarContainer>
+                <img
+                  src={avatarUrl}
+                  alt="User Avatar"
+                />
+              </AvatarContainer>
+            ) : (
+              <DefaultAvatar>
+                <FaUser size={40} color="#ccc" />
+              </DefaultAvatar>
+            )}
+
+            {/* Username overlay */}
+            <div
+              style={{
+                position: "absolute",
+                background: "rgba(255, 255, 255, 0.15)",
+                padding: "1.5rem",
+                borderRadius: "12px 12px 0 0",
+                width: "100%",
+                bottom: 0,
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+                transition: "0.4s",
+                opacity: 1,
+                transform: "translateY(0)",
+                color: "#fff",
+                fontSize: 24,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+              }}
+            >
+              <span>{username}</span>
+            </div>
           </div>
-        </div>
+        </UnifiedSection>
 
         {/* Degen Folk Lore Section */}
-        <SectionBox visible={mounted}>
-          <label htmlFor="folklore">Degen Folk Lore</label>
+        <UnifiedSection title="📜 Degen Folk Lore">
           <div style={{
             color: '#fff',
             fontFamily: 'inherit',
@@ -171,11 +167,10 @@ export function Profile() {
           }}>
             {bio}
           </div>
-        </SectionBox>
+        </UnifiedSection>
 
         {/* Wallet Info */}
-        <SectionBox visible={mounted}>
-          <label htmlFor="balance">Wallet Info</label>
+        <UnifiedSection title="💼 Wallet Info">
           <div
             style={{
               display: 'flex',
@@ -229,16 +224,15 @@ export function Profile() {
               </GambaUi.Button>
             </div>
           </div>
-        </SectionBox>
+        </UnifiedSection>
 
         {/* Enhanced Referral Dashboard */}
-        <SectionBox visible={mounted}>
+        <UnifiedSection title="📊 Referral Dashboard">
           <ReferralDashboard />
-        </SectionBox>
+        </UnifiedSection>
 
         {/* Referral Connection Status */}
-        <SectionBox visible={mounted}>
-          <label>🔗 Referral Connection</label>
+        <UnifiedSection title="🔗 Referral Connection">
           <div
             style={{
               display: 'flex',
@@ -285,59 +279,20 @@ export function Profile() {
               )}
             </div>
           </div>
-        </SectionBox>
+        </UnifiedSection>
 
         {/* Token and Bonus Balance */}
-        <SectionBox visible={mounted}>
-          <label htmlFor="balance">💰 Token and Bonus Balance</label>
+        <UnifiedSection title="💰 Token and Bonus Balance">
           <p>
             <b>Token Balance:</b> {(balance / Math.pow(10, currentToken?.decimals ?? 0)).toFixed(2)}
             {currentToken?.name ? ` ${currentToken.name}` : ""}
           </p>
           <p><b>Bonus Balance:</b> {(bonusBalance / Math.pow(10, currentToken?.decimals ?? 0)).toFixed(2)}</p>
-        </SectionBox>
-      </ProfileContainer>
+        </UnifiedSection>
+      </UnifiedPageContainer>
       {leaderboardModal.Modal}
     </>
   );
 }
 
 export default Profile;
-
-
-
-// Main container background style
-const containerStyle = {
-  maxWidth: "100%",
-  margin: "auto",
-  padding: "2rem 2.5rem",
-  borderRadius: "16px",
-  background: "rgba(255,255,255,0.15)",
-  backdropFilter: "blur(14px)",
-  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.4)",
-  color: "white",
-  opacity: 1,
-  transform: "translateY(0)",
-  transition: "opacity 1s ease, transform 1s ease",
-};
-
-// Section card style
-const sectionBoxStyleBase = {
-  background: "rgba(255,255,255,0.15)",
-  padding: "1.5rem",
-  borderRadius: "12px",
-  marginBottom: "1.5rem",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-  transition: "all 0.4s ease",
-  opacity: 0,
-  transform: "translateY(20px)",
-};
-
-const sectionBoxStyleVisible = {
-  opacity: 1,
-  transform: "translateY(0)",
-};
-
-const hoverStyle = {
-  boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
-};

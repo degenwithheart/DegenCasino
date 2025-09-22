@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../../hooks/ui/useGameSEO'
 import { 
   UnifiedPageContainer, 
   UnifiedPageTitle, 
-  UnifiedCard, 
-  UnifiedSectionHeading, 
-  UnifiedContent,
-  UnifiedResponsiveContainer 
-} from '../../../components/UI/UnifiedStyles'
+  UnifiedSubtitle,
+  UnifiedSection, 
+  UnifiedSectionTitle, 
+  UnifiedContent
+} from '../../../components/UI/UnifiedDesign'
 import { Tabs } from './Whitepaper.styles'
 
 const tabs = ['Overview', 'Token', 'Fairness', 'Roadmap']
 
 const WhitepaperTabs: React.FC = () => {
+  // SEO for Whitepaper page
+  const seoHelmet = usePageSEO(
+    "Whitepaper", 
+    "Read our complete whitepaper with tokenomics, fairness algorithms, and roadmap for DegenHeart Casino"
+  )
+
   const [activeTab, setActiveTab] = useState('Overview')
   const [visible, setVisible] = useState(false)
   const { currentColorScheme } = useColorScheme()
@@ -22,21 +29,15 @@ const WhitepaperTabs: React.FC = () => {
   }, [])
 
   return (
-    <UnifiedResponsiveContainer>
-      <UnifiedPageContainer visible={visible}>
-        <UnifiedPageTitle>🕯️ The Sacred Scrolls of Degen Casino 🕯️</UnifiedPageTitle>
-        <p style={{ 
-          fontStyle: 'italic', 
-          color: 'var(--text-secondary)', 
-          marginBottom: '2rem', 
-          textAlign: 'center', 
-          opacity: 0.9,
-          fontSize: '1.1rem'
-        }}>
-          <em>This isn't just a casino — it's a serenade of risk, a love letter to the chain, written in the flickering candlelight of our digital temple.</em>
-        </p>
+    <>
+      {seoHelmet}
+      <UnifiedPageContainer $colorScheme={currentColorScheme}>
+        <UnifiedPageTitle $colorScheme={currentColorScheme}>🕯️ The Sacred Scrolls of Degen Casino 🕯️</UnifiedPageTitle>
+        <UnifiedSubtitle $colorScheme={currentColorScheme}>
+          This isn't just a casino — it's a serenade of risk, a love letter to the chain, written in the flickering candlelight of our digital temple.
+        </UnifiedSubtitle>
 
-        <UnifiedCard>
+        <UnifiedSection $colorScheme={currentColorScheme}>
           <Tabs $colorScheme={currentColorScheme}>
             {tabs.map(tab => (
               <button
@@ -48,21 +49,21 @@ const WhitepaperTabs: React.FC = () => {
               </button>
             ))}
           </Tabs>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             {activeTab === 'Overview' && (
               <>
-                <UnifiedSectionHeading>🏛️ The Palace of Chance 🏛️</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🏛️ The Palace of Chance 🏛️</UnifiedSectionTitle>
                 <p><strong>Degen Casino</strong> is the on-chain rebellion, a symphony of risk where every bet becomes a verse in our eternal ballad.</p>
                 <p>Just provably fair games, settled instantly by code, not committees — pure, unadulterated blockchain poetry.</p>
                 
-                <UnifiedSectionHeading>💫 Our Sacred Mission 💫</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>💫 Our Sacred Mission 💫</UnifiedSectionTitle>
                 <p><em>I don't build for VCs or hype cycles — I build for the trenches, where real degens bleed and dream.</em></p>
                 <p>Everything is self-funded. No treasury. No presale. No shortcuts. This is for the unsponsored souls who dance with the blockchain's heartbeat.</p>
                 
-                <UnifiedSectionHeading>🎭 The Enchanted Mechanics 🎭</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🎭 The Enchanted Mechanics 🎭</UnifiedSectionTitle>
                 <ul>
                   <li>Integrated with <strong>Gamba SDK</strong> — the open standard for on-chain casinos, our trusted conductor.</li>
                   <li>Pure frontend (Vite), no backend. Everything runs in the browser, as transparent as a lover's gaze.</li>
@@ -73,7 +74,7 @@ const WhitepaperTabs: React.FC = () => {
 
             {activeTab === 'Token' && (
               <>
-                <UnifiedSectionHeading>💎 The Heart Token: $DGHRT 💎</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>💎 The Heart Token: $DGHRT 💎</UnifiedSectionTitle>
                 <p><strong>$DGHRT</strong> is the emotional and financial heartbeat of our casino sanctuary, pulsing with the rhythm of true degen passion.</p>
                 <ul>
                   <li><strong>Bet with your soul</strong> on exclusive house-edge games that test the limits of fortune.</li>
@@ -82,7 +83,7 @@ const WhitepaperTabs: React.FC = () => {
                   <li><strong>Trade it freely</strong> on-chain (Raydium), or hold like a real Degen who understands the deeper meaning.</li>
                 </ul>
 
-                <UnifiedSectionHeading>🌟 The Tokenomics of Love 🌟</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🌟 The Tokenomics of Love 🌟</UnifiedSectionTitle>
                 <ul>
                   <li><strong>Max Supply:</strong> 1,000,000,000 $DGHRT — a universe of possibilities</li>
                   <li><strong>100%</strong> distributed via in-game losses (claim mechanism) — every tear becomes a token</li>
@@ -95,11 +96,11 @@ const WhitepaperTabs: React.FC = () => {
 
             {activeTab === 'Fairness' && (
               <>
-                <UnifiedSectionHeading>⚖️ No Middlemen, Just Sacred Code ⚖️</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>⚖️ No Middlemen, Just Sacred Code ⚖️</UnifiedSectionTitle>
                 <p>No gimmicks. No bonuses. No custodians. Just the pure, unfiltered truth of the blockchain.</p>
                 <p>Every transaction settles on-chain — powered by Solana + Gamba contracts, our eternal witnesses.</p>
                 
-                <UnifiedSectionHeading>🎭 Fairness & Transparency 🎭</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🎭 Fairness & Transparency 🎭</UnifiedSectionTitle>
                 <ul>
                   <li>Contracts are audited or community-reviewed, like sacred texts examined by scholars.</li>
                   <li>Open-source core — inspect, verify, fork — our code is as open as our hearts.</li>
@@ -110,7 +111,7 @@ const WhitepaperTabs: React.FC = () => {
 
             {activeTab === 'Roadmap' && (
               <>
-                <UnifiedSectionHeading>👑 Your Identity: The Degen With Heart 👑</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>👑 Your Identity: The Degen With Heart 👑</UnifiedSectionTitle>
                 <p><strong>"Building is my love language."</strong></p>
                 <p>I'm <strong>Stuart / @DegenWithHeart</strong> — a full-stack dev with code in my veins and DeFi in my chest, crafting digital realms from pure passion.</p>
                 <ul>
@@ -120,7 +121,7 @@ const WhitepaperTabs: React.FC = () => {
                   <li>I don't build hype — I build legacy, one line of code at a time.</li>
                 </ul>
 
-                <UnifiedSectionHeading>🗺️ The Roadmap of Dreams 🗺️</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🗺️ The Roadmap of Dreams 🗺️</UnifiedSectionTitle>
                 <ul>
                   <li>✅ <strong>Q3 2025:</strong> Launch Vite-based frontend with fully on-chain gameplay — our foundation stone</li>
                   <li>✅ <strong>Q4 2025:</strong> Add Mobile UI + UI polish, live stats, jackpot support — refining our masterpiece</li>
@@ -131,18 +132,18 @@ const WhitepaperTabs: React.FC = () => {
                   <li>🔜 <strong>Q4 2027:</strong> Governance phase — $DGHRT holders vote on future games — democracy in our hall</li>
                 </ul>
 
-                <UnifiedSectionHeading>🔗 Sacred Links 🔗</UnifiedSectionHeading>
+                <UnifiedSectionTitle $colorScheme={currentColorScheme}>🔗 Sacred Links 🔗</UnifiedSectionTitle>
                 <ul>
-                  <li><a href="https://gamba.so/sdk" target="_blank" rel="noopener noreferrer" style={{ color: '#ffd700' }}>Gamba SDK</a> — Our trusted foundation</li>
-                  <li><a href="https://github.com/degenwithheart" target="_blank" rel="noopener noreferrer" style={{ color: '#ffd700' }}>GitHub</a> — The forge of our creation</li>
-                  <li><a href="https://x.com/DegenWithHeart" target="_blank" rel="noopener noreferrer" style={{ color: '#ffd700' }}>X Profile</a> — My digital voice</li>
+                  <li><a href="https://gamba.so/sdk" target="_blank" rel="noopener noreferrer">Gamba SDK</a> — Our trusted foundation</li>
+                  <li><a href="https://github.com/degenwithheart" target="_blank" rel="noopener noreferrer">GitHub</a> — The forge of our creation</li>
+                  <li><a href="https://x.com/DegenWithHeart" target="_blank" rel="noopener noreferrer">X Profile</a> — My digital voice</li>
                 </ul>
               </>
             )}
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
       </UnifiedPageContainer>
-    </UnifiedResponsiveContainer>
+    </>
   )
 }
 

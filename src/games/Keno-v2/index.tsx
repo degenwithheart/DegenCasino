@@ -7,6 +7,7 @@ import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 import { GAME_CONFIG, PAYTABLE, GAME_STATES, type GameState } from './constants'
 import { KENO_SOUNDS } from './sounds'
@@ -117,6 +118,14 @@ interface Cell {
 }
 
 export default function KenoGame({}: KenoGameProps) {
+  // SEO for Keno game
+  const seoHelmet = useGameSEO({
+    gameName: "Keno",
+    description: "Pick your lucky numbers and watch the draw! Classic lottery-style game with up to 10 number selections",
+    rtp: 95,
+    maxWin: "1000x"
+  })
+
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -464,6 +473,7 @@ export default function KenoGame({}: KenoGameProps) {
 
   return (
     <>
+      {seoHelmet}
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

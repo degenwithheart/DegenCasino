@@ -52,7 +52,7 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
 // 2D/3D Toggle Feature Configuration
 export const FEATURE_FLAGS = {
-  TOGGLE_2D_3D_MODE: false, // Global feature flag to enable/disable the feature
+  TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
 } as const
 
@@ -65,19 +65,14 @@ export const GAME_RENDER_MODES = {
 
 // Game capability flags - defines which games support which modes
 export const GAME_CAPABILITIES = {
-  'dice': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
   'dice-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'slots': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'plinko': {
@@ -87,107 +82,107 @@ export const GAME_CAPABILITIES = {
   },
   'roulette': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'limbo': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'mines-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'keno': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'keno-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'blackjack': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'blackjack-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'flip-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'hilo': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'doubleornothing': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'doubleornothing-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'crash': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'crashgame': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'cryptochartgame': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'cryptochartgame-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'fancyvirtualhorseracing': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'fancyvirtualhorseracing-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'multipoker': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'multipoker-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'limbo-v2': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   },
   'plinkorace': {
     supports2D: true,
-    supports3D: true,
+    supports3D: false,
     default: '2D'
   }
 } as const
@@ -466,6 +461,10 @@ export const FOOTER_LINKS = [
   {
     href: '/aboutme',
     title: 'About Me',
+  },
+  {
+    href: '/credits',
+    title: 'Credits',
   },
   {
     href: '/terms',

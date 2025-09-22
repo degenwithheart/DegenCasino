@@ -1,11 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { GlobalColorScheme, ColorSchemeKey, globalColorSchemes, getStoredColorScheme, setStoredColorScheme } from './globalColorSchemes';
+import { ScrollConfig, defaultScrollConfig, getStoredScrollConfig, setStoredScrollConfig, applyScrollConfig, GameScrollConfigKey, applyGameScrollConfig, detectOptimalScrollConfig } from './scrollConfig';
 
 interface ColorSchemeContextType {
   currentColorScheme: GlobalColorScheme;
   colorSchemeKey: ColorSchemeKey;
   setColorScheme: (colorSchemeKey: ColorSchemeKey) => void;
   availableThemes: Record<ColorSchemeKey, GlobalColorScheme>;
+  scrollConfig: ScrollConfig;
+  updateScrollConfig: (config: Partial<ScrollConfig>) => void;
+  applyGameScrollConfig: (gameType: GameScrollConfigKey) => void;
+  resetScrollConfig: () => void;
+  detectOptimalScrollConfig: () => void;
 }
 
 const ColorSchemeContext = createContext<ColorSchemeContextType | undefined>(undefined);
@@ -17,6 +23,7 @@ interface ColorSchemeProviderProps {
 export const ColorSchemeProvider: React.FC<ColorSchemeProviderProps> = ({ children }) => {
   const [colorSchemeKey, setColorSchemeKey] = useState<ColorSchemeKey>(getStoredColorScheme);
   const [currentColorScheme, setCurrentColorScheme] = useState<GlobalColorScheme>(globalColorSchemes[colorSchemeKey]);
+  const [scrollConfig, setScrollConfigState] = useState<ScrollConfig>(getStoredScrollConfig);
 
   const setColorScheme = (newColorSchemeKey: ColorSchemeKey) => {
     setColorSchemeKey(newColorSchemeKey);
@@ -24,15 +31,50 @@ export const ColorSchemeProvider: React.FC<ColorSchemeProviderProps> = ({ childr
     setStoredColorScheme(newColorSchemeKey);
   };
 
+  const updateScrollConfig = (config: Partial<ScrollConfig>) => {
+    const newConfig = { ...scrollConfig, ...config };
+    setScrollConfigState(newConfig);
+    applyScrollConfig(newConfig);
+    setStoredScrollConfig(newConfig);
+  };
+
+  const handleApplyGameScrollConfig = (gameType: GameScrollConfigKey) => {
+    applyGameScrollConfig(gameType);
+  };
+
+  const handleResetScrollConfig = () => {
+    setScrollConfigState(defaultScrollConfig);
+    applyScrollConfig(defaultScrollConfig);
+    setStoredScrollConfig(defaultScrollConfig);
+  };
+
+  const handleDetectOptimalScrollConfig = () => {
+    const optimal = detectOptimalScrollConfig();
+    const newConfig = { ...scrollConfig, ...optimal };
+    setScrollConfigState(newConfig);
+    applyScrollConfig(newConfig);
+    setStoredScrollConfig(newConfig);
+  };
+
   useEffect(() => {
     setCurrentColorScheme(globalColorSchemes[colorSchemeKey]);
   }, [colorSchemeKey]);
+
+  // Apply scroll configuration on mount
+  useEffect(() => {
+    applyScrollConfig(scrollConfig);
+  }, []);
 
   const value: ColorSchemeContextType = {
     currentColorScheme,
     colorSchemeKey,
     setColorScheme,
     availableThemes: globalColorSchemes,
+    scrollConfig,
+    updateScrollConfig,
+    applyGameScrollConfig: handleApplyGameScrollConfig,
+    resetScrollConfig: handleResetScrollConfig,
+    detectOptimalScrollConfig: handleDetectOptimalScrollConfig,
   };
 
   return (

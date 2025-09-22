@@ -8,6 +8,14 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { ExplorerHeader } from '../Explorer/ExplorerHeader'
+import {
+  UnifiedPageContainer,
+  UnifiedPageTitle,
+  UnifiedSection,
+  UnifiedSectionTitle,
+  UnifiedContent,
+  UnifiedGrid
+} from '../UI/UnifiedDesign'
 
 interface PlayerResponse {
   volume: number
@@ -391,35 +399,37 @@ export function PlayerView() {
   const wins = playerData?.wins || 0
 
   return (
-    <PlayerContainer $colorScheme={currentColorScheme}>
+    <UnifiedPageContainer $colorScheme={currentColorScheme}>
       <ExplorerHeader />
-      <StatsRow>
-        <StatCard>
-          <StatValue $colorScheme={currentColorScheme}>${volume.toFixed(2)}</StatValue>
-          <StatLabel $colorScheme={currentColorScheme}>Volume</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue $colorScheme={currentColorScheme}>${profit.toFixed(2)}</StatValue>
-          <StatLabel $colorScheme={currentColorScheme}>Profit</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue $colorScheme={currentColorScheme}>{plays}</StatValue>
-          <StatLabel $colorScheme={currentColorScheme}>Plays</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue $colorScheme={currentColorScheme}>{wins}</StatValue>
-          <StatLabel $colorScheme={currentColorScheme}>Wins</StatLabel>
-        </StatCard>
-      </StatsRow>
+      
+      <UnifiedContent $colorScheme={currentColorScheme}>
+        <StatsRow>
+          <StatCard>
+            <StatValue $colorScheme={currentColorScheme}>${volume.toFixed(2)}</StatValue>
+            <StatLabel $colorScheme={currentColorScheme}>Volume</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatValue $colorScheme={currentColorScheme}>${profit.toFixed(2)}</StatValue>
+            <StatLabel $colorScheme={currentColorScheme}>Profit</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatValue $colorScheme={currentColorScheme}>{plays}</StatValue>
+            <StatLabel $colorScheme={currentColorScheme}>Plays</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatValue $colorScheme={currentColorScheme}>{wins}</StatValue>
+            <StatLabel $colorScheme={currentColorScheme}>Wins</StatLabel>
+          </StatCard>
+        </StatsRow>
 
-      <PlayerSection $colorScheme={currentColorScheme}>
-        <PlayerHeader>
-          <PlayerAvatar>🎮</PlayerAvatar>
-          <PlayerName $colorScheme={currentColorScheme}>{address ? `${address.slice(0, 6)}...${address.slice(-6)}` : 'Unknown Player'}</PlayerName>
-        </PlayerHeader>
-        
-        <AddressSection>
-          <AddressLabel $colorScheme={currentColorScheme}>Address:</AddressLabel>
+        <PlayerSection $colorScheme={currentColorScheme}>
+          <PlayerHeader>
+            <PlayerAvatar>🎮</PlayerAvatar>
+            <PlayerName $colorScheme={currentColorScheme}>{address ? `${address.slice(0, 6)}...${address.slice(-6)}` : 'Unknown Player'}</PlayerName>
+          </PlayerHeader>
+          
+          <AddressSection>
+            <AddressLabel $colorScheme={currentColorScheme}>Address:</AddressLabel>
           <AddressValue $colorScheme={currentColorScheme}>
             {address}
             <CopyButton $colorScheme={currentColorScheme} onClick={copyAddress}>Copy</CopyButton>
@@ -451,6 +461,7 @@ export function PlayerView() {
           <EmptyState>No recent plays found</EmptyState>
         )}
       </RecentPlaysSection>
-    </PlayerContainer>
+      </UnifiedContent>
+    </UnifiedPageContainer>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 // Context to allow opening the games modal from anywhere
 export const GamesModalContext = React.createContext<{ openGamesModal: () => void }>({ openGamesModal: () => {} });
+import { usePageSEO } from '../../hooks/ui/useGameSEO';
 import { SlideSection, EnhancedTickerTape, FullReferralLeaderboard } from "../../components";
 import { FEATURED_GAMES } from "../../games/featuredGames";
 import { GAMES } from "../../games";
@@ -15,10 +16,9 @@ import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useColorScheme } from "../../themes/ColorSchemeContext";
 import { 
   UnifiedPageContainer, 
-  UnifiedCard, 
-  UnifiedSectionHeading,
-  UnifiedResponsiveContainer 
-} from "../../components/UI/UnifiedStyles";
+  UnifiedSection, 
+  UnifiedPageTitle
+} from "../../components/UI/UnifiedDesign";
 import {
   GameSliderWrapper,
   GameCardWrapper,
@@ -67,6 +67,12 @@ export function GameSlider({ compact }: { compact?: boolean }) {
 }
 
 export function Dashboard() {
+  // SEO for Dashboard
+  const seoHelmet = usePageSEO(
+    "DegenHeart.casino - Solana On-chain Web3 Casino", 
+    "Welcome to the Casino of Chaos 🔥 No sign-ups, no BS. Just connect and dive in. Non-custodial, provably fair Solana casino with instant payouts."
+  )
+
   const { connected, connect, publicKey } = useWallet();
   const { compact, screenTooSmall } = useIsCompact();
   const handleWalletConnect = useHandleWalletConnect();
@@ -86,8 +92,9 @@ export function Dashboard() {
   }, []);
 
   return (
-    <UnifiedResponsiveContainer>
-      <UnifiedPageContainer visible={visible}>
+    <>
+      {seoHelmet}
+      <UnifiedPageContainer>
         <WelcomeBanner />
         <AccentBar />
         <EnhancedTickerTape />
@@ -135,14 +142,12 @@ export function Dashboard() {
             {/* Toggle Content */}
             {activeSection === 'games' && (
               <>
-                <UnifiedCard>
-                  <UnifiedSectionHeading>Featured Games</UnifiedSectionHeading>
+                <UnifiedSection title="🎰 Featured Games">
                   <AccentBar />
                   <GameSlider compact={compact} />
-                </UnifiedCard>
+                </UnifiedSection>
                 
-                <UnifiedCard>
-                  <UnifiedSectionHeading>Singleplayer Games</UnifiedSectionHeading>
+                <UnifiedSection title="🎮 Singleplayer Games">
                   <AccentBar />
                   <GameSliderWrapper>
                     {singleplayerGames.map((game) => (
@@ -151,10 +156,9 @@ export function Dashboard() {
                       </GameCardWrapper>
                     ))}
                   </GameSliderWrapper>
-                </UnifiedCard>
+                </UnifiedSection>
                 
-                <UnifiedCard>
-                  <UnifiedSectionHeading>Multiplayer Games</UnifiedSectionHeading>
+                <UnifiedSection title="🎲 Multiplayer Games">
                   <AccentBar />
                   <GameSliderWrapper>
                     {multiplayerGames.map((game) => (
@@ -163,10 +167,9 @@ export function Dashboard() {
                       </GameCardWrapper>
                     ))}
                   </GameSliderWrapper>
-                </UnifiedCard>
+                </UnifiedSection>
                 
-                <UnifiedCard>
-                  <UnifiedSectionHeading>Coming Soon</UnifiedSectionHeading>
+                <UnifiedSection title="🚀 Coming Soon">
                   <AccentBar />
                   <GameSliderWrapper>
                     {liveNewGames.map((game) => (
@@ -175,28 +178,28 @@ export function Dashboard() {
                       </GameCardWrapper>
                     ))}
                   </GameSliderWrapper>
-                </UnifiedCard>
+                </UnifiedSection>
               </>
             )}
 
             {activeSection === 'plays' && DASHBOARD_SHOW_RECENT_PLAYS && (
-              <UnifiedCard>
+              <UnifiedSection title="🕹️ Recent Plays">
                 <AccentBar />
                 <RecentPlays showAllPlatforms={false} />
-              </UnifiedCard>
+              </UnifiedSection>
             )}
 
             {activeSection === 'referrals' && DASHBOARD_SHOW_LEADERBOARD && ENABLE_LEADERBOARD && (
-              <UnifiedCard>
+              <UnifiedSection title="🏆 Referral Leaders">
                 <AccentBar />
                 <FullReferralLeaderboard />
-              </UnifiedCard>
+              </UnifiedSection>
             )}
           </>
         )}
 
       </UnifiedPageContainer>
-    </UnifiedResponsiveContainer>
+    </>
   );
 }
 

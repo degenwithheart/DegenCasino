@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 import {
-  UnifiedResponsiveContainer,
   UnifiedPageContainer,
   UnifiedPageTitle,
-  UnifiedSectionHeading,
+  UnifiedSubtitle,
+  UnifiedSection,
+  UnifiedSectionTitle,
   UnifiedContent,
-  UnifiedCard,
   UnifiedGrid,
-  UnifiedStat
-} from '../../components/UI/UnifiedStyles'
+  UnifiedHighlightSection
+} from '../../components/UI/UnifiedDesign'
 import {
   TokenHeader,
   BuySection
 } from './DGHRTToken.styles'
 
 const DGHRTTokenPage: React.FC = () => {
+  // SEO for DGHRT Token page
+  const seoHelmet = usePageSEO(
+    "DGHRT Token", 
+    "Learn about the DGHRT Token - Our native casino token with utility, staking rewards, and governance features"
+  )
+
   const [visible, setVisible] = useState(false)
   const { currentColorScheme } = useColorScheme()
 
@@ -24,10 +31,17 @@ const DGHRTTokenPage: React.FC = () => {
   }, [])
 
   return (
-    <UnifiedResponsiveContainer>
-      <UnifiedPageContainer visible={visible}>
-        <TokenHeader>
-          <img 
+    <>
+      {seoHelmet}
+      <UnifiedPageContainer $colorScheme={currentColorScheme}>
+        <UnifiedPageTitle $colorScheme={currentColorScheme}>💎 $DGHRT Token 💎</UnifiedPageTitle>
+        <UnifiedSubtitle $colorScheme={currentColorScheme}>
+          The Heart Token — emotional and financial heartbeat of Degen Casino
+        </UnifiedSubtitle>
+
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <TokenHeader>
+            <img 
             src="/png/images/$DGHRT.png" 
             alt="DGHRT Token" 
             className="token-logo"
@@ -43,41 +57,34 @@ const DGHRTTokenPage: React.FC = () => {
               e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiByeD0iNzUiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxNTAiIHkyPSIxNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI2Q0YTU3NCIvPgo8c3RvcCBvZmZzZXQ9IjAuNSIgc3RvcC1jb2xvcj0iI2I4MzY2YSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNkNGE1NzQiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8dGV4dCB4PSI3NSIgeT0iODAiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5KOPC90ZXh0Pgo8L3N2Zz4K'
             }}
           />
-          <UnifiedPageTitle>💎 $DGHRT Token 💎</UnifiedPageTitle>
-          <p className="subtitle">
-            <em>The Heart Token — emotional and financial heartbeat of Degen Casino</em>
-          </p>
-        </TokenHeader>
+          </TokenHeader>
+        </UnifiedSection>
 
-        <UnifiedGrid columns="repeat(auto-fit, minmax(250px, 1fr))">
-          <UnifiedCard hover>
-            <UnifiedStat>
-              <h3>🏦 Max Supply</h3>
-              <div className="stat-value">1B</div>
-              <div className="stat-label">DGHRT Tokens</div>
-            </UnifiedStat>
-          </UnifiedCard>
+        <UnifiedHighlightSection $colorScheme={currentColorScheme}>
+          <UnifiedGrid>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ color: '#ffd700', fontSize: '1.5rem', marginBottom: '0.5rem' }}>🏦 Max Supply</h3>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>1B</div>
+              <div style={{ opacity: 0.8 }}>DGHRT Tokens</div>
+            </div>
 
-          <UnifiedCard hover>
-            <UnifiedStat>
-              <h3>⏰ Launch Date</h3>
-              <div className="stat-value">Q3 2026</div>
-              <div className="stat-label">Planned Launch</div>
-            </UnifiedStat>
-          </UnifiedCard>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ color: '#ffd700', fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏰ Launch Date</h3>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>Q3 2026</div>
+              <div style={{ opacity: 0.8 }}>Planned Launch</div>
+            </div>
 
-          <UnifiedCard hover>
-            <UnifiedStat>
-              <h3>🎯 Distribution</h3>
-              <div className="stat-value">100%</div>
-              <div className="stat-label">Via Gameplay Claims</div>
-            </UnifiedStat>
-          </UnifiedCard>
-        </UnifiedGrid>
+            <div style={{ textAlign: 'center' }}>
+              <h3 style={{ color: '#ffd700', fontSize: '1.5rem', marginBottom: '0.5rem' }}>🎯 Distribution</h3>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>100%</div>
+              <div style={{ opacity: 0.8 }}>Via Gameplay Claims</div>
+            </div>
+          </UnifiedGrid>
+        </UnifiedHighlightSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>🚀 Get $DGHRT Tokens</UnifiedSectionHeading>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>🚀 Get $DGHRT Tokens</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             <div style={{ 
               textAlign: 'center', 
               fontSize: '1.5rem', 
@@ -96,12 +103,12 @@ const DGHRTTokenPage: React.FC = () => {
               governance voting, and future airdrops.
             </p>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>🌟 Tokenomics of Love</UnifiedSectionHeading>
-          <UnifiedContent>
-            <UnifiedGrid columns="repeat(auto-fit, minmax(300px, 1fr))">
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>🌟 Tokenomics of Love</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
+            <UnifiedGrid>
               <div>
                 <h4 style={{ color: '#ffd700', marginBottom: '0.5rem' }}>📊 Total Supply</h4>
                 <p>1,000,000,000 $DGHRT — a universe of possibilities, all distributed through gameplay claims</p>
@@ -133,11 +140,11 @@ const DGHRTTokenPage: React.FC = () => {
               </div>
             </UnifiedGrid>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
 
-        <UnifiedCard>
-          <UnifiedSectionHeading>⚡ Token Utilities</UnifiedSectionHeading>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>⚡ Token Utilities</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             <ul style={{ paddingLeft: '1.5rem' }}>
               <li>Bet with your soul on exclusive house-edge games that test fortune's limits</li>
               <li>Unlock community access & features that reveal like hidden chambers</li>
@@ -149,11 +156,11 @@ const DGHRTTokenPage: React.FC = () => {
               <li>Trade freely on-chain or hold like a true Degen who understands deeper meaning</li>
             </ul>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
         
-        <UnifiedCard>
-          <UnifiedSectionHeading>🔗 Important Links</UnifiedSectionHeading>
-          <UnifiedContent>
+        <UnifiedSection $colorScheme={currentColorScheme}>
+          <UnifiedSectionTitle $colorScheme={currentColorScheme}>🔗 Important Links</UnifiedSectionTitle>
+          <UnifiedContent $colorScheme={currentColorScheme}>
             <p>
               <strong>Contract Address:</strong> TBD (To be deployed Q3 2026)<br/>
               <strong>Network:</strong> Solana (SPL Token)<br/>
@@ -165,9 +172,9 @@ const DGHRTTokenPage: React.FC = () => {
               Build is my love language — I craft digital realms from pure passion.
             </p>
           </UnifiedContent>
-        </UnifiedCard>
+        </UnifiedSection>
       </UnifiedPageContainer>
-    </UnifiedResponsiveContainer>
+    </>
   )
 }
 

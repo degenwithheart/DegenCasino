@@ -8,6 +8,7 @@ import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { 
   SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_MOON, SOUND_RUG,
   CANVAS_WIDTH, CANVAS_HEIGHT, CHART_WIDTH, CHART_HEIGHT, CHART_PADDING,
@@ -25,6 +26,14 @@ interface CandleData {
 }
 
 export default function CryptoChartGameV2() {
+  // SEO for CryptoChart game
+  const seoHelmet = useGameSEO({
+    gameName: "Crypto Chart",
+    description: "Predict if crypto goes up or down! Trade virtual crypto charts and predict price movements for big wins",
+    rtp: 98,
+    maxWin: "1000x"
+  })
+
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -422,6 +431,7 @@ export default function CryptoChartGameV2() {
 
   return (
     <>
+      {seoHelmet}
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { BonusContent } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 
 const PageWrapper = styled.div<{ $colorScheme?: any }>`
   position: fixed;
@@ -100,6 +101,12 @@ const ContentWrapper = styled.div`
 `;
 
 export default function BonusPage() {
+  // SEO for Bonus page
+  const seoHelmet = usePageSEO(
+    "Bonus", 
+    "Claim your casino bonuses and rewards! Get free spins, deposit bonuses, and special promotions"
+  )
+
   const navigate = useNavigate()
   const { mobile } = useIsCompact()
   const { currentColorScheme } = useColorScheme()
@@ -112,17 +119,20 @@ export default function BonusPage() {
   }, [mobile])
 
   return (
-    <PageWrapper $colorScheme={currentColorScheme}>
-      <Header $colorScheme={currentColorScheme}>
-        <Title $colorScheme={currentColorScheme}>🎁 Bonus</Title>
-        <CloseButton $colorScheme={currentColorScheme} onClick={() => navigate(-1)} aria-label="Close">
-          ✕ Close
-        </CloseButton>
-      </Header>
+    <>
+      {seoHelmet}
+      <PageWrapper $colorScheme={currentColorScheme}>
+        <Header $colorScheme={currentColorScheme}>
+          <Title $colorScheme={currentColorScheme}>🎁 Bonus</Title>
+          <CloseButton $colorScheme={currentColorScheme} onClick={() => navigate(-1)} aria-label="Close">
+            ✕ Close
+          </CloseButton>
+        </Header>
 
-      <ContentWrapper>
-        <BonusContent />
-      </ContentWrapper>
-    </PageWrapper>
+        <ContentWrapper>
+          <BonusContent />
+        </ContentWrapper>
+      </PageWrapper>
+    </>
   )
 }

@@ -21,6 +21,7 @@ import { GambaPlatformProvider, ReferralProvider, TokenMetaProvider, useGambaPla
 import { GambaProvider, SendTransactionProvider } from 'gamba-react-v2'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
@@ -93,8 +94,9 @@ function PersistSelectedToken() {
 
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <NetworkProvider>
-        <NetworkAwareConnectionProvider>
+      <HelmetProvider>
+        <NetworkProvider>
+          <NetworkAwareConnectionProvider>
         <WalletProvider autoConnect wallets={wallets}>
           <WalletModalProvider>
             <TokenMetaProvider
@@ -126,6 +128,7 @@ function PersistSelectedToken() {
         </WalletProvider>
         </NetworkAwareConnectionProvider>
       </NetworkProvider>
+      </HelmetProvider>
     </BrowserRouter>
   )
 }

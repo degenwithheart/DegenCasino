@@ -4,6 +4,8 @@ import { GlobalColorScheme, ColorSchemeKey, globalColorSchemes, getStoredColorSc
 import { LayoutTheme, LayoutThemeKey, getLayoutTheme, DEFAULT_LAYOUT_THEME, AVAILABLE_LAYOUT_THEMES } from './layouts';
 import { ThemeResolver, createThemeResolver, ComponentCategory, ComponentName } from './themeResolver';
 import { ColorSchemeProvider } from './ColorSchemeContext';
+import { GlobalScrollStyles } from './GlobalScrollStyles';
+import { ScrollConfig, defaultScrollConfig, getStoredScrollConfig, setStoredScrollConfig, applyScrollConfig, GameScrollConfigKey, applyGameScrollConfig, detectOptimalScrollConfig } from './scrollConfig';
 
 /**
  * Storage keys for persistence
@@ -26,6 +28,13 @@ interface UnifiedThemeContextType {
   colorSchemeKey: ColorSchemeKey;
   setColorScheme: (colorSchemeKey: ColorSchemeKey) => void;
   availableColorSchemes: Record<ColorSchemeKey, GlobalColorScheme>;
+  
+  // Scroll Configuration
+  scrollConfig: ScrollConfig;
+  updateScrollConfig: (config: Partial<ScrollConfig>) => void;
+  applyGameScrollConfig: (gameType: GameScrollConfigKey) => void;
+  resetScrollConfig: () => void;
+  detectOptimalScrollConfig: () => void;
   
   // Theme Resolver
   themeResolver: ThemeResolver;
@@ -104,10 +113,39 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
   const [colorSchemeKey, setColorSchemeKey] = useState<ColorSchemeKey>(getStoredColorScheme);
   const [currentColorScheme, setCurrentColorScheme] = useState<GlobalColorScheme>(globalColorSchemes[colorSchemeKey]);
   
+  // Scroll Configuration State
+  const [scrollConfig, setScrollConfigState] = useState<ScrollConfig>(getStoredScrollConfig);
+  
   // Theme Resolver
   const [themeResolver, setThemeResolver] = useState<ThemeResolver>(
     createThemeResolver(defaultComponentRegistry, currentLayoutTheme)
   );
+
+  // Scroll Configuration Functions
+  const updateScrollConfig = (config: Partial<ScrollConfig>) => {
+    const newConfig = { ...scrollConfig, ...config };
+    setScrollConfigState(newConfig);
+    applyScrollConfig(newConfig);
+    setStoredScrollConfig(newConfig);
+  };
+
+  const handleApplyGameScrollConfig = (gameType: GameScrollConfigKey) => {
+    applyGameScrollConfig(gameType);
+  };
+
+  const handleResetScrollConfig = () => {
+    setScrollConfigState(defaultScrollConfig);
+    applyScrollConfig(defaultScrollConfig);
+    setStoredScrollConfig(defaultScrollConfig);
+  };
+
+  const handleDetectOptimalScrollConfig = () => {
+    const optimal = detectOptimalScrollConfig();
+    const newConfig = { ...scrollConfig, ...optimal };
+    setScrollConfigState(newConfig);
+    applyScrollConfig(newConfig);
+    setStoredScrollConfig(newConfig);
+  };
 
   // Layout Theme Effects
   useEffect(() => {
@@ -120,6 +158,11 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
   useEffect(() => {
     setCurrentColorScheme(globalColorSchemes[colorSchemeKey]);
   }, [colorSchemeKey]);
+
+  // Apply scroll configuration on mount
+  useEffect(() => {
+    applyScrollConfig(scrollConfig);
+  }, []);
 
   // Layout Theme Setter
   const setLayoutTheme = (newThemeKey: LayoutThemeKey) => {
@@ -152,6 +195,13 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
     setColorScheme,
     availableColorSchemes: globalColorSchemes,
     
+    // Scroll Configuration
+    scrollConfig,
+    updateScrollConfig,
+    applyGameScrollConfig: handleApplyGameScrollConfig,
+    resetScrollConfig: handleResetScrollConfig,
+    detectOptimalScrollConfig: handleDetectOptimalScrollConfig,
+    
     // Theme Resolver
     themeResolver,
     resolveComponent,
@@ -159,6 +209,7 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
 
   return (
     <UnifiedThemeContext.Provider value={value}>
+      <GlobalScrollStyles colorScheme={currentColorScheme} />
       <ColorSchemeProvider>
         {children}
       </ColorSchemeProvider>

@@ -2,7 +2,15 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
-import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { useColorScheme } from '../../themes/ColorSchemeContext'
+import {
+  UnifiedPageContainer,
+  UnifiedPageTitle,
+  UnifiedSection,
+  UnifiedSectionTitle,
+  UnifiedContent,
+  UnifiedGrid
+} from '../UI/UnifiedDesign'
 
 // Keyframe animations matching dashboard style
 const neonPulse = keyframes`
@@ -71,32 +79,68 @@ const QuickLinksGrid = styled.div`
   }
 `
 
-const QuickLinkCard = styled(Link)`
-  background: var(--slate-1);
-  border: 1px solid var(--slate-4);
-  border-radius: 12px;
-  padding: 24px;
+const QuickLinkCard = styled(Link)<{ $colorScheme?: any }>`
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: block;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd700, #ff69b4, #9370db);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
 
   &:hover {
     border-color: #ffd700;
-    box-shadow: 0 0 24px rgba(255, 215, 0, 0.2);
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.3);
+
+    &::after {
+      opacity: 1;
+    }
   }
 
   h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.5rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.25rem;
     color: #ffd700;
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
   }
 
   p {
     margin: 0;
-    color: #999;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 2;
   }
 `
 
@@ -128,6 +172,7 @@ const InfoCard = styled.div`
 
 export default function ExplorerIndex() {
   const [searchTerm, setSearchTerm] = React.useState('')
+  const { currentColorScheme } = useColorScheme()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,45 +191,59 @@ export default function ExplorerIndex() {
   }
 
   return (
-    <ExplorerContainer>
-      <ExplorerHeader>
-        <ExplorerTitle>🔍 DegenCasino Explorer</ExplorerTitle>
-        <ExplorerSubtitle>
-          Explore transactions, players, and platform statistics
-        </ExplorerSubtitle>
-      </ExplorerHeader>
+    <UnifiedPageContainer $colorScheme={currentColorScheme}>
+      <UnifiedPageTitle $colorScheme={currentColorScheme} style={{
+        fontFamily: 'Luckiest Guy, cursive, sans-serif'
+      }}>
+        🔍 DegenCasino Explorer
+      </UnifiedPageTitle>
+      
+      <UnifiedContent $colorScheme={currentColorScheme} style={{
+        textAlign: 'center',
+        marginBottom: '3rem',
+        fontSize: '1.1rem',
+        opacity: 0.9
+      }}>
+        Explore transactions, players, and platform statistics
+      </UnifiedContent>
 
-      <QuickLinksGrid>
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>🏢 Platform Stats</h3>
-          <p>View platform statistics, volume, and performance metrics</p>
-        </QuickLinkCard>
+      <UnifiedSection $colorScheme={currentColorScheme}>
+        <UnifiedGrid style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>🏢 Platform Stats</h3>
+            <p>View platform statistics, volume, and performance metrics</p>
+          </QuickLinkCard>
 
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>📊 Transaction Details</h3>
-          <p>Deep dive into individual game transactions and verify fairness</p>
-        </QuickLinkCard>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>📊 Transaction Details</h3>
+            <p>Deep dive into individual game transactions and verify fairness</p>
+          </QuickLinkCard>
 
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>🎯 Provably Fair Gaming</h3>
-          <p>All games use cryptographic proofs to ensure complete fairness and transparency</p>
-        </QuickLinkCard>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>🎯 Provably Fair Gaming</h3>
+            <p>All games use cryptographic proofs to ensure complete fairness and transparency</p>
+          </QuickLinkCard>
 
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>⚡ Real-time Analytics</h3>
-          <p>Live statistics tracking for players, platforms, and gaming outcomes</p>
-        </QuickLinkCard>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>⚡ Real-time Analytics</h3>
+            <p>Live statistics tracking for players, platforms, and gaming outcomes</p>
+          </QuickLinkCard>
 
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>🔐 Blockchain Verified</h3>
-          <p>Every transaction is recorded and verifiable on the Solana blockchain</p>
-        </QuickLinkCard>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>🔐 Blockchain Verified</h3>
+            <p>Every transaction is recorded and verifiable on the Solana blockchain</p>
+          </QuickLinkCard>
 
-        <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`}>
-          <h3>📈 Performance Metrics</h3>
-          <p>Comprehensive data on volume, fees, player activity, and platform growth</p>
-        </QuickLinkCard>
-      </QuickLinksGrid>
-    </ExplorerContainer>
+          <QuickLinkCard to={`/explorer/platform/${PLATFORM_CREATOR_ADDRESS.toString()}`} $colorScheme={currentColorScheme}>
+            <h3>📈 Performance Metrics</h3>
+            <p>Comprehensive data on volume, fees, player activity, and platform growth</p>
+          </QuickLinkCard>
+        </UnifiedGrid>
+      </UnifiedSection>
+    </UnifiedPageContainer>
   )
 }

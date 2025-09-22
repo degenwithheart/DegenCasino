@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { JackpotContent } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { usePageSEO } from '../../hooks/ui/useGameSEO'
 
 const PageWrapper = styled.div<{ $colorScheme?: any }>`
   position: fixed;
@@ -100,6 +101,12 @@ const ContentWrapper = styled.div`
 `;
 
 export default function JackpotPage() {
+  // SEO for Jackpot page
+  const seoHelmet = usePageSEO(
+    "Jackpot", 
+    "Check out massive jackpot prizes! See current jackpot amounts and recent big wins from our casino games"
+  )
+
   const navigate = useNavigate()
   const { mobile } = useIsCompact()
   const { currentColorScheme } = useColorScheme()
@@ -113,6 +120,7 @@ export default function JackpotPage() {
 
   return (
     <PageWrapper $colorScheme={currentColorScheme}>
+      {seoHelmet}
       <Header $colorScheme={currentColorScheme}>
         <Title $colorScheme={currentColorScheme}>🎰 Jackpot</Title>
         <CloseButton $colorScheme={currentColorScheme} onClick={() => navigate(-1)} aria-label="Close">

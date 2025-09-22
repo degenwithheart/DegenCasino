@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { GameplayFrame, useGraphics } from '../../components'
 import type { GameplayEffectsRef } from '../../components'
 import { useGameMeta } from '../useGameMeta'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { Chip } from './Chip'
 import { StyledResults } from './Roulette.styles'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
@@ -64,6 +65,14 @@ function Stats({ wager }: { wager: number }) {
 }
 
 export default function Roulette() {
+  // SEO for Roulette game
+  const seoHelmet = useGameSEO({
+    gameName: "Roulette",
+    description: "Spin the wheel of fortune! Classic European roulette with single zero and all traditional betting options",
+    rtp: 97,
+    maxWin: "35x"
+  })
+
   const game = GambaUi.useGame()
   const [wager, setWager] = useWagerInput()
   const token = useCurrentToken()
@@ -238,6 +247,7 @@ export default function Roulette() {
 
   return (
     <>
+      {seoHelmet}
       <GambaUi.Portal target="screen">
         <GameplayFrame 
           ref={effectsRef}

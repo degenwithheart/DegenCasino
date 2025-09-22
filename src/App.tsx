@@ -14,6 +14,7 @@ import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
 const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
+const Credits = lazy(() => import('./sections/Dashboard/Credits/Credits'));
 const DGHRTToken = lazy(() => import('./sections/DGHRTToken/DGHRTToken'));
 const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/DGHRTPresale'));
 const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
@@ -81,6 +82,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/select-token" element={<SelectTokenPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/credits" element={<Credits />} />
             <Route path="/token" element={<DGHRTToken />} />
             <Route path="/presale" element={<DGHRTPresale />} />
             <Route path="/aboutme" element={<AboutMe />} />
@@ -120,6 +122,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <Route path="/select-token" element={<SelectTokenPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/credits" element={<Credits />} />
             <Route path="/token" element={<DGHRTToken />} />
             <Route path="/presale" element={<DGHRTPresale />} />
             <Route path="/aboutme" element={<AboutMe />} />

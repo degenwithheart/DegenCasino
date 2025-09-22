@@ -3,6 +3,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput, useCurren
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
 import { useToast } from '../../hooks/ui/useToast'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 import { GAME_CONFIG, GAME_STATES, LIMBO_ANIMATION, type GameState } from './constants'
 import { LIMBO_SOUNDS } from './sounds'
@@ -112,6 +113,14 @@ const StatsDisplay = styled.div`
 interface LimboGameProps {}
 
 export default function LimboGame({}: LimboGameProps) {
+  // SEO for Limbo game
+  const seoHelmet = useGameSEO({
+    gameName: "Limbo",
+    description: "How high can you go? Set your target multiplier and see if luck is on your side in this high-risk limbo game",
+    rtp: 99,
+    maxWin: "1000x"
+  })
+
   const game = GambaUi.useGame()
   const gamba = useGamba()
   const pool = useCurrentPool()
@@ -477,6 +486,7 @@ export default function LimboGame({}: LimboGameProps) {
 
   return (
     <>
+      {seoHelmet}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="Limbo"
