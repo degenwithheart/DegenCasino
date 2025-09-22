@@ -1,11 +1,6 @@
 {
   "include": ["src"],
-  "exclude": [
-    "api",
-    "**/*.old.tsx",
-    "**/*.broken.tsx",
-    "**/WagerConfirmationModal.tsx"
-  ],
+  "exclude": ["api"],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
