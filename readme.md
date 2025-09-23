@@ -1,6 +1,6 @@
 # 🎰 DegenHeart Casino
 
-[![Live](https://img.shields.io/badge/live-degenheart.casino-brightgreen?style=flat-square)](https://degenheart.casino)
+[![Live](https://img.shields.io/badge/live-degenheart.casino-brightgreen?style=fl| **Roulet| **PlinkoRace** | 🔴 Maintenance | Multiplayer | Competitive Plinko racing |e** | 🔴 Maintenance | Classic | European-style wheel simulation |t-square)](https://degenheart.casino)
 [![License](https://img.shields.io/github/license/degenwithheart/DegenCasino?style=flat-square&v=1)](LICENSE)
 ![Stars](https://img.shields.io/github/stars/degenwithheart/DegenCasino?style=flat-square)
 ![Solana](https://img.shields.io/badge/solana-mainnet-brightgreen?logo=solana&logoColor=white&style=flat-square)
@@ -98,22 +98,22 @@ BrowserRouter
 ### 🎯 Core Games (16+ Titles)
 | Game | Status | Features | Description |
 |------|--------|----------|-------------|
-| **Dice v2** | 🟢 Live | 3D Physics | Mystical 8-ball with particle effects |
-| **Slots** | 🟢 Live | Animation | Multi-reel with cascading symbols |
-| **Blackjack v2** | 🟢 Live | Strategy | Professional card game with dealer AI |
-| **Crash** | 🟢 Live | Real-time | Social multiplier with chat |
-| **Mines** | 🟢 Live | Grid-based | Risk/reward treasure hunting |
-| **Roulette** | 🟢 Live | Classic | European-style wheel simulation |
-| **Plinko** | 🟢 Live | Physics | Realistic ball drop mechanics |
-| **Limbo** | 🟢 Live | High-risk | Extreme multiplier challenges |
-| **Keno** | 🟢 Live | Lottery | Number selection with multiple draws |
-| **Flip** | 🟢 Live | Simple | Animated coin toss with outcomes |
-| **HiLo** | 🟢 Live | Cards | Prediction-based card game |
-| **Horse Racing** | 🟢 Live | Virtual | Animated racing with betting |
-| **Multi-Poker** | 🟢 Live | Poker | Various poker game variants |
-| **Double or Nothing** | 🟢 Live | Risk | All-or-nothing betting |
-| **Chart Game** | 🟢 Live | Trading | Crypto-style prediction game |
-| **PlinkoRace** | 🔄 Beta | Multiplayer | Competitive Plinko racing |
+| **Dice v2** | 🟢 Active | 3D Physics | Mystical 8-ball with particle effects |
+| **Slots** | 🟢 Active | Animation | Multi-reel with cascading symbols |
+| **Blackjack v2** | 🟢 Active | Strategy | Professional card game with dealer AI |
+| **Crash** | 🟢 Active | Real-time | Social multiplier with chat |
+| **Mines** | 🟢 Active | Grid-based | Risk/reward treasure hunting |
+| **Roulette** | � Under Maintenance | Classic | European-style wheel simulation |
+| **Plinko** | 🟢 Active | Physics | Realistic ball drop mechanics |
+| **Limbo v2** | 🆕 Coming Soon | High-risk | Extreme multiplier challenges |
+| **Keno v2** | 🆕 Coming Soon | Lottery | Number selection with multiple draws |
+| **Flip** | 🟢 Active | Simple | Animated coin toss with outcomes |
+| **HiLo** | 🟢 Active | Cards | Prediction-based card game |
+| **Horse Racing v2** | 🆕 Coming Soon | Virtual | Animated racing with betting |
+| **Multi-Poker** | 🟢 Active | Poker | Various poker game variants |
+| **Double or Nothing v2** | 🆕 Coming Soon | Risk | All-or-nothing betting |
+| **Chart Game v2** | 🆕 Coming Soon | Trading | Crypto-style prediction game |
+| **PlinkoRace** | � Under Maintenance | Multiplayer | Competitive Plinko racing |
 
 ### 🎨 Advanced Game Features
 - **3D Graphics**: Three.js powered immersive environments
