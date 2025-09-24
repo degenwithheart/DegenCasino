@@ -9,6 +9,8 @@
  * Target: 94%-97% RTP with balanced win rates for sustainable operations.
  */
 
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
+
 // RTP_TARGETS for V2 games (can be adjusted independently from V1)
 export const RTP_TARGETS_V2 = {
   'dice-v2': 0.95,        // Lucky Number: 5% house edge
@@ -28,7 +30,7 @@ export type GameV2Key = keyof typeof RTP_TARGETS_V2
 // Game configurations for V2 games
 export const BET_ARRAYS_V2 = {
   'dice-v2': {
-    OUTCOMES: 100, // 0-99 like original dice
+    OUTCOMES: 100, // 0-99 like original dice (game logic requires exactly 100)
     outcomes: Array.from({length: 100}, (_, i) => i), // [0, 1, 2, ..., 99]
     calculateBetArray: (rollUnder: number) => {
       // Generate bet array for a given roll-under value (1-99)
@@ -252,8 +254,8 @@ export const BET_ARRAYS_V2 = {
 
   'cryptochartgame-v2': {
     calculateBetArray: (targetMultiplier: number) => {
-      // Create 1000 outcomes for granular control
-      const OUTCOMES = 1000
+      // Use Gamba's BPS_PER_WHOLE for precise calculations
+      const OUTCOMES = BPS_PER_WHOLE
       const betArray = Array(OUTCOMES).fill(0)
       
       // Calculate win probability based on target multiplier
@@ -275,7 +277,7 @@ export const BET_ARRAYS_V2 = {
       return betArray
     },
     outcomeToText: (outcome: number, targetMultiplier: number) => {
-      const OUTCOMES = 1000
+      const OUTCOMES = BPS_PER_WHOLE
       const winProbability = Math.min(0.9, 0.5 * Math.max(0.1, 1 / Math.log(targetMultiplier + 1)))
       const winOutcomes = Math.floor(OUTCOMES * winProbability)
       
@@ -387,7 +389,7 @@ export const BET_ARRAYS_V2 = {
     calculateBetArray: (targetMultiplier: number) => {
       // Limbo: try to reach target multiplier
       // Simple bet array where win occurs if random value >= target
-      const outcomes = 1000 // 0-999 for granular control
+      const outcomes = BPS_PER_WHOLE // Use Gamba's standard for precise calculations
       const betArray = Array(outcomes).fill(0)
       
       // Calculate win probability (simplified limbo mechanics)
@@ -407,12 +409,12 @@ export const BET_ARRAYS_V2 = {
     
     calculateResultMultiplier: (resultIndex: number, targetMultiplier: number, won: boolean) => {
       if (won) {
-        // Winner gets target + some bonus
-        const bonus = (resultIndex % 100) / 500 // 0-0.2 bonus multiplier
+        // Winner gets target + some bonus - use BPS_PER_WHOLE for consistency
+        const bonus = (resultIndex % BPS_PER_WHOLE) / (BPS_PER_WHOLE * 5) // 0-0.2 bonus multiplier
         return targetMultiplier + (targetMultiplier * bonus)
       } else {
         // Loser gets a value between 1 and target
-        const normalized = (resultIndex % 1000) / 1000
+        const normalized = (resultIndex % BPS_PER_WHOLE) / BPS_PER_WHOLE
         return 1 + (normalized * (targetMultiplier - 1))
       }
     }

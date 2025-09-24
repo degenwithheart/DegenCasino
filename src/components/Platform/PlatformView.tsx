@@ -697,12 +697,12 @@ export function PlatformView() {
           </GameStatusHeader>
           <StatusGrid>
             <StatusCard $colorScheme={currentColorScheme}>
-              <StatusValue $colorScheme={currentColorScheme}>${calculatedVolume.toFixed(2)}</StatusValue>
-              <StatusLabel $colorScheme={currentColorScheme}>VOLUME</StatusLabel>
+              <StatusValue $colorScheme={currentColorScheme}>{calculatedVolume.toFixed(4)} SOL</StatusValue>
+              <StatusLabel $colorScheme={currentColorScheme}>WAGERED</StatusLabel>
             </StatusCard>
             <StatusCard $colorScheme={currentColorScheme}>
               <StatusValue $colorScheme={currentColorScheme}>${estimatedFees.toFixed(2)}</StatusValue>
-              <StatusLabel $colorScheme={currentColorScheme}>ESTIMATED FEES</StatusLabel>
+              <StatusLabel $colorScheme={currentColorScheme}>REVENUE</StatusLabel>
             </StatusCard>
             <StatusCard $colorScheme={currentColorScheme}>
               <StatusValue $colorScheme={currentColorScheme}>{recentPlays.length}</StatusValue>

@@ -8,6 +8,7 @@ declare global {
 
 import { PublicKey } from '@solana/web3.js'
 import { FAKE_TOKEN_MINT, PoolToken, TokenMeta, makeHeliusTokenFetcher } from 'gamba-react-ui-v2'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Get RPC from the .env file or default to Syndica, not public RPC.
 // Note: This is now primarily used as fallback. The NetworkContext provides dynamic RPC endpoints.
@@ -37,15 +38,21 @@ export const EXPLORER_URL = 'https://degenheart.casino/explorer'
 export const PLATFORM_SHARABLE_URL = 'degenheart.casino'
 
 // Creator fee (in %)
-export const PLATFORM_CREATOR_FEE = 0.07 // 1% !!max 7%!!
+export const PLATFORM_CREATOR_FEE = 0.07 // 7%
 
-export const MULTIPLAYER_FEE = 0.015 // 1% 
+export const MULTIPLAYER_FEE = 0.015 // 1.5% 
 
 // Jackpot fee (in %)
-export const PLATFORM_JACKPOT_FEE = 0.001 // 0.1%,  not jackpot game specific, but platform wide
+export const PLATFORM_JACKPOT_FEE = 0.001 // 0.1%
 
 // Referral fee (in %)
 export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
+
+// Fee conversions to basis points (BPS) using Gamba's BPS_PER_WHOLE for consistency
+export const PLATFORM_CREATOR_FEE_BPS = Math.round(PLATFORM_CREATOR_FEE * BPS_PER_WHOLE) // 700 BPS = 7%
+export const MULTIPLAYER_FEE_BPS = Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE) // 150 BPS = 1.5%
+export const PLATFORM_JACKPOT_FEE_BPS = Math.round(PLATFORM_JACKPOT_FEE * BPS_PER_WHOLE) // 10 BPS = 0.1%
+export const PLATFORM_REFERRAL_FEE_BPS = Math.round(PLATFORM_REFERRAL_FEE * BPS_PER_WHOLE) // 25 BPS = 0.25%
 
 /** If the user should be able to revoke an invite after they've accepted an invite */
 export const PLATFORM_ALLOW_REFERRER_REMOVAL = true

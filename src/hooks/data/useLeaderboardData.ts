@@ -1,7 +1,7 @@
 // src/hooks/useLeaderboardData.ts
 import { useState, useEffect } from 'react';
 
-export type Period = 'weekly' | 'monthly';
+export type Period = 'alltime';
 
 export interface Player {
   user: string;
@@ -37,18 +37,8 @@ export function useLeaderboardData(period: Period, creator: string) {
         setLoading(true);
         setError(null);
 
-        // Determine starting timestamp for the selected period
-        const now = Date.now();
-        const startTime =
-          period === 'weekly'
-            ? now - 7 * 24 * 60 * 60 * 1000      // 7 days
-            : now - 30 * 24 * 60 * 60 * 1000;    // 30 days
-
-        const url =
-          `${API_BASE_URL}/players` +
-          `?creator=${creator}` +
-          `&sortBy=usd_volume` +
-          `&startTime=${startTime}`;
+        // Build URL for all-time data (no time filter needed)
+        const url = `${API_BASE_URL}/players?creator=${creator}&sortBy=usd_volume&limit=100`;
 
         const res = await fetch(url, { 
           signal,

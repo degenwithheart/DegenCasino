@@ -8,6 +8,7 @@ import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { GAME_CONFIG, GAME_STATES, LIMBO_ANIMATION, type GameState } from './constants'
 import { LIMBO_SOUNDS } from './sounds'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
 import { EnhancedWagerInput, EnhancedPlayButton } from '../../components/Game/EnhancedGameControls'

@@ -15,6 +15,7 @@ import IMAGE_MYTHICAL from './assets/slot-mythical.webp'
 import IMAGE_LEGENDARY from './assets/slot-legendary.webp'
 import IMAGE_WOJAK from './assets/slot-wojak.webp'
 import { BET_ARRAYS, SLOTS_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 export interface SlotItem {
   multiplier: number

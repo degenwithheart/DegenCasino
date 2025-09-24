@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from 'react'
+import React, { useState, createContext, useContext, useEffect } from 'react'
 import styled from 'styled-components'
 import { useColorScheme } from '../../ColorSchemeContext'
 import Header from './Header'
@@ -10,8 +10,20 @@ import { Modal } from './components/Modal'
 import AllGamesModalContent from '../../../components/AllGamesModal/AllGamesModal'
 
 // Create a local games modal context for degen theme
-const DegenGamesModalContext = createContext<{ openGamesModal: () => void }>({ 
-  openGamesModal: () => {} 
+const DegenGamesModalContext = createContext<{ 
+  openGamesModal: () => void;
+  leftSidebarOpen: boolean;
+  rightSidebarOpen: boolean;
+  toggleLeftSidebar: () => void;
+  toggleRightSidebar: () => void;
+  closeSidebars: () => void;
+}>({ 
+  openGamesModal: () => {},
+  leftSidebarOpen: false,
+  rightSidebarOpen: false,
+  toggleLeftSidebar: () => {},
+  toggleRightSidebar: () => {},
+  closeSidebars: () => {}
 })
 
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
@@ -60,7 +72,7 @@ const GridHeader = styled.header`
   }
 `
 
-const GridLeftSidebar = styled.aside`
+const GridLeftSidebar = styled.aside<{ $isOpen?: boolean }>`
   grid-area: left;
   position: fixed;
   top: 80px;
@@ -73,8 +85,18 @@ const GridLeftSidebar = styled.aside`
     width: 200px;
   }
   
+  /* Mobile drawer functionality */
   @media (max-width: 768px) {
-    display: none;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    bottom: 65px;
+    width: 280px;
+    height: auto;
+    z-index: 1100;
+    transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: ${props => props.$isOpen ? '8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
   }
 `
 
@@ -100,7 +122,7 @@ const GridMain = styled.main`
   }
 `
 
-const GridRightSidebar = styled.aside`
+const GridRightSidebar = styled.aside<{ $isOpen?: boolean }>`
   grid-area: right;
   position: fixed;
   top: 80px;
@@ -113,8 +135,18 @@ const GridRightSidebar = styled.aside`
     width: 200px;
   }
   
+  /* Mobile drawer functionality */
   @media (max-width: 768px) {
-    display: none;
+    position: fixed;
+    top: 80px;
+    right: 0;
+    bottom: 65px;
+    width: 280px;
+    height: auto;
+    z-index: 1100;
+    transform: translateX(${props => props.$isOpen ? '0' : '100%'});
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: ${props => props.$isOpen ? '-8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
   }
 `
 
@@ -132,6 +164,21 @@ const GridFooter = styled.footer`
   }
 `
 
+const MobileBackdrop = styled.div<{ $visible?: boolean }>`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  opacity: ${props => props.$visible ? 1 : 0};
+  visibility: ${props => props.$visible ? 'visible' : 'hidden'};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @media (min-width: 769px) {
+    display: none;
+  }
+`
+
 interface DegenHeartLayoutProps {
   children: React.ReactNode
 }
@@ -139,15 +186,70 @@ interface DegenHeartLayoutProps {
 const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const { currentColorScheme } = useColorScheme()
   const [showGamesModal, setShowGamesModal] = useState(false)
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
+
+  const toggleLeftSidebar = () => {
+    setLeftSidebarOpen(!leftSidebarOpen)
+    setRightSidebarOpen(false) // Close right sidebar when left opens
+  }
+
+  const toggleRightSidebar = () => {
+    setRightSidebarOpen(!rightSidebarOpen)
+    setLeftSidebarOpen(false) // Close left sidebar when right opens
+  }
+
+  const closeSidebars = () => {
+    setLeftSidebarOpen(false)
+    setRightSidebarOpen(false)
+  }
+
+  // Handle escape key to close sidebars
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && (leftSidebarOpen || rightSidebarOpen)) {
+        closeSidebars()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    return () => document.removeEventListener('keydown', handleEscapeKey)
+  }, [leftSidebarOpen, rightSidebarOpen])
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (leftSidebarOpen || rightSidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [leftSidebarOpen, rightSidebarOpen])
 
   return (
-    <DegenGamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
+    <DegenGamesModalContext.Provider value={{ 
+      openGamesModal: () => setShowGamesModal(true),
+      leftSidebarOpen,
+      rightSidebarOpen,
+      toggleLeftSidebar,
+      toggleRightSidebar,
+      closeSidebars
+    }}>
       <LayoutContainer $colorScheme={currentColorScheme}>
+        {/* Mobile backdrop */}
+        <MobileBackdrop 
+          $visible={leftSidebarOpen || rightSidebarOpen} 
+          onClick={closeSidebars}
+        />
+        
         <GridHeader>
           <Header />
         </GridHeader>
         
-        <GridLeftSidebar>
+        <GridLeftSidebar $isOpen={leftSidebarOpen}>
           <LeftSidebar />
         </GridLeftSidebar>
         
@@ -155,7 +257,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           {children || <MainContent />}
         </GridMain>
         
-        <GridRightSidebar>
+        <GridRightSidebar $isOpen={rightSidebarOpen}>
           <RightSidebar />
         </GridRightSidebar>
         

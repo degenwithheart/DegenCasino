@@ -13,6 +13,7 @@ import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
 import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { BucketScoreboard } from './BucketScoreboard'
 
 import BUMP from './bump.mp3'

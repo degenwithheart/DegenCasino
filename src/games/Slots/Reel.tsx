@@ -1,6 +1,7 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
 import { SLOTS_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import styled, { css, keyframes } from 'styled-components'
 
 interface ReelProps {

@@ -1,5 +1,5 @@
 // src/components/LeaderboardsModal.tsx
-import React, { useState } from 'react'
+import React from 'react'
 // Use the main Modal component with full quantum portal effects
 import { Modal } from '../../components'
 import {
@@ -14,8 +14,6 @@ import {
   HeaderSection,
   Title,
   Subtitle,
-  TabRow,
-  TabButton,
   LeaderboardList,
   ListHeader,
   HeaderRank,
@@ -43,7 +41,7 @@ interface LeaderboardsContentProps {
 export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
   creator,
 }) => {
-  const [period, setPeriod] = useState<Period>('weekly') // default
+  const period: Period = 'alltime' // Only all-time now
   const colorScheme = useColorScheme()
 
   const {
@@ -58,31 +56,9 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
       <HeaderSection>
         <Title $colorScheme={colorScheme}>Leaderboard</Title>
         <Subtitle $colorScheme={colorScheme}>
-          Top players by volume{' '}
-          {period === 'weekly' ? 'this week' : 'this month'} (USD)
+          Top players by volume all time (USD)
         </Subtitle>
       </HeaderSection>
-
-      {/* ────── tabs ────── */}
-      <TabRow $colorScheme={colorScheme}>
-        <TabButton
-          $selected={period === 'weekly'}
-          $colorScheme={colorScheme}
-          onClick={() => setPeriod('weekly')}
-          disabled={loading}
-        >
-          Weekly
-        </TabButton>
-
-        <TabButton
-          $selected={period === 'monthly'}
-          $colorScheme={colorScheme}
-          onClick={() => setPeriod('monthly')}
-          disabled={loading}
-        >
-          Monthly
-        </TabButton>
-      </TabRow>
 
       {/* ────── body ────── */}
       {loading ? (

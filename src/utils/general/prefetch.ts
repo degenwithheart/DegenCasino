@@ -36,9 +36,8 @@ class PrefetchManager {
     if (!this.config.enabled) return;
 
     try {
-      // Prefetch common leaderboard data
-      await this.prefetchLeaderboard('weekly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
-      await this.prefetchLeaderboard('monthly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
+          // Prefetch leaderboards
+    await this.prefetchLeaderboard('alltime', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
       
       // Prefetch recent plays
       await this.prefetchRecentPlays(false, '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
@@ -52,7 +51,7 @@ class PrefetchManager {
   /**
    * Prefetch leaderboard data if not in cache or stale
    */
-  async prefetchLeaderboard(period: 'weekly' | 'monthly', creator: string): Promise<void> {
+  async prefetchLeaderboard(period: 'alltime', creator: string): Promise<void> {
     const cacheKey = CacheKeys.leaderboard(period, creator);
     const cached = cache.get(cacheKey, CacheTTL.LEADERBOARD);
     
@@ -64,7 +63,11 @@ class PrefetchManager {
 
     try {
       console.log(`🔄 Prefetching ${period} leaderboard...`);
-      const response = await fetch(`https://api.gamba.so/creator/${creator}/players?period=${period}&limit=100`);
+      
+      // Build URL for all-time data (no time filter needed)
+      const url = `https://api.gamba.so/players?creator=${creator}&sortBy=usd_volume&limit=100`;
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -118,12 +121,9 @@ class PrefetchManager {
     if (!this.config.backgroundRefresh) return;
 
     // Refresh leaderboard every 2 minutes
-    const leaderboardInterval = setInterval(() => {
-      this.prefetchLeaderboard('weekly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
-      this.prefetchLeaderboard('monthly', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
-    }, CacheTTL.LEADERBOARD);
-
-    // Refresh recent plays every 30 seconds
+  const leaderboardInterval = setInterval(() => {
+    this.prefetchLeaderboard('alltime', '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
+  }, CacheTTL.LEADERBOARD);    // Refresh recent plays every 30 seconds
     const recentPlaysInterval = setInterval(() => {
       this.prefetchRecentPlays(false, '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ');
     }, CacheTTL.RECENT_PLAYS);
@@ -161,7 +161,7 @@ class PrefetchManager {
   /**
    * Check if data exists in cache (for instant display)
    */
-  hasCachedLeaderboard(period: 'weekly' | 'monthly', creator: string): boolean {
+  hasCachedLeaderboard(period: 'alltime', creator: string): boolean {
     const cacheKey = CacheKeys.leaderboard(period, creator);
     return cache.has(cacheKey);
   }

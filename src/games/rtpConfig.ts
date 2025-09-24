@@ -19,6 +19,8 @@
  * Target: 94%-97% RTP with 48%-50% win rates across all games for sustainable operations.
  */
 
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
+
 
 // RTP_TARGETS: Set the target RTP (Return To Player) for each game.
 // - Key: game name
@@ -260,8 +262,9 @@ plinko: {
   //   - Returns: Array of 100 outcomes (win/lose), with house edge applied
   crash: {
     // Improved: higher resolution bet arrays minimize rounding drift and preserve RTP across wide multiplier range.
+    // Use Gamba's BPS_PER_WHOLE for consistent basis point calculations across all games
     calculateBetArray: (targetMultiplier: number, resolution?: number) => {
-      const baseResolution = resolution ?? (targetMultiplier > 100 ? 10000 : 1000);
+      const baseResolution = resolution ?? (targetMultiplier > 100 ? BPS_PER_WHOLE : 1000);
       const winProbability = 1 / targetMultiplier;
       const houseMultiplier = targetMultiplier * RTP_TARGETS.crash;
       let winSlots = Math.floor(winProbability * baseResolution);

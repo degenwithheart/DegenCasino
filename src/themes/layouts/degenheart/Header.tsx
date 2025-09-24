@@ -11,13 +11,34 @@ import { useToast } from '../../../hooks/ui/useToast'
 import { Modal } from './components/Modal'
 import { ColorSchemeSelector } from '../../../components'
 import TokenSelect from '../../../sections/TokenSelect'
+import { TotalBetsTopBar } from '../../../components/TopBar/TotalBetsTopBar'
+import { usePlatformStats } from '../../../hooks/data/usePlatformStats'
 
 const heartGlow = keyframes`
   0%, 100% {
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.7));
+    transform: scale(1);
+  }
+  25% {
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
+    transform: scale(1.05);
+  }  
+  50% {
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1));
+    transform: scale(1.1);
+  }
+  75% {
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
+    transform: scale(1.05);
+  }
+`
+
+const float = keyframes`
+  0%, 100% {
+    transform: translateY(0);
   }
   50% {
-    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
+    transform: translateY(-3px);
   }
 `
 
@@ -25,16 +46,18 @@ const HeaderContainer = styled.header<{ $colorScheme: any }>`
   width: 100%;
   height: 80px;
   background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}95,
-    ${props => props.$colorScheme.colors.background}80
+    ${props => props.$colorScheme.colors.surface}98,
+    ${props => props.$colorScheme.colors.background}90
   );
-  backdrop-filter: blur(10px);
-  border-bottom: 2px solid ${props => props.$colorScheme.colors.accent}30;
+  backdrop-filter: blur(20px);
+  border-bottom: 3px solid ${props => props.$colorScheme.colors.accent}40;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 2rem;
   position: relative;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   
   &::before {
     content: '';
@@ -42,16 +65,31 @@ const HeaderContainer = styled.header<{ $colorScheme: any }>`
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, 
       transparent,
       ${props => props.$colorScheme.colors.accent},
+      ${props => props.$colorScheme.colors.accent}80,
+      ${props => props.$colorScheme.colors.accent},
       transparent
     );
+    animation: ${heartGlow} 3s ease-in-out infinite;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 100%, ${props => props.$colorScheme.colors.accent}08 0%, transparent 70%);
+    pointer-events: none;
   }
   
   @media (max-width: 768px) {
     padding: 0 1rem;
+    height: 75px;
   }
 `
 
@@ -60,37 +98,94 @@ const LogoSection = styled.div`
   align-items: center;
   gap: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.5rem;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
   
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.08) translateY(-2px);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: scale(1.02) translateY(0);
   }
 `
 
 const LogoIcon = styled(FaGem)<{ $colorScheme: any }>`
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: ${props => props.$colorScheme.colors.accent};
-  ${css`animation: ${heartGlow} 2s ease-in-out infinite;`}
+  ${css`animation: ${heartGlow} 3s ease-in-out infinite, ${float} 4s ease-in-out infinite;`}
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+  position: relative;
+  z-index: 1;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    background: radial-gradient(circle, ${props => props.$colorScheme.colors.accent}20 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+  }
 `
 
 const LogoText = styled.h1<{ $colorScheme: any }>`
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 900;
   color: ${props => props.$colorScheme.colors.text};
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   margin: 0;
+  position: relative;
   
   background: linear-gradient(45deg, 
     ${props => props.$colorScheme.colors.accent},
+    #ffd700,
+    ${props => props.$colorScheme.colors.accent},
     ${props => props.$colorScheme.colors.text}
   );
+  background-size: 300% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: shimmer 4s ease-in-out infinite;
+  
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    filter: blur(8px);
+    opacity: 0.5;
+    z-index: -1;
+  }
   
   @media (max-width: 768px) {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
   }
 `
 
@@ -127,23 +222,43 @@ const Navigation = styled.nav<{ $colorScheme: any; $isOpen: boolean }>`
 `
 
 const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
-  background: none;
+  background: ${props => props.$active ? `${props.$colorScheme.colors.accent}15` : 'transparent'};
   border: 2px solid ${props => props.$active ? props.$colorScheme.colors.accent : 'transparent'};
   color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
   font-weight: 600;
   font-size: 0.9rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
+  padding: 0.8rem 1.6rem;
+  border-radius: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}20, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
   
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
     color: ${props => props.$colorScheme.colors.accent};
-    background: ${props => props.$colorScheme.colors.accent}10;
-    transform: translateY(-2px);
+    background: ${props => props.$colorScheme.colors.accent}15;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 5px 20px ${props => props.$colorScheme.colors.accent}30;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-1px) scale(0.98);
   }
   
   @media (max-width: 768px) {
@@ -164,29 +279,49 @@ const WalletSection = styled.div`
 
 const ThemeButton = styled.button<{ $colorScheme: any }>`
   background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}80,
-    ${props => props.$colorScheme.colors.background}60
+    ${props => props.$colorScheme.colors.surface}85,
+    ${props => props.$colorScheme.colors.background}70
   );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}40;
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 16px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
     background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}20,
-      ${props => props.$colorScheme.colors.accent}10
+      ${props => props.$colorScheme.colors.accent}25,
+      ${props => props.$colorScheme.colors.accent}15
     );
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
   }
 
   @media (max-width: 768px) {
@@ -196,29 +331,49 @@ const ThemeButton = styled.button<{ $colorScheme: any }>`
 
 const TokenButton = styled.button<{ $colorScheme: any }>`
   background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}80,
-    ${props => props.$colorScheme.colors.background}60
+    ${props => props.$colorScheme.colors.surface}85,
+    ${props => props.$colorScheme.colors.background}70
   );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}40;
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  border-radius: 16px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
     background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}20,
-      ${props => props.$colorScheme.colors.accent}10
+      ${props => props.$colorScheme.colors.accent}25,
+      ${props => props.$colorScheme.colors.accent}15
     );
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
   }
 
   @media (max-width: 768px) {
@@ -227,26 +382,48 @@ const TokenButton = styled.button<{ $colorScheme: any }>`
 `
 
 const WalletButton = styled.button<{ $colorScheme: any }>`
-  padding: 0.75rem 1.5rem;
-  background: ${props => props.$colorScheme.colors.accent};
+  padding: 0.8rem 1.8rem;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.accent}, ${props => props.$colorScheme.colors.accent}dd);
   color: white;
-  border: none;
-  border-radius: 25px;
+  border: 2px solid transparent;
+  border-radius: 30px;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
   
   &:hover {
-    background: ${props => props.$colorScheme.colors.accent}dd;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px ${props => props.$colorScheme.colors.accent}40;
+    background: linear-gradient(135deg, ${props => props.$colorScheme.colors.accent}ee, ${props => props.$colorScheme.colors.accent}cc);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+      0 8px 25px ${props => props.$colorScheme.colors.accent}50,
+      0 0 0 3px ${props => props.$colorScheme.colors.accent}20;
+    border-color: ${props => props.$colorScheme.colors.accent}80;
+    
+    &::before {
+      transform: translateX(100%);
+    }
+  }
+  
+  &:active {
+    transform: translateY(-1px) scale(0.98);
   }
   
   @media (max-width: 768px) {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     font-size: 0.8rem;
   }
 `
@@ -359,6 +536,7 @@ const Header: React.FC = () => {
   const walletModal = useWalletModal()
   const handleWalletConnect = useHandleWalletConnect()
   const toast = useToast()
+  const { stats, loading, error } = usePlatformStats()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
@@ -430,6 +608,8 @@ const Header: React.FC = () => {
           DegenHeart
         </LogoText>
       </LogoSection>
+
+      <TotalBetsTopBar stats={stats} loading={loading} error={error} colorScheme={currentColorScheme} />
 
       <Navigation $colorScheme={currentColorScheme} $isOpen={mobileMenuOpen}>
         {/* Mobile-only wallet options when connected */}

@@ -1,5 +1,6 @@
 import { SLOT_ITEMS, SlotItem } from './constants'
 import { SLOTS_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 /**
  * Very small deterministic hash-based PRNG (not cryptographic) used ONLY for
@@ -30,7 +31,7 @@ const pickDeterministic = <T>(arr: T[], rng: () => number) => arr[Math.floor(rng
 export const generateBetArray = (
   maxPayout: number,
   wager: number,
-  maxLength = 1000,
+  maxLength = BPS_PER_WHOLE,
 ) => {
   // Always return the full bet array from rtpConfig, no filtering or overrides
   return SLOTS_CONFIG.betArray;

@@ -1,4 +1,5 @@
 import { DICE_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 export const OUTCOMES = DICE_CONFIG.OUTCOMES
 
 export { default as SOUND_LOSE } from './lose.mp3'

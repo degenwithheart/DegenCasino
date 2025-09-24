@@ -7,6 +7,7 @@ export const BALL_RADIUS  = 13;
 export const GRAVITY      = 0.9;
 export const RESTITUTION  = 0.6;
 import { PLINKO_CONFIG } from '../../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 export const ROWS         = PLINKO_CONFIG.PEGS.normal;
 export const TIME_SCALE   = 4;   // 4× realtime
 export const SPEED_FACTOR = 4;   // sim‑steps per UI frame (for replay timing)

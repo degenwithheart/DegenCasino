@@ -13,6 +13,7 @@ import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/Gamepla
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { CRASH_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 

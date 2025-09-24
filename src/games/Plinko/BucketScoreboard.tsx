@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { getBucketColor } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 const ScoreboardContainer = styled.div`
   position: absolute;

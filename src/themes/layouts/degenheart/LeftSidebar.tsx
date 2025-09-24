@@ -10,33 +10,68 @@ import { useDegenGamesModal } from './DegenHeartLayout'
 
 const SidebarContainer = styled.aside<{ $colorScheme: any }>`
   background: linear-gradient(180deg, 
-    ${props => props.$colorScheme.colors.surface}95,
-    ${props => props.$colorScheme.colors.background}80
+    ${props => props.$colorScheme.colors.surface}98,
+    ${props => props.$colorScheme.colors.background}90
   );
-  backdrop-filter: blur(10px);
-  border-right: 2px solid ${props => props.$colorScheme.colors.accent}20;
+  backdrop-filter: blur(20px);
+  border-right: 3px solid ${props => props.$colorScheme.colors.accent}30;
   padding: 2rem 1rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, 
+      transparent,
+      ${props => props.$colorScheme.colors.accent}60,
+      ${props => props.$colorScheme.colors.accent}80,
+      ${props => props.$colorScheme.colors.accent}60,
+      transparent
+    );
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 100% 50%, ${props => props.$colorScheme.colors.accent}06 0%, transparent 70%);
+    pointer-events: none;
+  }
   
   /* Custom scrollbar */
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
   
   &::-webkit-scrollbar-track {
-    background: ${props => props.$colorScheme.colors.background};
-    border-radius: 3px;
+    background: ${props => props.$colorScheme.colors.background}40;
+    border-radius: 4px;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${props => props.$colorScheme.colors.accent}40;
-    border-radius: 3px;
+    background: linear-gradient(180deg, 
+      ${props => props.$colorScheme.colors.accent}60,
+      ${props => props.$colorScheme.colors.accent}40
+    );
+    border-radius: 4px;
+    border: 2px solid ${props => props.$colorScheme.colors.background}20;
     
     &:hover {
-      background: ${props => props.$colorScheme.colors.accent}60;
+      background: linear-gradient(180deg, 
+        ${props => props.$colorScheme.colors.accent}80,
+        ${props => props.$colorScheme.colors.accent}60
+      );
     }
   }
 `
@@ -63,21 +98,36 @@ const NavList = styled.ul`
 `
 
 const NavItem = styled.li<{ $colorScheme: any; $active: boolean }>`
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  background: ${props => props.$active ? `${props.$colorScheme.colors.accent}15` : 'transparent'};
+  border: 2px solid ${props => props.$active ? `${props.$colorScheme.colors.accent}40` : 'transparent'};
   
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 5px;
     height: 100%;
-    background: ${props => props.$colorScheme.colors.accent};
+    background: linear-gradient(180deg, 
+      ${props => props.$colorScheme.colors.accent},
+      ${props => props.$colorScheme.colors.accent}cc
+    );
     transform: scaleY(${props => props.$active ? 1 : 0});
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 3px 3px 0;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 0% 50%, ${props => props.$colorScheme.colors.accent}08 0%, transparent 70%);
+    opacity: ${props => props.$active ? 1 : 0};
+    transition: opacity 0.3s ease;
   }
   
   &:hover::before {
@@ -85,7 +135,18 @@ const NavItem = styled.li<{ $colorScheme: any; $active: boolean }>`
   }
   
   &:hover {
-    background: ${props => props.$colorScheme.colors.accent}10;
+    background: ${props => props.$colorScheme.colors.accent}15;
+    border-color: ${props => props.$colorScheme.colors.accent}30;
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px ${props => props.$colorScheme.colors.accent}20;
+    
+    &::after {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    transform: translateX(4px) scale(0.98);
   }
 `
 
@@ -138,13 +199,38 @@ const LinkDescription = styled.span<{ $colorScheme: any }>`
 
 const QuickStats = styled.div<{ $colorScheme: any }>`
   background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.accent}10,
-    ${props => props.$colorScheme.colors.surface}30
+    ${props => props.$colorScheme.colors.accent}15,
+    ${props => props.$colorScheme.colors.surface}40
   );
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 2rem;
   margin-top: auto;
-  border: 1px solid ${props => props.$colorScheme.colors.accent}20;
+  border: 2px solid ${props => props.$colorScheme.colors.accent}30;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, ${props => props.$colorScheme.colors.accent}10 0%, transparent 70%);
+    pointer-events: none;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+      transparent,
+      ${props => props.$colorScheme.colors.accent}80,
+      transparent
+    );
+  }
 `
 
 const StatItem = styled.div<{ $colorScheme: any }>`

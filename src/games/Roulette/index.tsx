@@ -12,6 +12,7 @@ import { StyledResults } from './Roulette.styles'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addChips, addResult, bet, clearChips, results, selectedChip, totalChipValue, chipPlacements } from './signals'
 import { ROULETTE_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
 import { RouletteWheel } from './RouletteWheel'
 

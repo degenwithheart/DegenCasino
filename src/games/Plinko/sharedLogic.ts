@@ -6,6 +6,7 @@ import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { PLINKO_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Use centralized bet arrays from rtpConfig
 const BET = PLINKO_CONFIG.normal

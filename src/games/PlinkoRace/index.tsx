@@ -7,6 +7,7 @@ import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFr
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoRaceBackground } from './PlinkoRaceBackground.enhanced.styles'
 import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import type { PublicKey } from '@solana/web3.js'
 

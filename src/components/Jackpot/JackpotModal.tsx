@@ -2,7 +2,8 @@ import React from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurrentToken, useTokenMeta, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
 import { Modal } from '../Modal/Modal'
-import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE } from '../../constants'
+import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE_BPS, PLATFORM_CREATOR_FEE_BPS } from '../../constants'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
 
@@ -239,7 +240,7 @@ const JackpotInner: React.FC = () => {
   }
 
   const minimumWager = getMinimumWager()
-  const poolFeePercentage = (PLATFORM_CREATOR_FEE * 100).toFixed(3)
+  const poolFeePercentage = (PLATFORM_CREATOR_FEE_BPS / BPS_PER_WHOLE * 100).toFixed(3)
 
   return (
     <div style={{ 
@@ -259,7 +260,7 @@ const JackpotInner: React.FC = () => {
         <PoolStatsGrid>
           <PoolStatItem>
             <PoolStatLabel>Pool Fee:</PoolStatLabel>
-            <PoolStatValue>{(PLATFORM_JACKPOT_FEE * 100).toFixed(2)}%</PoolStatValue>
+            <PoolStatValue>{(PLATFORM_JACKPOT_FEE_BPS / BPS_PER_WHOLE * 100).toFixed(2)}%</PoolStatValue>
           </PoolStatItem>
 
           <PoolStatItem>
