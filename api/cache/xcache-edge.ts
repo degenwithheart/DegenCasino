@@ -68,12 +68,12 @@ class EnhancedCache {
     let cleaned = 0;
     const now = Date.now();
     
-    for (const [key, item] of this.cache.entries()) {
+    this.cache.forEach((item, key) => {
       if (item.ttl && now - item.timestamp > item.ttl) {
         this.cache.delete(key);
         cleaned++;
       }
-    }
+    });
     
     return cleaned;
   }

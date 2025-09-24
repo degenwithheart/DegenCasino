@@ -1,15 +1,88 @@
-import { BET_ARRAYS, RTP_TARGETS, calculateAverageRTP, calculateWinRate, GameKey } from '../../src/games/rtpConfig'
-import { BET_ARRAYS_V2, RTP_TARGETS_V2, GameV2Key } from '../../src/games/rtpConfig-v2'
 import { withUsageTracking } from '../cache/usage-tracker'
 
 export const config = {
   runtime: 'edge',
 }
 
+// Edge Runtime compatible RTP targets and bet arrays (inline definitions)
+const RTP_TARGETS = {
+  flip: 0.96,
+  dice: 0.96,
+  mines: 0.96,
+  slots: 0.95,
+  plinko: 0.96,
+  plinkorace: 0.96,
+  hilo: 0.96,
+  roulette: 0.96,
+  limbo: 0.96,
+  keno: 0.94,
+  crash: 0.96,
+  blackjack: 0.96,
+  doubleornothing: 0.96,
+  progressivepoker: 0.96,
+}
+
+const RTP_TARGETS_V2 = {
+  'flip-v2': 0.96,
+  'dice-v2': 0.96,
+  'mines-v2': 0.96,
+  'keno-v2': 0.94,
+  'limbo-v2': 0.96,
+  'doubleornothing-v2': 0.96,
+  'blackjack-v2': 0.96,
+  'multipoker-v2': 0.96,
+  'cryptochartgame-v2': 0.96,
+  'fancyvirtualhorseracing-v2': 0.96,
+}
+
+// Simple bet arrays for edge cases validation
+const BET_ARRAYS: Record<string, number[]> = {
+  flip: [0, 2],
+  dice: [0, 0, 0, 0, 0, 6],
+  mines: [0, 1.04, 1.13, 1.24, 1.37, 1.53],
+  slots: [0, 1.2, 1.5, 2.0, 2.5, 3.0],
+  plinko: [0, 0.5, 1, 1.5, 2, 2.5, 3, 2.5, 2, 1.5, 1, 0.5, 0],
+  plinkorace: [0, 0.5, 1, 1.5, 2, 2.5, 3, 2.5, 2, 1.5, 1, 0.5, 0],
+  hilo: [0, 1.8, 1.8, 1.8, 1.8, 1.8],
+  roulette: [0, 2, 3, 36],
+  limbo: [1, 1.2, 1.5, 2, 3, 5, 10, 100],
+  keno: [0, 2, 3, 5, 10, 20, 50, 100],
+  crash: [1, 1.2, 1.5, 2, 3, 5, 10],
+  blackjack: [0, 2],
+  doubleornothing: [0, 2],
+  progressivepoker: [0, 2, 3, 5, 10],
+}
+
+const BET_ARRAYS_V2: Record<string, number[]> = {
+  'flip-v2': [0, 2],
+  'dice-v2': [0, 0, 0, 0, 0, 6],
+  'mines-v2': [0, 1.04, 1.13, 1.24, 1.37, 1.53],
+  'keno-v2': [0, 2, 3, 5, 10, 20, 50, 100],
+  'limbo-v2': [1, 1.2, 1.5, 2, 3, 5, 10, 100],
+  'doubleornothing-v2': [0, 2],
+  'blackjack-v2': [0, 2],
+  'multipoker-v2': [0, 2, 3, 5, 10],
+  'cryptochartgame-v2': [0, 1.5, 2, 3, 5],
+  'fancyvirtualhorseracing-v2': [0, 1.2, 1.5, 2, 3, 5, 10],
+}
+
+// Edge Runtime compatible utility functions
+function calculateAverageRTP(betArray: number[]): number {
+  const nonZeroValues = betArray.filter(v => v > 0)
+  if (nonZeroValues.length === 0) return 0
+  return nonZeroValues.reduce((sum, val) => sum + val, 0) / nonZeroValues.length
+}
+
+function calculateWinRate(betArray: number[]): number {
+  const totalPositions = betArray.length
+  const winningPositions = betArray.filter(v => v > 0).length
+  return totalPositions > 0 ? winningPositions / totalPositions : 0
+}
+
 // Merge V1 and V2 configurations for comprehensive audit coverage
 const MERGED_RTP_TARGETS = { ...RTP_TARGETS, ...RTP_TARGETS_V2 }
 const MERGED_BET_ARRAYS = { ...BET_ARRAYS, ...BET_ARRAYS_V2 }
-type AllGameKeys = GameKey | GameV2Key
+type AllGameKeys = keyof typeof MERGED_RTP_TARGETS
 
 // CORS headers for frontend access
 const allowedOrigins = new Set(['https://degenheart.casino', 'http://localhost:4001']);

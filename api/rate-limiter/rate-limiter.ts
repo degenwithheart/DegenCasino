@@ -136,7 +136,7 @@ class RateLimiter {
     const now = Date.now()
     const cutoff = now - (5 * 60 * 1000) // Keep 5 minutes of history
     
-    for (const [key, requests] of this.requests.entries()) {
+    for (const [key, requests] of Array.from(this.requests.entries())) {
       const filtered = requests.filter(req => req.timestamp > cutoff)
       if (filtered.length === 0) {
         this.requests.delete(key)
@@ -150,7 +150,7 @@ class RateLimiter {
     const now = Date.now()
     const currentMonth = new Date(now).getMonth()
     
-    for (const [provider, lastReset] of this.lastReset.entries()) {
+    for (const [provider, lastReset] of Array.from(this.lastReset.entries())) {
       const lastResetMonth = new Date(lastReset).getMonth()
       
       if (currentMonth !== lastResetMonth) {
@@ -247,5 +247,6 @@ class RateLimiter {
 // Singleton instance
 const rateLimiter = new RateLimiter()
 
-export { rateLimiter, RateLimitResult }
+export { rateLimiter }
+export type { RateLimitResult }
 export default rateLimiter

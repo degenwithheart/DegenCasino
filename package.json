@@ -83,7 +83,7 @@
     "vite-plugin-compression2": "^2.2.0"
   },
   "engines": {
-    "node": ">=20.12.0"
+    "node": ">=20.12.0 <21"
   },
   "overrides": {
     "trim-newlines": "^3.0.1",

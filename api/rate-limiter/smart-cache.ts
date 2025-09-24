@@ -276,9 +276,9 @@ class SmartCache {
    * Stop all prefetching
    */
   stopPrefetching(): void {
-    for (const timer of this.prefetchTimers.values()) {
+    this.prefetchTimers.forEach(timer => {
       clearInterval(timer)
-    }
+    })
     this.prefetchTimers.clear()
   }
 }
@@ -286,5 +286,6 @@ class SmartCache {
 // Singleton instance
 const smartCache = new SmartCache()
 
-export { smartCache, PrefetchConfig }
+export { smartCache }
+export type { PrefetchConfig }
 export default smartCache
