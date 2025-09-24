@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { StyledGameCard, tileAnimation, bounce, spin, flip, shake, effectAnimations } from './GameCard.styles'
 import { FEATURED_GAMES } from '../../games/featuredGames'
+import { GAME_CAPABILITIES } from '../../constants'
 
 // WebP-aware image component for game cards
 function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
@@ -69,6 +70,15 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
   const gameWithStatus = game as any // Cast to access extended properties
   const isDown = gameWithStatus.live === 'down'
   const isNew = gameWithStatus.live === 'new'
+
+  // 2D/3D mode overlay logic
+  const capabilities = GAME_CAPABILITIES[game.id as keyof typeof GAME_CAPABILITIES]
+  let modeLabel = ''
+  if (capabilities) {
+    if (capabilities.supports2D && capabilities.supports3D) modeLabel = '2D | 3D'
+    else if (capabilities.supports2D) modeLabel = '2D'
+    else if (capabilities.supports3D) modeLabel = '3D'
+  }
 
   const handleClick = () => {
     if (!publicKey) return
@@ -184,6 +194,12 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
           boxShadow: '0 2px 8px #000a',
         }} title="Featured Game">
           🌟
+        </div>
+      )}
+      {/* 2D/3D mode overlay (bottom right) */}
+      {modeLabel && (
+        <div className="mode-overlay" title="Supported Modes">
+          {modeLabel}
         </div>
       )}
     </StyledGameCard>

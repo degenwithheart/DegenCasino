@@ -36,15 +36,16 @@ export default function Plinko() {
   // Determine which component to render
   const shouldUse3D = currentMode === '3D' && gameSupports3D
   
-  console.log('🎯 PLINKO WRAPPER LOADING...', { 
+  // Force re-render with key when mode changes
+  const renderKey = `plinko-${currentMode}-${shouldUse3D ? '3d' : '2d'}`
+  
+  console.log('🎯 PLINKO WRAPPER RENDER:', { 
     currentMode, 
     gameSupports3D, 
     shouldUse3D,
+    renderKey,
     timestamp: Date.now()
   })
-  
-  // Force re-render with key when mode changes
-  const renderKey = `plinko-${currentMode}-${shouldUse3D ? '3d' : '2d'}`
   
   return (
     <div key={renderKey}>

@@ -39,6 +39,9 @@ export const useRenderModeToggle = (gameId: string) => {
     // Verify the mode was actually set
     const verifyMode = useUserStore.getState().getGameRenderMode(gameId)
     console.log(`[useRenderModeToggle] Verified mode in store: "${verifyMode}"`)
+    
+    // Force a re-render by triggering state update
+    console.log(`[useRenderModeToggle] Forcing re-render check...`)
   }
 
   return {

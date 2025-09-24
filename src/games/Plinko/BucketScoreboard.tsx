@@ -72,10 +72,6 @@ const BucketItem = styled.div<{
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   
   /* Mobile responsive adjustments */
   @media (max-width: 768px) {
@@ -88,30 +84,52 @@ const BucketItem = styled.div<{
   ${({ multiplier, isPlaceholder }) => {
     if (isPlaceholder) {
       return `
+        /* Enhanced 3D placeholder styling */
         background: linear-gradient(135deg, 
           rgba(100, 100, 100, 0.3), 
           rgba(80, 80, 80, 0.3) 50%, 
           rgba(60, 60, 60, 0.3)
         );
         border: 2px dashed rgba(255, 255, 255, 0.2);
+        
+        /* Multiple shadow layers for 3D depth */
+        box-shadow: 
+          0 6px 12px rgba(5, 5, 15, 0.4),
+          0 4px 8px rgba(8, 8, 20, 0.3),
+          0 2px 4px rgba(15, 15, 30, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       `;
     }
     const colors = getBucketColor(multiplier);
     return `
+      /* Enhanced 3D gradient backgrounds like Mines-v2 */
       background: linear-gradient(135deg, 
         ${colors.primary}, 
         ${colors.secondary} 50%, 
         ${colors.tertiary}
       );
+      
+      /* Multiple shadow layers for 3D depth */
+      box-shadow: 
+        0 6px 12px rgba(5, 5, 15, 0.4),
+        0 4px 8px rgba(8, 8, 20, 0.3),
+        0 2px 4px rgba(15, 15, 30, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        
+      /* Enhanced 3D border effects */
+      border: 3px solid ${colors.primary.replace('0.9)', '0.8)')};
     `;
   }}
   
   ${({ isActive }) => isActive && `
+    /* Enhanced 3D active state with glow effects */
     transform: scale(1.15);
     border-color: rgba(255, 255, 0, 0.8);
     box-shadow: 
-      0 4px 16px rgba(255, 255, 0, 0.3),
-      0 2px 8px rgba(0, 0, 0, 0.2),
+      0 8px 20px rgba(255, 215, 0, 0.6),
+      0 6px 12px rgba(5, 5, 15, 0.4),
+      0 4px 8px rgba(8, 8, 20, 0.3),
+      0 2px 4px rgba(15, 15, 30, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
     animation: bucketPulse 0.6s ease-out;
     
@@ -120,6 +138,7 @@ const BucketItem = styled.div<{
     }
   `}
   
+  /* Enhanced 3D highlight overlay */
   &::before {
     content: '';
     position: absolute;
@@ -140,6 +159,7 @@ const BucketItem = styled.div<{
     }
   `}
   
+  /* Enhanced 3D animation with more dramatic effects */
   @keyframes bucketPulse {
     0% {
       transform: scale(1.15);
@@ -147,8 +167,10 @@ const BucketItem = styled.div<{
     50% {
       transform: scale(1.25);
       box-shadow: 
-        0 6px 20px rgba(255, 255, 0, 0.4),
-        0 2px 8px rgba(0, 0, 0, 0.2),
+        0 12px 30px rgba(255, 215, 0, 0.8),
+        0 8px 20px rgba(5, 5, 15, 0.4),
+        0 6px 12px rgba(8, 8, 20, 0.3),
+        0 4px 8px rgba(15, 15, 30, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.4);
     }
     100% {
@@ -187,6 +209,19 @@ const BucketIndex = styled.div`
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.3);
   
+  /* Enhanced 3D styling for index badge */
+  box-shadow: 
+    0 3px 6px rgba(5, 5, 15, 0.6),
+    0 2px 4px rgba(8, 8, 20, 0.4),
+    0 1px 2px rgba(15, 15, 30, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    
+  /* 3D border effect */
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  
+  /* Text shadow for depth */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  
   @media (max-width: 768px) {
     width: 16px;
     height: 16px;
@@ -202,8 +237,27 @@ const ScoreboardTitle = styled.div`
   font-weight: bold;
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 8px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   letter-spacing: 0.5px;
+  
+  /* Enhanced 3D text styling */
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    1px 1px 0 rgba(255, 255, 255, 0.3);
+    
+  /* Subtle background for depth */
+  background: linear-gradient(135deg, 
+    rgba(0, 0, 0, 0.4), 
+    rgba(20, 20, 30, 0.3)
+  );
+  padding: 4px 8px;
+  border-radius: 6px;
+  
+  /* 3D border effect */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 2px 4px rgba(5, 5, 15, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 `
 
 interface BucketScoreboardProps {

@@ -235,15 +235,22 @@ export default function MinesV2() {
     ctx.fillStyle = 'rgba(26, 26, 46, 0.8)'
     ctx.fillRect(gridStartX - 10, gridStartY - 10, gridSize + 20, gridSize + 20)
 
-    // Draw cells
+    // Draw cells with gap
+    const gap = 8
+    const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
+    
     for (let i = 0; i < MINES_GRID_SIZE; i++) {
       const row = Math.floor(i / GRID_COLS)
       const col = i % GRID_COLS
-      const x = gridStartX + col * cellSize
-      const y = gridStartY + row * cellSize
+      const x = gridStartX + col * (adjustedCellSize + gap)
+      const y = gridStartY + row * (adjustedCellSize + gap)
 
-      drawCell(ctx, x, y, cellSize, cells[i], i)
+      drawCell(ctx, x, y, adjustedCellSize, cells[i], i)
     }
+
+    // Draw sidebar with counters
+    const sidebarWidth = isMobile ? 80 : 120
+    drawSidebar(ctx, canvasWidth, canvasHeight, sidebarWidth)
   }
 
   // Draw individual cell
@@ -289,6 +296,106 @@ export default function MinesV2() {
     }
   }
 
+  // Draw flat 2D gems card
+  const drawGemsCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, remainingGems: number) => {
+    const radius = Math.min(12, width * 0.1)
+
+    // Simple flat background
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.9)'
+    ctx.beginPath()
+    ctx.roundRect(x, y, width, height, radius)
+    ctx.fill()
+
+    // Simple border
+    ctx.strokeStyle = 'rgba(74, 222, 128, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
+    ctx.stroke()
+
+    // Gem icon - scaled for card
+    const iconSize = Math.min(20, height * 0.12)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `${iconSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.fillText('💎', x + width - iconSize * 0.7, y + iconSize + 8)
+
+    // Title - scaled for card
+    const titleSize = Math.min(14, height * 0.1)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${titleSize}px Arial`
+    ctx.fillText('GEMS LEFT', x + width / 2, y + titleSize + 12)
+
+    // Value - scaled for card
+    const valueSize = Math.min(32, height * 0.3)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${valueSize}px Arial`
+    ctx.fillText(remainingGems.toString(), x + width / 2, y + height * 0.55)
+  }
+
+  // Draw flat 2D mines card
+  const drawMinesCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, mineCount: number) => {
+    const radius = Math.min(12, width * 0.1)
+
+    // Simple flat background
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.9)'
+    ctx.beginPath()
+    ctx.roundRect(x, y, width, height, radius)
+    ctx.fill()
+
+    // Simple border
+    ctx.strokeStyle = 'rgba(252, 165, 165, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
+    ctx.stroke()
+
+    // Bomb icon - scaled for card
+    const iconSize = Math.min(18, height * 0.11)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `${iconSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.fillText('💣', x + width - iconSize * 0.7, y + iconSize + 8)
+
+    // Title - scaled for card
+    const titleSize = Math.min(14, height * 0.1)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${titleSize}px Arial`
+    ctx.fillText('MINES', x + width / 2, y + titleSize + 12)
+
+    // Value - scaled for card
+    const valueSize = Math.min(32, height * 0.3)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${valueSize}px Arial`
+    ctx.fillText(mineCount.toString(), x + width / 2, y + height * 0.55)
+  }
+
+  // Draw sidebar stats (2D version)
+  const drawSidebar = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, sidebarWidth: number) => {
+    // Position sidebar to the right of the centered grid
+    const padding = 20
+    const sidebarGap = isMobile ? 0 : 50 // Space between grid and sidebar
+    const availableWidth = canvasWidth - padding * 2 // Full width minus padding for grid sizing
+    const availableHeight = canvasHeight - padding * 2 // Same height calculation as grid
+    const gridSize = Math.min(availableWidth, availableHeight)
+    const gridStartX = (canvasWidth - gridSize) / 2
+    const sidebarX = gridStartX + gridSize + sidebarGap
+
+    const startY = (canvasHeight - gridSize) / 2 // Center vertically like grid
+    const cardHeight = (gridSize - 12) / 2 // Each counter takes half the available height minus gap
+    const gap = 12 // Small gap between counters
+
+    // Count revealed gems and remaining cells
+    const revealedGems = cells.filter(cell => cell.status === 'gold').length
+    const remainingGems = MINES_GRID_SIZE - mineCount - revealedGems
+
+    // Gems Counter (Green) - shows remaining gems - top half
+    drawGemsCard(ctx, sidebarX, startY, sidebarWidth, cardHeight, remainingGems)
+
+    // Mines Counter (Red) - bottom half
+    drawMinesCard(ctx, sidebarX, startY + cardHeight + gap, sidebarWidth, cardHeight, mineCount)
+  }
+
   // Handle canvas clicks for GambaUi.Canvas
   const handleCanvasClick = React.useCallback((event: React.MouseEvent) => {
     const canvas = event.currentTarget as HTMLCanvasElement
@@ -319,12 +426,26 @@ export default function MinesV2() {
       if (canvasX >= gridStartX && canvasX < gridStartX + gridSize &&
           canvasY >= gridStartY && canvasY < gridStartY + gridSize) {
         
-        const col = Math.floor((canvasX - gridStartX) / cellSize)
-        const row = Math.floor((canvasY - gridStartY) / cellSize)
-        const cellIndex = row * GRID_COLS + col
+        // Find which cell was clicked accounting for gaps
+        const gap = 8
+        const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
+        let clickedIndex = -1
+        
+        for (let i = 0; i < MINES_GRID_SIZE; i++) {
+          const row = Math.floor(i / GRID_COLS)
+          const col = i % GRID_COLS
+          const cellX = gridStartX + col * (adjustedCellSize + gap)
+          const cellY = gridStartY + row * (adjustedCellSize + gap)
 
-        if (col >= 0 && col < GRID_COLS && row >= 0 && row < GRID_ROWS) {
-          revealCell(cellIndex)
+          if (canvasX >= cellX && canvasX < cellX + adjustedCellSize &&
+              canvasY >= cellY && canvasY < cellY + adjustedCellSize) {
+            clickedIndex = i
+            break
+          }
+        }
+
+        if (clickedIndex >= 0) {
+          revealCell(clickedIndex)
         }
       }
     }

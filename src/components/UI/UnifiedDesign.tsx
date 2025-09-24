@@ -134,7 +134,7 @@ export const UnifiedSection = styled.section<{ $colorScheme?: any }>`
   backdrop-filter: blur(10px);
   
   transition: all 0.3s ease;
-  animation: ${gracefulFloat} 6s ease-in-out infinite;
+  /* Removed floating animation */
   
   &:hover {
     transform: translateY(-5px);
@@ -142,13 +142,7 @@ export const UnifiedSection = styled.section<{ $colorScheme?: any }>`
     box-shadow: 0 15px 40px rgba(139, 90, 158, 0.2);
   }
   
-  &:nth-child(even) {
-    animation-delay: 1s;
-  }
-  
-  &:nth-child(3n) {
-    animation-delay: 2s;
-  }
+  /* Removed animation delays */
 
   @media (max-width: 768px) {
     padding: 1.5rem;

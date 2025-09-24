@@ -48,7 +48,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./PlinkoRace')),
   },
   {
-    id: 'flip',
+    id: 'flip-v2',
     live: 'up',
     meta: {
       name: 'Flip',
@@ -84,7 +84,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./HiLo')),
   },
   {
-    id: 'mines',
+    id: 'mines-v2',
     live: 'up',
     meta: {
       name: 'Mines',

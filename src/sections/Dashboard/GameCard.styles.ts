@@ -284,6 +284,26 @@ export const StyledGameCard = styled.div<{ $small: boolean; $background: string;
       padding: 12px 20px;
     }
   }
+
+  /* Prevent overlays from shifting card size */
+  .mode-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 10;
+    font-size: 1.1rem;
+    background: rgba(0,0,0,0.7);
+    border-radius: 8px;
+    padding: 0.25em 0.7em;
+    color: #ffd700;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px #000a;
+    pointer-events: none;
+    user-select: none;
+    min-width: 48px;
+    text-align: center;
+  }
 `;
 
 // Romantic tag styling for special game badges

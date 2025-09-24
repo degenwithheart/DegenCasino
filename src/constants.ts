@@ -100,7 +100,7 @@ export const GAME_CAPABILITIES = {
   },
   'mines-v2': {
     supports2D: true,
-    supports3D: false,
+    supports3D: true,
     default: '2D'
   },
   'keno': {

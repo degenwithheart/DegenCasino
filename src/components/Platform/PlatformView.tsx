@@ -487,7 +487,7 @@ export function PlatformView() {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   
-  const { data: leaderboard = [] } = useLeaderboardData('weekly', creator || '')
+  const { data: leaderboard = [] } = useLeaderboardData('alltime', creator || '')
   
   // Only use real Gamba API data - no fallbacks or fake data
 

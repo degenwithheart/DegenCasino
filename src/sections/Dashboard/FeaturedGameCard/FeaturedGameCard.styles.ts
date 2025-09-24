@@ -82,4 +82,23 @@ export const StyledFeaturedGameCard = styled.div<{ $background: string; $colorSc
     transform: scale(1.05);
     box-shadow: 0 0 24px #ffd700cc;
   }
+
+  .mode-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10;
+    font-size: 1.1rem;
+    background: rgba(0,0,0,0.7);
+    border-radius: 8px;
+    padding: 0.25em 0.7em;
+    color: #ffd700;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px #000a;
+    pointer-events: none;
+    user-select: none;
+    min-width: 48px;
+    text-align: center;
+  }
 `;

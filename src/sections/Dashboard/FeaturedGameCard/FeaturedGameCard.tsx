@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { StyledFeaturedGameCard } from './FeaturedGameCard.styles'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { FEATURED_GAMES } from '../../../games/featuredGames'
+import { GAME_CAPABILITIES } from '../../../constants'
 
 export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?: () => void }) {
   const location = useLocation()
@@ -19,6 +20,15 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   const gameWithStatus = game as any // Cast to access extended properties
   const isDown = gameWithStatus.live === 'down'
   const isNew = gameWithStatus.live === 'new'
+
+  // 2D/3D mode overlay logic
+  const capabilities = GAME_CAPABILITIES[game.id as keyof typeof GAME_CAPABILITIES]
+  let modeLabel = ''
+  if (capabilities) {
+    if (capabilities.supports2D && capabilities.supports3D) modeLabel = '2D | 3D'
+    else if (capabilities.supports2D) modeLabel = '2D'
+    else if (capabilities.supports3D) modeLabel = '3D'
+  }
 
   const handleClick = () => {
     if (!publicKey) return
@@ -79,6 +89,12 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
           justifyContent: 'center',
         }} title="Coming Soon">
           🧪
+        </div>
+      )}
+      {/* 2D/3D mode overlay (bottom right) */}
+      {modeLabel && (
+        <div className="mode-overlay" title="Supported Modes">
+          {modeLabel}
         </div>
       )}
     </StyledFeaturedGameCard>

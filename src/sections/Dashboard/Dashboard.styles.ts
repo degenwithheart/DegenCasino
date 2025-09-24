@@ -204,8 +204,8 @@ export const GameSliderWrapper = styled.div<{ $colorScheme?: any }>`
   scrollbar-color: ${({ $colorScheme }) => `rgba(255, 255, 255, 0.1) ${$colorScheme?.colors?.surface || 'transparent'}`};
   scroll-behavior: smooth;
 
-  /* Ensure minimum touch target size */
-  min-height: 200px;
+  /* Fixed height to prevent container floating */
+  height: 200px;
 
   /* Prevent games from extending outside container */
   contain: layout style paint;
