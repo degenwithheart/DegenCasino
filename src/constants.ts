@@ -459,14 +459,6 @@ export const SIDEBAR_LINKS = [
 // Footer links shown on the website footer with URLs and display titles.
 export const FOOTER_LINKS = [
   {
-    href: '/audit',
-    title: 'Audit',
-  },
-  {
-    href: '/explorer',
-    title: 'Explorer',
-  },
-  {
     href: '/aboutme',
     title: 'About Me',
   },
@@ -539,8 +531,16 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
     title: 'Audit',
   },
   {
-    href: '/explorer',
-    title: 'Explorer',
+    href: '/aboutme',
+    title: 'About Me',
+  },
+  {
+    href: 'https://github.com/degenwithheart',
+    title: 'GitHub',
+  },
+  {
+    href: 'https://x.com/DegenWithHeart',
+    title: 'X',
   },
 ]
 

@@ -93,7 +93,14 @@ function PersistSelectedToken() {
   }, [priorityFee])
 
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter 
+      future={{ 
+        v7_startTransition: true, 
+        v7_relativeSplatPath: true 
+      }}
+      // Force router to re-render on navigation
+      basename={window.location.pathname === window.location.pathname ? undefined : '/'}
+    >
       <HelmetProvider>
         <NetworkProvider>
           <NetworkAwareConnectionProvider>

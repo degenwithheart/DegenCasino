@@ -47,17 +47,55 @@ const pulse = keyframes`
 
 const SidebarContainer = styled.aside<{ $colorScheme: any }>`
   background: linear-gradient(180deg, 
-    ${props => props.$colorScheme.colors.surface}98,
-    ${props => props.$colorScheme.colors.background}90
+    ${props => props.$colorScheme.colors.surface}F8,
+    ${props => props.$colorScheme.colors.background}F0
   );
   backdrop-filter: blur(20px);
   border-left: 3px solid ${props => props.$colorScheme.colors.accent}30;
   padding: 2rem 1rem;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
   position: relative;
+  
+  /* Enhanced scrolling for all devices */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.$colorScheme.colors.accent}60 transparent;
+  
+  /* Custom scrollbar for webkit browsers */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.$colorScheme.colors.accent}60;
+    border-radius: 3px;
+    
+    &:hover {
+      background: ${props => props.$colorScheme.colors.accent}80;
+    }
+  }
+  
+  /* Mobile/tablet drag scrolling optimization */
+  @media (max-width: 1023px) {
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    
+    /* Hide scrollbar on mobile for cleaner look */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
   
   &::before {
     content: '';
@@ -110,10 +148,6 @@ const SidebarContainer = styled.aside<{ $colorScheme: any }>`
         ${props => props.$colorScheme.colors.accent}60
       );
     }
-  }
-
-  @media (max-width: 768px) {
-    display: none;
   }
 `
 

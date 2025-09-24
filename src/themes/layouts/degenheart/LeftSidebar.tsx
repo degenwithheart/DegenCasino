@@ -1,6 +1,6 @@
 import React, { useMemo, useContext } from 'react'
 import styled from 'styled-components'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
 import { useColorScheme } from '../../ColorSchemeContext'
@@ -10,17 +10,55 @@ import { useDegenGamesModal } from './DegenHeartLayout'
 
 const SidebarContainer = styled.aside<{ $colorScheme: any }>`
   background: linear-gradient(180deg, 
-    ${props => props.$colorScheme.colors.surface}98,
-    ${props => props.$colorScheme.colors.background}90
+    ${props => props.$colorScheme.colors.surface}F8,
+    ${props => props.$colorScheme.colors.background}F0
   );
   backdrop-filter: blur(20px);
   border-right: 3px solid ${props => props.$colorScheme.colors.accent}30;
   padding: 2rem 1rem;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   position: relative;
+  
+  /* Enhanced scrolling for all devices */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.$colorScheme.colors.accent}60 transparent;
+  
+  /* Custom scrollbar for webkit browsers */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.$colorScheme.colors.accent}60;
+    border-radius: 3px;
+    
+    &:hover {
+      background: ${props => props.$colorScheme.colors.accent}80;
+    }
+  }
+  
+  /* Mobile/tablet drag scrolling optimization */
+  @media (max-width: 1023px) {
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    
+    /* Hide scrollbar on mobile for cleaner look */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
   
   &::before {
     content: '';
@@ -150,7 +188,7 @@ const NavItem = styled.li<{ $colorScheme: any; $active: boolean }>`
   }
 `
 
-const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
+const NavLinkStyled = styled(Link)<{ $colorScheme: any; $active: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
@@ -160,13 +198,84 @@ const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
   border: none;
   color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
   font-weight: ${props => props.$active ? 600 : 500};
-  cursor: pointer;
+  cursor: pointer !important;
   transition: all 0.3s ease;
   text-align: left;
+  text-decoration: none;
   border-radius: 12px;
+  position: relative;
+  z-index: 10;
   
   &:hover {
     color: ${props => props.$colorScheme.colors.accent};
+  }
+  
+  &:visited {
+    color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
+    outline-offset: 2px;
+  }
+`
+
+const NavLinkExternal = styled.a<{ $colorScheme: any; $active: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: none;
+  border: none;
+  color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
+  font-weight: ${props => props.$active ? 600 : 500};
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  text-align: left;
+  text-decoration: none;
+  border-radius: 12px;
+  position: relative;
+  z-index: 10;
+  
+  &:hover {
+    color: ${props => props.$colorScheme.colors.accent};
+  }
+  
+  &:visited {
+    color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
+    outline-offset: 2px;
+  }
+`
+
+const NavButton = styled.button<{ $colorScheme: any; $active: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: none;
+  border: none;
+  color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
+  font-weight: ${props => props.$active ? 600 : 500};
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  text-align: left;
+  border-radius: 12px;
+  position: relative;
+  z-index: 10;
+  
+  &:hover {
+    color: ${props => props.$colorScheme.colors.accent};
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
+    outline-offset: 2px;
   }
 `
 
@@ -257,7 +366,6 @@ const StatValue = styled.span<{ $colorScheme: any }>`
 
 const LeftSidebar: React.FC = () => {
   const { currentColorScheme } = useColorScheme()
-  const navigate = useNavigate()
   const location = useLocation()
   const { connected, publicKey } = useWallet()
   const pool = useCurrentPool()
@@ -278,23 +386,6 @@ const LeftSidebar: React.FC = () => {
       jackpotBalance: connected && pool ? pool.jackpotBalance : null
     }
   }, [connected, pool])
-
-  const handleNavClick = (link: any) => {
-    if (link.external && link.to) {
-      window.open(link.to, '_blank', 'noopener,noreferrer')
-    } else if (link.to) {
-      // Handle dynamic routes like profile
-      if (typeof link.to === 'function') {
-        const base58 = publicKey?.toBase58() || null
-        navigate(link.to(base58))
-      } else {
-        navigate(link.to)
-      }
-    } else if (link.label === 'Games') {
-      // Open the games modal
-      openGamesModal()
-    }
-  }
 
   // Filter links based on showWhen conditions
   const visibleLinks = SIDEBAR_LINKS.filter(link => {
@@ -328,16 +419,85 @@ const LeftSidebar: React.FC = () => {
               const isActive = location.pathname === linkPath
               const IconComponent = link.icon
               
+              // Handle external links
+              if (link.external) {
+                return (
+                  <NavItem 
+                    key={`${link.label}-${linkPath}`}
+                    $colorScheme={currentColorScheme}
+                    $active={isActive}
+                  >
+                    <NavLinkExternal
+                      $colorScheme={currentColorScheme}
+                      $active={isActive}
+                      href={linkPath as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={(link as any).description}
+                    >
+                      <IconWrapper $colorScheme={currentColorScheme} $active={isActive}>
+                        <IconComponent />
+                      </IconWrapper>
+                      <div>
+                        <LinkText $colorScheme={currentColorScheme}>
+                          {link.label}
+                        </LinkText>
+                        {(link as any).description && (
+                          <LinkDescription $colorScheme={currentColorScheme}>
+                            {(link as any).description}
+                          </LinkDescription>
+                        )}
+                      </div>
+                    </NavLinkExternal>
+                  </NavItem>
+                )
+              }
+              
+              // Handle Games modal button
+              if (link.label === 'Games') {
+                return (
+                  <NavItem 
+                    key={`${link.label}-${linkPath}`}
+                    $colorScheme={currentColorScheme}
+                    $active={isActive}
+                  >
+                    <NavButton
+                      $colorScheme={currentColorScheme}
+                      $active={isActive}
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('openGamesModal'))
+                      }}
+                      title={(link as any).description}
+                    >
+                      <IconWrapper $colorScheme={currentColorScheme} $active={isActive}>
+                        <IconComponent />
+                      </IconWrapper>
+                      <div>
+                        <LinkText $colorScheme={currentColorScheme}>
+                          {link.label}
+                        </LinkText>
+                        {(link as any).description && (
+                          <LinkDescription $colorScheme={currentColorScheme}>
+                            {(link as any).description}
+                          </LinkDescription>
+                        )}
+                      </div>
+                    </NavButton>
+                  </NavItem>
+                )
+              }
+              
+              // Handle internal navigation links
               return (
                 <NavItem 
                   key={`${link.label}-${linkPath}`}
                   $colorScheme={currentColorScheme}
                   $active={isActive}
                 >
-                  <NavLink
+                  <NavLinkStyled
                     $colorScheme={currentColorScheme}
                     $active={isActive}
-                    onClick={() => handleNavClick(link)}
+                    to={linkPath as string}
                     title={(link as any).description}
                   >
                     <IconWrapper $colorScheme={currentColorScheme} $active={isActive}>
@@ -353,7 +513,7 @@ const LeftSidebar: React.FC = () => {
                         </LinkDescription>
                       )}
                     </div>
-                  </NavLink>
+                  </NavLinkStyled>
                 </NavItem>
               )
             })}

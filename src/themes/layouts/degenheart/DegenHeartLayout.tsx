@@ -8,6 +8,7 @@ import RightSidebar from './RightSidebar'
 import MainContent from './MainContent'
 import { Modal } from './components/Modal'
 import AllGamesModalContent from '../../../components/AllGamesModal/AllGamesModal'
+import { media, gridBreakpoints } from './breakpoints'
 
 // Create a local games modal context for degen theme
 const DegenGamesModalContext = createContext<{ 
@@ -31,81 +32,107 @@ export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
 const LayoutContainer = styled.div<{ $colorScheme: any }>`
   display: grid;
   min-height: 100vh;
+  min-height: 100dvh; /* Use dynamic viewport height for mobile */
   width: 100%;
   background: ${props => props.$colorScheme.colors.background};
   
-  /* DegenHeart Grid Layout */
-  grid-template-areas: 
-    "header header header"
-    "left   main   right"
-    "footer footer footer";
-  grid-template-rows: 80px 1fr 60px;
-  grid-template-columns: 250px 1fr 250px;
+  /* Mobile-first: Single column layout by default */
+  grid-template-areas: ${gridBreakpoints.mobile.areas};
+  grid-template-rows: ${gridBreakpoints.mobile.rows};
+  grid-template-columns: ${gridBreakpoints.mobile.columns};
   
-  /* Tablet adjustments */
-  @media (max-width: 1024px) {
-    grid-template-columns: 200px 1fr 200px;
+  /* Tablet: Show right sidebar only for better space utilization */
+  ${media.tablet} {
+    grid-template-areas: ${gridBreakpoints.tablet.areas};
+    grid-template-rows: ${gridBreakpoints.tablet.rows};
+    grid-template-columns: ${gridBreakpoints.tablet.columns};
   }
   
-  /* Mobile responsive - hide sidebars completely */
-  @media (max-width: 768px) {
-    grid-template-areas: 
-      "header"
-      "main"
-      "footer";
-    grid-template-rows: 80px 1fr 60px;
-    grid-template-columns: 1fr;
+  /* Desktop: Full three-column layout */
+  ${media.tabletLg} {
+    grid-template-areas: ${gridBreakpoints.desktop.areas};
+    grid-template-rows: ${gridBreakpoints.desktop.rows};
+    grid-template-columns: ${gridBreakpoints.desktop.columns};
+  }
+  
+  /* Large desktop: Wider sidebars for better balance */
+  ${media.desktop} {
+    grid-template-columns: 280px 1fr 280px;
   }
 `
 
 const GridHeader = styled.header`
   grid-area: header;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  /* Mobile-first: Relative positioning to avoid viewport issues */
+  position: relative;
   height: 80px;
-  z-index: 1000;
+  z-index: 1100;
   
-  @media (max-width: 768px) {
-    position: relative;
+  /* Tablet and up: Fixed positioning for better UX */
+  ${media.tablet} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
   }
 `
 
 const GridLeftSidebar = styled.aside<{ $isOpen?: boolean }>`
   grid-area: left;
-  position: fixed;
-  top: 80px;
-  left: 0;
-  width: 250px;
-  height: calc(100vh - 140px);
-  z-index: 900;
+  /* Mobile-first: Hidden by default, drawer when needed */
+  display: none;
   
-  @media (max-width: 1024px) {
-    width: 200px;
-  }
-  
-  /* Mobile drawer functionality */
-  @media (max-width: 768px) {
+  /* Mobile drawer functionality - only show as drawer on mobile */
+  ${media.maxMobileLg} {
+    display: block;
     position: fixed;
     top: 80px;
     left: 0;
     bottom: 65px;
-    width: 280px;
+    width: min(320px, 85vw); /* Responsive width with max constraint */
     height: auto;
-    z-index: 1100;
+    z-index: 9998; /* Higher z-index to ensure visibility */
     transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: ${props => props.$isOpen ? '8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
+    
+    /* Enhanced mobile/tablet touch support */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y; /* Allow vertical scrolling/dragging */
+  }
+  
+  /* Tablet: Hide left sidebar to maximize main content space */
+  ${media.tablet} {
+    display: none;
+  }
+  
+  /* Desktop: Show as fixed sidebar */
+  ${media.tabletLg} {
+    display: block;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 250px;
+    height: calc(100vh - 140px);
+    z-index: 900;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Large desktop: Wider sidebar */
+  ${media.desktop} {
+    width: 280px;
   }
 `
 
 const GridMain = styled.main`
   grid-area: main;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  /* Mobile-first: Minimal spacing, full width utilization */
+  margin: 0;
+  padding: 0.75rem;
   overflow-y: auto;
-  padding: 1rem;
+  overflow-x: hidden; /* Prevent horizontal scroll */
   width: 100%;
   max-width: none;
   
@@ -115,67 +142,120 @@ const GridMain = styled.main`
     max-width: none;
   }
   
-  @media (max-width: 768px) {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0.5rem;
+  /* Tablet: Add top margin to account for fixed header */
+  ${media.tablet} {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 1rem;
+  }
+  
+  /* Desktop: More generous spacing */
+  ${media.desktop} {
+    padding: 1.5rem;
   }
 `
 
 const GridRightSidebar = styled.aside<{ $isOpen?: boolean }>`
   grid-area: right;
-  position: fixed;
-  top: 80px;
-  right: 0;
-  width: 250px;
-  height: calc(100vh - 140px);
-  z-index: 900;
+  /* Mobile-first: Hidden by default, drawer when needed */
+  display: none;
   
-  @media (max-width: 1024px) {
-    width: 200px;
-  }
-  
-  /* Mobile drawer functionality */
-  @media (max-width: 768px) {
+  /* Mobile drawer functionality - only show as drawer on mobile */
+  ${media.maxMobileLg} {
+    display: block;
     position: fixed;
     top: 80px;
     right: 0;
     bottom: 65px;
-    width: 280px;
+    width: min(320px, 85vw); /* Responsive width with max constraint */
     height: auto;
     z-index: 1100;
     transform: translateX(${props => props.$isOpen ? '0' : '100%'});
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: ${props => props.$isOpen ? '-8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
+    
+    /* Enhanced mobile/tablet touch support */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y; /* Allow vertical scrolling/dragging */
+  }
+  
+  /* Tablet: Hide right sidebar to maximize content space */
+  ${media.tablet} {
+    display: none;
+  }
+  
+  /* Desktop: Show right sidebar */
+  ${media.tabletLg} {
+    display: block;
+    position: fixed;
+    top: 80px;
+    right: 0;
+    width: 250px;
+    height: calc(100vh - 140px);
+    z-index: 900;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Large desktop: Wider sidebar */
+  ${media.desktop} {
+    width: 280px;
   }
 `
 
 const GridFooter = styled.footer`
   grid-area: footer;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 1000;
+  height: 65px; /* Slightly taller for touch targets */
+  z-index: 9999; /* Ensure footer container is above sidebars */
+  /* Mobile-first: Relative positioning */
+  position: relative;
   
-  @media (max-width: 768px) {
-    position: relative;
+  /* Tablet and up: Fixed positioning */
+  ${media.tablet} {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
   }
 `
 
 const MobileBackdrop = styled.div<{ $visible?: boolean }>`
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 65px; /* Don't cover footer area */
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1050;
   opacity: ${props => props.$visible ? 1 : 0};
   visibility: ${props => props.$visible ? 'visible' : 'hidden'};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
   
-  @media (min-width: 769px) {
-    display: none;
+  /* Only show backdrop for mobile/tablet drawer states */
+  ${media.tabletLg} {
+    display: none; /* Hide on desktop where sidebars are always visible */
+  }
+`
+
+const SidebarBackdrop = styled.div<{ $visible?: boolean }>`
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 65px; /* Don't cover footer area */
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  z-index: 1080; /* Above main backdrop but below sidebars */
+  opacity: ${props => props.$visible ? 1 : 0};
+  visibility: ${props => props.$visible ? 'visible' : 'hidden'};
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  /* Only show backdrop for mobile/tablet drawer states */
+  ${media.tabletLg} {
+    display: none; /* Hide on desktop where sidebars are always visible */
   }
 `
 
@@ -241,6 +321,12 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
       <LayoutContainer $colorScheme={currentColorScheme}>
         {/* Mobile backdrop */}
         <MobileBackdrop 
+          $visible={leftSidebarOpen || rightSidebarOpen} 
+          onClick={closeSidebars}
+        />
+        
+        {/* Additional backdrop for sidebars */}
+        <SidebarBackdrop 
           $visible={leftSidebarOpen || rightSidebarOpen} 
           onClick={closeSidebars}
         />

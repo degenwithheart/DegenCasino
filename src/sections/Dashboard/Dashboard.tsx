@@ -14,6 +14,8 @@ import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_RECENT_PLAYS, DASHBOARD_SHOW_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useColorScheme } from "../../themes/ColorSchemeContext";
+import { TotalBetsTopBar } from "../../components/TopBar/TotalBetsTopBar";
+import { usePlatformStats } from "../../hooks/data/usePlatformStats";
 import { 
   UnifiedPageContainer, 
   UnifiedSection, 
@@ -38,20 +40,29 @@ const loveLetterGradient = keyframes`
 
 // Romantic animated accent bar (gradient line)
 const AccentBar = styled.div`
-  height: 4px;
-  width: 100%;
-  border-radius: 8px;
-  margin: 0.5rem 0 1.5rem;
-  background: linear-gradient(90deg, 
-    rgba(212, 165, 116, 0.8) 0%, 
-    rgba(184, 51, 106, 0.6) 25%, 
-    rgba(139, 90, 158, 0.7) 50%, 
-    rgba(184, 51, 106, 0.6) 75%, 
-    rgba(212, 165, 116, 0.8) 100%
+  height: 3px;
+  background: linear-gradient(
+    45deg,
+    #d4a574, #b8336a, #e07d91, #d4a574
   );
-  background-size: 300% 100%;
-  animation: ${loveLetterGradient} 6s ease-in-out infinite;
-  box-shadow: 0 0 12px rgba(212, 165, 116, 0.3);
+  background-size: 400% 400%;
+  animation: ${loveLetterGradient} 6s ease infinite;
+  margin: 1.2rem 0;
+  border-radius: 2px;
+  box-shadow: 0 0 15px rgba(212, 165, 116, 0.4);
+`;
+
+// Dashboard stats section container
+const DashboardStatsSection = styled.div<{ $colorScheme?: any }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0 2rem 0;
+  padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    margin: 1rem 0 1.5rem 0;
+  }
 `;
 
 export function GameSlider({ compact }: { compact?: boolean }) {
@@ -81,6 +92,9 @@ export function Dashboard() {
   const [visible, setVisible] = useState(false);
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
+
+  // Platform stats for Total Bets display
+  const { stats, loading, error } = usePlatformStats();
 
   // Filtered game lists
   const singleplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'new');
@@ -138,6 +152,16 @@ export function Dashboard() {
                 </ToggleButton>
               )}
             </div>
+
+            {/* Dashboard Stats Section - Total Bets */}
+            <DashboardStatsSection $colorScheme={currentColorScheme}>
+              <TotalBetsTopBar 
+                stats={stats} 
+                loading={loading} 
+                error={error} 
+                colorScheme={currentColorScheme} 
+              />
+            </DashboardStatsSection>
 
             {/* Toggle Content */}
             {activeSection === 'games' && (

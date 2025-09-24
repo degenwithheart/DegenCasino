@@ -7,6 +7,7 @@ import { useColorScheme } from '../../ColorSchemeContext'
 import { useHandleWalletConnect } from '../../../sections/walletConnect'
 import { ALL_GAMES } from '../../../games/allGames'
 import { TOKEN_METADATA } from '../../../constants'
+import { media, spacing, typography } from './breakpoints'
 
 // Romantic animations for the DegenHeart Casino dashboard
 const heartGlow = keyframes`
@@ -42,13 +43,21 @@ const shimmer = keyframes`
 `
 
 const DashboardContainer = styled.div<{ $colorScheme: any }>`
-  padding: 2rem;
+  /* Mobile-first: Minimal padding for content optimization */
+  padding: ${spacing.mobile.base};
   background: ${props => props.$colorScheme.colors.background};
   min-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll */
   
-  @media (max-width: 768px) {
-    padding: 1rem;
+  /* Tablet: More generous spacing */
+  ${media.tablet} {
+    padding: ${spacing.tablet.base};
+  }
+  
+  /* Desktop: Full spacing for comfortable viewing */
+  ${media.desktop} {
+    padding: ${spacing.desktop.base};
   }
 `
 

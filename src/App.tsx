@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense, lazy, useMemo } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
@@ -9,6 +9,9 @@ import { useToast } from './hooks/ui/useToast';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
+import { useRouteRefresh } from './hooks/system/useRouteRefresh';
+import { RouterErrorBoundary } from './components/RouterErrorBoundary';
+import { NavigationDebugger, NavigationForcer } from './components/NavigationDebugger';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
@@ -48,13 +51,16 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     resolveComponent 
   } = useTheme();
 
-  // Resolve theme-specific components or fall back to defaults
-  const HeaderComponent = resolveComponent('components', 'Header') || Header;
-  const FooterComponent = resolveComponent('components', 'Footer') || Footer;
-  const DashboardComponent = resolveComponent('sections', 'Dashboard') || Dashboard;
-  
-  // Resolve Game component through theme system (falls back to default if no themed version)
-  const GameComponent = resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game'));
+  // Force re-render when route changes using custom hook
+  const renderKey = useRouteRefresh();
+
+  // Memoize theme components to prevent unnecessary re-creation
+  const themeComponents = useMemo(() => ({
+    HeaderComponent: resolveComponent('components', 'Header') || Header,
+    FooterComponent: resolveComponent('components', 'Footer') || Footer,
+    DashboardComponent: resolveComponent('sections', 'Dashboard') || Dashboard,
+    GameComponent: resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game')),
+  }), [resolveComponent, currentLayoutTheme.id]);
 
   // Check if this is a Holy Grail theme that uses a layout wrapper
   const isDegenHeartTheme = currentLayoutTheme.id === 'degenheart';
@@ -70,43 +76,47 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     const DegenHeartLayout = React.lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
     
     return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <DegenHeartLayout>
-          <Toasts />
-          <DevnetWarning />
-          <Routes>
-            <Route path="/" element={<DashboardComponent />} />
-            <Route path="/jackpot" element={<JackpotPage />} />
-            <Route path="/bonus" element={<BonusPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/select-token" element={<SelectTokenPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/whitepaper" element={<Whitepaper />} />
-            <Route path="/credits" element={<Credits />} />
-            <Route path="/token" element={<DGHRTToken />} />
-            <Route path="/presale" element={<DGHRTPresale />} />
-            <Route path="/aboutme" element={<AboutMe />} />
-            <Route path="/audit" element={<FairnessAudit />} />
-            <Route path="/changelog" element={<ChangelogPage />} />
-            <Route path="/propagation" element={<Propagation />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/explorer" element={<ExplorerIndex />} />
-            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-            <Route path="/explorer/player/:address" element={<PlayerView />} />
-            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-            <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
-          </Routes>
-          {ENABLE_TROLLBOX && connected && <TrollBox />}
-        </DegenHeartLayout>
-      </Suspense>
+      <div key={renderKey}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <DegenHeartLayout>
+            <Toasts />
+            <DevnetWarning />
+            <RouterErrorBoundary>
+              <Routes>
+                <Route path="/" element={<themeComponents.DashboardComponent />} />
+                <Route path="/jackpot" element={<JackpotPage />} />
+                <Route path="/bonus" element={<BonusPage />} />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/select-token" element={<SelectTokenPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/whitepaper" element={<Whitepaper />} />
+                <Route path="/credits" element={<Credits />} />
+                <Route path="/token" element={<DGHRTToken />} />
+                <Route path="/presale" element={<DGHRTPresale />} />
+                <Route path="/aboutme" element={<AboutMe />} />
+                <Route path="/audit" element={<FairnessAudit />} />
+                <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/propagation" element={<Propagation />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/explorer" element={<ExplorerIndex />} />
+                <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+                <Route path="/explorer/player/:address" element={<PlayerView />} />
+                <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+                <Route path="/:wallet/profile" element={<UserProfile />} />
+                <Route path="/game/:wallet/:gameId" element={<themeComponents.GameComponent />} />
+              </Routes>
+            </RouterErrorBoundary>
+            {ENABLE_TROLLBOX && connected && <TrollBox />}
+          </DegenHeartLayout>
+        </Suspense>
+      </div>
     );
   }
 
   // For default theme, use the traditional layout structure
   return (
-    <>
-      <HeaderComponent />
+    <div key={renderKey}>
+      <themeComponents.HeaderComponent />
       <Sidebar />
       <MainContent>
         <Toasts />
@@ -114,48 +124,149 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
         {/* Only show WelcomeBanner after auto-connect attempt */}
         {autoConnectAttempted && !connected && <WelcomeBanner />}
         <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<DashboardComponent />} />
-            <Route path="/jackpot" element={<JackpotPage />} />
-            <Route path="/bonus" element={<BonusPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/select-token" element={<SelectTokenPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/whitepaper" element={<Whitepaper />} />
-            <Route path="/credits" element={<Credits />} />
-            <Route path="/token" element={<DGHRTToken />} />
-            <Route path="/presale" element={<DGHRTPresale />} />
-            <Route path="/aboutme" element={<AboutMe />} />
-            <Route path="/audit" element={<FairnessAudit />} />
-            <Route path="/changelog" element={<ChangelogPage />} />
-            <Route path="/propagation" element={<Propagation />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/explorer" element={<ExplorerIndex />} />
-            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-            <Route path="/explorer/player/:address" element={<PlayerView />} />
-            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-            <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
-          </Routes>
+          <RouterErrorBoundary>
+            <Routes>
+              <Route path="/" element={<themeComponents.DashboardComponent />} />
+              <Route path="/jackpot" element={<JackpotPage />} />
+              <Route path="/bonus" element={<BonusPage />} />
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/select-token" element={<SelectTokenPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/whitepaper" element={<Whitepaper />} />
+              <Route path="/credits" element={<Credits />} />
+              <Route path="/token" element={<DGHRTToken />} />
+              <Route path="/presale" element={<DGHRTPresale />} />
+              <Route path="/aboutme" element={<AboutMe />} />
+              <Route path="/audit" element={<FairnessAudit />} />
+              <Route path="/changelog" element={<ChangelogPage />} />
+              <Route path="/propagation" element={<Propagation />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/explorer" element={<ExplorerIndex />} />
+              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+              <Route path="/explorer/player/:address" element={<PlayerView />} />
+              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+              <Route path="/:wallet/profile" element={<UserProfile />} />
+              <Route path="/game/:wallet/:gameId" element={<themeComponents.GameComponent />} />
+            </Routes>
+          </RouterErrorBoundary>
         </Suspense>
       </MainContent>
-      <FooterComponent />
+      <themeComponents.FooterComponent />
       {ENABLE_TROLLBOX && connected && <TrollBox />}
-    </>
+    </div>
   );
 }
 
-const LoadingSpinner = () => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '200px',
-    color: '#FF5555'
-  }}>
-    <div>Loading...</div>
-  </div>
-);
+const LoadingSpinner = () => {
+  const [showSlowMessage, setShowSlowMessage] = useState(false);
+  const [showHomeButton, setShowHomeButton] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Show slow loading message after 5 seconds
+    const slowTimer = setTimeout(() => setShowSlowMessage(true), 5000);
+    
+    // Show home button after 15 seconds
+    const homeTimer = setTimeout(() => setShowHomeButton(true), 15000);
+    
+    return () => {
+      clearTimeout(slowTimer);
+      clearTimeout(homeTimer);
+    };
+  }, [navigate]);
+
+  return (
+    <>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        color: '#FF5555',
+        zIndex: 9999,
+        backgroundColor: 'rgba(24, 24, 24, 0.95)',
+        backdropFilter: 'blur(20px)'
+      }}>
+        {/* Logo above Loading text */}
+        <img 
+          src="/png/images/logo.png" 
+          alt="DegenHeart Casino" 
+          style={{ 
+            width: '250px', 
+            height: '250px', 
+            marginBottom: '16px',
+            animation: 'loadingPulse 2s infinite'
+          }} 
+        />
+        
+        <div style={{ fontSize: '18px', fontWeight: '500' }}>Loading...</div>
+      </div>
+      
+      {/* Slow loading message - bottom right after 5 seconds */}
+      {showSlowMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'rgba(255, 85, 85, 0.9)',
+          color: 'white',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          fontSize: '14px',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+        }}>
+          This is taking longer than usual...
+        </div>
+      )}
+      
+      {/* Home button message after 15 seconds */}
+      {showHomeButton && (
+        <div 
+          style={{
+            position: 'fixed',
+            bottom: showSlowMessage ? '70px' : '20px',
+            right: '20px',
+            background: 'rgba(255, 85, 85, 0.9)',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            zIndex: 1000,
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.2s ease',
+            userSelect: 'none'
+          }}
+          onClick={() => navigate('/')}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 85, 85, 1)';
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 85, 85, 0.9)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          🏠 Go Home
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes loadingPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(0.95); }
+        }
+      `}</style>
+    </>
+  );
+};
 
 const MainContent = styled.main`
   /* Mobile-first approach with dynamic viewport height */
@@ -195,7 +306,14 @@ const MainContent = styled.main`
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    // Scroll to top and force re-render on route change
+    window.scrollTo(0, 0);
+    // Force component re-render by triggering a small state change
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('route-changed', { detail: { pathname } }));
+    }, 100);
+  }, [pathname]);
   return null;
 }
 
@@ -289,6 +407,8 @@ export default function App() {
           />
         )}
         <ScrollToTop />
+        <NavigationDebugger />
+        <NavigationForcer />
         <ErrorHandler />
         <AppContent autoConnectAttempted={autoConnectAttempted} />
         <CacheDebugWrapper />

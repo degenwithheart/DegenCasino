@@ -217,7 +217,7 @@ export const StyledSlots = styled.div`
     z-index: 0;
   }
 
-  @keyframes pulse {
+  @keyframes slotsPulse {
     0%, 30% {
       transform: scale(1)
     }

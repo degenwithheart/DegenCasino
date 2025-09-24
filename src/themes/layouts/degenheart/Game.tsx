@@ -1,47 +1,42 @@
 import styled from 'styled-components';
+import { media, components } from './breakpoints';
 // Styled modal content for info modal, matching casino modal look
 const InfoModalContent = styled.div`
-  /* Mobile-first: Start with mobile viewport optimized styles */
-  width: 98vw;
-  max-width: 98vw;
+  /* Mobile-first: Optimized for touch devices */
+  width: 95vw;
+  max-width: 95vw;
   min-width: 0;
   min-height: 200px;
-  max-height: 400px;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
-  padding: 0.25rem;
+  max-height: calc(100vh - 160px); /* Account for header and footer */
+  margin: 1rem auto;
+  padding: 1rem;
   background: rgba(24, 24, 24, 0.95);
-  border-radius: 10px;
+  border-radius: ${components.modal.mobile.borderRadius};
   border: 2px solid rgba(255, 215, 0, 0.3);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   position: relative;
   color: white;
   
-  /* Small tablets */
-  @media (min-width: 640px) {
-    padding: 0.5rem;
-    border-radius: 1rem;
-    max-width: 90vw;
-    min-height: 250px;
-    max-height: 450px;
-  }
-  
-  /* Tablets */
-  @media (min-width: 768px) {
-    padding: 1rem;
+  /* Tablet: Better proportions */
+  ${media.tablet} {
+    width: 85vw;
     max-width: 85vw;
+    padding: 1.5rem;
+    border-radius: ${components.modal.tablet.borderRadius};
     min-height: 300px;
-    max-height: 500px;
-    margin-bottom: 3rem;
-    margin-top: 3rem;
+    max-height: calc(100vh - 120px);
+    margin: 2rem auto;
   }
   
-  /* Desktop */
-  @media (min-width: 1024px) {
-    max-width: 80vw;
+  /* Desktop: Spacious layout */
+  ${media.desktop} {
+    width: 80vw;
+    max-width: 1200px;
+    padding: 2rem;
+    border-radius: ${components.modal.desktop.borderRadius};
     min-height: 350px;
-    margin-bottom: 4rem;
-    margin-top: 4rem;
+    max-height: calc(100vh - 100px);
+    margin: 3rem auto;
   }
   
   &::before {
@@ -736,7 +731,7 @@ function CustomRenderer() {
                       letterSpacing="2"
                       style={{
                         textTransform: 'uppercase',
-                        animation: 'pulse 1.2s ease-in-out infinite'
+                        animation: 'degenHeartPulse 1.2s ease-in-out infinite'
                       }}
                     >
                       Loading
@@ -746,7 +741,7 @@ function CustomRenderer() {
                     @keyframes spin {
                       100% { transform: rotate(360deg); }
                     }
-                    @keyframes pulse {
+                    @keyframes degenHeartPulse {
                       0%, 100% { opacity: 1; }
                       50% { opacity: 0.5; }
                     }

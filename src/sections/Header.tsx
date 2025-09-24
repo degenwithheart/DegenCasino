@@ -20,8 +20,7 @@ import { UserButton } from './UserButton'
 import { ENABLE_LEADERBOARD } from '../constants'
 import { useIsCompact } from '../hooks/ui/useIsCompact'
 import { useColorScheme } from '../themes/ColorSchemeContext'
-import { TotalBetsTopBar } from '../components/TopBar/TotalBetsTopBar'
-import { usePlatformStats } from '../hooks/data/usePlatformStats'
+
 
 /* ─────── Romantic Degen Serenade Animations ───────────────────────────────────────────── */
 
@@ -545,7 +544,6 @@ export default function Header() {
   const navigate = useNavigate()
   const { currentColorScheme } = useColorScheme()
   const { connected } = useWallet()
-  const { stats, loading, error } = usePlatformStats()
 
   const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
@@ -585,8 +583,6 @@ export default function Header() {
           <img alt="DegenHeart.casino logo" src="/png/images/logo.png" />
           {!isCompact && <span>DegenHeart.casino</span>}
         </Logo>
-
-        <TotalBetsTopBar stats={stats} loading={loading} error={error} colorScheme={currentColorScheme} />
 
         <RightGroup $isCompact={isCompact}>
           {connected && pool.jackpotBalance > 0 && (

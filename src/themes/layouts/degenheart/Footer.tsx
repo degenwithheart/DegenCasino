@@ -6,6 +6,7 @@ import { useColorScheme } from '../../ColorSchemeContext'
 import { useDegenGamesModal } from './DegenHeartLayout'
 import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants'
 import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine } from 'react-icons/fa'
+import { media, spacing, components } from './breakpoints'
 
 const FooterContainer = styled.footer<{ $colorScheme: any }>`
   width: 100%;
@@ -51,8 +52,14 @@ const FooterContainer = styled.footer<{ $colorScheme: any }>`
     pointer-events: none;
   }
   
-  @media (max-width: 768px) {
-    display: none; /* Hide desktop footer on mobile to avoid overlap with mobile footer */
+  /* Hide desktop footer below desktop breakpoint */
+  ${media.maxTabletLg} {
+    display: none;
+  }
+  
+  /* Desktop: Show desktop footer */
+  ${media.tabletLg} {
+    display: flex;
   }
 `
 
@@ -217,10 +224,9 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
   border-top: 3px solid ${props => props.$colorScheme.colors.accent}40;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2.5rem;
+  justify-content: space-between;
   padding: 0 1rem;
-  z-index: 1000;
+  z-index: 9999; /* Ensure it's above everything */
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   
   &::before {
@@ -239,8 +245,44 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
     );
   }
   
-  @media (min-width: 769px) {
-    display: none; /* Hide on desktop */
+  /* Show mobile footer below desktop breakpoint */
+  display: flex;
+  
+  /* Hide mobile footer on desktop */
+  ${media.tabletLg} {
+    display: none;
+  }
+  
+  /* These styles are now applied to the MobileNavLinks children */
+`
+
+const MobileNavContainer = styled.div`
+  flex: 1;
+  margin: 0 4rem; /* Space for sidebar buttons */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+`
+
+const MobileNavLinks = styled.div<{ $colorScheme: any }>`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 1rem;
+  min-width: max-content; /* Ensure content doesn't shrink */
+  
+  /* Snap scrolling for better UX */
+  scroll-snap-type: x mandatory;
+  
+  > * {
+    scroll-snap-align: center;
+    flex-shrink: 0; /* Prevent items from shrinking */
   }
   
   a, button {
@@ -256,6 +298,7 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
     background: none;
     border: none;
     cursor: pointer;
+    white-space: nowrap; /* Prevent text wrapping */
     
     &::before {
       content: '';
@@ -282,7 +325,7 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
   }
 `
 
-const SidebarToggleButton = styled.button<{ $colorScheme: any; $position: 'left' | 'right' }>`
+const SidebarToggleButton = styled.button<{ $colorScheme: any }>`
   background: ${props => props.$colorScheme.colors.surface}80;
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
@@ -294,17 +337,12 @@ const SidebarToggleButton = styled.button<{ $colorScheme: any; $position: 'left'
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Prevent button from shrinking */
   
-  /* Position absolute for left/right corners */
-  position: absolute;
-  ${props => props.$position}: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
     background: ${props => props.$colorScheme.colors.accent}20;
-    transform: translateY(-50%) scale(1.05);
+    transform: scale(1.05);
   }
 
   svg {
@@ -439,51 +477,53 @@ const Footer: React.FC = () => {
       {/* Left Sidebar Toggle Button */}
       <SidebarToggleButton 
         $colorScheme={currentColorScheme} 
-        $position="left"
         onClick={toggleLeftSidebar}
         title="Toggle Navigation Menu"
       >
         {leftSidebarOpen ? <FaTimes /> : <FaBars />}
       </SidebarToggleButton>
       
-      {/* Center navigation links */}
-      {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
-        // Special handling for Games modal trigger (only available when connected)
-        if ('label' in link && link.label === 'Games') {
-          return (
-            <button
-              key={link.title}
-              type="button"
-              onClick={() => handleMobileLinkClick(link)}
-            >
-              {link.title}
-            </button>
-          )
-        }
-        
-        // Regular navigation links
-        const href = typeof link.href === 'string' && link.href.includes('${base58}') 
-          ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
-          : link.href
-          
-        return (
-          <a
-            key={link.title}
-            href={href}
-            onClick={(e) => {
-              e.preventDefault()
-              handleMobileLinkClick(link)
-            }}
-          >
-            {link.title}
-          </a>
-        )
-      })}
+      {/* Scrollable Center Navigation Links */}
+      <MobileNavContainer>
+        <MobileNavLinks $colorScheme={currentColorScheme}>
+          {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
+            // Special handling for Games modal trigger (only available when connected)
+            if ('label' in link && link.label === 'Games') {
+              return (
+                <button
+                  key={link.title}
+                  type="button"
+                  onClick={() => handleMobileLinkClick(link)}
+                >
+                  {link.title}
+                </button>
+              )
+            }
+            
+            // Regular navigation links
+            const href = typeof link.href === 'string' && link.href.includes('${base58}') 
+              ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
+              : link.href
+              
+            return (
+              <a
+                key={link.title}
+                href={href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleMobileLinkClick(link)
+                }}
+              >
+                {link.title}
+              </a>
+            )
+          })}
+        </MobileNavLinks>
+      </MobileNavContainer>
       
       {/* Right Sidebar Toggle Button */}
       <SidebarToggleButton 
         $colorScheme={currentColorScheme} 
-        $position="right"
         onClick={toggleRightSidebar}
         title="Toggle Stats & Info Panel"
       >

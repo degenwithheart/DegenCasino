@@ -11,8 +11,8 @@ import { useToast } from '../../../hooks/ui/useToast'
 import { Modal } from './components/Modal'
 import { ColorSchemeSelector } from '../../../components'
 import TokenSelect from '../../../sections/TokenSelect'
-import { TotalBetsTopBar } from '../../../components/TopBar/TotalBetsTopBar'
-import { usePlatformStats } from '../../../hooks/data/usePlatformStats'
+
+import { media, typography, spacing, components } from './breakpoints'
 
 const heartGlow = keyframes`
   0%, 100% {
@@ -44,7 +44,8 @@ const float = keyframes`
 
 const HeaderContainer = styled.header<{ $colorScheme: any }>`
   width: 100%;
-  height: 80px;
+  /* Mobile-first: Optimized height for touch devices */
+  height: 75px;
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.surface}98,
     ${props => props.$colorScheme.colors.background}90
@@ -54,7 +55,8 @@ const HeaderContainer = styled.header<{ $colorScheme: any }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
+  /* Mobile-first: Smaller padding for mobile screens */
+  padding: 0 1rem;
   position: relative;
   z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -87,9 +89,15 @@ const HeaderContainer = styled.header<{ $colorScheme: any }>`
     pointer-events: none;
   }
   
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-    height: 75px;
+  /* Tablet and up: Standard desktop height and padding */
+  ${media.tablet} {
+    height: 80px;
+    padding: 0 2rem;
+  }
+  
+  /* Desktop: More generous padding */
+  ${media.desktop} {
+    padding: 0 2.5rem;
   }
 `
 
@@ -145,11 +153,12 @@ const LogoIcon = styled(FaGem)<{ $colorScheme: any }>`
 `
 
 const LogoText = styled.h1<{ $colorScheme: any }>`
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: ${props => props.$colorScheme.colors.text};
+  /* Mobile-first: Smaller, more compact text */
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: ${props => props.$colorScheme.colors.accent};
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   margin: 0;
   position: relative;
   
@@ -183,41 +192,76 @@ const LogoText = styled.h1<{ $colorScheme: any }>`
     z-index: -1;
   }
   
-  @media (max-width: 768px) {
-    font-size: 1.3rem;
-    letter-spacing: 0.05em;
+  /* Tablet and up: Larger, more prominent text */
+  ${media.tablet} {
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+  }
+  
+  /* Desktop: Full-size branding */
+  ${media.desktop} {
+    font-size: 1.6rem;
   }
 `
 
 const Navigation = styled.nav<{ $colorScheme: any; $isOpen: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+  /* Mobile-first: Hidden by default on small screens */
+  display: none;
   
-  @media (max-width: 768px) {
+  /* Mobile drawer when open */
+  ${media.maxTablet} {
     display: ${props => props.$isOpen ? 'flex' : 'none'};
     position: fixed;
-    top: 80px;
+    top: 75px; /* Match mobile header height */
     left: 0;
     right: 0;
-    background: ${props => props.$colorScheme.colors.surface};
+    background: ${props => props.$colorScheme.colors.surface}F0;
+    backdrop-filter: blur(20px);
     border-bottom: 2px solid ${props => props.$colorScheme.colors.border};
     flex-direction: column;
-    padding: 2rem;
-    gap: 1.5rem;
+    padding: 1.5rem;
+    gap: 1rem;
     transform: translateY(${props => props.$isOpen ? '0' : '-100%'});
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
+    max-height: calc(100vh - 75px);
+    overflow-y: auto;
     
     .mobile-wallet-options {
       display: flex !important;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
       width: 100%;
       padding-top: 1rem;
       border-top: 1px solid ${props => props.$colorScheme.colors.border};
       margin-top: 1rem;
     }
+  }
+  
+  /* Tablet and up: Show horizontal navigation */
+  ${media.tablet} {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: static;
+    background: none;
+    border: none;
+    flex-direction: row;
+    padding: 0;
+    transform: none;
+    transition: none;
+    z-index: auto;
+    max-height: none;
+    overflow-y: visible;
+    
+    .mobile-wallet-options {
+      display: none !important;
+    }
+  }
+  
+  /* Desktop: More generous spacing */
+  ${media.desktop} {
+    gap: 2rem;
   }
 `
 
@@ -226,8 +270,9 @@ const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
   border: 2px solid ${props => props.$active ? props.$colorScheme.colors.accent : 'transparent'};
   color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text};
   font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.8rem 1.6rem;
+  /* Mobile-first: Smaller font, touch-friendly sizing */
+  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
   border-radius: 30px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -235,6 +280,10 @@ const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
   letter-spacing: 0.08em;
   position: relative;
   overflow: hidden;
+  /* Mobile-first: Full width for better touch targets */
+  width: 100%;
+  text-align: center;
+  min-height: 44px; /* Touch-friendly minimum */
   
   &::before {
     content: '';
@@ -249,8 +298,6 @@ const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
     border-color: ${props => props.$colorScheme.colors.accent};
     color: ${props => props.$colorScheme.colors.accent};
     background: ${props => props.$colorScheme.colors.accent}15;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 5px 20px ${props => props.$colorScheme.colors.accent}30;
     
     &::before {
       opacity: 1;
@@ -258,22 +305,36 @@ const NavLink = styled.button<{ $colorScheme: any; $active: boolean }>`
   }
   
   &:active {
-    transform: translateY(-1px) scale(0.98);
+    transform: scale(0.98);
   }
   
-  @media (max-width: 768px) {
-    width: 100%;
-    text-align: center;
+  /* Tablet and up: Inline styling with hover effects */
+  ${media.tablet} {
+    font-size: 0.9rem;
+    padding: 0.8rem 1.6rem;
+    width: auto;
+    min-height: auto;
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 5px 20px ${props => props.$colorScheme.colors.accent}30;
+    }
+    
+    &:active {
+      transform: translateY(-1px) scale(0.98);
+    }
   }
 `
 
 const WalletSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  /* Mobile-first: Compact spacing */
+  gap: 0.5rem;
   
-  @media (max-width: 768px) {
-    gap: 0.5rem;
+  /* Tablet and up: More generous spacing */
+  ${media.tablet} {
+    gap: 1rem;
   }
 `
 
@@ -284,6 +345,8 @@ const ThemeButton = styled.button<{ $colorScheme: any }>`
   );
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
+  /* Mobile-first: Hide on mobile to save space */
+  display: none;
   padding: 0.8rem 1.2rem;
   border-radius: 16px;
   cursor: pointer;
@@ -291,7 +354,6 @@ const ThemeButton = styled.button<{ $colorScheme: any }>`
   font-size: 0.9rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(15px);
-  display: flex;
   align-items: center;
   gap: 0.6rem;
   position: relative;
@@ -324,8 +386,9 @@ const ThemeButton = styled.button<{ $colorScheme: any }>`
     transform: translateY(-1px) scale(0.98);
   }
 
-  @media (max-width: 768px) {
-    display: none;
+  /* Tablet and up: Show theme button */
+  ${media.tablet} {
+    display: flex;
   }
 `
 
@@ -382,19 +445,21 @@ const TokenButton = styled.button<{ $colorScheme: any }>`
 `
 
 const WalletButton = styled.button<{ $colorScheme: any }>`
-  padding: 0.8rem 1.8rem;
+  /* Mobile-first: Touch-friendly sizing */
+  padding: 0.75rem 1.25rem;
   background: linear-gradient(135deg, ${props => props.$colorScheme.colors.accent}, ${props => props.$colorScheme.colors.accent}dd);
   color: white;
   border: 2px solid transparent;
   border-radius: 30px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   position: relative;
   overflow: hidden;
+  min-height: 44px; /* Touch-friendly minimum */
   
   &::before {
     content: '';
@@ -407,10 +472,6 @@ const WalletButton = styled.button<{ $colorScheme: any }>`
   
   &:hover {
     background: linear-gradient(135deg, ${props => props.$colorScheme.colors.accent}ee, ${props => props.$colorScheme.colors.accent}cc);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-      0 8px 25px ${props => props.$colorScheme.colors.accent}50,
-      0 0 0 3px ${props => props.$colorScheme.colors.accent}20;
     border-color: ${props => props.$colorScheme.colors.accent}80;
     
     &::before {
@@ -419,17 +480,33 @@ const WalletButton = styled.button<{ $colorScheme: any }>`
   }
   
   &:active {
-    transform: translateY(-1px) scale(0.98);
+    transform: scale(0.98);
   }
   
-  @media (max-width: 768px) {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.8rem;
+  /* Tablet and up: Larger sizing with hover effects */
+  ${media.tablet} {
+    padding: 0.8rem 1.8rem;
+    font-size: 0.9rem;
+    min-height: auto;
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 
+        0 8px 25px ${props => props.$colorScheme.colors.accent}50,
+        0 0 0 3px ${props => props.$colorScheme.colors.accent}20;
+    }
+    
+    &:active {
+      transform: translateY(-1px) scale(0.98);
+    }
   }
 `
 
 const MenuButton = styled.button<{ $colorScheme: any }>`
-  display: none;
+  /* Mobile-first: Always visible for navigation drawer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: ${props => props.$colorScheme.colors.surface}80;
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
@@ -438,21 +515,25 @@ const MenuButton = styled.button<{ $colorScheme: any }>`
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  min-height: 44px; /* Touch-friendly minimum */
+  min-width: 44px;
   
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
     background: ${props => props.$colorScheme.colors.accent}20;
-    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
   
   svg {
     font-size: 1.2rem;
   }
   
-  @media (max-width: 768px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Tablet and up: Hide menu button as navigation is always visible */
+  ${media.tablet} {
+    display: none;
   }
 `
 
@@ -536,7 +617,6 @@ const Header: React.FC = () => {
   const walletModal = useWalletModal()
   const handleWalletConnect = useHandleWalletConnect()
   const toast = useToast()
-  const { stats, loading, error } = usePlatformStats()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
@@ -608,8 +688,6 @@ const Header: React.FC = () => {
           DegenHeart
         </LogoText>
       </LogoSection>
-
-      <TotalBetsTopBar stats={stats} loading={loading} error={error} colorScheme={currentColorScheme} />
 
       <Navigation $colorScheme={currentColorScheme} $isOpen={mobileMenuOpen}>
         {/* Mobile-only wallet options when connected */}

@@ -7,9 +7,13 @@ export function useServiceWorker() {
       // Register the service worker
       navigator.serviceWorker.register('/sw.js', {
         scope: '/',
+        updateViaCache: 'none', // Prevent caching of service worker itself
       })
       .then((registration) => {
         console.log('✅ Service Worker registered:', registration.scope);
+        
+        // Force update check on page load
+        registration.update();
         
         // Check for updates
         registration.addEventListener('updatefound', () => {
@@ -18,10 +22,8 @@ export function useServiceWorker() {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 console.log('🔄 New Service Worker available');
-                // Optionally notify user about update
-                if (window.confirm('A new version is available. Reload to update?')) {
-                  window.location.reload();
-                }
+                // Auto-reload for better UX (instead of prompting)
+                window.location.reload();
               }
             });
           }
@@ -35,6 +37,12 @@ export function useServiceWorker() {
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'VERSION') {
           console.log('📦 Cache version:', event.data.version);
+        }
+        
+        // Handle navigation cache refresh
+        if (event.data && event.data.type === 'NAVIGATION_REFRESH') {
+          console.log('🔄 Navigation cache refreshed');
+          window.dispatchEvent(new CustomEvent('sw-navigation-refresh'));
         }
       });
     }

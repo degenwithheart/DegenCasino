@@ -421,9 +421,9 @@ const StatDot = styled.div<{ $color: string }>`
   background: ${props => props.$color};
   border-radius: 50%;
   box-shadow: 0 0 8px ${props => props.$color}66;
-  ${props => props.$color === '#10b981' && 'animation: pulse 2s infinite;'}
+  ${props => props.$color === '#10b981' && 'animation: propagationPulse 2s infinite;'}
   
-  @keyframes pulse {
+  @keyframes propagationPulse {
     0%, 100% { 
       opacity: 1; 
       transform: scale(1);

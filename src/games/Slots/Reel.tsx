@@ -133,7 +133,7 @@ const SlotContainer = styled.div<{$good: boolean, $revealed: boolean, $position?
     100% { filter: brightness(1.3) saturate(1.4); }
   }
 
-  & img {
+  > img {
     width: 80px;
     height: 80px;
     max-width: 90%;
@@ -184,7 +184,7 @@ const SpinningSlotContainer = styled.div<{$good: boolean, $revealed: boolean, $e
 
 
 
-  & img {
+  > img {
     width: 100px; /* Fixed size for all images */
     height: 100px; /* Fixed size for all images */
     object-fit: contain;

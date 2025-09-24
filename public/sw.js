@@ -20,10 +20,12 @@ const CACHE_STRATEGIES = {
     /\/webp\//,
     /\/games\//
   ],
-  // Network first for API calls
+  // Network first for API calls and HTML pages
   networkFirst: [
     /\/api\//,
-    /\/rpc/
+    /\/rpc/,
+    /\.html$/,
+    /^\/[^.]*$/ // Routes without file extensions (SPA routes)
   ],
   // Stale while revalidate for game assets
   staleWhileRevalidate: [

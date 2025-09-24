@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components'
+import { media, components } from '../breakpoints'
 
 // Degen dissolve animation for popup mode
 export const degenDissolve = keyframes`
@@ -152,18 +153,37 @@ export const Portal = styled.div<{ $variant?: 'popup' | 'viewport' }>`
   overflow: ${({ $variant }) => $variant === 'popup' ? 'visible' : 'auto'};
   z-index: 1;
 
-  @media (max-width: 768px) {
-    padding: ${({ $variant }) => $variant === 'popup' ? '0' : '1rem'};
+  /* Mobile-first: Optimized for touch devices */
+  padding: ${({ $variant }) => $variant === 'popup' ? '0' : components.modal.mobile.padding};
+  ${({ $variant }) => $variant === 'popup' ? `
+    width: min(350px, 90vw);
+    height: min(350px, 90vw);
+    margin: ${components.modal.mobile.margin};
+    border-radius: ${components.modal.mobile.borderRadius};
+    max-height: ${components.modal.mobile.maxHeight};
+  ` : ''}
+
+  /* Tablet: Better proportions and spacing */
+  ${media.tablet} {
+    padding: ${({ $variant }) => $variant === 'popup' ? '0' : components.modal.tablet.padding};
     ${({ $variant }) => $variant === 'popup' ? `
-      width: min(400px, 88vw);
-      height: min(400px, 88vw);
+      width: min(450px, 85vw);
+      height: min(450px, 85vw);
+      margin: ${components.modal.tablet.margin};
+      border-radius: ${components.modal.tablet.borderRadius};
+      max-height: ${components.modal.tablet.maxHeight};
     ` : ''}
   }
 
-  @media (min-width: 768px) {
+  /* Desktop: Full-featured modal experience */
+  ${media.desktop} {
+    padding: ${({ $variant }) => $variant === 'popup' ? '0' : components.modal.desktop.padding};
     ${({ $variant }) => $variant === 'popup' ? `
-      width: min(550px, 85vw);
-      height: min(550px, 85vw);
+      width: min(550px, 80vw);
+      height: min(550px, 80vw);
+      margin: ${components.modal.desktop.margin};
+      border-radius: ${components.modal.desktop.borderRadius};
+      max-height: ${components.modal.desktop.maxHeight};
     ` : ''}
   }
 `;
@@ -290,8 +310,9 @@ export const Content = styled.div<{ $variant?: 'popup' | 'viewport' }>`
 
 export const CloseButton = styled.button`
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  /* Mobile-first: Optimized positioning and sizing for touch */
+  top: 0.75rem;
+  right: 0.75rem;
   background: linear-gradient(
     135deg,
     rgba(255, 215, 0, 0.2) 0%,
@@ -300,8 +321,9 @@ export const CloseButton = styled.button`
   );
   border: 2px solid rgba(255, 215, 0, 0.5);
   color: #ffd700;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   border-radius: 8px;
+  /* Mobile-first: Touch-friendly size */
   width: 44px;
   height: 44px;
   cursor: pointer;
@@ -324,32 +346,39 @@ export const CloseButton = styled.button`
       rgba(162, 89, 255, 0.5) 50%,
       rgba(255, 215, 0, 0.4) 100%
     );
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 
-      0 6px 20px rgba(15, 15, 25, 0.7),
-      0 3px 12px rgba(255, 215, 0, 0.4),
-      0 0 15px rgba(162, 89, 255, 0.3);
     border-color: rgba(255, 215, 0, 0.8);
   }
 
   &:active {
-    transform: scale(1.05) rotate(90deg);
+    transform: scale(0.95);
     transition: all 0.1s ease;
   }
 
-  @media (max-width: 768px) {
-    top: 1rem;
-    right: 1rem;
-    width: 40px;
-    height: 40px;
-    font-size: 1.3rem;
+  /* Tablet: Larger size with hover effects */
+  ${media.tablet} {
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+    
+    &:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 
+        0 6px 20px rgba(15, 15, 25, 0.7),
+        0 3px 12px rgba(255, 215, 0, 0.4),
+        0 0 15px rgba(162, 89, 255, 0.3);
+    }
+    
+    &:active {
+      transform: scale(1.05) rotate(90deg);
+    }
   }
   
-  @media (max-width: 479px) {
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 36px;
-    height: 36px;
-    font-size: 1.2rem;
+  /* Desktop: Full-featured with animations */
+  ${media.desktop} {
+    top: 2rem;
+    right: 2rem;
+    font-size: 1.5rem;
   }
 `;
