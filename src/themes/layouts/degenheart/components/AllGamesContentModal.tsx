@@ -16,7 +16,7 @@ const ModalContent = styled.div<{ $colorScheme: any }>`
   overflow-y: auto;
   color: ${props => props.$colorScheme.colors.text};
   
-  ${media.mobile} {
+  ${media.maxMobile} {
     width: 500px;
     height: 400px;
     padding: 0.25rem;
@@ -39,7 +39,7 @@ const Title = styled.h1<{ $colorScheme: any }>`
   letter-spacing: 0.1em;
   text-shadow: 0 0 20px ${props => props.$colorScheme.colors.accent}80;
   
-  ${media.mobile} {
+  ${media.maxMobile} {
     font-size: 1.5rem;
   }
 `
@@ -57,7 +57,7 @@ const SectionTitle = styled.h2<{ $colorScheme: any }>`
     margin-top: 0;
   }
   
-  ${media.mobile} {
+  ${media.maxMobile} {
     font-size: 1rem;
   }
 `
@@ -68,7 +68,7 @@ const GamesGrid = styled.div`
   gap: 0.5rem;
   margin-bottom: 1rem;
   
-  ${media.mobile} {
+  ${media.maxMobile} {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
   }
