@@ -251,9 +251,14 @@ interface ChangelogEntry {
 
 const changelogData: ChangelogEntry[] = [
   {
+    version: "v3.5.1",
+    date: "2025-09-25",
+    description: "Major performance optimization update with comprehensive speed enhancements across the entire platform. Implemented advanced service worker caching system, component preloading, critical asset preloading, and route transition optimizations. Added intelligent caching for game assets, automatic component preloading for commonly visited pages, and smooth route transitions to eliminate blank screens. Enhanced build compression with gzip/brotli compression for all assets over 1KB, optimized Vite configuration with chunk splitting and tree shaking, and implemented performance monitoring with memory usage detection and frame rate optimization."
+  },
+  {
     version: "v3.5.0",
     date: "2025-09-22",
-    description: "Major theme system overhaul with advanced theme awareness functions and comprehensive 3D game infrastructure foundation. Implemented next-generation theming capabilities with dynamic color scheme management, sophisticated visual effects, and preparation for immersive 3D gaming experiences."
+    description: "Comprehensive BPS (Basis Points) system updates across all gaming components with enhanced precision and accuracy. Implemented standardized BPS calculations, improved wager validation systems, and optimized multiplier calculations. Major theme system overhaul with advanced theme awareness functions and comprehensive 3D game infrastructure foundation. Implemented next-generation theming capabilities with dynamic color scheme management, sophisticated visual effects, and preparation for immersive 3D gaming experiences."
   },
   {
     version: "v3.4.9",
