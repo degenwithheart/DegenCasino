@@ -4,11 +4,14 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTransactionError } from 'gamba-react-v2';
 import { Modal, TOSModal } from './components';
+import RouterErrorBoundary from './components/RouterErrorBoundary';
+import { RouteTransitionWrapper, RouteLoadingSpinner } from './components/RouteTransitionWrapper';
 import { ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/ui/useToast';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
+import { useComponentPreloader } from './hooks/system/useComponentPreloader';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
@@ -43,6 +46,7 @@ const SIDEBAR_WIDTH = 80;
 // Theme-aware content component that renders based on current layout theme
 function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean }) {
   const { connected } = useWallet();
+  const location = useLocation();
   const { 
     currentLayoutTheme, 
     resolveComponent 
@@ -70,36 +74,40 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     const DegenHeartLayout = React.lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
     
     return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <DegenHeartLayout>
-          <Toasts />
-          <DevnetWarning />
-          <Routes>
-            <Route path="/" element={<DashboardComponent />} />
-            <Route path="/jackpot" element={<JackpotPage />} />
-            <Route path="/bonus" element={<BonusPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/select-token" element={<SelectTokenPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/whitepaper" element={<Whitepaper />} />
-            <Route path="/credits" element={<Credits />} />
-            <Route path="/token" element={<DGHRTToken />} />
-            <Route path="/presale" element={<DGHRTPresale />} />
-            <Route path="/aboutme" element={<AboutMe />} />
-            <Route path="/audit" element={<FairnessAudit />} />
-            <Route path="/changelog" element={<ChangelogPage />} />
-            <Route path="/propagation" element={<Propagation />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/explorer" element={<ExplorerIndex />} />
-            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-            <Route path="/explorer/player/:address" element={<PlayerView />} />
-            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-            <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
-          </Routes>
-          {ENABLE_TROLLBOX && connected && <TrollBox />}
-        </DegenHeartLayout>
-      </Suspense>
+      <RouterErrorBoundary key={`degenheart-${location.pathname}`}>
+        <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
+          <Suspense fallback={<RouteLoadingSpinner />}>
+            <DegenHeartLayout>
+            <Toasts />
+            <DevnetWarning />
+            <Routes>
+              <Route path="/" element={<DashboardComponent />} />
+              <Route path="/jackpot" element={<Suspense fallback={<LoadingSpinner />}><JackpotPage /></Suspense>} />
+              <Route path="/bonus" element={<Suspense fallback={<LoadingSpinner />}><BonusPage /></Suspense>} />
+              <Route path="/leaderboard" element={<Suspense fallback={<LoadingSpinner />}><LeaderboardPage /></Suspense>} />
+              <Route path="/select-token" element={<Suspense fallback={<LoadingSpinner />}><SelectTokenPage /></Suspense>} />
+              <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsPage /></Suspense>} />
+              <Route path="/whitepaper" element={<Suspense fallback={<LoadingSpinner />}><Whitepaper /></Suspense>} />
+              <Route path="/credits" element={<Suspense fallback={<LoadingSpinner />}><Credits /></Suspense>} />
+              <Route path="/token" element={<Suspense fallback={<LoadingSpinner />}><DGHRTToken /></Suspense>} />
+              <Route path="/presale" element={<Suspense fallback={<LoadingSpinner />}><DGHRTPresale /></Suspense>} />
+              <Route path="/aboutme" element={<Suspense fallback={<LoadingSpinner />}><AboutMe /></Suspense>} />
+              <Route path="/audit" element={<Suspense fallback={<LoadingSpinner />}><FairnessAudit /></Suspense>} />
+              <Route path="/changelog" element={<Suspense fallback={<LoadingSpinner />}><ChangelogPage /></Suspense>} />
+              <Route path="/propagation" element={<Suspense fallback={<LoadingSpinner />}><Propagation /></Suspense>} />
+              <Route path="/admin" element={<Suspense fallback={<LoadingSpinner />}><AdminPage /></Suspense>} />
+              <Route path="/explorer" element={<ExplorerIndex />} />
+              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+              <Route path="/explorer/player/:address" element={<PlayerView />} />
+              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+              <Route path="/:wallet/profile" element={<Suspense fallback={<LoadingSpinner />}><UserProfile /></Suspense>} />
+              <Route path="/game/:wallet/:gameId" element={<Suspense fallback={<LoadingSpinner />}><GameComponent /></Suspense>} />
+            </Routes>
+            {ENABLE_TROLLBOX && connected && <TrollBox />}
+            </DegenHeartLayout>
+          </Suspense>
+        </RouteTransitionWrapper>
+      </RouterErrorBoundary>
     );
   }
 
@@ -113,31 +121,35 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
         <DevnetWarning />
         {/* Only show WelcomeBanner after auto-connect attempt */}
         {autoConnectAttempted && !connected && <WelcomeBanner />}
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<DashboardComponent />} />
-            <Route path="/jackpot" element={<JackpotPage />} />
-            <Route path="/bonus" element={<BonusPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/select-token" element={<SelectTokenPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/whitepaper" element={<Whitepaper />} />
-            <Route path="/credits" element={<Credits />} />
-            <Route path="/token" element={<DGHRTToken />} />
-            <Route path="/presale" element={<DGHRTPresale />} />
-            <Route path="/aboutme" element={<AboutMe />} />
-            <Route path="/audit" element={<FairnessAudit />} />
-            <Route path="/changelog" element={<ChangelogPage />} />
-            <Route path="/propagation" element={<Propagation />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/explorer" element={<ExplorerIndex />} />
-            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-            <Route path="/explorer/player/:address" element={<PlayerView />} />
-            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-            <Route path="/:wallet/profile" element={<UserProfile />} />
-            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
-          </Routes>
-        </Suspense>
+        <RouterErrorBoundary key={`default-${location.pathname}`}>
+          <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
+            <Suspense fallback={<RouteLoadingSpinner />}>
+              <Routes>
+              <Route path="/" element={<DashboardComponent />} />
+              <Route path="/jackpot" element={<Suspense fallback={<LoadingSpinner />}><JackpotPage /></Suspense>} />
+              <Route path="/bonus" element={<Suspense fallback={<LoadingSpinner />}><BonusPage /></Suspense>} />
+              <Route path="/leaderboard" element={<Suspense fallback={<LoadingSpinner />}><LeaderboardPage /></Suspense>} />
+              <Route path="/select-token" element={<Suspense fallback={<LoadingSpinner />}><SelectTokenPage /></Suspense>} />
+              <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsPage /></Suspense>} />
+              <Route path="/whitepaper" element={<Suspense fallback={<LoadingSpinner />}><Whitepaper /></Suspense>} />
+              <Route path="/credits" element={<Suspense fallback={<LoadingSpinner />}><Credits /></Suspense>} />
+              <Route path="/token" element={<Suspense fallback={<LoadingSpinner />}><DGHRTToken /></Suspense>} />
+              <Route path="/presale" element={<Suspense fallback={<LoadingSpinner />}><DGHRTPresale /></Suspense>} />
+              <Route path="/aboutme" element={<Suspense fallback={<LoadingSpinner />}><AboutMe /></Suspense>} />
+              <Route path="/audit" element={<Suspense fallback={<LoadingSpinner />}><FairnessAudit /></Suspense>} />
+              <Route path="/changelog" element={<Suspense fallback={<LoadingSpinner />}><ChangelogPage /></Suspense>} />
+              <Route path="/propagation" element={<Suspense fallback={<LoadingSpinner />}><Propagation /></Suspense>} />
+              <Route path="/admin" element={<Suspense fallback={<LoadingSpinner />}><AdminPage /></Suspense>} />
+              <Route path="/explorer" element={<ExplorerIndex />} />
+              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+              <Route path="/explorer/player/:address" element={<PlayerView />} />
+              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+              <Route path="/:wallet/profile" element={<Suspense fallback={<LoadingSpinner />}><UserProfile /></Suspense>} />
+              <Route path="/game/:wallet/:gameId" element={<Suspense fallback={<RouteLoadingSpinner />}><GameComponent /></Suspense>} />
+              </Routes>
+            </Suspense>
+          </RouteTransitionWrapper>
+        </RouterErrorBoundary>
       </MainContent>
       <FooterComponent />
       {ENABLE_TROLLBOX && connected && <TrollBox />}
@@ -149,19 +161,24 @@ const LoadingSpinner = () => {
   const [showSlowMessage, setShowSlowMessage] = useState(false);
   const [showHomeButton, setShowHomeButton] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Show slow loading message after 5 seconds
-    const slowTimer = setTimeout(() => setShowSlowMessage(true), 5000);
+    // Reset states on location change
+    setShowSlowMessage(false);
+    setShowHomeButton(false);
     
-    // Show home button after 15 seconds
-    const homeTimer = setTimeout(() => setShowHomeButton(true), 15000);
+    // Show slow loading message after 3 seconds (reduced from 5)
+    const slowTimer = setTimeout(() => setShowSlowMessage(true), 3000);
+    
+    // Show home button after 8 seconds (reduced from 15)
+    const homeTimer = setTimeout(() => setShowHomeButton(true), 8000);
     
     return () => {
       clearTimeout(slowTimer);
       clearTimeout(homeTimer);
     };
-  }, [navigate]);
+  }, [location.pathname]);
 
   return (
     <>
@@ -364,8 +381,9 @@ export default function App() {
     return () => window.removeEventListener('openGamesModal', handler);
   }, []);
 
-  // Initialize service worker
+  // Initialize service worker and component preloader
   useServiceWorker();
+  useComponentPreloader();
   
   useEffect(() => {
     // Preload critical assets for better performance

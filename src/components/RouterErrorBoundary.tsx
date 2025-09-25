@@ -31,10 +31,21 @@ class RouteErrorBoundary extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    // Reset error state when location changes
-    if (this.state.hasError && prevProps.children !== this.props.children) {
+    // Reset error state when location changes or children change
+    if (this.state.hasError && (prevProps.children !== this.props.children)) {
       this.setState({ hasError: false, error: undefined, errorInfo: undefined });
     }
+  }
+
+  // Force retry when route changes
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.state.hasError && nextProps.children !== this.props.children) {
+      this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    }
+  }
+
+  retry = () => {
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   }
 
   render() {
@@ -48,24 +59,83 @@ class RouteErrorBoundary extends Component<Props, State> {
           height: '60vh',
           padding: '2rem',
           textAlign: 'center',
-          color: '#ff6b7a'
+          color: '#ff6b7a',
+          backgroundColor: 'rgba(24, 24, 24, 0.95)',
+          borderRadius: '12px',
+          margin: '2rem',
+          border: '1px solid rgba(255, 107, 122, 0.3)'
         }}>
-          <h2>🚨 Something went wrong</h2>
-          <p>The page failed to load. Please try refreshing or navigate to a different page.</p>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#ff6b7a',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              marginTop: '1rem'
-            }}
-          >
-            Refresh Page
-          </button>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🚨</div>
+          <h2 style={{ marginBottom: '1rem', color: '#ff6b7a' }}>Route Loading Failed</h2>
+          <p style={{ marginBottom: '1.5rem', maxWidth: '400px', lineHeight: '1.5' }}>
+            The page failed to load properly. This might be due to a temporary issue.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button 
+              onClick={this.retry}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#ff6b7a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#ff5566';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#ff6b7a';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              Try Again
+            </button>
+            <button 
+              onClick={() => window.location.href = '/'}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'transparent',
+                color: '#ff6b7a',
+                border: '1px solid #ff6b7a',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 107, 122, 0.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              Go Home
+            </button>
+          </div>
+          {import.meta.env.MODE === 'development' && this.state.error && (
+            <details style={{ marginTop: '2rem', textAlign: 'left', width: '100%', maxWidth: '500px' }}>
+              <summary style={{ cursor: 'pointer', color: '#ff6b7a', marginBottom: '0.5rem' }}>
+                Error Details (Dev Mode)
+              </summary>
+              <pre style={{ 
+                background: 'rgba(0, 0, 0, 0.5)', 
+                padding: '1rem', 
+                borderRadius: '4px', 
+                overflow: 'auto',
+                fontSize: '0.8rem',
+                color: '#ccc'
+              }}>
+                {this.state.error.toString()}
+                {this.state.errorInfo?.componentStack}
+              </pre>
+            </details>
+          )}
         </div>
       );
     }
