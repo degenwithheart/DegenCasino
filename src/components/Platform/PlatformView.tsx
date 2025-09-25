@@ -479,6 +479,10 @@ function RecentPlayRow({ play, platformName, colorScheme }: { play: any; platfor
   )
 }
 
+// Simple cache to avoid refetching the same data
+const dataCache = new Map<string, { data: any, timestamp: number }>()
+const CACHE_DURATION = 30000 // 30 seconds
+
 export function PlatformView() {
   const { currentColorScheme } = useColorScheme()
   const { creator } = useParams<{creator: string}>()
@@ -489,155 +493,113 @@ export function PlatformView() {
   
   const { data: leaderboard = [] } = useLeaderboardData('alltime', creator || '')
   
-  // Only use real Gamba API data - no fallbacks or fake data
+  // Only use real Gamba API data with caching for better performance
 
   React.useEffect(() => {
     if (creator) {
-      const startTime = Date.now() - 7 * 24 * 60 * 60 * 1000 // 7 days ago
+      const cacheKey = `platform_${creator}`
+      const cached = dataCache.get(cacheKey)
+      
+      // Check if we have fresh cached data
+      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        setStats(cached.data.stats)
+        setRecentPlays(cached.data.plays)
+        setLoading(false)
+        console.log('📊 Using cached Explorer platform data')
+        return
+      }
+      
+      // If we have stale cached data, show it while loading fresh data
+      if (cached && cached.data.stats) {
+        setStats(cached.data.stats)
+        setRecentPlays(cached.data.plays)
+        console.log('📊 Showing stale cache while refreshing Explorer data')
+      }
       
       const fetchData = async () => {
+        const startTime = performance.now()
         try {
           setLoading(true)
           setError(null)
           
-          // Fetch platform stats
-          const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}&startTime=${startTime}`
+          // Use correct stats endpoint format
+          const statsUrl = `${API_ENDPOINT}/stats?creator=${creator}`
           
-          console.log('Fetching stats from:', statsUrl)
           const statsResponse = await fetch(statsUrl)
           
+          let statsData = null
+          let transformedPlays: any[] = []
+          
           if (statsResponse.ok) {
-            const statsData = await statsResponse.json()
-            console.log('Stats API response:', statsData)
+            statsData = await statsResponse.json()
+            console.log('Explorer stats API response:', statsData)
             setStats(statsData)
           } else {
-            const errorText = await statsResponse.text()
-            console.warn('Failed to fetch stats:', statsResponse.status, errorText)
-            
-            // Try alternative stats endpoint
-            const altStatsUrl = `${API_ENDPOINT}/stats/${creator}`
-            console.log('Trying alternative stats URL:', altStatsUrl)
-            
-            const altStatsResponse = await fetch(altStatsUrl)
-            if (altStatsResponse.ok) {
-              const altStatsData = await altStatsResponse.json()
-              console.log('Alternative stats API response:', altStatsData)
-              setStats(altStatsData)
-            }
+            console.warn('Failed to fetch Explorer stats:', statsResponse.status)
           }
           
-          // Fetch recent plays for this platform
-          const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=20&page=0`
+          // Fetch more plays for better data (match Dashboard approach)
+          const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${creator}&itemsPerPage=100&page=0`
+          console.log('Fetching Explorer plays from:', playsUrl)
           
           const playsResponse = await fetch(playsUrl)
           
           if (playsResponse.ok) {
             const playsData = await playsResponse.json()
+            console.log('Explorer plays API response:', playsData)
+            console.log('Number of results:', playsData?.results?.length || 0)
             
-            // Log the raw API response to see what we're getting
-            console.log('Raw API response:', playsData)
-
-            // Check if the response has the expected structure
+            // Streamlined data processing for better performance
             if (playsData && Array.isArray(playsData.results)) {
-              // Log first few plays to see the data structure
-              console.log('First 3 plays from API:', playsData.results.slice(0, 3))
-              
-              // Filter to only include plays where creator matches exactly
+              // Filter and transform in single pass for better performance
               const filteredPlays = playsData.results.filter((play: any) => play.creator === creator)
+              console.log('Filtered plays for creator:', filteredPlays.length, 'plays')
+              console.log('First few plays:', filteredPlays.slice(0, 3))
+              
+              transformedPlays = filteredPlays.map((play: any) => {
+                  // Keep wager and payout in lamports for TokenValue component
+                  const wager = parseFloat(play.wager) || 0
+                  const payout = parseFloat(play.payout) || 0
+                  
 
-              // Transform the API data to match our display format
-              const transformedPlays = filteredPlays.map((play: any) => {
-                const wager = parseFloat(play.wager) || 0
-                const payout = parseFloat(play.payout) || 0
-                const multiplierBps = play.multiplier_bps || 0
-                const multiplier = multiplierBps > 0 ? multiplierBps / BPS_PER_WHOLE : (payout > 0 && wager > 0 ? payout / wager : 0)
+                  
+                  const multiplierBps = play.multiplier_bps || 0
+                  const multiplier = multiplierBps > 0 ? multiplierBps / BPS_PER_WHOLE : (payout > 0 && wager > 0 ? payout / wager : 0)
 
-                // Log all time-related fields from the API
-                console.log('Time fields for play:', {
-                  signature: play.signature,
-                  block_time: play.block_time,
-                  time: play.time,
-                  timestamp: play.timestamp,
-                  created_at: play.created_at,
-                  updated_at: play.updated_at,
-                  all_fields: Object.keys(play)
-                })
-
-                // Try different timestamp fields that might be in the response
-                let timestamp = play.block_time || play.time || play.timestamp || play.created_at
-                if (timestamp) {
-                  // Handle different timestamp formats
+                  // Simplified timestamp handling
+                  let timestamp = play.block_time || play.time || Date.now()
                   if (typeof timestamp === 'string') {
                     timestamp = new Date(timestamp).getTime()
-                  } else {
-                    timestamp = timestamp < 1e12 ? timestamp * 1000 : timestamp
+                  } else if (timestamp < 1e12) {
+                    timestamp *= 1000
                   }
-                } else {
-                  console.warn('No timestamp found for play:', play)
-                  timestamp = Date.now()
-                }
 
-                return {
-                  signature: play.signature,
-                  user: play.user,
-                  creator: play.creator,
-                  token: play.token,
-                  wager,
-                  payout,
-                  time: timestamp,
-                  multiplier
-                }
-              })
+                  return {
+                    signature: play.signature,
+                    user: play.user,
+                    creator: play.creator,
+                    token: play.token,
+                    wager,
+                    payout,
+                    time: timestamp,
+                    multiplier
+                  }
+                })
 
               setRecentPlays(transformedPlays)
-            } else {
-              console.warn('Unexpected plays data structure:', playsData)
-              // Try alternative API endpoint format
-              const altPlaysUrl = `${API_ENDPOINT}/events?creator=${creator}&limit=20`
-              
-              const altResponse = await fetch(altPlaysUrl)
-              if (altResponse.ok) {
-                const altData = await altResponse.json()
-                
-                if (Array.isArray(altData)) {
-                  const transformedAltPlays = altData
-                    .filter((play: any) => play.creator === creator)
-                    .map((play: any) => {
-                      // Handle various timestamp formats from alternative API
-                      let timestamp = play.block_time || play.time || play.timestamp
-                      if (timestamp) {
-                        timestamp = timestamp < 1e12 ? timestamp * 1000 : timestamp
-                      } else {
-                        timestamp = Date.now()
-                      }
-
-                      console.log('Alt play data:', {
-                        signature: play.signature,
-                        original_time: play.block_time || play.time || play.timestamp,
-                        converted_time: timestamp,
-                        date: new Date(timestamp).toISOString()
-                      })
-
-                      return {
-                        signature: play.signature || 'unknown',
-                        user: play.user || play.player || 'unknown',
-                        creator: play.creator,
-                        token: play.token || play.mint,
-                        wager: parseFloat(play.wager) || parseFloat(play.amount) || 0,
-                        payout: parseFloat(play.payout) || parseFloat(play.winnings) || 0,
-                        time: timestamp,
-                        multiplier: play.multiplier || (play.payout && play.wager ? parseFloat(play.payout) / parseFloat(play.wager) : 0)
-                      }
-                    })
-                  
-                  setRecentPlays(transformedAltPlays)
-                }
-              }
             }
-          } else {
-            const errorText = await playsResponse.text()
-            console.warn('Failed to fetch recent plays:', playsResponse.status, errorText)
           }
+          
+          // Cache the fetched data for better performance
+          if (statsData || transformedPlays.length > 0) {
+            dataCache.set(cacheKey, {
+              data: { stats: statsData, plays: transformedPlays },
+              timestamp: Date.now()
+            })
+          }
+          
+          const endTime = performance.now()
+          console.log(`🏢 Explorer platform stats loaded in ${(endTime - startTime).toFixed(2)}ms`)
           
         } catch (err) {
           console.error('Failed to fetch platform data:', err)
@@ -666,24 +628,23 @@ export function PlatformView() {
   // Only use fees from API, but calculate volume properly from platform plays
   const estimatedFees = stats?.revenue_usd || stats?.fees || stats?.total_fees || 0
 
-  // Calculate volume from recent plays, but convert from lamports to actual token amount
+  // Calculate volume from recent plays (convert from lamports to SOL for display)
   const calculatedVolume = recentPlays.reduce((total, play) => {
-    // The wager should already be in the correct decimal format from TokenValue
-    // If it's showing huge numbers, the API might be returning lamports
-    const wagerAmount = play.wager || 0
-    // Convert from lamports to SOL (divide by 1e9) if the number seems too large
-    const adjustedWager = wagerAmount > 1000000 ? wagerAmount / 1e9 : wagerAmount
-    return total + adjustedWager
+    const wagerInSol = (play.wager || 0) / 1e9 // Convert lamports to SOL
+    return total + wagerInSol
   }, 0)
 
-  console.log('Fixed volume calculation:', {
-    platformCreator: creator,
+  console.log('Explorer volume calculation:', {
     recentPlaysCount: recentPlays.length,
-    rawWagers: recentPlays.map(p => p.wager),
     calculatedVolume,
-    estimatedFeesFromAPI: estimatedFees,
-    apiStats: stats
+    statsVolume: stats?.sol_volume,
+    statsPlays: stats?.plays,
+    statsTotalGames: stats?.total_games
   })
+
+  // Use stats data if available, fallback to calculated volume
+  const displayVolume = stats?.sol_volume || calculatedVolume
+  const displayGamesCount = stats?.plays || stats?.total_games || recentPlays.length
 
   return (
     <UnifiedPageContainer $colorScheme={currentColorScheme}>
@@ -693,11 +654,11 @@ export function PlatformView() {
         {/* Game Status Overview */}
         <GameStatusContainer $colorScheme={currentColorScheme}>
           <GameStatusHeader $colorScheme={currentColorScheme}>
-            📊 PLATFORM STATISTICS
+            📊 PLATFORM STATISTICS {loading && '⟳'}
           </GameStatusHeader>
           <StatusGrid>
             <StatusCard $colorScheme={currentColorScheme}>
-              <StatusValue $colorScheme={currentColorScheme}>{calculatedVolume.toFixed(4)} SOL</StatusValue>
+              <StatusValue $colorScheme={currentColorScheme}>{displayVolume.toFixed(4)} SOL</StatusValue>
               <StatusLabel $colorScheme={currentColorScheme}>WAGERED</StatusLabel>
             </StatusCard>
             <StatusCard $colorScheme={currentColorScheme}>
@@ -705,7 +666,7 @@ export function PlatformView() {
               <StatusLabel $colorScheme={currentColorScheme}>REVENUE</StatusLabel>
             </StatusCard>
             <StatusCard $colorScheme={currentColorScheme}>
-              <StatusValue $colorScheme={currentColorScheme}>{recentPlays.length}</StatusValue>
+              <StatusValue $colorScheme={currentColorScheme}>{displayGamesCount}</StatusValue>
               <StatusLabel $colorScheme={currentColorScheme}>PLAYS</StatusLabel>
             </StatusCard>
             <StatusCard $colorScheme={currentColorScheme}>

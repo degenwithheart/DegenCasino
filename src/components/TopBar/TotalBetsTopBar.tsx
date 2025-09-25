@@ -60,7 +60,7 @@ export function TotalBetsTopBar({ stats, loading, error, colorScheme }: TotalBet
   // Use calculated SOL volume from actual wagers
   const solVolume = stats.sol_volume || 0;
   const formattedSol = solVolume.toLocaleString(undefined, { maximumFractionDigits: 4 });
-  const gamesCount = stats.plays || 0;
+  const gamesCount = stats.plays || stats.total_games || 0;
 
   return (
     <Container $colorScheme={colorScheme}>

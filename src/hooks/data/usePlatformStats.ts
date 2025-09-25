@@ -12,96 +12,103 @@ interface PlatformStats {
 const API_ENDPOINT = 'https://api.gamba.so'
 const PLATFORM_CREATOR = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ'
 
+// Cache for better performance
+let cachedStats: { data: PlatformStats | null, timestamp: number } | null = null
+const CACHE_DURATION = 30000 // 30 seconds
+
 export function usePlatformStats() {
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Check cache first - show cached data immediately if available
+    if (cachedStats && (Date.now() - cachedStats.timestamp) < CACHE_DURATION) {
+      console.log('Using cached dashboard data')
+      setStats(cachedStats.data)
+      setLoading(false)
+      return
+    }
+    
+    // If we have stale cached data, show it while loading fresh data
+    if (cachedStats && cachedStats.data) {
+      console.log('Showing stale cache while refreshing dashboard data')
+      setStats(cachedStats.data)
+      setLoading(false) // Don't show loading if we have stale data
+    }
+
     const fetchStats = async () => {
+      const startTime = performance.now()
       try {
         setLoading(true)
         setError(null)
 
-        // Try the main stats endpoint
-        const statsUrl = `${API_ENDPOINT}/stats/${PLATFORM_CREATOR}`
-        const response = await fetch(statsUrl)
+        // Use the correct stats endpoint
+        const statsUrl = `${API_ENDPOINT}/stats?creator=${PLATFORM_CREATOR}`
+        console.log('Fetching dashboard stats from:', statsUrl)
+        const response = await fetch(statsUrl, { 
+          timeout: 10000 // 10 second timeout
+        } as any)
 
         if (response.ok) {
           const data = await response.json()
           console.log('Platform stats API response:', data)
           
-          // Also fetch recent plays to calculate actual SOL volume
+          // Fetch recent plays for SOL volume calculation (optimized)
           try {
             const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${PLATFORM_CREATOR}&itemsPerPage=100&page=0`
-              const playsResponse = await fetch(playsUrl)
+            console.log('Fetching plays data from:', playsUrl)
+            const playsResponse = await fetch(playsUrl, { 
+              timeout: 10000 // 10 second timeout
+            } as any)
             
             if (playsResponse.ok) {
               const playsData = await playsResponse.json()
-              console.log('Plays API response:', playsData)
-              let calculatedSolVolume = 0
               
               if (playsData && Array.isArray(playsData.results)) {
+                // Calculate SOL volume with proper lamports conversion
                 const filteredPlays = playsData.results.filter((play: any) => play.creator === PLATFORM_CREATOR)
                 console.log('Filtered plays for creator:', filteredPlays.length, 'plays')
-                console.log('First few plays:', filteredPlays.slice(0, 3))
                 
-                calculatedSolVolume = filteredPlays.reduce((total: number, play: any) => {
+                const calculatedSolVolume = filteredPlays.reduce((total: number, play: any) => {
                   const wagerAmount = parseFloat(play.wager) || 0
-                  console.log('Processing wager:', play.wager, '-> parsed:', wagerAmount)
-                  return total + wagerAmount
+                  // Convert from lamports to SOL if the number seems too large
+                  const adjustedWager = wagerAmount > 1000000 ? wagerAmount / 1e9 : wagerAmount
+                  return total + adjustedWager
                 }, 0)
                 
                 console.log('Calculated SOL volume:', calculatedSolVolume)
-              } else {
-                console.log('No plays results array found:', playsData)
+                data.sol_volume = calculatedSolVolume
+                data.plays = filteredPlays.length
+                data.total_games = filteredPlays.length
               }
-              
-              // Add calculated SOL volume to stats
-              data.sol_volume = calculatedSolVolume
-            } else {
-              console.log('Plays API failed:', playsResponse.status, await playsResponse.text())
             }
           } catch (playsErr) {
             console.warn('Failed to fetch plays for SOL volume calculation:', playsErr)
+            // Set fallback values if plays fetch fails
+            data.sol_volume = data.volume || 0
+            data.plays = data.total_games || 0
           }
           
-          setStats(data)
-        } else {
-          // Fallback to alternative endpoint if needed
-          const altStatsUrl = `${API_ENDPOINT}/stats?creator=${PLATFORM_CREATOR}&startTime=0`
-          console.log('Trying fallback stats URL:', altStatsUrl)
-          const altResponse = await fetch(altStatsUrl)
-          if (altResponse.ok) {
-            const altData = await altResponse.json()
-            console.log('Fallback stats data:', altData)
-            
-            // Also try to get plays data for fallback
-            try {
-              const playsUrl = `${API_ENDPOINT}/events/settledGames?creator=${PLATFORM_CREATOR}&itemsPerPage=100&page=0`
-              const playsResponse = await fetch(playsUrl)
-              
-              if (playsResponse.ok) {
-                const playsData = await playsResponse.json()
-                if (playsData && Array.isArray(playsData.results)) {
-                  const calculatedSolVolume = playsData.results
-                    .filter((play: any) => play.creator === PLATFORM_CREATOR)
-                    .reduce((total: number, play: any) => {
-                      const wagerAmount = play.wager || 0
-                      const adjustedWager = wagerAmount > 1000000 ? wagerAmount / 1e9 : wagerAmount
-                      return total + adjustedWager
-                    }, 0)
-                  altData.sol_volume = calculatedSolVolume
-                }
-              }
-            } catch (err) {
-              console.warn('Failed to fetch plays for fallback:', err)
-            }
-            
-            setStats(altData)
-          } else {
-            throw new Error('Failed to fetch platform stats')
+          // Ensure we have some data even if plays fetch failed
+          if (!data.sol_volume && data.volume) {
+            data.sol_volume = data.volume
           }
+          if (!data.plays && data.total_games) {
+            data.plays = data.total_games
+          }
+          
+          console.log('Final dashboard stats data:', data)
+          
+          // Cache the result
+          cachedStats = { data, timestamp: Date.now() }
+          setStats(data)
+          
+          const endTime = performance.now()
+          console.log(`📊 Dashboard stats loaded in ${(endTime - startTime).toFixed(2)}ms`)
+        } else {
+          console.warn('Failed to fetch stats:', response.status)
+          setError('Failed to fetch platform statistics')
         }
       } catch (err) {
         console.error('Error fetching platform stats:', err)
@@ -113,8 +120,12 @@ export function usePlatformStats() {
 
     fetchStats()
 
-    // Refresh stats every 5 minutes
-    const interval = setInterval(fetchStats, 5 * 60 * 1000)
+    // Refresh stats every 2 minutes for better user experience
+    const interval = setInterval(() => {
+      // Invalidate cache and fetch fresh data
+      cachedStats = null
+      fetchStats()
+    }, 2 * 60 * 1000)
 
     return () => clearInterval(interval)
   }, [])
