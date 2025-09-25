@@ -9,9 +9,6 @@ import { useToast } from './hooks/ui/useToast';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
-import { useRouteRefresh } from './hooks/system/useRouteRefresh';
-import { RouterErrorBoundary } from './components/RouterErrorBoundary';
-import { NavigationDebugger, NavigationForcer } from './components/NavigationDebugger';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
@@ -51,16 +48,13 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     resolveComponent 
   } = useTheme();
 
-  // Force re-render when route changes using custom hook
-  const renderKey = useRouteRefresh();
-
-  // Memoize theme components to prevent unnecessary re-creation
-  const themeComponents = useMemo(() => ({
-    HeaderComponent: resolveComponent('components', 'Header') || Header,
-    FooterComponent: resolveComponent('components', 'Footer') || Footer,
-    DashboardComponent: resolveComponent('sections', 'Dashboard') || Dashboard,
-    GameComponent: resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game')),
-  }), [resolveComponent, currentLayoutTheme.id]);
+  // Resolve theme-specific components or fall back to defaults
+  const HeaderComponent = resolveComponent('components', 'Header') || Header;
+  const FooterComponent = resolveComponent('components', 'Footer') || Footer;
+  const DashboardComponent = resolveComponent('sections', 'Dashboard') || Dashboard;
+  
+  // Resolve Game component through theme system (falls back to default if no themed version)
+  const GameComponent = resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game'));
 
   // Check if this is a Holy Grail theme that uses a layout wrapper
   const isDegenHeartTheme = currentLayoutTheme.id === 'degenheart';
@@ -76,47 +70,43 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     const DegenHeartLayout = React.lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
     
     return (
-      <div key={renderKey}>
-        <Suspense fallback={<LoadingSpinner />}>
-          <DegenHeartLayout>
-            <Toasts />
-            <DevnetWarning />
-            <RouterErrorBoundary>
-              <Routes>
-                <Route path="/" element={<themeComponents.DashboardComponent />} />
-                <Route path="/jackpot" element={<JackpotPage />} />
-                <Route path="/bonus" element={<BonusPage />} />
-                <Route path="/leaderboard" element={<LeaderboardPage />} />
-                <Route path="/select-token" element={<SelectTokenPage />} />
-                <Route path="/terms" element={<TermsPage />} />
-                <Route path="/whitepaper" element={<Whitepaper />} />
-                <Route path="/credits" element={<Credits />} />
-                <Route path="/token" element={<DGHRTToken />} />
-                <Route path="/presale" element={<DGHRTPresale />} />
-                <Route path="/aboutme" element={<AboutMe />} />
-                <Route path="/audit" element={<FairnessAudit />} />
-                <Route path="/changelog" element={<ChangelogPage />} />
-                <Route path="/propagation" element={<Propagation />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/explorer" element={<ExplorerIndex />} />
-                <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-                <Route path="/explorer/player/:address" element={<PlayerView />} />
-                <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-                <Route path="/:wallet/profile" element={<UserProfile />} />
-                <Route path="/game/:wallet/:gameId" element={<themeComponents.GameComponent />} />
-              </Routes>
-            </RouterErrorBoundary>
-            {ENABLE_TROLLBOX && connected && <TrollBox />}
-          </DegenHeartLayout>
-        </Suspense>
-      </div>
+      <Suspense fallback={<LoadingSpinner />}>
+        <DegenHeartLayout>
+          <Toasts />
+          <DevnetWarning />
+          <Routes>
+            <Route path="/" element={<DashboardComponent />} />
+            <Route path="/jackpot" element={<JackpotPage />} />
+            <Route path="/bonus" element={<BonusPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/select-token" element={<SelectTokenPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/credits" element={<Credits />} />
+            <Route path="/token" element={<DGHRTToken />} />
+            <Route path="/presale" element={<DGHRTPresale />} />
+            <Route path="/aboutme" element={<AboutMe />} />
+            <Route path="/audit" element={<FairnessAudit />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/propagation" element={<Propagation />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/explorer" element={<ExplorerIndex />} />
+            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+            <Route path="/explorer/player/:address" element={<PlayerView />} />
+            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+            <Route path="/:wallet/profile" element={<UserProfile />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
+          </Routes>
+          {ENABLE_TROLLBOX && connected && <TrollBox />}
+        </DegenHeartLayout>
+      </Suspense>
     );
   }
 
   // For default theme, use the traditional layout structure
   return (
-    <div key={renderKey}>
-      <themeComponents.HeaderComponent />
+    <>
+      <HeaderComponent />
       <Sidebar />
       <MainContent>
         <Toasts />
@@ -124,36 +114,34 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
         {/* Only show WelcomeBanner after auto-connect attempt */}
         {autoConnectAttempted && !connected && <WelcomeBanner />}
         <Suspense fallback={<LoadingSpinner />}>
-          <RouterErrorBoundary>
-            <Routes>
-              <Route path="/" element={<themeComponents.DashboardComponent />} />
-              <Route path="/jackpot" element={<JackpotPage />} />
-              <Route path="/bonus" element={<BonusPage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/select-token" element={<SelectTokenPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/whitepaper" element={<Whitepaper />} />
-              <Route path="/credits" element={<Credits />} />
-              <Route path="/token" element={<DGHRTToken />} />
-              <Route path="/presale" element={<DGHRTPresale />} />
-              <Route path="/aboutme" element={<AboutMe />} />
-              <Route path="/audit" element={<FairnessAudit />} />
-              <Route path="/changelog" element={<ChangelogPage />} />
-              <Route path="/propagation" element={<Propagation />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/explorer" element={<ExplorerIndex />} />
-              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-              <Route path="/explorer/player/:address" element={<PlayerView />} />
-              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-              <Route path="/:wallet/profile" element={<UserProfile />} />
-              <Route path="/game/:wallet/:gameId" element={<themeComponents.GameComponent />} />
-            </Routes>
-          </RouterErrorBoundary>
+          <Routes>
+            <Route path="/" element={<DashboardComponent />} />
+            <Route path="/jackpot" element={<JackpotPage />} />
+            <Route path="/bonus" element={<BonusPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/select-token" element={<SelectTokenPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/whitepaper" element={<Whitepaper />} />
+            <Route path="/credits" element={<Credits />} />
+            <Route path="/token" element={<DGHRTToken />} />
+            <Route path="/presale" element={<DGHRTPresale />} />
+            <Route path="/aboutme" element={<AboutMe />} />
+            <Route path="/audit" element={<FairnessAudit />} />
+            <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/propagation" element={<Propagation />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/explorer" element={<ExplorerIndex />} />
+            <Route path="/explorer/platform/:creator" element={<PlatformView />} />
+            <Route path="/explorer/player/:address" element={<PlayerView />} />
+            <Route path="/explorer/transaction/:txId" element={<Transaction />} />
+            <Route path="/:wallet/profile" element={<UserProfile />} />
+            <Route path="/game/:wallet/:gameId" element={<GameComponent />} />
+          </Routes>
         </Suspense>
       </MainContent>
-      <themeComponents.FooterComponent />
+      <FooterComponent />
       {ENABLE_TROLLBOX && connected && <TrollBox />}
-    </div>
+    </>
   );
 }
 
@@ -306,14 +294,7 @@ const MainContent = styled.main`
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => {
-    // Scroll to top and force re-render on route change
-    window.scrollTo(0, 0);
-    // Force component re-render by triggering a small state change
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('route-changed', { detail: { pathname } }));
-    }, 100);
-  }, [pathname]);
+  useEffect(() => window.scrollTo(0, 0), [pathname]);
   return null;
 }
 
@@ -407,8 +388,6 @@ export default function App() {
           />
         )}
         <ScrollToTop />
-        <NavigationDebugger />
-        <NavigationForcer />
         <ErrorHandler />
         <AppContent autoConnectAttempted={autoConnectAttempted} />
         <CacheDebugWrapper />
