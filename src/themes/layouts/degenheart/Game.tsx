@@ -811,6 +811,7 @@ function CustomRenderer() {
 
 export default function Game() {
   const { wallet, gameId } = useParams()
+  const navigate = useNavigate()
   const { publicKey } = useWallet()
   const walletAdapter = useWallet()
   const connectedWallet = publicKey?.toBase58()
@@ -824,6 +825,15 @@ export default function Game() {
     const gameFound = GAMES().find(
       (x) => x.id.toLowerCase() === gameId?.toLowerCase(),
     )
+    console.log('🎮 DegenHeart Game Found:', {
+      gameId,
+      gameFound: gameFound ? {
+        id: gameFound.id,
+        live: gameFound.live,
+        maintenance: gameFound.maintenance,
+        creating: gameFound.creating
+      } : 'null'
+    });
     setGame(gameFound || null)
     setLoading(false)
   }, [gameId])
@@ -904,6 +914,107 @@ export default function Game() {
   const env = import.meta.env.GAMBA_ENV || import.meta.env.MODE || '';
   const isProd = env === 'production';
 
+  console.log('🔍 DegenHeart Debug:', {
+    gameId,
+    gameLive: game.live,
+    maintenance: game.maintenance,
+    creating: game.creating,
+    env,
+    isProd,
+    shouldShowMaintenance: isProd && game.maintenance,
+    shouldShowCreating: isProd && game.creating
+  });
+
+  if (isProd && game.maintenance) {
+    return (
+      <Container>
+        <Screen>
+          <div style={{ padding: '16px', color: 'white', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🛠️ This game is currently under maintenance. Please check back later!</h2>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+              <button
+                onClick={() => navigate('/')}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid #aaa',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Back to Home
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid #aaa',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+          <ErrorArtWrapper>
+            <ErrorArt type="503">
+              503
+            </ErrorArt>
+          </ErrorArtWrapper>
+        </Screen>
+      </Container>
+    )
+  }
+
+  if (isProd && game.creating) {
+    return (
+      <Container>
+        <Screen>
+          <div style={{ padding: '16px', color: 'white', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🧪 This game is being added soon. Check back for new games!</h2>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+              <button
+                onClick={() => navigate('/')}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid #aaa',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Back to Home
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid #aaa',
+                  color: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+          <ErrorArtWrapper>
+            <ErrorArt type="1024">
+              1024
+            </ErrorArt>
+          </ErrorArtWrapper>
+        </Screen>
+      </Container>
+    )
+  }
+
   return (
     <GambaUi.Game
       game={game}
@@ -917,23 +1028,7 @@ export default function Game() {
       }
     >
       <ErrorBoundary>
-        {isProd && game.maintenance ? (
-          <GambaUi.Portal target="screen">
-            <ErrorScreen
-              type="503"
-              message="🛠️ This game is currently under maintenance. Please check back later!"
-            />
-          </GambaUi.Portal>
-        ) : isProd && game.creating ? (
-          <GambaUi.Portal target="screen">
-            <ErrorScreen
-              type="1024"
-              message="🧪 This game is being added soon. Check back for new games!"
-            />
-          </GambaUi.Portal>
-        ) : (
-          <CustomRenderer />
-        )}
+        <CustomRenderer />
       </ErrorBoundary>
     </GambaUi.Game>
   )
