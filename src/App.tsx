@@ -12,6 +12,7 @@ import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
 import { useComponentPreloader } from './hooks/system/useComponentPreloader';
+import { useRouteChangeHandler, addRouteTransitionCSS } from './hooks/system/useRouteChangeHandler';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
@@ -384,10 +385,14 @@ export default function App() {
   // Initialize service worker and component preloader
   useServiceWorker();
   useComponentPreloader();
+  useRouteChangeHandler();
   
   useEffect(() => {
     // Preload critical assets for better performance
     preloadCriticalAssets();
+    
+    // Add route transition CSS
+    addRouteTransitionCSS();
   }, []);
 
   return (

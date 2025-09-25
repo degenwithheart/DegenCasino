@@ -73,23 +73,25 @@ export function RouteLoadingSpinner() {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      color: '#FF5555',
-      zIndex: 9999,
-      backgroundColor: 'rgba(24, 24, 24, 0.95)',
-      backdropFilter: 'blur(20px)',
-      opacity: showContent ? 1 : 0,
-      transition: 'opacity 0.2s ease-in-out'
-    }}>
+    <div 
+      className="route-loading-spinner"
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        color: '#FF5555',
+        zIndex: 9999,
+        backgroundColor: 'rgba(24, 24, 24, 0.95)',
+        backdropFilter: 'blur(20px)',
+        opacity: showContent ? 1 : 0,
+        transition: 'opacity 0.2s ease-in-out'
+      }}>
       <img 
         src="/png/images/logo.png" 
         alt="DegenHeart Casino" 
