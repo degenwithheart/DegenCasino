@@ -235,10 +235,10 @@ class SmartCache {
   private getRpcUrl(provider: 'syndica' | 'helius'): string {
     switch (provider) {
       case 'syndica':
-        return process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 
+        return process.env.RPC_ENDPOINT || process.env.RPC_ENDPOINT || 
                'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1'
       case 'helius':
-        return process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY ||
+        return process.env.HELIUS_API_KEY || process.env.HELIUS_API_KEY ||
                'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
       default:
         throw new Error(`Unknown provider: ${provider}`)

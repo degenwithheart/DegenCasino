@@ -3,14 +3,14 @@ import styled, { keyframes, css } from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { useCurrentPool, useGambaPlatformContext, useUserBalance } from 'gamba-react-ui-v2'
 import { useColorScheme } from '../../ColorSchemeContext'
 import { useHandleWalletConnect } from '../../../sections/walletConnect'
-import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins } from 'react-icons/fa'
-import { SIDEBAR_LINKS } from '../../../constants'
+import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy } from 'react-icons/fa'
+import { SIDEBAR_LINKS, PLATFORM_CREATOR_ADDRESS, ENABLE_LEADERBOARD } from '../../../constants'
 import { useToast } from '../../../hooks/ui/useToast'
-import { Modal } from './components/Modal'
-import { ColorSchemeSelector } from '../../../components'
-import TokenSelect from '../../../sections/TokenSelect'
+import { useIsCompact } from '../../../hooks/ui/useIsCompact'
+import { useDegenHeaderModal } from './DegenHeartLayout'
 
 import { media, typography, spacing, components } from './breakpoints'
 
@@ -444,6 +444,162 @@ const TokenButton = styled.button<{ $colorScheme: any }>`
   }
 `
 
+const BonusButton = styled.button<{ $colorScheme: any }>`
+  background: linear-gradient(135deg, 
+    ${props => props.$colorScheme.colors.surface}85,
+    ${props => props.$colorScheme.colors.background}70
+  );
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  padding: 0.8rem 1.2rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    border-color: ${props => props.$colorScheme.colors.accent};
+    background: linear-gradient(135deg, 
+      ${props => props.$colorScheme.colors.accent}25,
+      ${props => props.$colorScheme.colors.accent}15
+    );
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`
+
+const JackpotButton = styled.button<{ $colorScheme: any }>`
+  background: linear-gradient(135deg, 
+    ${props => props.$colorScheme.colors.surface}85,
+    ${props => props.$colorScheme.colors.background}70
+  );
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  padding: 0.8rem 1.2rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    border-color: ${props => props.$colorScheme.colors.accent};
+    background: linear-gradient(135deg, 
+      ${props => props.$colorScheme.colors.accent}25,
+      ${props => props.$colorScheme.colors.accent}15
+    );
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`
+
+const LeaderboardButton = styled.button<{ $colorScheme: any }>`
+  background: linear-gradient(135deg, 
+    ${props => props.$colorScheme.colors.surface}85,
+    ${props => props.$colorScheme.colors.background}70
+  );
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  padding: 0.8rem 1.2rem;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    border-color: ${props => props.$colorScheme.colors.accent};
+    background: linear-gradient(135deg, 
+      ${props => props.$colorScheme.colors.accent}25,
+      ${props => props.$colorScheme.colors.accent}15
+    );
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`
+
 const WalletButton = styled.button<{ $colorScheme: any }>`
   /* Mobile-first: Touch-friendly sizing */
   padding: 0.75rem 1.25rem;
@@ -614,13 +770,16 @@ const Header: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { connected, publicKey, disconnect } = useWallet()
+  const pool = useCurrentPool()
+  const context = useGambaPlatformContext()
+  const balance = useUserBalance()
+  const { compact: isCompact, mobile } = useIsCompact()
+  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect } = useDegenHeaderModal()
   const walletModal = useWalletModal()
   const handleWalletConnect = useHandleWalletConnect()
   const toast = useToast()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false)
-  const [showThemeSelector, setShowThemeSelector] = useState(false)
-  const [showTokenSelect, setShowTokenSelect] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
@@ -749,22 +908,55 @@ const Header: React.FC = () => {
       </Navigation>
 
       <WalletSection>
+        {connected && pool.jackpotBalance > 0 && (
+          <JackpotButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => (mobile ? navigate('/jackpot') : openJackpotModal())}
+            aria-label="Jackpot info"
+          >
+            💰
+            {!isCompact && 'Jackpot'}
+          </JackpotButton>
+        )}
+
+        {connected && (
+          <BonusButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => (mobile ? navigate('/bonus') : openBonusModal())}
+            aria-label="Bonus info"
+          >
+            ✨
+            {!isCompact && 'Bonus'}
+          </BonusButton>
+        )}
+
+        {connected && ENABLE_LEADERBOARD && (
+          <LeaderboardButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => (mobile ? navigate('/leaderboard') : openLeaderboardModal())}
+            aria-label="Show Leaderboard"
+          >
+            <FaTrophy />
+            {!isCompact && 'Leaderboard'}
+          </LeaderboardButton>
+        )}
+
         {connected && (
           <>
             <TokenButton 
               $colorScheme={currentColorScheme}
-              onClick={() => setShowTokenSelect(true)}
+              onClick={() => openTokenSelect()}
             >
               <FaCoins />
-              Tokens
+              {!isCompact && 'Tokens'}
             </TokenButton>
             
             <ThemeButton 
               $colorScheme={currentColorScheme}
-              onClick={() => setShowThemeSelector(true)}
+              onClick={() => openThemeSelector()}
             >
               <FaPalette />
-              Theme
+              {!isCompact && 'Theme'}
             </ThemeButton>
           </>
         )}
@@ -809,21 +1001,7 @@ const Header: React.FC = () => {
       </WalletSection>
     </HeaderContainer>
     
-    {/* Theme selector modal - outside header container */}
-    {showThemeSelector && (
-      <Modal variant="viewport" onClose={() => setShowThemeSelector(false)}>
-        <ColorSchemeSelector />
-      </Modal>
-    )}
 
-    {/* Token selector modal - outside header container */}
-    {showTokenSelect && (
-      <Modal variant="viewport" onClose={() => setShowTokenSelect(false)}>
-        <div style={{ maxWidth: '500px', width: '100%' }}>
-          <TokenSelect />
-        </div>
-      </Modal>
-    )}
     </>
   )
 }

@@ -15,7 +15,7 @@ const NETWORK_CONFIGS: Record<SolanaNetwork, NetworkConfig> = {
   mainnet: {
     name: 'mainnet',
     displayName: 'Mainnet',
-    rpcEndpoint: import.meta.env.VITE_RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+    rpcEndpoint: import.meta.env.RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
     explorerUrl: 'https://degenheart.casino/explorer'
   },
   devnet: {

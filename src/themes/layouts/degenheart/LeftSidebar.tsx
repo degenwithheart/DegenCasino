@@ -465,7 +465,7 @@ const LeftSidebar: React.FC = () => {
                       $colorScheme={currentColorScheme}
                       $active={isActive}
                       onClick={() => {
-                        window.dispatchEvent(new CustomEvent('openGamesModal'))
+                        openGamesModal()
                       }}
                       title={(link as any).description}
                     >

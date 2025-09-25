@@ -12,9 +12,9 @@ const fadeIn = keyframes`
 `;
 
 const Overlay = styled.div<{ $variant?: 'popup' | 'viewport' }>`
-  position: ${({ $variant }) => $variant === 'viewport' ? 'fixed' : 'fixed'};
+  position: ${({ $variant }) => $variant === 'viewport' ? 'absolute' : 'fixed'};
   ${({ $variant }) => $variant === 'viewport' ? 
-    'top: 80px; left: 250px; right: 250px; bottom: 60px;' : 
+    'inset: 0;' : 
     'inset: 0;'
   }
   background: rgba(0, 0, 0, 0.85);
@@ -24,14 +24,6 @@ const Overlay = styled.div<{ $variant?: 'popup' | 'viewport' }>`
   align-items: center;
   justify-content: center;
   animation: ${fadeIn} 0.3s ease;
-  
-  /* Mobile responsive - full screen on mobile */
-  @media (max-width: 768px) {
-    ${({ $variant }) => $variant === 'viewport' ? 
-      'top: 80px; left: 0; right: 0; bottom: 60px;' : 
-      'inset: 0;'
-    }
-  }
 `;
 
 const Content = styled.div`

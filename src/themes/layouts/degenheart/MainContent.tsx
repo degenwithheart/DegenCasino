@@ -49,6 +49,7 @@ const DashboardContainer = styled.div<{ $colorScheme: any }>`
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden; /* Prevent horizontal scroll */
+  position: relative; /* Contain modal overlays within this component */
   
   /* Tablet: More generous spacing */
   ${media.tablet} {

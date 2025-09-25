@@ -322,7 +322,7 @@ async function fetchGambaTransaction(txId: string, userAddress?: string) {
     console.log('Fetching transaction:', txId)
     
     // Use the same method as Gamba explorer - fetch directly from blockchain and parse
-    const connection = new Connection(import.meta.env.VITE_HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
+    const connection = new Connection(import.meta.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
     
     const transaction = await connection.getParsedTransaction(txId, { 
       commitment: "confirmed", 
@@ -389,7 +389,7 @@ async function fetchGambaTransaction(txId: string, userAddress?: string) {
 async function fetchTransactionLogs(txId: string) {
   // Use Helius v0 API for enhanced transaction parsing
   try {
-    const heliusResponse = await fetch(import.meta.env.VITE_HELIUS_V0_TRANSACTIONS?.replace('{txId}', txId) || `https://api.helius.xyz/v0/transactions/${txId}?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c`)
+    const heliusResponse = await fetch(import.meta.env.HELIUS_V0_TRANSACTIONS?.replace('{txId}', txId) || `https://api.helius.xyz/v0/transactions/${txId}?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c`)
     if (heliusResponse.ok) {
       const heliusData = await heliusResponse.json()
       if (heliusData?.meta?.logMessages) {
@@ -415,7 +415,7 @@ async function fetchTransactionLogs(txId: string) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        apiKey: import.meta.env.VITE_HELIUS_V0_TRANSACTIONS?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c',
+        apiKey: import.meta.env.HELIUS_V0_TRANSACTIONS?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c',
         transactions: [txId]
       })
     })
@@ -439,8 +439,8 @@ async function fetchTransactionLogs(txId: string) {
 
   // Primary endpoints first, then last resort public endpoints only if all paid services fail
   const primaryEndpoints = [
-    import.meta.env.VITE_RPC_ENDPOINT,
-    import.meta.env.VITE_HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
+    import.meta.env.RPC_ENDPOINT,
+    import.meta.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
   ].filter(Boolean);
   
   const lastResortEndpoints = [

@@ -2,12 +2,12 @@
  * Test endpoint to v  const rpcEndpoints = [
     {
       name: 'Syndica Primary',
-      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+      url: process.env.RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
       priority: 1
     },
     {
       name: 'Helius RPC Backup',
-      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
+      url: process.env.HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
       priority: 2configuration
  * This tests the new RPC priority: Syndica -> Helius RPC -> Public
  */
@@ -35,12 +35,12 @@ export default async function handler(req: Request): Promise<Response> {
   const rpcEndpoints = [
     {
       name: 'Syndica Primary',
-      url: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
+      url: process.env.RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1',
       priority: 1
     },
     {
       name: 'Helius RPC Backup',
-      url: process.env.VITE_HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
+      url: process.env.HELIUS_API_KEY || process.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c',
       priority: 2
     },
     {
@@ -93,7 +93,7 @@ export default async function handler(req: Request): Promise<Response> {
   // Test Helius v0 API
   const heliusV0StartTime = Date.now();
   try {
-    const heliusV0Response = await fetch('https://api.helius.xyz/v0/transactions/health?api-key=' + ((process.env.VITE_HELIUS_V0_TRANSACTIONS || process.env.HELIUS_V0_TRANSACTIONS)?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'));
+    const heliusV0Response = await fetch('https://api.helius.xyz/v0/transactions/health?api-key=' + ((process.env.HELIUS_V0_TRANSACTIONS || process.env.HELIUS_V0_TRANSACTIONS)?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'));
     const heliusV0ResponseTime = Date.now() - heliusV0StartTime;
     
     results.push({

@@ -7,7 +7,11 @@ import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import MainContent from './MainContent'
 import { Modal } from './components/Modal'
-import AllGamesModalContent from '../../../components/AllGamesModal/AllGamesModal'
+import AllGamesContentModal from './components/AllGamesContentModal'
+import { BonusContent, JackpotContent, ColorSchemeSelector } from '../../../components'
+import { LeaderboardsContent } from '../../../sections/LeaderBoard/LeaderboardsModal'
+import TokenSelect from '../../../sections/TokenSelect'
+import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
 import { media, gridBreakpoints } from './breakpoints'
 
 // Create a local games modal context for degen theme
@@ -27,7 +31,23 @@ const DegenGamesModalContext = createContext<{
   closeSidebars: () => {}
 })
 
+// Create context for Header modals to render within MainContent area
+const DegenHeaderModalContext = createContext<{
+  openBonusModal: () => void;
+  openJackpotModal: () => void;
+  openLeaderboardModal: () => void;
+  openThemeSelector: () => void;
+  openTokenSelect: () => void;
+}>({
+  openBonusModal: () => {},
+  openJackpotModal: () => {},
+  openLeaderboardModal: () => {},
+  openThemeSelector: () => {},
+  openTokenSelect: () => {}
+})
+
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
+export const useDegenHeaderModal = () => useContext(DegenHeaderModalContext)
 
 const LayoutContainer = styled.div<{ $colorScheme: any }>`
   display: grid;
@@ -268,6 +288,13 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showGamesModal, setShowGamesModal] = useState(false)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false)
+  
+  // Header modal states
+  const [showBonusModal, setShowBonusModal] = useState(false)
+  const [showJackpotModal, setShowJackpotModal] = useState(false)
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false)
+  const [showThemeSelector, setShowThemeSelector] = useState(false)
+  const [showTokenSelect, setShowTokenSelect] = useState(false)
 
   const toggleLeftSidebar = () => {
     setLeftSidebarOpen(!leftSidebarOpen)
@@ -318,6 +345,13 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
       toggleRightSidebar,
       closeSidebars
     }}>
+      <DegenHeaderModalContext.Provider value={{
+        openBonusModal: () => setShowBonusModal(true),
+        openJackpotModal: () => setShowJackpotModal(true),
+        openLeaderboardModal: () => setShowLeaderboardModal(true),
+        openThemeSelector: () => setShowThemeSelector(true),
+        openTokenSelect: () => setShowTokenSelect(true)
+      }}>
       <LayoutContainer $colorScheme={currentColorScheme}>
         {/* Mobile backdrop */}
         <MobileBackdrop 
@@ -354,10 +388,46 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
         {/* Degen Games Modal - renders in viewport mode covering main content area */}
         {showGamesModal && (
           <Modal variant="viewport" onClose={() => setShowGamesModal(false)}>
-            <AllGamesModalContent onGameClick={() => setShowGamesModal(false)} />
+            <AllGamesContentModal onGameClick={() => setShowGamesModal(false)} />
+          </Modal>
+        )}
+        
+        {/* Header Modals - render in viewport mode covering main content area */}
+        {showBonusModal && (
+          <Modal variant="viewport" onClose={() => setShowBonusModal(false)}>
+            <BonusContent />
+          </Modal>
+        )}
+
+        {showJackpotModal && (
+          <Modal variant="viewport" onClose={() => setShowJackpotModal(false)}>
+            <JackpotContent />
+          </Modal>
+        )}
+
+        {showLeaderboardModal && (
+          <Modal variant="viewport" onClose={() => setShowLeaderboardModal(false)}>
+            <LeaderboardsContent
+              creator={PLATFORM_CREATOR_ADDRESS.toBase58()}
+            />
+          </Modal>
+        )}
+
+        {showThemeSelector && (
+          <Modal variant="viewport" onClose={() => setShowThemeSelector(false)}>
+            <ColorSchemeSelector />
+          </Modal>
+        )}
+
+        {showTokenSelect && (
+          <Modal variant="viewport" onClose={() => setShowTokenSelect(false)}>
+            <div style={{ maxWidth: '500px', width: '100%' }}>
+              <TokenSelect />
+            </div>
           </Modal>
         )}
       </LayoutContainer>
+      </DegenHeaderModalContext.Provider>
     </DegenGamesModalContext.Provider>
   )
 }

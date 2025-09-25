@@ -24,26 +24,26 @@ export default async function handler(req: Request): Promise<Response> {
   const envCheck = {
     timestamp: new Date().toISOString(),
     serverSide: {
-      VITE_RPC_ENDPOINT: process.env.VITE_RPC_ENDPOINT ? 'SET' : 'NOT SET',
+      VITE_RPC_ENDPOINT: process.env.RPC_ENDPOINT ? 'SET' : 'NOT SET',
       RPC_ENDPOINT: process.env.RPC_ENDPOINT ? 'SET' : 'NOT SET',
-      VITE_HELIUS_API_KEY: process.env.VITE_HELIUS_API_KEY ? 'SET' : 'NOT SET',
-      VITE_PLATFORM_CREATOR: process.env.VITE_PLATFORM_CREATOR ? 'SET' : 'NOT SET',
+      VITE_HELIUS_API_KEY: process.env.HELIUS_API_KEY ? 'SET' : 'NOT SET',
+      VITE_PLATFORM_CREATOR: process.env.PLATFORM_CREATOR ? 'SET' : 'NOT SET',
       NODE_ENV: process.env.NODE_ENV || 'undefined',
       VERCEL: process.env.VERCEL ? 'YES' : 'NO'
     },
     endpoints: {
-      primary: process.env.VITE_RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'DEFAULT_FALLBACK',
-      backup: process.env.VITE_HELIUS_API_KEY || 'DEFAULT_FALLBACK'
+      primary: process.env.RPC_ENDPOINT || process.env.RPC_ENDPOINT || 'DEFAULT_FALLBACK',
+      backup: process.env.HELIUS_API_KEY || 'DEFAULT_FALLBACK'
     },
     warnings: [] as string[]
   };
 
   // Add warnings for missing variables
-  if (!process.env.VITE_RPC_ENDPOINT && !process.env.RPC_ENDPOINT) {
+  if (!process.env.RPC_ENDPOINT && !process.env.RPC_ENDPOINT) {
     envCheck.warnings.push('🚨 NO RPC ENDPOINT SET - Using fallback');
   }
 
-  if (!process.env.VITE_HELIUS_API_KEY) {
+  if (!process.env.HELIUS_API_KEY) {
     envCheck.warnings.push('⚠️ NO HELIUS API KEY SET - Using fallback');
   }
 

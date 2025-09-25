@@ -23,9 +23,9 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const SYNDICA_RPC = import.meta.env.VITE_RPC_ENDPOINT || "https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1";
-const HELIUS_RPC_BACKUP = import.meta.env.VITE_HELIUS_API_KEY || "https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c";
-const PLATFORM_CREATOR = import.meta.env.VITE_PLATFORM_CREATOR;
+const SYNDICA_RPC = import.meta.env.RPC_ENDPOINT || "https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1";
+const HELIUS_RPC_BACKUP = import.meta.env.HELIUS_API_KEY || "https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c";
+const PLATFORM_CREATOR = import.meta.env.PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---
 function useDnsStatus(shouldCheck = false) {
@@ -180,7 +180,7 @@ export default function ConnectionStatus() {
     if (!PLATFORM_CREATOR) return;
     try {
       const res = await fetch(
-        `https://api.helius.xyz/v0/addresses/${PLATFORM_CREATOR}/transactions?api-key=${import.meta.env.VITE_HELIUS_V0_TRANSACTIONS?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'}&limit=1`
+        `https://api.helius.xyz/v0/addresses/${PLATFORM_CREATOR}/transactions?api-key=${import.meta.env.HELIUS_V0_TRANSACTIONS?.split('?api-key=')[1] || '3bda9312-99fc-4ff4-9561-958d62a4a22c'}&limit=1`
       );
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {

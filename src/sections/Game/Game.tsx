@@ -964,7 +964,7 @@ export default function Game() {
   }
 
   // Support custom .env variable for environment, fallback to GAMBA_ENV
-  const env = import.meta.env.VITE_GAMBA_ENV || import.meta.env.MODE || '';
+  const env = import.meta.env.GAMBA_ENV || import.meta.env.MODE || '';
   const isProd = env === 'production';
 
   if (isProd && game.maintenance) {
