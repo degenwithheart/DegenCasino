@@ -926,12 +926,11 @@ export default function Game() {
   });
 
   if (isProd && game.maintenance) {
-    console.log('🚫 DegenHeart: Rendering maintenance screen');
     return (
       <Container>
         <Screen>
           <div style={{ 
-            padding: '40px', 
+            padding: 'clamp(20px, 5vw, 60px)', 
             color: 'white', 
             textAlign: 'center',
             display: 'flex',
@@ -939,61 +938,152 @@ export default function Game() {
             alignItems: 'center',
             justifyContent: 'center',
             height: '100%',
-            minHeight: '400px'
+            minHeight: '500px',
+            background: 'linear-gradient(160deg, #121217 0%, #1d0b24 60%, #2d0040 100%)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
+            {/* Background decorative elements */}
+            <div style={{
+              position: 'absolute',
+              top: '20%',
+              left: '10%',
+              width: '200px',
+              height: '200px',
+              background: 'radial-gradient(circle, rgba(102, 187, 106, 0.1) 0%, transparent 70%)',
+              borderRadius: '50%',
+              pointerEvents: 'none'
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '20%',
+              right: '10%',
+              width: '150px',
+              height: '150px',
+              background: 'radial-gradient(circle, rgba(255, 215, 0, 0.08) 0%, transparent 70%)',
+              borderRadius: '50%',
+              pointerEvents: 'none'
+            }} />
+            
+            {/* Animated maintenance icon */}
             <div style={{ 
-              fontSize: '4rem', 
-              marginBottom: '20px',
-              color: '#66bb6a' 
+              fontSize: 'clamp(3rem, 8vw, 5rem)', 
+              marginBottom: 'clamp(20px, 4vw, 30px)',
+              color: '#66bb6a',
+              textShadow: '0 0 20px rgba(102, 187, 106, 0.5)',
+              animation: 'pulse 2s ease-in-out infinite',
+              position: 'relative',
+              zIndex: 1
             }}>
-              🔧 503
+              🔧
             </div>
-            <h2 style={{ 
-              fontSize: '1.5rem', 
-              marginBottom: '20px',
-              maxWidth: '500px'
+            
+            {/* Error code */}
+            <div style={{
+              fontSize: 'clamp(4rem, 10vw, 6rem)',
+              fontWeight: '900',
+              background: 'linear-gradient(90deg, #66bb6a, #4caf50)',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              marginBottom: 'clamp(15px, 3vw, 25px)',
+              textShadow: '0 4px 20px rgba(102, 187, 106, 0.3)',
+              position: 'relative',
+              zIndex: 1
             }}>
-              🛠️ This game is currently under maintenance. Please check back later!
+              503
+            </div>
+            
+            {/* Title */}
+            <h2 style={{ 
+              fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', 
+              marginBottom: 'clamp(15px, 3vw, 25px)',
+              maxWidth: 'clamp(300px, 80vw, 600px)',
+              background: 'linear-gradient(90deg, #ffe27a, #ff5ba5)',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              fontWeight: '700',
+              lineHeight: '1.4',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              This game is currently under maintenance
             </h2>
+            
+            {/* Subtitle */}
+            <p style={{
+              fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+              color: 'rgba(255, 255, 255, 0.7)',
+              marginBottom: 'clamp(30px, 6vw, 40px)',
+              maxWidth: 'clamp(280px, 70vw, 500px)',
+              lineHeight: '1.5',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              We're working hard to get this game back online. Please check back later!
+            </p>
+            
+            {/* Action buttons */}
             <div style={{ 
               display: 'flex', 
-              gap: '12px', 
+              gap: 'clamp(12px, 3vw, 20px)', 
               justifyContent: 'center', 
-              marginTop: '20px' 
+              flexWrap: 'wrap',
+              position: 'relative',
+              zIndex: 1
             }}>
               <button
-                onClick={() => {
-                  console.log('🏠 Navigating to home');
-                  navigate('/');
-                }}
+                onClick={() => navigate('/') }
                 style={{
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1px solid #aaa',
+                  padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  background: 'linear-gradient(135deg, #66bb6a, #4caf50)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   color: 'white',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(102, 187, 106, 0.3)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 187, 106, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 187, 106, 0.3)';
                 }}
               >
-                Back to Home
+                🏠 Back to Home
               </button>
               <button
-                onClick={() => {
-                  console.log('🔄 Reloading page');
-                  window.location.reload();
-                }}
+                onClick={() => window.location.reload()}
                 style={{
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1px solid #aaa',
+                  padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   color: 'white',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s ease',
+                  backdropFilter: 'blur(10px)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                 }}
               >
-                Retry
+                🔄 Retry
               </button>
             </div>
           </div>
@@ -1006,42 +1096,164 @@ export default function Game() {
     return (
       <Container>
         <Screen>
-          <div style={{ padding: '16px', color: 'white', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🧪 This game is being added soon. Check back for new games!</h2>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+          <div style={{ 
+            padding: 'clamp(20px, 5vw, 60px)', 
+            color: 'white', 
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            minHeight: '500px',
+            background: 'linear-gradient(160deg, #121217 0%, #2d1b0f 60%, #3d2914 100%)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Background decorative elements */}
+            <div style={{
+              position: 'absolute',
+              top: '15%',
+              left: '15%',
+              width: '180px',
+              height: '180px',
+              background: 'radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%)',
+              borderRadius: '50%',
+              pointerEvents: 'none'
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '15%',
+              width: '120px',
+              height: '120px',
+              background: 'radial-gradient(circle, rgba(255, 152, 0, 0.08) 0%, transparent 70%)',
+              borderRadius: '50%',
+              pointerEvents: 'none'
+            }} />
+            
+            {/* Animated lab flask icon */}
+            <div style={{ 
+              fontSize: 'clamp(3rem, 8vw, 5rem)', 
+              marginBottom: 'clamp(20px, 4vw, 30px)',
+              color: '#fbbf24',
+              textShadow: '0 0 20px rgba(251, 191, 36, 0.5)',
+              animation: 'bounce 2s ease-in-out infinite',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              🧪
+            </div>
+            
+            {/* Error code */}
+            <div style={{
+              fontSize: 'clamp(3.5rem, 9vw, 5.5rem)',
+              fontWeight: '900',
+              background: 'linear-gradient(90deg, #fbbf24, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              marginBottom: 'clamp(15px, 3vw, 25px)',
+              textShadow: '0 4px 20px rgba(251, 191, 36, 0.3)',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              NEW
+            </div>
+            
+            {/* Title */}
+            <h2 style={{ 
+              fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', 
+              marginBottom: 'clamp(15px, 3vw, 25px)',
+              maxWidth: 'clamp(300px, 80vw, 600px)',
+              background: 'linear-gradient(90deg, #ffe27a, #ff5ba5)',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              fontWeight: '700',
+              lineHeight: '1.4',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              This game is being added soon
+            </h2>
+            
+            {/* Subtitle */}
+            <p style={{
+              fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+              color: 'rgba(255, 255, 255, 0.7)',
+              marginBottom: 'clamp(30px, 6vw, 40px)',
+              maxWidth: 'clamp(280px, 70vw, 500px)',
+              lineHeight: '1.5',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              We're putting the finishing touches on this exciting new game. Check back soon for the latest additions!
+            </p>
+            
+            {/* Action buttons */}
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(12px, 3vw, 20px)', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap',
+              position: 'relative',
+              zIndex: 1
+            }}>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/') }
                 style={{
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1px solid #aaa',
+                  padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   color: 'white',
                   cursor: 'pointer',
+                  fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(251, 191, 36, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(251, 191, 36, 0.3)';
                 }}
               >
-                Back to Home
+                🏠 Back to Home
               </button>
               <button
                 onClick={() => window.location.reload()}
                 style={{
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1px solid #aaa',
+                  padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px)',
+                  borderRadius: 'clamp(8px, 2vw, 12px)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   color: 'white',
                   cursor: 'pointer',
+                  fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  transition: 'all 0.3s ease',
+                  backdropFilter: 'blur(10px)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                 }}
               >
-                Retry
+                🔄 Check Again
               </button>
             </div>
           </div>
-          <ErrorArtWrapper>
-            <ErrorArt type="1024">
-              1024
-            </ErrorArt>
-          </ErrorArtWrapper>
         </Screen>
       </Container>
     )
