@@ -926,45 +926,77 @@ export default function Game() {
   });
 
   if (isProd && game.maintenance) {
+    console.log('🚫 DegenHeart: Rendering maintenance screen');
     return (
       <Container>
         <Screen>
-          <div style={{ padding: '16px', color: 'white', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🛠️ This game is currently under maintenance. Please check back later!</h2>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+          <div style={{ 
+            padding: '40px', 
+            color: 'white', 
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            minHeight: '400px'
+          }}>
+            <div style={{ 
+              fontSize: '4rem', 
+              marginBottom: '20px',
+              color: '#66bb6a' 
+            }}>
+              🔧 503
+            </div>
+            <h2 style={{ 
+              fontSize: '1.5rem', 
+              marginBottom: '20px',
+              maxWidth: '500px'
+            }}>
+              🛠️ This game is currently under maintenance. Please check back later!
+            </h2>
+            <div style={{ 
+              display: 'flex', 
+              gap: '12px', 
+              justifyContent: 'center', 
+              marginTop: '20px' 
+            }}>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => {
+                  console.log('🏠 Navigating to home');
+                  navigate('/');
+                }}
                 style={{
-                  padding: '10px 20px',
+                  padding: '12px 24px',
                   borderRadius: '8px',
                   background: 'rgba(255,255,255,0.2)',
                   border: '1px solid #aaa',
                   color: 'white',
                   cursor: 'pointer',
+                  fontSize: '14px'
                 }}
               >
                 Back to Home
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  console.log('🔄 Reloading page');
+                  window.location.reload();
+                }}
                 style={{
-                  padding: '10px 20px',
+                  padding: '12px 24px',
                   borderRadius: '8px',
                   background: 'rgba(255,255,255,0.2)',
                   border: '1px solid #aaa',
                   color: 'white',
                   cursor: 'pointer',
+                  fontSize: '14px'
                 }}
               >
                 Retry
               </button>
             </div>
           </div>
-          <ErrorArtWrapper>
-            <ErrorArt type="503">
-              503
-            </ErrorArt>
-          </ErrorArtWrapper>
         </Screen>
       </Container>
     )
