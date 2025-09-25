@@ -1,10 +1,10 @@
 import { computed } from '@preact/signals-react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useUserBalance, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import React from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { GameplayFrame, useGraphics } from '../../components'
-import type { GameplayEffectsRef } from '../../components'
+import type { GameplayEffectsRef, EnhancedWagerInputRef } from '../../components'
 import { useGameMeta } from '../useGameMeta'
 import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { Chip } from './Chip'
@@ -92,6 +92,9 @@ export default function Roulette() {
   
   // Effects system for enhanced visual feedback
   const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  
+  // Ref for wager input pulse notification
+  const wagerInputRef = useRef<EnhancedWagerInputRef>(null)
 
   const sounds = useSound({
     win: SOUND_WIN,
@@ -304,7 +307,12 @@ export default function Roulette() {
           playDisabled={!actualWager || balanceExceeded || poolExceeded || gamba.isPlaying || phase !== 'betting'}
           playText="Spin"
         >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+          <EnhancedWagerInput 
+            ref={wagerInputRef}
+            value={wager} 
+            onChange={setWager} 
+            multiplier={maxMultiplier} 
+          />
           <GambaUi.Select
             options={CHIPS}
             value={selectedChip.value}
@@ -324,6 +332,7 @@ export default function Roulette() {
           <EnhancedPlayButton 
             disabled={!actualWager || balanceExceeded || poolExceeded || phase !== 'betting'} 
             onClick={play}
+            wagerInputRef={wagerInputRef}
           >
             {phase === 'betting' ? 'Spin' : phase === 'spinning' ? 'Spinning...' : 'Result'}
           </EnhancedPlayButton>

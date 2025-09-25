@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import PriceIndicator from "../UI/PriceIndicator";
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
@@ -132,7 +132,7 @@ const StyledWagerInputWrapper = styled.div`
 `;
 
 // Details Button for wager info
-const DetailsButton = styled.button`
+const DetailsButton = styled.button<{ $shouldPulse?: boolean }>`
   all: unset;
   position: absolute;
   top: 8px;
@@ -157,6 +157,21 @@ const DetailsButton = styled.button`
   backdrop-filter: blur(10px);
   font-family: 'DM Sans', sans-serif;
   
+  /* Pulse animation for invalid wager indication */
+  ${props => props.$shouldPulse && `
+    animation: pulseGlow 2s ease-in-out infinite;
+    background: linear-gradient(
+      135deg,
+      rgba(212, 165, 116, 0.4) 0%,
+      rgba(184, 51, 106, 0.3) 100%
+    );
+    border-color: rgba(212, 165, 116, 0.6);
+    box-shadow: 
+      0 0 20px rgba(212, 165, 116, 0.6),
+      0 0 40px rgba(212, 165, 116, 0.4),
+      0 4px 12px rgba(212, 165, 116, 0.3);
+  `}
+  
   &:hover {
     background: linear-gradient(
       135deg,
@@ -178,6 +193,23 @@ const DetailsButton = styled.button`
     font-size: 11px;
     top: 6px;
     right: 6px;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 
+        0 0 20px rgba(212, 165, 116, 0.6),
+        0 0 40px rgba(212, 165, 116, 0.4),
+        0 4px 12px rgba(212, 165, 116, 0.3);
+    }
+    50% {
+      transform: scale(1.15);
+      box-shadow: 
+        0 0 30px rgba(212, 165, 116, 0.8),
+        0 0 60px rgba(212, 165, 116, 0.6),
+        0 6px 20px rgba(212, 165, 116, 0.5);
+    }
   }
 `;
 
@@ -232,8 +264,43 @@ const WagerDetailsValue = styled.div`
   gap: 8px;
 `;
 
-// Enhanced WagerInput component
-export const EnhancedWagerInput: React.FC<{
+/**
+ * Enhanced WagerInput component with pulse notification for invalid wagers.
+ * 
+ * When ENABLE_WAGER_AUTO_ADJUSTMENT is false, the "i" info button will pulse and glow
+ * when the user tries to play with an invalid wager (below min or above max).
+ * 
+ * Usage in game components:
+ * ```tsx
+ * import { EnhancedWagerInput, EnhancedPlayButton, EnhancedWagerInputRef } from '../../components';
+ * 
+ * function MyGame() {
+ *   const [wager, setWager] = useState(defaultWager);
+ *   const wagerInputRef = useRef<EnhancedWagerInputRef>(null);
+ * 
+ *   return (
+ *     <>
+ *       <EnhancedWagerInput 
+ *         ref={wagerInputRef}
+ *         value={wager} 
+ *         onChange={setWager} 
+ *       />
+ *       <EnhancedPlayButton 
+ *         wagerInputRef={wagerInputRef}
+ *         onClick={play}
+ *       >
+ *         Play
+ *       </EnhancedPlayButton>
+ *     </>
+ *   );
+ * }
+ * ```
+ */
+export interface EnhancedWagerInputRef {
+  triggerPulseIfInvalid: () => void;
+}
+
+export const EnhancedWagerInput = forwardRef<EnhancedWagerInputRef, {
   value: number;
   onChange: (value: number) => void;
   disabled?: boolean;
@@ -241,7 +308,7 @@ export const EnhancedWagerInput: React.FC<{
   minWager?: number;
   maxWager?: number;
   multiplier?: number;
-}> = ({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }) => {
+}>(({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }, ref) => {
   const token = useCurrentToken();
   
   // Use the unified wager adjustment hook for automatic clamping
@@ -253,6 +320,7 @@ export const EnhancedWagerInput: React.FC<{
   } = useWagerAdjustmentForControls(value, onChange, multiplier);
   
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [shouldPulse, setShouldPulse] = useState(false);
   
   // Use provided limits or fall back to calculated ones
   const effectiveMinWager = minWager ?? calculatedMinWager;
@@ -274,6 +342,18 @@ export const EnhancedWagerInput: React.FC<{
   const isWagerInRange = (wager: number) => {
     return wager >= effectiveMinWager && wager <= effectiveMaxWager;
   };
+
+  // Expose trigger function through ref
+  useImperativeHandle(ref, () => ({
+    triggerPulseIfInvalid: () => {
+      // Only pulse if auto-adjustment is disabled and wager is out of range
+      if (!FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT && !isWagerInRange(value)) {
+        setShouldPulse(true);
+        // Stop pulsing after 3 seconds
+        setTimeout(() => setShouldPulse(false), 3000);
+      }
+    }
+  }), [value, effectiveMinWager, effectiveMaxWager]);
 
   // Keep local input in sync when external value changes (only when not focused)
   useEffect(() => {
@@ -384,7 +464,14 @@ export const EnhancedWagerInput: React.FC<{
           />
           <div className="symbol">{token?.symbol ?? ''}</div>
         </StyledWagerInputWrapper>
-        <DetailsButton onClick={() => setShowDetailsModal(true)}>
+        <DetailsButton 
+          $shouldPulse={shouldPulse} 
+          onClick={() => {
+            setShowDetailsModal(true);
+            // Stop pulsing when user clicks to view details
+            if (shouldPulse) setShouldPulse(false);
+          }}
+        >
           i
         </DetailsButton>
       </WagerInputContainer>
@@ -467,7 +554,9 @@ export const EnhancedWagerInput: React.FC<{
       )}
     </>
   );
-};
+});
+
+EnhancedWagerInput.displayName = 'EnhancedWagerInput';
 
 // Wrapper for GambaUi.Button with romantic styling
 const StyledButtonWrapper = styled.div<{ variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -736,9 +825,15 @@ export const EnhancedPlayButton: React.FC<{
   disabled?: boolean;
   children: React.ReactNode;
   wager?: number; // Add wager prop for validation
-}> = ({ onClick, disabled, children, wager }) => {
+  wagerInputRef?: React.RefObject<EnhancedWagerInputRef>; // Add ref to wager input
+}> = ({ onClick, disabled, children, wager, wagerInputRef }) => {
   
   const handleClick = () => {
+    // First check if we should trigger the pulse (when auto-adjustment is disabled)
+    if (wagerInputRef?.current && !FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
+      wagerInputRef.current.triggerPulseIfInvalid();
+    }
+    
     // If onClick is provided, call it
     if (onClick) {
       onClick();
