@@ -405,7 +405,7 @@ export const RightSidebar: React.FC = () => {
     if (leaderboardData.length > 0) {
       return leaderboardData.slice(0, 5).map((player, index) => ({
         name: player.user || `Player ${player.user?.slice(0, 4) || Math.random().toString(36).slice(2, 6)}`,
-        winnings: `$${(player.usd_volume || 0).toFixed(2)}`,
+        winnings: `${player.sol_volume.toFixed(2)} SOL`,
         rank: index + 1
       }))
     }

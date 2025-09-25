@@ -56,7 +56,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
       <HeaderSection>
         <Title $colorScheme={colorScheme}>Leaderboard</Title>
         <Subtitle $colorScheme={colorScheme}>
-          Top players by volume all time (USD)
+          Top players by wagered amount (SOL)
         </Subtitle>
       </HeaderSection>
 
@@ -70,7 +70,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
           <ListHeader $colorScheme={colorScheme}>
             <HeaderRank>Rank</HeaderRank>
             <HeaderPlayer>Player</HeaderPlayer>
-            <HeaderVolume>Volume&nbsp;(USD)</HeaderVolume>
+            <HeaderVolume>Wagered</HeaderVolume>
           </ListHeader>
 
           {leaderboard.map((entry: Player, index) => {
@@ -79,7 +79,7 @@ export const LeaderboardsContent: React.FC<LeaderboardsContentProps> = ({
               <RankItem key={entry.user} $isTop3={rank <= 3} $colorScheme={colorScheme}>
                 <RankNumber rank={rank} $colorScheme={colorScheme}>{rank > 3 ? rank : ''}</RankNumber>
                 <PlayerInfo $colorScheme={colorScheme} title={entry.user}>{entry.user}</PlayerInfo>
-                <VolumeAmount $colorScheme={colorScheme}>{formatVolume(entry.usd_volume)}</VolumeAmount>
+                <VolumeAmount $colorScheme={colorScheme}>{formatVolume(entry.sol_volume)}</VolumeAmount>
               </RankItem>
             )
           })}

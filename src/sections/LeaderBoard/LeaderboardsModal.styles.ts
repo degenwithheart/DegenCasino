@@ -337,10 +337,8 @@ export const EmptyStateText = styled.p<{ $colorScheme?: any }>`
 
 export const formatVolume = (v: number): string =>
   typeof v !== 'number' || isNaN(v)
-    ? '$NaN'
-    : v.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
+    ? 'NaN SOL'
+    : `${v.toLocaleString('en-US', {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
+        maximumFractionDigits: 4,
+      })} SOL`

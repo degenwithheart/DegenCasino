@@ -64,8 +64,8 @@ class PrefetchManager {
     try {
       console.log(`🔄 Prefetching ${period} leaderboard...`);
       
-      // Build URL for all-time data (no time filter needed)
-      const url = `https://api.gamba.so/players?creator=${creator}&sortBy=usd_volume&limit=100`;
+      // Use the same method as Explorer - fetch plays data and calculate SOL volume
+      const url = `https://api.gamba.so/events/settledGames?creator=${creator}&itemsPerPage=200&page=0`;
       
       const response = await fetch(url);
       
@@ -73,8 +73,32 @@ class PrefetchManager {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const result = await response.json();
-      cache.set(cacheKey, result.players || [], CacheTTL.LEADERBOARD);
+      const playsData = await response.json();
+      
+      if (!playsData || !Array.isArray(playsData.results)) {
+        throw new Error('Invalid plays data received');
+      }
+      
+      // Filter plays by creator and calculate SOL volume per player  
+      const filteredPlays = playsData.results.filter((play: any) => play.creator === creator);
+      
+      // Group plays by user and calculate SOL volume
+      const playerVolumes = new Map<string, number>();
+      
+      filteredPlays.forEach((play: any) => {
+        const user = play.user;
+        const wagerInSol = (parseFloat(play.wager) || 0) / 1e9; // Convert lamports to SOL
+        
+        const currentVolume = playerVolumes.get(user) || 0;
+        playerVolumes.set(user, currentVolume + wagerInSol);
+      });
+      
+      // Convert to array and sort by SOL volume
+      const players = Array.from(playerVolumes.entries())
+        .map(([user, sol_volume]) => ({ user, usd_volume: 0, sol_volume }))
+        .sort((a, b) => b.sol_volume - a.sol_volume);
+      
+      cache.set(cacheKey, players, CacheTTL.LEADERBOARD);
       console.log(`✅ ${period} leaderboard prefetched`);
     } catch (error) {
       console.warn(`❌ Failed to prefetch ${period} leaderboard:`, error);
