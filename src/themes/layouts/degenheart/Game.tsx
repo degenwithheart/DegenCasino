@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { media, components } from './breakpoints';
 // Styled modal content for info modal, matching casino modal look
 const InfoModalContent = styled.div`
@@ -196,7 +196,7 @@ const ErrorArt = styled.div<{ type: string }>`
   ${({ type }) => {
     switch (type) {
       case '404':
-        return `
+        return css`
           animation: ${bounce} 2s infinite;
           &::before {
             content: '🤔';
@@ -204,7 +204,7 @@ const ErrorArt = styled.div<{ type: string }>`
           }
         `;
       case '500':
-        return `
+        return css`
           animation: ${spin} 3s linear infinite;
           &::before {
             content: '⚙️';
@@ -212,7 +212,7 @@ const ErrorArt = styled.div<{ type: string }>`
           }
         `;
       case '503':
-        return `
+        return css`
           animation: ${pulse} 1.5s ease-in-out infinite;
           &::before {
             content: '🔧';
@@ -220,14 +220,14 @@ const ErrorArt = styled.div<{ type: string }>`
           }
         `;
       case '400':
-        return `
+        return css`
           &::before {
             content: '💳';
             margin-right: 0.5rem;
           }
         `;
       default:
-        return `
+        return css`
           &::before {
             content: '🎲';
             margin-right: 0.5rem;

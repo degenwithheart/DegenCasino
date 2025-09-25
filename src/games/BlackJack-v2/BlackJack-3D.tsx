@@ -148,14 +148,8 @@ export default function BlackJack3D() {
               playText="Coming Soon"
             />
             
-            <DesktopControls
-              wager={wager}
-              setWager={setWager}
-              onPlay={startGame}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
-              <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+            <DesktopControls>
+              <EnhancedWagerInput value={wager} onChange={setWager} />
               <EnhancedPlayButton onClick={startGame} disabled={true}>
                 Coming Soon
               </EnhancedPlayButton>
@@ -171,13 +165,7 @@ export default function BlackJack3D() {
               playText="Coming Soon"
             />
             
-            <DesktopControls
-              wager={wager}
-              setWager={setWager}
-              onPlay={startGame}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
+            <DesktopControls>
               <EnhancedButton onClick={hit} disabled={true}>
                 Hit
               </EnhancedButton>

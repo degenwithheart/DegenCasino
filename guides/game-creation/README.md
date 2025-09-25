@@ -216,58 +216,58 @@ const [animation, setAnimation] = useState(null)
 
 Let's examine how actual games in the platform are structured:
 
-### Dice Game (Dice-v2)
+### Magic 8-Ball Game (Magic8Ball)
 ```typescript
 // src/games/allGames.ts entry
 {
-  id: 'dice-v2',
+  id: 'magic8ball',
   live: 'up',
   meta: {
-    name: 'Dice',
-    description: 'Roll the dice and bet on the outcome. Choose your win chance and multiplier!',
+    name: 'Magic 8-Ball',
+    description: 'Consult the mystical Magic 8-Ball oracle and let cosmic forces reveal your fortune!',
     image: '/png/games/dice.png',
     background: '/webp/games/dice.webp',
   },
-  app: lazy(() => import('./Dice-v2')),
+  app: lazy(() => import('./Magic8Ball')),
 }
 
-// src/games/Dice-v2/index.tsx (Wrapper)
+// src/games/Magic8Ball/index.tsx (Wrapper)
 import React from 'react'
 import { useUserStore } from '../../hooks/data/useUserStore'
 import { GAME_CAPABILITIES } from '../../constants'
 import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
-const DiceV2Renderer2D = React.lazy(() => import('./Dice-v2-2D'))
-const DiceV2Renderer3D = React.lazy(() => import('./Dice-v2-3D'))
+const Magic8BallRenderer2D = React.lazy(() => import('./Magic8Ball-2D'))
+const Magic8BallRenderer3D = React.lazy(() => import('./Magic8Ball-3D'))
 
-const DiceV2Game: React.FC = () => {
+const Magic8BallGame: React.FC = () => {
   const seoHelmet = useGameSEO({
-    gameName: "Dice",
-    description: "Roll the dice and predict the outcome!",
-    rtp: 96,
+    gameName: "Magic 8-Ball",
+    description: "Consult the mystical Magic 8-Ball oracle!",
+    rtp: 95,
     maxWin: "100x"
   })
 
-  const currentMode = useUserStore(state => state.getGameRenderMode('dice-v2'))
-  const gameCapabilities = GAME_CAPABILITIES['dice-v2']
+  const currentMode = useUserStore(state => state.getGameRenderMode('magic8ball'))
+  const gameCapabilities = GAME_CAPABILITIES['magic8ball']
   
   const shouldUse2D = currentMode === '2D' && gameCapabilities.supports2D
   const shouldUse3D = currentMode === '3D' && gameCapabilities.supports3D
   const effectiveMode = shouldUse2D ? '2D' : shouldUse3D ? '3D' : '2D'
 
   return (
-    <div key={`dice-v2-${effectiveMode}`}>
+    <div key={`magic8ball-${effectiveMode}`}>
       {seoHelmet}
-      <React.Suspense fallback={<div>Loading dice game...</div>}>
-        {effectiveMode === '2D' ? <DiceV2Renderer2D /> : <DiceV2Renderer3D />}
+      <React.Suspense fallback={<div>Loading Magic 8-Ball game...</div>}>
+        {effectiveMode === '2D' ? <Magic8BallRenderer2D /> : <Magic8BallRenderer3D />}
       </React.Suspense>
     </div>
   )
 }
 
-// src/games/Dice-v2/constants.ts (Audio & Config)
-import { DICE_CONFIG } from '../rtpConfig'
-export const OUTCOMES = DICE_CONFIG.OUTCOMES
+// src/games/Magic8Ball/constants.ts (Audio & Config)
+import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+export const OUTCOMES = BET_ARRAYS_V2['magic8ball'].OUTCOMES
 
 export { default as SOUND_LOSE } from './lose.mp3'
 export { default as SOUND_TICK } from './tick.mp3'

@@ -766,14 +766,8 @@ export default function BlackJackV2() {
           playText={getPlayText()}
         />
         
-        <DesktopControls
-          wager={initialWager}
-          setWager={setInitialWager}
-          onPlay={getPlayAction()}
-          playDisabled={gameState === 'dealing' || !pool || gamba.isPlaying || poolExceeded}
-          playText={getPlayText()}
-        >
-          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+        <DesktopControls>
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
           <EnhancedPlayButton disabled={gameState === 'dealing' || !pool || gamba.isPlaying || poolExceeded} onClick={getPlayAction()}>
             {getPlayText()}
           </EnhancedPlayButton>

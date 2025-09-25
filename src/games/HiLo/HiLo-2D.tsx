@@ -514,17 +514,10 @@ export default function HiLo(props: HiLoConfig) {
               />
             </MobileControls>
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={handleStart}
-              playDisabled={!option || initialWager > maxWagerForBet}
-              playText={progressive ? "Start" : "Start"}
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
-                multiplier={maxMultiplier}
               />
               <div>Progressive:</div>
               <GambaUi.Switch
@@ -551,18 +544,11 @@ export default function HiLo(props: HiLoConfig) {
               playText={progressive ? "Continue" : "Again"}
             />
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={progressive ? play : handleStart}
-              playDisabled={progressive ? !option : false}
-              playText={progressive ? "Continue" : "Again"}
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
                 disabled={true}
-                multiplier={maxMultiplier}
               />
               <TokenValue amount={currentBalance} />
               {progressive && (

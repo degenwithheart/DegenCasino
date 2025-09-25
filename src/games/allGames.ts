@@ -15,13 +15,25 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     id: 'dice-v2',
     live: 'up',
     meta: {
-      name: 'Dice v2',
+      name: 'Dice',
       background: '#000000CC',
       image: '/webp/games/dice.webp',
       description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Dice-v2')),
+  },
+  {
+    id: 'magic8ball',
+    live: 'up',
+    meta: {
+      name: 'Magic 8-Ball',
+      background: '#000000CC',
+      image: '/webp/games/magic8ball.png',
+      description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
+      tag: 'Singleplayer',
+    },
+    app: React.lazy(() => import('./Magic8Ball')),
   },
   {
     id: 'slots',

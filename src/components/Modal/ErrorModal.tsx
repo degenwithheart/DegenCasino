@@ -95,13 +95,31 @@ interface ErrorModalProps {
   error: Error;
 }
 
+// Safe hook that doesn't crash when context is not available
+function useSafeColorScheme() {
+  try {
+    return useColorScheme();
+  } catch (error) {
+    // Return a default color scheme if context is not available
+    return {
+      currentColorScheme: {
+        colors: {
+          surface: 'rgba(10, 20, 40)',
+          text: '#ffffff',
+          error: '#ef4444'
+        }
+      }
+    };
+  }
+}
+
 export const ErrorModal: React.FC<ErrorModalProps> = ({ open, onClose, title = 'App Error', error }) => {
   if (!open) return null;
   const stackOrMessage = error.stack || error.message;
   const errorCode = getErrorCode(stackOrMessage);
   const errorMessage = getErrorMessageForCode(errorCode);
   const isDev = import.meta.env.MODE !== 'production';
-  const { currentColorScheme } = useColorScheme();
+  const { currentColorScheme } = useSafeColorScheme();
 
   return ReactDOM.createPortal(
     <ModalOverlay onClick={onClose} $colorScheme={currentColorScheme}>

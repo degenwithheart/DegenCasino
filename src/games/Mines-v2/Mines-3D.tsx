@@ -923,7 +923,7 @@ export default function MinesV2() {
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
                 marginBottom: '4px'
               }}>
-                BASE MULTIPLIER
+                BASE x
               </div>
               <div style={{
                 fontSize: '16px',
@@ -955,7 +955,7 @@ export default function MinesV2() {
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
                 marginBottom: '4px'
               }}>
-                NEXT MULTIPLIER
+                NEXT x
               </div>
               <div style={{
                 fontSize: '16px',
@@ -1045,17 +1045,10 @@ export default function MinesV2() {
               </div>
             </MobileControls>
 
-            <DesktopControls
-              wager={wager}
-              setWager={setWager}
-              onPlay={startGame}
-              playDisabled={poolExceeded}
-              playText="Start"
-            >
+            <DesktopControls>
               <EnhancedWagerInput 
                 value={wager} 
-                onChange={setWager} 
-                multiplier={maxMultiplier}
+                onChange={setWager}
               />
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <label style={{ color: '#fff', minWidth: '60px' }}>Mines:</label>
@@ -1102,13 +1095,7 @@ export default function MinesV2() {
               )}
             </MobileControls>
             
-            <DesktopControls
-              wager={wager}
-              setWager={setWager}
-              onPlay={endGame}
-              playDisabled={loading || totalGain === 0}
-              playText={totalGain > 0 ? 'Cash' : 'New'}
-            >
+            <DesktopControls>
               {started && totalGain > 0 && (
                 <EnhancedButton 
                   onClick={endGame} 

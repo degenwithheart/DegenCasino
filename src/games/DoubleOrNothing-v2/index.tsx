@@ -370,15 +370,9 @@ export default function DoubleOrNothingV2() {
           </div>
         </MobileControls>
         
-        <DesktopControls
-          wager={initialWager}
-          setWager={setInitialWager}
-          onPlay={() => {}} // Handled by canvas clicks
-          playDisabled={true} // Always disabled, use canvas
-          playText="Click buttons on canvas"
-        >
+        <DesktopControls> {/* Handled by canvas clicks */}
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+            <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
             
             {/* Mode Selector */}
             <div style={{ 

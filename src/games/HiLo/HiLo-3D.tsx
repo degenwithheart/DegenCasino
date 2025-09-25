@@ -161,17 +161,10 @@ export default function HiLo3D() {
               />
             </MobileControls>
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
-                multiplier={maxMultiplier}
               />
               <div>Progressive:</div>
               <GambaUi.Switch
@@ -199,18 +192,11 @@ export default function HiLo3D() {
               playText="Coming Soon"
             />
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={progressive ? play : handleStart}
-              playDisabled={true}
-              playText="Coming Soon"
-            >
+            <DesktopControls>
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
                 disabled={true}
-                multiplier={maxMultiplier}
               />
               <TokenValue amount={currentBalance} />
               {progressive && (

@@ -713,13 +713,7 @@ export default function CryptoChartGameV2() {
             </div>
           </MobileControls>
         ) : (
-          <DesktopControls
-            wager={initialWager}
-            setWager={setInitialWager}
-            onPlay={play}
-            playDisabled={!canPlay}
-            playText={isPlaying ? 'Trading...' : 'Trade'}
-          >
+          <DesktopControls>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
               {/* Target Multiplier Control */}
               <div style={{ 

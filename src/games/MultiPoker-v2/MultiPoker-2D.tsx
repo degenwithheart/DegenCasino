@@ -1650,14 +1650,8 @@ export default function MultiPokerV2() {
               )}
             </MobileControls>
             
-            <DesktopControls
-              wager={initialWager}
-              setWager={setInitialWager}
-              onPlay={getPlayAction()}
-              playDisabled={revealing || !pool || gamba.isPlaying || poolExceeded}
-              playText={getPlayText()}
-            >
-              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+            <DesktopControls>
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
               {canCashOut && (
                 <EnhancedButton 
                   variant="danger"

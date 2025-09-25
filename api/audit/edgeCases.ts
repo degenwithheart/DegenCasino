@@ -55,7 +55,7 @@ const BET_ARRAYS: Record<string, number[]> = {
 
 const BET_ARRAYS_V2: Record<string, number[]> = {
   'flip-v2': [0, 2],
-  'dice-v2': [0, 0, 0, 0, 0, 6],
+  'magic8ball': [0, 0, 0, 0, 0, 6],
   'mines-v2': [0, 1.04, 1.13, 1.24, 1.37, 1.53],
   'keno-v2': [0, 2, 3, 5, 10, 20, 50, 100],
   'limbo-v2': [1, 1.2, 1.5, 2, 3, 5, 10, 100],

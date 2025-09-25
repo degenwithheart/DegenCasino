@@ -182,7 +182,7 @@ export default function GameTemplate() {
           playDisabled={gamba.isPlaying}
           playText={hasPlayed ? "New Game" : "Play"}
         >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={1} />
+          <EnhancedWagerInput value={wager} onChange={setWager} />
           <EnhancedPlayButton disabled={gamba.isPlaying} onClick={hasPlayed ? resetGame : play}>
             {hasPlayed ? "New Game" : "Play"}
           </EnhancedPlayButton>

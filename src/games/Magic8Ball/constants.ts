@@ -1,5 +1,6 @@
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-export const OUTCOMES = BET_ARRAYS_V2['dice-v2'].OUTCOMES
+import { DICE_CONFIG } from '../rtpConfig'
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
+export const OUTCOMES = DICE_CONFIG.OUTCOMES
 
 export { default as SOUND_LOSE } from './lose.mp3'
 export { default as SOUND_TICK } from './tick.mp3'

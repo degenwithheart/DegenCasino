@@ -594,14 +594,7 @@ export default function LimboGame({}: LimboGameProps) {
             </EnhancedPlayButton>
           </MobileControls>
         ) : (
-          <DesktopControls
-            wager={wager}
-            setWager={setWager}
-            onPlay={play}
-            playDisabled={gameState !== GAME_STATES.IDLE}
-            playText={gameState === GAME_STATES.PLAYING ? 'Playing...' : 
-                     gameState === GAME_STATES.ANIMATING ? 'Animating...' : 'Play'}
-          >
+          <DesktopControls>
             <EnhancedPlayButton
               onClick={resetGame}
               disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.ANIMATING}

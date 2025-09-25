@@ -392,14 +392,8 @@ export default function Slots() {
           playText="Spin"
         />
         
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={play}
-          playDisabled={!isValid}
-          playText="Spin"
-        >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+        <DesktopControls>
+          <EnhancedWagerInput value={wager} onChange={setWager} />
           
           <EnhancedPlayButton disabled={!isValid} onClick={play}>
             Spin

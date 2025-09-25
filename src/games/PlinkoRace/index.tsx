@@ -273,14 +273,8 @@ export default function PlinkoRace() {
           />
         </MobileControls>
         
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => {/* PlinkoRace uses multiplayer, no direct play */}}
-          playDisabled={true || poolExceeded}
-          playText="Join"
-        >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+        <DesktopControls> {/* PlinkoRace uses multiplayer, no direct play */}
+          <EnhancedWagerInput value={wager} onChange={setWager} />
           <div>Degen:</div>
           <GambaUi.Switch
             disabled={gamba.isPlaying}

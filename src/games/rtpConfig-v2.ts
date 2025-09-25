@@ -4,7 +4,7 @@
  * This file contains RTP configurations specifically for the V2 canvas-based games.
  * Each V2 game has its own section with customizable parameters, bet arrays, and multipliers.
  *
- * V2 Games: dice-v2 (currently implemented)
+ * V2 Games: magic8ball (currently implemented)
  *
  * Target: 94%-97% RTP with balanced win rates for sustainable operations.
  */
@@ -14,6 +14,7 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 // RTP_TARGETS for V2 games (can be adjusted independently from V1)
 export const RTP_TARGETS_V2 = {
   'dice-v2': 0.95,        // Lucky Number: 5% house edge
+  'magic8ball': 0.95,        // Magic 8-Ball: 5% house edge
   'multipoker-v2': 0.96,  // Multi Poker: 4% house edge
   'flip-v2': 0.96,        // Flip V2: 4% house edge
   'blackjack-v2': 0.97,   // BlackJack V2: 3% house edge
@@ -30,7 +31,7 @@ export type GameV2Key = keyof typeof RTP_TARGETS_V2
 // Game configurations for V2 games
 export const BET_ARRAYS_V2 = {
   'dice-v2': {
-    OUTCOMES: 100, // 0-99 like original dice (game logic requires exactly 100)
+    OUTCOMES: 100, // 0-99 like original dice
     outcomes: Array.from({length: 100}, (_, i) => i), // [0, 1, 2, ..., 99]
     calculateBetArray: (rollUnder: number) => {
       // Generate bet array for a given roll-under value (1-99)
@@ -47,8 +48,80 @@ export const BET_ARRAYS_V2 = {
       }
       return betArray;
     },
+    calculateBetArrayRollAbove: (rollAbove: number) => {
+      // Generate bet array for a given roll-above value (1-99)
+      const OUTCOMES = 100;
+      const betArray = Array(OUTCOMES).fill(0);
+      if (rollAbove >= 0 && rollAbove < 100) {
+        const winProbability = (OUTCOMES - rollAbove - 1) / OUTCOMES;
+        const fairMultiplier = 1 / winProbability;
+        const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['dice-v2'];
+        // Set winning outcomes (rollAbove+1 to 99)
+        for (let i = rollAbove + 1; i < OUTCOMES; i++) {
+          betArray[i] = houseMultiplier;
+        }
+      }
+      return betArray;
+    },
+    calculateBetArrayForMode: (rollValue: number, isRollUnder: boolean) => {
+      // Unified function to calculate bet array for both modes
+      const OUTCOMES = 100;
+      const betArray = Array(OUTCOMES).fill(0);
+      
+      let winProbability: number;
+      let winningIndices: number[];
+      
+      if (isRollUnder) {
+        // Roll Under: win if result < rollValue (0 to rollValue-1)
+        winProbability = rollValue / OUTCOMES;
+        winningIndices = Array.from({length: rollValue}, (_, i) => i);
+      } else {
+        // Roll Above: win if result > rollValue (rollValue+1 to 99)
+        winProbability = (OUTCOMES - rollValue - 1) / OUTCOMES;
+        winningIndices = Array.from({length: OUTCOMES - rollValue - 1}, (_, i) => rollValue + 1 + i);
+      }
+      
+      if (winProbability > 0) {
+        const fairMultiplier = 1 / winProbability;
+        const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['dice-v2'];
+        
+        // Set winning outcomes
+        winningIndices.forEach(index => {
+          betArray[index] = houseMultiplier;
+        });
+      }
+      
+      return betArray;
+    },
     outcomeToText: (outcome: number) => {
       return `Roll: ${outcome}`
+    }
+  },
+
+  'magic8ball': {
+    OUTCOMES: 2, // Simple 50/50 Magic 8-Ball game: Win (0) or Lose (1)
+    outcomes: [0, 1], // [Win, Lose]
+    calculateBetArray: () => {
+      // Magic 8-Ball is a simple 50/50 game with 2x multiplier
+      // Win probability: 50% (1/2)
+      // Fair multiplier: 2.0
+      // House multiplier: 2.0 * 0.95 (95% RTP) = 1.9
+      const winProbability = 0.5;
+      const fairMultiplier = 1 / winProbability; // 2.0
+      const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['magic8ball']; // 2.0 * 0.95 = 1.9
+      
+      return [
+        houseMultiplier, // Index 0: Win (Magic 8-Ball says "Yes")
+        0                // Index 1: Lose (Magic 8-Ball says "No")
+      ];
+    },
+    getMultiplier: () => {
+      const winProbability = 0.5;
+      const fairMultiplier = 1 / winProbability;
+      return fairMultiplier * RTP_TARGETS_V2['magic8ball']; // 1.9x
+    },
+    outcomeToText: (outcome: number) => {
+      return outcome === 0 ? "Magic 8-Ball says: YES!" : "Magic 8-Ball says: NO!"
     }
   },
   

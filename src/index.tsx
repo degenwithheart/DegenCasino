@@ -27,6 +27,7 @@ import App from './App'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 import { DEFAULT_POOL, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
 import { NetworkProvider, useNetwork } from './contexts/NetworkContext'
+import { UnifiedThemeProvider } from './themes/UnifiedThemeContext'
 
 import './styles.css'
 
@@ -116,9 +117,11 @@ function PersistSelectedToken() {
                       prefix="code"
                       fee={PLATFORM_REFERRAL_FEE}
                     >
+                      <UnifiedThemeProvider>
                         <GlobalErrorBoundary>
                           <App />
                         </GlobalErrorBoundary>
+                      </UnifiedThemeProvider>
                     </ReferralProvider>
                   </GambaPlatformProvider>
                 </GambaProvider>

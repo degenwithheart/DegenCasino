@@ -23,7 +23,6 @@ export { default as ExplorerIndex } from './Explorer/ExplorerIndex'
 
 // Game
 export * from './Game/EnhancedGameControls'
-export type { EnhancedWagerInputRef } from './Game/EnhancedGameControls'
 export { FullscreenPortal } from './Game/FullscreenPortal'
 export { default as GameplayFrame } from './Game/GameplayFrame'
 export type { GameplayEffectsRef } from './Game/GameplayFrame'

@@ -305,14 +305,8 @@ export default function FlipV2_3D() {
           playText={getPlayText()}
         />
         
-        <DesktopControls
-          wager={initialWager}
-          setWager={setInitialWager}
-          onPlay={getPlayAction()}
-          playDisabled={true}
-          playText={getPlayText()}
-        >
-          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} multiplier={maxMultiplier} />
+        <DesktopControls>
+          <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
           <EnhancedPlayButton disabled={true} onClick={getPlayAction()}>
             {getPlayText()}
           </EnhancedPlayButton>

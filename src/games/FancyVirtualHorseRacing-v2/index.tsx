@@ -774,13 +774,7 @@ export default function FancyVirtualHorseRacingV2() {
             )}
           </MobileControls>
         ) : (
-          <DesktopControls
-            wager={initialWager}
-            setWager={setInitialWager}
-            onPlay={() => {}} // Handled by canvas clicks
-            playDisabled={true} // Always disabled, use canvas
-            playText="Select horse above"
-          >
+          <DesktopControls> {/* Handled by canvas clicks */}
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
               {selectedHorse !== null && (
                 <div style={{ 
@@ -837,13 +831,7 @@ export default function FancyVirtualHorseRacingV2() {
             )}
           </MobileControls>
         ) : (
-          <DesktopControls
-            wager={initialWager}
-            setWager={setInitialWager}
-            onPlay={play}
-            playDisabled={!canPlay}
-            playText={isPlaying ? 'Racing...' : 'Start Race'}
-          >
+          <DesktopControls>
             {raceState !== 'betting' && (
               <EnhancedPlayButton onClick={resetRace}>
                 New Race

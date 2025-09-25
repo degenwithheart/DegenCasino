@@ -12,7 +12,6 @@
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "changelog": "node scripts/generate-changelog.mjs --owner degenwithheart --repo DegenCasino --all-tags --from-tag v1.0.0 --out CHANGELOG.md",
     "monitor": "node scripts/monitor-rpc.mjs",
     "monitor:prod": "node scripts/monitor-rpc.mjs --url=https://degenheart.casino --interval=60",
     "monitor:fast": "node scripts/monitor-rpc.mjs --interval=30"

@@ -61,7 +61,6 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 export const FEATURE_FLAGS = {
   TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
-  ENABLE_WAGER_AUTO_ADJUSTMENT: false, // Auto-adjust wager input to min/max limits when user types out of bounds
   
   // Game Status Blocking Configuration
   BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'down' (maintenance)
@@ -81,6 +80,11 @@ export const GAME_CAPABILITIES = {
   'dice-v2': {
     supports2D: true,
     supports3D: false,
+    default: '2D'
+  },
+  'magic8ball': {
+    supports2D: true,
+    supports3D: true,
     default: '2D'
   },
   'slots': {
@@ -577,4 +581,7 @@ export const SHOW_THEME_BUTTON_IN_HEADER = true
 
 /** Enable experimental layout themes (Holy Grail, etc.) */
 export const ENABLE_EXPERIMENTAL_THEMES = true // Set to true when theme system is fully implemented
+
+
+export { FAKE_TOKEN_MINT };
 

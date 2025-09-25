@@ -170,14 +170,8 @@ export default function DiceV2Renderer3D() {
           playText="3D Mode Coming Soon"
         />
 
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={hasPlayed ? resetGame : play}
-          playDisabled={true} // Disabled in 3D coming soon mode
-          playText="3D Mode Coming Soon"
-        >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={multiplier} disabled />
+        <DesktopControls>
+          <EnhancedWagerInput value={wager} onChange={setWager} disabled />
           <EnhancedPlayButton disabled onClick={() => {}}>
             3D Mode Coming Soon
           </EnhancedPlayButton>

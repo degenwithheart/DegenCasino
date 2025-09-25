@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, useRef } from "react";
 import PriceIndicator from "../UI/PriceIndicator";
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
-import { useColorScheme } from '../../themes/ColorSchemeContext';
-import { Modal } from '../Modal/Modal';
 import { 
   WagerInputContainer, 
   WagerLabel, 
@@ -14,11 +12,8 @@ import {
   PresetButton,
   PresetContainer
 } from '../../sections/Game/Game.styles';
-import { useWagerLimits, validateWager, roundToHumanFriendly } from '../../utils/general/wagerUtils';
-import { useWagerAdjustmentForControls } from '../../utils/general/useWagerAdjustment';
-import { FEATURE_FLAGS } from '../../constants';
 
-// Wrapper for GambaUi.WagerInput with romantic styling
+// Wrapper for GambaUi.WagerInput with enhanced styling
 const StyledWagerInputWrapper = styled.div`
   .gamba-wager-input {
     all: unset;
@@ -31,65 +26,40 @@ const StyledWagerInputWrapper = styled.div`
   input {
     all: unset;
     flex: 1;
-    background: linear-gradient(
-      135deg,
-      rgba(10, 5, 17, 0.9) 0%,
-      rgba(139, 90, 158, 0.15) 50%,
-      rgba(10, 5, 17, 0.9) 100%
-    );
-    border: 1px solid rgba(212, 165, 116, 0.3);
-    border-radius: 16px;
-    padding: 12px 16px;
-    color: var(--love-letter-gold);
-    font-weight: 500;
-    font-size: clamp(16px, 3vw, 18px);
+    background: rgba(12, 12, 17, 0.8);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
     text-align: center;
-    box-shadow: 
-      0 4px 16px rgba(10, 5, 17, 0.4),
-      inset 0 1px 0 rgba(212, 165, 116, 0.1);
-    backdrop-filter: blur(15px) saturate(1.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-family: 'DM Sans', sans-serif;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
     
     &:hover {
-      border-color: rgba(212, 165, 116, 0.5);
-      background: linear-gradient(
-        135deg,
-        rgba(10, 5, 17, 0.95) 0%,
-        rgba(139, 90, 158, 0.2) 50%,
-        rgba(10, 5, 17, 0.95) 100%
-      );
-      box-shadow: 
-        0 6px 20px rgba(10, 5, 17, 0.5),
-        inset 0 1px 0 rgba(212, 165, 116, 0.2);
+      border-color: rgba(255, 215, 0, 0.5);
+      background: rgba(12, 12, 17, 0.9);
     }
     
     &:focus {
       outline: none;
-      border-color: rgba(212, 165, 116, 0.7);
+      border-color: #ffd700;
       box-shadow: 
-        0 0 0 2px rgba(212, 165, 116, 0.3),
-        0 6px 20px rgba(10, 5, 17, 0.5),
-        inset 0 1px 0 rgba(212, 165, 116, 0.2);
+        0 0 0 2px rgba(255, 215, 0, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
     }
     
     &::placeholder {
-      color: rgba(212, 165, 116, 0.5);
-      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 600;
     }
     /* add right padding to make room for token symbol affix */
     padding-right: 72px;
     
-    @media (max-width: 479px) {
+    @media (max-width: 800px) {
       font-size: 16px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      padding-right: 64px;
-    }
-
-    @media (min-width: 768px) {
-      border-radius: 18px;
-      padding: 14px 18px;
+      padding: 8px 12px;
     }
   }
 
@@ -98,7 +68,7 @@ const StyledWagerInputWrapper = styled.div`
 
   .symbol {
     position: absolute;
-    right: 16px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
     display: inline-flex;
@@ -106,254 +76,30 @@ const StyledWagerInputWrapper = styled.div`
     justify-content: center;
     min-width: 56px;
     height: 36px;
-    padding: 0 12px;
-    color: var(--love-letter-gold);
-    font-weight: 600;
+    padding: 0 10px;
+    color: rgba(255, 215, 0, 0.95);
+    font-weight: 800;
     font-size: 14px;
-    background: linear-gradient(
-      135deg,
-      rgba(212, 165, 116, 0.15) 0%,
-      rgba(184, 51, 106, 0.1) 100%
-    );
-    border-radius: 10px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 8px;
     pointer-events: none;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(212, 165, 116, 0.2);
-    font-family: 'DM Sans', sans-serif;
-
-    @media (max-width: 479px) {
-      right: 12px;
-      min-width: 48px;
-      height: 32px;
-      font-size: 12px;
-      border-radius: 8px;
-    }
   }
 `;
 
-// Details Button for wager info
-const DetailsButton = styled.button<{ $shouldPulse?: boolean }>`
-  all: unset;
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    rgba(212, 165, 116, 0.2) 0%,
-    rgba(184, 51, 106, 0.15) 100%
-  );
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  color: var(--love-letter-gold);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  font-family: 'DM Sans', sans-serif;
-  
-  /* Pulse animation for invalid wager indication */
-  ${props => props.$shouldPulse && `
-    animation: pulseGlow 2s ease-in-out infinite;
-    background: linear-gradient(
-      135deg,
-      rgba(212, 165, 116, 0.4) 0%,
-      rgba(184, 51, 106, 0.3) 100%
-    );
-    border-color: rgba(212, 165, 116, 0.6);
-    box-shadow: 
-      0 0 20px rgba(212, 165, 116, 0.6),
-      0 0 40px rgba(212, 165, 116, 0.4),
-      0 4px 12px rgba(212, 165, 116, 0.3);
-  `}
-  
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(212, 165, 116, 0.3) 0%,
-      rgba(184, 51, 106, 0.2) 100%
-    );
-    border-color: rgba(212, 165, 116, 0.5);
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
-  }
-  
-  &:active {
-    transform: scale(1.05);
-  }
-
-  @media (max-width: 479px) {
-    width: 18px;
-    height: 18px;
-    font-size: 11px;
-    top: 6px;
-    right: 6px;
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 
-        0 0 20px rgba(212, 165, 116, 0.6),
-        0 0 40px rgba(212, 165, 116, 0.4),
-        0 4px 12px rgba(212, 165, 116, 0.3);
-    }
-    50% {
-      transform: scale(1.15);
-      box-shadow: 
-        0 0 30px rgba(212, 165, 116, 0.8),
-        0 0 60px rgba(212, 165, 116, 0.6),
-        0 6px 20px rgba(212, 165, 116, 0.5);
-    }
-  }
-`;
-
-// Wager Details Modal Content
-const WagerDetailsContent = styled.div`
-  max-width: 420px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  color: var(--love-letter-gold);
-  font-family: 'DM Sans', sans-serif;
-`;
-
-const WagerDetailsTitle = styled.h2`
-  font-family: 'Libre Baskerville', serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--love-letter-gold);
-  text-align: center;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(10, 5, 17, 0.5);
-`;
-
-const WagerDetailsSection = styled.div`
-  margin: 16px 0;
-  padding: 16px;
-  background: linear-gradient(
-    135deg,
-    rgba(10, 5, 17, 0.8) 0%,
-    rgba(139, 90, 158, 0.1) 50%,
-    rgba(10, 5, 17, 0.8) 100%
-  );
-  border: 1px solid rgba(212, 165, 116, 0.2);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-`;
-
-const WagerDetailsLabel = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(212, 165, 116, 0.8);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const WagerDetailsValue = styled.div`
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--love-letter-gold);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-/**
- * Enhanced WagerInput component with pulse notification for invalid wagers.
- * 
- * When ENABLE_WAGER_AUTO_ADJUSTMENT is false, the "i" info button will pulse and glow
- * when the user tries to play with an invalid wager (below min or above max).
- * 
- * Usage in game components:
- * ```tsx
- * import { EnhancedWagerInput, EnhancedPlayButton, EnhancedWagerInputRef } from '../../components';
- * 
- * function MyGame() {
- *   const [wager, setWager] = useState(defaultWager);
- *   const wagerInputRef = useRef<EnhancedWagerInputRef>(null);
- * 
- *   return (
- *     <>
- *       <EnhancedWagerInput 
- *         ref={wagerInputRef}
- *         value={wager} 
- *         onChange={setWager} 
- *       />
- *       <EnhancedPlayButton 
- *         wagerInputRef={wagerInputRef}
- *         onClick={play}
- *       >
- *         Play
- *       </EnhancedPlayButton>
- *     </>
- *   );
- * }
- * ```
- */
-export interface EnhancedWagerInputRef {
-  triggerPulseIfInvalid: () => void;
-}
-
-export const EnhancedWagerInput = forwardRef<EnhancedWagerInputRef, {
+// Enhanced WagerInput component
+export const EnhancedWagerInput: React.FC<{
   value: number;
   onChange: (value: number) => void;
   disabled?: boolean;
   options?: number[];
-  minWager?: number;
-  maxWager?: number;
-  multiplier?: number;
-}>(({ value, onChange, disabled, options, minWager, maxWager, multiplier = 1 }, ref) => {
+}> = ({ value, onChange, disabled, options }) => {
   const token = useCurrentToken();
-  
-  // Use the unified wager adjustment hook for automatic clamping
-  const { 
-    minWager: calculatedMinWager, 
-    maxWager: calculatedMaxWager,
-    isValid,
-    poolExceeded
-  } = useWagerAdjustmentForControls(value, onChange, multiplier);
-  
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [shouldPulse, setShouldPulse] = useState(false);
-  
-  // Use provided limits or fall back to calculated ones
-  const effectiveMinWager = minWager ?? calculatedMinWager;
-  const effectiveMaxWager = maxWager ?? calculatedMaxWager;
   // Local input state so users can type leading zeros and decimals without the
   // parent value immediately clearing the field when it's 0.
   const displayValue = value / token.baseWager;
   const initial = displayValue === 0 ? '' : String(displayValue);
   const [inputValue, setInputValue] = useState<string>(initial);
   const focusedRef = useRef(false);
-
-  // Helper to convert wager amount to human-friendly display value
-  const toDisplayValue = (wagerAmount: number) => {
-    const rounded = roundToHumanFriendly(wagerAmount, token.baseWager);
-    return rounded / token.baseWager;
-  };
-
-  // Helper to check if a value is within min/max wager
-  const isWagerInRange = (wager: number) => {
-    return wager >= effectiveMinWager && wager <= effectiveMaxWager;
-  };
-
-  // Expose trigger function through ref
-  useImperativeHandle(ref, () => ({
-    triggerPulseIfInvalid: () => {
-      // Only pulse if auto-adjustment is disabled and wager is out of range
-      if (!FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT && !isWagerInRange(value)) {
-        setShouldPulse(true);
-        // Stop pulsing after 3 seconds
-        setTimeout(() => setShouldPulse(false), 3000);
-      }
-    }
-  }), [value, effectiveMinWager, effectiveMaxWager]);
 
   // Keep local input in sync when external value changes (only when not focused)
   useEffect(() => {
@@ -373,33 +119,11 @@ export const EnhancedWagerInput = forwardRef<EnhancedWagerInputRef, {
         const numericValue = parseFloat(v);
         if (!isNaN(numericValue)) {
           const wagerAmount = numericValue * token.baseWager;
-          // Only allow if in range
-          if (isWagerInRange(wagerAmount)) {
-            onChange(wagerAmount);
-          } else if (FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
-            // AUTO-ADJUSTMENT ENABLED: Clamp to min/max limits
-            if (wagerAmount < effectiveMinWager) {
-              // Auto-adjust to minimum
-              const minDisplayValue = toDisplayValue(effectiveMinWager);
-              setInputValue(minDisplayValue.toString());
-              onChange(effectiveMinWager);
-            } else if (wagerAmount > effectiveMaxWager) {
-              // Auto-adjust to maximum
-              const maxDisplayValue = toDisplayValue(effectiveMaxWager);
-              setInputValue(maxDisplayValue.toString());
-              onChange(effectiveMaxWager);
-            }
-          } else {
-            // AUTO-ADJUSTMENT DISABLED: Allow out-of-bounds values but don't call onChange
-            // The input will show the typed value but won't update the parent component
-            // This allows for validation feedback without auto-correction
-          }
+          onChange(wagerAmount);
         }
-      } else if (v === '' && FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
-        // empty means zero, but enforce minimum wager (only if auto-adjustment enabled)
-        const minDisplayValue = toDisplayValue(effectiveMinWager);
-        setInputValue(minDisplayValue.toString());
-        onChange(effectiveMinWager);
+      } else if (v === '') {
+        // empty means zero
+        onChange(0);
       }
     }
   };
@@ -407,249 +131,133 @@ export const EnhancedWagerInput = forwardRef<EnhancedWagerInputRef, {
   const handleFocus = () => { focusedRef.current = true; };
   const handleBlur = () => {
     focusedRef.current = false;
-    
-    if (FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
-      // AUTO-ADJUSTMENT ENABLED: Normalize and clamp values on blur
-      if (inputValue === '.' || inputValue === '') {
-        const minDisplayValue = toDisplayValue(effectiveMinWager);
-        setInputValue(minDisplayValue.toString());
-        onChange(effectiveMinWager);
-      } else {
-        // ensure the displayed value matches the parsed numeric value formatting
-        const numericValue = parseFloat(inputValue);
-        if (!isNaN(numericValue)) {
-          const wagerAmount = numericValue * token.baseWager;
-          // Clamp the wager amount within min/max limits
-          let clampedWager = wagerAmount;
-          if (wagerAmount < effectiveMinWager) clampedWager = effectiveMinWager;
-          if (wagerAmount > effectiveMaxWager) clampedWager = effectiveMaxWager;
-          const clampedDisplayValue = toDisplayValue(clampedWager);
-          setInputValue(clampedDisplayValue.toString());
-          onChange(clampedWager);
-        }
-      }
+    // normalize incomplete entries like '.' -> '0'
+    if (inputValue === '.' || inputValue === '') {
+      setInputValue(inputValue === '.' ? '0' : '');
+      onChange(0);
     } else {
-      // AUTO-ADJUSTMENT DISABLED: Only normalize formatting, don't clamp values
-      if (inputValue === '.' || inputValue === '') {
-        setInputValue('0');
-        // Don't call onChange for invalid values when auto-adjustment is disabled
-      } else {
-        const numericValue = parseFloat(inputValue);
-        if (!isNaN(numericValue)) {
-          const wagerAmount = numericValue * token.baseWager;
-          // Only update if the value is within valid range
-          if (isWagerInRange(wagerAmount)) {
-            const displayValue = toDisplayValue(wagerAmount);
-            setInputValue(displayValue.toString());
-            onChange(wagerAmount);
-          }
-          // If out of range and auto-adjustment disabled, keep the input as-is for validation feedback
-        }
+      // ensure the displayed value matches the parsed numeric value formatting
+      const numericValue = parseFloat(inputValue);
+      if (!isNaN(numericValue)) {
+        const formatted = String(numericValue);
+        setInputValue(formatted);
+        onChange(numericValue * token.baseWager);
       }
     }
   };
 
   return (
-    <>
-      <WagerInputContainer>
-        <StyledWagerInputWrapper>
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            disabled={disabled}
-            placeholder="0.00"
-          />
-          <div className="symbol">{token?.symbol ?? ''}</div>
-        </StyledWagerInputWrapper>
-        <DetailsButton 
-          $shouldPulse={shouldPulse} 
-          onClick={() => {
-            setShowDetailsModal(true);
-            // Stop pulsing when user clicks to view details
-            if (shouldPulse) setShouldPulse(false);
-          }}
-        >
-          i
-        </DetailsButton>
-      </WagerInputContainer>
-      
-      {showDetailsModal && (
-        <Modal onClose={() => setShowDetailsModal(false)}>
-          <WagerDetailsContent>
-            <WagerDetailsTitle>Wager Details</WagerDetailsTitle>
-            
-            <WagerDetailsSection>
-              <WagerDetailsLabel>USD Value</WagerDetailsLabel>
-              <WagerDetailsValue>
-                <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact showFullDetails />
-              </WagerDetailsValue>
-            </WagerDetailsSection>
-            
-            <WagerDetailsSection>
-              <WagerDetailsLabel>Bet Limits</WagerDetailsLabel>
-              <WagerDetailsValue style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                gap: '16px',
-                flexWrap: 'wrap'
-              }}>
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'flex-start',
-                  flex: 1
-                }}>
-                  <span style={{ 
-                    fontSize: '12px', 
-                    color: 'rgba(212, 165, 116, 0.7)', 
-                    fontWeight: 600,
-                    marginBottom: '4px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>Min</span>
-                  <span style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 700, 
-                    color: 'var(--love-letter-gold)'
-                  }}>
-                    {toDisplayValue(effectiveMinWager)} {token?.symbol}
-                  </span>
-                </div>
-                <div style={{ 
-                  width: '1px', 
-                  height: '40px', 
-                  background: 'linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.3), transparent)',
-                  alignSelf: 'stretch'
-                }}></div>
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'flex-end',
-                  flex: 1
-                }}>
-                  <span style={{ 
-                    fontSize: '12px', 
-                    color: 'rgba(212, 165, 116, 0.7)', 
-                    fontWeight: 600,
-                    marginBottom: '4px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>Max</span>
-                  <span style={{ 
-                    fontSize: '16px', 
-                    fontWeight: 700, 
-                    color: 'var(--love-letter-gold)'
-                  }}>
-                    {effectiveMaxWager === Infinity ? '∞' : toDisplayValue(effectiveMaxWager)} {token?.symbol}
-                  </span>
-                </div>
-              </WagerDetailsValue>
-            </WagerDetailsSection>
-          </WagerDetailsContent>
-        </Modal>
-      )}
-    </>
+    <WagerInputContainer>
+      <WagerLabel>Bet Amount</WagerLabel>
+      <StyledWagerInputWrapper>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          disabled={disabled}
+          placeholder="0.00"
+        />
+        <div className="symbol">{token?.symbol ?? ''}</div>
+      </StyledWagerInputWrapper>
+      <div style={{ marginTop: 8 }}>
+        {/* display live USD conversion (displayValue is token amount) */}
+        <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact />
+      </div>
+    </WagerInputContainer>
   );
-});
+};
 
-EnhancedWagerInput.displayName = 'EnhancedWagerInput';
-
-// Wrapper for GambaUi.Button with romantic styling
+// Wrapper for GambaUi.Button with enhanced styling
 const StyledButtonWrapper = styled.div<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   .gamba-button {
     all: unset;
     background: ${props => {
       switch (props.variant) {
         case 'primary':
-          return 'linear-gradient(135deg, var(--love-letter-gold) 0%, var(--deep-crimson-rose) 50%, var(--soft-purple-twilight) 100%)';
+          return 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)';
         case 'danger':
-          return 'linear-gradient(135deg, rgba(184, 51, 106, 0.9) 0%, rgba(139, 90, 158, 0.9) 100%)';
+          return 'linear-gradient(135deg, #ff4757 0%, #ff3742 100%)';
         default:
-          return 'linear-gradient(135deg, var(--soft-purple-twilight) 0%, var(--deep-crimson-rose) 50%, var(--love-letter-gold) 100%)';
+          return 'linear-gradient(135deg, #00ffe1 0%, #00d4aa 100%)';
       }
     }};
-    border: 1px solid ${props => {
+    border: 2px solid ${props => {
       switch (props.variant) {
         case 'primary':
-          return 'rgba(212, 165, 116, 0.5)';
+          return '#ffd700';
         case 'danger':
-          return 'rgba(184, 51, 106, 0.5)';
+          return '#ff4757';
         default:
-          return 'rgba(139, 90, 158, 0.5)';
+          return '#00ffe1';
       }
     }};
-    color: ${props => props.variant === 'primary' ? 'var(--deep-romantic-night)' : 'var(--love-letter-gold)'};
-    font-weight: 600;
-    font-size: clamp(12px, 2.5vw, 14px);
-    padding: 10px 16px;
-    border-radius: 12px;
+    color: ${props => props.variant === 'primary' ? '#000' : '#fff'};
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
     box-shadow: 
-      0 4px 12px ${props => {
+      0 2px 8px ${props => {
         switch (props.variant) {
           case 'primary':
-            return 'rgba(212, 165, 116, 0.3)';
+            return 'rgba(255, 215, 0, 0.3)';
           case 'danger':
-            return 'rgba(184, 51, 106, 0.3)';
+            return 'rgba(255, 71, 87, 0.3)';
           default:
-            return 'rgba(139, 90, 158, 0.3)';
+            return 'rgba(0, 255, 225, 0.3)';
         }
       }},
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    min-width: 60px;
-    text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(10, 5, 17, 0.3)' : '0 1px 2px rgba(10, 5, 17, 0.5)'};
+    min-width: 50px;
+    text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px) saturate(1.2);
-    font-family: 'DM Sans', sans-serif;
 
     &:hover:not(:disabled) {
-      transform: translateY(-2px) scale(1.05);
+      transform: translateY(-1px) scale(1.02);
       box-shadow: 
-        0 6px 20px ${props => {
+        0 4px 12px ${props => {
           switch (props.variant) {
             case 'primary':
-              return 'rgba(212, 165, 116, 0.4)';
+              return 'rgba(255, 215, 0, 0.4)';
             case 'danger':
-              return 'rgba(184, 51, 106, 0.4)';
+              return 'rgba(255, 71, 87, 0.4)';
             default:
-              return 'rgba(139, 90, 158, 0.4)';
+              return 'rgba(0, 255, 225, 0.4)';
           }
         }},
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
       border-color: ${props => {
         switch (props.variant) {
           case 'primary':
-            return 'rgba(212, 165, 116, 0.7)';
+            return '#ffe066';
           case 'danger':
-            return 'rgba(184, 51, 106, 0.7)';
+            return '#ff5975';
           default:
-            return 'rgba(139, 90, 158, 0.7)';
+            return '#33ffec';
         }
       }};
     }
 
     &:active:not(:disabled) {
-      transform: translateY(-1px) scale(1.02);
-      transition: all 0.2s ease;
+      transform: translateY(0) scale(0.98);
       box-shadow: 
-        0 3px 8px ${props => {
+        0 1px 4px ${props => {
           switch (props.variant) {
             case 'primary':
-              return 'rgba(212, 165, 116, 0.3)';
+              return 'rgba(255, 215, 0, 0.3)';
             case 'danger':
-              return 'rgba(184, 51, 106, 0.3)';
+              return 'rgba(255, 71, 87, 0.3)';
             default:
-              return 'rgba(139, 90, 158, 0.3)';
+              return 'rgba(0, 255, 225, 0.3)';
           }
         }},
-        inset 0 2px 4px rgba(10, 5, 17, 0.2);
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     &:disabled {
@@ -657,22 +265,9 @@ const StyledButtonWrapper = styled.div<{ variant?: 'primary' | 'secondary' | 'da
       cursor: not-allowed;
       transform: none;
       box-shadow: 
-        0 2px 6px rgba(10, 5, 17, 0.2),
+        0 1px 4px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
-
-    @media (max-width: 479px) {
-      padding: 8px 12px;
-      border-radius: 10px;
-      min-width: 50px;
-    }
-
-    @media (min-width: 768px) {
-      padding: 12px 18px;
-      border-radius: 14px;
-      min-width: 70px;
-    }
-  }
 
     @media (max-width: 800px) {
       font-size: 12px;
@@ -717,38 +312,31 @@ export const EnhancedButton: React.FC<{
   );
 };
 
-// Wrapper for GambaUi.PlayButton with romantic styling
+// Wrapper for GambaUi.PlayButton with enhanced styling
 const StyledPlayButtonWrapper = styled.div`
   .gamba-play-button {
     all: unset;
-    background: linear-gradient(
-      135deg, 
-      var(--deep-crimson-rose) 0%, 
-      var(--love-letter-gold) 50%, 
-      var(--soft-purple-twilight) 100%
-    );
-    border: 2px solid rgba(212, 165, 116, 0.6);
-    color: var(--deep-romantic-night);
-    font-weight: 700;
-    font-size: clamp(16px, 4vw, 18px);
-    padding: 16px 32px;
-    border-radius: 24px;
+    background: linear-gradient(135deg, #ff0066 0%, #ff3385 50%, #ffd700 100%);
+    border: 3px solid #ffd700;
+    color: #fff;
+    font-weight: 900;
+    font-size: 18px;
+    padding: 14px 28px;
+    border-radius: 50px;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     box-shadow: 
-      0 8px 24px rgba(212, 165, 116, 0.4),
-      0 4px 12px rgba(184, 51, 106, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    text-shadow: 0 1px 2px rgba(10, 5, 17, 0.3);
+      0 4px 20px rgba(255, 215, 0, 0.4),
+      0 2px 10px rgba(255, 0, 102, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px) saturate(1.2);
-    font-family: 'Libre Baskerville', serif;
 
     &::before {
       content: '';
@@ -757,23 +345,18 @@ const StyledPlayButtonWrapper = styled.div`
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(
-        90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.25), 
-        transparent
-      );
-      transition: left 0.6s ease;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
       z-index: 0;
     }
 
     &:hover:not(:disabled) {
-      transform: translateY(-3px) scale(1.08);
+      transform: translateY(-2px) scale(1.05);
       box-shadow: 
-        0 12px 36px rgba(212, 165, 116, 0.6),
-        0 6px 18px rgba(184, 51, 106, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      border-color: rgba(212, 165, 116, 0.8);
+        0 6px 30px rgba(255, 215, 0, 0.6),
+        0 4px 15px rgba(255, 0, 102, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      border-color: #ffe066;
 
       &::before {
         left: 100%;
@@ -781,12 +364,11 @@ const StyledPlayButtonWrapper = styled.div`
     }
 
     &:active:not(:disabled) {
-      transform: translateY(-1px) scale(1.05);
-      transition: all 0.2s ease;
+      transform: translateY(-1px) scale(1.02);
       box-shadow: 
-        0 6px 20px rgba(212, 165, 116, 0.5),
-        0 3px 10px rgba(184, 51, 106, 0.3),
-        inset 0 2px 4px rgba(10, 5, 17, 0.2);
+        0 4px 20px rgba(255, 215, 0, 0.5),
+        0 2px 10px rgba(255, 0, 102, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     &:disabled {
@@ -794,7 +376,7 @@ const StyledPlayButtonWrapper = styled.div`
       cursor: not-allowed;
       transform: none;
       box-shadow: 
-        0 4px 12px rgba(10, 5, 17, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
       
       &::before {
@@ -802,19 +384,10 @@ const StyledPlayButtonWrapper = styled.div`
       }
     }
 
-    @media (max-width: 479px) {
-      font-size: 14px;
+    @media (max-width: 800px) {
+      font-size: 16px;
       padding: 12px 24px;
-      border-radius: 18px;
-      border-width: 1px;
-      letter-spacing: 1px;
-    }
-
-    @media (min-width: 768px) {
-      font-size: 20px;
-      padding: 18px 36px;
-      border-radius: 28px;
-      letter-spacing: 1.5px;
+      border-width: 2px;
     }
   }
 `;
@@ -825,24 +398,27 @@ export const EnhancedPlayButton: React.FC<{
   disabled?: boolean;
   children: React.ReactNode;
   wager?: number; // Add wager prop for validation
-  wagerInputRef?: React.RefObject<EnhancedWagerInputRef>; // Add ref to wager input
-}> = ({ onClick, disabled, children, wager, wagerInputRef }) => {
+}> = ({ onClick, disabled, children, wager }) => {
   
   const handleClick = () => {
-    // First check if we should trigger the pulse (when auto-adjustment is disabled)
-    if (wagerInputRef?.current && !FEATURE_FLAGS.ENABLE_WAGER_AUTO_ADJUSTMENT) {
-      wagerInputRef.current.triggerPulseIfInvalid();
+    // Check wager validation first
+    if (wager !== undefined && wager <= 0) {
+      console.log('❌ BLOCKED: Cannot play with zero wager');
+      return;
     }
     
-    // If onClick is provided, call it
+    // If onClick is provided and wager is valid, call it
     if (onClick) {
       onClick();
     }
   };
-
+  
+  // Disable if explicitly disabled OR if wager is 0 or less
+  const isDisabled = disabled || (wager !== undefined && wager <= 0);
+  
   return (
     <StyledPlayButtonWrapper>
-      <GambaUi.PlayButton onClick={handleClick} disabled={disabled}>
+      <GambaUi.PlayButton onClick={handleClick} disabled={isDisabled}>
         {children}
       </GambaUi.PlayButton>
     </StyledPlayButtonWrapper>

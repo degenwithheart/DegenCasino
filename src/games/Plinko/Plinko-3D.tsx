@@ -1241,12 +1241,8 @@ export default function PlinkoRenderer2D() {
           </div>
         </MobileControls>
         
-        <DesktopControls
-          wager={wager}
-          setWager={setWager}
-          onPlay={() => play()}
-        >
-          <EnhancedWagerInput value={wager} onChange={setWager} multiplier={maxMultiplier} />
+        <DesktopControls>
+          <EnhancedWagerInput value={wager} onChange={setWager} />
           
           {/* Controls Container - EXACTLY like wager input */}
           <div style={{
