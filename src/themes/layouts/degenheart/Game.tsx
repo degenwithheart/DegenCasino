@@ -904,24 +904,6 @@ export default function Game() {
   const env = import.meta.env.GAMBA_ENV || import.meta.env.MODE || '';
   const isProd = env === 'production';
 
-  if (isProd && game.maintenance) {
-    return (
-      <ErrorScreen
-        type="503"
-        message="🛠️ This game is currently under maintenance. Please check back later!"
-      />
-    )
-  }
-
-  if (isProd && game.creating) {
-    return (
-      <ErrorScreen
-        type="1024"
-        message="🧪 This game is being added soon. Check back for new games!"
-      />
-    )
-  }
-
   return (
     <GambaUi.Game
       game={game}
@@ -935,7 +917,23 @@ export default function Game() {
       }
     >
       <ErrorBoundary>
-        <CustomRenderer />
+        {isProd && game.maintenance ? (
+          <GambaUi.Portal target="screen">
+            <ErrorScreen
+              type="503"
+              message="🛠️ This game is currently under maintenance. Please check back later!"
+            />
+          </GambaUi.Portal>
+        ) : isProd && game.creating ? (
+          <GambaUi.Portal target="screen">
+            <ErrorScreen
+              type="1024"
+              message="🧪 This game is being added soon. Check back for new games!"
+            />
+          </GambaUi.Portal>
+        ) : (
+          <CustomRenderer />
+        )}
       </ErrorBoundary>
     </GambaUi.Game>
   )
