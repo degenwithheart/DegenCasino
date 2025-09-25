@@ -172,7 +172,6 @@ const LogoText = styled.h1<{ $colorScheme: any }>`
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer 4s ease-in-out infinite;
   
   @keyframes shimmer {
     0%, 100% { background-position: 0% 50%; }

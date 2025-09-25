@@ -170,6 +170,7 @@ const Icon = {
 }
 import { GAMES } from '../../games'
 import { useUserStore } from '../../hooks/data/useUserStore'
+import { FEATURE_FLAGS } from '../../constants'
 import { GameSlider } from '../Dashboard/Dashboard'
 import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles'
 import { LoadingBar } from './LoadingBar'
@@ -967,7 +968,13 @@ export default function Game() {
   const env = import.meta.env.GAMBA_ENV || import.meta.env.MODE || '';
   const isProd = env === 'production';
 
-  if (isProd && game.maintenance) {
+  // Determine if games should be blocked based on feature flags
+  const shouldBlockMaintenance = FEATURE_FLAGS.BLOCK_MAINTENANCE_GAMES && 
+    (FEATURE_FLAGS.RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING ? isProd : true);
+  const shouldBlockCreating = FEATURE_FLAGS.BLOCK_CREATING_GAMES && 
+    (FEATURE_FLAGS.RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING ? isProd : true);
+
+  if (shouldBlockMaintenance && game.maintenance) {
     return (
       <ErrorScreen
         type="503"
@@ -976,7 +983,7 @@ export default function Game() {
     )
   }
 
-  if (isProd && game.creating) {
+  if (shouldBlockCreating && game.creating) {
     return (
       <ErrorScreen
         type="1024"
