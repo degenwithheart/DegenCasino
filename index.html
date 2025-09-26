@@ -45,9 +45,11 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module">
-      import * as buffer from 'buffer'
-      window.Buffer = buffer.Buffer
+    <script>
+      // Global buffer polyfill - must be available before any modules load
+      if (typeof global === 'undefined') {
+        var global = globalThis;
+      }
     </script>
     <script type="module" src="./src/index.tsx"></script>
   </body>

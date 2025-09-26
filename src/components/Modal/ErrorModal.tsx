@@ -1,92 +1,55 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import styled from 'styled-components';
 import { getErrorCode, getErrorMessageForCode } from "../../constants/errorCodes";
-import { useColorScheme } from '../../themes/ColorSchemeContext';
 
-const ModalOverlay = styled.div<{ $colorScheme?: any }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `${$colorScheme.colors.surface}65` : 'rgba(10, 20, 40, 0.65)'};
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(6px);
-  padding: 10vh 1rem 10vh 1rem; /* 10% from top and bottom */
-  box-sizing: border-box;
-`;
+const ModalOverlay: React.FC<{ children: React.ReactNode; onClick: () => void }> = ({ children, onClick }) => (
+  <div
+    onClick={onClick}
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(24, 24, 24, 0.95)',
+      zIndex: 3000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backdropFilter: 'blur(6px)',
+      padding: '2rem',
+      boxSizing: 'border-box'
+    }}
+  >
+    {children}
+  </div>
+);
 
-const ModalContent = styled.div<{ $colorScheme?: any }>`
-  background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(30, 34, 44, 0.92)'};
-  border-radius: 22px;
-  padding: 40px 32px 28px 32px;
-  min-width: 340px;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 8px 40px 0 rgba(0,0,0,0.55), 0 1.5px 0 rgba(255,255,255,0.04) inset'};
-  font-family: 'JetBrains Mono', 'Fira Mono', 'monospace';
-  color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#eaf6fb'};
-  position: relative;
-  border: 1.5px solid ${({ $colorScheme }) => $colorScheme?.colors?.border || 'rgba(255,255,255,0.08)'};
-  backdrop-filter: blur(12px);
-
-  @media (max-width: 600px) {
-    padding: 24px 20px 20px 20px;
-    min-width: 300px;
-    border-radius: 16px;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(0,0,0,0.10));
-  border: none;
-  color: #fff;
-  font-size: 1.6rem;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s, transform 0.18s;
-  &:hover {
-    background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(0,0,0,0.18));
-    transform: scale(1.08) rotate(8deg);
-  }
-`;
-
-const Title = styled.div`
-  font-weight: 700;
-  font-size: 1.45rem;
-  color: #ffe066;
-  margin-bottom: 18px;
-  letter-spacing: 0.01em;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.22);
-  text-align: center;
-`;
-
-const Pre = styled.pre`
-  margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.5;
-  color: #aee9ff;
-  font-size: 1.04rem;
-  background: rgba(0,0,0,0.10);
-  border-radius: 10px;
-  padding: 18px 14px 14px 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08) inset;
-  overflow-x: auto;
-`;
+const ModalContent: React.FC<{ children: React.ReactNode; onClick: (e: React.MouseEvent) => void }> = ({ children, onClick }) => (
+  <div
+    onClick={onClick}
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '60vh',
+      padding: '2rem',
+      textAlign: 'center',
+      color: '#ff6b7a',
+      backgroundColor: 'rgba(24, 24, 24, 0.95)',
+      borderRadius: '12px',
+      border: '1px solid rgba(255, 107, 122, 0.3)',
+      position: 'relative',
+      maxWidth: '500px',
+      width: '100%',
+      maxHeight: '80vh',
+      overflowY: 'auto'
+    }}
+  >
+    {children}
+  </div>
+);
 
 interface ErrorModalProps {
   open: boolean;
@@ -95,50 +58,131 @@ interface ErrorModalProps {
   error: Error;
 }
 
-// Safe hook that doesn't crash when context is not available
-function useSafeColorScheme() {
-  try {
-    return useColorScheme();
-  } catch (error) {
-    // Return a default color scheme if context is not available
-    return {
-      currentColorScheme: {
-        colors: {
-          surface: 'rgba(10, 20, 40)',
-          text: '#ffffff',
-          error: '#ef4444'
-        }
-      }
-    };
-  }
-}
-
 export const ErrorModal: React.FC<ErrorModalProps> = ({ open, onClose, title = 'App Error', error }) => {
   if (!open) return null;
   const stackOrMessage = error.stack || error.message;
   const errorCode = getErrorCode(stackOrMessage);
   const errorMessage = getErrorMessageForCode(errorCode);
   const isDev = import.meta.env.MODE !== 'production';
-  const { currentColorScheme } = useSafeColorScheme();
 
   return ReactDOM.createPortal(
-    <ModalOverlay onClick={onClose} $colorScheme={currentColorScheme}>
-      <ModalContent onClick={e => e.stopPropagation()} $colorScheme={currentColorScheme}>
-        <CloseButton onClick={onClose} aria-label="Close">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 5L15 15" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M15 5L5 15" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </CloseButton>
-        <Title>{title}</Title>
-        <div style={{textAlign: 'center', margin: '18px 0 10px', fontSize: '1.12rem', color: '#fff'}}>
-          {errorMessage}<br/>
-          <span style={{color: '#ffe066', fontWeight: 600}}>Error Code: {errorCode}</span>
+    <ModalOverlay onClick={onClose}>
+      <ModalContent onClick={e => e.stopPropagation()}>
+        <button 
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '18px',
+            right: '18px',
+            background: 'transparent',
+            border: 'none',
+            color: '#ff6b7a',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            borderRadius: '4px',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 107, 122, 0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+          aria-label="Close"
+        >
+          ×
+        </button>
+        
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+          <img 
+            src="/png/images/logo.png" 
+            alt="DegenHeart Casino" 
+            style={{ width: '60px', height: '60px', marginRight: '1rem' }}
+          />
+          <div style={{ fontSize: '4rem' }}>🚨</div>
         </div>
+        
+        <h2 style={{ marginBottom: '1rem', color: '#ff6b7a', fontSize: '1.5rem', fontWeight: 'bold' }}>
+          {title}
+        </h2>
+        
+        <p style={{ marginBottom: '1rem', maxWidth: '400px', lineHeight: '1.5', color: '#fff' }}>
+          {errorMessage}
+        </p>
+        
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ color: '#ff6b7a', fontWeight: '600' }}>Error Code: {errorCode}</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1rem' }}>
+          <button 
+            onClick={onClose}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: '#ff6b7a',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#ff5566';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = '#ff6b7a';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            Close
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'transparent',
+              color: '#ff6b7a',
+              border: '1px solid #ff6b7a',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 107, 122, 0.1)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+
         {isDev && (
-          <Pre>{stackOrMessage}</Pre>
+          <details style={{ marginTop: '2rem', textAlign: 'left', width: '100%', maxWidth: '500px' }}>
+            <summary style={{ cursor: 'pointer', color: '#ff6b7a', marginBottom: '0.5rem' }}>
+              Error Details (Dev Mode)
+            </summary>
+            <pre style={{ 
+              background: 'rgba(0, 0, 0, 0.5)', 
+              padding: '1rem', 
+              borderRadius: '4px', 
+              overflow: 'auto',
+              fontSize: '0.8rem',
+              color: '#ccc',
+              whiteSpace: 'pre-wrap',
+              lineHeight: '1.5'
+            }}>
+              {stackOrMessage}
+            </pre>
+          </details>
         )}
-        <p style={{ color: '#ffe066', textAlign: 'center', marginTop: 16 }}>Click outside or press Esc to dismiss.</p>
       </ModalContent>
     </ModalOverlay>,
     document.body

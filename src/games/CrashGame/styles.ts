@@ -123,7 +123,7 @@ export const MultiplierText = styled.div`
   font-family: monospace;
 `
 
-export const Rocket = styled.div`
+export const Rocket = styled.div<{ isExploding?: boolean; initialRotation?: number }>`
   position: absolute;
   width: 120px;
   aspect-ratio: 1 / 1;
@@ -131,5 +131,26 @@ export const Rocket = styled.div`
   background-size: contain;
   background-repeat: no-repeat;
   transition: all 0.1s ease-out;
+  
+  ${props => props.isExploding && css`
+    animation: ${rocketExplode} 0.3s ease-out forwards;
+    --initial-rotation: ${props.initialRotation || 0}deg;
+  `}
+`
+
+// Rocket fade out when exploding
+export const rocketExplode = keyframes`
+  0% {
+    transform: rotate(var(--initial-rotation)) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: rotate(var(--initial-rotation)) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(var(--initial-rotation)) scale(0.8);
+    opacity: 0;
+  }
 `
 

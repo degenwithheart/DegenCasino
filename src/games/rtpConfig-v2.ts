@@ -24,6 +24,7 @@ export const RTP_TARGETS_V2 = {
   'fancyvirtualhorseracing-v2': 0.95, // Fancy Virtual Horse Racing V2: 5% house edge
   'keno-v2': 0.95,        // Keno V2: 5% house edge
   'limbo-v2': 0.95,       // Limbo V2: 5% house edge
+  'crashgame': 0.96,      // Crash Game: 4% house edge
 } as const
 
 export type GameV2Key = keyof typeof RTP_TARGETS_V2
@@ -490,6 +491,45 @@ export const BET_ARRAYS_V2 = {
         const normalized = (resultIndex % BPS_PER_WHOLE) / BPS_PER_WHOLE
         return 1 + (normalized * (targetMultiplier - 1))
       }
+    }
+  },
+
+  'crashgame': {
+    OUTCOMES: 1000, // 1000 outcomes for fine-grained probability control
+    outcomes: Array.from({length: 1000}, (_, i) => i), // [0, 1, 2, ..., 999]
+    calculateBetArray: () => {
+      // Crash game with exponential rarity distribution
+      // 50% crash rate (no win), 50% win rate with exponential payouts
+      const TARGET_RTP = RTP_TARGETS_V2['crashgame']; // 0.96
+      
+      return Array(1000).fill(0).map((_, index) => {
+        // Exponential rarity distribution for crash game
+        if (index < 10) return 50.0 * TARGET_RTP   // 1% chance of 50x+ (rare jackpots)
+        if (index < 25) return 20.0 * TARGET_RTP   // 1.5% chance of 20x+
+        if (index < 50) return 10.0 * TARGET_RTP   // 2.5% chance of 10x+
+        if (index < 100) return 5.0 * TARGET_RTP   // 5% chance of 5x+
+        if (index < 180) return 3.0 * TARGET_RTP   // 8% chance of 3x+
+        if (index < 280) return 2.0 * TARGET_RTP   // 10% chance of 2x+
+        if (index < 400) return 1.5 * TARGET_RTP   // 12% chance of 1.5x+
+        if (index < 500) return 1.2 * TARGET_RTP   // 10% chance of 1.2x+
+        return 0  // 50% chance of crash (no win)
+      });
+    },
+    getCrashMultiplier: (outcomeIndex: number) => {
+      // Generate crash multiplier based on outcome for visual display
+      if (outcomeIndex >= 500) {
+        // This is a crash - generate a random multiplier between 1.0 and 1.19
+        const normalized = (outcomeIndex - 500) / 500; // 0 to 1
+        return 1.0 + (normalized * 0.19); // 1.0 to 1.19
+      }
+      // This is a win - return the actual payout multiplier
+      const betArray = BET_ARRAYS_V2['crashgame'].calculateBetArray();
+      return betArray[outcomeIndex] / RTP_TARGETS_V2['crashgame'];
+    },
+    outcomeToText: (outcome: number, multiplier: number) => {
+      return outcome >= 500 
+        ? `Rocket crashed at ${multiplier.toFixed(2)}x!`
+        : `Rocket reached ${multiplier.toFixed(2)}x!`;
     }
   },
 } as const

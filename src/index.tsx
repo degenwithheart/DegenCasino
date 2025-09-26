@@ -1,3 +1,9 @@
+// Buffer polyfill must be first
+import { Buffer } from 'buffer'
+globalThis.Buffer = Buffer
+globalThis.global = globalThis
+globalThis.process = globalThis.process || { env: {}, browser: true }
+
 import * as ReactRoot from 'react'
 console.log('🏷️ App React identity:', ReactRoot)
 

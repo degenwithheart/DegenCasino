@@ -315,15 +315,23 @@ const DiceV2Renderer2D: React.FC = () => {
               borderRadius: 'clamp(8px, 2vw, 12px)',
               transform: 'rotate(-15deg) perspective(100px) rotateX(15deg) rotateY(-15deg)',
               boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              color: '#fff',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gridTemplateRows: '1fr 1fr 1fr',
+              padding: 'clamp(8px, 2vw, 12px)',
               opacity: 0.7,
               pointerEvents: 'none'
             }}>
-              ⚃
+              {/* Dice 4 pattern - four corners */}
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
             </div>
             <div style={{
               position: 'absolute',
@@ -335,15 +343,23 @@ const DiceV2Renderer2D: React.FC = () => {
               borderRadius: 'clamp(8px, 2vw, 12px)',
               transform: 'rotate(15deg) perspective(100px) rotateX(15deg) rotateY(15deg)',
               boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              color: '#fff',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gridTemplateRows: '1fr 1fr 1fr',
+              padding: 'clamp(8px, 2vw, 12px)',
               opacity: 0.7,
               pointerEvents: 'none'
             }}>
-              ⚄
+              {/* Dice 5 pattern - four corners + center */}
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'center', alignSelf: 'center' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
             </div>
             <div style={{
               position: 'absolute',
@@ -355,15 +371,23 @@ const DiceV2Renderer2D: React.FC = () => {
               borderRadius: 'clamp(8px, 2vw, 12px)',
               transform: 'rotate(25deg) perspective(100px) rotateX(-15deg) rotateY(-25deg)',
               boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              color: '#fff',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gridTemplateRows: '1fr 1fr 1fr',
+              padding: 'clamp(8px, 2vw, 12px)',
               opacity: 0.7,
               pointerEvents: 'none'
             }}>
-              ⚂
+              {/* Dice 3 pattern - diagonal */}
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'center', alignSelf: 'center' }}></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
             </div>
             <div style={{
               position: 'absolute',
@@ -375,15 +399,23 @@ const DiceV2Renderer2D: React.FC = () => {
               borderRadius: 'clamp(8px, 2vw, 12px)',
               transform: 'rotate(-25deg) perspective(100px) rotateX(-15deg) rotateY(25deg)',
               boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              color: '#fff',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gridTemplateRows: '1fr 1fr 1fr',
+              padding: 'clamp(8px, 2vw, 12px)',
               opacity: 0.7,
               pointerEvents: 'none'
             }}>
-              ⚅
+              {/* Dice 6 pattern - two columns of three */}
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'center' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'center' }}></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
+              <div></div>
+              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
             </div>
           </div>
 

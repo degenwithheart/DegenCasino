@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import PriceIndicator from "../UI/PriceIndicator";
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
 import styled from 'styled-components';
 import { 
@@ -161,10 +160,6 @@ export const EnhancedWagerInput: React.FC<{
         />
         <div className="symbol">{token?.symbol ?? ''}</div>
       </StyledWagerInputWrapper>
-      <div style={{ marginTop: 8 }}>
-        {/* display live USD conversion (displayValue is token amount) */}
-        <PriceIndicator token={token} showRefresh={false} amount={displayValue} compact />
-      </div>
     </WagerInputContainer>
   );
 };

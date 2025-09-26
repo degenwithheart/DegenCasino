@@ -47,9 +47,11 @@ interface UnifiedThemeContextType {
 function createDefaultComponentRegistry() {
   return {
     components: {
-      // Add default components here if needed
+      Header: React.lazy(() => import('../sections/Header')),
+      Footer: React.lazy(() => import('../sections/Footer')),
     },
     sections: {
+      Game: React.lazy(() => import('../sections/Game/Game')),
       Header: React.lazy(() => import('../sections/Header')),
       Footer: React.lazy(() => import('../sections/Footer')),
       Dashboard: React.lazy(() => import('../sections/Dashboard/Dashboard')),

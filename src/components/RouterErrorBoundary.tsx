@@ -10,6 +10,7 @@ interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: any;
+  previousChildren?: ReactNode;
 }
 
 /**
@@ -37,11 +38,17 @@ class RouteErrorBoundary extends Component<Props, State> {
     }
   }
 
-  // Force retry when route changes
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.state.hasError && nextProps.children !== this.props.children) {
-      this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+    // Reset error state when children change (route change)
+    if (prevState.hasError && nextProps.children !== prevState.previousChildren) {
+      return {
+        hasError: false,
+        error: undefined,
+        errorInfo: undefined,
+        previousChildren: nextProps.children
+      };
     }
+    return { ...prevState, previousChildren: nextProps.children };
   }
 
   retry = () => {
@@ -65,7 +72,14 @@ class RouteErrorBoundary extends Component<Props, State> {
           margin: '2rem',
           border: '1px solid rgba(255, 107, 122, 0.3)'
         }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🚨</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+            <img 
+              src="/png/images/logo.png" 
+              alt="DegenHeart Casino" 
+              style={{ width: '60px', height: '60px', marginRight: '1rem' }}
+            />
+            <div style={{ fontSize: '4rem' }}>🚨</div>
+          </div>
           <h2 style={{ marginBottom: '1rem', color: '#ff6b7a' }}>Route Loading Failed</h2>
           <p style={{ marginBottom: '1.5rem', maxWidth: '400px', lineHeight: '1.5' }}>
             The page failed to load properly. This might be due to a temporary issue.

@@ -6,6 +6,7 @@ import { useTransactionError } from 'gamba-react-v2';
 import { Modal, TOSModal } from './components';
 import RouterErrorBoundary from './components/RouterErrorBoundary';
 import { RouteTransitionWrapper, RouteLoadingSpinner } from './components/RouteTransitionWrapper';
+import { ComprehensiveErrorBoundary, SafeSuspense, WindowErrorHandler } from './components/ErrorBoundaries';
 import { ENABLE_TROLLBOX } from './constants';
 import { useToast } from './hooks/ui/useToast';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
@@ -39,7 +40,7 @@ const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
-import { UnifiedThemeProvider, useTheme } from './themes/UnifiedThemeContext';
+import { useTheme } from './themes/UnifiedThemeContext';
 
 // Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
@@ -83,26 +84,26 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
             <DevnetWarning />
             <Routes>
               <Route path="/" element={<DashboardComponent />} />
-              <Route path="/jackpot" element={<Suspense fallback={<LoadingSpinner />}><JackpotPage /></Suspense>} />
-              <Route path="/bonus" element={<Suspense fallback={<LoadingSpinner />}><BonusPage /></Suspense>} />
-              <Route path="/leaderboard" element={<Suspense fallback={<LoadingSpinner />}><LeaderboardPage /></Suspense>} />
-              <Route path="/select-token" element={<Suspense fallback={<LoadingSpinner />}><SelectTokenPage /></Suspense>} />
-              <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsPage /></Suspense>} />
-              <Route path="/whitepaper" element={<Suspense fallback={<LoadingSpinner />}><Whitepaper /></Suspense>} />
-              <Route path="/credits" element={<Suspense fallback={<LoadingSpinner />}><Credits /></Suspense>} />
-              <Route path="/token" element={<Suspense fallback={<LoadingSpinner />}><DGHRTToken /></Suspense>} />
-              <Route path="/presale" element={<Suspense fallback={<LoadingSpinner />}><DGHRTPresale /></Suspense>} />
-              <Route path="/aboutme" element={<Suspense fallback={<LoadingSpinner />}><AboutMe /></Suspense>} />
-              <Route path="/audit" element={<Suspense fallback={<LoadingSpinner />}><FairnessAudit /></Suspense>} />
-              <Route path="/changelog" element={<Suspense fallback={<LoadingSpinner />}><ChangelogPage /></Suspense>} />
-              <Route path="/propagation" element={<Suspense fallback={<LoadingSpinner />}><Propagation /></Suspense>} />
-              <Route path="/admin" element={<Suspense fallback={<LoadingSpinner />}><AdminPage /></Suspense>} />
-              <Route path="/explorer" element={<ExplorerIndex />} />
-              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-              <Route path="/explorer/player/:address" element={<PlayerView />} />
-              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-              <Route path="/:wallet/profile" element={<Suspense fallback={<LoadingSpinner />}><UserProfile /></Suspense>} />
-              <Route path="/game/:wallet/:gameId" element={<Suspense fallback={<LoadingSpinner />}><GameComponent /></Suspense>} />
+              <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPage /></SafeSuspense>} />
+              <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPage /></SafeSuspense>} />
+              <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPage /></SafeSuspense>} />
+              <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPage /></SafeSuspense>} />
+              <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
+              <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
+              <Route path="/credits" element={<SafeSuspense level="route" componentName="Credits Page"><Credits /></SafeSuspense>} />
+              <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
+              <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
+              <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
+              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
+              <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
+              <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
+              <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/explorer" element={<ComprehensiveErrorBoundary level="route" componentName="Explorer"><ExplorerIndex /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/platform/:creator" element={<ComprehensiveErrorBoundary level="route" componentName="Platform View"><PlatformView /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/player/:address" element={<ComprehensiveErrorBoundary level="route" componentName="Player View"><PlayerView /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/transaction/:txId" element={<ComprehensiveErrorBoundary level="route" componentName="Transaction View"><Transaction /></ComprehensiveErrorBoundary>} />
+              <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
+              <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
             </Routes>
             {ENABLE_TROLLBOX && connected && <TrollBox />}
             </DegenHeartLayout>
@@ -124,31 +125,31 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
         {autoConnectAttempted && !connected && <WelcomeBanner />}
         <RouterErrorBoundary key={`default-${location.pathname}`}>
           <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
-            <Suspense fallback={<RouteLoadingSpinner />}>
+            <SafeSuspense level="route" componentName="Route Content">
               <Routes>
               <Route path="/" element={<DashboardComponent />} />
-              <Route path="/jackpot" element={<Suspense fallback={<LoadingSpinner />}><JackpotPage /></Suspense>} />
-              <Route path="/bonus" element={<Suspense fallback={<LoadingSpinner />}><BonusPage /></Suspense>} />
-              <Route path="/leaderboard" element={<Suspense fallback={<LoadingSpinner />}><LeaderboardPage /></Suspense>} />
-              <Route path="/select-token" element={<Suspense fallback={<LoadingSpinner />}><SelectTokenPage /></Suspense>} />
-              <Route path="/terms" element={<Suspense fallback={<LoadingSpinner />}><TermsPage /></Suspense>} />
-              <Route path="/whitepaper" element={<Suspense fallback={<LoadingSpinner />}><Whitepaper /></Suspense>} />
-              <Route path="/credits" element={<Suspense fallback={<LoadingSpinner />}><Credits /></Suspense>} />
-              <Route path="/token" element={<Suspense fallback={<LoadingSpinner />}><DGHRTToken /></Suspense>} />
-              <Route path="/presale" element={<Suspense fallback={<LoadingSpinner />}><DGHRTPresale /></Suspense>} />
-              <Route path="/aboutme" element={<Suspense fallback={<LoadingSpinner />}><AboutMe /></Suspense>} />
-              <Route path="/audit" element={<Suspense fallback={<LoadingSpinner />}><FairnessAudit /></Suspense>} />
-              <Route path="/changelog" element={<Suspense fallback={<LoadingSpinner />}><ChangelogPage /></Suspense>} />
-              <Route path="/propagation" element={<Suspense fallback={<LoadingSpinner />}><Propagation /></Suspense>} />
-              <Route path="/admin" element={<Suspense fallback={<LoadingSpinner />}><AdminPage /></Suspense>} />
-              <Route path="/explorer" element={<ExplorerIndex />} />
-              <Route path="/explorer/platform/:creator" element={<PlatformView />} />
-              <Route path="/explorer/player/:address" element={<PlayerView />} />
-              <Route path="/explorer/transaction/:txId" element={<Transaction />} />
-              <Route path="/:wallet/profile" element={<Suspense fallback={<LoadingSpinner />}><UserProfile /></Suspense>} />
-              <Route path="/game/:wallet/:gameId" element={<Suspense fallback={<RouteLoadingSpinner />}><GameComponent /></Suspense>} />
+              <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPage /></SafeSuspense>} />
+              <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPage /></SafeSuspense>} />
+              <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPage /></SafeSuspense>} />
+              <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPage /></SafeSuspense>} />
+              <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
+              <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
+              <Route path="/credits" element={<SafeSuspense level="route" componentName="Credits Page"><Credits /></SafeSuspense>} />
+              <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
+              <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
+              <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
+              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
+              <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
+              <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
+              <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/explorer" element={<ComprehensiveErrorBoundary level="route" componentName="Explorer"><ExplorerIndex /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/platform/:creator" element={<ComprehensiveErrorBoundary level="route" componentName="Platform View"><PlatformView /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/player/:address" element={<ComprehensiveErrorBoundary level="route" componentName="Player View"><PlayerView /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer/transaction/:txId" element={<ComprehensiveErrorBoundary level="route" componentName="Transaction View"><Transaction /></ComprehensiveErrorBoundary>} />
+              <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
+              <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
               </Routes>
-            </Suspense>
+            </SafeSuspense>
           </RouteTransitionWrapper>
         </RouterErrorBoundary>
       </MainContent>
@@ -396,7 +397,7 @@ export default function App() {
   }, []);
 
   return (
-    <UnifiedThemeProvider>
+    <ComprehensiveErrorBoundary level="app" componentName="DegenHeart Casino App">
       <GraphicsProvider>
         <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
           {showGamesModal && (
@@ -412,10 +413,11 @@ export default function App() {
         )}
         <ScrollToTop />
         <ErrorHandler />
+        <WindowErrorHandler />
         <AppContent autoConnectAttempted={autoConnectAttempted} />
         <CacheDebugWrapper />
       </GamesModalContext.Provider>
       </GraphicsProvider>
-    </UnifiedThemeProvider>
+    </ComprehensiveErrorBoundary>
   );
 }

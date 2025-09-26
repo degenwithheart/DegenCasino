@@ -12,7 +12,7 @@ import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapp
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { CRASH_CONFIG } from '../rtpConfig'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -34,8 +34,6 @@ export default function CrashGame() {
   const [finalMultiplier, setFinalMultiplier] = React.useState(0) // Where it actually crashed/won
   const [actualWinMultiplier, setActualWinMultiplier] = React.useState(0) // The real payout multiplier
   const [rocketState, setRocketState] = React.useState<'idle' | 'climbing' | 'win' | 'crash'>('idle')
-  const [rocketExploding, setRocketExploding] = React.useState(false) // Controls rocket explosion
-  const [rocketRotation, setRocketRotation] = React.useState(0) // Store rotation for explosion
   const game = GambaUi.useGame()
   const pool = useCurrentPool()
   const sound = useSound({ music: SOUND, crash: CRASH_SOUND, win: WIN_SOUND })
@@ -89,18 +87,6 @@ export default function CrashGame() {
     }
   }
 
-  // Helper function to calculate rotation for a given multiplier
-  const calculateRocketRotation = (multiplier: number) => {
-    const progress = Math.min(multiplier / maxPossibleMultiplier, 1)
-    const rotationProgress = Math.pow(progress, 2.3)
-    const startRotationDeg = 90
-    return (1 - rotationProgress) * startRotationDeg
-  }
-
-
-
-
-
   // Smooth climbing function that climbs until final multiplier
   const climbSmooth = (
     startMultiplier: number,
@@ -117,44 +103,22 @@ export default function CrashGame() {
     // Check if we've reached the final multiplier (win or crash point)
     if (nextValue >= finalMultiplier) {
       sound.sounds.music.player.stop()
+      sound.play(isWinner ? 'win' : 'crash')
+      setRocketState(isWinner ? 'win' : 'crash')
+      setFinalMultiplier(finalMultiplier)
+      setCurrentMultiplier(finalMultiplier)
       
+      // ✨ TRIGGER CRASH GAME EFFECTS
       if (isWinner) {
-        // WIN: Rocket reaches target safely
-        sound.play('win')
-        setRocketState('win')
-        setFinalMultiplier(finalMultiplier)
-        setCurrentMultiplier(finalMultiplier)
-        
         console.log(`🚀 CRASH WIN! Rocket reached ${finalMultiplier.toFixed(2)}x and won!`)
         effectsRef.current?.winFlash()
         effectsRef.current?.particleBurst(70, 30, undefined, 12)
         effectsRef.current?.screenShake(1, 600)
       } else {
-        // CRASH: Rocket explodes!
-        console.log(`💥 ROCKET EXPLODING at ${finalMultiplier.toFixed(2)}x`)
-        
-        // Calculate and store the rocket's rotation at crash point
-        const crashRotation = calculateRocketRotation(finalMultiplier)
-        setRocketRotation(crashRotation)
-        
-        // Trigger rocket explosion animation
-        setRocketExploding(true)
-        
-        // Play crash effects immediately
-        sound.play('crash')
-        setRocketState('crash')
-        setFinalMultiplier(finalMultiplier)
-        setCurrentMultiplier(finalMultiplier)
-        
         console.log(`💥 CRASH! Rocket exploded at ${finalMultiplier.toFixed(2)}x`)
         effectsRef.current?.loseFlash()
         effectsRef.current?.particleBurst(70, 30, undefined, 20)
         effectsRef.current?.screenShake(2, 800)
-        
-        // Reset explosion state after animation
-        setTimeout(() => {
-          setRocketExploding(false)
-        }, 1000)
       }
       return
     }
@@ -172,11 +136,18 @@ export default function CrashGame() {
     }
   )()
 
-  // Generate crash multiplier using RTP config
+  // Generate climbing crash multiplier based on random outcome
+  // This creates a distribution where most crashes happen early, but rare high multipliers are possible
   const generateCrashMultiplier = (randomValue: number) => {
-    // Convert random value to outcome index (0-999)
-    const outcomeIndex = Math.floor(randomValue * 1000)
-    return BET_ARRAYS_V2['crashgame'].getCrashMultiplier(outcomeIndex)
+    // Use exponential distribution for crash points
+    // Most games crash early (1.1x-2x), but some can reach much higher
+    const base = 1.0
+    const exponent = 3.5 // Higher = more early crashes
+    const maxReasonable = 50.0 // Cap at 50x for practical purposes
+    
+    // Transform uniform random (0-1) to exponential distribution
+    const result = base + Math.pow(1 - randomValue, exponent) * (maxReasonable - base)
+    return Math.max(1.01, parseFloat(result.toFixed(2))) // Minimum 1.01x
   }
 
 
@@ -191,11 +162,19 @@ export default function CrashGame() {
     setCurrentMultiplier(1.0)
     setFinalMultiplier(0)
     setActualWinMultiplier(0)
-    setRocketExploding(false) // Reset explosion state
-    setRocketRotation(0)
     
-    // Use centralized RTP configuration from rtpConfig-v2.ts
-    const bet = BET_ARRAYS_V2['crashgame'].calculateBetArray()
+    // Use a simplified bet array for climbing crash - we'll determine the multiplier from the result
+    const bet = Array(1000).fill(0).map((_, index) => {
+      // Create a distribution where payouts decrease exponentially
+      // This gives us the random crash points we need
+      if (index < 50) return 20.0 * 0.96   // 5% chance of 20x+ (with house edge)
+      if (index < 150) return 10.0 * 0.96  // 10% chance of 10x+
+      if (index < 300) return 5.0 * 0.96   // 15% chance of 5x+
+      if (index < 500) return 3.0 * 0.96   // 20% chance of 3x+
+      if (index < 700) return 2.0 * 0.96   // 20% chance of 2x+
+      if (index < 850) return 1.5 * 0.96   // 15% chance of 1.5x+
+      return 0  // 15% chance of crash before 1.5x
+    })
     
     await game.play({ wager, bet })
 
@@ -249,11 +228,7 @@ export default function CrashGame() {
             {currentMultiplier.toFixed(2)}x
           </MultiplierText>
           
-          <Rocket 
-            style={getRocketStyle()} 
-            isExploding={rocketExploding}
-            initialRotation={rocketRotation}
-          />
+          <Rocket style={getRocketStyle()} />
         </ScreenWrapper>
         <GameplayFrame 
           ref={effectsRef}

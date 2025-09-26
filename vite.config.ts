@@ -16,14 +16,20 @@ export default defineConfig(() => ({
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type','Authorization'],
     },
+    // Suppress sourcemap warnings in dev
+    sourcemapIgnoreList: (relativeSourcePath, sourcemapPath) => {
+      return relativeSourcePath.includes('node_modules') &&
+             (relativeSourcePath.includes('@solana') ||
+              relativeSourcePath.includes('superstruct'));
+    },
   },
   assetsInclude: ["**/*.glb"],
   define: {
     'process.env.ANCHOR_BROWSER': true,
-    'process.env.NODE_ENV': '"production"',
+    'process.env.GAMBA_ENV': '"development"',
     global: 'globalThis',
-    // Remove development-only code
-    __DEV__: false,
+    'process.env': '{}',
+    'process.browser': true,
   },
   resolve: {
     alias: {
@@ -31,6 +37,8 @@ export default defineConfig(() => ({
       crypto: 'crypto-browserify',
       stream: 'stream-browserify',
       util: 'util',
+      events: 'events',
+      'process/': 'process/',
     },
   },
   optimizeDeps: {
@@ -40,10 +48,21 @@ export default defineConfig(() => ({
       'buffer',
       'crypto-browserify',
       'stream-browserify',
-      'util'
+      'util',
+      'events',
+      'process',
+      '@solana/web3.js',
+      'gamba-core-v2',
+      'gamba-react-ui-v2',
+      'gamba-react-v2'
     ],
     esbuildOptions: { 
-      define: { global: 'globalThis' },
+      define: { 
+        global: 'globalThis',
+        'process.env': '{}',
+      },
+      // Disable sourcemaps for problematic packages
+      sourcemap: false
     }
   },
   build: {
@@ -54,9 +73,20 @@ export default defineConfig(() => ({
     sourcemap: false,
     esbuildOptions: {
       drop: ['console', 'debugger'],
+      sourcemap: false,
     },
     cssMinify: 'esbuild',
     rollupOptions: {
+      onwarn(warning, warn) {
+        // Suppress sourcemap warnings for known problematic packages
+        if (warning.code === 'SOURCEMAP_ERROR' && 
+            (warning.message.includes('@solana/buffer-layout') || 
+             warning.message.includes('superstruct') ||
+             warning.message.includes('@solana/web3.js'))) {
+          return;
+        }
+        warn(warning);
+      },
       output: {
         // More conservative chunking to avoid circular dependencies
         manualChunks: {
@@ -81,7 +111,30 @@ export default defineConfig(() => ({
     },
   },
   plugins: [
-    react({ jsxRuntime: 'automatic' }),
+    react({ 
+      jsxRuntime: 'automatic',
+      // Ensure proper refresh runtime handling
+      babel: {
+        plugins: []
+      }
+    }),
+    {
+      name: 'buffer-polyfill',
+      config(config, { command }) {
+        if (command === 'serve') {
+          config.define = config.define || {}
+          config.define.global = 'globalThis'
+        }
+      },
+      configureServer(server) {
+        server.middlewares.use('/', (req, res, next) => {
+          if (req.url && req.url.includes('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+          }
+          next();
+        });
+      }
+    },
     {
       name: 'ignore-api-routes',
       configureServer(server) {
