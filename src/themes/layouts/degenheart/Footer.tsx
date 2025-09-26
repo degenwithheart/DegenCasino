@@ -7,6 +7,7 @@ import { useDegenGamesModal } from './DegenHeartLayout'
 import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants'
 import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine } from 'react-icons/fa'
 import { media, spacing, components } from './breakpoints'
+import { ConnectionStatus } from './components'
 
 const FooterContainer = styled.footer<{ $colorScheme: any }>`
   width: 100%;
@@ -423,10 +424,7 @@ const Footer: React.FC = () => {
       </LeftSection>
 
       <RightSection>
-        <StatusText $colorScheme={currentColorScheme}>
-          <StatusDot $colorScheme={currentColorScheme} />
-          All Systems Operational
-        </StatusText>
+        <ConnectionStatus />
         
         <SocialLinks>
           <SocialLink

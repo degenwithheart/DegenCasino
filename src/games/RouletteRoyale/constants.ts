@@ -1,9 +1,24 @@
-export { default as SOUND_CHIP } from './chip.mp3'
+// Sound imports
+export { default as SOUND_WIN } from './win.mp3'
 export { default as SOUND_LOSE } from './lose.mp3'
 export { default as SOUND_PLAY } from './play.mp3'
-export { default as SOUND_WIN } from './win.mp3'
+export { default as SOUND_CHIP } from './chip.mp3'
 
-export const CHIPS = [1, 2, 10, 50]
+// Import RTP configuration
+import { ROULETTE_ROYALE_CONFIG } from '../rtpConfigMultiplayer'
+
+// Chip values for betting
+export const CHIPS = [
+  { value: 1, color: '#ffffff' },
+  { value: 5, color: '#ff4444' },
+  { value: 10, color: '#44ff44' },
+  { value: 25, color: '#4444ff' },
+  { value: 100, color: '#ffff44' },
+  { value: 500, color: '#ff44ff' }
+]
+
+// Export multiplayer config
+export const CONFIG = ROULETTE_ROYALE_CONFIG
 export const NUMBERS = 18
 export const NUMBER_COLUMNS = Math.ceil(NUMBERS / 3)
 

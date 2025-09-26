@@ -28,17 +28,10 @@ export default defineConfig(() => ({
     'process.env.ANCHOR_BROWSER': true,
     'process.env.GAMBA_ENV': '"development"',
     global: 'globalThis',
-    'process.env': '{}',
-    'process.browser': true,
   },
   resolve: {
     alias: {
       buffer: 'buffer',
-      crypto: 'crypto-browserify',
-      stream: 'stream-browserify',
-      util: 'util',
-      events: 'events',
-      'process/': 'process/',
     },
   },
   optimizeDeps: {

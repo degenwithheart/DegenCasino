@@ -24,6 +24,9 @@ export interface RateLimitConfig {
     enabled: boolean
     maxConcurrentPrefetches: number
     prefetchInterval: number
+    intelligentPrefetch: boolean
+    gameTransactionPrefetch: boolean
+    userPatternPrefetch: boolean
   }
   monitoring: {
     alertThresholds: {
@@ -181,7 +184,10 @@ export const rateLimitConfig: RateLimitConfig = {
   prefetchSettings: {
     enabled: true,
     maxConcurrentPrefetches: 5,
-    prefetchInterval: 30_000  // 30 seconds between prefetch cycles
+    prefetchInterval: 30_000,  // 30 seconds between prefetch cycles
+    intelligentPrefetch: true,  // Enable AI-driven prefetching
+    gameTransactionPrefetch: true,  // Prefetch game-related RPC calls
+    userPatternPrefetch: true  // Prefetch based on user behavior patterns
   },
 
   monitoring: {

@@ -13,6 +13,8 @@ import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
 import { useComponentPreloader } from './hooks/system/useComponentPreloader';
+import { useProgressiveLoadingManager } from './hooks/system/useProgressiveLoadingManager';
+import { ProgressiveLoadingProvider } from './hooks/system/useProgressiveLoading';
 import { useRouteChangeHandler, addRouteTransitionCSS } from './hooks/system/useRouteChangeHandler';
 import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
 // Lazy load non-critical pages
@@ -27,6 +29,7 @@ const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
 import Header from './sections/Header';
 import { AllGamesModal, TrollBox, Sidebar, Transaction, EmbeddedTransaction, PlayerView, CacheDebugWrapper, PlatformView, ExplorerIndex, GraphicsProvider } from './components';
+import { ProgressiveLoadingMonitor } from './components/Debug/ProgressiveLoadingMonitor';
 import Toasts from './sections/Toasts';
 import Footer from './sections/Footer';
 import styled from 'styled-components';
@@ -383,10 +386,11 @@ export default function App() {
     return () => window.removeEventListener('openGamesModal', handler);
   }, []);
 
-  // Initialize service worker and component preloader
+  // Initialize progressive loading system
   useServiceWorker();
   useComponentPreloader();
   useRouteChangeHandler();
+  const { preloadGameOnHover, getPerformanceStats, isProgressiveLoadingActive } = useProgressiveLoadingManager();
   
   useEffect(() => {
     // Preload critical assets for better performance
@@ -398,26 +402,29 @@ export default function App() {
 
   return (
     <ComprehensiveErrorBoundary level="app" componentName="DegenHeart Casino App">
-      <GraphicsProvider>
-        <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
-          {showGamesModal && (
-            <Modal onClose={() => setShowGamesModal(false)}>
-              <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
-            </Modal>
+      <ProgressiveLoadingProvider value={{ preloadGameOnHover, getPerformanceStats, isProgressiveLoadingActive }}>
+        <GraphicsProvider>
+          <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
+            {showGamesModal && (
+              <Modal onClose={() => setShowGamesModal(false)}>
+                <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
+              </Modal>
+            )}
+          {newcomer && (
+            <TOSModal 
+              onClose={() => set({ newcomer: false })}
+              onAccept={() => set({ newcomer: false })}
+            />
           )}
-        {newcomer && (
-          <TOSModal 
-            onClose={() => set({ newcomer: false })}
-            onAccept={() => set({ newcomer: false })}
-          />
-        )}
-        <ScrollToTop />
-        <ErrorHandler />
-        <WindowErrorHandler />
-        <AppContent autoConnectAttempted={autoConnectAttempted} />
-        <CacheDebugWrapper />
-      </GamesModalContext.Provider>
-      </GraphicsProvider>
+          <ScrollToTop />
+          <ErrorHandler />
+          <WindowErrorHandler />
+          <AppContent autoConnectAttempted={autoConnectAttempted} />
+          <CacheDebugWrapper />
+          <ProgressiveLoadingMonitor />
+        </GamesModalContext.Provider>
+        </GraphicsProvider>
+      </ProgressiveLoadingProvider>
     </ComprehensiveErrorBoundary>
   );
 }

@@ -3,20 +3,7 @@ import { useEffect } from 'react';
 // Service Worker registration and management
 export function useServiceWorker() {
   useEffect(() => {
-    // Skip service worker registration in development mode
-    if (import.meta.env.DEV) {
-      console.log('🚫 Service Worker registration skipped in development mode');
-      // Unregister any existing service workers that might be interfering
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          registrations.forEach((registration) => {
-            registration.unregister();
-            console.log('🧹 Unregistered existing service worker');
-          });
-        });
-      }
-      return;
-    }
+    // Service Worker is now always active in both dev and production
     
     if ('serviceWorker' in navigator) {
       // Register the service worker

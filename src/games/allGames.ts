@@ -72,16 +72,18 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./Flip-v2')),
   },
   {
-    id: 'roulette',
-    live: 'down',
+    id: 'roulette-royale',
+    live: 'new',
     meta: {
-      name: 'Roulette',
+      name: 'Roulette Royale',
       background: '#000000CC',
       image: '/webp/games/roulette.webp',
-      description: `The wheel of fortune spins with ancient wisdom, its numbered chambers holding the dreams and fears of countless souls. Each chip placed upon the green felt is a whispered prayer, a desperate hope cast into the cosmic dance of chance. Watch as the silver ball dances along the rim, bouncing between destiny and desire, until gravity claims it and fate reveals itself. This is not merely a game — it is a ritual of risk, where red and black become metaphors for life's eternal duality.`,
-      tag: 'Singleplayer',
+      description: `The sacred wheel transforms into a battlefield of minds and fortunes, where multiple souls converge around a single table of destiny. This is not the solitary dance of chance, but a multiplayer symphony where each bet placed echoes with the hopes of others. Watch as fellow players lay their chips beside yours, all bound by the same spinning fate, all dreaming of the same golden moment when the ball finds their chosen number. Here, victory is not just about beating the odds — it is about outlasting, outthinking, and outplaying every other soul brave enough to join your table. Winner takes all in this royal court of chance.`,
+      tag: 'Multiplayer',
+      rtp: 97,
+      maxWin: '35x'
     },
-    app: React.lazy(() => import('./Roulette')),
+    app: React.lazy(() => import('./RouletteRoyale')),
   },
   {
     id: 'hilo',

@@ -8,6 +8,7 @@ import RightSidebar from './RightSidebar'
 import MainContent from './MainContent'
 import { Modal } from './components/Modal'
 import AllGamesContentModal from './components/AllGamesContentModal'
+import { ConnectionStatusContent } from './components/ConnectionStatusContent'
 import { BonusContent, JackpotContent, ColorSchemeSelector } from '../../../components'
 import { LeaderboardsContent } from '../../../sections/LeaderBoard/LeaderboardsModal'
 import TokenSelect from '../../../sections/TokenSelect'
@@ -38,12 +39,14 @@ const DegenHeaderModalContext = createContext<{
   openLeaderboardModal: () => void;
   openThemeSelector: () => void;
   openTokenSelect: () => void;
+  openConnectionStatus: () => void;
 }>({
   openBonusModal: () => {},
   openJackpotModal: () => {},
   openLeaderboardModal: () => {},
   openThemeSelector: () => {},
-  openTokenSelect: () => {}
+  openTokenSelect: () => {},
+  openConnectionStatus: () => {}
 })
 
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
@@ -295,6 +298,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
   const [showTokenSelect, setShowTokenSelect] = useState(false)
+  const [showConnectionStatus, setShowConnectionStatus] = useState(false)
 
   const toggleLeftSidebar = () => {
     setLeftSidebarOpen(!leftSidebarOpen)
@@ -350,7 +354,8 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
         openJackpotModal: () => setShowJackpotModal(true),
         openLeaderboardModal: () => setShowLeaderboardModal(true),
         openThemeSelector: () => setShowThemeSelector(true),
-        openTokenSelect: () => setShowTokenSelect(true)
+        openTokenSelect: () => setShowTokenSelect(true),
+        openConnectionStatus: () => setShowConnectionStatus(true)
       }}>
       <LayoutContainer $colorScheme={currentColorScheme}>
         {/* Mobile backdrop */}
@@ -423,6 +428,14 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           <Modal variant="viewport" onClose={() => setShowTokenSelect(false)}>
             <div style={{ maxWidth: '500px', width: '100%' }}>
               <TokenSelect />
+            </div>
+          </Modal>
+        )}
+
+        {showConnectionStatus && (
+          <Modal variant="viewport" onClose={() => setShowConnectionStatus(false)}>
+            <div style={{ maxWidth: '600px', width: '100%' }}>
+              <ConnectionStatusContent />
             </div>
           </Modal>
         )}

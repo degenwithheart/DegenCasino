@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { StyledFeaturedGameCard } from './FeaturedGameCard.styles'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
+import { useProgressiveLoading } from '../../../hooks/system/useProgressiveLoading'
 import { FEATURED_GAMES } from '../../../games/featuredGames'
 import { GAME_CAPABILITIES } from '../../../constants'
 
@@ -12,6 +13,7 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   const navigate = useNavigate()
   const { publicKey } = useWallet()
   const { currentColorScheme } = useColorScheme()
+  const { onGameHover, onGameClick } = useProgressiveLoading()
 
   // Check if this game is actually featured
   const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id)
@@ -33,12 +35,18 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   const handleClick = () => {
     if (!publicKey) return
     const wallet = publicKey.toBase58()
+    onGameClick(game.id) // Track game click for analytics
     navigate(`/game/${wallet}/${game.id}`)
     if (onClick) onClick()
   }
 
   return (
-    <StyledFeaturedGameCard onClick={handleClick} $background={game.meta?.background} $colorScheme={currentColorScheme}>
+    <StyledFeaturedGameCard 
+      onClick={handleClick} 
+      $background={game.meta?.background} 
+      $colorScheme={currentColorScheme}
+      {...onGameHover(game.id)} // Add hover preloading
+    >
       <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
       
       {/* Featured badge - only show if this game is actually featured */}

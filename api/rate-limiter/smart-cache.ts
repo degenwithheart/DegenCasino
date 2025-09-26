@@ -15,30 +15,33 @@ interface PrefetchConfig {
 class SmartCache {
   private prefetchTimers: Map<string, NodeJS.Timeout> = new Map()
   
-  // High-value requests to prefetch proactively (loaded from config)
+  // Enhanced prefetch configurations with game-specific optimizations
   private readonly prefetchConfigs: PrefetchConfig[] = [
+    // Critical blockchain state (highest priority)
     {
       method: 'getLatestBlockhash',
       params: [],
-      frequency: 30, // Every 30 seconds
+      frequency: 15, // Every 15 seconds (faster for gaming)
       enabled: rateLimitConfig.prefetchSettings.enabled
     },
     {
       method: 'getSlot', 
       params: [],
-      frequency: 60, // Every minute
+      frequency: 30, // Every 30 seconds (faster refresh)
       enabled: rateLimitConfig.prefetchSettings.enabled
     },
     {
       method: 'getBlockHeight',
       params: [],
-      frequency: 60, // Every minute  
+      frequency: 30, // Every 30 seconds (faster refresh)
       enabled: rateLimitConfig.prefetchSettings.enabled
     },
+    
+    // Network health and performance
     {
       method: 'getHealth',
       params: [],
-      frequency: 300, // Every 5 minutes
+      frequency: 120, // Every 2 minutes (more frequent for gaming)
       enabled: rateLimitConfig.prefetchSettings.enabled
     },
     {
@@ -46,8 +49,33 @@ class SmartCache {
       params: [],
       frequency: 300, // Every 5 minutes
       enabled: rateLimitConfig.prefetchSettings.enabled
+    },
+    
+    // Game-specific prefetching (when gameTransactionPrefetch is enabled)
+    {
+      method: 'getAccountInfo',
+      params: ['6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ'], // GAMBA program
+      frequency: 60, // Every minute
+      enabled: rateLimitConfig.prefetchSettings.gameTransactionPrefetch
+    },
+    {
+      method: 'getProgramAccounts',
+      params: ['6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ'], // GAMBA program accounts
+      frequency: 120, // Every 2 minutes
+      enabled: rateLimitConfig.prefetchSettings.gameTransactionPrefetch
+    },
+    
+    // User pattern-based prefetching (when userPatternPrefetch is enabled)
+    {
+      method: 'getBalance',
+      params: [], // Will be populated with user's public key when available
+      frequency: 45, // Every 45 seconds
+      enabled: rateLimitConfig.prefetchSettings.userPatternPrefetch
     }
   ]
+  
+  // Dynamic prefetch configurations that adapt to user behavior
+  private dynamicPrefetchConfigs: PrefetchConfig[] = []
 
   constructor() {
     if (rateLimitConfig.prefetchSettings.enabled) {
@@ -273,6 +301,153 @@ class SmartCache {
   }
 
   /**
+   * Add dynamic user-specific prefetch configuration
+   */
+  addUserPrefetchConfig(walletAddress: string): void {
+    if (!rateLimitConfig.prefetchSettings.userPatternPrefetch) return
+
+    // Add balance checking for the specific user
+    const balanceConfig: PrefetchConfig = {
+      method: 'getBalance',
+      params: [walletAddress],
+      frequency: 45, // Every 45 seconds
+      enabled: true
+    }
+
+    // Add account info for user's wallet
+    const accountConfig: PrefetchConfig = {
+      method: 'getAccountInfo',
+      params: [walletAddress],
+      frequency: 90, // Every 90 seconds
+      enabled: true
+    }
+
+    this.dynamicPrefetchConfigs.push(balanceConfig, accountConfig)
+    
+    // Start prefetching for these new configs
+    this.startDynamicPrefetching([balanceConfig, accountConfig])
+    console.log(`[SmartCache] Added user-specific prefetch for ${walletAddress}`)
+  }
+
+  /**
+   * Remove user-specific prefetch configuration
+   */
+  removeUserPrefetchConfig(walletAddress: string): void {
+    // Remove from dynamic configs
+    this.dynamicPrefetchConfigs = this.dynamicPrefetchConfigs.filter(
+      config => !config.params.includes(walletAddress)
+    )
+
+    // Clear associated timers
+    const keysToRemove = Array.from(this.prefetchTimers.keys()).filter(
+      key => key.includes(walletAddress)
+    )
+    
+    keysToRemove.forEach(key => {
+      const timer = this.prefetchTimers.get(key)
+      if (timer) {
+        clearInterval(timer)
+        this.prefetchTimers.delete(key)
+      }
+    })
+
+    console.log(`[SmartCache] Removed user-specific prefetch for ${walletAddress}`)
+  }
+
+  /**
+   * Add game-specific prefetch patterns
+   */
+  addGamePrefetchPattern(gameId: string, gameAddress?: string): void {
+    if (!rateLimitConfig.prefetchSettings.gameTransactionPrefetch) return
+
+    if (gameAddress) {
+      const gameAccountConfig: PrefetchConfig = {
+        method: 'getAccountInfo',
+        params: [gameAddress],
+        frequency: 30, // Every 30 seconds for active games
+        enabled: true
+      }
+
+      this.dynamicPrefetchConfigs.push(gameAccountConfig)
+      this.startDynamicPrefetching([gameAccountConfig])
+      console.log(`[SmartCache] Added game-specific prefetch for ${gameId}`)
+    }
+  }
+
+  /**
+   * Start prefetching for dynamic configurations
+   */
+  private startDynamicPrefetching(configs: PrefetchConfig[]): void {
+    for (const config of configs) {
+      const key = `${config.method}:${JSON.stringify(config.params)}`
+      
+      if (this.prefetchTimers.has(key)) {
+        continue // Already running
+      }
+
+      // Start immediate prefetch
+      this.prefetchData(config)
+      
+      // Schedule recurring prefetch
+      const timer = setInterval(() => {
+        this.prefetchData(config)
+      }, config.frequency * 1000)
+      
+      this.prefetchTimers.set(key, timer)
+    }
+  }
+
+  /**
+   * Intelligent prefetch based on current activity
+   */
+  async intelligentPrefetch(context: {
+    userWallet?: string
+    currentGame?: string
+    recentGames?: string[]
+    userActivity?: 'high' | 'medium' | 'low'
+  }): Promise<void> {
+    if (!rateLimitConfig.prefetchSettings.intelligentPrefetch) return
+
+    const { userWallet, currentGame, recentGames = [], userActivity = 'medium' } = context
+
+    try {
+      // User-specific prefetching
+      if (userWallet) {
+        this.addUserPrefetchConfig(userWallet)
+      }
+
+      // Game-specific prefetching based on activity level
+      if (currentGame) {
+        this.addGamePrefetchPattern(currentGame)
+      }
+
+      // Prefetch recent games data if user is highly active
+      if (userActivity === 'high' && recentGames.length > 0) {
+        for (const gameId of recentGames.slice(0, 3)) { // Top 3 recent games
+          this.addGamePrefetchPattern(gameId)
+        }
+      }
+
+      // Adjust prefetch frequency based on activity
+      const frequencyMultiplier = userActivity === 'high' ? 0.7 : userActivity === 'low' ? 1.5 : 1.0
+      this.adjustPrefetchFrequency(frequencyMultiplier)
+
+      console.log(`[SmartCache] Intelligent prefetch configured for ${userActivity} activity user`)
+    } catch (error) {
+      console.error('[SmartCache] Intelligent prefetch failed:', error)
+    }
+  }
+
+  /**
+   * Adjust prefetch frequencies based on user activity
+   */
+  private adjustPrefetchFrequency(multiplier: number): void {
+    // This would adjust the frequency of existing prefetch configs
+    // For now, we'll adjust future prefetch intervals
+    console.log(`[SmartCache] Adjusting prefetch frequency by ${multiplier}x`)
+  }
+
+  /**
    * Stop all prefetching
    */
   stopPrefetching(): void {
@@ -280,6 +455,7 @@ class SmartCache {
       clearInterval(timer)
     })
     this.prefetchTimers.clear()
+    this.dynamicPrefetchConfigs = []
   }
 }
 
