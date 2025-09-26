@@ -6,6 +6,8 @@
   "lastUpdated": "2025-09-25",
   "scripts": {
     "dev": "vite",
+    "dev:edge": "vercel dev",
+    "dev:prod": "npm run build:compress && vercel dev --prod",
     "build": "vite build",
     "build:compress": "vite build && node scripts/compress-build.mjs",
     "build:analyze": "ANALYZE=true vite build",
@@ -87,7 +89,7 @@
     "vite-plugin-compression2": "^2.2.0"
   },
   "engines": {
-    "node": ">=20.12.0 <21"
+    "node": ">=20.12.0"
   },
   "overrides": {
     "trim-newlines": "^3.0.1",
@@ -98,7 +100,9 @@
     "undici": "^6.0.0",
     "path-to-regexp": "^6.3.0",
     "bigint-buffer": "^1.1.5",
-    "lodash.isequal": "^4.5.0",
+    "esbuild": "^0.25.10",
+    "lodash.isequal": "npm:lodash@^4.17.21",
+    "uuidv4": "npm:uuid@^10.0.0",
     "three-mesh-bvh": "^0.8.0",
     "@toruslabs/solana-embed": "^3.0.1"
   }
