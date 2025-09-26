@@ -63,8 +63,8 @@ export const FEATURE_FLAGS = {
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
   
   // Game Status Blocking Configuration
-  BLOCK_MAINTENANCE_GAMES: false, // Block access to games marked as 'down' (maintenance)
-  BLOCK_CREATING_GAMES: false, // Block access to games marked as 'new' (being created/added)
+  BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'down' (maintenance)
+  BLOCK_CREATING_GAMES: true, // Block access to games marked as 'new' (being created/added)
   RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING: true, // If true, only block in production. If false, block in all environments
 } as const
 

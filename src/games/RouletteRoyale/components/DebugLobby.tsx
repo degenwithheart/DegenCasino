@@ -289,11 +289,6 @@ function DebugLobby({ onGameSelect, onDebug, onBackToRealLobby }: LobbyProps) {
       {showCreateModal && (
         <CreateGameModal 
           onClose={() => setShowCreateModal(false)}
-          onCreate={() => {
-            setShowCreateModal(false)
-            // In debug mode, just start a debug game
-            onDebug()
-          }}
         />
       )}
     </>
