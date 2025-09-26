@@ -6,7 +6,6 @@ import { PublicKey } from '@solana/web3.js'
 const RouletteRoyaleLobby = React.lazy(() => import('./components/Lobby'))
 const RouletteRoyaleGame = React.lazy(() => import('./components/GameScreen'))
 const DebugGameScreen = React.lazy(() => import('./components/DebugGameScreen'))
-const DebugLobby = React.lazy(() => import('./components/DebugLobby'))
 
 const LoadingFallback = () => (
   <div style={{
@@ -30,21 +29,13 @@ export default function RouletteRoyaleWrapper() {
     maxWin: "35x"
   })
 
-  // Multiplayer game state
+  // Multiplayer game state - copied from PlinkoRace
   const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null)
   const [debugMode, setDebugMode] = useState(false)
-  const [showDebugLobby, setShowDebugLobby] = useState(false)
   
-  const handleBackToLobby = useCallback(() => {
+  const handleBack = useCallback(() => {
     setSelectedGame(null)
-    setDebugMode(false)
   }, [])
-
-  const handleToggleDebugLobby = useCallback(() => {
-    setShowDebugLobby(!showDebugLobby)
-    setSelectedGame(null)
-    setDebugMode(false)
-  }, [showDebugLobby])
 
   console.log('🎰 ROULETTE ROYALE COMPONENT LOADING...')
 
@@ -53,22 +44,16 @@ export default function RouletteRoyaleWrapper() {
       {seoHelmet}
       <Suspense fallback={<LoadingFallback />}>
         {debugMode ? (
-          <DebugGameScreen onBack={handleBackToLobby} />
+          <DebugGameScreen onBack={() => setDebugMode(false)} />
         ) : selectedGame ? (
           <RouletteRoyaleGame 
             gamePubkey={selectedGame} 
-            onBack={handleBackToLobby}
-          />
-        ) : showDebugLobby ? (
-          <DebugLobby
-            onGameSelect={setSelectedGame}
-            onDebug={() => setDebugMode(true)}
-            onBackToRealLobby={handleToggleDebugLobby}
+            onBack={handleBack}
           />
         ) : (
           <RouletteRoyaleLobby
             onGameSelect={setSelectedGame}
-            onDebug={handleToggleDebugLobby}
+            onDebug={() => setDebugMode(true)}
           />
         )}
       </Suspense>

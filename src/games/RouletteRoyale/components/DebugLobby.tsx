@@ -177,7 +177,7 @@ const DebugBadge = styled.div`
 const shorten = (pk: PublicKey) => pk.toBase58().slice(0, 4) + '...'
 
 interface LobbyProps {
-  onGameSelect: (pubkey: PublicKey) => void
+  onGameSelect: () => void
   onDebug: () => void
   onBackToRealLobby?: () => void
 }
@@ -223,9 +223,9 @@ function DebugLobby({ onGameSelect, onDebug, onBackToRealLobby }: LobbyProps) {
     setShowCreateModal(true)
   }
 
-  const handleGameSelect = (pubkey: PublicKey) => {
+  const handleGameSelect = () => {
     sounds.play('play')
-    onGameSelect(pubkey)
+    onGameSelect()
   }
 
   return (
@@ -261,7 +261,7 @@ function DebugLobby({ onGameSelect, onDebug, onBackToRealLobby }: LobbyProps) {
           {fakeGames.length > 0 ? (
             <GameGrid>
               {fakeGames.map((game) => (
-                <GameCard key={game.pubkey.toBase58()} onClick={() => handleGameSelect(game.pubkey)}>
+                <GameCard key={game.pubkey.toBase58()} onClick={handleGameSelect}>
                   <GameTitle>{game.account.name}</GameTitle>
                   <GameInfo>
                     <span>Creator: {shorten(game.account.creator)}</span>
