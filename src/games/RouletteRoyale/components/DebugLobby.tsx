@@ -179,6 +179,7 @@ const shorten = (pk: PublicKey) => pk.toBase58().slice(0, 4) + '...'
 interface LobbyProps {
   onGameSelect: (pubkey: PublicKey) => void
   onDebug: () => void
+  onBackToRealLobby?: () => void
 }
 
 // Generate fake games for debug mode
@@ -212,7 +213,7 @@ const generateFakeGames = () => {
   return games
 }
 
-function DebugLobby({ onGameSelect, onDebug }: LobbyProps) {
+function DebugLobby({ onGameSelect, onDebug, onBackToRealLobby }: LobbyProps) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [fakeGames] = useState(() => generateFakeGames())
   const sounds = useSound({ play: SOUND_PLAY })
@@ -247,6 +248,14 @@ function DebugLobby({ onGameSelect, onDebug }: LobbyProps) {
             <DebugButton onClick={onDebug}>
               🎮 Start Debug Game
             </DebugButton>
+            {onBackToRealLobby && (
+              <DebugButton 
+                onClick={onBackToRealLobby}
+                style={{ background: 'linear-gradient(45deg, #2196F3, #1976D2)' }}
+              >
+                🔙 Real Lobby
+              </DebugButton>
+            )}
           </ActionRow>
 
           {fakeGames.length > 0 ? (

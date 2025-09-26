@@ -6,6 +6,7 @@ import { PublicKey } from '@solana/web3.js'
 const RouletteRoyaleLobby = React.lazy(() => import('./components/Lobby'))
 const RouletteRoyaleGame = React.lazy(() => import('./components/GameScreen'))
 const DebugGameScreen = React.lazy(() => import('./components/DebugGameScreen'))
+const DebugLobby = React.lazy(() => import('./components/DebugLobby'))
 
 const LoadingFallback = () => (
   <div style={{
@@ -32,11 +33,18 @@ export default function RouletteRoyaleWrapper() {
   // Multiplayer game state
   const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null)
   const [debugMode, setDebugMode] = useState(false)
+  const [showDebugLobby, setShowDebugLobby] = useState(false)
   
   const handleBackToLobby = useCallback(() => {
     setSelectedGame(null)
     setDebugMode(false)
   }, [])
+
+  const handleToggleDebugLobby = useCallback(() => {
+    setShowDebugLobby(!showDebugLobby)
+    setSelectedGame(null)
+    setDebugMode(false)
+  }, [showDebugLobby])
 
   console.log('🎰 ROULETTE ROYALE COMPONENT LOADING...')
 
@@ -51,10 +59,16 @@ export default function RouletteRoyaleWrapper() {
             gamePubkey={selectedGame} 
             onBack={handleBackToLobby}
           />
+        ) : showDebugLobby ? (
+          <DebugLobby
+            onGameSelect={setSelectedGame}
+            onDebug={() => setDebugMode(true)}
+            onBackToRealLobby={handleToggleDebugLobby}
+          />
         ) : (
           <RouletteRoyaleLobby
             onGameSelect={setSelectedGame}
-            onDebug={() => setDebugMode(true)}
+            onDebug={handleToggleDebugLobby}
           />
         )}
       </Suspense>
