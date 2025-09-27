@@ -102,8 +102,7 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
   /* Game-specific scroll optimizations */
   .dice-results,
   .slot-reels,
-  .card-deck,
-  .roulette-history {
+  .card-deck {
     scroll-snap-type: x mandatory;
     scroll-snap-align: center;
     

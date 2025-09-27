@@ -213,11 +213,7 @@ const generateScenarioBetArrays = (gameKey: AllGameKeys): { scenario: string; be
     case 'progressivepoker':
       scenarios.push({ scenario: 'default', betArray: game.createWeightedBetArray() });
       break;
-    case 'roulette':
-      ['red', 'black', 'odd', 'even', 'low', 'high', 'dozen1', 'dozen2', 'dozen3', 'column1', 'column2', 'column3'].forEach(type => {
-        scenarios.push({ scenario: type, betArray: game.calculateBetArray(type) });
-      });
-      break;
+
     // V2 Games
     case 'dice-v2':
       // Test key percentiles for dice v2

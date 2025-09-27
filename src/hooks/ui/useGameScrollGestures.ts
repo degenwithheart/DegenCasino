@@ -336,14 +336,7 @@ export const usePlinkoScrollGestures = (options: Omit<GameScrollOptions, 'gameTy
   });
 };
 
-export const useRouletteScrollGestures = (options: Omit<GameScrollOptions, 'gameType'> = {}) => {
-  return useGameScrollGestures({
-    ...options,
-    gameType: 'roulette',
-    enableHorizontalScroll: true,
-    enableSnapScrolling: true,
-  });
-};
+
 
 export const useCardsScrollGestures = (options: Omit<GameScrollOptions, 'gameType'> = {}) => {
   return useGameScrollGestures({

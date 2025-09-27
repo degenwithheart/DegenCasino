@@ -78,7 +78,7 @@ import { PLINKO_CONFIG } from '../../games/rtpConfig'
 import { MINES_CONFIG } from '../../games/rtpConfig'
 import { HILO_CONFIG } from '../../games/rtpConfig'
 import { BLACKJACK_CONFIG } from '../../games/rtpConfig'
-import { ROULETTE_CONFIG } from '../../games/rtpConfig'
+
 import { generateBetArray as slotsBetArray } from '../../games/Slots/utils'
 import { getBetArray as getProgressivePokerBetArray } from '../../games/MultiPoker-v2/betArray'
 import { ALL_GAMES } from '../../games/allGames'
@@ -171,9 +171,6 @@ const getRealBetArrays = () => {
     
     // Progressive Poker - use actual game implementation with weighted probabilities
     progressivepoker: getProgressivePokerBetArray(),
-    
-    // Roulette - use actual game implementation (even-money bet example)
-    roulette: ROULETTE_CONFIG.calculateBetArray('red'),
   }
 }
 
@@ -221,7 +218,7 @@ export default function FairnessAudit() {
       { game: 'Plinko (Standard)', key: 'plinkoStd', targetRtp: 99, onChain: true, noLocalRng: true },
       { game: 'Plinko (Degen)', key: 'plinkoDegen', targetRtp: 98, onChain: true, noLocalRng: true },
       { game: 'Multi Poker', key: 'progressivepoker', targetRtp: 96, onChain: true, noLocalRng: true },
-      { game: 'Roulette', key: 'roulette', targetRtp: 97.3, onChain: true, noLocalRng: true },
+
     ]
 
     return games.map(game => {

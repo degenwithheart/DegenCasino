@@ -108,11 +108,6 @@ export const GAME_CAPABILITIES = {
     supports3D: true,
     default: '2D'
   },
-  'roulette': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
   'limbo': {
     supports2D: true,
     supports3D: false,

@@ -37,11 +37,6 @@ export const gameScrollConfigs = {
     enableMomentum: false,
     preventPullToRefresh: true,
   },
-  roulette: {
-    ...defaultScrollConfig,
-    enableHorizontalScroll: true,
-    enableSnapScrolling: true,
-  },
   cards: {
     ...defaultScrollConfig,
     enableSnapScrolling: true,

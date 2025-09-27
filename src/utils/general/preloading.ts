@@ -53,7 +53,7 @@ export function useCriticalPreloading() {
 // Prefetch the next likely resources
 export function prefetchNextResources() {
   // Prefetch commonly accessed games
-  const commonGames = ['plinko', 'blackjack', 'roulette'];
+  const commonGames = ['plinko', 'blackjack'];
   
   // Use requestIdleCallback if available
   if ('requestIdleCallback' in window) {
