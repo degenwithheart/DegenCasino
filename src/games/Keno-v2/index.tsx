@@ -539,11 +539,10 @@ export default function KenoGame({}: KenoGameProps) {
       </GambaUi.Portal>
       
       <GambaUi.Portal target="controls">
-        {isCompact ? (
+        {isMobile ? (
           <MobileControls
             wager={wager}
-            onWagerChange={setWager}
-            wagerDisabled={gameState !== GAME_STATES.IDLE}
+            setWager={setWager}
             onPlay={play}
             playDisabled={
               selectedNumbers.length === 0 || 

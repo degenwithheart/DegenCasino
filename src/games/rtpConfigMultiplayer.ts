@@ -76,6 +76,49 @@ export const SPEED_MINING_CONFIG = {
 } as const
 
 // ========================================
+// POKER SHOWDOWN CONFIGURATION  
+// ========================================
+export const POKER_SHOWDOWN_CONFIG = {
+  // Game setup
+  MAX_PLAYERS: 6,
+  MIN_PLAYERS: 2,
+  CARDS_PER_HAND: 5,
+  STRATEGY_TIME_SECONDS: 60,
+  
+  // Winner-takes-all hand multipliers
+  HAND_MULTIPLIERS: {
+    'ROYAL_FLUSH': 100.0,    // Ultimate hand
+    'STRAIGHT_FLUSH': 50.0,
+    'FOUR_KIND': 25.0,
+    'FULL_HOUSE': 15.0,
+    'FLUSH': 10.0,
+    'STRAIGHT': 8.0,
+    'THREE_KIND': 6.0,
+    'TWO_PAIR': 4.0,
+    'PAIR': 2.5,
+    'HIGH_CARD': 1.8,
+  },
+  
+  // Strategy effectiveness bonuses
+  STRATEGY_BONUS: {
+    OPTIMAL_PLAY: 1.15,      // 15% bonus for optimal strategy
+    GOOD_PLAY: 1.05,         // 5% bonus for good strategy
+    POOR_PLAY: 0.90,         // 10% penalty for poor strategy
+  },
+  
+  // Multiplayer settings
+  MIN_WAGER: 0.01,
+  MAX_WAGER_MULTIPLIER: 100,
+  
+  // Platform fees
+  PLATFORM_FEE_BPS: 400,    // 4%
+  CREATOR_FEE_BPS: 200,     // 2%
+  
+  // RTP: 94% (skill-adjusted with winner-takes-all)
+  EXPECTED_RTP: 0.94,
+} as const
+
+// ========================================
 // CARD DRAW SHOWDOWN CONFIGURATION  
 // ========================================
 export const CARD_SHOWDOWN_CONFIG = {
@@ -204,6 +247,25 @@ export function getSpeedMiningBetArray(
 }
 
 /**
+ * Get poker showdown bet array based on hand strength and player count
+ */
+export function getPokerShowdownBetArray(
+  winningHandRank: string,
+  playerCount: number,
+  isWinner: boolean
+): number[] {
+  const config = POKER_SHOWDOWN_CONFIG
+  const betArray = new Array(playerCount).fill(0)
+  
+  if (isWinner) {
+    const multiplier = config.HAND_MULTIPLIERS[winningHandRank as keyof typeof config.HAND_MULTIPLIERS] || 1.8
+    betArray[0] = multiplier // Winner takes all
+  }
+  
+  return betArray
+}
+
+/**
  * Get card showdown bet array based on hand strength
  */
 export function getCardShowdownBetArray(
@@ -227,5 +289,6 @@ export function getCardShowdownBetArray(
 // ========================================
 export type RouletteRoyaleConfig = typeof ROULETTE_ROYALE_CONFIG
 export type SpeedMiningConfig = typeof SPEED_MINING_CONFIG  
+export type PokerShowdownConfig = typeof POKER_SHOWDOWN_CONFIG
 export type CardShowdownConfig = typeof CARD_SHOWDOWN_CONFIG
 export type MultiplayerSharedConfig = typeof MULTIPLAYER_SHARED

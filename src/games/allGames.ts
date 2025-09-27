@@ -158,6 +158,20 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./MultiPoker-v2')),
   },
   {
+    id: 'poker-showdown',
+    live: 'new',
+    meta: {
+      name: 'Poker Showdown',
+      background: '#000000CC',
+      image: '/webp/games/multi-poker.webp', // Reusing multi-poker image for now
+      description: `Strategy meets destiny in this multiplayer arena where minds clash before cards are ever dealt. Choose your approach—conservative safety, balanced wisdom, or aggressive ambition—then watch as fate unfolds your predetermined path. This is not mere chance, but calculated risk made manifest, where every decision echoes through the digital felt. Five cards become your weapon, strategy your shield, and the pot your prize. Here, victory belongs not to the lucky, but to those who understand that in poker, as in life, the choices made before the battle often determine its outcome.`,
+      tag: 'Multiplayer',
+      rtp: 94,
+      maxWin: '600x'
+    },
+    app: React.lazy(() => import('./PokerShowdown')),
+  },
+  {
     id: 'cryptochartgame-v2',
     live: 'new',
     meta: {
