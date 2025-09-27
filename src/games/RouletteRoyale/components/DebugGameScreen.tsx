@@ -3,6 +3,10 @@ import { PublicKey, Keypair } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { GambaUi, useSound, TokenValue } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../../components'
+import { useIsCompact } from '../../../hooks/ui/useIsCompact'
+import { GameStatsHeader } from '../../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../../hooks/game/useGameStats'
 import RouletteTable from './RouletteTable'
 import RouletteWheel from './RouletteWheel'
 import PlayersList from './PlayersList'
@@ -141,41 +145,50 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
     chip: SOUND_CHIP
   })
   
-  const [gamePhase, setGamePhase] = useState<'waiting' | 'betting' | 'spinning' | 'results'>('waiting')
+  // Game statistics tracking
+  const gameStats = useGameStats('roulette-royale')
+  const { mobile: isMobile } = useIsCompact()
+  
+  const [gamePhase, setGamePhase] = useState<'wagering' | 'placing' | 'spinning' | 'outcome' | 'lobby'>('wagering')
   const [timeLeft, setTimeLeft] = useState(30)
   const [currentBets, setCurrentBets] = useState<any[]>([])
   const [winningNumber, setWinningNumber] = useState<number | null>(null)
-  const [hasJoined, setHasJoined] = useState(false)
+  const [hasCommitted, setHasCommitted] = useState(false)
+  const [wagerAmount, setWagerAmount] = useState(1000000) // Initial wager
   
   // Generate fake players
   const [fakePlayers] = useState(() => Array.from({ length: 3 }, (_, i) => generateFakePlayer(i)))
   
-  // Simulate multiplayer game phases
+    // Simulate 5-phase game
   useEffect(() => {
-    if (gamePhase === 'waiting') return
+    if (gamePhase === 'wagering') return // Wait for user to set wager and continue
     
-    let interval: NodeJS.Timeout
-    
-    if (gamePhase === 'betting' && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            setGamePhase('spinning')
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+    if (gamePhase === 'placing') {
+      // Start countdown for placing bets
+      let interval: NodeJS.Timeout
+      if (timeLeft > 0) {
+        interval = setInterval(() => {
+          setTimeLeft(prev => {
+            if (prev <= 1) {
+              setGamePhase('spinning')
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
+      }
+      return () => {
+        if (interval) clearInterval(interval)
+      }
     }
     
     if (gamePhase === 'spinning') {
-      // Simulate spinning for 3 seconds then show results
+      // Simulate spinning for 3 seconds then show outcome
       setTimeout(() => {
-        // Use deterministic result (no Math.random)
-        const seed = currentBets.length + fakePlayers.length + timeLeft
-        const randomWinningNumber = (seed * 13 + 7) % 37 // 0-36
+        // Use a more realistic random result (simulating gamba resultIndex)
+        const randomWinningNumber = Math.floor(Math.random() * 37) // 0-36
         setWinningNumber(randomWinningNumber)
-        setGamePhase('results')
+        setGamePhase('outcome')
         
         // Check for winners and play sounds
         const hasWinner = currentBets.some(bet => 
@@ -183,122 +196,251 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
         )
         sounds.play(hasWinner ? 'win' : 'lose')
         
-        // Return to waiting after 5 seconds
+        // Return to wagering after 5 seconds
         setTimeout(() => {
-          setGamePhase('waiting')
+          setGamePhase('wagering')
           setWinningNumber(null)
           setCurrentBets([])
           setTimeLeft(30)
-          setHasJoined(false)
+          setHasCommitted(false)
         }, 5000)
       }, 3000)
     }
-    
-    return () => {
-      if (interval) clearInterval(interval)
-    }
   }, [gamePhase, timeLeft, currentBets, sounds, fakePlayers])
   
-  const handleJoinGame = useCallback(() => {
-    if (hasJoined) return
-    
-    setHasJoined(true)
-    setGamePhase('betting')
+  const handleCommitWager = useCallback(() => {
+    if (hasCommitted) return
+    setHasCommitted(true)
+    setGamePhase('placing')
     sounds.play('play')
-  }, [hasJoined, sounds])
+  }, [hasCommitted, sounds])
   
   const handleBetPlaced = useCallback((betData: any) => {
-    if (gamePhase !== 'betting' || !hasJoined) return
-    
+    if (gamePhase !== 'placing' || !hasCommitted) return
     sounds.play('chip')
     setCurrentBets(prev => [...prev, { ...betData, player: publicKey }])
-  }, [gamePhase, hasJoined, publicKey, sounds])
+  }, [gamePhase, hasCommitted, publicKey, sounds])
+  
+  const handleWagerContinue = useCallback(() => {
+    setHasCommitted(true)
+    setGamePhase('placing')
+    sounds.play('play')
+  }, [sounds])
+  
+  const handleStartSpinning = useCallback(() => {
+    setGamePhase('spinning')
+    sounds.play('play')
+  }, [sounds])
   
   const getPhaseText = () => {
     switch (gamePhase) {
-      case 'waiting':
-        return 'Waiting for players...'
-      case 'betting':
+      case 'wagering':
+        return 'Set your wager amount...'
+      case 'placing':
         return `Place your bets! ${timeLeft}s`
       case 'spinning':
         return 'Spinning...'
-      case 'results':
+      case 'outcome':
         return `Winning number: ${winningNumber}`
+      case 'lobby':
+        return 'Returning to lobby...'
       default:
         return ''
     }
   }
   
-  // All players (fake + real player if joined)
+  // All players (fake + real player if committed)
   const allPlayers = [
     ...fakePlayers,
-    ...(hasJoined && publicKey ? [{ 
+    ...(hasCommitted && publicKey ? [{ 
       user: publicKey, 
       name: 'You', 
       status: 'joined' as const,
-      wager: 1000000 
+      wager: wagerAmount 
     }] : [])
   ]
   
   return (
-    <GambaUi.Portal target="screen">
-      <GameContainer>
-        <DebugBanner>
-          🧪 DEBUG MODE - Free Play with Fake Players 🧪
-        </DebugBanner>
-        
-        <Header>
-          <GameTitle>Roulette Royale (Debug)</GameTitle>
-          <GameStatus>
-            <span>{getPhaseText()}</span>
-            <BackButton onClick={onBack}>
-              ← Back to Lobby
-            </BackButton>
-          </GameStatus>
-        </Header>
-        
-        <GameContent>
-          <TableSection>
-            <RouletteTable 
-              gamePhase={gamePhase}
-              onBetPlaced={handleBetPlaced}
-              disabled={gamePhase !== 'betting' || !hasJoined}
-            />
-            
-            <BettingControls>
-              {gamePhase === 'waiting' && (
-                <GambaUi.Button 
-                  onClick={handleJoinGame}
-                  disabled={hasJoined}
-                >
-                  {hasJoined ? 'Joined!' : 'Join Game (Free)'}
-                </GambaUi.Button>
-              )}
-              
-              {gamePhase === 'betting' && hasJoined && (
-                <div style={{ color: '#ffd700' }}>
-                  Place your bets on the table above! Time left: {timeLeft}s
+    <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Roulette Royale"
+          gameMode="Debug"
+          rtp={(0.973 * 100).toFixed(0)}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
+      <GambaUi.Portal target="screen">
+        <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          background: 'radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, rgba(0, 0, 0, 0.9) 70%)'
+        }}>
+
+          <div style={{
+            position: 'absolute',
+            top: 'clamp(10px, 3vw, 20px)',
+            left: 'clamp(10px, 3vw, 20px)',
+            right: 'clamp(10px, 3vw, 20px)',
+            bottom: 'clamp(10px, 3vw, 20px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {/* Phase-based full screen content */}
+            {gamePhase === 'wagering' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '30px',
+                width: '100%',
+                maxWidth: '600px'
+              }}>
+                <h2 style={{ color: '#ffd700', margin: 0, fontSize: '2rem' }}>
+                  Set Your Wager
+                </h2>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.6)',
+                  borderRadius: '10px',
+                  padding: '15px',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  width: '100%'
+                }}>
+                  <PlayersList
+                    players={allPlayers}
+                    currentPlayer={publicKey}
+                    gameState={{ wagering: true }}
+                  />
                 </div>
-              )}
-            </BettingControls>
-          </TableSection>
-          
-          <WheelSection>
-            <RouletteWheel 
-              spinning={gamePhase === 'spinning'}
-              winningNumber={winningNumber}
-            />
-            
-            <PlayersSection>
-              <PlayersList 
-                players={allPlayers}
-                currentPlayer={publicKey}
-                gameState={{ [gamePhase]: true }}
-              />
-            </PlayersSection>
-          </WheelSection>
-        </GameContent>
-      </GameContainer>
-    </GambaUi.Portal>
+              </div>
+            )}
+
+            {gamePhase === 'placing' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '20px',
+                width: '100%',
+                height: '100%'
+              }}>
+                <div style={{
+                  color: '#ffd700',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  textAlign: 'center'
+                }}>
+                  Place Your Bets! Time left: {timeLeft}s
+                </div>
+                <RouletteTable
+                  gamePhase={gamePhase}
+                  onBetPlaced={handleBetPlaced}
+                  playerBets={currentBets}
+                  disabled={false}
+                />
+              </div>
+            )}
+
+            {gamePhase === 'spinning' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '30px',
+                width: '100%',
+                height: '100%'
+              }}>
+                <h2 style={{ color: '#ffd700', margin: 0, fontSize: '2rem' }}>
+                  Spinning...
+                </h2>
+                <RouletteWheel
+                  spinning={true}
+                  winningNumber={winningNumber}
+                />
+              </div>
+            )}
+
+            {gamePhase === 'outcome' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '30px',
+                width: '100%',
+                maxWidth: '600px'
+              }}>
+                <h2 style={{ color: '#ffd700', margin: 0, fontSize: '2rem' }}>
+                  Winning Number: {winningNumber}
+                </h2>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.6)',
+                  borderRadius: '10px',
+                  padding: '15px',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  width: '100%'
+                }}>
+                  <PlayersList
+                    players={allPlayers}
+                    currentPlayer={publicKey}
+                    gameState={{ outcome: true, winningNumber }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {gamePhase === 'lobby' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '30px'
+              }}>
+                <h2 style={{ color: '#ffd700', margin: 0, fontSize: '2rem' }}>
+                  Returning to Lobby...
+                </h2>
+                <BackButton onClick={onBack}>
+                  ← Back to Lobby
+                </BackButton>
+              </div>
+            )}
+          </div>
+        </div>
+      </GambaUi.Portal>
+
+      <GambaUi.Portal target="controls">
+        <MobileControls
+          wager={wagerAmount}
+          setWager={setWagerAmount}
+          onPlay={gamePhase === 'wagering' ? handleWagerContinue : handleStartSpinning}
+          playDisabled={gamePhase === 'wagering' ? false : gamePhase !== 'placing'}
+          playText={
+            gamePhase === 'wagering' ? "Continue to Betting" :
+            gamePhase === 'placing' ? "Start Spinning" :
+            "Waiting..."
+          }
+        />
+
+        <DesktopControls>
+          <EnhancedWagerInput value={wagerAmount} onChange={setWagerAmount} disabled={gamePhase !== 'wagering'} />
+          <EnhancedPlayButton 
+            disabled={gamePhase === 'wagering' ? false : gamePhase !== 'placing'}
+            onClick={gamePhase === 'wagering' ? handleWagerContinue : handleStartSpinning}
+          >
+            {gamePhase === 'wagering' ? "Continue to Betting" :
+             gamePhase === 'placing' ? "Start Spinning" :
+             "Waiting..."}
+          </EnhancedPlayButton>
+        </DesktopControls>
+      </GambaUi.Portal>
+    </>
   )
 }

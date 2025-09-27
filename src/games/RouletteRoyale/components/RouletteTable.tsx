@@ -13,17 +13,22 @@ const TableContainer = styled.div`
   padding: 20px;
   margin: 20px 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   position: relative;
   color: white;
+  max-width: 100%;
+  overflow-x: auto;
 `
 
 const NumberGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 2px;
-  margin: 10px 0;
+  margin: 10px;
+  flex: 1;
 `
 
 const NumberCell = styled.button<{ $color: 'red' | 'black' | 'green'; $hasBet?: boolean }>`
@@ -147,33 +152,44 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
         💰 Total Bets: {totalBetAmount} | Phase: {gamePhase}
       </BetInfo>
       
-      {/* Zero */}
-      <NumberCell
-        $color="green"
-        $hasBet={hasBetOnNumber(0)}
-        disabled={disabled}
-        onClick={() => handleNumberBet(0)}
-      >
-        0
-      </NumberCell>
+      {/* Left side: Zero and Numbers Grid */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+        {/* Zero */}
+        <NumberCell
+          $color="green"
+          $hasBet={hasBetOnNumber(0)}
+          disabled={disabled}
+          onClick={() => handleNumberBet(0)}
+          style={{ marginBottom: '10px', width: '60px', height: '50px' }}
+        >
+          0
+        </NumberCell>
 
-      {/* Numbers 1-36 */}
-      <NumberGrid>
-        {rouletteNumbers.map((number) => (
-          <NumberCell
-            key={number}
-            $color={getNumberColor(number)}
-            $hasBet={hasBetOnNumber(number)}
-            disabled={disabled}
-            onClick={() => handleNumberBet(number)}
-          >
-            {number}
-          </NumberCell>
-        ))}
-      </NumberGrid>
+        {/* Numbers 1-36 */}
+        <NumberGrid>
+          {rouletteNumbers.map((number) => (
+            <NumberCell
+              key={number}
+              $color={getNumberColor(number)}
+              $hasBet={hasBetOnNumber(number)}
+              disabled={disabled}
+              onClick={() => handleNumberBet(number)}
+            >
+              {number}
+            </NumberCell>
+          ))}
+        </NumberGrid>
+      </div>
 
-      {/* Outside Bets */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '15px' }}>
+      {/* Outside Bets - Vertical on the right */}
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '5px', 
+        marginLeft: '20px',
+        alignSelf: 'stretch',
+        justifyContent: 'center'
+      }}>
         <BetArea
           $hasBet={hasBetOnOutside('red')}
           disabled={disabled}

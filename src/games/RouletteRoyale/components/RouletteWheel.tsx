@@ -21,62 +21,70 @@ const WheelContainer = styled.div`
 
 const WheelOuter = styled.div`
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 300px;
+  height: 300px;
 `
 
-const Wheel = styled.div<{ $spinning?: boolean; $winningNumber?: number | null }>`
-  width: 250px;
-  height: 250px;
-  border: 8px solid #ffd700;
+const Wheel = styled.div<{ $spinning?: boolean; $winningNumber?: number | null; $finalRotation?: number }>`
+  width: 300px;
+  height: 300px;
+  border: 6px solid #b8860b;
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
-    #28a745 0deg 9.73deg,     /* 0 - Green */
-    #dc3545 9.73deg 19.46deg,   /* 32 - Red */
-    #343a40 19.46deg 29.19deg,  /* 15 - Black */
-    #dc3545 29.19deg 38.92deg,  /* 19 - Red */
-    #343a40 38.92deg 48.65deg,  /* 4 - Black */
-    #dc3545 48.65deg 58.38deg,  /* 21 - Red */
-    #343a40 58.38deg 68.11deg,  /* 2 - Black */
-    #dc3545 68.11deg 77.84deg,  /* 25 - Red */
-    #343a40 77.84deg 87.57deg,  /* 17 - Black */
-    #dc3545 87.57deg 97.30deg,  /* 34 - Red */
-    #343a40 97.30deg 107.03deg, /* 6 - Black */
-    #dc3545 107.03deg 116.76deg, /* 27 - Red */
-    #343a40 116.76deg 126.49deg, /* 13 - Black */
-    #dc3545 126.49deg 136.22deg, /* 36 - Red */
-    #343a40 136.22deg 145.95deg, /* 11 - Black */
-    #dc3545 145.95deg 155.68deg, /* 30 - Red */
-    #343a40 155.68deg 165.41deg, /* 8 - Black */
-    #dc3545 165.41deg 175.14deg, /* 23 - Red */
-    #343a40 175.14deg 184.87deg, /* 10 - Black */
-    #dc3545 184.87deg 194.60deg, /* 5 - Red */
-    #343a40 194.60deg 204.33deg, /* 24 - Black */
-    #dc3545 204.33deg 214.06deg, /* 16 - Red */
-    #343a40 214.06deg 223.79deg, /* 33 - Black */
-    #dc3545 223.79deg 233.52deg, /* 1 - Red */
-    #343a40 233.52deg 243.25deg, /* 20 - Black */
-    #dc3545 243.25deg 252.98deg, /* 14 - Red */
-    #343a40 252.98deg 262.71deg, /* 31 - Black */
-    #dc3545 262.71deg 272.44deg, /* 9 - Red */
-    #343a40 272.44deg 282.17deg, /* 22 - Black */
-    #dc3545 282.17deg 291.90deg, /* 18 - Red */
-    #343a40 291.90deg 301.63deg, /* 29 - Black */
-    #dc3545 301.63deg 311.36deg, /* 7 - Red */
-    #343a40 311.36deg 321.09deg, /* 28 - Black */
-    #dc3545 321.09deg 330.82deg, /* 12 - Red */
-    #343a40 330.82deg 340.55deg, /* 35 - Black */
-    #dc3545 340.55deg 350.28deg, /* 3 - Red */
-    #343a40 350.28deg 360deg     /* 26 - Black */
+    #228B22 0deg 9.73deg,     /* 0 - Forest Green */
+    #DC143C 9.73deg 19.46deg,   /* 32 - Crimson Red */
+    #000000 19.46deg 29.19deg,  /* 15 - Black */
+    #DC143C 29.19deg 38.92deg,  /* 19 - Crimson Red */
+    #000000 38.92deg 48.65deg,  /* 4 - Black */
+    #DC143C 48.65deg 58.38deg,  /* 21 - Crimson Red */
+    #000000 58.38deg 68.11deg,  /* 2 - Black */
+    #DC143C 68.11deg 77.84deg,  /* 25 - Crimson Red */
+    #000000 77.84deg 87.57deg,  /* 17 - Black */
+    #DC143C 87.57deg 97.30deg,  /* 34 - Crimson Red */
+    #000000 97.30deg 107.03deg, /* 6 - Black */
+    #DC143C 107.03deg 116.76deg, /* 27 - Crimson Red */
+    #000000 116.76deg 126.49deg, /* 13 - Black */
+    #DC143C 126.49deg 136.22deg, /* 36 - Crimson Red */
+    #000000 136.22deg 145.95deg, /* 11 - Black */
+    #DC143C 145.95deg 155.68deg, /* 30 - Crimson Red */
+    #000000 155.68deg 165.41deg, /* 8 - Black */
+    #DC143C 165.41deg 175.14deg, /* 23 - Crimson Red */
+    #000000 175.14deg 184.87deg, /* 10 - Black */
+    #DC143C 184.87deg 194.60deg, /* 5 - Crimson Red */
+    #000000 194.60deg 204.33deg, /* 24 - Black */
+    #DC143C 204.33deg 214.06deg, /* 16 - Crimson Red */
+    #000000 214.06deg 223.79deg, /* 33 - Black */
+    #DC143C 223.79deg 233.52deg, /* 1 - Crimson Red */
+    #000000 233.52deg 243.25deg, /* 20 - Black */
+    #DC143C 243.25deg 252.98deg, /* 14 - Crimson Red */
+    #000000 252.98deg 262.71deg, /* 31 - Black */
+    #DC143C 262.71deg 272.44deg, /* 9 - Crimson Red */
+    #000000 272.44deg 282.17deg, /* 22 - Black */
+    #DC143C 282.17deg 291.90deg, /* 18 - Crimson Red */
+    #000000 291.90deg 301.63deg, /* 29 - Black */
+    #DC143C 301.63deg 311.36deg, /* 7 - Crimson Red */
+    #000000 311.36deg 321.09deg, /* 28 - Black */
+    #DC143C 321.09deg 330.82deg, /* 12 - Crimson Red */
+    #000000 330.82deg 340.55deg, /* 35 - Black */
+    #DC143C 340.55deg 350.28deg, /* 3 - Crimson Red */
+    #000000 350.28deg 360deg     /* 26 - Black */
   );
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   animation: ${props => props.$spinning ? spin : 'none'} 3s ease-out;
-  ${props => props.$winningNumber !== null && `animation: ${glow} 2s infinite;`}
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  ${props => props.$winningNumber !== null && props.$finalRotation !== undefined && `
+    transform: rotate(${props.$finalRotation}deg);
+    animation: none;
+  `}
+  box-shadow: 
+    0 0 30px rgba(184, 134, 11, 0.6),
+    0 0 60px rgba(184, 134, 11, 0.3),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+  background-image: 
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
 `
 
 const WheelPointer = styled.div`
@@ -94,8 +102,8 @@ const WheelPointer = styled.div`
 `
 
 const WheelCenter = styled.div<{ $winningNumber?: number | null }>`
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   background: linear-gradient(45deg, #ffd700, #ffed4e);
   border: 4px solid #fff;
   border-radius: 50%;
@@ -104,9 +112,11 @@ const WheelCenter = styled.div<{ $winningNumber?: number | null }>`
   justify-content: center;
   font-weight: bold;
   color: #000;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   z-index: 5;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 0 20px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 215, 0, 0.3);
   ${props => props.$winningNumber !== null && `
     background: linear-gradient(45deg, #ff6b6b, #ffd700);
     animation: ${glow} 1s infinite;
@@ -149,7 +159,7 @@ const NumberLabel = styled.div<{ $number: number }>`
   transform-origin: center;
   ${props => {
     const angle = props.$number === 0 ? 0 : ((props.$number - 1) * 9.73) + 9.73;
-    const radius = 95;
+    const radius = 115;
     const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
     const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
     return `
@@ -170,6 +180,17 @@ interface RouletteWheelProps {
 const wheelNumbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
 
 export default function RouletteWheel({ spinning = false, winningNumber = null, gamePhase = 'waiting' }: RouletteWheelProps) {
+  // Calculate final rotation to position winning number at pointer (top)
+  const getFinalRotation = (number: number | null): number => {
+    if (number === null) return 0
+    const index = wheelNumbers.indexOf(number)
+    if (index === -1) return 0
+    // Each segment is 9.73 degrees, pointer is at top (0 degrees)
+    // We want the winning number to end up at 0 degrees (top)
+    return -(index * 9.73) + 360 // Add full rotation for visual effect
+  }
+
+  const finalRotation = getFinalRotation(winningNumber)
   const getWinningColor = (num: number | null): string => {
     if (num === null) return ''
     if (num === 0) return 'Green'
@@ -181,7 +202,7 @@ export default function RouletteWheel({ spinning = false, winningNumber = null, 
     <WheelContainer>
       <WheelOuter>
         <WheelPointer />
-        <Wheel $spinning={spinning} $winningNumber={winningNumber}>
+        <Wheel $spinning={spinning} $winningNumber={winningNumber} $finalRotation={finalRotation}>
           {/* Add number labels around the wheel */}
           {wheelNumbers.map((number, index) => (
             <NumberLabel key={number} $number={number}>

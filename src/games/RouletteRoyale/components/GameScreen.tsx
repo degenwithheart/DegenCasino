@@ -9,6 +9,10 @@ import {
   MULTIPLAYER_FEE_BPS,
   PLATFORM_REFERRAL_FEE,
 } from '../../../constants'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../../components'
+import { useIsCompact } from '../../../hooks/ui/useIsCompact'
+import { GameStatsHeader } from '../../../components/Game/GameStatsHeader'
+import { useGameStats } from '../../../hooks/game/useGameStats'
 import RouletteTable from './RouletteTable'
 import RouletteWheel from './RouletteWheel'
 import PlayersList from './PlayersList'
@@ -150,6 +154,10 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
     chip: SOUND_CHIP
   })
 
+  // Game statistics tracking
+  const gameStats = useGameStats('roulette-royale')
+  const { mobile: isMobile } = useIsCompact()
+
   // Game state
   const [gamePhase, setGamePhase] = useState<'waiting' | 'betting' | 'spinning' | 'results'>('waiting')
   const [timeLeft, setTimeLeft] = useState<number>(0)
@@ -239,89 +247,186 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
 
   return (
     <>
+      {/* Stats Portal - positioned above game screen */}
+      <GambaUi.Portal target="stats">
+        <GameStatsHeader
+          gameName="Roulette Royale"
+          gameMode="Multiplayer"
+          rtp={(0.973 * 100).toFixed(0)}
+          stats={gameStats.stats}
+          onReset={gameStats.resetStats}
+          isMobile={isMobile}
+        />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
-        <GameContainer>
-          {showWinnerAnnouncement && winner && (
-            <WinnerAnnouncement>
-              🎉 Winner: {winner.toBase58().slice(0, 8)}... 🎉
-              <br />
-              <small>Number: {winningNumber}</small>
-            </WinnerAnnouncement>
-          )}
+        <div style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          background: 'radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, rgba(0, 0, 0, 0.9) 70%)'
+        }}>
+          {/* Game Section - Player list and wheel transitions sharing space */}
+          <div style={{
+            position: 'absolute',
+            top: 'clamp(10px, 3vw, 20px)',
+            left: 'clamp(10px, 3vw, 20px)',
+            right: 'clamp(10px, 3vw, 20px)',
+            bottom: 'clamp(100px, 20vw, 120px)', // Space for GameControlsSection
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 'clamp(20px, 5vw, 30px)',
+            padding: '10px'
+          }}>
+            {showWinnerAnnouncement && winner && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'linear-gradient(45deg, #ffd700, #ff6b6b)',
+                padding: '30px',
+                borderRadius: '16px',
+                textAlign: 'center',
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                color: 'white',
+                zIndex: 1000,
+                animation: 'glowPulse 1s ease-in-out infinite',
+                boxShadow: '0 0 30px rgba(0, 0, 0, 0.5)'
+              }}>
+                🎉 Winner: {winner.toBase58().slice(0, 8)}... 🎉
+                <br />
+                <small>Number: {winningNumber}</small>
+              </div>
+            )}
 
-          <Header>
-            <div>
-              <GameTitle>🎰 Roulette Royale - Table {gamePubkey.toBase58().slice(0, 6)}</GameTitle>
-            </div>
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-              <GamePhase phase={gamePhase}>
-                {gamePhase === 'waiting' && '⏳ Waiting for Players'}
-                {gamePhase === 'betting' && '💰 Betting Open'}
-                {gamePhase === 'spinning' && '🎲 Spinning...'}
-                {gamePhase === 'results' && '🎊 Results'}
-              </GamePhase>
-              <BackButton onClick={onBack}>← Lobby</BackButton>
-            </div>
-          </Header>
-
-          {gamePhase === 'betting' && timeLeft > 0 && (
-            <Timer urgent={timeLeft <= 10}>
-              ⏰ Betting closes in: {formatTime(timeLeft)}
-            </Timer>
-          )}
-
-          <MainGameArea>
-            <TableArea>
-              <RouletteWheel 
-                spinning={gamePhase === 'spinning'}
-                winningNumber={winningNumber}
-              />
-              <RouletteTable
-                gamePhase={gamePhase}
-                onBetPlaced={(bet) => {
-                  sounds.play('chip')
-                  setMyBets(prev => [...prev, bet])
-                }}
-                disabled={gamePhase !== 'betting' || !isPlayerInGame}
-              />
-            </TableArea>
-            
-            <Sidebar>
-              <PlayersList 
-                players={chainGame.players}
-                currentPlayer={publicKey}
-                gameState={chainGame.state}
-              />
-              
-              {myBets.length > 0 && (
-                <div style={{ 
-                  background: 'rgba(0, 0, 0, 0.3)', 
-                  padding: '15px', 
-                  borderRadius: '8px',
-                  border: '2px solid rgba(255, 215, 0, 0.3)'
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '15px',
+              width: '100%'
+            }}>
+              <div>
+                <h2 style={{ color: '#ffd700', margin: 0, fontSize: '1.5rem' }}>
+                  🎰 Roulette Royale - Table {gamePubkey.toBase58().slice(0, 6)}
+                </h2>
+              </div>
+              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <div style={{
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontWeight: 'bold',
+                  fontSize: '0.9rem',
+                  textAlign: 'center',
+                  animation: gamePhase === 'betting' ? 'glowPulse 2s ease-in-out infinite' : 'none',
+                  background: gamePhase === 'betting' ? 'linear-gradient(45deg, #4caf50, #45a049)' :
+                             gamePhase === 'spinning' ? 'linear-gradient(45deg, #ff9800, #f57c00)' :
+                             gamePhase === 'results' ? 'linear-gradient(45deg, #2196f3, #1976d2)' :
+                             'rgba(255, 255, 255, 0.2)'
                 }}>
-                  <h4 style={{ color: '#ffd700', margin: '0 0 10px 0' }}>My Bets</h4>
-                  {myBets.map((bet, i) => (
-                    <div key={i} style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      marginBottom: '5px'
-                    }}>
-                      <span>{bet.type}</span>
-                      <TokenValue amount={bet.amount} />
-                    </div>
-                  ))}
+                  {gamePhase === 'waiting' && '⏳ Waiting for Players'}
+                  {gamePhase === 'betting' && '💰 Betting Open'}
+                  {gamePhase === 'spinning' && '🎲 Spinning...'}
+                  {gamePhase === 'results' && '🎊 Results'}
+                </div>
+                <BackButton onClick={onBack}>← Lobby</BackButton>
+              </div>
+            </div>
+
+            {gamePhase === 'betting' && timeLeft > 0 && (
+              <div style={{
+                textAlign: 'center',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                color: timeLeft <= 10 ? '#ff6b6b' : '#ffd700',
+                padding: '10px',
+                border: `2px solid ${timeLeft <= 10 ? '#ff6b6b' : '#ffd700'}`,
+                borderRadius: '8px',
+                background: 'rgba(0, 0, 0, 0.3)'
+              }}>
+                ⏰ Betting closes in: {formatTime(timeLeft)}
+              </div>
+            )}
+
+            {/* Player List and Wheel share this space - transitions between phases */}
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%'
+            }}>
+              {gamePhase === 'spinning' ? (
+                <RouletteWheel
+                  spinning={true}
+                  winningNumber={winningNumber}
+                />
+              ) : (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  border: '2px solid rgba(255, 215, 0, 0.3)',
+                  width: '100%',
+                  maxWidth: '600px'
+                }}>
+                  <PlayersList
+                    players={chainGame.players}
+                    currentPlayer={publicKey}
+                    gameState={chainGame.state}
+                  />
                 </div>
               )}
-            </Sidebar>
-          </MainGameArea>
-        </GameContainer>
+            </div>
+
+            {myBets.length > 0 && (
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.3)',
+                padding: '15px',
+                borderRadius: '8px',
+                border: '2px solid rgba(255, 215, 0, 0.3)',
+                width: '100%',
+                maxWidth: '600px'
+              }}>
+                <h4 style={{ color: '#ffd700', margin: '0 0 10px 0' }}>My Bets</h4>
+                {myBets.map((bet, i) => (
+                  <div key={i} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '5px'
+                  }}>
+                    <span>{bet.type}</span>
+                    <TokenValue amount={bet.amount} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* GameControlsSection - Table replaces the controls */}
+          <GameControlsSection>
+            <RouletteTable
+              gamePhase={gamePhase}
+              onBetPlaced={(bet) => {
+                sounds.play('chip')
+                setMyBets(prev => [...prev, bet])
+              }}
+              disabled={gamePhase !== 'betting' || !isPlayerInGame}
+            />
+          </GameControlsSection>
+        </div>
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
           gap: '15px',
           padding: '15px',
           flexWrap: 'wrap'
@@ -337,7 +442,7 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
               onTx={() => sounds.play('play')}
             />
           )}
-          
+
           {isPlayerInGame && gamePhase === 'waiting' && (
             <Multiplayer.EditBet
               pubkey={gamePubkey}
