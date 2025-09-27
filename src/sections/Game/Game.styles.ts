@@ -194,16 +194,7 @@ export const IconButton = styled.button`
     transform: scale(0.98);
     box-shadow: 0 1px 6px #ffd70066;
   }
-  
-  /* Hide the play button portal on mobile and tablets since games have their own play buttons */
-  &.play-button-portal {
-    display: none;
-    
-    /* Show on large tablets/small laptops and up */
-    @media (min-width: 900px) {
-      display: flex;
-    }
-  }
+
 `;
 
 export const StyledLoadingIndicator = styled.div<{$active: boolean}>`

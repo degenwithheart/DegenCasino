@@ -102,7 +102,9 @@ const ButtonGroup = styled.div`
   margin-top: 25px;
 `
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const Button = styled.button.withConfig({
+  shouldForwardProp: (prop) => !['variant'].includes(prop)
+})<{ variant?: 'primary' | 'secondary' }>`
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -167,11 +169,11 @@ const InfoText = styled.p`
   line-height: 1.4;
 `
 
-interface CreateGameModalProps {
+interface CreateMultiplayerGameModalProps {
   onClose: () => void
 }
 
-export default function CreateGameModal({ onClose }: CreateGameModalProps) {
+export default function CreateMultiplayerGameModal({ onClose }: CreateMultiplayerGameModalProps) {
   const { publicKey } = useWallet()
   const { createGame } = useMultiplayer()
   const token = useCurrentToken()
@@ -241,10 +243,10 @@ export default function CreateGameModal({ onClose }: CreateGameModalProps) {
         >
           <CloseButton onClick={onClose}>×</CloseButton>
           
-          <Title>🎰 Create New Roulette Table</Title>
+          <Title>🎰 Create Multiplayer Table</Title>
           
           <InfoText>
-            Create your own roulette table and invite other players to join. 
+            Create your own roulette table for multiplayer vs real players. 
             Winner takes the entire prize pool!
           </InfoText>
 

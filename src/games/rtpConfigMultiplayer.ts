@@ -24,7 +24,7 @@ export const ROULETTE_ROYALE_CONFIG = {
   
   // Multiplayer specific settings
   MAX_PLAYERS: 4,
-  CHIPS_PER_PLAYER: 1,  // Number of chips each player can place
+  CHIPS_PER_PLAYER: 5,  // Number of chips each player can place
   BETTING_TIME_SECONDS: 45,
   MIN_WAGER: 0.01,
   MAX_WAGER_MULTIPLIER: 100, // Max wager = min_wager * this

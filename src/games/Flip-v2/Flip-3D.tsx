@@ -3,7 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -305,11 +305,12 @@ export default function FlipV2_3D() {
           playText={getPlayText()}
         />
         
-        <DesktopControls>
+        <DesktopControls
+          onPlay={getPlayAction()}
+          playDisabled={true}
+          playText={getPlayText()}
+        >
           <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
-          <EnhancedPlayButton disabled={true} onClick={getPlayAction()}>
-            {getPlayText()}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

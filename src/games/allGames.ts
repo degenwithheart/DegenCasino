@@ -73,7 +73,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'roulette-royale',
-    live: 'new',
+    live: 'up',
     meta: {
       name: 'Roulette Royale',
       background: '#000000CC',

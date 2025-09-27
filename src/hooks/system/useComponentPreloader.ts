@@ -58,7 +58,7 @@ export function useComponentPreloader() {
         setTimeout(async () => {
           try {
             // Import the game component
-            const gameModule = await import(`../../games/${game.id.replace('-v2', '').replace('magic8ball', 'Magic8Ball')}`);
+            const gameModule = await import(/* @vite-ignore */ `../../games/${game.id.replace('-v2', '').replace('magic8ball', 'Magic8Ball')}`);
             preloadedGames.current.add(game.id);
             console.log(`🎮 Preloaded critical game: ${game.id}`);
             
@@ -85,7 +85,7 @@ export function useComponentPreloader() {
           try {
             // Only preload if not already loaded
             if (!preloadedGames.current.has(game.id)) {
-              const gameModule = await import(`../../games/${game.id.replace('-v2', '').replace('hilo', 'HiLo')}`);
+              const gameModule = await import(/* @vite-ignore */ `../../games/${game.id.replace('-v2', '').replace('hilo', 'HiLo')}`);
               preloadedGames.current.add(game.id);
               console.log(`🎮 Preloaded high priority game: ${game.id}`);
             }

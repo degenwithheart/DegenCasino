@@ -66,9 +66,6 @@ export const FullscreenPortal: React.FC<FullscreenPortalProps> = ({ onExit, meta
         <Controls>
           <div className="control-buttons">
             <GambaUi.PortalTarget target="controls" />
-            <IconButton as="div" className="play-button-portal">
-              <GambaUi.PortalTarget target="play" />
-            </IconButton>
           </div>
           <MetaControls>
             {metaControls}

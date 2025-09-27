@@ -3,7 +3,7 @@ import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
 import { useDiceV2GameLogic } from './sharedLogic'
 
 const Container3D = styled.div`
@@ -170,11 +170,12 @@ export default function DiceV2Renderer3D() {
           playText="3D Mode Coming Soon"
         />
 
-        <DesktopControls>
+        <DesktopControls
+          onPlay={() => {}}
+          playDisabled={true}
+          playText="3D Mode Coming Soon"
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} disabled />
-          <EnhancedPlayButton disabled onClick={() => {}}>
-            3D Mode Coming Soon
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

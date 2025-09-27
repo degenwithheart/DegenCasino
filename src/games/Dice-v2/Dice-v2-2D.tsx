@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { BET_ARRAYS_V2, RTP_TARGETS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -567,14 +567,12 @@ const DiceV2Renderer2D: React.FC = () => {
           playText={hasPlayed ? "Roll Again" : "Roll Dice"}
         />
 
-        <DesktopControls>
+        <DesktopControls
+          onPlay={hasPlayed ? resetGame : play}
+          playDisabled={gamba.isPlaying || (!hasPlayed && poolExceeded)}
+          playText={hasPlayed ? "Roll Again" : "Roll Dice"}
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} />
-          <EnhancedPlayButton 
-            disabled={gamba.isPlaying || (!hasPlayed && poolExceeded)} 
-            onClick={hasPlayed ? resetGame : play}
-          >
-            {hasPlayed ? "Roll Again" : "Roll Dice"}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

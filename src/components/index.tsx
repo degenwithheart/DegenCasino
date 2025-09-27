@@ -41,6 +41,9 @@ export { default as JackpotModal, JackpotContent } from './Jackpot/JackpotModal'
 // TOS
 export { default as TOSModal, TOSContent } from './TOS/TOSModal'
 
+// Desktop
+export * from './Desktop/DesktopControls'
+
 // Mobile
 export * from './Mobile/MobileControls'
 export * from './Mobile/MobileGameControls'
@@ -78,9 +81,6 @@ export { default as ResponsiveImage } from './UI/ResponsiveImage'
 export { default as Sidebar } from './UI/Sidebar'
 export * from './UI/Slider'
 export { default as TrollBox } from './UI/TrollBox'
-
-// Hooks
-export { useGameplayEffects } from '../hooks/game/useGameplayEffects'
 
 // Styled Components and Utilities
 export const SelectableButton = styled.button<{selected?: boolean}>`

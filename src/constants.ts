@@ -66,6 +66,17 @@ export const FEATURE_FLAGS = {
   BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'down' (maintenance)
   BLOCK_CREATING_GAMES: true, // Block access to games marked as 'new' (being created/added)
   RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING: true, // If true, only block in production. If false, block in all environments
+  
+  // Error System Configuration
+  /** 
+   * Toggle between error systems:
+   * - true: Use ComprehensiveErrorBoundary (new system) - Advanced error handling with retry logic, detailed error info, multiple levels (app/route/component)
+   * - false: Use GlobalErrorBoundary (old system) - Simple error boundary with basic retry mechanism (2 retries max)
+   * 
+   * The new system provides better UX with more recovery options and debugging info in dev mode.
+   * The old system is lighter and simpler, suitable for production if you prefer minimal error UI.
+   */
+  USE_COMPREHENSIVE_ERROR_SYSTEM: false,
 } as const
 
 export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users

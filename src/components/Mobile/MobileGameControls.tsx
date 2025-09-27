@@ -186,6 +186,28 @@ const CompactPlayButtonWrapper = styled.div`
   }
 `;
 
+// Message section for when wager/play are hidden
+const MessageSection = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+`;
+
+const MessageText = styled.div`
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
 // Mobile-optimized controls wrapper
 export const MobileGameControls: React.FC<{
   wager: number;
@@ -193,6 +215,9 @@ export const MobileGameControls: React.FC<{
   onPlay: () => void;
   playDisabled?: boolean;
   playText?: string;
+  hidePlayButton?: boolean; // Hide button entirely when not needed
+  hideWager?: boolean; // Hide wager input entirely when not needed
+  hideMessage?: string; // Message to show when wager/play are hidden
   children?: React.ReactNode; // Game-specific controls
   disabled?: boolean;
 }> = ({ 
@@ -201,6 +226,9 @@ export const MobileGameControls: React.FC<{
   onPlay, 
   playDisabled = false, 
   playText = "Play",
+  hidePlayButton = false,
+  hideWager = false,
+  hideMessage = "Good Luck! 🍀",
   children,
   disabled = false
 }) => {
@@ -231,28 +259,38 @@ export const MobileGameControls: React.FC<{
     <MobileControlsContainer>
       {/* Top Row: Wager Input (left) + Play Button (right) */}
       <TopControlsRow>
-        <WagerSection>
-          <CompactWagerInput>
-            <CompactWagerLabel>Bet</CompactWagerLabel>
-            <CompactStyledWagerInputWrapper>
-              <input
-                type="text"
-                value={displayValue === 0 ? '' : displayValue.toString()}
-                onChange={handleInputChange}
-                disabled={disabled}
-                placeholder="0.00"
-              />
-            </CompactStyledWagerInputWrapper>
-          </CompactWagerInput>
-        </WagerSection>
-        
-        <PlaySection>
-          <CompactPlayButtonWrapper>
-            <GambaUi.PlayButton onClick={handlePlayClick} disabled={playDisabled || disabled}>
-              {playText}
-            </GambaUi.PlayButton>
-          </CompactPlayButtonWrapper>
-        </PlaySection>
+        {hideWager || hidePlayButton ? (
+          <MessageSection>
+            <MessageText>{hideMessage}</MessageText>
+          </MessageSection>
+        ) : (
+          <>
+            <WagerSection>
+              <CompactWagerInput>
+                <CompactWagerLabel>Bet</CompactWagerLabel>
+                <CompactStyledWagerInputWrapper>
+                  <input
+                    type="text"
+                    value={displayValue === 0 ? '' : displayValue.toString()}
+                    onChange={handleInputChange}
+                    disabled={disabled}
+                    placeholder="0.00"
+                  />
+                </CompactStyledWagerInputWrapper>
+              </CompactWagerInput>
+            </WagerSection>
+            
+            {!hidePlayButton && (
+              <PlaySection>
+                <CompactPlayButtonWrapper>
+                  <GambaUi.PlayButton onClick={handlePlayClick} disabled={playDisabled || disabled}>
+                    {playText}
+                  </GambaUi.PlayButton>
+                </CompactPlayButtonWrapper>
+              </PlaySection>
+            )}
+          </>
+        )}
       </TopControlsRow>
       
       {/* Middle Section: Game-specific controls */}

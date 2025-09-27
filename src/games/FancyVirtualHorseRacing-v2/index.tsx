@@ -744,8 +744,8 @@ export default function FancyVirtualHorseRacingV2() {
             wager={initialWager}
             setWager={setInitialWager}
             onPlay={() => {}} // Handled by canvas clicks
-            playDisabled={true} // Always disabled, use canvas
-            playText="Select horse above"
+            hideWager={true} // Hide controls since gameplay is canvas-based
+            hideMessage="Select a Horse Above! 🐎"
           >
             {selectedHorse !== null && (
               <div style={{ 
@@ -776,7 +776,21 @@ export default function FancyVirtualHorseRacingV2() {
         ) : (
           <DesktopControls> {/* Handled by canvas clicks */}
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-              {selectedHorse !== null && (
+              {selectedHorse === null ? (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  padding: '20px',
+                  color: '#ffd700',
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                  minWidth: '200px'
+                }}>
+                  Select a Horse Above! 🐎
+                </div>
+              ) : (
                 <div style={{ 
                   background: 'rgba(212, 165, 116, 0.1)', 
                   borderRadius: '8px', 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { PublicKey } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useGame } from 'gamba-react-v2'
+import { useRateLimitedGame } from '../../../hooks/game/useRateLimitedGame'
 import { GambaUi, Multiplayer, useSound, TokenValue } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
 import { 
@@ -9,15 +9,15 @@ import {
   MULTIPLAYER_FEE_BPS,
   PLATFORM_REFERRAL_FEE,
 } from '../../../constants'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } from '../../../components'
 import { useIsCompact } from '../../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../../hooks/game/useGameStats'
+import { generateUsernameFromWallet } from '../../../utils/user/userProfileUtils'
 import RouletteTable from './RouletteTable'
 import RouletteWheel from './RouletteWheel'
 import PlayersList from './PlayersList'
 import { SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_CHIP } from '../constants'
-import { getRouletteRoyaleBetArray } from '../../rtpConfigMultiplayer'
 import { ROULETTE_ROYALE_CONFIG } from '../../rtpConfigMultiplayer'
 
 const glowPulse = keyframes`
@@ -95,6 +95,23 @@ const Sidebar = styled.div`
   gap: 15px;
 `
 
+const ConnectionStatus = styled.div<{ isStale?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: ${props => props.isStale ? '#ff9800' : '#4caf50'};
+  opacity: 0.8;
+`
+
+const ConnectionIndicator = styled.div<{ isStale?: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${props => props.isStale ? '#ff9800' : '#4caf50'};
+  animation: ${props => props.isStale ? 'none' : 'pulse 2s infinite'};
+`
+
 const Timer = styled.div<{ urgent?: boolean }>`
   text-align: center;
   font-size: 1.2rem;
@@ -146,7 +163,11 @@ interface GameScreenProps {
 
 function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
   const { publicKey } = useWallet()
-  const { game: chainGame, metadata } = useGame(gamePubkey, { fetchMetadata: true })
+  const { game: chainGame, metadata, isStale } = useRateLimitedGame(gamePubkey, {
+    fetchMetadata: true,
+    updateInterval: 3000, // Update every 3 seconds
+    criticalUpdatePhases: ['settled', 'waiting'] // Immediate updates for critical phases
+  })
   
   const sounds = useSound({
     win: SOUND_WIN,
@@ -164,7 +185,15 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [winningNumber, setWinningNumber] = useState<number | null>(null)
   const [winner, setWinner] = useState<PublicKey | null>(null)
+  const [hasProcessedResults, setHasProcessedResults] = useState(false)
   const [showWinnerAnnouncement, setShowWinnerAnnouncement] = useState(false)
+  const [isSpinning, setIsSpinning] = useState(false)
+  const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Debug logging for winning number changes
+  useEffect(() => {
+    console.log('🎯 WINNING NUMBER STATE CHANGED to:', winningNumber, 'Current game phase:', gamePhase, 'Spinning:', isSpinning)
+  }, [winningNumber, gamePhase, isSpinning])
 
   // Betting state  
   const [playerBets, setPlayerBets] = useState<Record<string, any>>({})
@@ -173,11 +202,28 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
   // Track bets per player for chip display
   const [allPlayerBets, setAllPlayerBets] = useState<any[]>([])
 
+  // Helper function for number colors
+  const getNumberColor = (num: number): 'red' | 'black' | 'green' => {
+    if (num === 0) return 'green'
+    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
+    return redNumbers.includes(num) ? 'red' : 'black'
+  }
+
   // Game phase management
   useEffect(() => {
+    console.log('🎮 GAME STATE EFFECT:', {
+      hasChainGame: !!chainGame,
+      gameState: chainGame?.state,
+      gamePhase,
+      hasProcessedResults,
+      isSpinning,
+      gameId: chainGame?.gameId
+    })
+
     if (!chainGame) return
 
     if (chainGame.state.waiting) {
+      console.log('⏳ Game state: WAITING - resetting all state')
       setGamePhase('waiting')
       // Clear bets for new game
       setAllPlayerBets([])
@@ -185,6 +231,13 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
       setWinningNumber(null)
       setWinner(null)
       setShowWinnerAnnouncement(false)
+      setHasProcessedResults(false)
+      setIsSpinning(false)
+      console.log('🔄 Game reset - cleared all state for new game')
+      if (spinTimeoutRef.current) {
+        clearTimeout(spinTimeoutRef.current)
+        spinTimeoutRef.current = null
+      }
     } else if (chainGame.state.playing) {
       setGamePhase('betting')
       // Start countdown timer
@@ -196,26 +249,132 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
         
         if (remaining <= 0) {
           setGamePhase('spinning')
+          setIsSpinning(true)
+          // Start spinning animation, but don't show result yet
         }
       }
       updateTimer()
       const interval = setInterval(updateTimer, 1000)
       return () => clearInterval(interval)
     } else if (chainGame.state.settled) {
-      setGamePhase('results')
-      // Show results and winner
-      handleGameResults()
+      console.log('🏁 Game state: SETTLED', {
+        hasProcessedResults,
+        shouldProcess: !hasProcessedResults,
+        winnerIndexes: chainGame.winnerIndexes,
+        gameId: chainGame.gameId
+      })
+      
+      if (!hasProcessedResults) {
+        console.log('✅ Processing results for the first time...')
+        setHasProcessedResults(true)
+        
+        // Get the result immediately
+        handleGameResults()
+        
+        // If we're not already spinning, start spinning immediately
+        if (gamePhase !== 'spinning') {
+          console.log('🎲 Starting spinning phase')
+          setGamePhase('spinning')
+          setIsSpinning(true)
+        }
+        
+        // Show spinning for 2 seconds, then stop spinning and show result
+        if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current)
+        spinTimeoutRef.current = setTimeout(() => {
+          console.log('🎯 Stopping spin, showing results')
+          setIsSpinning(false)
+          setGamePhase('results')
+        }, 2000)
+      } else {
+        console.log('⚠️ Results already processed, skipping')
+      }
+    } else {
+      console.log('🤔 Unknown game state:', chainGame.state)
     }
-  }, [chainGame?.state])
+  }, [chainGame?.state, gamePhase, hasProcessedResults])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (spinTimeoutRef.current) {
+        clearTimeout(spinTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleGameResults = useCallback(() => {
-    if (!chainGame || !chainGame.winnerIndexes) return
+    console.log('🎲 handleGameResults CALLED with chainGame:', { 
+      hasChainGame: !!chainGame, 
+      gameState: chainGame?.state,
+      hasWinnerIndexes: !!chainGame?.winnerIndexes,
+      winnerIndexes: chainGame?.winnerIndexes,
+      playersCount: chainGame?.players?.length || 0,
+      allPlayerBets: allPlayerBets.length,
+      myBets: myBets.length
+    })
+    
+    // Log all current player bets for debugging
+    console.log('📊 CURRENT PLAYER BETS:', {
+      allPlayerBets: allPlayerBets.map(bet => ({
+        player: bet.player?.slice(0, 8) + '...',
+        type: bet.type,
+        value: bet.value,
+        amount: bet.amount
+      })),
+      myBets: myBets.map(bet => ({
+        type: bet.type,
+        value: bet.value,
+        amount: bet.amount
+      }))
+    })
+    
+    if (!chainGame || !chainGame.winnerIndexes) {
+      console.error('❌ No chain game or winner indexes available:', { chainGame: !!chainGame, winnerIndexes: chainGame?.winnerIndexes })
+      return
+    }
 
+    console.log('🎯 Raw winnerIndexes:', chainGame.winnerIndexes, 'Type:', typeof chainGame.winnerIndexes[0])
     const winnerIndex = Number(chainGame.winnerIndexes[0])
+    
+    // Validate winner index is within roulette range (0-36)
+    if (winnerIndex < 0 || winnerIndex > 36) {
+      console.error('❌ Invalid winner index:', winnerIndex, 'Expected 0-36. Full winnerIndexes:', chainGame.winnerIndexes)
+      return
+    }
+    
+    console.log('🎯 ✅ GAME RESULT - Setting winning number:', winnerIndex, 'from winnerIndexes:', chainGame.winnerIndexes)
+    console.log('🎲 Game details:', { 
+      gameId: chainGame.gameId, 
+      gameState: chainGame.state, 
+      spinning: isSpinning,
+      winnerIndex,
+      color: getNumberColor(winnerIndex)
+    })
+    
+    // Check which players had winning bets
+    const winningBets = allPlayerBets.filter(bet => 
+      (bet.type === 'number' && bet.value === winnerIndex) ||
+      (bet.type === 'outside' && bet.value === 'red' && getNumberColor(winnerIndex) === 'red') ||
+      (bet.type === 'outside' && bet.value === 'black' && getNumberColor(winnerIndex) === 'black')
+    )
+    
+    console.log('🏆 WINNING ANALYSIS:', {
+      winnerIndex,
+      color: getNumberColor(winnerIndex),
+      totalBets: allPlayerBets.length,
+      winningBets: winningBets.map(bet => ({
+        player: bet.player?.slice(0, 8) + '...',
+        type: bet.type,
+        value: bet.value,
+        amount: bet.amount
+      })),
+      losers: allPlayerBets.length - winningBets.length
+    })
+    
     setWinningNumber(winnerIndex)
     
     // Determine winner (player who bet on winning number)
-    const winnerPlayer = chainGame.players.find(player => {
+    const winnerPlayer = chainGame.players.find((player: any) => {
       const playerKey = player.user.toBase58()
       // Check if player's bet includes the winning number
       return allPlayerBets.some(bet => 
@@ -240,14 +399,8 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
     }
   }, [chainGame, allPlayerBets, sounds])
 
-  const getNumberColor = (num: number): 'red' | 'black' | 'green' => {
-    if (num === 0) return 'green'
-    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
-    return redNumbers.includes(num) ? 'red' : 'black'
-  }
-
-  const isPlayerInGame = publicKey && chainGame?.players.some(p => p.user.equals(publicKey))
-  const canJoinGame = chainGame?.state.waiting && !isPlayerInGame
+  const isPlayerInGame = publicKey && chainGame?.players.some((p: any) => p.user.equals(publicKey))
+  const canJoinGame = chainGame?.state.waiting && !isPlayerInGame && (chainGame.players?.length || 0) < ROULETTE_ROYALE_CONFIG.MAX_PLAYERS
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -290,37 +443,92 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
           {/* Game Section - Player list and wheel transitions sharing space */}
           <div style={{
             position: 'absolute',
-            top: 'clamp(10px, 3vw, 20px)',
-            left: 'clamp(10px, 3vw, 20px)',
-            right: 'clamp(10px, 3vw, 20px)',
-            bottom: 'clamp(100px, 20vw, 120px)', // Space for GameControlsSection
+            top: 'clamp(8px, 2vw, 15px)',
+            left: 'clamp(8px, 2vw, 15px)',
+            right: 'clamp(8px, 2vw, 15px)',
+            bottom: 'clamp(80px, 15vw, 100px)', // Space for GameControlsSection
             display: 'flex',
             flexDirection: 'column',
+            overflow: 'hidden',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 'clamp(20px, 5vw, 30px)',
             padding: '10px'
           }}>
-            {showWinnerAnnouncement && winner && (
+            {/* Compact Game Results */}
+            {chainGame?.state.complete && winningNumber !== null && (
               <div style={{
                 position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: 'linear-gradient(45deg, #ffd700, #ff6b6b)',
-                padding: '30px',
-                borderRadius: '16px',
-                textAlign: 'center',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: 'white',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(0, 0, 0, 0.9)',
+                padding: '10px 15px',
+                borderRadius: '10px',
+                border: '2px solid #ffd700',
                 zIndex: 1000,
-                animation: 'glowPulse 1s ease-in-out infinite',
-                boxShadow: '0 0 30px rgba(0, 0, 0, 0.5)'
+                minWidth: '200px',
+                maxWidth: '300px'
               }}>
-                🎉 Winner: {winner.toBase58().slice(0, 8)}... 🎉
-                <br />
-                <small>Number: {winningNumber}</small>
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: '0.9rem',
+                  color: '#ffd700',
+                  marginBottom: '8px',
+                  fontWeight: 'bold'
+                }}>
+                  🎯 Winner: {winningNumber} ({getNumberColor(winningNumber).toUpperCase()})
+                </div>
+                
+                {/* All Players Results */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem' }}>
+                  {allPlayerBets.length > 0 ? allPlayerBets
+                    .filter((bet, index, self) => self.findIndex(b => b.player === bet.player) === index) // Unique players
+                    .map(bet => {
+                      const playerBets = allPlayerBets.filter(b => b.player === bet.player)
+                      const hasWin = playerBets.some(b => 
+                        (b.type === 'number' && b.value === winningNumber) ||
+                        (b.type === 'outside' && b.value === 'red' && getNumberColor(winningNumber) === 'red') ||
+                        (b.type === 'outside' && b.value === 'black' && getNumberColor(winningNumber) === 'black')
+                      )
+                      
+                      const playerName = bet.player === publicKey?.toBase58() ? 'You' : `${bet.player.slice(0, 6)}...`
+                      
+                      return (
+                        <div key={bet.player} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '6px 10px',
+                          background: hasWin ? 'rgba(40, 167, 69, 0.25)' : 'rgba(220, 53, 69, 0.25)',
+                          borderRadius: '6px',
+                          border: `2px solid ${hasWin ? '#28a745' : '#dc3545'}`
+                        }}>
+                          <span style={{ 
+                            color: hasWin ? '#28a745' : '#dc3545',
+                            fontWeight: 'bold',
+                            minWidth: '60px'
+                          }}>
+                            {hasWin ? '🏆 WIN' : '❌ LOSE'}
+                          </span>
+                          <span style={{ 
+                            color: 'white',
+                            fontWeight: playerName === 'You' ? 'bold' : 'normal',
+                            flex: 1,
+                            textAlign: 'center'
+                          }}>
+                            {playerName}
+                          </span>
+                          <span style={{ color: '#ffd700', fontSize: '0.75rem', minWidth: '80px', textAlign: 'right' }}>
+                            {playerBets.map(b => b.type === 'number' ? `#${b.value}` : b.value.charAt(0).toUpperCase()).join(', ')}
+                          </span>
+                        </div>
+                      )
+                    }) : (
+                      <div style={{ textAlign: 'center', color: '#888', fontSize: '0.8rem' }}>
+                        No players with bets
+                      </div>
+                    )}
+                </div>
               </div>
             )}
 
@@ -338,6 +546,10 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
                 </h2>
               </div>
               <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <ConnectionStatus isStale={isStale}>
+                  <ConnectionIndicator isStale={isStale} />
+                  {isStale ? 'Updating...' : 'Live'}
+                </ConnectionStatus>
                 <div style={{
                   padding: '8px 16px',
                   borderRadius: '20px',
@@ -382,11 +594,14 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
               justifyContent: 'center',
               width: '100%'
             }}>
-              {gamePhase === 'spinning' ? (
+              {(gamePhase === 'spinning' || gamePhase === 'results') ? (
                 <RouletteWheel
-                  spinning={true}
+                  key={`wheel-${chainGame?.gameId || 'default'}`}
+                  spinning={isSpinning}
                   winningNumber={winningNumber}
                   gamePhase={gamePhase}
+                  playerBets={allPlayerBets}
+                  gameResult={chainGame}
                 />
               ) : (
                 <div style={{
@@ -430,35 +645,130 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
             )}
           </div>
 
-          {/* GameControlsSection - Table replaces the controls */}
-          <GameControlsSection>
-            <RouletteTable
-              gamePhase={gamePhase}
-              onBetPlaced={(bet) => {
-                if (!publicKey) return
-                sounds.play('chip')
-                
-                // Limit chips per player
-                const playerKey = publicKey.toBase58()
-                const currentPlayerBets = allPlayerBets.filter(b => b.player === playerKey)
-                
-                if (currentPlayerBets.length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER) {
-                  // Replace oldest bet if at limit
-                  const newBets = [...currentPlayerBets.slice(1), { ...bet, player: playerKey }]
-                  const otherBets = allPlayerBets.filter(b => b.player !== playerKey)
-                  setAllPlayerBets([...otherBets, ...newBets])
-                  setMyBets(newBets)
-                } else {
-                  // Add new bet
-                  const newBet = { ...bet, player: playerKey }
-                  setAllPlayerBets(prev => [...prev, newBet])
-                  setMyBets(prev => [...prev, bet])
-                }
-              }}
-              playerBets={allPlayerBets}
-              disabled={gamePhase !== 'betting' || !isPlayerInGame || (publicKey && allPlayerBets.filter(b => b.player === publicKey.toBase58()).length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER)}
-            />
-          </GameControlsSection>
+          {/* GameControlsSection at bottom - Mobile-First Design */}
+          {(chainGame?.players?.length || 0) > 0 && (
+            <GameControlsSection>
+              {gamePhase === 'betting' ? (
+                <RouletteTable
+                  gamePhase={gamePhase}
+                  wagerAmount={metadata?.wager || 1} // Use metadata wager or default to 1
+                  onBetPlaced={(bet) => {
+                    if (!publicKey) return
+                    sounds.play('chip')
+                    
+                    console.log('🎯 PLAYER BET PLACED:', {
+                      player: publicKey.toBase58().slice(0, 8) + '...',
+                      betType: bet.type,
+                      betValue: bet.value,
+                      betAmount: bet.amount,
+                      gamePhase,
+                      gameId: chainGame?.gameId
+                    })
+                    
+                    // Limit chips per player
+                    const playerKey = publicKey.toBase58()
+                    const currentPlayerBets = allPlayerBets.filter(b => b.player === playerKey)
+                    
+                    console.log('💰 BET TRACKING:', {
+                      playerKey: playerKey.slice(0, 8) + '...',
+                      currentBetsCount: currentPlayerBets.length,
+                      maxAllowed: ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER,
+                      allPlayersTotal: allPlayerBets.length
+                    })
+                    
+                    if (currentPlayerBets.length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER) {
+                      // Replace oldest bet if at limit
+                      const newBets = [...currentPlayerBets.slice(1), { ...bet, player: playerKey }]
+                      const otherBets = allPlayerBets.filter(b => b.player !== playerKey)
+                      setAllPlayerBets([...otherBets, ...newBets])
+                      setMyBets(newBets)
+                      console.log('🔄 BET REPLACED (at limit):', {
+                        oldBet: currentPlayerBets[0],
+                        newBet: bet,
+                        newBetsCount: newBets.length
+                      })
+                    } else {
+                      // Add new bet
+                      const newBet = { ...bet, player: playerKey }
+                      setAllPlayerBets(prev => [...prev, newBet])
+                      setMyBets(prev => [...prev, bet])
+                      console.log('➕ NEW BET ADDED:', {
+                        newBet,
+                        totalPlayerBets: currentPlayerBets.length + 1,
+                        totalAllBets: allPlayerBets.length + 1
+                      })
+                    }
+                  }}
+                  playerBets={allPlayerBets}
+                  disabled={gamePhase !== 'betting' || !isPlayerInGame || (publicKey && allPlayerBets.filter(b => b.player === publicKey.toBase58()).length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER)}
+                />
+              ) : (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: 'min(12px, 3vw)', 
+                  alignItems: 'center', 
+                  width: '100%',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  padding: '0 5px'
+                }}>
+                  {/* Real Players Info Tiles */}
+                  {chainGame?.players?.map((player: any, index: number) => {
+                    const playerKey = player.user.toBase58()
+                    const isCurrentPlayer = publicKey?.toBase58() === playerKey
+                    const playerBets = allPlayerBets.filter(bet => bet.player === playerKey)
+                    
+                    return (
+                      <div key={playerKey} style={{
+                        background: 'rgba(26, 32, 44, 0.9)',
+                        borderRadius: '12px',
+                        padding: 'clamp(8px, 2vw, 12px)',
+                        textAlign: 'center',
+                        minWidth: 'clamp(80px, 20vw, 100px)',
+                        flex: '1 1 auto',
+                        maxWidth: '120px',
+                        border: isCurrentPlayer ? '2px solid rgba(72, 187, 120, 0.6)' : '2px solid rgba(74, 85, 104, 0.5)',
+                        boxShadow: '0 4px 16px rgba(26, 32, 44, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                      }}>
+                        <div style={{ 
+                          fontSize: 'clamp(10px, 2vw, 12px)', 
+                          marginBottom: '4px', 
+                          color: '#a0aec0',
+                          fontWeight: 'bold'
+                        }}>
+                          {generateUsernameFromWallet(playerKey)}
+                        </div>
+                        <div style={{ 
+                          fontSize: 'clamp(12px, 2.5vw, 14px)', 
+                          fontWeight: 'bold', 
+                          color: isCurrentPlayer ? '#48bb78' : '#ffa500',
+                          marginBottom: '2px'
+                        }}>
+                          {isCurrentPlayer ? '🟢' : '👤'}
+                        </div>
+                        <div style={{ 
+                          fontSize: 'clamp(8px, 1.5vw, 10px)', 
+                          color: '#a0aec0',
+                          wordBreak: 'break-all',
+                          lineHeight: '1.2'
+                        }}>
+                          {`${playerKey.slice(0, 4)}...${playerKey.slice(-4)}`}
+                        </div>
+                        <div style={{ 
+                          fontSize: 'clamp(10px, 2vw, 12px)', 
+                          color: '#ffd700',
+                          marginTop: '4px',
+                          fontWeight: 'bold'
+                        }}>
+                          {playerBets.length > 0 ? `${playerBets.length} bets` : 'Ready'}
+                        </div>
+                      </div>
+                    )
+                  }) || []}
+                </div>
+              )}
+            </GameControlsSection>
+          )}
         </div>
       </GambaUi.Portal>
 

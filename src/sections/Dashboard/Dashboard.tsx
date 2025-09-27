@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
-// Context to allow opening the games modal from anywhere
-export const GamesModalContext = React.createContext<{ openGamesModal: () => void }>({ openGamesModal: () => {} });
+import React, { useState, useEffect } from "react";
 import { usePageSEO } from '../../hooks/ui/useGameSEO';
+import { useGamesModal } from '../../contexts/GamesModalContext';
 import { SlideSection, EnhancedTickerTape, FullReferralLeaderboard } from "../../components";
 import { FEATURED_GAMES } from "../../games/featuredGames";
 import { GAMES } from "../../games";
@@ -87,7 +86,7 @@ export function Dashboard() {
   const { connected, connect, publicKey } = useWallet();
   const { compact, screenTooSmall } = useIsCompact();
   const handleWalletConnect = useHandleWalletConnect();
-  const { openGamesModal } = useContext(GamesModalContext);
+  const { openGamesModal } = useGamesModal();
   const { currentColorScheme } = useColorScheme();
   const [visible, setVisible] = useState(false);
 

@@ -779,9 +779,6 @@ function CustomRenderer() {
           <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
             <div className="control-buttons">
               <GambaUi.PortalTarget target="controls" />
-              <IconButton as="div" className="play-button-portal">
-                <GambaUi.PortalTarget target="play" />
-              </IconButton>
             </div>
             <MetaControls>
               <RenderModeToggle gameId={game?.id} />

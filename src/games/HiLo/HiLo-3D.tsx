@@ -1,7 +1,7 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -161,7 +161,11 @@ export default function HiLo3D() {
               />
             </MobileControls>
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={handleStart}
+              playDisabled={true}
+              playText="Coming Soon"
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -172,9 +176,6 @@ export default function HiLo3D() {
                 onChange={setProgressive}
                 disabled={true}
               />
-              <EnhancedPlayButton disabled={true} onClick={handleStart}>
-                Coming Soon
-              </EnhancedPlayButton>
               {initialWager > maxWagerForBet && (
                 <EnhancedButton onClick={() => setInitialWager(maxWagerForBet)} disabled={true}>
                   Set max
@@ -192,7 +193,11 @@ export default function HiLo3D() {
               playText="Coming Soon"
             />
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={progressive ? play : handleStart}
+              playDisabled={true}
+              playText="Coming Soon"
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -204,9 +209,6 @@ export default function HiLo3D() {
                   Cash Out
                 </EnhancedButton>
               )}
-              <EnhancedPlayButton disabled={true} onClick={progressive ? play : handleStart}>
-                Coming Soon
-              </EnhancedPlayButton>
             </DesktopControls>
           </>
         )}

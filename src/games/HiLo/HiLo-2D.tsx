@@ -3,7 +3,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled, { keyframes, css } from 'styled-components'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -514,7 +514,11 @@ export default function HiLo(props: HiLoConfig) {
               />
             </MobileControls>
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={handleStart}
+              playDisabled={!option || initialWager > maxWagerForBet}
+              playText="Start"
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -524,9 +528,6 @@ export default function HiLo(props: HiLoConfig) {
                 checked={progressive}
                 onChange={setProgressive}
               />
-              <EnhancedPlayButton disabled={!option || initialWager > maxWagerForBet} onClick={handleStart}>
-                Start
-              </EnhancedPlayButton>
               {initialWager > maxWagerForBet && (
                 <EnhancedButton onClick={() => setInitialWager(maxWagerForBet)}>
                   Set max
@@ -544,7 +545,11 @@ export default function HiLo(props: HiLoConfig) {
               playText={progressive ? "Continue" : "Again"}
             />
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={progressive ? play : handleStart}
+              playDisabled={progressive ? !option : false}
+              playText={progressive ? "Continue" : "Again"}
+            >
               <EnhancedWagerInput
                 value={initialWager}
                 onChange={setInitialWager}
@@ -556,9 +561,6 @@ export default function HiLo(props: HiLoConfig) {
                   Cash Out
                 </EnhancedButton>
               )}
-              <EnhancedPlayButton disabled={progressive ? !option : false} onClick={progressive ? play : handleStart}>
-                {progressive ? "Continue" : "Again"}
-              </EnhancedPlayButton>
             </DesktopControls>
           </>
         )}

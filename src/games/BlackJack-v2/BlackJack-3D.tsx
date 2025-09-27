@@ -1,6 +1,6 @@
 import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import React from 'react'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -148,11 +148,12 @@ export default function BlackJack3D() {
               playText="Coming Soon"
             />
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={startGame}
+              playDisabled={true}
+              playText="Coming Soon"
+            >
               <EnhancedWagerInput value={wager} onChange={setWager} />
-              <EnhancedPlayButton onClick={startGame} disabled={true}>
-                Coming Soon
-              </EnhancedPlayButton>
             </DesktopControls>
           </>
         ) : (

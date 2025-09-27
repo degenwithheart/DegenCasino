@@ -4,7 +4,7 @@ import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -1045,7 +1045,11 @@ export default function MinesV2() {
               </div>
             </MobileControls>
 
-            <DesktopControls>
+            <DesktopControls
+              onPlay={startGame}
+              playDisabled={poolExceeded}
+              playText="Start"
+            >
               <EnhancedWagerInput 
                 value={wager} 
                 onChange={setWager}
@@ -1068,9 +1072,6 @@ export default function MinesV2() {
                   ))}
                 </select>
               </div>
-              <EnhancedPlayButton onClick={startGame} wager={wager} disabled={poolExceeded}>
-                Start
-              </EnhancedPlayButton>
             </DesktopControls>
           </>
         ) : (

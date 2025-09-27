@@ -3,7 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -1631,7 +1631,31 @@ export default function MultiPokerV2() {
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">
-        {!showModeSelection && (
+        {showModeSelection ? (
+          <>
+            <MobileControls
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={() => {}} // Mode selection handled by canvas
+              hideWager={true}
+              hideMessage="Choose Your Mode! 🎯"
+            />
+            <DesktopControls>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                padding: '20px',
+                color: '#ffd700',
+                fontSize: '18px',
+                fontWeight: '700',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+              }}>
+                Choose Your Mode! 🎯
+              </div>
+            </DesktopControls>
+          </>
+        ) : (
           <>
             <MobileControls
               wager={initialWager}
@@ -1650,7 +1674,11 @@ export default function MultiPokerV2() {
               )}
             </MobileControls>
             
-            <DesktopControls>
+            <DesktopControls
+              onPlay={getPlayAction()}
+              playDisabled={revealing || !pool || gamba.isPlaying || poolExceeded}
+              playText={getPlayText()}
+            >
               <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
               {canCashOut && (
                 <EnhancedButton 
@@ -1660,12 +1688,6 @@ export default function MultiPokerV2() {
                   Cash Out (<TokenValue amount={totalProfit} />)
                 </EnhancedButton>
               )}
-              <EnhancedPlayButton 
-                onClick={getPlayAction()} 
-                disabled={revealing || !pool || gamba.isPlaying || poolExceeded}
-              >
-                {getPlayText()}
-              </EnhancedPlayButton>
             </DesktopControls>
           </>
         )}

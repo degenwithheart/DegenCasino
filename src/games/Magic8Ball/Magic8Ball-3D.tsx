@@ -3,7 +3,7 @@ import { GambaUi, useCurrentPool, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Text, OrbitControls, Environment } from '@react-three/drei'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -638,14 +638,12 @@ function Magic8Ball3D() {
           playText={hasPlayed ? "New Game" : "Ask Magic 8-Ball"}
         />
 
-        <DesktopControls>
+        <DesktopControls
+          onPlay={hasPlayed ? resetGame : play}
+          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded}
+          playText={hasPlayed ? "New Game" : "Ask Magic 8-Ball"}
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} />
-          <EnhancedPlayButton 
-            disabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded} 
-            onClick={hasPlayed ? resetGame : play}
-          >
-            {hasPlayed ? "New Game" : "Ask Magic 8-Ball"}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

@@ -7,7 +7,8 @@ import { Modal, TOSModal } from './components';
 import RouterErrorBoundary from './components/RouterErrorBoundary';
 import { RouteTransitionWrapper, RouteLoadingSpinner } from './components/RouteTransitionWrapper';
 import { ComprehensiveErrorBoundary, SafeSuspense, WindowErrorHandler } from './components/ErrorBoundaries';
-import { ENABLE_TROLLBOX } from './constants';
+import { ErrorBoundaryWrapper } from './utils/errorBoundaryUtils';
+import { ENABLE_TROLLBOX, FEATURE_FLAGS } from './constants';
 import { useToast } from './hooks/ui/useToast';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
@@ -16,7 +17,8 @@ import { useComponentPreloader } from './hooks/system/useComponentPreloader';
 import { useProgressiveLoadingManager } from './hooks/system/useProgressiveLoadingManager';
 import { ProgressiveLoadingProvider } from './hooks/system/useProgressiveLoading';
 import { useRouteChangeHandler, addRouteTransitionCSS } from './hooks/system/useRouteChangeHandler';
-import { Dashboard, GamesModalContext } from './sections/Dashboard/Dashboard';
+import { Dashboard } from './sections/Dashboard/Dashboard';
+import { GamesModalContext } from './contexts/GamesModalContext';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
@@ -101,10 +103,10 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
-              <Route path="/explorer" element={<ComprehensiveErrorBoundary level="route" componentName="Explorer"><ExplorerIndex /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/platform/:creator" element={<ComprehensiveErrorBoundary level="route" componentName="Platform View"><PlatformView /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/player/:address" element={<ComprehensiveErrorBoundary level="route" componentName="Player View"><PlayerView /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/transaction/:txId" element={<ComprehensiveErrorBoundary level="route" componentName="Transaction View"><Transaction /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/transaction/:txId" element={<ErrorBoundaryWrapper level="route" componentName="Transaction View"><Transaction /></ErrorBoundaryWrapper>} />
               <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
               <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
             </Routes>
@@ -145,10 +147,10 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
-              <Route path="/explorer" element={<ComprehensiveErrorBoundary level="route" componentName="Explorer"><ExplorerIndex /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/platform/:creator" element={<ComprehensiveErrorBoundary level="route" componentName="Platform View"><PlatformView /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/player/:address" element={<ComprehensiveErrorBoundary level="route" componentName="Player View"><PlayerView /></ComprehensiveErrorBoundary>} />
-              <Route path="/explorer/transaction/:txId" element={<ComprehensiveErrorBoundary level="route" componentName="Transaction View"><Transaction /></ComprehensiveErrorBoundary>} />
+              <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/transaction/:txId" element={<ErrorBoundaryWrapper level="route" componentName="Transaction View"><Transaction /></ErrorBoundaryWrapper>} />
               <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
               <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
               </Routes>
@@ -401,7 +403,7 @@ export default function App() {
   }, []);
 
   return (
-    <ComprehensiveErrorBoundary level="app" componentName="DegenHeart Casino App">
+    <ErrorBoundaryWrapper level="app" componentName="DegenHeart Casino App">
       <ProgressiveLoadingProvider value={{ preloadGameOnHover, getPerformanceStats, isProgressiveLoadingActive }}>
         <GraphicsProvider>
           <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
@@ -418,13 +420,13 @@ export default function App() {
           )}
           <ScrollToTop />
           <ErrorHandler />
-          <WindowErrorHandler />
+          {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM && <WindowErrorHandler />}
           <AppContent autoConnectAttempted={autoConnectAttempted} />
           <CacheDebugWrapper />
           <ProgressiveLoadingMonitor />
         </GamesModalContext.Provider>
         </GraphicsProvider>
       </ProgressiveLoadingProvider>
-    </ComprehensiveErrorBoundary>
+    </ErrorBoundaryWrapper>
   );
 }

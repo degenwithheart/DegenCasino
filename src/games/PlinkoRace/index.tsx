@@ -2,7 +2,7 @@ import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
 import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
 import { StyledPlinkoRaceBackground } from './PlinkoRaceBackground.enhanced.styles'
@@ -256,8 +256,8 @@ export default function PlinkoRace() {
           wager={wager}
           setWager={setWager}
           onPlay={() => {/* PlinkoRace uses multiplayer, no direct play */}}
-          playDisabled={true || poolExceeded}
-          playText="Join"
+          hideWager={true}
+          hideMessage="Join a Game Above! 🎯"
         >
           <SwitchControl
             label="Degen Mode"
@@ -274,7 +274,18 @@ export default function PlinkoRace() {
         </MobileControls>
         
         <DesktopControls> {/* PlinkoRace uses multiplayer, no direct play */}
-          <EnhancedWagerInput value={wager} onChange={setWager} />
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            padding: '20px',
+            color: '#ffd700',
+            fontSize: '18px',
+            fontWeight: '700',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+          }}>
+            Join a Game Above! 🎯
+          </div>
           <div>Degen:</div>
           <GambaUi.Switch
             disabled={gamba.isPlaying}

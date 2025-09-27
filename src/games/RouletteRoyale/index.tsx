@@ -1,11 +1,14 @@
 import React, { Suspense, useCallback, useState } from 'react'
 import { useGameSEO } from '../../hooks/ui/useGameSEO'
 import { PublicKey } from '@solana/web3.js'
+import type { SingleplayerGameConfig } from './components/CreateSingleplayerGameModal'
 
-// Lazy load multiplayer components
-const RouletteRoyaleLobby = React.lazy(() => import('./components/Lobby'))
+// Lazy load game components
+const GameLobby = React.lazy(() => import('./components/GameLobby'))
 const RouletteRoyaleGame = React.lazy(() => import('./components/GameScreen'))
-const DebugGameScreen = React.lazy(() => import('./components/DebugGameScreen'))
+const SingleplayerGameScreen = React.lazy(() => import('./components/SingleplayerGameScreen'))
+const CreateSingleplayerGameModal = React.lazy(() => import('./components/CreateSingleplayerGameModal'))
+import CreateMultiplayerGameModal from './components/CreateMultiplayerGameModal'
 
 const LoadingFallback = () => (
   <div style={{
@@ -29,12 +32,57 @@ export default function RouletteRoyaleWrapper() {
     maxWin: "35x"
   })
 
-  // Multiplayer game state - copied from PlinkoRace
+  // Game state management
+  const [gameMode, setGameMode] = useState<'lobby' | 'singleplayer' | 'multiplayer'>('lobby')
   const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null)
-  const [debugMode, setDebugMode] = useState(false)
+  // State for handling singleplayer game configuration
+  const [singleplayerWager, setSingleplayerWager] = useState<number>(1000000)
+  const [showCreateSingleplayerModal, setShowCreateSingleplayerModal] = useState(false)
+  const [showCreateMultiplayerModal, setShowCreateMultiplayerModal] = useState(false)
   
   const handleBack = useCallback(() => {
+    setGameMode('lobby')
     setSelectedGame(null)
+    setSingleplayerWager(0)
+    // Close any open modals when returning to lobby
+    setShowCreateSingleplayerModal(false)
+    setShowCreateMultiplayerModal(false)
+  }, [])
+  
+  const handleJoinSingleplayer = useCallback((wager: number) => {
+    setSingleplayerWager(wager)
+    setGameMode('singleplayer')
+    // Close any open modals when joining a game
+    setShowCreateSingleplayerModal(false)
+    setShowCreateMultiplayerModal(false)
+  }, [])
+  
+  const handleJoinMultiplayer = useCallback((gameId: string) => {
+    setSelectedGame(new PublicKey(gameId))
+    setGameMode('multiplayer')
+    // Close any open modals when joining a game
+    setShowCreateSingleplayerModal(false)
+    setShowCreateMultiplayerModal(false)
+  }, [])
+  
+  const handleCreateSingleplayer = useCallback(() => {
+    setShowCreateSingleplayerModal(true)
+  }, [])
+  
+  const handleCreateMultiplayer = useCallback(() => {
+    setShowCreateMultiplayerModal(true)
+  }, [])
+  
+  const handleSingleplayerConfig = useCallback((config: SingleplayerGameConfig) => {
+    setSingleplayerWager(config.fixedWager)
+    setGameMode('singleplayer')
+    setShowCreateSingleplayerModal(false)
+  }, [])
+  
+  const handleMultiplayerGameSelect = useCallback((gamePubkey: PublicKey) => {
+    setSelectedGame(gamePubkey)
+    setGameMode('multiplayer')
+    setShowCreateMultiplayerModal(false)
   }, [])
 
   console.log('🎰 ROULETTE ROYALE COMPONENT LOADING...')
@@ -43,17 +91,43 @@ export default function RouletteRoyaleWrapper() {
     <>
       {seoHelmet}
       <Suspense fallback={<LoadingFallback />}>
-        {debugMode ? (
-          <DebugGameScreen onBack={() => setDebugMode(false)} />
-        ) : selectedGame ? (
+        {gameMode === 'lobby' ? (
+          <GameLobby
+            onJoinSingleplayer={handleJoinSingleplayer}
+            onJoinMultiplayer={handleJoinMultiplayer}
+            onCreateSingleplayer={handleCreateSingleplayer}
+            onCreateMultiplayer={handleCreateMultiplayer}
+          />
+        ) : gameMode === 'singleplayer' ? (
+          <SingleplayerGameScreen 
+            onBack={handleBack}
+            initialWager={singleplayerWager}
+          />
+        ) : gameMode === 'multiplayer' && selectedGame ? (
           <RouletteRoyaleGame 
             gamePubkey={selectedGame} 
             onBack={handleBack}
           />
         ) : (
-          <RouletteRoyaleLobby
-            onGameSelect={setSelectedGame}
-            onDebug={() => setDebugMode(true)}
+          <GameLobby
+            onJoinSingleplayer={handleJoinSingleplayer}
+            onJoinMultiplayer={handleJoinMultiplayer}
+            onCreateSingleplayer={handleCreateSingleplayer}
+            onCreateMultiplayer={handleCreateMultiplayer}
+          />
+        )}
+        
+        {/* Modals */}
+        {showCreateSingleplayerModal && (
+          <CreateSingleplayerGameModal
+            onClose={() => setShowCreateSingleplayerModal(false)}
+            onConfigureGame={handleSingleplayerConfig}
+          />
+        )}
+        
+        {showCreateMultiplayerModal && (
+          <CreateMultiplayerGameModal
+            onClose={() => setShowCreateMultiplayerModal(false)}
           />
         )}
       </Suspense>

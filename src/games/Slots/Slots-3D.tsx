@@ -1,7 +1,7 @@
 import { GameResult } from 'gamba-core-v2'
 import { EffectTest, GambaUi, useCurrentPool, useSound, useWagerInput, useCurrentToken } from 'gamba-react-ui-v2'
 import React, { useEffect, useRef } from 'react'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -504,15 +504,15 @@ export default function Slots() {
           playText="Spin"
         />
         
-        <DesktopControls>
+        <DesktopControls
+          onPlay={play}
+          playDisabled={!isValid}
+          playText="Spin"
+        >
           <EnhancedWagerInput 
             value={wager} 
             onChange={setWager}
           />
-          
-          <EnhancedPlayButton disabled={!isValid} onClick={play}>
-            Spin
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

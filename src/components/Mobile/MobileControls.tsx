@@ -96,17 +96,6 @@ const MobileControlsWrapper = styled.div`
   }
 `;
 
-// Desktop controls (hidden on mobile)
-const DesktopControlsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  
-  @media (max-width: 800px) {
-    display: none;
-  }
-`;
-
 // Top row with wager and play button - modern mobile-first layout
 const TopRow = styled.div`
   display: flex;
@@ -312,6 +301,28 @@ const PlayButton = styled.button`
     transform: none;
     animation: none;
   }
+`;
+
+// Message section for when wager/play are hidden
+const MessageSection = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+`;
+
+const MessageText = styled.div`
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 // Game options section
@@ -695,6 +706,9 @@ interface MobileControlsProps {
   onPlay: () => void;
   playDisabled?: boolean;
   playText?: string;
+  hidePlayButton?: boolean; // Hide button entirely when not needed
+  hideWager?: boolean; // Hide wager input entirely when not needed
+  hideMessage?: string; // Message to show when wager/play are hidden
   children?: React.ReactNode;
 }
 
@@ -726,6 +740,9 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   onPlay,
   playDisabled = false,
   playText = "Play",
+  hidePlayButton = false,
+  hideWager = false,
+  hideMessage = "Good Luck! 🍀",
   children
 }) => {
   const token = useCurrentToken();
@@ -914,22 +931,32 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     <>
       <MobileControlsWrapper>
         <TopRow>
-          <WagerSection>
-            <WagerLabel>💰 Bet Amount</WagerLabel>
-            <CompactWagerTrigger onClick={() => setIsPopupOpen(true)}>
-              <div className="value-box">
-                <div className="value">{formattedDisplayValue}</div>
-                <div className="symbol">{token?.symbol ?? ''}</div>
-                <div className="caret">▼</div>
-              </div>
-            </CompactWagerTrigger>
-          </WagerSection>
-          
-          <PlaySection>
-            <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
-              {playText}
-            </PlayButton>
-          </PlaySection>
+          {hideWager || hidePlayButton ? (
+            <MessageSection>
+              <MessageText>{hideMessage}</MessageText>
+            </MessageSection>
+          ) : (
+            <>
+              <WagerSection>
+                <WagerLabel>💰 Bet Amount</WagerLabel>
+                <CompactWagerTrigger onClick={() => setIsPopupOpen(true)}>
+                  <div className="value-box">
+                    <div className="value">{formattedDisplayValue}</div>
+                    <div className="symbol">{token?.symbol ?? ''}</div>
+                    <div className="caret">▼</div>
+                  </div>
+                </CompactWagerTrigger>
+              </WagerSection>
+              
+              {!hidePlayButton && (
+                <PlaySection>
+                  <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
+                    {playText}
+                  </PlayButton>
+                </PlaySection>
+              )}
+            </>
+          )}
         </TopRow>
         
         {children && (
@@ -1056,7 +1083,3 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   );
 };
 
-// Desktop wrapper component
-export const DesktopControls: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <DesktopControlsWrapper>{children}</DesktopControlsWrapper>;
-};

@@ -15,7 +15,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 
 interface Particle {
   x: number
@@ -539,27 +539,42 @@ export default function KenoGame({}: KenoGameProps) {
       </GambaUi.Portal>
       
       <GambaUi.Portal target="controls">
-        <EnhancedWagerInput 
-          value={wager} 
-          onChange={setWager}
-          disabled={gameState !== GAME_STATES.IDLE}
-        />
-        <EnhancedPlayButton
-          onClick={clearGame}
-          disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.REVEALING}
-        >
-          Clear
-        </EnhancedPlayButton>
-        <EnhancedPlayButton
-          onClick={play}
-          disabled={
-            selectedNumbers.length === 0 || 
-            gameState === GAME_STATES.PLAYING || 
-            gameState === GAME_STATES.REVEALING
-          }
-        >
-          {gameState === GAME_STATES.PLAYING ? 'Playing...' : 'Play'}
-        </EnhancedPlayButton>
+        {isCompact ? (
+          <MobileControls
+            wager={wager}
+            onWagerChange={setWager}
+            wagerDisabled={gameState !== GAME_STATES.IDLE}
+            onPlay={play}
+            playDisabled={
+              selectedNumbers.length === 0 || 
+              gameState === GAME_STATES.PLAYING || 
+              gameState === GAME_STATES.REVEALING
+            }
+            playText={gameState === GAME_STATES.PLAYING ? 'Playing...' : 'Play'}
+          />
+        ) : (
+          <DesktopControls
+            onPlay={play}
+            playDisabled={
+              selectedNumbers.length === 0 || 
+              gameState === GAME_STATES.PLAYING || 
+              gameState === GAME_STATES.REVEALING
+            }
+            playText={gameState === GAME_STATES.PLAYING ? 'Playing...' : 'Play'}
+          >
+            <EnhancedWagerInput 
+              value={wager} 
+              onChange={setWager}
+              disabled={gameState !== GAME_STATES.IDLE}
+            />
+            <EnhancedButton
+              onClick={clearGame}
+              disabled={gameState === GAME_STATES.PLAYING || gameState === GAME_STATES.REVEALING}
+            >
+              Clear
+            </EnhancedButton>
+          </DesktopControls>
+        )}
       </GambaUi.Portal>
     </>
   )

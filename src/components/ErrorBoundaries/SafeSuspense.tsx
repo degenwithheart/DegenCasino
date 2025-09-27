@@ -1,6 +1,7 @@
 import React, { Suspense, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ComprehensiveErrorBoundary from './ComprehensiveErrorBoundary';
+import { ErrorBoundaryWrapper } from '../../utils/errorBoundaryUtils';
 import LoadingTimeout from './LoadingTimeout';
 
 interface SafeSuspenseProps {
@@ -70,7 +71,7 @@ export function SafeSuspense({
   const suspenseFallback = fallback || <DefaultSuspenseFallback componentName={componentName} />;
 
   return (
-    <ComprehensiveErrorBoundary level={level} componentName={componentName}>
+    <ErrorBoundaryWrapper level={level} componentName={componentName}>
       <LoadingTimeout 
         timeout={timeout} 
         componentName={componentName}
@@ -80,7 +81,7 @@ export function SafeSuspense({
           {children}
         </Suspense>
       </LoadingTimeout>
-    </ComprehensiveErrorBoundary>
+    </ErrorBoundaryWrapper>
   );
 }
 

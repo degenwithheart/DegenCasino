@@ -4,7 +4,7 @@ import { useGamba } from 'gamba-react-v2'
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -716,11 +716,12 @@ export default function Magic8BallRenderer2D() {
           playText={hasPlayed ? "Ask Again" : "Ask the Magic 8-Ball"}
         />
 
-        <DesktopControls>
+        <DesktopControls
+          onPlay={hasPlayed ? resetGame : play}
+          playDisabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded}
+          playText={hasPlayed ? "Ask Again" : "Ask the Magic 8-Ball"}
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} />
-          <EnhancedPlayButton disabled={gamba.isPlaying || (!hasPlayed && luckyNumberState.isAnimating) || poolExceeded} onClick={hasPlayed ? resetGame : play}>
-            {hasPlayed ? "Ask Again" : "Ask the Magic 8-Ball"}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

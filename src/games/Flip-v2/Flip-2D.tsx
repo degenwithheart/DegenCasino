@@ -4,7 +4,7 @@ import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -1126,11 +1126,12 @@ export default function FlipV2() {
           playText={getPlayText()}
         />
         
-        <DesktopControls>
+        <DesktopControls
+          onPlay={getPlayAction()}
+          playDisabled={flipping || !pool || gamba.isPlaying || poolExceeded}
+          playText={getPlayText()}
+        >
           <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
-          <EnhancedPlayButton disabled={flipping || !pool || gamba.isPlaying || poolExceeded} onClick={getPlayAction()}>
-            {getPlayText()}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

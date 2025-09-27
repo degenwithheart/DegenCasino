@@ -13,7 +13,7 @@ import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addChips, addResult, bet, clearChips, results, selectedChip, totalChipValue, chipPlacements } from './signals'
 import { ROULETTE_CONFIG } from '../rtpConfig'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
 import { RouletteWheel } from './RouletteWheel'
 
 const Wrapper = styled.div`
@@ -297,7 +297,11 @@ export default function Roulette() {
           />
         </MobileControls>
         
-        <DesktopControls>
+        <DesktopControls
+          onPlay={play}
+          playDisabled={!actualWager || balanceExceeded || poolExceeded || phase !== 'betting'}
+          playText={phase === 'betting' ? 'Spin' : phase === 'spinning' ? 'Spinning...' : 'Result'}
+        >
           <EnhancedWagerInput 
             value={wager} 
             onChange={setWager} 
@@ -318,12 +322,6 @@ export default function Roulette() {
           >
             Clear
           </GambaUi.Button>
-          <EnhancedPlayButton 
-            disabled={!actualWager || balanceExceeded || poolExceeded || phase !== 'betting'} 
-            onClick={play}
-          >
-            {phase === 'betting' ? 'Spin' : phase === 'spinning' ? 'Spinning...' : 'Result'}
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

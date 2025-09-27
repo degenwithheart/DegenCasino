@@ -40,7 +40,6 @@ export default function FeaturedInlineGame() {
             }}
           >
             <GambaUi.PortalTarget target="controls" />
-            <GambaUi.PortalTarget target="play" />
           </GameControls>
         </GameContainer>
       </GambaUi.Game>

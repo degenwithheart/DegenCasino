@@ -2,7 +2,7 @@ import { GambaUi, useSound, useWagerInput, useCurrentPool, TokenValue } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { EnhancedWagerInput, EnhancedButton, EnhancedPlayButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
 import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFrame'
 import { GameControlsSection } from '../../components/Game/GameControlsSection'
 import { OptionSelector } from '../../components/Mobile/MobileControls'
@@ -1043,7 +1043,11 @@ export default function PlinkoRenderer2D() {
           </div>
         </MobileControls>
         
-        <DesktopControls>
+        <DesktopControls
+          onPlay={() => play()}
+          playDisabled={gamba.isPlaying || poolExceeded}
+          playText="Play"
+        >
           <EnhancedWagerInput value={wager} onChange={setWager} />
           
           {/* Controls Container - EXACTLY like wager input */}
@@ -1156,10 +1160,6 @@ export default function PlinkoRenderer2D() {
               ⚙️
             </button>
           </div>
-          
-          <EnhancedPlayButton onClick={() => play()} disabled={gamba.isPlaying || poolExceeded}>
-            Play
-          </EnhancedPlayButton>
         </DesktopControls>
       </GambaUi.Portal>
     </>

@@ -3,7 +3,7 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedPlayButton, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
@@ -333,8 +333,8 @@ export default function DoubleOrNothingV2() {
           wager={initialWager}
           setWager={setInitialWager}
           onPlay={() => {}} // Handled by canvas clicks
-          playDisabled={true} // Always disabled, use canvas
-          playText="Click buttons above"
+          hideWager={true} // Hide controls since gameplay is canvas-based
+          hideMessage="Make Your Choice! 🎲"
         >
           {/* Mode Selector */}
           <div style={{ 
