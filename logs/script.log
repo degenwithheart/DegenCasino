@@ -1,0 +1,54 @@
+[0;34mℹ️ Starting dev server...[0m
+[0;31m⚠️ Invalid option[0m
+=== Starting: npm run clean ===
+
+> @degenwithheart/degenheart-casino@3.5.1 clean
+> rm -rf .turbo && rm -rf node_modules && rm -rf dist
+
+=== Completed: npm run clean ===
+=== Starting: npm run dev ===
+
+> @degenwithheart/degenheart-casino@3.5.1 dev
+> vite
+
+sh: vite: command not found
+=== Completed: npm run dev ===
+=== Starting: npm run clean ===
+
+> @degenwithheart/degenheart-casino@3.5.1 clean
+> rm -rf .turbo && rm -rf node_modules && rm -rf dist
+
+=== Completed: npm run clean ===
+=== Starting: npm run build:compress ===
+
+> @degenwithheart/degenheart-casino@3.5.1 build:compress
+> vite build && node scripts/compress-build.mjs
+
+sh: vite: command not found
+=== Completed: npm run build:compress ===
+=== Starting: npm run clean ===
+
+> @degenwithheart/degenheart-casino@3.5.1 clean
+> rm -rf .turbo && rm -rf node_modules && rm -rf dist
+
+=== Completed: npm run clean ===
+=== Starting: npm run dev ===
+
+> @degenwithheart/degenheart-casino@3.5.1 dev
+> vite
+
+sh: vite: command not found
+=== Completed: npm run dev ===
+=== Starting: npm run clean ===
+
+> @degenwithheart/degenheart-casino@3.5.1 clean
+> rm -rf .turbo && rm -rf node_modules && rm -rf dist
+
+=== Completed: npm run clean ===
+=== Starting: npm run build:compress ===
+
+> @degenwithheart/degenheart-casino@3.5.1 build:compress
+> vite build && node scripts/compress-build.mjs
+
+sh: vite: command not found
+=== Completed: npm run build:compress ===
