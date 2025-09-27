@@ -774,9 +774,9 @@ export default function SingleplayerGameScreen({ onBack, initialWager }: Singlep
                   Returning to lobby in {lobbyTimeLeft} seconds...
                 </div>
                 <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <BackButton onClick={handleRestartGame} style={{ backgroundColor: '#48bb78', borderColor: '#48bb78' }}>
+                  {/* <BackButton onClick={handleRestartGame} style={{ backgroundColor: '#48bb78', borderColor: '#48bb78' }}>
                     🎯 Stay with Table
-                  </BackButton>
+                  </BackButton> */}
                   <BackButton onClick={onBack}>
                     ← Back to Lobby
                   </BackButton>
@@ -913,29 +913,53 @@ export default function SingleplayerGameScreen({ onBack, initialWager }: Singlep
                 {/* Right: Betting info and settings */}
                 <div style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  flexWrap: 'wrap'
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  gap: '6px',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  padding: 'clamp(8px, 2vw, 12px)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  minWidth: '200px'
                 }}>
                   <div style={{
                     color: '#ffd700',
-                    fontSize: 'clamp(12px, 2.5vw, 14px)',
+                    fontSize: 'clamp(11px, 2.2vw, 13px)',
                     fontWeight: 'bold',
-                    textAlign: 'center'
+                    textAlign: 'right',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+                  }}>
+                    💰 Total: {(currentBets.length * wagerAmount / token.baseWager).toFixed(3).replace(/\.?0+$/, '')} SOL | {gamePhase}
+                  </div>
+                  <div style={{
+                    color: '#ffd700',
+                    fontSize: 'clamp(10px, 2vw, 12px)',
+                    fontWeight: '500',
+                    textAlign: 'right',
+                    opacity: 0.9
                   }}>
                     Place Your Bets! Time left: {timeLeft}s
                   </div>
                   <button
                     onClick={() => setShowConfigModal(true)}
                     style={{
-                      padding: '6px 12px',
-                      fontSize: '0.8rem',
+                      padding: '4px 8px',
+                      fontSize: 'clamp(10px, 1.8vw, 11px)',
                       background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 215, 0, 0.3)',
-                      borderRadius: '6px',
+                      border: '1px solid rgba(255, 215, 0, 0.4)',
+                      borderRadius: '4px',
                       color: '#ffd700',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      alignSelf: 'flex-end'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 215, 0, 0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.6)'
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.4)'
                     }}
                   >
                     🔧 Settings

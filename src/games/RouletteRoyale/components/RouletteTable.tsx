@@ -515,142 +515,204 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
         alignItems: 'center',
         gap: '10px'
       }}>
-        {/* Bet Info at top */}
-        <BetInfo>
-          💰 Total: {formatBetAmount(totalBetAmount)} SOL | {gamePhase}
-        </BetInfo>
 
-        {/* Numbers and Outside Bets Container */}
+        {/* Real Roulette Table Layout */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '15px',
+          gap: '8px',
           width: '100%',
-          alignItems: 'center'
+          maxWidth: '800px',
+          margin: '0 auto'
         }}>
-          {/* Zero */}
-          <NumberCell
-            $color="green"
-            $hasBet={hasBetOnNumber(0)}
-            disabled={disabled}
-            onClick={() => handleNumberBet(0)}
-            style={{ 
-              marginBottom: '8px', 
-              width: '50px', 
-              height: '35px'
-            }}
-          >
-            0
-            {getBetsOnNumber(0).slice(0, 4).map((bet, index) => (
-              <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                {getChipLabel(bet?.player || 'unknown', index)}
-              </Chip>
-            ))}
-          </NumberCell>
+          {/* Top Section: Zero and Main Numbers Grid */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            justifyContent: 'center'
+          }}>
+            {/* Zero Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <NumberCell
+                $color="green"
+                $hasBet={hasBetOnNumber(0)}
+                disabled={disabled}
+                onClick={() => handleNumberBet(0)}
+                style={{ 
+                  height: '120px',
+                  width: '40px',
+                  writingMode: 'vertical-rl',
+                  textOrientation: 'mixed'
+                }}
+              >
+                0
+                {getBetsOnNumber(0).slice(0, 4).map((bet, index) => (
+                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                    {getChipLabel(bet?.player || 'unknown', index)}
+                  </Chip>
+                ))}
+              </NumberCell>
+            </div>
 
-          {/* Numbers and Outside Bets Side by Side */}
-          <NumbersAndBetsContainer>
-            {/* Numbers 1-36 */}
-            <NumbersSection>
-              <NumberGrid>
-                {rouletteNumbers.map((number) => {
-                  const betsOnNumber = getBetsOnNumber(number)
-                  return (
-                    <NumberCell
-                      key={number}
-                      $color={getNumberColor(number)}
-                      $hasBet={betsOnNumber.length > 0}
-                      disabled={disabled}
-                      onClick={() => handleNumberBet(number)}
-                    >
-                      {number}
-                      {betsOnNumber.slice(0, 4).map((bet, index) => (
-                        <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                          {getChipLabel(bet?.player || 'unknown', index)}
-                        </Chip>
-                      ))}
-                    </NumberCell>
-                  )
-                })}
-              </NumberGrid>
-            </NumbersSection>
+            {/* Main Numbers Grid (3 rows x 12 columns) */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(12, 1fr)',
+              gridTemplateRows: 'repeat(3, 1fr)',
+              gap: '2px',
+              flex: 1
+            }}>
+              {/* Row 1: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 */}
+              {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((number) => {
+                const betsOnNumber = getBetsOnNumber(number)
+                return (
+                  <NumberCell
+                    key={number}
+                    $color={getNumberColor(number)}
+                    $hasBet={betsOnNumber.length > 0}
+                    disabled={disabled}
+                    onClick={() => handleNumberBet(number)}
+                    style={{ height: '36px' }}
+                  >
+                    {number}
+                    {betsOnNumber.slice(0, 4).map((bet, index) => (
+                      <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                        {getChipLabel(bet?.player || 'unknown', index)}
+                      </Chip>
+                    ))}
+                  </NumberCell>
+                )
+              })}
+              {/* Row 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 */}
+              {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((number) => {
+                const betsOnNumber = getBetsOnNumber(number)
+                return (
+                  <NumberCell
+                    key={number}
+                    $color={getNumberColor(number)}
+                    $hasBet={betsOnNumber.length > 0}
+                    disabled={disabled}
+                    onClick={() => handleNumberBet(number)}
+                    style={{ height: '36px' }}
+                  >
+                    {number}
+                    {betsOnNumber.slice(0, 4).map((bet, index) => (
+                      <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                        {getChipLabel(bet?.player || 'unknown', index)}
+                      </Chip>
+                    ))}
+                  </NumberCell>
+                )
+              })}
+              {/* Row 3: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 */}
+              {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((number) => {
+                const betsOnNumber = getBetsOnNumber(number)
+                return (
+                  <NumberCell
+                    key={number}
+                    $color={getNumberColor(number)}
+                    $hasBet={betsOnNumber.length > 0}
+                    disabled={disabled}
+                    onClick={() => handleNumberBet(number)}
+                    style={{ height: '36px' }}
+                  >
+                    {number}
+                    {betsOnNumber.slice(0, 4).map((bet, index) => (
+                      <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                        {getChipLabel(bet?.player || 'unknown', index)}
+                      </Chip>
+                    ))}
+                  </NumberCell>
+                )
+              })}
+            </div>
+          </div>
 
-            {/* Outside Bets - Below numbers on mobile, to the right on larger screens */}
-            <OutsideBeetsSection>
-              <BetArea
-                $hasBet={hasBetOnOutside('red')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('red')}
-              >
-                🔴 Red
-                {getBetsOnOutside('red').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-              <BetArea
-                $hasBet={hasBetOnOutside('black')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('black')}
-              >
-                ⚫ Black
-                {getBetsOnOutside('black').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-              <BetArea
-                $hasBet={hasBetOnOutside('odd')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('odd')}
-              >
-                Odd
-                {getBetsOnOutside('odd').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-              <BetArea
-                $hasBet={hasBetOnOutside('even')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('even')}
-              >
-                Even
-                {getBetsOnOutside('even').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-              <BetArea
-                $hasBet={hasBetOnOutside('1-18')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('1-18')}
-              >
-                1-18
-                {getBetsOnOutside('1-18').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-              <BetArea
-                $hasBet={hasBetOnOutside('19-36')}
-                disabled={disabled}
-                onClick={() => handleOutsideBet('19-36')}
-              >
-                19-36
-                {getBetsOnOutside('19-36').slice(0, 4).map((bet, index) => (
-                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
-                    {getChipLabel(bet?.player || 'unknown', index)}
-                  </Chip>
-                ))}
-              </BetArea>
-            </OutsideBeetsSection>
-          </NumbersAndBetsContainer>
+          {/* Bottom Section: Outside Bets */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(6, 1fr)',
+            gap: '4px',
+            marginTop: '8px'
+          }}>
+            <BetArea
+              $hasBet={hasBetOnOutside('1-18')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('1-18')}
+              style={{ gridColumn: 'span 2' }}
+            >
+              1-18
+              {getBetsOnOutside('1-18').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+            <BetArea
+              $hasBet={hasBetOnOutside('even')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('even')}
+            >
+              Even
+              {getBetsOnOutside('even').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+            <BetArea
+              $hasBet={hasBetOnOutside('red')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('red')}
+            >
+              🔴 Red
+              {getBetsOnOutside('red').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+            <BetArea
+              $hasBet={hasBetOnOutside('black')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('black')}
+            >
+              ⚫ Black
+              {getBetsOnOutside('black').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+            <BetArea
+              $hasBet={hasBetOnOutside('odd')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('odd')}
+            >
+              Odd
+              {getBetsOnOutside('odd').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+            <BetArea
+              $hasBet={hasBetOnOutside('19-36')}
+              disabled={disabled}
+              onClick={() => handleOutsideBet('19-36')}
+              style={{ gridColumn: 'span 2' }}
+            >
+              19-36
+              {getBetsOnOutside('19-36').slice(0, 4).map((bet, index) => (
+                <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                  {getChipLabel(bet?.player || 'unknown', index)}
+                </Chip>
+              ))}
+            </BetArea>
+          </div>
         </div>
       </div>
 

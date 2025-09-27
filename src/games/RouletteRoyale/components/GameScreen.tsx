@@ -440,20 +440,19 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
           position: 'relative',
           background: 'radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, rgba(0, 0, 0, 0.9) 70%)'
         }}>
-          {/* Game Section - Player list and wheel transitions sharing space */}
+          {/* Main Game Area - Mobile-First */}
           <div style={{
             position: 'absolute',
-            top: 'clamp(8px, 2vw, 15px)',
-            left: 'clamp(8px, 2vw, 15px)',
-            right: 'clamp(8px, 2vw, 15px)',
-            bottom: 'clamp(80px, 15vw, 100px)', // Space for GameControlsSection
+            top: 'clamp(15px, 4vw, 25px)',
+            left: '0',
+            right: '0',
+            bottom: 'clamp(130px, 28vw, 150px)', // More space for GameControlsSection
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'clamp(20px, 5vw, 30px)',
-            padding: '10px'
+            gap: 'clamp(15px, 4vw, 25px)',
+            padding: 'clamp(10px, 2vw, 20px)'
           }}>
             {/* Compact Game Results */}
             {chainGame?.state.complete && winningNumber !== null && (
