@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
@@ -74,11 +74,22 @@ const Wheel = styled.div<{ $spinning?: boolean; $winningNumber?: number | null; 
   align-items: center;
   justify-content: center;
   position: relative;
-  animation: ${props => props.$spinning ? spin : 'none'} 3s ease-out;
-  ${props => props.$winningNumber !== null && props.$finalRotation !== undefined && `
-    transform: rotate(${props.$finalRotation}deg);
-    animation: none;
-  `}
+  ${props => {
+    if (props.$spinning && props.$winningNumber === null) {
+      // Spinning animation
+      return css`
+        animation: ${spin} 3s ease-out infinite;
+      `;
+    } else if (props.$winningNumber !== null && props.$finalRotation !== undefined) {
+      // Final position with smooth transition
+      return css`
+        transform: rotate(${props.$finalRotation}deg);
+        transition: transform 2s ease-out;
+        animation: none;
+      `;
+    }
+    return '';
+  }}
   box-shadow: 
     0 0 30px rgba(184, 134, 11, 0.6),
     0 0 60px rgba(184, 134, 11, 0.3),
@@ -117,7 +128,7 @@ const WheelCenter = styled.div<{ $winningNumber?: number | null }>`
   box-shadow: 
     0 0 20px rgba(0, 0, 0, 0.3),
     inset 0 0 20px rgba(255, 215, 0, 0.3);
-  ${props => props.$winningNumber !== null && `
+  ${props => props.$winningNumber !== null && css`
     background: linear-gradient(45deg, #ff6b6b, #ffd700);
     animation: ${glow} 1s infinite;
   `}
@@ -130,12 +141,12 @@ const WinningDisplay = styled.div<{ $isWinning?: boolean }>`
   font-weight: bold;
   padding: 15px;
   border-radius: 12px;
-  ${props => props.$isWinning ? `
+  ${props => props.$isWinning ? css`
     color: #ffd700;
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 107, 0.2));
     border: 2px solid #ffd700;
     animation: ${glow} 2s infinite;
-  ` : `
+  ` : css`
     color: #fff;
     background: rgba(0, 0, 0, 0.5);
   `}
@@ -158,7 +169,8 @@ const NumberLabel = styled.div<{ $number: number }>`
   justify-content: center;
   transform-origin: center;
   ${props => {
-    const angle = props.$number === 0 ? 0 : ((props.$number - 1) * 9.73) + 9.73;
+    const index = wheelNumbers.indexOf(props.$number);
+    const angle = index * 9.73; // Each segment is 9.73 degrees
     const radius = 115;
     const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
     const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
@@ -187,7 +199,9 @@ export default function RouletteWheel({ spinning = false, winningNumber = null, 
     if (index === -1) return 0
     // Each segment is 9.73 degrees, pointer is at top (0 degrees)
     // We want the winning number to end up at 0 degrees (top)
-    return -(index * 9.73) + 360 // Add full rotation for visual effect
+    // Add multiple rotations for realistic spin effect
+    const rotations = 5 + Math.random() * 3 // 5-8 rotations
+    return -(index * 9.73) + (360 * rotations)
   }
 
   const finalRotation = getFinalRotation(winningNumber)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 
 const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -46,7 +46,7 @@ const NumberCell = styled.button<{ $color: 'red' | 'black' | 'green'; $hasBet?: 
   transition: all 0.2s ease;
   position: relative;
   
-  ${props => props.$hasBet && `
+  ${props => props.$hasBet && css`
     animation: ${pulse} 1s infinite;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
   `}
@@ -71,8 +71,9 @@ const BetArea = styled.button<{ $hasBet?: boolean }>`
   font-weight: bold;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.2s ease;
+  position: relative;
   
-  ${props => props.$hasBet && `
+  ${props => props.$hasBet && css`
     animation: ${pulse} 1s infinite;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
   `}
@@ -98,10 +99,32 @@ const BetInfo = styled.div`
   font-size: 0.9rem;
 `
 
+const Chip = styled.div<{ $playerIndex: number }>`
+  position: absolute;
+  top: ${props => -8 - (props.$playerIndex * 6)}px;
+  right: ${props => -8 - (props.$playerIndex * 6)}px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ffd700;
+  background: ${props => {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8', '#f7dc6f']
+    return colors[props.$playerIndex % colors.length]
+  }};
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: ${props => 10 + props.$playerIndex};
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+`
+
 interface RouletteTableProps {
   onBetPlaced?: (bet: { type: string; value: number | string; amount: number }) => void;
   gamePhase?: string;
-  playerBets?: Array<{ type: string; value: number | string; amount: number }>;
+  playerBets?: Array<{ type: string; value: number | string; amount: number; player?: string }>;
   disabled?: boolean;
 }
 
@@ -144,6 +167,14 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
     return playerBets.some(bet => bet.type === 'outside' && bet.value === betType)
   }
 
+  const getBetsOnNumber = (number: number) => {
+    return playerBets.filter(bet => bet.type === 'number' && bet.value === number)
+  }
+
+  const getBetsOnOutside = (betType: string) => {
+    return playerBets.filter(bet => bet.type === 'outside' && bet.value === betType)
+  }
+
   const totalBetAmount = playerBets.reduce((sum, bet) => sum + bet.amount, 0)
 
   return (
@@ -163,21 +194,34 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           style={{ marginBottom: '10px', width: '60px', height: '50px' }}
         >
           0
+          {getBetsOnNumber(0).slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </NumberCell>
 
         {/* Numbers 1-36 */}
         <NumberGrid>
-          {rouletteNumbers.map((number) => (
-            <NumberCell
-              key={number}
-              $color={getNumberColor(number)}
-              $hasBet={hasBetOnNumber(number)}
-              disabled={disabled}
-              onClick={() => handleNumberBet(number)}
-            >
-              {number}
-            </NumberCell>
-          ))}
+          {rouletteNumbers.map((number) => {
+            const betsOnNumber = getBetsOnNumber(number)
+            return (
+              <NumberCell
+                key={number}
+                $color={getNumberColor(number)}
+                $hasBet={betsOnNumber.length > 0}
+                disabled={disabled}
+                onClick={() => handleNumberBet(number)}
+              >
+                {number}
+                {betsOnNumber.slice(0, 3).map((bet, index) => (
+                  <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+                    {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+                  </Chip>
+                ))}
+              </NumberCell>
+            )
+          })}
         </NumberGrid>
       </div>
 
@@ -196,6 +240,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('red')}
         >
           🔴 Red
+          {getBetsOnOutside('red').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
         <BetArea
           $hasBet={hasBetOnOutside('black')}
@@ -203,6 +252,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('black')}
         >
           ⚫ Black
+          {getBetsOnOutside('black').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
         <BetArea
           $hasBet={hasBetOnOutside('odd')}
@@ -210,6 +264,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('odd')}
         >
           Odd
+          {getBetsOnOutside('odd').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
         <BetArea
           $hasBet={hasBetOnOutside('even')}
@@ -217,6 +276,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('even')}
         >
           Even
+          {getBetsOnOutside('even').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
         <BetArea
           $hasBet={hasBetOnOutside('1-18')}
@@ -224,6 +288,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('1-18')}
         >
           1-18
+          {getBetsOnOutside('1-18').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
         <BetArea
           $hasBet={hasBetOnOutside('19-36')}
@@ -231,6 +300,11 @@ export default function RouletteTable({ onBetPlaced, gamePhase = 'waiting', play
           onClick={() => handleOutsideBet('19-36')}
         >
           19-36
+          {getBetsOnOutside('19-36').slice(0, 3).map((bet, index) => (
+            <Chip key={`${bet?.player || 'unknown'}-${index}`} $playerIndex={index}>
+              {typeof bet?.player === 'string' && bet.player.length >= 2 ? bet.player.slice(0, 2).toUpperCase() : index + 1}
+            </Chip>
+          ))}
         </BetArea>
       </div>
 

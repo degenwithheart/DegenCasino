@@ -11,6 +11,7 @@ import RouletteTable from './RouletteTable'
 import RouletteWheel from './RouletteWheel'
 import PlayersList from './PlayersList'
 import { SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_CHIP } from '../constants'
+import { ROULETTE_ROYALE_CONFIG } from '../../rtpConfigMultiplayer'
 
 const glowPulse = keyframes`
   0%, 100% {
@@ -151,17 +152,42 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
   
   const [gamePhase, setGamePhase] = useState<'wagering' | 'placing' | 'spinning' | 'outcome' | 'lobby'>('wagering')
   const [timeLeft, setTimeLeft] = useState(30)
+  const [wageringTimeLeft, setWageringTimeLeft] = useState(30)
   const [currentBets, setCurrentBets] = useState<any[]>([])
   const [winningNumber, setWinningNumber] = useState<number | null>(null)
   const [hasCommitted, setHasCommitted] = useState(false)
   const [wagerAmount, setWagerAmount] = useState(1000000) // Initial wager
   
   // Generate fake players
-  const [fakePlayers] = useState(() => Array.from({ length: 3 }, (_, i) => generateFakePlayer(i)))
+  const [fakePlayers] = useState(['Alice', 'Bob', 'Charlie', 'Diana'])
+  
+  const getNumberColor = (num: number): 'red' | 'black' | 'green' => {
+    if (num === 0) return 'green'
+    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
+    return redNumbers.includes(num) ? 'red' : 'black'
+  }
   
     // Simulate 5-phase game
   useEffect(() => {
-    if (gamePhase === 'wagering') return // Wait for user to set wager and continue
+    if (gamePhase === 'wagering') {
+      // Start wagering countdown
+      let interval: NodeJS.Timeout
+      if (wageringTimeLeft > 0 && !hasCommitted) {
+        interval = setInterval(() => {
+          setWageringTimeLeft(prev => {
+            if (prev <= 1) {
+              // Timeout - return to lobby
+              setGamePhase('lobby')
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
+      }
+      return () => {
+        if (interval) clearInterval(interval)
+      }
+    }
     
     if (gamePhase === 'placing') {
       // Start countdown for placing bets
@@ -192,21 +218,24 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
         
         // Check for winners and play sounds
         const hasWinner = currentBets.some(bet => 
-          bet.type === 'straight' && bet.number === randomWinningNumber
+          (bet.type === 'number' && bet.value === randomWinningNumber) ||
+          (bet.type === 'outside' && bet.value === 'red' && getNumberColor(randomWinningNumber) === 'red') ||
+          (bet.type === 'outside' && bet.value === 'black' && getNumberColor(randomWinningNumber) === 'black')
         )
         sounds.play(hasWinner ? 'win' : 'lose')
         
-        // Return to wagering after 5 seconds
+        // Return to lobby after 5 seconds (not wagering)
         setTimeout(() => {
-          setGamePhase('wagering')
+          setGamePhase('lobby')
           setWinningNumber(null)
           setCurrentBets([])
           setTimeLeft(30)
+          setWageringTimeLeft(30)
           setHasCommitted(false)
         }, 5000)
       }, 3000)
     }
-  }, [gamePhase, timeLeft, currentBets, sounds, fakePlayers])
+  }, [gamePhase, timeLeft, wageringTimeLeft, hasCommitted, currentBets, sounds, fakePlayers])
   
   const handleCommitWager = useCallback(() => {
     if (hasCommitted) return
@@ -216,9 +245,22 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
   }, [hasCommitted, sounds])
   
   const handleBetPlaced = useCallback((betData: any) => {
-    if (gamePhase !== 'placing' || !hasCommitted) return
+    if (gamePhase !== 'placing' || !hasCommitted || !publicKey) return
     sounds.play('chip')
-    setCurrentBets(prev => [...prev, { ...betData, player: publicKey }])
+    // Allow configurable number of chips per player
+    setCurrentBets(prev => {
+      const playerKey = publicKey.toBase58()
+      const playerBets = prev.filter(bet => bet.player === playerKey)
+      if (playerBets.length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER) {
+        // Replace the oldest bet if at limit
+        const newBets = [...playerBets.slice(1), { ...betData, player: playerKey }]
+        const otherBets = prev.filter(bet => bet.player !== playerKey)
+        return [...otherBets, ...newBets]
+      } else {
+        // Add new bet
+        return [...prev, { ...betData, player: playerKey }]
+      }
+    })
   }, [gamePhase, hasCommitted, publicKey, sounds])
   
   const handleWagerContinue = useCallback(() => {
@@ -235,7 +277,7 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
   const getPhaseText = () => {
     switch (gamePhase) {
       case 'wagering':
-        return 'Set your wager amount...'
+        return `Set your wager amount... ${wageringTimeLeft}s`
       case 'placing':
         return `Place your bets! ${timeLeft}s`
       case 'spinning':
@@ -251,7 +293,12 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
   
   // All players (fake + real player if committed)
   const allPlayers = [
-    ...fakePlayers,
+    ...fakePlayers.map((name, index) => ({
+      user: Keypair.generate().publicKey, // Generate fake public keys for demo
+      name,
+      status: 'joined' as const,
+      wager: wagerAmount
+    })),
     ...(hasCommitted && publicKey ? [{ 
       user: publicKey, 
       name: 'You', 
@@ -306,6 +353,9 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
                 <h2 style={{ color: '#ffd700', margin: 0, fontSize: '2rem' }}>
                   Set Your Wager
                 </h2>
+                <div style={{ color: '#ff6b6b', fontSize: '0.9rem', textAlign: 'center' }}>
+                  Time remaining: {wageringTimeLeft}s - Commit wager or return to lobby
+                </div>
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.6)',
                   borderRadius: '10px',
@@ -343,7 +393,7 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
                   gamePhase={gamePhase}
                   onBetPlaced={handleBetPlaced}
                   playerBets={currentBets}
-                  disabled={false}
+                  disabled={gamePhase !== 'placing' || !publicKey || currentBets.filter(bet => bet.player === publicKey.toBase58()).length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER}
                 />
               </div>
             )}
@@ -364,6 +414,7 @@ export default function DebugGameScreen({ onBack }: DebugGameScreenProps) {
                 <RouletteWheel
                   spinning={true}
                   winningNumber={winningNumber}
+                  gamePhase={gamePhase}
                 />
               </div>
             )}

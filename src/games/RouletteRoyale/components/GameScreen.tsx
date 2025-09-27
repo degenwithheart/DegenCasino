@@ -18,6 +18,7 @@ import RouletteWheel from './RouletteWheel'
 import PlayersList from './PlayersList'
 import { SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_CHIP } from '../constants'
 import { getRouletteRoyaleBetArray } from '../../rtpConfigMultiplayer'
+import { ROULETTE_ROYALE_CONFIG } from '../../rtpConfigMultiplayer'
 
 const glowPulse = keyframes`
   0%, 100% {
@@ -169,12 +170,21 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
   const [playerBets, setPlayerBets] = useState<Record<string, any>>({})
   const [myBets, setMyBets] = useState<any[]>([])
 
+  // Track bets per player for chip display
+  const [allPlayerBets, setAllPlayerBets] = useState<any[]>([])
+
   // Game phase management
   useEffect(() => {
     if (!chainGame) return
 
     if (chainGame.state.waiting) {
       setGamePhase('waiting')
+      // Clear bets for new game
+      setAllPlayerBets([])
+      setMyBets([])
+      setWinningNumber(null)
+      setWinner(null)
+      setShowWinnerAnnouncement(false)
     } else if (chainGame.state.playing) {
       setGamePhase('betting')
       // Start countdown timer
@@ -206,9 +216,14 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
     
     // Determine winner (player who bet on winning number)
     const winnerPlayer = chainGame.players.find(player => {
+      const playerKey = player.user.toBase58()
       // Check if player's bet includes the winning number
-      // This would need to be implemented based on how bets are stored
-      return false // Placeholder
+      return allPlayerBets.some(bet => 
+        bet.player === playerKey && 
+        ((bet.type === 'number' && bet.value === winnerIndex) ||
+         (bet.type === 'outside' && bet.value === 'red' && getNumberColor(winnerIndex) === 'red') ||
+         (bet.type === 'outside' && bet.value === 'black' && getNumberColor(winnerIndex) === 'black'))
+      )
     })
     
     if (winnerPlayer) {
@@ -223,7 +238,13 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
     } else {
       sounds.play('lose')
     }
-  }, [chainGame, sounds])
+  }, [chainGame, allPlayerBets, sounds])
+
+  const getNumberColor = (num: number): 'red' | 'black' | 'green' => {
+    if (num === 0) return 'green'
+    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
+    return redNumbers.includes(num) ? 'red' : 'black'
+  }
 
   const isPlayerInGame = publicKey && chainGame?.players.some(p => p.user.equals(publicKey))
   const canJoinGame = chainGame?.state.waiting && !isPlayerInGame
@@ -365,6 +386,7 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
                 <RouletteWheel
                   spinning={true}
                   winningNumber={winningNumber}
+                  gamePhase={gamePhase}
                 />
               ) : (
                 <div style={{
@@ -413,10 +435,28 @@ function RouletteRoyaleGameScreen({ gamePubkey, onBack }: GameScreenProps) {
             <RouletteTable
               gamePhase={gamePhase}
               onBetPlaced={(bet) => {
+                if (!publicKey) return
                 sounds.play('chip')
-                setMyBets(prev => [...prev, bet])
+                
+                // Limit chips per player
+                const playerKey = publicKey.toBase58()
+                const currentPlayerBets = allPlayerBets.filter(b => b.player === playerKey)
+                
+                if (currentPlayerBets.length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER) {
+                  // Replace oldest bet if at limit
+                  const newBets = [...currentPlayerBets.slice(1), { ...bet, player: playerKey }]
+                  const otherBets = allPlayerBets.filter(b => b.player !== playerKey)
+                  setAllPlayerBets([...otherBets, ...newBets])
+                  setMyBets(newBets)
+                } else {
+                  // Add new bet
+                  const newBet = { ...bet, player: playerKey }
+                  setAllPlayerBets(prev => [...prev, newBet])
+                  setMyBets(prev => [...prev, bet])
+                }
               }}
-              disabled={gamePhase !== 'betting' || !isPlayerInGame}
+              playerBets={allPlayerBets}
+              disabled={gamePhase !== 'betting' || !isPlayerInGame || (publicKey && allPlayerBets.filter(b => b.player === publicKey.toBase58()).length >= ROULETTE_ROYALE_CONFIG.CHIPS_PER_PLAYER)}
             />
           </GameControlsSection>
         </div>

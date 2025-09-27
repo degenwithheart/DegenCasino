@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useMultiplayer } from 'gamba-react-v2'
@@ -111,7 +111,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   cursor: pointer;
   transition: all 0.3s ease;
   
-  ${props => props.variant === 'primary' ? `
+  ${props => props.variant === 'primary' ? css`
     background: linear-gradient(45deg, #ff6b6b, #ffd700);
     color: white;
     animation: ${glowPulse} 3s ease-in-out infinite;
@@ -119,7 +119,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
     &:hover {
       transform: scale(1.05);
     }
-  ` : `
+  ` : css`
     background: rgba(255, 255, 255, 0.1);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.3);
