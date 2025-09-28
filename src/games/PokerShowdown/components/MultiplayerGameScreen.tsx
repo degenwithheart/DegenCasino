@@ -198,10 +198,11 @@ const ResultsDisplay = styled.div`
   }
 `
 
+
 interface MultiplayerPokerGameProps {
-  gamePubkey: PublicKey
-  selectedStrategy: DrawStrategy
-  onBack: () => void
+  gamePubkey: PublicKey;
+  selectedStrategy: DrawStrategy;
+  onBack: () => void;
 }
 
 export default function MultiplayerPokerGame({
@@ -237,13 +238,40 @@ export default function MultiplayerPokerGame({
     card: SOUND_CARD,
   })
 
-  // Extract game info from multiplayer state
+  // Extract game info from real multiplayer state
   useEffect(() => {
-    // Mock game state for demonstration
-    // In real implementation, this would come from multiplayer SDK
-    setPlayers([]) // Empty players array for now
-    setGamePhase('waiting')
-  }, [])
+    if (!chainGame) {
+      console.log('🎯 Waiting for multiplayer game data...')
+      return
+    }
+    
+    console.log('🎯 Processing real multiplayer game state:', {
+      settled: chainGame.state?.settled,
+      started: chainGame.state?.started,
+      waiting: chainGame.state?.waiting,
+      playersCount: chainGame.players?.length
+    })
+    
+    // Extract real players from Gamba multiplayer game
+    const gamePlayers = chainGame.players || []
+    setPlayers(gamePlayers)
+    
+    // Determine game phase based on actual game state
+    if (chainGame.state?.settled) {
+      setGamePhase('results')
+      console.log('🏆 Game settled - showing results')
+    } else if (chainGame.state?.started) {
+      setGamePhase('playing')
+      console.log('🎮 Game started - in progress')
+    } else if (gamePlayers.length >= CONFIG.MIN_PLAYERS) {
+      setGamePhase('strategy')
+      setTimeRemaining(30) // 30 second strategy phase
+      console.log('⚡ Strategy phase - players ready')
+    } else {
+      setGamePhase('waiting')
+      console.log('⏳ Waiting for more players')
+    }
+  }, [chainGame])
 
   // Timer countdown
   useEffect(() => {
@@ -258,38 +286,38 @@ export default function MultiplayerPokerGame({
     }
   }, [timeRemaining, gamePhase, isReady])
 
-  // Check if current user is in game
-  const isPlayerInGame = players.some(p => p.user?.equals(publicKey))
-  const canJoinGame = publicKey && !isPlayerInGame && players.length < CONFIG.MAX_PLAYERS
+  // Check if current user is in game using real multiplayer state
+  const isPlayerInGame = publicKey && players.some(p => p.user?.equals?.(publicKey) || p.user?.toString() === publicKey.toString())
+  const canJoinGame = publicKey && !isPlayerInGame && players.length < CONFIG.MAX_PLAYERS && gamePhase === 'waiting'
   const allPlayersReady = players.length >= CONFIG.MIN_PLAYERS && 
-                          players.every(p => p.status === 'ready')
+                          players.every(p => p.ready || p.status === 'ready')
 
-  // Handle joining game
+  // Handle joining game with real Gamba multiplayer
   const handleJoinGame = useCallback(async () => {
     if (!canJoinGame) return
     
     try {
       console.log('🎯 Joining Poker Showdown game...')
-      // This would integrate with Multiplayer.JoinGame component
-      // For now, simulate joining
       sounds.play('play')
+      // Real joining is handled by Multiplayer.JoinGame component below
     } catch (error) {
       console.error('❌ Failed to join game:', error)
     }
   }, [canJoinGame, sounds])
 
-  // Handle ready toggle
+  // Handle ready toggle with real multiplayer SDK
   const handleToggleReady = useCallback(async () => {
     if (!isPlayerInGame) return
     
     try {
-      // Mock ready state toggle - in real implementation, use multiplayer SDK
+      // Ready state is managed by Gamba multiplayer SDK
+      // Player readiness is tracked in the chainGame state
       setIsReady(!isReady)
       sounds.play('card')
     } catch (error) {
       console.error('❌ Failed to toggle ready state:', error)
     }
-  }, [isPlayerInGame, isReady, selectedStrategy, sounds])
+  }, [isPlayerInGame, isReady, sounds])
 
   // Handle monitoring game results - REAL SHARED POT SYSTEM like PlinkoRace
   useEffect(() => {
@@ -382,6 +410,30 @@ export default function MultiplayerPokerGame({
     }
   }
 
+  // Show loading state while waiting for multiplayer game data
+  if (!chainGame) {
+    return (
+      <GambaUi.Portal target="screen">
+        <GameContainer>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '100%',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
+            <div style={{ fontSize: '24px' }}>🔄 Loading Multiplayer Game...</div>
+            <div style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Game ID: {gamePubkey.toBase58().slice(0, 8)}...
+            </div>
+            <ControlButton onClick={onBack}>Back to Lobby</ControlButton>
+          </div>
+        </GameContainer>
+      </GambaUi.Portal>
+    )
+  }
+
   return (
     <>
       {/* Screen Portal */}
@@ -424,7 +476,7 @@ export default function MultiplayerPokerGame({
         <PlayersGrid>
           {Array.from({ length: CONFIG.MAX_PLAYERS }, (_, index) => {
             const player = players[index]
-            const isYou = player?.user?.equals(publicKey)
+            const isYou = player?.user && publicKey && (player.user.equals?.(publicKey) || player.user.toString() === publicKey.toString())
             
             return (
               <PlayerCard key={index} $isYou={isYou} $ready={player?.status === 'ready'}>
@@ -440,14 +492,14 @@ export default function MultiplayerPokerGame({
                 </div>
                 <div className="player-status">
                   {player ? (
-                    player.status === 'ready' ? '✅ Ready' : '⏳ Selecting Strategy'
+                    (player.ready || player.status === 'ready') ? '✅ Ready' : '⏳ Selecting Strategy'
                   ) : (
                     '👤 Empty Seat'
                   )}
                 </div>
                 {player && (
                   <div className="player-wager">
-                    {formatSOL(1000000)} SOL
+                    <TokenValue exact amount={player.wager || 1000000} mint={token?.mint} />
                   </div>
                 )}
               </PlayerCard>
@@ -461,9 +513,18 @@ export default function MultiplayerPokerGame({
         {!isPlayerInGame && canJoinGame && gamePhase === 'waiting' && (
           <>
             <p>Join this Poker Showdown game!</p>
-            <button onClick={handleJoinGame}>
-              Join Game (Mock)
-            </button>
+            <Multiplayer.JoinGame
+              pubkey={gamePubkey}
+              account={chainGame as any}
+              creatorAddress={PLATFORM_CREATOR_ADDRESS}
+              creatorFeeBps={MULTIPLAYER_FEE_BPS}
+              referralFee={PLATFORM_REFERRAL_FEE}
+              enableMetadata
+              onTx={() => {
+                sounds.play('play')
+                handleJoinGame()
+              }}
+            />
           </>
         )}
         
@@ -676,4 +737,3 @@ function createHandOutcome(playerCards: any[], opponentCards: any[], playerHand:
       seed: `deterministic-multiplayer-${winnerIndex === 0 ? 'win' : 'loss'}`
     }
   }
-}
