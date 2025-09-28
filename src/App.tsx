@@ -67,13 +67,56 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
   // Resolve Game component through theme system (falls back to default if no themed version)
   const GameComponent = resolveComponent('sections', 'Game') || React.lazy(() => import('./sections/Game/Game'));
 
-  // Check if this is a Holy Grail theme that uses a layout wrapper
+  // Check if this is a themed layout that uses a layout wrapper
   const isDegenHeartTheme = currentLayoutTheme.id === 'degenheart';
+  const isMobileTheme = currentLayoutTheme.id === 'degen-mobile';
   
-  // Conditionally use degen Modal for degen theme
+  // Conditionally use themed Modal components
   const ModalComponent = isDegenHeartTheme 
     ? React.lazy(() => import('./themes/layouts/degenheart/components/Modal').then(m => ({ default: m.Modal })))
     : Modal;
+
+  // For Mobile theme, wrap everything in the Mobile layout
+  if (isMobileTheme) {
+    const DegenMobileLayout = React.lazy(() => import('./themes/layouts/degen-mobile/DegenMobileLayout'));
+    
+    return (
+      <RouterErrorBoundary key={`degen-mobile-${location.pathname}`}>
+        <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
+          <Suspense fallback={<RouteLoadingSpinner />}>
+            <DegenMobileLayout>
+            <Toasts />
+            <DevnetWarning />
+            <Routes>
+              <Route path="/" element={<DashboardComponent />} />
+              <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPage /></SafeSuspense>} />
+              <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPage /></SafeSuspense>} />
+              <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPage /></SafeSuspense>} />
+              <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPage /></SafeSuspense>} />
+              <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
+              <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
+              <Route path="/credits" element={<SafeSuspense level="route" componentName="Credits Page"><Credits /></SafeSuspense>} />
+              <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
+              <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
+              <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
+              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
+              <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
+              <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
+              <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
+              <Route path="/explorer/transaction/:txId" element={<ErrorBoundaryWrapper level="route" componentName="Transaction View"><Transaction /></ErrorBoundaryWrapper>} />
+              <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
+              <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
+            </Routes>
+            {ENABLE_TROLLBOX && connected && <TrollBox />}
+            </DegenMobileLayout>
+          </Suspense>
+        </RouteTransitionWrapper>
+      </RouterErrorBoundary>
+    );
+  }
 
   // For DegenHeart theme, wrap everything in the DegenHeart layout
   if (isDegenHeartTheme) {

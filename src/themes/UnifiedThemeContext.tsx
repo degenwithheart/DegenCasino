@@ -1,11 +1,12 @@
 // Unified Theme Context (Layout Themes + Color Schemes)
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { GlobalColorScheme, ColorSchemeKey, globalColorSchemes, getStoredColorScheme, setStoredColorScheme } from './globalColorSchemes';
-import { LayoutTheme, LayoutThemeKey, getLayoutTheme, DEFAULT_LAYOUT_THEME, AVAILABLE_LAYOUT_THEMES } from './layouts';
+import { LayoutTheme, LayoutThemeKey, getLayoutTheme, getLayoutThemeWithMobileDetection, DEFAULT_LAYOUT_THEME, AVAILABLE_LAYOUT_THEMES } from './layouts';
 import { ThemeResolver, createThemeResolver, ComponentCategory, ComponentName } from './themeResolver';
 import { ColorSchemeProvider } from './ColorSchemeContext';
 import { GlobalScrollStyles } from './GlobalScrollStyles';
 import { ScrollConfig, defaultScrollConfig, getStoredScrollConfig, setStoredScrollConfig, applyScrollConfig, GameScrollConfigKey, applyGameScrollConfig, detectOptimalScrollConfig } from './scrollConfig';
+import { initializeTheme, getStoredThemePreference, setStoredThemePreference, ThemePreference } from './mobileDetection';
 
 /**
  * Storage keys for persistence
@@ -63,10 +64,11 @@ function createDefaultComponentRegistry() {
 const UnifiedThemeContext = createContext<UnifiedThemeContextType | null>(null);
 
 /**
- * Get stored layout theme from localStorage
+ * Get stored layout theme from localStorage (desktop themes only)
  */
 const getStoredLayoutTheme = (): LayoutThemeKey => {
   try {
+    // Check for explicit theme preference first
     const stored = localStorage.getItem(LAYOUT_THEME_STORAGE_KEY);
     if (stored && stored in AVAILABLE_LAYOUT_THEMES) {
       return stored as LayoutThemeKey;
@@ -166,10 +168,18 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
     applyScrollConfig(scrollConfig);
   }, []);
 
-  // Layout Theme Setter
+  // Layout Theme Setter (with mobile detection preference tracking)
   const setLayoutTheme = (newThemeKey: LayoutThemeKey) => {
     setLayoutThemeKey(newThemeKey);
     setStoredLayoutTheme(newThemeKey);
+    
+    // Mark as manually selected to prevent auto-switching
+    const preference = getStoredThemePreference();
+    setStoredThemePreference({
+      ...preference,
+      manual: true,
+      theme: newThemeKey as any
+    });
   };
 
   // Color Scheme Setter (existing)

@@ -1,6 +1,31 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { getCriticalGames, getHighPriorityGames, LoadingPriority } from '../../games/gameLoadingPriority';
 
+// Game ID to folder path mapping based on allGames.ts structure
+const getGameFolderPath = (gameId: string): string => {
+  const gamePathMap: { [key: string]: string } = {
+    'dice-v2': 'Dice-v2',
+    'magic8ball': 'Magic8Ball',
+    'slots': 'Slots',
+    'plinko-race': 'PlinkoRace',
+    'flip-v2': 'Flip-v2',
+    'roulette-royale': 'RouletteRoyale',
+    'hilo': 'HiLo',
+    'mines': 'Mines',
+    'plinko': 'Plinko',
+    'crash': 'CrashGame',
+    'blackjack': 'BlackJack-v2',
+    'multipoker': 'MultiPoker-v2',
+    'poker-showdown': 'PokerShowdown',
+    'chart-game': 'CryptoChartGame-v2',
+    'double-or-nothing': 'DoubleOrNothing-v2',
+    'horse-racing': 'FancyVirtualHorseRacing-v2',
+    'keno': 'Keno-v2',
+    'limbo': 'Limbo-v2'
+  }
+  return gamePathMap[gameId] || gameId
+}
+
 // Enhanced preloader for lazy-loaded React components with game priority awareness
 export function useComponentPreloader() {
   const preloadedComponents = useRef(new Set<string>());
@@ -57,8 +82,9 @@ export function useComponentPreloader() {
       criticalGames.forEach((game, index) => {
         setTimeout(async () => {
           try {
-            // Import the game component
-            const gameModule = await import(/* @vite-ignore */ `../../games/${game.id.replace('-v2', '').replace('magic8ball', 'Magic8Ball')}`);
+            // Import the game component using correct folder path
+            const folderPath = getGameFolderPath(game.id)
+            const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
             preloadedGames.current.add(game.id);
             console.log(`🎮 Preloaded critical game: ${game.id}`);
             
@@ -85,7 +111,8 @@ export function useComponentPreloader() {
           try {
             // Only preload if not already loaded
             if (!preloadedGames.current.has(game.id)) {
-              const gameModule = await import(/* @vite-ignore */ `../../games/${game.id.replace('-v2', '').replace('hilo', 'HiLo')}`);
+              const folderPath = getGameFolderPath(game.id)
+              const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
               preloadedGames.current.add(game.id);
               console.log(`🎮 Preloaded high priority game: ${game.id}`);
             }
