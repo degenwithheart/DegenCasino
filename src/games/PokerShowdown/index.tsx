@@ -38,6 +38,10 @@ export default function PokerShowdownWrapper() {
     setGameMode('multiplayer')
   }, [])
 
+  const handleCreateSingleplayer = useCallback(() => {
+    setGameMode('singleplayer')
+  }, [])
+
   const handleCreateMultiplayer = useCallback(() => {
     setShowCreateModal(true)
   }, [])
@@ -57,6 +61,7 @@ export default function PokerShowdownWrapper() {
         <GameLobby
           onJoinSingleplayer={handleJoinSingleplayer}
           onJoinMultiplayer={handleJoinMultiplayer}
+          onCreateSingleplayer={handleCreateSingleplayer}
           onCreateMultiplayer={handleCreateMultiplayer}
         />
       )}

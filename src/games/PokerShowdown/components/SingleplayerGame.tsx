@@ -171,11 +171,7 @@ export default function SingleplayerGame({
       
       // Calculate bet array (simplified for practice mode)
       const isHumanWinner = outcome.winnerIndex === 0
-      const betArray = getPokerShowdownBetArray(
-        outcome.winnerHandRank.toString(),
-        allStrategies.length,
-        isHumanWinner
-      )
+      const betArray = getPokerShowdownBetArray()
       
       // Execute Gamba transaction
       await game.play({

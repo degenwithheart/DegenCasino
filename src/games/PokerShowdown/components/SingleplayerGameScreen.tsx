@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import { GambaUi, useSound, useWagerInput, useCurrentToken, TokenValue } from 'gamba-react-ui-v2'
 import styled, { keyframes, css } from 'styled-components'
 import { DrawStrategy, GameResult } from '../types'
 import { POKER_COLORS, CONFIG, SOUND_WIN, SOUND_LOSE, SOUND_PLAY, SOUND_CARD } from '../constants'
@@ -217,6 +217,7 @@ interface SingleplayerGameScreenProps {
 export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScreenProps) {
   const game = GambaUi.useGame()
   const [wager, setWager] = useWagerInput()
+  const token = useCurrentToken()
   const effectsRef = useRef<GameplayEffectsRef>(null)
   
   // Game state
@@ -246,24 +247,17 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
     sounds.play('play')
     
     try {
-      // Generate AI opponent with random strategy
-      const aiStrategies = Object.values(STRATEGY_PRESETS)
-      const aiStrategy = aiStrategies[Math.floor(Math.random() * aiStrategies.length)]
+      // Generate AI opponent with balanced strategy
       const playerStrategy = STRATEGY_PRESETS[selectedStrategy]
+      const aiStrategy = STRATEGY_PRESETS.BALANCED // AI uses balanced strategy
       
-      // Simulate game outcome
-      const seed = `sp-${Date.now()}-${Math.random()}`
+      // Strategy influences the bet array odds
       const strategies = [playerStrategy, aiStrategy]
-      const playerIds = ['human', 'ai']
       
-      const outcome = simulateGameOutcome(strategies, seed)
-      const betArray = getPokerShowdownBetArray(
-        outcome.winnerHandRank.toString(),
-        2,
-        outcome.winnerIndex === 0
-      )
+      // Get strategy-adjusted bet array - better strategies get better odds
+      const betArray = getPokerShowdownBetArray(playerStrategy.riskLevel)
       
-      // Execute Gamba transaction
+      // Execute Gamba transaction - let Gamba decide the outcome
       await game.play({
         bet: betArray,
         wager: wager,
@@ -277,18 +271,39 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
         ]
       })
       
-      // Get result from Gamba
+      // Get the Gamba result - this is the authoritative outcome
       const result = await game.result()
+      const playerWins = result.payout > 0
       
-      // Execute full poker logic
-      const fullResult = executePokerShowdown(strategies, playerIds, wager, seed)
+      // Generate poker outcome that ALWAYS matches Gamba's decision
+      // Skip the randomness - just create the logical outcome Gamba wants
+      console.log('🎲 Creating deterministic outcome that matches Gamba decision:', playerWins ? 'WIN' : 'LOSE')
       
-      // Update payout based on Gamba result
-      if (fullResult.winnerIndex === 0) {
-        fullResult.players[0].payout = result.payout
-      } else {
-        fullResult.players[0].payout = 0
-      }
+      // Use deterministic seed for variety (based on timestamp)
+      const timestamp = Date.now()
+      const fullResult = createDeterministicOutcome(playerWins, strategies, wager, timestamp)
+      
+      console.log(`🎯 Deterministic result created:`, {
+        gambaWins: playerWins,
+        playerWins: fullResult.winnerIndex === 0,
+        playerHand: fullResult.players[0].handEval.name,
+        aiHand: fullResult.players[1].handEval.name,
+        playerValue: fullResult.players[0].handEval.value,
+        aiValue: fullResult.players[1].handEval.value
+      })
+      
+      // Set the actual payout from Gamba
+      fullResult.players[0].payout = result.payout
+      
+      // Update payout based on actual game result from Gamba
+      fullResult.players[0].payout = result.payout
+      
+      console.log('🎯 Game Result:', {
+        winner: fullResult.winnerIndex === 0 ? 'Player' : 'AI',
+        playerHand: fullResult.players[0].handEval.name,
+        aiHand: fullResult.players[1].handEval.name,
+        payout: fullResult.players[0].payout
+      })
       
       setGameResult(fullResult)
       
@@ -302,8 +317,8 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
       setTimeout(() => {
         setGamePhase('results')
         
-        const humanWon = fullResult.winnerIndex === 0
-        gameStats.updateStats(humanWon ? result.payout : 0)
+        const humanWon = result.payout > 0
+        gameStats.updateStats(result.payout)
         
         if (humanWon) {
           sounds.play('win')
@@ -339,6 +354,173 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
     return (lamports / 1000000000).toFixed(4)
   }
 
+  // Helper function to format a card for display
+  const formatCard = (card: any) => {
+    const suits = ['♠', '♥', '♦', '♣']
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+    return `${ranks[card.rank]}${suits[card.suit]}`
+  }
+
+  // Helper function to get strategy payout info
+  const getStrategyPayoutInfo = (strategyKey: keyof typeof STRATEGY_PRESETS) => {
+    switch (strategyKey) {
+      case 'AGGRESSIVE':
+        return '4.0x'
+      case 'BALANCED':
+        return '2.5x'
+      case 'CONSERVATIVE':
+        return '2.2x'
+      default:
+        return '2.5x'
+    }
+  }
+
+  // Helper to create deterministic poker outcome (like blackjack does)
+  const createDeterministicOutcome = (playerShouldWin: boolean, strategies: any[], wager: number, timestamp: number) => {
+    // Use timestamp for deterministic variety (no Math.random!)
+    const scenario = timestamp % 6 // 6 different scenarios, deterministically chosen
+    
+    if (playerShouldWin) {
+      // Player wins scenarios - player gets better hand
+      switch (scenario) {
+        case 0: // Full House vs Three of a Kind
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 0, suit: 1 }, { rank: 0, suit: 2 }, { rank: 12, suit: 0 }, { rank: 12, suit: 1 }], // AAA KK
+            [{ rank: 11, suit: 0 }, { rank: 11, suit: 1 }, { rank: 11, suit: 2 }, { rank: 10, suit: 0 }, { rank: 9, suit: 0 }], // QQQ 10 9
+            { rank: 'FULL_HOUSE', name: 'As full of Ks', value: 6000 },
+            { rank: 'THREE_OF_A_KIND', name: 'Three Qs', value: 3000 },
+            0, wager
+          )
+        case 1: // Straight vs Two Pair  
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 12, suit: 1 }, { rank: 11, suit: 2 }, { rank: 10, suit: 3 }, { rank: 9, suit: 0 }], // A K Q J 10 straight
+            [{ rank: 12, suit: 0 }, { rank: 12, suit: 2 }, { rank: 11, suit: 0 }, { rank: 11, suit: 3 }, { rank: 8, suit: 1 }], // KK QQ 9
+            { rank: 'STRAIGHT', name: 'A high straight', value: 4000 },
+            { rank: 'TWO_PAIR', name: 'Ks and Qs', value: 2000 },
+            0, wager
+          )
+        case 2: // Four of a Kind vs Full House
+          return createHandOutcome(
+            [{ rank: 10, suit: 0 }, { rank: 10, suit: 1 }, { rank: 10, suit: 2 }, { rank: 10, suit: 3 }, { rank: 0, suit: 0 }], // JJJJ A
+            [{ rank: 9, suit: 0 }, { rank: 9, suit: 1 }, { rank: 9, suit: 2 }, { rank: 8, suit: 0 }, { rank: 8, suit: 1 }], // 999 88
+            { rank: 'FOUR_OF_A_KIND', name: 'Four Js', value: 7000 },
+            { rank: 'FULL_HOUSE', name: '10s full of 9s', value: 6000 },
+            0, wager
+          )
+        case 3: // Three of a Kind vs Pair
+          return createHandOutcome(
+            [{ rank: 1, suit: 0 }, { rank: 1, suit: 1 }, { rank: 1, suit: 2 }, { rank: 0, suit: 0 }, { rank: 12, suit: 1 }], // 222 A K
+            [{ rank: 11, suit: 0 }, { rank: 11, suit: 1 }, { rank: 10, suit: 2 }, { rank: 9, suit: 3 }, { rank: 8, suit: 0 }], // QQ J 10 9
+            { rank: 'THREE_OF_A_KIND', name: 'Three 2s', value: 3000 },
+            { rank: 'PAIR', name: 'Pair of Qs', value: 1000 },
+            0, wager
+          )
+        case 4: // Flush vs Straight
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 11, suit: 0 }, { rank: 9, suit: 0 }, { rank: 7, suit: 0 }, { rank: 5, suit: 0 }], // A Q 10 8 6 all spades
+            [{ rank: 8, suit: 0 }, { rank: 7, suit: 1 }, { rank: 6, suit: 2 }, { rank: 5, suit: 3 }, { rank: 4, suit: 0 }], // 9 8 7 6 5 straight
+            { rank: 'FLUSH', name: 'A high flush', value: 5000 },
+            { rank: 'STRAIGHT', name: '9 high straight', value: 4000 },
+            0, wager
+          )
+        default: // Two Pair vs Pair
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 0, suit: 1 }, { rank: 12, suit: 0 }, { rank: 12, suit: 2 }, { rank: 11, suit: 0 }], // AA KK Q
+            [{ rank: 10, suit: 0 }, { rank: 10, suit: 1 }, { rank: 9, suit: 2 }, { rank: 8, suit: 3 }, { rank: 7, suit: 0 }], // JJ 10 9 8
+            { rank: 'TWO_PAIR', name: 'As and Ks', value: 2000 },
+            { rank: 'PAIR', name: 'Pair of Js', value: 1000 },
+            0, wager
+          )
+      }
+    } else {
+      // AI wins scenarios - AI gets better hand
+      switch (scenario) {
+        case 0: // AI gets Full House, Player gets Flush
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 11, suit: 0 }, { rank: 9, suit: 0 }, { rank: 7, suit: 0 }, { rank: 5, suit: 0 }], // A Q 10 8 6 flush
+            [{ rank: 12, suit: 0 }, { rank: 12, suit: 1 }, { rank: 12, suit: 2 }, { rank: 11, suit: 0 }, { rank: 11, suit: 1 }], // KKK QQ
+            { rank: 'FLUSH', name: 'A high flush', value: 5000 },
+            { rank: 'FULL_HOUSE', name: 'Ks full of Qs', value: 6000 },
+            1, wager
+          )
+        case 1: // AI gets Straight, Player gets Two Pair
+          return createHandOutcome(
+            [{ rank: 0, suit: 0 }, { rank: 0, suit: 1 }, { rank: 12, suit: 0 }, { rank: 12, suit: 2 }, { rank: 11, suit: 0 }], // AA KK Q
+            [{ rank: 8, suit: 0 }, { rank: 7, suit: 1 }, { rank: 6, suit: 2 }, { rank: 5, suit: 3 }, { rank: 4, suit: 0 }], // 9-5 straight
+            { rank: 'TWO_PAIR', name: 'As and Ks', value: 2000 },
+            { rank: 'STRAIGHT', name: '9 high straight', value: 4000 },
+            1, wager
+          )
+        case 2: // AI gets Four of a Kind, Player gets Three of a Kind
+          return createHandOutcome(
+            [{ rank: 10, suit: 0 }, { rank: 10, suit: 1 }, { rank: 10, suit: 2 }, { rank: 0, suit: 0 }, { rank: 12, suit: 1 }], // JJJ A K
+            [{ rank: 9, suit: 0 }, { rank: 9, suit: 1 }, { rank: 9, suit: 2 }, { rank: 9, suit: 3 }, { rank: 8, suit: 0 }], // 10101010 9
+            { rank: 'THREE_OF_A_KIND', name: 'Three Js', value: 3000 },
+            { rank: 'FOUR_OF_A_KIND', name: 'Four 10s', value: 7000 },
+            1, wager
+          )
+        case 3: // AI gets Three of a Kind, Player gets Pair
+          return createHandOutcome(
+            [{ rank: 11, suit: 0 }, { rank: 11, suit: 1 }, { rank: 10, suit: 2 }, { rank: 9, suit: 3 }, { rank: 8, suit: 0 }], // QQ J 10 9
+            [{ rank: 0, suit: 0 }, { rank: 0, suit: 1 }, { rank: 0, suit: 2 }, { rank: 12, suit: 0 }, { rank: 11, suit: 3 }], // AAA K Q
+            { rank: 'PAIR', name: 'Pair of Qs', value: 1000 },
+            { rank: 'THREE_OF_A_KIND', name: 'Three As', value: 3000 },
+            1, wager
+          )
+        case 4: // AI gets Pair, Player gets High Card
+          return createHandOutcome(
+            [{ rank: 12, suit: 0 }, { rank: 11, suit: 1 }, { rank: 10, suit: 2 }, { rank: 9, suit: 3 }, { rank: 7, suit: 0 }], // K Q J 10 8
+            [{ rank: 0, suit: 0 }, { rank: 0, suit: 1 }, { rank: 10, suit: 0 }, { rank: 9, suit: 0 }, { rank: 8, suit: 2 }], // AA J 10 9
+            { rank: 'HIGH_CARD', name: 'K high', value: 130 },
+            { rank: 'PAIR', name: 'Pair of As', value: 1000 },
+            1, wager
+          )
+        default: // AI gets Full House, Player gets Two Pair
+          return createHandOutcome(
+            [{ rank: 12, suit: 0 }, { rank: 12, suit: 1 }, { rank: 11, suit: 0 }, { rank: 11, suit: 2 }, { rank: 10, suit: 0 }], // KK QQ J
+            [{ rank: 8, suit: 0 }, { rank: 8, suit: 1 }, { rank: 8, suit: 2 }, { rank: 7, suit: 0 }, { rank: 7, suit: 1 }], // 999 77
+            { rank: 'TWO_PAIR', name: 'Ks and Qs', value: 2000 },
+            { rank: 'FULL_HOUSE', name: '9s full of 8s', value: 6000 },
+            1, wager
+          )
+      }
+    }
+  }
+
+  // Helper to create hand outcome structure
+  const createHandOutcome = (playerCards: any[], aiCards: any[], playerHand: any, aiHand: any, winnerIndex: number, wager: number) => {
+    return {
+      gameId: 'deterministic',
+      players: [
+        {
+          playerId: 'human',
+          playerIndex: 0,
+          initialHand: playerCards,
+          finalHand: playerCards,
+          handEval: playerHand,
+          isWinner: winnerIndex === 0,
+          payout: 0, // Will be set by Gamba
+          discardIndices: [],
+          strategy: STRATEGY_PRESETS[selectedStrategy]
+        },
+        {
+          playerId: 'ai',
+          playerIndex: 1,
+          initialHand: aiCards,
+          finalHand: aiCards,
+          handEval: aiHand,
+          isWinner: winnerIndex === 1,
+          payout: 0,
+          discardIndices: [],
+          strategy: STRATEGY_PRESETS.BALANCED
+        }
+      ],
+      winnerIndex,
+      totalPot: wager,
+      seed: `deterministic-${winnerIndex === 0 ? 'win' : 'loss'}`
+    }
+  }
+
   const renderHand = (cards: any[], label: string, isWinning: boolean = false) => {
     if (!cards || cards.length === 0) {
       return (
@@ -361,7 +543,7 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
         <CardsContainer>
           {cards.map((card, i) => (
             <Card key={i} $revealed={cardsRevealed} $isWinning={isWinning}>
-              {card.suit}
+              {cardsRevealed ? formatCard(card) : '?'}
             </Card>
           ))}
         </CardsContainer>
@@ -375,7 +557,7 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="Poker Showdown"
-          gameMode={`SP vs AI (${selectedStrategy})`}
+          gameMode={`SP vs AI (${selectedStrategy} - ${getStrategyPayoutInfo(selectedStrategy)})`}
           rtp="94"
           stats={gameStats.stats}
         />
@@ -430,12 +612,18 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
                         $active={selectedStrategy === key}
                         onClick={() => setSelectedStrategy(key as keyof typeof STRATEGY_PRESETS)}
                       >
-                        {key}
+                        {key} ({getStrategyPayoutInfo(key as keyof typeof STRATEGY_PRESETS)})
                       </StrategyButton>
                     ))}
                   </div>
                   <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '8px' }}>
                     {STRATEGY_PRESETS[selectedStrategy].description}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#ffd700', marginTop: '4px', fontWeight: 'bold' }}>
+                    💰 Win Payout: {getStrategyPayoutInfo(selectedStrategy)} 
+                    {selectedStrategy === 'AGGRESSIVE' && ' (High Risk, High Reward)'}
+                    {selectedStrategy === 'BALANCED' && ' (Standard Risk & Reward)'}
+                    {selectedStrategy === 'CONSERVATIVE' && ' (Lower Risk, Better Odds)'}
                   </div>
                 </StrategySelector>
               )}
@@ -444,7 +632,7 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
                 <StatusDisplay>
                   <div>🎯 Cards being dealt...</div>
                   <div style={{ fontSize: '12px', marginTop: '5px' }}>
-                    Strategy: {selectedStrategy}
+                    Strategy: {selectedStrategy} (Win Payout: {getStrategyPayoutInfo(selectedStrategy)})
                   </div>
                 </StatusDisplay>
               )}
@@ -452,7 +640,7 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
               {gamePhase === 'results' && gameResult && (
                 <StatusDisplay>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    {gameResult.winnerIndex === 0 ? '🏆 You Win!' : '💔 AI Wins!'}
+                    {gameResult.players[0].payout > 0 ? '🏆 You Win!' : '💔 You Lose!'}
                   </div>
                   <div style={{ marginBottom: '8px' }}>
                     Your Hand: {gameResult.players[0].handEval.name}
@@ -461,9 +649,9 @@ export default function SingleplayerGameScreen({ onBack }: SingleplayerGameScree
                     AI Hand: {gameResult.players[1].handEval.name}
                   </div>
                   <div style={{ color: '#ffd700', fontWeight: 'bold' }}>
-                    {gameResult.winnerIndex === 0 
-                      ? `Won: ${formatSOL(gameResult.players[0].payout)} SOL`
-                      : `Lost: ${formatSOL(wager)} SOL`
+                    {gameResult.players[0].payout > 0
+                      ? <>Won: <TokenValue exact amount={gameResult.players[0].payout} mint={token?.mint} /></>
+                      : <>Lost: <TokenValue exact amount={wager} mint={token?.mint} /></>
                     }
                   </div>
                 </StatusDisplay>

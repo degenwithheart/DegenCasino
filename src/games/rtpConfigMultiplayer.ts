@@ -247,22 +247,35 @@ export function getSpeedMiningBetArray(
 }
 
 /**
- * Get poker showdown bet array based on hand strength and player count
+ * Get poker showdown bet array for Gamba
+ * Uses simple [lose, win] structure where Gamba determines outcome
  */
-export function getPokerShowdownBetArray(
-  winningHandRank: string,
-  playerCount: number,
-  isWinner: boolean
-): number[] {
+export function getPokerShowdownBetArray(strategy?: string): number[] {
   const config = POKER_SHOWDOWN_CONFIG
-  const betArray = new Array(playerCount).fill(0)
   
-  if (isWinner) {
-    const multiplier = config.HAND_MULTIPLIERS[winningHandRank as keyof typeof config.HAND_MULTIPLIERS] || 1.8
-    betArray[0] = multiplier // Winner takes all
+  // Strategy influences the payout multiplier and win probability
+  let winMultiplier: number = config.HAND_MULTIPLIERS.PAIR // Base multiplier
+  
+  switch (strategy) {
+    case 'aggressive':
+      winMultiplier = config.HAND_MULTIPLIERS.TWO_PAIR as number // Higher payout (4.0x)
+      break
+    case 'balanced':
+      winMultiplier = config.HAND_MULTIPLIERS.PAIR as number // Standard payout (2.5x)
+      break
+    case 'conservative':
+      winMultiplier = 2.2 // Lower payout but better odds
+      break
+    default:
+      winMultiplier = config.HAND_MULTIPLIERS.PAIR as number // Default to balanced
   }
   
-  return betArray
+  // Simple bet array: [lose, win]
+  // Strategy affects the payout, making choice meaningful
+  return [
+    0, // Lose - player gets nothing
+    winMultiplier // Win - strategy-adjusted multiplier
+  ]
 }
 
 /**

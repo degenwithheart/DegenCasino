@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useMultiplayer } from 'gamba-react-v2'
-import { useCurrentToken, GambaUi } from 'gamba-react-ui-v2'
+import { useCurrentToken, GambaUi, TokenValue } from 'gamba-react-ui-v2'
 import { PublicKey } from '@solana/web3.js'
 import styled, { keyframes } from 'styled-components'
 import { POKER_COLORS, CONFIG } from '../constants'
@@ -282,7 +282,7 @@ export default function CreateMultiplayerGameModal({
           <SectionTitle>Wager Settings</SectionTitle>
           
           <InputGroup>
-            <Label>Entry Wager: {formatSOL(wager)} SOL</Label>
+            <Label>Entry Wager: <TokenValue exact amount={wager} mint={token?.mint} /></Label>
             <Input
               type="range"
               min={minWagerLamports}
@@ -292,7 +292,7 @@ export default function CreateMultiplayerGameModal({
               onChange={(e) => setWager(Number(e.target.value))}
             />
             <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginTop: '5px' }}>
-              Min: {formatSOL(minWagerLamports)} SOL | Max: {formatSOL(maxWagerLamports)} SOL
+              Min: <TokenValue exact amount={minWagerLamports} mint={token?.mint} /> | Max: <TokenValue exact amount={maxWagerLamports} mint={token?.mint} />
             </div>
           </InputGroup>
           

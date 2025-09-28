@@ -191,12 +191,12 @@ export const BET_ARRAYS_V2 = {
       if (face === 'heads') {
         for (let m = k; m <= n; m++) {
           const probM = probExact(m)
-          betArray[m] = houseMultiplier * outcomes * probM
+          betArray[m] = houseMultiplier
         }
       } else {
         for (let m = 0; m <= n - k; m++) {
           const probM = probExact(m)
-          betArray[m] = houseMultiplier * outcomes * probM
+          betArray[m] = houseMultiplier
         }
       }
       
