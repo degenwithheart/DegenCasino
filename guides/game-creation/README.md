@@ -279,7 +279,7 @@ export { default as SOUND_WIN } from './win.mp3'
 The platform currently features 16 professional games:
 - **Dice-v2**: Classic dice rolling with customizable odds
 - **Flip-v2**: Coin flipping with smooth animations  
-- **Mines-v2**: Mine sweeper with risk/reward mechanics
+- **Mines**: Mine sweeper with risk/reward mechanics
 - **Plinko**: Physics-based ball dropping game
 - **Limbo-v2**: Multiplier prediction game
 - **Slots**: Multi-reel slot machine

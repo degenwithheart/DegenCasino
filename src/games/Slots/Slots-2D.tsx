@@ -1,7 +1,7 @@
 import { GameResult } from 'gamba-core-v2'
 import { EffectTest, GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import React, { useEffect, useRef } from 'react'
-import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
@@ -283,6 +283,11 @@ export default function Slots() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="slots" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

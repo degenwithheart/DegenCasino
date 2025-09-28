@@ -4,7 +4,7 @@ import { useGamba } from 'gamba-react-v2'
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -610,6 +610,11 @@ export default function Magic8BallRenderer2D() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="magic8ball" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

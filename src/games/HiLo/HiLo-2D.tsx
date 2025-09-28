@@ -3,7 +3,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import styled, { keyframes, css } from 'styled-components'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, SwitchControl } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, SwitchControl, GameRecentPlaysHorizontal } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -345,6 +345,11 @@ export default function HiLo(props: HiLoConfig) {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="hilo" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

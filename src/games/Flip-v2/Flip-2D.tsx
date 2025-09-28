@@ -4,7 +4,7 @@ import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGameMeta } from '../useGameMeta'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -748,6 +748,11 @@ export default function FlipV2() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="flip-v2" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

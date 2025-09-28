@@ -760,8 +760,29 @@ function CustomRenderer() {
       )}
   {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
         <Container key={`game-container-${renderKey}`}>
+          {/* Recent plays horizontal scroller */}
+          {ready && (
+            <div style={{ 
+              width: '100%', 
+              maxWidth: '100%', 
+              overflow: 'hidden', 
+              boxSizing: 'border-box' 
+            }}>
+              <GambaUi.PortalTarget target="recentplays" />
+            </div>
+          )}
+          
           {/* Stats header as separate area above game screen */}
-          {ready && <GambaUi.PortalTarget target="stats" />}
+          {ready && (
+            <div style={{ 
+              width: '100%', 
+              maxWidth: '100%', 
+              overflow: 'hidden', 
+              boxSizing: 'border-box' 
+            }}>
+              <GambaUi.PortalTarget target="stats" />
+            </div>
+          )}
           
           <Screen>
             {!ready ? (

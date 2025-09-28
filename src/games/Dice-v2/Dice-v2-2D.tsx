@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { BET_ARRAYS_V2, RTP_TARGETS_V2 } from '../rtpConfig-v2'
-import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -147,6 +147,11 @@ const DiceV2Renderer2D: React.FC = () => {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="dice-v2" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

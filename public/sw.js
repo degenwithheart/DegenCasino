@@ -36,7 +36,7 @@ const HIGH_PRIORITY_GAME_ASSETS = [
 
 // Game-specific caching strategies
 const GAME_LOADING_PRIORITIES = {
-  'critical': ['dice-v2', 'slots', 'mines-v2', 'plinko', 'magic8ball'],
+  'critical': ['dice-v2', 'slots', 'mines', 'plinko', 'magic8ball'],
   'high': ['crash', 'blackjack', 'multipoker', 'flip-v2', 'hilo'],
   'medium': ['cryptochartgame-v2', 'doubleornothing-v2', 'fancyvirtualhorseracing-v2', 'keno-v2', 'limbo-v2'],
   'low': [] // Populated dynamically

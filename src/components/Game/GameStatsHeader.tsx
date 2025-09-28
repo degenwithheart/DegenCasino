@@ -49,7 +49,7 @@ export function GameStatsHeader({
 
   return (
     <div style={{
-      padding: isMobile ? '10px 16px' : '14px 24px',
+      padding: isMobile ? '10px 8px' : '14px 12px',
       background: isOnFire 
         ? 'radial-gradient(ellipse at center, rgba(0, 255, 65, 0.15) 0%, rgba(255, 215, 0, 0.1) 40%, rgba(255, 0, 128, 0.05) 100%)'
         : isRekt
@@ -61,7 +61,7 @@ export function GameStatsHeader({
         ? `2px solid ${degenColors.crimsonRed}`
         : `2px solid rgba(255, 0, 128, 0.4)`,
       borderRadius: '12px',
-      margin: '8px 0',
+      margin: '0',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -73,7 +73,10 @@ export function GameStatsHeader({
         : `0 0 25px rgba(255, 0, 128, 0.3), 0 6px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
       position: 'relative',
       overflow: 'hidden',
-      animation: isOnFire ? 'degenPulse 2s ease-in-out infinite' : isRekt ? 'degenShake 3s ease-in-out infinite' : 'none'
+      animation: isOnFire ? 'degenPulse 2s ease-in-out infinite' : isRekt ? 'degenShake 3s ease-in-out infinite' : 'none',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
     }}>
       
       {/* CHAOTIC BACKGROUND GRADIENT OVERLAY */}

@@ -1,7 +1,7 @@
 import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import React from 'react'
 import styled from 'styled-components'
-import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl } from '../../components'
+import { EnhancedWagerInput, EnhancedPlayButton, MobileControls, SliderControl, GameRecentPlaysHorizontal } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -225,6 +225,11 @@ export default function CrashGame() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="crash" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

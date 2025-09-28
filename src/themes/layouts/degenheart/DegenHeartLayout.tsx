@@ -7,6 +7,7 @@ import LeftSidebar from './LeftSidebar'
 import RightSidebar from './RightSidebar'
 import MainContent from './MainContent'
 import { Modal } from './components/Modal'
+import { ShareModal } from './components/ShareModal'
 import AllGamesContentModal from './components/AllGamesContentModal'
 import { ConnectionStatusContent } from './components/ConnectionStatusContent'
 import { BonusContent, JackpotContent, ColorSchemeSelector } from '../../../components'
@@ -40,13 +41,15 @@ const DegenHeaderModalContext = createContext<{
   openThemeSelector: () => void;
   openTokenSelect: () => void;
   openConnectionStatus: () => void;
+  openShareModal: (game: any) => void;
 }>({
   openBonusModal: () => {},
   openJackpotModal: () => {},
   openLeaderboardModal: () => {},
   openThemeSelector: () => {},
   openTokenSelect: () => {},
-  openConnectionStatus: () => {}
+  openConnectionStatus: () => {},
+  openShareModal: () => {}
 })
 
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext)
@@ -299,6 +302,9 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showThemeSelector, setShowThemeSelector] = useState(false)
   const [showTokenSelect, setShowTokenSelect] = useState(false)
   const [showConnectionStatus, setShowConnectionStatus] = useState(false)
+  
+  // Share modal state
+  const [shareModalGame, setShareModalGame] = useState<any>(undefined)
 
   const toggleLeftSidebar = () => {
     setLeftSidebarOpen(!leftSidebarOpen)
@@ -355,7 +361,11 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
         openLeaderboardModal: () => setShowLeaderboardModal(true),
         openThemeSelector: () => setShowThemeSelector(true),
         openTokenSelect: () => setShowTokenSelect(true),
-        openConnectionStatus: () => setShowConnectionStatus(true)
+        openConnectionStatus: () => setShowConnectionStatus(true),
+        openShareModal: (game: any) => {
+          console.log('ShareModal triggered with game:', game)
+          setShareModalGame(game)
+        }
       }}>
       <LayoutContainer $colorScheme={currentColorScheme}>
         {/* Mobile backdrop */}
@@ -417,6 +427,18 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
             />
           </Modal>
         )}
+
+        {shareModalGame && (
+          <Modal variant="viewport" onClose={() => setShareModalGame(undefined)}>
+            <ShareModal 
+              event={shareModalGame} 
+              onClose={() => setShareModalGame(undefined)} 
+            />
+          </Modal>
+        )}
+        
+        {/* Debug: Show shareModalGame state */}
+        {console.log('ShareModal state in render:', shareModalGame)}
 
         {showThemeSelector && (
           <Modal variant="viewport" onClose={() => setShowThemeSelector(false)}>

@@ -113,7 +113,7 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   },
-  'mines-v2': {
+  'mines': {
     supports2D: true,
     supports3D: true,
     default: '2D'

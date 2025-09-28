@@ -3,8 +3,7 @@ import { PublicKey, Keypair } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { GambaUi, useSound, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
 import styled, { keyframes } from 'styled-components'
-import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection } 
-from '../../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../../components'
 import { useIsCompact } from '../../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../../hooks/game/useGameStats'
@@ -473,6 +472,11 @@ export default function SingleplayerGameScreen({ onBack, initialWager }: Singlep
   
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="roulette-royale" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

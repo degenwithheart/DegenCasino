@@ -31,6 +31,9 @@ export * from './Game/GameSplashScreen'
 export { default as LazyGameLoader } from './Game/LazyGameLoader'
 export { GameStatsHeader } from './Game/GameStatsHeader'
 export { GameControlsSection } from './Game/GameControlsSection'
+export { GameRecentPlays } from './Game/GameRecentPlays'
+export { GameRecentPlaysHorizontal } from './Game/GameRecentPlaysHorizontal'
+
 
 // Graphics
 export * from './Graphics/GraphicsSettings'

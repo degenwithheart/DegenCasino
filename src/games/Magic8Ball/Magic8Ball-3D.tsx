@@ -3,7 +3,7 @@ import { GambaUi, useCurrentPool, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Text, OrbitControls, Environment } from '@react-three/drei'
-import { EnhancedWagerInput, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameRecentPlaysHorizontal } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -496,6 +496,11 @@ function Magic8Ball3D() {
   
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="magic8ball" />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="stats">
         <GameStatsHeader
           gameName="Magic 8-Ball"

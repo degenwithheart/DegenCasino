@@ -25,7 +25,7 @@ const RTP_TARGETS = {
 const RTP_TARGETS_V2 = {
   'flip-v2': 0.96,
   'dice-v2': 0.96,
-  'mines-v2': 0.96,
+  'mines': 0.96,
   'keno-v2': 0.94,
   'limbo-v2': 0.96,
   'doubleornothing-v2': 0.96,
@@ -56,7 +56,7 @@ const BET_ARRAYS: Record<string, number[]> = {
 const BET_ARRAYS_V2: Record<string, number[]> = {
   'flip-v2': [0, 2],
   'magic8ball': [0, 0, 0, 0, 0, 6],
-  'mines-v2': [0, 1.04, 1.13, 1.24, 1.37, 1.53],
+  'mines': [0, 1.04, 1.13, 1.24, 1.37, 1.53],
   'keno-v2': [0, 2, 3, 5, 10, 20, 50, 100],
   'limbo-v2': [1, 1.2, 1.5, 2, 3, 5, 10, 100],
   'doubleornothing-v2': [0, 2],
@@ -238,7 +238,7 @@ const generateScenarioBetArrays = (gameKey: AllGameKeys): { scenario: string; be
     case 'blackjack-v2':
       scenarios.push({ scenario: 'default', betArray: [...game.betArray] });
       break;
-    case 'mines-v2':
+    case 'mines':
       game.MINE_SELECT.forEach((mineCount: number) => {
         for (let revealed = 0; revealed <= Math.min(game.GRID_SIZE - mineCount, 10); revealed += 2) {
           const betArray = game.generateBetArray(mineCount, revealed);

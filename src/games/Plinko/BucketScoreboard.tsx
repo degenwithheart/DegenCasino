@@ -102,7 +102,7 @@ const BucketItem = styled.div<{
     }
     const colors = getBucketColor(multiplier);
     return `
-      /* Enhanced 3D gradient backgrounds like Mines-v2 */
+      /* Enhanced 3D gradient backgrounds like Mines */
       background: linear-gradient(135deg, 
         ${colors.primary}, 
         ${colors.secondary} 50%, 

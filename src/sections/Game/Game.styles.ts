@@ -27,6 +27,15 @@ export const Container = styled.div`
   gap: 5px;
   box-sizing: border-box;
   
+  /* Ensure all child elements respect container width */
+  & > * {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-width: 0;
+  }
+  
   /* Small mobile devices */
   @media (min-width: 375px) {
     margin: 0 0.75rem;

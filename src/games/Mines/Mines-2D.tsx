@@ -4,7 +4,7 @@ import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useGameMeta } from '../useGameMeta'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -38,7 +38,7 @@ export default function MinesV2() {
   const { mobile: isMobile } = useIsCompact()
 
   // Game statistics tracking - using centralized hook
-  const gameStats = useGameStats('mines-v2')
+  const gameStats = useGameStats('mines')
 
   // Game state
   const [wager, setWager] = useWagerInput()
@@ -65,7 +65,7 @@ export default function MinesV2() {
     return Array.from({ length: totalLevels }).map((_, level) => {
       // For the first level, use initial wager. For subsequent levels, use previous balance.
       const levelWager = level === 0 ? wager : previousBalance
-      const config = BET_ARRAYS_V2['mines-v2']
+      const config = BET_ARRAYS_V2['mines']
       const multiplier = config.getMultiplier(mineCount, level + 1)
       const betArray = config.calculateBetArray(mineCount, level)
 
@@ -79,7 +79,7 @@ export default function MinesV2() {
 
   // Pool restrictions
   const maxMultiplier = React.useMemo(() => {
-    const config = BET_ARRAYS_V2['mines-v2']
+    const config = BET_ARRAYS_V2['mines']
     // Calculate max possible multiplier for current mine count (full grid revealed)
     return config.getMultiplier(mineCount, MINES_GRID_SIZE - mineCount)
   }, [mineCount])
@@ -207,54 +207,33 @@ export default function MinesV2() {
     }
   }
 
-    // Canvas render function for GambaUi.Canvas
+  // Canvas render function for GambaUi.Canvas
   const renderCanvas = React.useCallback(({ ctx, size }: any) => {
     // Clear canvas
     ctx.clearRect(0, 0, size.width, size.height)
-    
-    // Enhanced premium background with multiple layers
-    const bgGradient = ctx.createRadialGradient(size.width/2, size.height/2, 0, size.width/2, size.height/2, Math.max(size.width, size.height))
-    bgGradient.addColorStop(0, '#2a2a4e')
-    bgGradient.addColorStop(0.3, '#1f1f3d')
-    bgGradient.addColorStop(0.6, '#16213e')
-    bgGradient.addColorStop(0.8, '#141728')
-    bgGradient.addColorStop(1, '#0a0a15')
-    ctx.fillStyle = bgGradient
-    ctx.fillRect(0, 0, size.width, size.height)
-    
-    // Subtle noise texture overlay
-    for (let i = 0; i < 50; i++) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.02})`
-      ctx.fillRect(Math.random() * size.width, Math.random() * size.height, 1, 1)
-    }
-    
-    // Ambient lighting effects
-    const ambientGlow = ctx.createRadialGradient(size.width * 0.3, size.height * 0.2, 0, size.width * 0.3, size.height * 0.2, size.width * 0.5)
-    ambientGlow.addColorStop(0, 'rgba(147, 88, 255, 0.08)')
-    ambientGlow.addColorStop(1, 'rgba(147, 88, 255, 0)')
-    ctx.fillStyle = ambientGlow
+    ctx.fillStyle = '#1a1a2e'
     ctx.fillRect(0, 0, size.width, size.height)
 
     // Draw game area
     drawGameArea(ctx, size)
-  }, [gamePhase, mineCount, wager, cells, currentLevel, started, levels, getCurrentMultiplier, getNextMultiplier, totalGain, isMobile])
+  }, [gamePhase, mineCount, wager, cells, currentLevel, started, levels, getCurrentMultiplier, getNextMultiplier, totalGain])
 
   // Draw game area
   const drawGameArea = (ctx: CanvasRenderingContext2D, size?: { width: number; height: number }) => {
     const canvasWidth = size?.width || ctx.canvas.width
     const canvasHeight = size?.height || ctx.canvas.height
     
-    // Mobile responsive sidebar
-    const sidebarWidth = isMobile ? 0 : 160 // Hide sidebar on mobile, reduce width on desktop
     const padding = 20
-    const sidebarGap = isMobile ? 0 : 50 // Space between grid and sidebar
-    const availableWidth = canvasWidth - padding * 2 // Full width minus padding for grid sizing
-    const availableHeight = canvasHeight - padding * 2 // Same height calculation as 2D version
-    const gridSize = Math.min(availableWidth, availableHeight)
-    
-    // Center the grid itself in the canvas
+    const gameAreaWidth = canvasWidth - padding * 2
+    const gameAreaHeight = canvasHeight - padding * 2
+    const gridSize = Math.min(gameAreaWidth, gameAreaHeight)
+    const cellSize = gridSize / GRID_COLS
     const gridStartX = (canvasWidth - gridSize) / 2
-    const gridStartY = (canvasHeight - gridSize) / 2 // Center vertically like 2D version
+    const gridStartY = (canvasHeight - gridSize) / 2
+
+    // Draw grid background
+    ctx.fillStyle = 'rgba(26, 26, 46, 0.8)'
+    ctx.fillRect(gridStartX - 10, gridStartY - 10, gridSize + 20, gridSize + 20)
 
     // Draw cells with gap
     const gap = 8
@@ -269,24 +248,140 @@ export default function MinesV2() {
       drawCell(ctx, x, y, adjustedCellSize, cells[i], i)
     }
 
-    // Draw sidebar stats (mockup style) - only on desktop
-    if (!isMobile) {
-      drawSidebar(ctx, canvasWidth, canvasHeight, sidebarWidth)
+    // Draw sidebar with counters
+    const sidebarWidth = isMobile ? 80 : 120
+    drawSidebar(ctx, canvasWidth, canvasHeight, sidebarWidth)
+  }
+
+  // Draw individual cell
+  const drawCell = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, cell: MinesCellState, index: number) => {
+    const padding = 2
+    const cellX = x + padding
+    const cellY = y + padding
+    const cellSize = size - padding * 2
+
+    // Cell background
+    switch (cell.status) {
+      case 'hidden':
+        ctx.fillStyle = '#333366'
+        break
+      case 'gold':
+        ctx.fillStyle = '#4caf50'
+        break
+      case 'mine':
+        ctx.fillStyle = '#f44336'
+        break
+    }
+
+    ctx.fillRect(cellX, cellY, cellSize, cellSize)
+
+    // Cell border
+    ctx.strokeStyle = 'rgba(147, 88, 255, 0.3)'
+    ctx.lineWidth = 1
+    ctx.strokeRect(cellX, cellY, cellSize, cellSize)
+
+    // Cell content
+    if (cell.status === 'mine') {
+      // Draw mine
+      ctx.fillStyle = '#ffffff'
+      ctx.font = `${cellSize * 0.6}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText('💣', cellX + cellSize / 2, cellY + cellSize * 0.7)
+    } else if (cell.status === 'gold') {
+      // Draw gem
+      ctx.fillStyle = '#ffffff'
+      ctx.font = `${cellSize * 0.6}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText('💎', cellX + cellSize / 2, cellY + cellSize * 0.7)
     }
   }
 
-  // Draw sidebar stats
+  // Draw flat 2D gems card
+  const drawGemsCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, remainingGems: number) => {
+    const radius = Math.min(12, width * 0.1)
+
+    // Simple flat background
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.9)'
+    ctx.beginPath()
+    ctx.roundRect(x, y, width, height, radius)
+    ctx.fill()
+
+    // Simple border
+    ctx.strokeStyle = 'rgba(74, 222, 128, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
+    ctx.stroke()
+
+    // Gem icon - scaled for card
+    const iconSize = Math.min(20, height * 0.12)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `${iconSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.fillText('💎', x + width - iconSize * 0.7, y + iconSize + 8)
+
+    // Title - scaled for card
+    const titleSize = Math.min(14, height * 0.1)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${titleSize}px Arial`
+    ctx.fillText('GEMS LEFT', x + width / 2, y + titleSize + 12)
+
+    // Value - scaled for card
+    const valueSize = Math.min(32, height * 0.3)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${valueSize}px Arial`
+    ctx.fillText(remainingGems.toString(), x + width / 2, y + height * 0.55)
+  }
+
+  // Draw flat 2D mines card
+  const drawMinesCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, mineCount: number) => {
+    const radius = Math.min(12, width * 0.1)
+
+    // Simple flat background
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.9)'
+    ctx.beginPath()
+    ctx.roundRect(x, y, width, height, radius)
+    ctx.fill()
+
+    // Simple border
+    ctx.strokeStyle = 'rgba(252, 165, 165, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
+    ctx.stroke()
+
+    // Bomb icon - scaled for card
+    const iconSize = Math.min(18, height * 0.11)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `${iconSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.fillText('💣', x + width - iconSize * 0.7, y + iconSize + 8)
+
+    // Title - scaled for card
+    const titleSize = Math.min(14, height * 0.1)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${titleSize}px Arial`
+    ctx.fillText('MINES', x + width / 2, y + titleSize + 12)
+
+    // Value - scaled for card
+    const valueSize = Math.min(32, height * 0.3)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${valueSize}px Arial`
+    ctx.fillText(mineCount.toString(), x + width / 2, y + height * 0.55)
+  }
+
+  // Draw sidebar stats (2D version)
   const drawSidebar = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, sidebarWidth: number) => {
     // Position sidebar to the right of the centered grid
     const padding = 20
     const sidebarGap = isMobile ? 0 : 50 // Space between grid and sidebar
     const availableWidth = canvasWidth - padding * 2 // Full width minus padding for grid sizing
-    const availableHeight = canvasHeight - padding * 2 // Same height calculation as 2D version
+    const availableHeight = canvasHeight - padding * 2 // Same height calculation as grid
     const gridSize = Math.min(availableWidth, availableHeight)
     const gridStartX = (canvasWidth - gridSize) / 2
     const sidebarX = gridStartX + gridSize + sidebarGap
-    
-    const startY = (canvasHeight - gridSize) / 2 // Center vertically like 2D version
+
+    const startY = (canvasHeight - gridSize) / 2 // Center vertically like grid
     const cardHeight = (gridSize - 12) / 2 // Each counter takes half the available height minus gap
     const gap = 12 // Small gap between counters
 
@@ -299,468 +394,6 @@ export default function MinesV2() {
 
     // Mines Counter (Red) - bottom half
     drawMinesCard(ctx, sidebarX, startY + cardHeight + gap, sidebarWidth, cardHeight, mineCount)
-
-    // Decorative floating gem when winning
-    if (started && totalGain > 0) {
-      const gemY = startY + gridSize + 20 // Position below the sidebar
-      
-      // Add subtle glow effect
-      ctx.shadowColor = 'rgba(0, 230, 118, 0.6)'
-      ctx.shadowBlur = 20
-      ctx.shadowOffsetX = 0
-      ctx.shadowOffsetY = 0
-      
-      ctx.font = '40px Arial'
-      ctx.textAlign = 'center'
-      ctx.fillText('💎', sidebarX + sidebarWidth / 2, gemY)
-      
-      // Reset shadow
-      ctx.shadowBlur = 0
-    }
-  }
-
-  // Draw premium gems card with modern elegant design
-  const drawGemsCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, remainingGems: number) => {
-    const radius = Math.min(20, width * 0.15)
-
-    // Modern 3D shadow layers for depth
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
-    ctx.beginPath()
-    ctx.roundRect(x + 6, y + 6, width, height, radius)
-    ctx.fill()
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-    ctx.beginPath()
-    ctx.roundRect(x + 3, y + 3, width, height, radius)
-    ctx.fill()
-
-    // Modern subtle shadow base
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'
-    ctx.beginPath()
-    ctx.roundRect(x + 4, y + 4, width, height, radius)
-    ctx.fill()
-
-    // Main card background with elegant gradient
-    const bgGradient = ctx.createLinearGradient(x, y, x, y + height)
-    bgGradient.addColorStop(0, 'rgba(34, 197, 94, 0.95)')    // Emerald top
-    bgGradient.addColorStop(0.3, 'rgba(22, 163, 74, 0.9)')   // Forest green
-    bgGradient.addColorStop(0.7, 'rgba(20, 83, 45, 0.85)')   // Dark green
-    bgGradient.addColorStop(1, 'rgba(15, 23, 42, 0.9)')      // Slate base
-    ctx.fillStyle = bgGradient
-
-    // Soft inner glow
-    ctx.shadowColor = 'rgba(34, 197, 94, 0.4)'
-    ctx.shadowBlur = 25
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-
-    ctx.beginPath()
-    ctx.roundRect(x, y, width, height, radius)
-    ctx.fill()
-    ctx.shadowBlur = 0
-
-    // Elegant border with subtle gradient
-    const borderGradient = ctx.createLinearGradient(x, y, x + width, y + height)
-    borderGradient.addColorStop(0, 'rgba(74, 222, 128, 0.8)')
-    borderGradient.addColorStop(0.5, 'rgba(34, 197, 94, 0.6)')
-    borderGradient.addColorStop(1, 'rgba(22, 163, 74, 0.8)')
-    ctx.strokeStyle = borderGradient
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
-    ctx.stroke()
-
-    // Subtle inner highlight
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.roundRect(x + 3, y + 3, width - 6, height - 6, radius - 3)
-    ctx.stroke()
-
-    // Decorative pattern overlay
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 6; j++) {
-        if ((i + j) % 2 === 0) {
-          ctx.beginPath()
-          ctx.roundRect(x + i * (width / 8), y + j * (height / 6), width / 8, height / 6, 2)
-          ctx.fill()
-        }
-      }
-    }
-
-    // Premium gem icon with elegant effects - scaled for taller card
-    const iconSize = Math.min(28, height * 0.18)
-    ctx.font = `${iconSize}px Arial`
-    ctx.textAlign = 'center'
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
-    ctx.shadowBlur = 6
-    ctx.shadowOffsetX = 2
-    ctx.shadowOffsetY = 2
-    ctx.fillText('💎', x + width - iconSize * 0.8, y + iconSize * 0.8)
-
-    ctx.shadowColor = 'rgba(74, 222, 128, 0.9)'
-    ctx.shadowBlur = 12
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText('💎', x + width - iconSize * 0.8, y + iconSize * 0.8)
-
-    // Enhanced title with elegant styling - scaled for taller card
-    const titleSize = Math.min(18, height * 0.14)
-    ctx.fillStyle = 'rgba(187, 247, 208, 0.9)'
-    ctx.font = `600 ${titleSize}px Arial`
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)'
-    ctx.shadowBlur = 4
-    ctx.shadowOffsetX = 1
-    ctx.shadowOffsetY = 1
-    ctx.fillText('GEMS LEFT', x + width / 2, y + titleSize + 12)
-
-    ctx.shadowColor = 'rgba(34, 197, 94, 0.5)'
-    ctx.shadowBlur = 8
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText('GEMS LEFT', x + width / 2, y + titleSize + 12)
-
-    // Ultra-premium value styling - scaled for taller card
-    const valueSize = Math.min(48, height * 0.4)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${valueSize}px Arial`
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'
-    ctx.shadowBlur = 10
-    ctx.shadowOffsetX = 3
-    ctx.shadowOffsetY = 3
-    ctx.fillText(remainingGems.toString(), x + width / 2, y + height * 0.62)
-
-    ctx.shadowColor = 'rgba(74, 222, 128, 0.8)'
-    ctx.shadowBlur = 15
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText(remainingGems.toString(), x + width / 2, y + height * 0.62)
-
-    // Bright highlight for depth
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
-    ctx.shadowBlur = 0
-    ctx.fillText(remainingGems.toString(), x + width / 2 - 1, y + height * 0.62 - 1)
-  }
-
-  // Draw premium mines card with modern elegant design
-  const drawMinesCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, mineCount: number) => {
-    const radius = Math.min(20, width * 0.15)
-
-    // Modern 3D shadow layers for depth
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
-    ctx.beginPath()
-    ctx.roundRect(x + 6, y + 6, width, height, radius)
-    ctx.fill()
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-    ctx.beginPath()
-    ctx.roundRect(x + 3, y + 3, width, height, radius)
-    ctx.fill()
-
-    // Modern subtle shadow base
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'
-    ctx.beginPath()
-    ctx.roundRect(x + 4, y + 4, width, height, radius)
-    ctx.fill()
-
-    // Main card background with elegant gradient
-    const bgGradient = ctx.createLinearGradient(x, y, x, y + height)
-    bgGradient.addColorStop(0, 'rgba(239, 68, 68, 0.95)')    // Red top
-    bgGradient.addColorStop(0.3, 'rgba(185, 28, 28, 0.9)')   // Dark red
-    bgGradient.addColorStop(0.7, 'rgba(127, 29, 29, 0.85)')  // Crimson
-    bgGradient.addColorStop(1, 'rgba(15, 23, 42, 0.9)')      // Slate base
-    ctx.fillStyle = bgGradient
-
-    // Soft inner glow
-    ctx.shadowColor = 'rgba(239, 68, 68, 0.4)'
-    ctx.shadowBlur = 25
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-
-    ctx.beginPath()
-    ctx.roundRect(x, y, width, height, radius)
-    ctx.fill()
-    ctx.shadowBlur = 0
-
-    // Elegant border with subtle gradient
-    const borderGradient = ctx.createLinearGradient(x, y, x + width, y + height)
-    borderGradient.addColorStop(0, 'rgba(252, 165, 165, 0.8)')
-    borderGradient.addColorStop(0.5, 'rgba(239, 68, 68, 0.6)')
-    borderGradient.addColorStop(1, 'rgba(185, 28, 28, 0.8)')
-    ctx.strokeStyle = borderGradient
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
-    ctx.stroke()
-
-    // Subtle inner highlight
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.roundRect(x + 3, y + 3, width - 6, height - 6, radius - 3)
-    ctx.stroke()
-
-    // Decorative pattern overlay
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 6; j++) {
-        if ((i + j) % 2 === 0) {
-          ctx.beginPath()
-          ctx.roundRect(x + i * (width / 8), y + j * (height / 6), width / 8, height / 6, 2)
-          ctx.fill()
-        }
-      }
-    }
-
-    // Premium bomb icon with elegant effects - scaled for taller card
-    const iconSize = Math.min(26, height * 0.17)
-    ctx.font = `${iconSize}px Arial`
-    ctx.textAlign = 'center'
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
-    ctx.shadowBlur = 6
-    ctx.shadowOffsetX = 2
-    ctx.shadowOffsetY = 2
-    ctx.fillText('💣', x + width - iconSize * 0.8, y + iconSize * 0.8)
-
-    ctx.shadowColor = 'rgba(252, 165, 165, 0.9)'
-    ctx.shadowBlur = 12
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText('💣', x + width - iconSize * 0.8, y + iconSize * 0.8)
-
-    // Enhanced title with elegant styling - scaled for taller card
-    const titleSize = Math.min(18, height * 0.14)
-    ctx.fillStyle = 'rgba(254, 226, 226, 0.9)'
-    ctx.font = `600 ${titleSize}px Arial`
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)'
-    ctx.shadowBlur = 4
-    ctx.shadowOffsetX = 1
-    ctx.shadowOffsetY = 1
-    ctx.fillText('MINES', x + width / 2, y + titleSize + 12)
-
-    ctx.shadowColor = 'rgba(239, 68, 68, 0.5)'
-    ctx.shadowBlur = 8
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText('MINES', x + width / 2, y + titleSize + 12)
-
-    // Ultra-premium value styling - scaled for taller card
-    const valueSize = Math.min(48, height * 0.4)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${valueSize}px Arial`
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'
-    ctx.shadowBlur = 10
-    ctx.shadowOffsetX = 3
-    ctx.shadowOffsetY = 3
-    ctx.fillText(mineCount.toString(), x + width / 2, y + height * 0.62)
-
-    ctx.shadowColor = 'rgba(252, 165, 165, 0.8)'
-    ctx.shadowBlur = 15
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 0
-    ctx.fillText(mineCount.toString(), x + width / 2, y + height * 0.62)
-
-    // Bright highlight for depth
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
-    ctx.shadowBlur = 0
-    ctx.fillText(mineCount.toString(), x + width / 2 - 1, y + height * 0.62 - 1)
-  }
-
-  // Draw individual cell with enhanced 3D styling and pressed states
-  const drawCell = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, cell: MinesCellState, index: number) => {
-    const depthOffset = cell.status === 'hidden' ? 6 : 1
-    const isPressed = cell.status !== 'hidden' // Revealed cells appear pressed
-    
-    // Multiple shadow layers for more dramatic 3D depth
-    if (!isPressed) {
-      // Deep shadow layer
-      ctx.fillStyle = 'rgba(5, 5, 15, 0.8)'
-      ctx.beginPath()
-      ctx.roundRect(x + depthOffset + 2, y + depthOffset + 2, size, size, 8)
-      ctx.fill()
-      
-      // Mid shadow layer
-      ctx.fillStyle = 'rgba(8, 8, 20, 0.7)'
-      ctx.beginPath()
-      ctx.roundRect(x + depthOffset, y + depthOffset, size, size, 8)
-      ctx.fill()
-      
-      // Close shadow layer
-      ctx.fillStyle = 'rgba(15, 15, 30, 0.5)'
-      ctx.beginPath()
-      ctx.roundRect(x + depthOffset - 1, y + depthOffset - 1, size, size, 8)
-      ctx.fill()
-    }
-
-    // Create enhanced 3D gradient backgrounds
-    let gradient
-    const adjustedX = isPressed ? x + 4 : x
-    const adjustedY = isPressed ? y + 4 : y
-    const adjustedSize = isPressed ? size - 4 : size
-    
-    switch (cell.status) {
-      case 'hidden':
-        // Enhanced gradient for more dramatic 3D button effect
-        gradient = ctx.createLinearGradient(adjustedX, adjustedY, adjustedX + adjustedSize, adjustedY + adjustedSize)
-        gradient.addColorStop(0, '#707db8')      // Bright top-left highlight
-        gradient.addColorStop(0.15, '#606aa0')   // Light area
-        gradient.addColorStop(0.4, '#525890')    // Mid tone
-        gradient.addColorStop(0.6, '#424874')    // Base color
-        gradient.addColorStop(0.8, '#363e65')    // Shadow area
-        gradient.addColorStop(1, '#252b45')      // Deep shadow
-        ctx.fillStyle = gradient
-        break
-      case 'gold':
-        gradient = ctx.createLinearGradient(adjustedX, adjustedY, adjustedX + adjustedSize, adjustedY + adjustedSize)
-        gradient.addColorStop(0, '#40ffb0')      // Bright highlight
-        gradient.addColorStop(0.2, '#30ff98')    // Light area
-        gradient.addColorStop(0.5, '#20ff90')    // Mid highlight
-        gradient.addColorStop(0.7, '#00e676')    // Base color
-        gradient.addColorStop(0.9, '#00c853')    // Shadow
-        gradient.addColorStop(1, '#00a040')      // Deep shadow
-        ctx.fillStyle = gradient
-        break
-      case 'mine':
-        gradient = ctx.createLinearGradient(adjustedX, adjustedY, adjustedX + adjustedSize, adjustedY + adjustedSize)
-        gradient.addColorStop(0, '#ff9090')      // Bright highlight
-        gradient.addColorStop(0.2, '#ff8080')    // Light area
-        gradient.addColorStop(0.5, '#ff7070')    // Mid highlight
-        gradient.addColorStop(0.7, '#ff5252')    // Base color
-        gradient.addColorStop(0.9, '#d32f2f')    // Shadow
-        gradient.addColorStop(1, '#b71c1c')      // Deep shadow
-        ctx.fillStyle = gradient
-        break
-    }
-
-    // Outer glow for revealed cells
-    if (cell.status !== 'hidden') {
-      ctx.shadowColor = cell.status === 'gold' ? 'rgba(0, 230, 118, 0.6)' : 'rgba(255, 82, 82, 0.6)'
-      ctx.shadowBlur = 20
-      ctx.shadowOffsetX = 0
-      ctx.shadowOffsetY = 0
-    } else {
-      ctx.shadowColor = 'rgba(147, 88, 255, 0.3)'
-      ctx.shadowBlur = 10
-      ctx.shadowOffsetX = 0
-      ctx.shadowOffsetY = 0
-    }
-
-    // Draw main cell
-    ctx.beginPath()
-    ctx.roundRect(adjustedX, adjustedY, adjustedSize, adjustedSize, 8)
-    ctx.fill()
-    ctx.shadowBlur = 0
-
-    // Enhanced 3D border effects
-    if (isPressed) {
-      // Pressed/inset style for revealed cells with deeper inset
-      ctx.strokeStyle = cell.status === 'gold' ? 'rgba(0, 120, 60, 1.0)' : 'rgba(150, 30, 30, 1.0)'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.roundRect(adjustedX, adjustedY, adjustedSize, adjustedSize, 6)
-      ctx.stroke()
-      
-      // Deep inner shadow (pressed effect)
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + 2, adjustedY + 2, adjustedSize - 4, adjustedSize - 4, 4)
-      ctx.stroke()
-      
-      // Inner highlight (bottom-right for inset)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + adjustedSize - 6, adjustedY + adjustedSize - 6, 4, 4, 2)
-      ctx.stroke()
-    } else {
-      // Enhanced raised style for hidden cells
-      ctx.strokeStyle = 'rgba(147, 88, 255, 0.8)'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.roundRect(adjustedX, adjustedY, adjustedSize, adjustedSize, 8)
-      ctx.stroke()
-      
-      // Bright top-left highlight (raised effect)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + 3, adjustedY + 3, adjustedSize - 6, adjustedSize - 6, 5)
-      ctx.stroke()
-      
-      // Secondary highlight
-      ctx.strokeStyle = 'rgba(200, 200, 255, 0.4)'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + 5, adjustedY + 5, adjustedSize - 10, adjustedSize - 10, 3)
-      ctx.stroke()
-      
-      // Bottom-right deep shadow
-      ctx.strokeStyle = 'rgba(10, 10, 25, 0.8)'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + 1, adjustedY + 1, adjustedSize - 2, adjustedSize - 2, 7)
-      ctx.stroke()
-      
-      // Corner shadow detail
-      ctx.strokeStyle = 'rgba(5, 5, 15, 0.6)'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + 2, adjustedY + 2, adjustedSize - 4, adjustedSize - 4, 6)
-      ctx.stroke()
-    }
-
-    // Enhanced cell content with dramatic 3D effects
-    if (cell.status === 'mine') {
-      // Draw mine with multiple shadow layers
-      ctx.font = `${adjustedSize * 0.45}px Arial`
-      ctx.textAlign = 'center'
-      
-      // Deep shadow
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'
-      ctx.shadowBlur = 8
-      ctx.shadowOffsetX = 4
-      ctx.shadowOffsetY = 4
-      ctx.fillStyle = '#000'
-      ctx.fillText('💣', adjustedX + adjustedSize / 2, adjustedY + adjustedSize * 0.65)
-      
-      // Closer shadow for depth
-      ctx.shadowBlur = 3
-      ctx.shadowOffsetX = 2
-      ctx.shadowOffsetY = 2
-      ctx.fillText('💣', adjustedX + adjustedSize / 2, adjustedY + adjustedSize * 0.65)
-      ctx.shadowBlur = 0
-    } else if (cell.status === 'gold') {
-      // Draw gem with intense glow and highlight
-      ctx.font = `${adjustedSize * 0.45}px Arial`
-      ctx.textAlign = 'center'
-      
-      // Outer glow
-      ctx.shadowColor = 'rgba(0, 255, 120, 1.0)'
-      ctx.shadowBlur = 15
-      ctx.shadowOffsetX = 0
-      ctx.shadowOffsetY = 0
-      ctx.fillStyle = '#fff'
-      ctx.fillText('💎', adjustedX + adjustedSize / 2, adjustedY + adjustedSize * 0.65)
-      
-      // Inner bright glow
-      ctx.shadowBlur = 8
-      ctx.fillText('💎', adjustedX + adjustedSize / 2, adjustedY + adjustedSize * 0.65)
-      
-      // Bright highlight
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.8)'
-      ctx.shadowBlur = 4
-      ctx.fillText('💎', adjustedX + adjustedSize / 2, adjustedY + adjustedSize * 0.65)
-      ctx.shadowBlur = 0
-    } else if (cell.status === 'hidden') {
-      // Add subtle texture/pattern to hidden buttons
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
-      ctx.beginPath()
-      ctx.roundRect(adjustedX + adjustedSize * 0.3, adjustedY + adjustedSize * 0.3, 
-                   adjustedSize * 0.4, adjustedSize * 0.4, 2)
-      ctx.fill()
-    }
   }
 
   // Handle canvas clicks for GambaUi.Canvas
@@ -780,28 +413,24 @@ export default function MinesV2() {
 
     // Check if clicking on grid during play
     if (started && gamePhase === 'playing') {
+      const padding = 20
       const canvasWidth = canvas.width
       const canvasHeight = canvas.height
-      const sidebarWidth = isMobile ? 0 : 160
-      const padding = 20
-      const sidebarGap = isMobile ? 0 : 50 // Space between grid and sidebar
-      const availableWidth = canvasWidth - padding * 2 // Full width minus padding for grid sizing
-      const availableHeight = canvasHeight - padding * 2 // Same height calculation as 2D version
-      const gridSize = Math.min(availableWidth, availableHeight)
-      
-      // Center the grid itself in the canvas
+      const gameAreaWidth = canvasWidth - padding * 2
+      const gameAreaHeight = canvasHeight - padding * 2
+      const gridSize = Math.min(gameAreaWidth, gameAreaHeight - 100)
+      const cellSize = gridSize / GRID_COLS
       const gridStartX = (canvasWidth - gridSize) / 2
-      const gridStartY = (canvasHeight - gridSize) / 2 // Center vertically like 2D version
-
-      // Calculate cell positions with gaps
-      const gap = 8
-      const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
+      const gridStartY = (canvasHeight - gridSize) / 2
 
       if (canvasX >= gridStartX && canvasX < gridStartX + gridSize &&
           canvasY >= gridStartY && canvasY < gridStartY + gridSize) {
         
         // Find which cell was clicked accounting for gaps
+        const gap = 8
+        const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
         let clickedIndex = -1
+        
         for (let i = 0; i < MINES_GRID_SIZE; i++) {
           const row = Math.floor(i / GRID_COLS)
           const col = i % GRID_COLS
@@ -820,12 +449,17 @@ export default function MinesV2() {
         }
       }
     }
-  }, [started, gamePhase, revealCell, isMobile])
+  }, [started, gamePhase, revealCell])
 
-  const gameMeta = useGameMeta('mines-v2')
+  const gameMeta = useGameMeta('mines')
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="mines" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

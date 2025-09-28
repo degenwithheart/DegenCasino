@@ -2,7 +2,7 @@ import { GambaUi, useSound, useWagerInput, useCurrentPool, TokenValue } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls, GameRecentPlaysHorizontal } from '../../components'
 import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFrame'
 import { GameControlsSection } from '../../components/Game/GameControlsSection'
 import { OptionSelector } from '../../components/Mobile/MobileControls'
@@ -517,6 +517,11 @@ export default function PlinkoRenderer2D() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="plinko" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

@@ -11,8 +11,11 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
-import { EnhancedWagerInput, EnhancedPlayButton } from '../../components/Game/EnhancedGameControls'
-import { GameControlsSection, GameStatsHeader, GameplayFrame, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal, EnhancedPlayButton } from '../../components'
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
+import GameplayFrame from '../../components/Game/GameplayFrame'
+import { useGameStats } from '../../hooks/game/useGameStats'
+import { useIsCompact } from '../../hooks/ui/useIsCompact'
 
 interface Particle {
   x: number

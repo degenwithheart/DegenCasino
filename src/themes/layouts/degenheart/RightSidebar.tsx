@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import styled, { keyframes, css } from 'styled-components'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useColorScheme } from '../../ColorSchemeContext'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
@@ -11,6 +11,8 @@ import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameSta
 import { RTP_TARGETS } from '../../../games/rtpConfig'
 import { RTP_TARGETS_V2 } from '../../../games/rtpConfig-v2'
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
+import { GameRecentPlays } from '../../../components/Game/GameRecentPlays'
+
 
 // Utility function to get RTP for each game (fetches from rtpConfig files dynamically)
 const getGameRTP = (gameId: string): string => {
@@ -377,6 +379,7 @@ const JackpotLabel = styled.div<{ $colorScheme: any }>`
 
 export const RightSidebar: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const { currentColorScheme } = useColorScheme()
   const { connected } = useWallet()
   const pool = useCurrentPool()
@@ -583,6 +586,8 @@ export const RightSidebar: React.FC = () => {
       const gameId = pathSegments[3]
       const currentGame = ALL_GAMES.find(game => game.id.toLowerCase() === gameId.toLowerCase())
       
+
+      
       if (currentGame) {
         // Use game-specific stats for this game
         const currentGameStats = useGameStats(gameId)
@@ -716,6 +721,14 @@ export const RightSidebar: React.FC = () => {
                   </>
                 )}
               </div>
+            </Section>
+
+            <Section $colorScheme={currentColorScheme}>
+              <SectionTitle $colorScheme={currentColorScheme}>
+                <FaDice />
+                Recent Plays
+              </SectionTitle>
+              <GameRecentPlays gameId={gameId} limit={10} colorScheme={undefined} />
             </Section>
           </>
         )

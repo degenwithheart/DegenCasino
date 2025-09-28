@@ -18,7 +18,7 @@ export const RTP_TARGETS_V2 = {
   'multipoker-v2': 0.96,  // Multi Poker: 4% house edge
   'flip-v2': 0.96,        // Flip V2: 4% house edge
   'blackjack-v2': 0.97,   // BlackJack V2: 3% house edge
-  'mines-v2': 0.96,       // Mines V2: 4% house edge
+  'mines': 0.96,       // Mines: 4% house edge
   'cryptochartgame-v2': 0.95, // Crypto Chart Game V2: 5% house edge
   'doubleornothing-v2': 0.94, // Double or Nothing V2: 6% house edge
   'fancyvirtualhorseracing-v2': 0.95, // Fancy Virtual Horse Racing V2: 5% house edge
@@ -278,7 +278,7 @@ export const BET_ARRAYS_V2 = {
     }
   },
 
-  'mines-v2': {
+  'mines': {
     GRID_SIZE: 25, // 5x5 grid
     MINE_SELECT: [1, 3, 5, 10, 15, 20], // Available mine counts
     
@@ -322,7 +322,7 @@ export const BET_ARRAYS_V2 = {
     
     // Calculate next multiplier if player continues
     getNextMultiplier: (mineCount: number, currentRevealed: number) => {
-      return BET_ARRAYS_V2['mines-v2'].getMultiplier(mineCount, currentRevealed + 1)
+      return BET_ARRAYS_V2['mines'].getMultiplier(mineCount, currentRevealed + 1)
     }
   },
 

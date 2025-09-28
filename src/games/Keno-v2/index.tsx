@@ -15,7 +15,7 @@ import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 
 interface Particle {
   x: number
@@ -475,6 +475,11 @@ export default function KenoGame({}: KenoGameProps) {
   return (
     <>
       {seoHelmet}
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="keno-v2" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader

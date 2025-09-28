@@ -38,7 +38,7 @@ export const GAME_LOADING_CONFIGS: GameLoadingConfig[] = [
     conversionRate: 0.9
   },
   {
-    id: 'mines-v2',
+    id: 'mines',
     priority: LoadingPriority.CRITICAL,
     preloadAssets: ['/webp/games/mines.webp'],
     popularity: 9,

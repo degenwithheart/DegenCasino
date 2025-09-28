@@ -132,7 +132,7 @@ export function useComponentPreloader() {
       const gameImportMap: Record<string, () => Promise<any>> = {
         'dice-v2': () => import('../../games/Dice-v2'),
         'slots': () => import('../../games/Slots'),
-        'mines-v2': () => import('../../games/Mines-v2'),
+        'mines': () => import('../../games/Mines'),
         'plinko': () => import('../../games/Plinko'),
         'magic8ball': () => import('../../games/Magic8Ball'),
         'crash': () => import('../../games/CrashGame'),

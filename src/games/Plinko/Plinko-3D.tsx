@@ -2,7 +2,7 @@ import { GambaUi, useSound, useWagerInput, useCurrentPool, TokenValue } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, SwitchControl, DesktopControls, GameRecentPlaysHorizontal } from '../../components'
 import GameScreenFrame, { useGraphics } from '../../components/Game/GameScreenFrame'
 import { GameControlsSection } from '../../components/Game/GameControlsSection'
 import { OptionSelector } from '../../components/Mobile/MobileControls'
@@ -517,6 +517,11 @@ export default function PlinkoRenderer2D() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="plinko" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
@@ -588,10 +593,10 @@ export default function PlinkoRenderer2D() {
                       ctx.scale(1 + animation * .4, 1 + animation * .4)
                     }
 
-                    // Enhanced 3D peg styling similar to Mines-v2
+                    // Enhanced 3D peg styling similar to Mines
                     const pegHue = (position.y + position.x + Date.now() * .05) % 360
                     const animationEffect = settings.enableMotion ? animation : 0
-                    const depthOffset = 6 // 3D depth offset like Mines-v2
+                    const depthOffset = 6 // 3D depth offset like Mines
 
                     // Multiple shadow layers for 3D depth (positioned with offsets)
                     ctx.fillStyle = 'rgba(5, 5, 15, 0.8)'
@@ -660,9 +665,9 @@ export default function PlinkoRenderer2D() {
                       ctx.save()
                       ctx.translate(position.x, position.y)
 
-                      // Enhanced 3D ball styling similar to Mines-v2
+                      // Enhanced 3D ball styling similar to Mines
                       const ballHue = (i * 420 % 360)
-                      const depthOffset = 6 // 3D depth offset like Mines-v2
+                      const depthOffset = 6 // 3D depth offset like Mines
 
                       // Multiple shadow layers for 3D depth (positioned with offsets)
                       ctx.fillStyle = 'rgba(5, 5, 15, 0.8)'
@@ -741,12 +746,12 @@ export default function PlinkoRenderer2D() {
                     // Only apply animation effect if motion is enabled, otherwise use static values
                     const animationEffect = settings.enableMotion ? animation : 0
                     const bucketAlpha = 0.8 + animationEffect * 0.2
-                    const depthOffset = 6 // 3D depth offset like Mines-v2
+                    const depthOffset = 6 // 3D depth offset like Mines
 
                     // Get dynamic colors based on multiplier value
                     const colors = getBucketColor(bucketMultiplier)
 
-                    // Multiple shadow layers for 3D depth (positioned below bucket like Mines-v2)
+                    // Multiple shadow layers for 3D depth (positioned below bucket like Mines)
                     // For buckets at bottom, shadows should appear below and to the right
                     ctx.fillStyle = 'rgba(5, 5, 15, 0.6)'
                     ctx.fillRect(-23 + depthOffset + 2, 2 + depthOffset + 2, 46, bucketHeight + 4)
@@ -757,7 +762,7 @@ export default function PlinkoRenderer2D() {
                     ctx.fillStyle = 'rgba(15, 15, 30, 0.3)'
                     ctx.fillRect(-21 + depthOffset - 1, 0 + depthOffset - 1, 42, bucketHeight)
 
-                    // Create enhanced 3D gradient for bucket background (like Mines-v2)
+                    // Create enhanced 3D gradient for bucket background (like Mines)
                     const bucketGradient = ctx.createLinearGradient(-25, -bucketHeight, 25, 0)
                     bucketGradient.addColorStop(0, colors.primary.replace('0.9)', `${bucketAlpha})`))      // Bright top
                     bucketGradient.addColorStop(0.2, colors.secondary.replace('0.85)', `${bucketAlpha * 0.95})`))  // Light area
@@ -780,7 +785,7 @@ export default function PlinkoRenderer2D() {
                     ctx.fillRect(-25, -bucketHeight, 50, bucketHeight)
                     ctx.shadowBlur = 0
 
-                    // Enhanced 3D border effects (like Mines-v2)
+                    // Enhanced 3D border effects (like Mines)
                     ctx.strokeStyle = colors.primary.replace('0.9)', '0.8)')
                     ctx.lineWidth = 3
                     ctx.strokeRect(-25, -bucketHeight, 50, bucketHeight)

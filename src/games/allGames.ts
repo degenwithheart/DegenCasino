@@ -98,7 +98,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./HiLo')),
   },
   {
-    id: 'mines-v2',
+    id: 'mines',
     live: 'up',
     meta: {
       name: 'Mines',
@@ -107,7 +107,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       description: `The board lies still, but beneath it sleeps chaos. Each tile you touch could be a kiss of fortune or the sting of betrayal. Twenty-five choices stretch before you, each one daring you deeper into the labyrinth. With every reveal, the silence grows heavier, your breath shorter. Push forward and your winnings blossom, but so too does the shadow of loss. Mines is not just a puzzle — it is a lover’s test, demanding courage yet punishing recklessness. To succeed, you must balance greed with grace, bravery with restraint. And even when you fall, you’ll find yourself drawn back, because danger, like desire, is impossible to resist.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./Mines-v2')),
+    app: React.lazy(() => import('./Mines')),
   },
   {
     id: 'plinko',

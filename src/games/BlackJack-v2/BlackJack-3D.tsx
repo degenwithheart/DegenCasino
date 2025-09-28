@@ -1,6 +1,6 @@
 import { GambaUi, useSound, useWagerInput, useCurrentPool } from 'gamba-react-ui-v2'
 import React from 'react'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls } from '../../components'
+import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameRecentPlaysHorizontal } from '../../components'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -44,6 +44,11 @@ export default function BlackJack3D() {
 
   return (
     <>
+      {/* Recent Plays Portal - positioned above stats */}
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="blackjack" />
+      </GambaUi.Portal>
+
       {/* Stats Portal - positioned above game screen */}
       <GambaUi.Portal target="stats">
         <GameStatsHeader
