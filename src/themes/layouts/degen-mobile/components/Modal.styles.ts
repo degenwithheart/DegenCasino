@@ -1,10 +1,10 @@
 import styled, { keyframes } from 'styled-components'
 import { spacing, components, animations, media } from '../breakpoints'
 
-// Premium modal animations with spring physics
+// Modern bottom sheet animations
 export const slideUp = keyframes`
   from {
-    transform: translateY(100%) scale(0.9);
+    transform: translateY(100%) scale(0.95);
     opacity: 0;
   }
   to {
@@ -19,39 +19,30 @@ export const slideDown = keyframes`
     opacity: 1;
   }
   to {
-    transform: translateY(100%) scale(0.9);
+    transform: translateY(100%) scale(0.95);
     opacity: 0;
   }
 `
 
-export const fadeIn = keyframes`
+export const backdropFadeIn = keyframes`
   from {
     opacity: 0;
     backdrop-filter: blur(0px);
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px);
   }
 `
 
-export const fadeOut = keyframes`
+export const backdropFadeOut = keyframes`
   from {
     opacity: 1;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px);
   }
   to {
     opacity: 0;
     backdrop-filter: blur(0px);
-  }
-`
-
-export const shimmer = keyframes`
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
   }
 `
 
@@ -73,14 +64,11 @@ export const ModalBackdrop = styled.div<{ $isOpen: boolean; $colorScheme: any }>
   z-index: 2000;
   
   display: ${props => props.$isOpen ? 'flex' : 'none'};
-  align-items: flex-end;
+  align-items: flex-end; /* Bottom sheet positioning */
   justify-content: center;
   
-  animation: ${props => props.$isOpen ? fadeIn : fadeOut} 
+  animation: ${props => props.$isOpen ? backdropFadeIn : backdropFadeOut} 
     ${animations.duration.normal} ${animations.easing.easeOut} forwards;
-  
-  animation: ${props => props.$isOpen ? fadeIn : fadeOut} 
-    ${animations.duration.normal} ${animations.easing.easeOut};
   
   /* Touch to close */
   cursor: pointer;
@@ -91,54 +79,56 @@ export const ModalBackdrop = styled.div<{ $isOpen: boolean; $colorScheme: any }>
   }
 `
 
-// Mobile-first modal container (slides up from bottom)
+// Modern bottom sheet modal container
 export const ModalContainer = styled.div<{ $isOpen: boolean; $colorScheme: any; $maxHeight?: string }>`
   width: 100%;
   max-width: 100vw;
-  max-height: ${props => props.$maxHeight || '90vh'};
+  max-height: ${props => props.$maxHeight || '85vh'};
   
-  background: linear-gradient(180deg,
-    ${props => props.$colorScheme.colors.surface},
-    ${props => props.$colorScheme.colors.background}F8
-  );
-  
-  border: 1px solid ${props => props.$colorScheme.colors.accent}30;
-  border-radius: ${components.modal.borderRadius};
-  
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+  background: ${props => props.$colorScheme.colors.surface};
+  border: 1px solid ${props => props.$colorScheme.colors.accent}20;
+  border-radius: 24px 24px 0 0;
   
   animation: ${props => props.$isOpen ? slideUp : slideDown} 
     ${animations.duration.normal} ${animations.easing.easeOut};
   
-  /* Prevent backdrop click propagation */
   cursor: default;
-  
-  /* Mobile scrolling optimization */
   overflow: hidden;
   
+  /* Modern drag handle */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: ${props => props.$colorScheme.colors.accent}30;
+    border-radius: 2px;
+  }
+  
   ${media.tablet} {
-    max-width: 500px;
-    border-radius: 16px;
+    max-width: 480px;
+    border-radius: 20px;
     align-self: center;
+    
+    &::before {
+      display: none;
+    }
   }
 `
 
-// Modal header
+// Clean modal header
 export const ModalHeader = styled.div<{ $colorScheme: any }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   
-  padding: ${spacing.base} ${spacing.lg};
-  border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}20;
+  padding: ${spacing.xl} ${spacing.lg} ${spacing.base};
+  border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}10;
   
-  background: ${props => props.$colorScheme.colors.surface}80;
-  backdrop-filter: blur(10px);
-  
-  /* Sticky header for long content */
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  background: ${props => props.$colorScheme.colors.surface};
 `
 
 // Modal title
@@ -183,54 +173,46 @@ export const ModalCloseButton = styled.button<{ $colorScheme: any }>`
   }
 `
 
-// Modal content area
+// Clean modal content area
 export const ModalContent = styled.div`
   padding: ${spacing.lg};
   overflow-y: auto;
   overflow-x: hidden;
   
-  /* Mobile scrolling optimization */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   
-  /* Maximum height calculation */
-  max-height: calc(90vh - 80px); /* Account for header */
+  max-height: calc(85vh - 120px);
   
   ${media.tablet} {
-    max-height: calc(80vh - 80px);
+    max-height: calc(80vh - 120px);
   }
 `
 
-// Modal footer (for actions)
+// Clean modal footer
 export const ModalFooter = styled.div<{ $colorScheme: any }>`
   display: flex;
   gap: ${spacing.base};
   
-  padding: ${spacing.base} ${spacing.lg};
-  border-top: 1px solid ${props => props.$colorScheme.colors.accent}20;
+  padding: ${spacing.lg};
+  border-top: 1px solid ${props => props.$colorScheme.colors.accent}10;
   
-  background: ${props => props.$colorScheme.colors.surface}80;
-  backdrop-filter: blur(10px);
-  
-  /* Sticky footer */
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  background: ${props => props.$colorScheme.colors.surface};
 `
 
-// Action button styles
+// Modern action button
 export const ModalActionButton = styled.button<{ 
   $colorScheme: any; 
   $variant: 'primary' | 'secondary' | 'danger' 
 }>`
   flex: 1;
   
-  min-height: ${spacing.touchTarget};
+  min-height: 48px;
   padding: ${spacing.base} ${spacing.lg};
   
   background: ${props => {
     switch (props.$variant) {
-      case 'primary': return props.$colorScheme.colors.accent;
+      case 'primary': return `linear-gradient(135deg, ${props.$colorScheme.colors.primary}, ${props.$colorScheme.colors.accent})`;
       case 'danger': return '#EF4444';
       default: return 'transparent';
     }
@@ -250,14 +232,14 @@ export const ModalActionButton = styled.button<{
     switch (props.$variant) {
       case 'primary': return props.$colorScheme.colors.accent;
       case 'danger': return '#EF4444';
-      default: return `${props.$colorScheme.colors.accent}40`;
+      default: return `${props.$colorScheme.colors.accent}30`;
     }
   }};
   
   border-radius: 12px;
   
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   
   transition: all ${animations.duration.fast} ${animations.easing.easeOut};
@@ -269,11 +251,5 @@ export const ModalActionButton = styled.button<{
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-  
-  ${media.mouse} {
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
   }
 `

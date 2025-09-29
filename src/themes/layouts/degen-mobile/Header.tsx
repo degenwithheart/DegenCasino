@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../ColorSchemeContext'
-import { FaBars, FaUser, FaWifi, FaSignal, FaTimes } from 'react-icons/fa'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
+import { FaBars, FaUser, FaWifi, FaSignal, FaTimes, FaTrophy, FaGift, FaGem } from 'react-icons/fa'
 import { useDegenMobile, useDegenMobileModal } from './DegenMobileLayout'
 import { spacing, components, typography, media, animations } from './breakpoints'
 
@@ -14,39 +14,29 @@ const HeaderContainer = styled.header<{ $colorScheme: any }>`
   right: 0;
   z-index: ${components.header.zIndex};
   
-  height: ${components.header.height};
-  padding: ${spacing.base} ${spacing.lg};
+  height: 70px;
+  padding: ${spacing.sm} ${spacing.base};
   
   display: flex;
   align-items: center;
   justify-content: space-between;
   
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.background}f0 0%,
-    ${props => props.$colorScheme.colors.surface}e0 100%
-  );
-  backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid ${props => props.$colorScheme.colors.primary}15;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
   
   ${media.safeArea} {
-    padding-top: calc(${spacing.base} + ${spacing.safeArea.top});
-    height: calc(${components.header.height} + ${spacing.safeArea.top});
+    padding-top: calc(${spacing.sm} + ${spacing.safeArea.top});
+    height: calc(70px + ${spacing.safeArea.top});
   }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      ${props => props.$colorScheme.colors.primary}30 50%, 
-      transparent 100%
-    );
-  }
+`
+
+const LeftSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${spacing.base};
+  flex: 1;
 `
 
 const Logo = styled.div<{ $colorScheme: any }>`
@@ -56,48 +46,84 @@ const Logo = styled.div<{ $colorScheme: any }>`
   
   font-size: ${typography.scale.xl};
   font-weight: ${typography.weight.bold};
-  
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.primary} 0%,
-    ${props => props.$colorScheme.colors.accent} 60%,
-    ${props => props.$colorScheme.colors.secondary || props.$colorScheme.colors.primary} 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ffffff;
   
   cursor: pointer;
   user-select: none;
-  position: relative;
   
-  min-height: ${spacing.touchTarget};
-  transition: all ${animations.duration.normal} ${animations.easing.bounce};
-  
-  &::before {
-    content: '✨';
-    position: absolute;
-    left: -28px;
-    font-size: 16px;
-    animation: sparkle 3s ease-in-out infinite;
-  }
+  transition: all ${animations.duration.fast} ease;
   
   &:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
   
-  &:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.2);
-  }
-  
-  @keyframes sparkle {
-    0%, 100% { 
-      opacity: 0.7; 
-      transform: rotate(0deg) scale(1); 
+  ${media.mouse} {
+    &:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
     }
-    50% { 
-      opacity: 1; 
-      transform: rotate(180deg) scale(1.15); 
+  }
+`
+
+const LogoText = styled.span`
+  /* Hide text on mobile, show on tablet+ */
+  display: none;
+  
+  ${media.tablet} {
+    display: inline;
+  }
+`
+
+const MenuLogoText = styled.span`
+  /* Always show text in menu regardless of screen size */
+  display: inline;
+`
+
+const LogoIcon = styled.img`
+  /* Always show the logo image */
+  display: inline;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+`
+
+const CenterSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${spacing.sm};
+  flex: 1;
+`
+
+const HeaderQuickButton = styled.button<{ $colorScheme: any }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  width: 40px;
+  height: 40px;
+  
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  
+  font-size: ${typography.scale.base};
+  cursor: pointer;
+  transition: all ${animations.duration.fast} ease;
+  
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  
+  &:active {
+    transform: scale(0.9);
+  }
+  
+  ${media.mouse} {
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
   }
 `
@@ -105,7 +131,9 @@ const Logo = styled.div<{ $colorScheme: any }>`
 const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: ${spacing.sm};
+  gap: ${spacing.base};
+  flex: 1;
+  justify-content: flex-end;
 `
 
 const HeaderButton = styled.button<{ $colorScheme: any; $variant?: 'primary' | 'secondary' }>`
@@ -113,68 +141,31 @@ const HeaderButton = styled.button<{ $colorScheme: any; $variant?: 'primary' | '
   align-items: center;
   justify-content: center;
   
-  min-width: 48px;
-  min-height: 48px;
+  width: 44px;
+  height: 44px;
   
-  background: ${props => props.$variant === 'primary' 
-    ? `linear-gradient(135deg, ${props.$colorScheme.colors.primary} 0%, ${props.$colorScheme.colors.accent} 100%)`
-    : `${props.$colorScheme.colors.surface}80`
-  };
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
   
-  color: ${props => props.$variant === 'primary' 
-    ? '#ffffff' 
-    : props.$colorScheme.colors.text
-  };
-  
-  border: ${props => props.$variant === 'primary'
-    ? 'none'
-    : `1px solid ${props.$colorScheme.colors.primary}20`
-  };
-  
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  box-shadow: ${props => props.$variant === 'primary'
-    ? `0 4px 16px ${props.$colorScheme.colors.primary}30`
-    : '0 2px 8px rgba(0,0,0,0.1)'
-  };
-  
-  font-size: ${typography.scale.lg};
+  font-size: ${typography.scale.base};
   font-weight: ${typography.weight.medium};
   cursor: pointer;
-  transition: all ${animations.duration.normal} ${animations.easing.bounce};
-  position: relative;
-  overflow: hidden;
+  transition: all ${animations.duration.fast} ease;
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left ${animations.duration.slow};
-  }
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   
   &:active {
-    transform: scale(0.92);
-    box-shadow: ${props => props.$variant === 'primary'
-      ? `0 2px 8px ${props.$colorScheme.colors.primary}40`
-      : '0 1px 4px rgba(0,0,0,0.15)'
-    };
-  }
-  
-  &:hover::before {
-    left: 100%;
+    transform: scale(0.9);
   }
   
   ${media.mouse} {
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: ${props => props.$variant === 'primary'
-        ? `0 8px 24px ${props.$colorScheme.colors.primary}40`
-        : '0 4px 16px rgba(0,0,0,0.15)'
-      };
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
   }
 `
@@ -186,22 +177,30 @@ const ConnectionStatus = styled.div<{ $colorScheme: any; $connected: boolean }>`
   
   padding: ${spacing.xs} ${spacing.sm};
   background: ${props => props.$connected 
-    ? '#10B98140' 
-    : '#EF444440'
+    ? 'rgba(16, 185, 129, 0.2)' 
+    : 'rgba(239, 68, 68, 0.2)'
   };
   
   color: ${props => props.$connected ? '#10B981' : '#EF4444'};
-  border: 1px solid ${props => props.$connected ? '#10B98160' : '#EF444460'};
-  border-radius: ${components.button.borderRadius};
+  border: 1px solid ${props => props.$connected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'};
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
   
   font-size: ${typography.scale.sm};
   font-weight: ${typography.weight.medium};
   
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all ${animations.duration.fast} ease;
   
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
+  }
+  
+  ${media.mouse} {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
   }
 `
 
@@ -212,7 +211,7 @@ const MenuOverlay = styled.div<{ $show: boolean; $colorScheme: any }>`
   right: 0;
   bottom: 0;
   
-  background: ${props => props.$colorScheme.colors.background}F0;
+  background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(20px);
   
   z-index: ${components.modal.zIndex};
@@ -230,7 +229,7 @@ const MenuHeader = styled.div<{ $colorScheme: any }>`
   justify-content: space-between;
   align-items: center;
   padding: ${spacing.base} 0;
-  border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}20;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: ${spacing.base};
 `
 
@@ -247,11 +246,11 @@ const MenuItem = styled.div<{ $colorScheme: any }>`
   gap: ${spacing.base};
   
   padding: ${spacing.base};
-  background: ${props => props.$colorScheme.colors.surface}60;
-  border: 1px solid ${props => props.$colorScheme.colors.accent}20;
-  border-radius: ${components.button.borderRadius};
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   
-  color: ${props => props.$colorScheme.colors.text};
+  color: #ffffff;
   font-size: ${typography.scale.base};
   
   cursor: pointer;
@@ -259,7 +258,7 @@ const MenuItem = styled.div<{ $colorScheme: any }>`
   
   &:active {
     transform: scale(0.98);
-    background: ${props => props.$colorScheme.colors.accent}20;
+    background: rgba(255, 255, 255, 0.15);
   }
 `
 
@@ -286,20 +285,53 @@ const Header: React.FC<HeaderProps> = () => {
     openConnectionStatus()
   }
   
+  const handleNavigation = (route: string) => {
+    navigate(`/${route}`)
+  }
+  
   return (
     <>
       <HeaderContainer $colorScheme={currentColorScheme}>
-        <HeaderButton 
-          $colorScheme={currentColorScheme}
-          onClick={handleMenuToggle}
-          aria-label="Open menu"
-        >
-          <FaBars />
-        </HeaderButton>
+        <LeftSection>
+          <HeaderButton 
+            $colorScheme={currentColorScheme}
+            onClick={handleMenuToggle}
+            aria-label="Open menu"
+          >
+            <FaBars />
+          </HeaderButton>
+          
+          <Logo $colorScheme={currentColorScheme} onClick={handleLogoClick}>
+            <LogoIcon src="/png/images/logo.png" alt="DegenHeart Casino" />
+            <LogoText>DegenHeart</LogoText>
+          </Logo>
+        </LeftSection>
         
-        <Logo $colorScheme={currentColorScheme} onClick={handleLogoClick}>
-          🎰 DegenHeart
-        </Logo>
+        <CenterSection>
+          <HeaderQuickButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => handleNavigation('bonus')}
+            title="Bonus"
+          >
+            <FaGift />
+          </HeaderQuickButton>
+          
+          <HeaderQuickButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => handleNavigation('jackpot')}
+            title="Jackpot"
+          >
+            <FaGem />
+          </HeaderQuickButton>
+          
+          <HeaderQuickButton 
+            $colorScheme={currentColorScheme}
+            onClick={() => handleNavigation('leaderboard')}
+            title="Leaderboard"
+          >
+            <FaTrophy />
+          </HeaderQuickButton>
+        </CenterSection>
         
         <HeaderActions>
           <ConnectionStatus 
@@ -316,7 +348,10 @@ const Header: React.FC<HeaderProps> = () => {
       {/* Mobile slide-out menu */}
       <MenuOverlay $show={menuOpen} $colorScheme={currentColorScheme}>
         <MenuHeader $colorScheme={currentColorScheme}>
-          <Logo $colorScheme={currentColorScheme}>🎰 DegenHeart</Logo>
+          <Logo $colorScheme={currentColorScheme}>
+            <LogoIcon src="/png/images/logo.png" alt="DegenHeart Casino" />
+            <MenuLogoText>DegenHeart</MenuLogoText>
+          </Logo>
           <HeaderButton 
             $colorScheme={currentColorScheme}
             onClick={() => setMenuOpen(false)}
@@ -340,6 +375,7 @@ const Header: React.FC<HeaderProps> = () => {
           </MenuItem>
         </MenuItems>
       </MenuOverlay>
+
     </>
   )
 }

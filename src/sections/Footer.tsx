@@ -5,6 +5,7 @@ import ConnectionStatus from '../components/Connection/ConnectionStatus'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
 import { useColorScheme } from '../themes/ColorSchemeContext';
+import { useTheme } from '../themes/UnifiedThemeContext';
 import { liveGlow, moveGradient } from './Footer.styles';
 // ––––– Romantic Serenade Animations ––––– //
 
@@ -273,6 +274,14 @@ function Footer() {
   const { connected, publicKey } = useWallet();
   const location = useLocation();
   const { currentColorScheme } = useColorScheme();
+  const { currentLayoutTheme } = useTheme();
+  
+  // Check if footer should be hidden based on theme config
+  const footerStyle = currentLayoutTheme.config?.footerStyle;
+  if (footerStyle === 'hidden') {
+    return null;
+  }
+  
   return (
     <>
       <StyledFooter $colorScheme={currentColorScheme}>

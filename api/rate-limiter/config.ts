@@ -242,7 +242,7 @@ export function applyEnvironmentOverrides(): void {
   }
 
   // Disable prefetching in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.GAMBA_ENV === 'development') {
     rateLimitConfig.prefetchSettings.enabled = false
   }
 }

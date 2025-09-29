@@ -28,7 +28,7 @@ export default async function handler(req: Request): Promise<Response> {
       RPC_ENDPOINT: process.env.RPC_ENDPOINT ? 'SET' : 'NOT SET',
       VITE_HELIUS_API_KEY: process.env.HELIUS_API_KEY ? 'SET' : 'NOT SET',
       VITE_PLATFORM_CREATOR: process.env.PLATFORM_CREATOR ? 'SET' : 'NOT SET',
-      NODE_ENV: process.env.NODE_ENV || 'undefined',
+      GAMBA_ENV: process.env.GAMBA_ENV || 'undefined',
       VERCEL: process.env.VERCEL ? 'YES' : 'NO'
     },
     endpoints: {

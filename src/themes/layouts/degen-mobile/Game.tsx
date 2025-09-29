@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useColorScheme } from '../../ColorSchemeContext'
 import { spacing, media, components } from './breakpoints'
+import { getDeviceType } from './utils/deviceDetection'
 
 const GameContainer = styled.div<{ $colorScheme: any }>`
   width: 100%;
@@ -56,6 +57,14 @@ interface GameProps {
 
 const Game: React.FC<GameProps> = ({ children }) => {
   const { currentColorScheme } = useColorScheme()
+  
+  // Log device type for game loading debugging
+  React.useEffect(() => {
+    const deviceType = getDeviceType()
+    console.log(`🎮 Degen Mobile - Device Type: ${deviceType}`)
+    console.log(`📱 Mobile games: ${deviceType === 'mobile' ? 'enabled' : 'disabled'}`)
+    console.log(`🖥️ Desktop games: ${deviceType === 'tablet' || deviceType === 'desktop' ? 'enabled' : 'disabled'}`)
+  }, [])
   
   return (
     <GameContainer $colorScheme={currentColorScheme}>

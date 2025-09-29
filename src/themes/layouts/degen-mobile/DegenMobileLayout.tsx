@@ -1,20 +1,26 @@
 import React, { useState, createContext, useContext, useEffect } from 'react'
 import styled from 'styled-components'
-import { useColorScheme } from '../../ColorSchemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import Header from './Header'
-// Footer removed - mobile theme uses bottom navigation instead
 import MainContent from './MainContent'
 import BottomNavigation from './BottomNavigation'
 import { Modal } from './components/Modal'
 import { ShareModal } from './components/ShareModal'
 import AllGamesContentModal from './components/AllGamesContentModal'
 import { ConnectionStatusContent } from './components/ConnectionStatusContent'
-import { BonusContent, JackpotContent, ColorSchemeSelector } from '../../../components'
-import { LeaderboardsContent } from '../../../sections/LeaderBoard/LeaderboardsModal'
-import TokenSelect from '../../../sections/TokenSelect'
+import { BonusContent } from './components/BonusModal'
+import { JackpotContent } from './components/JackpotModal'
+import { ColorSchemeSelector } from '../../../components'
+import { LeaderboardsContent } from './components/LeaderboardsModal'
+import BonusModal from './components/BonusModal'
+import JackpotModal from './components/JackpotModal'
+import TokenSelect from './components/TokenSelect'
+import UserProfile from './components/UserProfile'
 import MoreModal from './MoreModal'
+import GestureHandler from './components/GestureHandler'
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
 import { media, gridBreakpoints, spacing, components } from './breakpoints'
+import { GameLoadingProvider } from './contexts/GameLoadingContext'
 
 // Mobile-specific context for bottom navigation and modals
 const DegenMobileContext = createContext<{ 
@@ -123,21 +129,21 @@ const GridMain = styled.main`
   grid-area: main;
   overflow: auto;
   
-  /* Account for fixed header and bottom nav */
-  padding-top: ${components.header.height};
-  padding-bottom: ${components.bottomNav.height};
+  /* Minimal padding between header and content */
+  padding-top: calc(${components.header.height} + ${spacing.xs});
+  padding-bottom: calc(${components.bottomNav.height} + ${spacing.xs});
   
   /* Enhanced mobile scrolling */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   
   ${media.mobileLg} {
-    padding-top: ${components.header.heightLg};
+    padding-top: calc(${components.header.heightLg} + ${spacing.xs});
   }
   
-  /* Safe area padding */
+  /* Safe area padding - minimal */
   ${media.safeArea} {
-    padding-bottom: calc(${components.bottomNav.height} + ${spacing.safeArea.bottom});
+    padding-bottom: calc(${components.bottomNav.height} + ${spacing.safeArea.bottom} + ${spacing.xs});
   }
 `
 
@@ -186,10 +192,20 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   const [gamesModalOpen, setGamesModalOpen] = useState(false)
   const [moreModalOpen, setMoreModalOpen] = useState(false)
   
-  // Keep bottom nav always visible for mobile-first experience
-  useEffect(() => {
-    setShowBottomNav(true)
-  }, [])
+  // Gesture handling for navigation
+  const handleSwipeLeft = () => {
+    const tabs = ['home', 'games', 'jackpot', 'profile', 'more']
+    const currentIndex = tabs.indexOf(activeBottomTab)
+    const nextIndex = (currentIndex + 1) % tabs.length
+    setActiveBottomTab(tabs[nextIndex])
+  }
+
+  const handleSwipeRight = () => {
+    const tabs = ['home', 'games', 'jackpot', 'profile', 'more']
+    const currentIndex = tabs.indexOf(activeBottomTab)
+    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
+    setActiveBottomTab(tabs[prevIndex])
+  }
   
   // Mobile context values
   const mobileContextValue = {
@@ -215,15 +231,21 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   }
   
   return (
-    <DegenMobileContext.Provider value={mobileContextValue}>
-      <DegenMobileModalContext.Provider value={modalContextValue}>
-        <LayoutContainer $colorScheme={currentColorScheme} $showBottomNav={showBottomNav}>
+    <GameLoadingProvider>
+      <DegenMobileContext.Provider value={mobileContextValue}>
+        <DegenMobileModalContext.Provider value={modalContextValue}>
+          <LayoutContainer $colorScheme={currentColorScheme} $showBottomNav={showBottomNav}>
           <GridHeader>
             <Header />
           </GridHeader>
           
           <GridMain>
-            <MainContent>{children}</MainContent>
+            <GestureHandler
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+            >
+              <MainContent>{children}</MainContent>
+            </GestureHandler>
           </GridMain>
           
           <GridBottomNav $show={showBottomNav}>
@@ -232,13 +254,10 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
         </LayoutContainer>
         
         {/* Mobile-optimized slide-up modals */}
-        <Modal 
+        <AllGamesContentModal 
           isOpen={gamesModalOpen} 
           onClose={() => setGamesModalOpen(false)}
-          title="All Games"
-        >
-          <AllGamesContentModal />
-        </Modal>
+        />
         
         <Modal 
           isOpen={bonusModalOpen} 
@@ -299,15 +318,13 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
         )}
         
         {/* More menu modal with additional options */}
-        <Modal 
+        <MoreModal 
           isOpen={moreModalOpen} 
           onClose={() => setMoreModalOpen(false)}
-          title="More"
-        >
-          <MoreModal onClose={() => setMoreModalOpen(false)} />
-        </Modal>
-      </DegenMobileModalContext.Provider>
-    </DegenMobileContext.Provider>
+        />
+        </DegenMobileModalContext.Provider>
+      </DegenMobileContext.Provider>
+    </GameLoadingProvider>
   )
 }
 

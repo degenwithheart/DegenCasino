@@ -45,38 +45,50 @@ interface UnifiedThemeContextType {
 /**
  * Default component registry - populated with actual default components
  */
-function createDefaultComponentRegistry() {
-  return {
-    components: {
-      Header: React.lazy(() => import('../sections/Header')),
-      Footer: React.lazy(() => import('../sections/Footer')),
-    },
-    sections: {
-      Game: React.lazy(() => import('../sections/Game/Game')),
-      Header: React.lazy(() => import('../sections/Header')),
-      Footer: React.lazy(() => import('../sections/Footer')),
-      Dashboard: React.lazy(() => import('../sections/Dashboard/Dashboard')),
-    },
-  };
-}/**
+const defaultComponentRegistry = {
+  components: {
+    Header: React.lazy(() => import('../sections/Header')),
+    Footer: React.lazy(() => import('../sections/Footer')),
+  },
+  sections: {
+    Game: React.lazy(() => import('../sections/Game/Game')),
+    Header: React.lazy(() => import('../sections/Header')),
+    Footer: React.lazy(() => import('../sections/Footer')),
+    Dashboard: React.lazy(() => import('../sections/Dashboard/Dashboard')),
+  },
+  pages: {
+    JackpotPage: React.lazy(() => import('../pages/features/JackpotPage')),
+    BonusPage: React.lazy(() => import('../pages/features/BonusPage')),
+    LeaderboardPage: React.lazy(() => import('../pages/features/LeaderboardPage')),
+    SelectTokenPage: React.lazy(() => import('../pages/features/SelectTokenPage')),
+  },
+};/**
  * Theme Context
  */
 const UnifiedThemeContext = createContext<UnifiedThemeContextType | null>(null);
 
 /**
- * Get stored layout theme from localStorage (desktop themes only)
+ * Get initial layout theme with mobile detection
  */
-const getStoredLayoutTheme = (): LayoutThemeKey => {
+const getInitialLayoutTheme = (): LayoutThemeKey => {
   try {
-    // Check for explicit theme preference first
-    const stored = localStorage.getItem(LAYOUT_THEME_STORAGE_KEY);
-    if (stored && stored in AVAILABLE_LAYOUT_THEMES) {
-      return stored as LayoutThemeKey;
-    }
+    // Initialize theme with mobile detection
+    const detectedTheme = initializeTheme();
+    console.log('🎨 Initial theme detected:', detectedTheme);
+    return detectedTheme as LayoutThemeKey;
   } catch (error) {
-    console.warn('Failed to load stored layout theme:', error);
+    console.warn('Failed to initialize theme with mobile detection:', error);
+    // Fallback to stored theme or default
+    try {
+      const stored = localStorage.getItem(LAYOUT_THEME_STORAGE_KEY);
+      if (stored && stored in AVAILABLE_LAYOUT_THEMES) {
+        return stored as LayoutThemeKey;
+      }
+    } catch (e) {
+      console.warn('Failed to load stored layout theme:', e);
+    }
+    return DEFAULT_LAYOUT_THEME;
   }
-  return DEFAULT_LAYOUT_THEME;
 };
 
 /**
@@ -98,6 +110,7 @@ interface UnifiedThemeProviderProps {
   defaultComponentRegistry?: {
     components: Record<string, React.ComponentType<any>>;
     sections: Record<string, React.ComponentType<any>>;
+    pages: Record<string, React.ComponentType<any>>;
   };
 }
 
@@ -107,10 +120,10 @@ interface UnifiedThemeProviderProps {
  */
 export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({ 
   children,
-  defaultComponentRegistry = createDefaultComponentRegistry()
+  defaultComponentRegistry: providedRegistry = defaultComponentRegistry
 }) => {
   // Layout Theme State
-  const [layoutThemeKey, setLayoutThemeKey] = useState<LayoutThemeKey>(getStoredLayoutTheme);
+  const [layoutThemeKey, setLayoutThemeKey] = useState<LayoutThemeKey>(getInitialLayoutTheme);
   const [currentLayoutTheme, setCurrentLayoutTheme] = useState<LayoutTheme>(getLayoutTheme(layoutThemeKey));
   
   // Color Scheme State (existing)
@@ -122,7 +135,7 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
   
   // Theme Resolver
   const [themeResolver, setThemeResolver] = useState<ThemeResolver>(
-    createThemeResolver(defaultComponentRegistry, currentLayoutTheme)
+    createThemeResolver(providedRegistry, currentLayoutTheme)
   );
 
   // Scroll Configuration Functions

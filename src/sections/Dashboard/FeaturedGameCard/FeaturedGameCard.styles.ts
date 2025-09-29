@@ -1,10 +1,4 @@
-import styled, { keyframes, css } from 'styled-components'
-
-// Unique animation for featured games
-export const featuredGlow = keyframes`
-  0% { box-shadow: 0 0 24px #ffd70088, 0 0 48px #a259ff44; }
-  100% { box-shadow: 0 0 48px #ffd700cc, 0 0 96px #a259ff88; }
-`;
+import styled, { css } from 'styled-components'
 
 export const StyledFeaturedGameCard = styled.div<{ $background: string; $colorScheme?: any }>`
   width: 100%;
@@ -18,17 +12,10 @@ export const StyledFeaturedGameCard = styled.div<{ $background: string; $colorSc
   overflow: hidden;
   cursor: pointer;
   border: 2px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
-  box-shadow: ${({ $colorScheme }) => $colorScheme?.effects?.glow || '0 0 32px #ffd700cc, 0 0 64px #a259ff88'};
-  animation: ${featuredGlow} 1.5s infinite alternate;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
-
-  &:hover {
-    transform: scale(1.08) rotate(-2deg);
-    box-shadow: 0 0 64px #ffd700cc, 0 0 128px #a259ff88;
-  }
 
   .image {
     position: absolute;

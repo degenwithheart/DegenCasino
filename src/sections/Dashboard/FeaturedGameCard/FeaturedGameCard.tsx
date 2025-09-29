@@ -33,11 +33,16 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   }
 
   const handleClick = () => {
-    if (!publicKey) return
-    const wallet = publicKey.toBase58()
-    onGameClick(game.id) // Track game click for analytics
-    navigate(`/game/${wallet}/${game.id}`)
-    if (onClick) onClick()
+    if (onClick) {
+      // If custom onClick is provided, use it instead of default navigation
+      onClick()
+    } else {
+      // Default behavior: navigate to game
+      if (!publicKey) return
+      const wallet = publicKey.toBase58()
+      onGameClick(game.id) // Track game click for analytics
+      navigate(`/game/${wallet}/${game.id}`)
+    }
   }
 
   return (

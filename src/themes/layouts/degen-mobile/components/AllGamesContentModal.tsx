@@ -2,9 +2,17 @@ import React, { useState, useMemo } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../../ColorSchemeContext'
+import { useColorScheme } from '../../../../themes/ColorSchemeContext'
 import { ALL_GAMES } from '../../../../games/allGames'
 import { spacing, typography, media, components } from '../breakpoints'
+import { 
+  ModalOverlay, 
+  ModalContainer, 
+  Header, 
+  Title, 
+  CloseButton, 
+  Content
+} from './ModalComponents'
 
 // Filter games by tag
 const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Singleplayer')
@@ -65,7 +73,7 @@ const GamesGrid = styled.div`
   }
   
   ${media.tablet} {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 `
 
@@ -176,9 +184,12 @@ const EmptyState = styled.div<{ $colorScheme: any }>`
   line-height: 1.5;
 `
 
-interface AllGamesContentModalProps {}
+interface AllGamesContentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-const AllGamesContentModal: React.FC<AllGamesContentModalProps> = () => {
+const AllGamesContentModal: React.FC<AllGamesContentModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
   const { connected, publicKey } = useWallet()
   const { currentColorScheme } = useColorScheme()
@@ -191,61 +202,84 @@ const AllGamesContentModal: React.FC<AllGamesContentModalProps> = () => {
   const handleGameClick = (gameId: string) => {
     if (connected && publicKey) {
       navigate(`/game/${publicKey.toString()}/${gameId}`)
+      onClose() // Close modal after navigation
+    } else {
+      // If wallet not connected, prompt user to connect wallet
+      console.warn('No wallet connected - cannot navigate to game')
+      // Could add wallet modal trigger here if needed
+      return
     }
-    // If wallet not connected, clicking does nothing (games require wallet)
   }
   
+  if (!isOpen) return null
+
   return (
-    <ModalContent $colorScheme={currentColorScheme}>
-      <TabContainer>
-        <TabButton
-          $colorScheme={currentColorScheme}
-          $active={activeTab === 'single'}
-          onClick={() => setActiveTab('single')}
+    <>
+      <ModalOverlay onClick={onClose}>
+        <ModalContainer 
+          $variant="allgames"
+          onClick={(e) => e.stopPropagation()}
         >
-          🎯 Singleplayer ({SINGLEPLAYER_GAMES.length})
-        </TabButton>
-        <TabButton
-          $colorScheme={currentColorScheme}
-          $active={activeTab === 'multi'}
-          onClick={() => setActiveTab('multi')}
-        >
-          👥 Multiplayer ({MULTIPLAYER_GAMES.length})
-        </TabButton>
-      </TabContainer>
-      
-      {currentGames.length > 0 ? (
-        <GamesGrid>
-          {currentGames.map((game) => (
-            <GameCard
-              key={game.id}
-              $colorScheme={currentColorScheme}
-              onClick={() => handleGameClick(game.id)}
-            >
-              <GameImage 
-                $backgroundImage={game.meta.image} 
+          <Header $variant="allgames">
+            <Title $variant="allgames" $icon="🎮">
+              All Games
+            </Title>
+            <CloseButton $variant="allgames" onClick={onClose} />
+          </Header>
+          
+          <Content>
+            <TabContainer>
+              <TabButton
                 $colorScheme={currentColorScheme}
-              />
-              
-              <GameInfo>
-                <GameName $colorScheme={currentColorScheme}>
-                  {game.meta.name}
-                </GameName>
-                
-                <GameStatus $status={game.live} $colorScheme={currentColorScheme}>
-                  {game.live}
-                </GameStatus>
-              </GameInfo>
-            </GameCard>
-          ))}
-        </GamesGrid>
-      ) : (
-        <EmptyState $colorScheme={currentColorScheme}>
-          <div>🎮</div>
-          <div>No {activeTab === 'single' ? 'singleplayer' : 'multiplayer'} games available</div>
-        </EmptyState>
-      )}
-    </ModalContent>
+                $active={activeTab === 'single'}
+                onClick={() => setActiveTab('single')}
+              >
+                🎯 Singleplayer ({SINGLEPLAYER_GAMES.length})
+              </TabButton>
+              <TabButton
+                $colorScheme={currentColorScheme}
+                $active={activeTab === 'multi'}
+                onClick={() => setActiveTab('multi')}
+              >
+                👥 Multiplayer ({MULTIPLAYER_GAMES.length})
+              </TabButton>
+            </TabContainer>
+            
+            {currentGames.length > 0 ? (
+              <GamesGrid>
+                {currentGames.map((game) => (
+                  <GameCard
+                    key={game.id}
+                    $colorScheme={currentColorScheme}
+                    onClick={() => handleGameClick(game.id)}
+                  >
+                    <GameImage 
+                      $backgroundImage={game.meta.image} 
+                      $colorScheme={currentColorScheme}
+                    />
+                    
+                    <GameInfo>
+                      <GameName $colorScheme={currentColorScheme}>
+                        {game.meta.name}
+                      </GameName>
+                      
+                      <GameStatus $status={game.live} $colorScheme={currentColorScheme}>
+                        {game.live}
+                      </GameStatus>
+                    </GameInfo>
+                  </GameCard>
+                ))}
+              </GamesGrid>
+            ) : (
+              <EmptyState $colorScheme={currentColorScheme}>
+                <div>🎮</div>
+                <div>No {activeTab === 'single' ? 'singleplayer' : 'multiplayer'} games available</div>
+              </EmptyState>
+            )}
+          </Content>
+        </ModalContainer>
+      </ModalOverlay>
+    </>
   )
 }
 

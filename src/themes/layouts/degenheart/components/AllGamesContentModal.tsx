@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { useColorScheme } from '../../../ColorSchemeContext'
 import { ALL_GAMES } from '../../../../games/allGames'
 import { media, spacing, typography } from '../breakpoints'
@@ -175,13 +176,21 @@ type AllGamesContentModalProps = {
 const AllGamesContentModal: React.FC<AllGamesContentModalProps> = ({ onGameClick }) => {
   const { currentColorScheme } = useColorScheme()
   const navigate = useNavigate()
+  const { publicKey } = useWallet()
 
   const handleGameClick = (gameId: string, gameStatus: string) => {
     if (gameStatus === 'down') {
       return // Don't navigate to games that are down
     }
     
-    navigate(`/${gameId}`)
+    // Navigate to correct game route with wallet address
+    if (publicKey) {
+      navigate(`/game/${publicKey.toBase58()}/${gameId}`)
+    } else {
+      // If no wallet connected, prompt user to connect
+      console.warn('No wallet connected - cannot navigate to game')
+      return
+    }
     onGameClick?.() // Close the modal
   }
 

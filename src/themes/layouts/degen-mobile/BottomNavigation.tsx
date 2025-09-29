@@ -2,133 +2,132 @@ import React from 'react'
 import styled from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../ColorSchemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { FaHome, FaGamepad, FaSearch, FaUser, FaCog, FaTrophy, FaGift, FaEllipsisH, FaCoins } from 'react-icons/fa'
 import { useDegenMobile, useDegenMobileModal } from './DegenMobileLayout'
+import GestureHandler from './components/GestureHandler'
 import { spacing, components, typography, media, animations } from './breakpoints'
 
 const BottomNavContainer = styled.nav<{ $colorScheme: any }>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  height: 100%;
-  position: relative;
+  z-index: ${components.bottomNav.zIndex};
   
-  background: linear-gradient(135deg,
-    ${props => props.$colorScheme.colors.surface}e0 0%,
-    ${props => props.$colorScheme.colors.background}f5 50%,
-    ${props => props.$colorScheme.colors.surface}e8 100%
-  );
-  backdrop-filter: blur(30px) saturate(180%);
-  
-  border-top: 1px solid ${props => props.$colorScheme.colors.primary}25;
-  border-radius: 28px 28px 0 0;
-  
-  box-shadow: 
-    0 -8px 32px rgba(0,0,0,0.1),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-  
+  ${media.safeArea} {
+    padding-bottom: ${spacing.safeArea.bottom};
+  }
+`
+
+const NavPill = styled.div<{ $colorScheme: any }>`
+  width: 100%;
+  height: 90px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding: ${spacing.sm} ${spacing.base};
+  justify-content: space-evenly;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  
+  /* Notch cutout for center button */
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 20%;
-    right: 20%;
-    height: 4px;
-    background: linear-gradient(90deg,
-      transparent 0%,
-      ${props => props.$colorScheme.colors.primary}60 50%,
-      transparent 100%
-    );
-    border-radius: 2px;
-    transform: translateY(-2px);
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    z-index: -1;
   }
   
+  box-shadow: 
+    0 4px 20px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  
+  transition: all ${animations.duration.normal} ${animations.easing.easeOut};
+  
   ${media.safeArea} {
-    padding-bottom: calc(${spacing.sm} + ${spacing.safeArea.bottom});
+    padding-bottom: ${spacing.safeArea.bottom};
   }
 `
 
 const NavItem = styled.button<{ 
   $colorScheme: any; 
   $active: boolean; 
-  $disabled?: boolean 
+  $disabled?: boolean;
+  $isCenter?: boolean;
 }>`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: ${spacing.xs};
   
-  min-width: 56px;
-  min-height: 56px;
-  padding: ${spacing.sm};
+  width: ${props => props.$isCenter ? '75px' : '50px'};
+  height: ${props => props.$isCenter ? '75px' : '50px'};
+  padding: 0;
+  flex-shrink: 0;
+  position: ${props => props.$isCenter ? 'relative' : 'static'};
+  z-index: ${props => props.$isCenter ? '10' : '1'};
   
-  background: ${props => props.$active 
-    ? `linear-gradient(135deg, ${props.$colorScheme.colors.primary}25 0%, ${props.$colorScheme.colors.accent}20 100%)`
-    : 'transparent'
-  };
-  
-  color: ${props => {
-    if (props.$disabled) return `${props.$colorScheme.colors.text}40`;
-    if (props.$active) return props.$colorScheme.colors.primary;
-    return `${props.$colorScheme.colors.text}80`;
+  background: ${props => {
+    if (props.$disabled) return 'rgba(255,255,255,0.1)';
+    if (props.$isCenter) return '#d4a574';
+    return 'rgba(255,255,255,0.2)';
   }};
   
-  border: ${props => props.$active 
-    ? `1px solid ${props.$colorScheme.colors.primary}30`
-    : 'none'
-  };
-  border-radius: 18px;
+  color: ${props => {
+    if (props.$disabled) return 'rgba(255,255,255,0.4)';
+    return '#ffffff';
+  }};
   
-  box-shadow: ${props => props.$active 
-    ? `0 4px 16px ${props.$colorScheme.colors.primary}20, inset 0 1px 0 rgba(255,255,255,0.1)`
-    : 'none'
-  };
+  border: none;
+  border-radius: 50%;
   
-  font-size: ${typography.scale.xs};
-  font-weight: ${props => props.$active 
-    ? typography.weight.bold 
-    : typography.weight.medium
-  };
+  box-shadow: ${props => {
+    if (props.$disabled) return 'none';
+    if (props.$isCenter) return '0 4px 12px rgba(212, 165, 116, 0.4)';
+    return '0 2px 8px rgba(0,0,0,0.2)';
+  }};
+  
+  font-size: ${props => props.$isCenter ? typography.scale.lg : typography.scale.base};
+  font-weight: ${typography.weight.medium};
+  
+  transform: ${props => props.$isCenter ? 'translateY(-8px)' : 'none'};
+  
+  backdrop-filter: blur(10px);
   
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
-  transition: all ${animations.duration.normal} ${animations.easing.bounce};
+  transition: all ${animations.duration.fast} ${animations.easing.easeOut};
   position: relative;
-  overflow: hidden;
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: ${props => props.$colorScheme.colors.primary}15;
-    border-radius: 50%;
-    transition: all ${animations.duration.normal};
-    transform: translate(-50%, -50%);
+  /* Responsive sizing */
+  ${media.tablet} {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
   }
   
-  &:active {
-    transform: ${props => props.$disabled ? 'none' : 'scale(0.9)'};
-    
-    &::before {
-      width: 100%;
-      height: 100%;
-    }
+  /* Smooth scaling on press */
+  &:active:not(:disabled) {
+    transform: scale(0.88);
   }
   
+  /* Hover effects for desktop */
   ${media.mouse} {
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: ${props => props.$active 
-        ? `0 8px 24px ${props.$colorScheme.colors.primary}30`
-        : `0 4px 12px ${props.$colorScheme.colors.primary}15`
-      };
+      box-shadow: ${props => {
+        if (props.$active) return `0 6px 16px ${props.$colorScheme.colors.primary}50, 0 4px 8px ${props.$colorScheme.colors.primary}30`;
+        return '0 4px 12px rgba(0,0,0,0.12)';
+      }};
     }
   }
   
@@ -159,16 +158,7 @@ const NavIcon = styled.div<{ $size?: 'sm' | 'base' | 'lg' }>`
   filter: ${props => props.$size === 'lg' ? 'drop-shadow(0 0 8px currentColor)' : 'none'};
 `
 
-const NavLabel = styled.span`
-  font-size: ${typography.scale.xs};
-  line-height: 1;
-  white-space: nowrap;
-  
-  /* Hide labels on very small screens */
-  @media (max-width: 320px) {
-    display: none;
-  }
-`
+
 
 const Badge = styled.div<{ $colorScheme: any }>`
   position: absolute;
@@ -227,16 +217,6 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
       }
     },
     {
-      id: 'games',
-      icon: FaGamepad,
-      label: 'Games',
-      active: activeBottomTab === 'games',
-      action: () => {
-        openGamesModal()
-        setActiveBottomTab('games')
-      }
-    },
-    {
       id: 'jackpot',
       icon: FaCoins,
       label: 'Jackpot',
@@ -244,6 +224,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
       action: () => {
         navigate('/jackpot')
         setActiveBottomTab('jackpot')
+      }
+    },
+    {
+      id: 'games',
+      icon: FaGamepad,
+      label: 'Games',
+      active: activeBottomTab === 'games',
+      action: () => {
+        openGamesModal()
+        setActiveBottomTab('games')
       }
     },
     {
@@ -272,36 +262,52 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
   ]
   
   return (
-    <BottomNavContainer $colorScheme={currentColorScheme}>
-      {navItems.map((item) => {
-        const IconComponent = item.icon
-        
-        return (
-          <NavItem
-            key={item.id}
-            $colorScheme={currentColorScheme}
-            $active={item.active}
-            $disabled={item.disabled}
-            onClick={item.action}
-            disabled={item.disabled}
-            aria-label={item.label}
-          >
-            <div style={{ position: 'relative' }}>
-              <NavIcon>
-                <IconComponent />
-              </NavIcon>
-              
-              {/* Show badge for certain items */}
-              {item.id === 'bonus' && (
-                <Badge $colorScheme={currentColorScheme}>!</Badge>
-              )}
-            </div>
+    <GestureHandler
+      onSwipeLeft={() => {
+        const tabs = ['home', 'jackpot', 'games', 'profile', 'more']
+        const currentIndex = tabs.indexOf(activeBottomTab)
+        const nextIndex = (currentIndex + 1) % tabs.length
+        setActiveBottomTab(tabs[nextIndex])
+      }}
+      onSwipeRight={() => {
+        const tabs = ['home', 'jackpot', 'games', 'profile', 'more']
+        const currentIndex = tabs.indexOf(activeBottomTab)
+        const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
+        setActiveBottomTab(tabs[prevIndex])
+      }}
+    >
+      <BottomNavContainer $colorScheme={currentColorScheme}>
+        <NavPill $colorScheme={currentColorScheme}>
+          {navItems.map((item) => {
+            const IconComponent = item.icon
             
-            <NavLabel>{item.label}</NavLabel>
-          </NavItem>
-        )
-      })}
-    </BottomNavContainer>
+            return (
+              <NavItem
+                key={item.id}
+                $colorScheme={currentColorScheme}
+                $active={item.active}
+                $disabled={item.disabled}
+                $isCenter={item.id === 'games'}
+                onClick={item.action}
+                disabled={item.disabled}
+                aria-label={item.label}
+              >
+                <div style={{ position: 'relative' }}>
+                  <NavIcon>
+                    <IconComponent />
+                  </NavIcon>
+                  
+                  {/* Show badge for certain items */}
+                  {item.id === 'bonus' && (
+                    <Badge $colorScheme={currentColorScheme}>!</Badge>
+                  )}
+                </div>
+              </NavItem>
+            )
+          })}
+        </NavPill>
+      </BottomNavContainer>
+    </GestureHandler>
   )
 }
 

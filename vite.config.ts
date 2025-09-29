@@ -8,7 +8,7 @@ export default defineConfig(() => ({
   server: { 
     port: 4001,
     host: true,
-    hmr: { overlay: false },
+    hmr: { overlay: true },
     open: false,
     watch: { usePolling: true, interval: 100 },
     cors: {

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useColorScheme } from '../../ColorSchemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { spacing, media } from './breakpoints'
 
 const MainContentContainer = styled.div<{ $colorScheme: any }>`

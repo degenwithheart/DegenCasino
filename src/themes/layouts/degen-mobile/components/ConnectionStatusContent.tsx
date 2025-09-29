@@ -2,14 +2,33 @@ import React from 'react'
 import styled from 'styled-components'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useColorScheme } from '../../../ColorSchemeContext'
+import { useColorScheme } from '../../../../themes/ColorSchemeContext'
 import { FaWallet, FaSignOutAlt, FaSignal, FaWifi } from 'react-icons/fa'
-import { spacing, typography, components } from '../breakpoints'
+import { spacing, typography, components, animations, media } from '../breakpoints'
 
 const ConnectionContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${spacing.base};
+  padding: ${spacing.lg};
+  background: linear-gradient(135deg,
+    rgba(24, 24, 24, 0.95),
+    rgba(15, 15, 35, 0.98)
+  );
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  ${media.maxMobile} {
+    padding: ${spacing.base};
+    border-radius: 16px;
+  }
 `
 
 const ConnectionStatus = styled.div<{ $colorScheme: any; $connected: boolean }>`
@@ -17,18 +36,26 @@ const ConnectionStatus = styled.div<{ $colorScheme: any; $connected: boolean }>`
   align-items: center;
   gap: ${spacing.base};
   
-  padding: ${spacing.base};
+  padding: ${spacing.lg};
   background: ${props => props.$connected 
-    ? '#10B98120' 
-    : '#EF444420'
+    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(34, 197, 94, 0.1))' 
+    : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(248, 113, 113, 0.1))'
   };
   
   color: ${props => props.$connected ? '#10B981' : '#EF4444'};
-  border: 1px solid ${props => props.$connected ? '#10B98160' : '#EF444460'};
-  border-radius: ${components.button.borderRadius};
+  border: 1px solid ${props => props.$connected ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'};
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   
   font-size: ${typography.scale.base};
   font-weight: ${typography.weight.medium};
+  transition: all ${animations.duration.normal} ${animations.easing.easeOut};
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
 `
 
 const WalletInfo = styled.div<{ $colorScheme: any }>`
@@ -55,29 +82,59 @@ const ActionButton = styled.button<{ $colorScheme: any; $variant: 'connect' | 'd
   gap: ${spacing.sm};
   
   min-height: ${spacing.touchTarget};
-  padding: ${spacing.base};
+  padding: ${spacing.lg};
   
   background: ${props => props.$variant === 'connect' 
-    ? props.$colorScheme.colors.accent 
-    : '#EF4444'
+    ? `linear-gradient(135deg, ${props.$colorScheme.colors.primary}, ${props.$colorScheme.colors.accent})` 
+    : 'linear-gradient(135deg, #EF4444, #DC2626)'
   };
   
   color: white;
   border: none;
-  border-radius: ${components.button.borderRadius};
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   
   font-size: ${typography.scale.base};
-  font-weight: ${typography.weight.medium};
+  font-weight: ${typography.weight.semibold};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all ${animations.duration.normal} ${animations.easing.easeOut};
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
   
   &:active {
-    transform: scale(0.98);
+    transform: translateY(0);
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* Shimmer effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left ${animations.duration.normal} ${animations.easing.easeOut};
+  }
+
+  &:hover::before {
+    left: 100%;
   }
 `
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { FaShare, FaTwitter, FaCopy } from 'react-icons/fa'
-import { useColorScheme } from '../../../ColorSchemeContext'
+import { useColorScheme } from '../../../../themes/ColorSchemeContext'
 import { Modal } from './Modal'
 import { spacing, typography, components } from '../breakpoints'
 

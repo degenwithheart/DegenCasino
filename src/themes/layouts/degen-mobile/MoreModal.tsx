@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../ColorSchemeContext'
+import { useColorScheme } from '../../../themes/ColorSchemeContext'
 import { 
   FaTrophy, 
   FaGift, 
@@ -15,16 +15,24 @@ import {
   FaChartLine,
   FaInfoCircle,
   FaAward,
-  FaRocket
+  FaRocket,
+  FaClipboardList,
+  FaNetworkWired,
+  FaGamepad
 } from 'react-icons/fa'
 import { spacing, typography, animations } from './breakpoints'
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
+import { 
+  ModalOverlay, 
+  ModalContainer, 
+  Header, 
+  Title, 
+  CloseButton, 
+  Content
+} from './components/ModalComponents'
 
 const MoreContainer = styled.div`
-  padding: ${spacing.base};
-  max-height: 70vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  /* Content styling is now handled by unified Content component */
 `
 
 const MenuGrid = styled.div`
@@ -106,10 +114,11 @@ const SectionTitle = styled.h3<{ $colorScheme: any }>`
 `
 
 interface MoreModalProps {
+  isOpen: boolean;
   onClose: () => void;
 }
 
-const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
+const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
   const { connected, publicKey } = useWallet()
   const { currentColorScheme } = useColorScheme()
@@ -122,8 +131,14 @@ const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
     onClose()
   }
   
-  // Main menu items
-  const menuItems = [
+  // Gaming & Features
+  const gamingItems = [
+    {
+      icon: FaGamepad,
+      label: 'Jackpot',
+      path: '/jackpot',
+      disabled: false
+    },
     {
       icon: FaTrophy,
       label: 'Leaderboard',
@@ -147,7 +162,11 @@ const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
       label: 'Explorer',
       path: '/explorer',
       disabled: false
-    },
+    }
+  ]
+
+  // Token & Investment
+  const tokenItems = [
     {
       icon: FaRocket,
       label: 'DGHRT Token',
@@ -161,9 +180,9 @@ const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
       disabled: false
     }
   ]
-  
-  // Info & Legal items
-  const infoItems = [
+
+  // Legal & Compliance
+  const legalItems = [
     {
       icon: FaFileContract,
       label: 'Terms',
@@ -171,17 +190,37 @@ const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
       disabled: false
     },
     {
+      icon: FaAward,
+      label: 'Fairness Audit',
+      path: '/audit',
+      disabled: false
+    }
+  ]
+  
+  // Documentation & Resources
+  const docsItems = [
+    {
       icon: FaBook,
       label: 'Whitepaper',
       path: '/whitepaper',
       disabled: false
     },
     {
-      icon: FaAward,
-      label: 'Fairness Audit',
-      path: '/audit',
+      icon: FaClipboardList,
+      label: 'Changelog',
+      path: '/changelog',
       disabled: false
     },
+    {
+      icon: FaNetworkWired,
+      label: 'Propagation',
+      path: '/propagation',
+      disabled: false
+    }
+  ]
+
+  // About & Support
+  const aboutItems = [
     {
       icon: FaInfoCircle,
       label: 'About',
@@ -203,60 +242,163 @@ const MoreModal: React.FC<MoreModalProps> = ({ onClose }) => {
     }] : [])
   ]
   
+  if (!isOpen) return null
+
   return (
-    <MoreContainer>
-      <Section>
-        <SectionTitle $colorScheme={currentColorScheme}>
-          Features
-        </SectionTitle>
-        <MenuGrid>
-          {menuItems.map((item) => {
-            const IconComponent = item.icon
-            
-            return (
-              <MenuItem
-                key={item.path}
-                $colorScheme={currentColorScheme}
-                $disabled={item.disabled}
-                onClick={() => !item.disabled && handleNavigate(item.path)}
-                disabled={item.disabled}
-              >
-                <MenuIcon $colorScheme={currentColorScheme}>
-                  <IconComponent />
-                </MenuIcon>
-                <MenuLabel>{item.label}</MenuLabel>
-              </MenuItem>
-            )
-          })}
-        </MenuGrid>
-      </Section>
-      
-      <Section>
-        <SectionTitle $colorScheme={currentColorScheme}>
-          Information
-        </SectionTitle>
-        <MenuGrid>
-          {infoItems.map((item) => {
-            const IconComponent = item.icon
-            
-            return (
-              <MenuItem
-                key={item.path}
-                $colorScheme={currentColorScheme}
-                $disabled={item.disabled}
-                onClick={() => !item.disabled && handleNavigate(item.path)}
-                disabled={item.disabled}
-              >
-                <MenuIcon $colorScheme={currentColorScheme}>
-                  <IconComponent />
-                </MenuIcon>
-                <MenuLabel>{item.label}</MenuLabel>
-              </MenuItem>
-            )
-          })}
-        </MenuGrid>
-      </Section>
-    </MoreContainer>
+    <>
+      <ModalOverlay onClick={onClose}>
+        <ModalContainer 
+          $variant="moremenu"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Header $variant="moremenu">
+            <Title $variant="moremenu" $icon="⚡">
+              More
+            </Title>
+            <CloseButton $variant="moremenu" onClick={onClose} />
+          </Header>
+          
+          <Content>
+            <MoreContainer>
+              {/* Gaming & Features Section */}
+              <Section>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  🎮 Gaming & Features
+                </SectionTitle>
+                <MenuGrid>
+                  {gamingItems.map((item) => {
+                    const IconComponent = item.icon
+                    
+                    return (
+                      <MenuItem
+                        key={item.path}
+                        $colorScheme={currentColorScheme}
+                        $disabled={item.disabled}
+                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        disabled={item.disabled}
+                      >
+                        <MenuIcon $colorScheme={currentColorScheme}>
+                          <IconComponent />
+                        </MenuIcon>
+                        <MenuLabel>{item.label}</MenuLabel>
+                      </MenuItem>
+                    )
+                  })}
+                </MenuGrid>
+              </Section>
+              
+              {/* Token & Investment Section */}
+              <Section>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  💰 Token & Investment
+                </SectionTitle>
+                <MenuGrid>
+                  {tokenItems.map((item) => {
+                    const IconComponent = item.icon
+                    
+                    return (
+                      <MenuItem
+                        key={item.path}
+                        $colorScheme={currentColorScheme}
+                        $disabled={item.disabled}
+                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        disabled={item.disabled}
+                      >
+                        <MenuIcon $colorScheme={currentColorScheme}>
+                          <IconComponent />
+                        </MenuIcon>
+                        <MenuLabel>{item.label}</MenuLabel>
+                      </MenuItem>
+                    )
+                  })}
+                </MenuGrid>
+              </Section>
+
+              {/* Legal & Compliance Section */}
+              <Section>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  ⚖️ Legal & Compliance
+                </SectionTitle>
+                <MenuGrid>
+                  {legalItems.map((item) => {
+                    const IconComponent = item.icon
+                    
+                    return (
+                      <MenuItem
+                        key={item.path}
+                        $colorScheme={currentColorScheme}
+                        $disabled={item.disabled}
+                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        disabled={item.disabled}
+                      >
+                        <MenuIcon $colorScheme={currentColorScheme}>
+                          <IconComponent />
+                        </MenuIcon>
+                        <MenuLabel>{item.label}</MenuLabel>
+                      </MenuItem>
+                    )
+                  })}
+                </MenuGrid>
+              </Section>
+
+              {/* Documentation & Resources Section */}
+              <Section>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  📚 Documentation & Resources
+                </SectionTitle>
+                <MenuGrid>
+                  {docsItems.map((item) => {
+                    const IconComponent = item.icon
+                    
+                    return (
+                      <MenuItem
+                        key={item.path}
+                        $colorScheme={currentColorScheme}
+                        $disabled={item.disabled}
+                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        disabled={item.disabled}
+                      >
+                        <MenuIcon $colorScheme={currentColorScheme}>
+                          <IconComponent />
+                        </MenuIcon>
+                        <MenuLabel>{item.label}</MenuLabel>
+                      </MenuItem>
+                    )
+                  })}
+                </MenuGrid>
+              </Section>
+
+              {/* About & Support Section */}
+              <Section>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  ℹ️ About & Support
+                </SectionTitle>
+                <MenuGrid>
+                  {aboutItems.map((item) => {
+                    const IconComponent = item.icon
+                    
+                    return (
+                      <MenuItem
+                        key={item.path}
+                        $colorScheme={currentColorScheme}
+                        $disabled={item.disabled}
+                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        disabled={item.disabled}
+                      >
+                        <MenuIcon $colorScheme={currentColorScheme}>
+                          <IconComponent />
+                        </MenuIcon>
+                        <MenuLabel>{item.label}</MenuLabel>
+                      </MenuItem>
+                    )
+                  })}
+                </MenuGrid>
+              </Section>
+            </MoreContainer>
+          </Content>
+        </ModalContainer>
+      </ModalOverlay>
+    </>
   )
 }
 

@@ -176,7 +176,7 @@ const ENV_OVERRIDES = {
 }
 
 // Apply environment-specific overrides
-const currentEnv = process.env.NODE_ENV || 'development'
+const currentEnv = process.env.GAMBA_ENV || 'development'
 export const RUNTIME_CONFIG = {
   ...GAME_CONFIG,
   ...ENV_OVERRIDES[currentEnv as keyof typeof ENV_OVERRIDES]

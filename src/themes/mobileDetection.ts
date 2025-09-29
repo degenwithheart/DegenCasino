@@ -34,11 +34,17 @@ export const isMobile = isMobileDevice
 
 // Get optimal theme based on device capabilities
 export const getOptimalTheme = (): 'default' | 'degenheart' | 'degen-mobile' => {
+  // TEMPORARY: Force mobile theme to show unified design
+  console.log('🎨 SHOWING UNIFIED DESIGN - Mobile theme active');
+  return 'degen-mobile';
+  
   if (isMobileDevice()) {
+    console.log('📱 Mobile device detected - Theme: degen-mobile');
     return 'degen-mobile'
   }
   
   // Default to degenheart for desktop
+  console.log('🖥️ Desktop device detected - Theme: degenheart');
   return 'degenheart'
 }
 
