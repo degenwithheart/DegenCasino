@@ -6,7 +6,7 @@ import { ThemeResolver, createThemeResolver, ComponentCategory, ComponentName } 
 import { ColorSchemeProvider } from './ColorSchemeContext';
 import { GlobalScrollStyles } from './GlobalScrollStyles';
 import { ScrollConfig, defaultScrollConfig, getStoredScrollConfig, setStoredScrollConfig, applyScrollConfig, GameScrollConfigKey, applyGameScrollConfig, detectOptimalScrollConfig } from './scrollConfig';
-import { initializeTheme, getStoredThemePreference, setStoredThemePreference, ThemePreference } from './mobileDetection';
+import { initializeTheme, getStoredThemePreference, setStoredThemePreference, ThemePreference, resolveThemeFromPreference } from './mobileDetection';
 
 /**
  * Storage keys for persistence
@@ -78,16 +78,11 @@ const getInitialLayoutTheme = (): LayoutThemeKey => {
     return detectedTheme as LayoutThemeKey;
   } catch (error) {
     console.warn('Failed to initialize theme with mobile detection:', error);
-    // Fallback to stored theme or default
-    try {
-      const stored = localStorage.getItem(LAYOUT_THEME_STORAGE_KEY);
-      if (stored && stored in AVAILABLE_LAYOUT_THEMES) {
-        return stored as LayoutThemeKey;
-      }
-    } catch (e) {
-      console.warn('Failed to load stored layout theme:', e);
-    }
-    return DEFAULT_LAYOUT_THEME;
+    // Fallback to stored theme or default, but still respect mobile detection
+    const preference = getStoredThemePreference();
+    const resolvedTheme = resolveThemeFromPreference(preference);
+    console.log('🎨 Fallback theme resolved:', resolvedTheme);
+    return resolvedTheme as LayoutThemeKey;
   }
 };
 
@@ -166,7 +161,7 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
 
   // Layout Theme Effects
   useEffect(() => {
-    const newTheme = getLayoutTheme(layoutThemeKey);
+    const newTheme = getLayoutThemeWithMobileDetection(layoutThemeKey);
     setCurrentLayoutTheme(newTheme);
     themeResolver.updateTheme(newTheme);
   }, [layoutThemeKey, themeResolver]);
@@ -183,16 +178,23 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
 
   // Layout Theme Setter (with mobile detection preference tracking)
   const setLayoutTheme = (newThemeKey: LayoutThemeKey) => {
-    setLayoutThemeKey(newThemeKey);
-    setStoredLayoutTheme(newThemeKey);
-    
-    // Mark as manually selected to prevent auto-switching
+    // Store the user preference, but resolve actual theme with mobile detection
     const preference = getStoredThemePreference();
     setStoredThemePreference({
       ...preference,
       manual: true,
       theme: newThemeKey as any
     });
+    setStoredLayoutTheme(newThemeKey);
+    
+    // Resolve the actual theme to apply (mobile detection may override)
+    const resolvedTheme = resolveThemeFromPreference({
+      manual: true,
+      theme: newThemeKey as any
+    });
+    
+    console.log('🎨 Theme selection - Requested:', newThemeKey, 'Resolved:', resolvedTheme);
+    setLayoutThemeKey(resolvedTheme as LayoutThemeKey);
   };
 
   // Color Scheme Setter (existing)

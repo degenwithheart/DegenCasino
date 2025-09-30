@@ -8,6 +8,7 @@
 .vercel
 .vite
 dist
+mobile-app
 node_modules
 
 # Ignore all scripts except compress-build.mjs

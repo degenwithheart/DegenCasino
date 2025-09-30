@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Theme Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 2px solid #ccc;
+        }
+        .mobile { background: #e7f5e7; border-color: #4caf50; }
+        .desktop { background: #e3f2fd; border-color: #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>🎨 Mobile Theme Detection Test</h1>
+    
+    <div class="test-result" id="result">
+        Testing mobile detection...
+    </div>
+    
+    <div>
+        <h3>Device Information:</h3>
+        <ul id="device-info"></ul>
+    </div>
+    
+    <div>
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>📱 On mobile devices: Should automatically use <strong>degen-mobile</strong> theme</li>
+            <li>🖥️ On desktop devices: Should use <strong>Default</strong> or <strong>Degen</strong> theme based on selection</li>
+            <li>⚙️ degen-mobile should be <strong>hidden</strong> from theme selector menu</li>
+        </ul>
+    </div>
+
+    <script>
+        // Copy the mobile detection logic from the app
+        const isMobileDevice = () => {
+            const userAgent = navigator.userAgent.toLowerCase()
+            const mobileKeywords = [
+                'android', 'iphone', 'ipad', 'ipod', 'blackberry', 
+                'windows phone', 'mobile', 'webos', 'opera mini'
+            ]
+            
+            const hasMobileUserAgent = mobileKeywords.some(keyword => 
+                userAgent.includes(keyword)
+            )
+            
+            const hasSmallScreen = window.innerWidth <= 768
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+            
+            return hasMobileUserAgent || (hasSmallScreen && isTouchDevice)
+        }
+
+        const getOptimalTheme = () => {
+            if (isMobileDevice()) {
+                return 'degen-mobile'
+            }
+            return 'degenheart'
+        }
+
+        // Test the detection
+        const isMobile = isMobileDevice()
+        const theme = getOptimalTheme()
+        
+        const resultDiv = document.getElementById('result')
+        resultDiv.className = `test-result ${isMobile ? 'mobile' : 'desktop'}`
+        resultDiv.innerHTML = `
+            <strong>Detection Result:</strong><br>
+            Device Type: ${isMobile ? '📱 Mobile' : '🖥️ Desktop'}<br>
+            Recommended Theme: <strong>${theme}</strong><br>
+            Theme Selector Should Show: <strong>${isMobile ? 'Hidden (auto-applied)' : 'Default & Degen only'}</strong>
+        `
+        
+        // Display device info
+        const deviceInfo = document.getElementById('device-info')
+        deviceInfo.innerHTML = `
+            <li>User Agent: ${navigator.userAgent}</li>
+            <li>Screen Width: ${window.innerWidth}px</li>
+            <li>Screen Height: ${window.innerHeight}px</li>
+            <li>Touch Support: ${('ontouchstart' in window || navigator.maxTouchPoints > 0) ? 'Yes' : 'No'}</li>
+            <li>Max Touch Points: ${navigator.maxTouchPoints || 0}</li>
+        `
+        
+        console.log('🎨 Mobile Theme Test Results:', {
+            isMobile,
+            theme,
+            userAgent: navigator.userAgent,
+            screenWidth: window.innerWidth,
+            touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+        })
+    </script>
+</body>
+</html>

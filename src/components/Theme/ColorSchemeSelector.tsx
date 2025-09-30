@@ -305,11 +305,13 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
           <SectionHeader>
             <SectionTitle currentColorScheme={currentColorScheme}>🏗️ Layout Themes</SectionTitle>
             <SectionDescription currentColorScheme={currentColorScheme}>
-              Choose the overall layout and structural design of your casino. Holy Grail is now fully functional!
+              Choose the overall layout and structural design of your casino. Mobile theme is auto-applied on mobile devices.
             </SectionDescription>
           </SectionHeader>
           <ScrollContainer>
-            {Object.entries(layoutThemes).map(([key, layoutTheme]) => (
+            {Object.entries(layoutThemes)
+              .filter(([key]) => key !== 'degen-mobile') // Hide mobile theme from selector
+              .map(([key, layoutTheme]) => (
               <LayoutThemeOption
                 key={key}
                 currentColorScheme={currentColorScheme}
@@ -320,7 +322,7 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
                   {layoutTheme.description}
                 </LayoutThemeDescription>
                 <LayoutThemeIcon currentColorScheme={currentColorScheme}>
-                  {key === 'degenheart' ? '🏛️' : '📱'}
+                  {key === 'degenheart' ? '🏛️' : '🏠'}
                 </LayoutThemeIcon>
                 <LayoutThemeName currentColorScheme={currentColorScheme}>
                   {layoutTheme.name}

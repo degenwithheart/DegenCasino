@@ -34,6 +34,7 @@ import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 import { ComprehensiveErrorBoundary } from './components/ErrorBoundaries';
 import { DEFAULT_POOL, FEATURE_FLAGS, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
 import { NetworkProvider, useNetwork } from './contexts/NetworkContext'
+import { MobileBrowserProvider } from './contexts/MobileBrowserContext'
 import { UnifiedThemeProvider } from './themes/UnifiedThemeContext'
 
 import './styles.css'
@@ -124,17 +125,33 @@ function PersistSelectedToken() {
                       prefix="code"
                       fee={PLATFORM_REFERRAL_FEE}
                     >
-                      <UnifiedThemeProvider>
-                        {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM ? (
-                          <ComprehensiveErrorBoundary level="app" componentName="Application">
-                            <App />
-                          </ComprehensiveErrorBoundary>
-                        ) : (
-                          <GlobalErrorBoundary>
-                            <App />
-                          </GlobalErrorBoundary>
-                        )}
-                      </UnifiedThemeProvider>
+                      {FEATURE_FLAGS.ENABLE_MOBILE_BROWSER ? (
+                        <MobileBrowserProvider>
+                          <UnifiedThemeProvider>
+                            {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM ? (
+                              <ComprehensiveErrorBoundary level="app" componentName="Application">
+                                <App />
+                              </ComprehensiveErrorBoundary>
+                            ) : (
+                              <GlobalErrorBoundary>
+                                <App />
+                              </GlobalErrorBoundary>
+                            )}
+                          </UnifiedThemeProvider>
+                        </MobileBrowserProvider>
+                      ) : (
+                        <UnifiedThemeProvider>
+                          {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM ? (
+                            <ComprehensiveErrorBoundary level="app" componentName="Application">
+                              <App />
+                            </ComprehensiveErrorBoundary>
+                          ) : (
+                            <GlobalErrorBoundary>
+                              <App />
+                            </GlobalErrorBoundary>
+                          )}
+                        </UnifiedThemeProvider>
+                      )}
                     </ReferralProvider>
                   </GambaPlatformProvider>
                 </GambaProvider>

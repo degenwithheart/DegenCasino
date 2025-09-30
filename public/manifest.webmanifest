@@ -10,14 +10,16 @@
   "description": "Surreal romantic degen trader casino - where candlestick charts rise like cathedral candles in a jazz-at-midnight atmosphere. Experience the slow-burn serenade of blockchain gaming.",
   "icons": [
     {
-      "src": "/icon-512.png",
+      "src": "/png/images/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/png/images/logo.png", 
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

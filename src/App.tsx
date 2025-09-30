@@ -45,8 +45,13 @@ const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
 const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
+const MobileAppPage = lazy(() => import('./pages/features/MobileAppPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
 import { useTheme } from './themes/UnifiedThemeContext';
+import { MobileBrowserTest } from './components/Mobile/MobileBrowserTest';
+import PWAInstallBanner from './components/PWA/PWAInstallBanner';
+
+// Preload components for better UX
 
 // Loading component for lazy-loaded routes
 const SIDEBAR_WIDTH = 80;
@@ -73,6 +78,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
   const BonusPageComponent = resolveComponent('pages', 'BonusPage') || BonusPage;
   const LeaderboardPageComponent = resolveComponent('pages', 'LeaderboardPage') || LeaderboardPage;
   const SelectTokenPageComponent = resolveComponent('pages', 'SelectTokenPage') || SelectTokenPage;
+  const MobileAppPageComponent = resolveComponent('pages', 'MobileAppPage') || MobileAppPage;
 
   // Check if this is a themed layout that uses a layout wrapper
   const isDegenHeartTheme = currentLayoutTheme.id === 'degenheart';
@@ -100,6 +106,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPageComponent /></SafeSuspense>} />
               <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPageComponent /></SafeSuspense>} />
               <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPageComponent /></SafeSuspense>} />
+              <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />
               <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPageComponent /></SafeSuspense>} />
               <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
               <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
@@ -143,6 +150,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPageComponent /></SafeSuspense>} />
               <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPageComponent /></SafeSuspense>} />
               <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPageComponent /></SafeSuspense>} />
+              <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />
               <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPageComponent /></SafeSuspense>} />
               <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
               <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
@@ -187,6 +195,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPageComponent /></SafeSuspense>} />
               <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPageComponent /></SafeSuspense>} />
               <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPageComponent /></SafeSuspense>} />
+              <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />
               <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPageComponent /></SafeSuspense>} />
               <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
               <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
@@ -475,6 +484,8 @@ export default function App() {
           <AppContent autoConnectAttempted={autoConnectAttempted} />
           <CacheDebugWrapper />
           <ProgressiveLoadingMonitor />
+          <PWAInstallBanner />
+          {FEATURE_FLAGS.ENABLE_MOBILE_BROWSER && <MobileBrowserTest />}
         </GamesModalContext.Provider>
         </GraphicsProvider>
       </ProgressiveLoadingProvider>

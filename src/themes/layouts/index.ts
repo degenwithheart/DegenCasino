@@ -38,6 +38,7 @@ export interface LayoutTheme {
     WhitepaperPage?: React.ComponentType<any>;
     SelectTokenPage?: React.ComponentType<any>;
     AllGamesPage?: React.ComponentType<any>;
+    MobileAppPage?: React.ComponentType<any>;
     // Add more as needed
   };
   
@@ -94,21 +95,27 @@ export const getLayoutTheme = (key: LayoutThemeKey): LayoutTheme => {
  * This function automatically returns mobile theme on mobile devices
  */
 export const getLayoutThemeWithMobileDetection = (key: LayoutThemeKey): LayoutTheme => {
-  // Use proper ES6 import and direct mobile detection
+  // Import mobile detection at runtime to avoid circular dependencies
   if (typeof window !== 'undefined') {
+    // Use the same mobile detection logic as mobileDetection.ts
     const userAgent = navigator.userAgent.toLowerCase();
-    const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
-    const isMobileUA = mobileKeywords.some(keyword => userAgent.includes(keyword));
+    const mobileKeywords = [
+      'android', 'iphone', 'ipad', 'ipod', 'blackberry', 
+      'windows phone', 'mobile', 'webos', 'opera mini'
+    ];
+    const hasMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
     const hasSmallScreen = window.innerWidth <= 768;
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
     // Always use mobile theme on mobile devices, regardless of user preference
-    if (isMobileUA || (hasSmallScreen && isTouchDevice)) {
+    if (hasMobileUserAgent || (hasSmallScreen && isTouchDevice)) {
+      console.log('📱 Mobile device detected in layout resolver - Using degen-mobile theme');
       return MOBILE_THEME;
     }
   }
   
   // Use selected theme on desktop
+  console.log('🖥️ Desktop device in layout resolver - Using theme:', key);
   return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.default;
 };
 

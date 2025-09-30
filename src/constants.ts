@@ -1,4 +1,4 @@
-import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter, FaSearch, FaClipboardList, FaCoins, FaShoppingCart } from 'react-icons/fa';
+import { FaHome, FaUser, FaInfoCircle, FaFileAlt, FaBookOpen, FaGamepad, FaGithub, FaTwitter, FaSearch, FaClipboardList, FaCoins, FaShoppingCart, FaMobile } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -77,6 +77,16 @@ export const FEATURE_FLAGS = {
    * The old system is lighter and simpler, suitable for production if you prefer minimal error UI.
    */
   USE_COMPREHENSIVE_ERROR_SYSTEM: false,
+  
+  // Mobile Browser Integration
+  /**
+   * Enable Capacitor v7 mobile browser integration:
+   * - true: Enable fullscreen native WebView for mobile apps (Capacitor v7 + Browser plugin)
+   * - false: Disable mobile browser integration, use standard web navigation
+   * 
+   * Provides native mobile experience with fullscreen browsers for transactions, wallets, and help.
+   */
+  ENABLE_MOBILE_BROWSER: false,
 } as const
 
 export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users
@@ -434,6 +444,13 @@ export const SIDEBAR_LINKS = [
     to: '/explorer',
     label: 'Explorer',
     icon: FaSearch,
+    showWhen: () => true,
+    external: false,
+  },
+  {
+    to: '/mobile',
+    label: 'Mobile App',
+    icon: FaMobile,
     showWhen: () => true,
     external: false,
   },

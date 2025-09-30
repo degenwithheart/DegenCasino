@@ -34,10 +34,6 @@ export const isMobile = isMobileDevice
 
 // Get optimal theme based on device capabilities
 export const getOptimalTheme = (): 'default' | 'degenheart' | 'degen-mobile' => {
-  // TEMPORARY: Force mobile theme to show unified design
-  console.log('🎨 SHOWING UNIFIED DESIGN - Mobile theme active');
-  return 'degen-mobile';
-  
   if (isMobileDevice()) {
     console.log('📱 Mobile device detected - Theme: degen-mobile');
     return 'degen-mobile'
@@ -86,11 +82,18 @@ export const setStoredThemePreference = (preference: ThemePreference): void => {
 
 // Resolve actual theme from preference
 export const resolveThemeFromPreference = (preference: ThemePreference): 'default' | 'degenheart' | 'degen-mobile' => {
+  // Always use mobile theme on mobile devices, regardless of manual selection
+  if (isMobileDevice()) {
+    console.log('📱 Mobile device detected - Forcing degen-mobile theme');
+    return 'degen-mobile'
+  }
+  
+  // On desktop, respect manual selection
   if (preference.manual && preference.theme !== 'auto') {
     return preference.theme as 'default' | 'degenheart' | 'degen-mobile'
   }
   
-  // Auto-detect optimal theme
+  // Auto-detect optimal theme (for desktop)
   return getOptimalTheme()
 }
 

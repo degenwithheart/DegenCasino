@@ -2,6 +2,10 @@ import { LayoutTheme } from '../index'
 import { Header } from './index'
 import { Footer } from './index'
 import { Game } from './index'
+import React from 'react'
+
+// Lazy load themed pages
+const MobileAppPage = React.lazy(() => import('./pages/MobileAppPage'))
 
 export const degenHeartTheme: LayoutTheme = {
   id: 'degenheart',
@@ -17,6 +21,11 @@ export const degenHeartTheme: LayoutTheme = {
   // Sections with themed overrides
   sections: {
     Game,
+  },
+  
+  // Pages with themed overrides
+  pages: {
+    MobileAppPage,
   },
   
   config: {
