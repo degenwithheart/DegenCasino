@@ -1,0 +1,106 @@
+{
+  "name": "DegenCasino Mobile",
+  "version": "1.0.0",
+  "description": "Mobile apps for DegenCasino - Solana-based on-chain casino",
+  "platforms": {
+    "android": {
+      "packageId": "com.degenwithheart.casino",
+      "appName": "DegenCasino",
+      "minSdkVersion": 24,
+      "targetSdkVersion": 34,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "ios": {
+      "bundleId": "com.degenwithheart.casino",
+      "appName": "DegenCasino",
+      "minVersion": "14.0",
+      "targetVersion": "17.0",
+      "permissions": [
+        "NSCameraUsageDescription",
+        "NSPhotoLibraryUsageDescription"
+      ]
+    }
+  },
+  "features": {
+    "solana": {
+      "enabled": true,
+      "networks": ["mainnet-beta", "devnet"],
+      "walletAdapter": true
+    },
+    "gamba": {
+      "enabled": true,
+      "version": "v2",
+      "provablyFair": true
+    },
+    "webview": {
+      "allowNavigation": true,
+      "allowInlineMediaPlayback": true,
+      "mediaPlaybackRequiresUserAction": false,
+      "fullscreen": true,
+      "nativeNavigation": true,
+      "browserPlugin": "@capacitor/browser",
+      "inappBrowser": "cordova-plugin-inappbrowser"
+    },
+    "security": {
+      "contentSecurityPolicy": true,
+      "httpsRedirect": true,
+      "certificatePinning": false
+    }
+  },
+  "build": {
+    "webDir": "../dist",
+    "outputDir": "build",
+    "platforms": ["android", "ios"],
+    "frameworks": ["capacitor", "cordova"]
+  },
+  "capacitor": {
+    "version": "7.0.0",
+    "plugins": {
+      "Browser": {
+        "androidScheme": "https",
+        "iosScheme": "https",
+        "presentationStyle": "fullscreen",
+        "showTitle": false,
+        "toolbarColor": "#000000"
+      }
+    }
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-inappbrowser": {
+        "location": "no",
+        "zoom": "no",
+        "hardwareback": "yes",
+        "fullscreen": "yes"
+      },
+      "cordova-plugin-whitelist": {
+        "allowNavigation": ["*"],
+        "allowIntent": ["*"]
+      }
+    }
+  },
+  "scripts": {
+    "setup": "./setup-dev.sh",
+    "build": "./build-mobile.sh",
+    "deploy": "./deploy-mobile.sh",
+    "icons": "./build/generate-icons.sh",
+    "sync": "cd build/capacitor && npx cap sync",
+    "install-plugins": "cd build/capacitor && npm install @capacitor/browser && npx cap sync"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/browser": "^7.0.0",
+    "cordova": "^12.0.0",
+    "cordova-plugin-inappbrowser": "^6.0.0",
+    "cordova-plugin-whitelist": "^1.3.5"
+  }
+}

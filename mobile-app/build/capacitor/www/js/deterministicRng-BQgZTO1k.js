@@ -1,0 +1,1 @@
+function r(i){let t=1779033703^i.length;for(let n=0;n<i.length;n++)t=Math.imul(t^i.charCodeAt(n),3432918353),t=t<<13|t>>>19;return function(){return t=Math.imul(t^t>>>16,2246822507),t=Math.imul(t^t>>>13,3266489909),((t^=t>>>16)>>>0)/4294967296}}export{r as m};

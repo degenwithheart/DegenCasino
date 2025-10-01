@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DegenCasino</string>
+    <string name="title_activity_main">DegenCasino</string>
+    <string name="package_name">com.degenheart.casino</string>
+    <string name="custom_url_scheme">com.degenheart.casino</string>
+</resources>
