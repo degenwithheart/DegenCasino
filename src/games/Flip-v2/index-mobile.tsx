@@ -113,7 +113,7 @@ const CoinsDisplay = styled.div`
   align-items: center;
 `
 
-const Coin = styled.div<{ $flipping?: boolean; $result?: 'heads' | 'tails'; $side: 'heads' | 'tails' }>`
+const Coin = styled.div<{ $flipping?: boolean; $result?: 'heads' | 'tails' | null; $side: 'heads' | 'tails' }>`
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -400,7 +400,7 @@ const MobileFlipGame: React.FC = () => {
   }
 
   const minWager = getMinimumWager()
-  const maxWager = multiplier > 0 ? Math.min(pool.maxPayout / multiplier, pool.balance) / numCoins : pool.balance / numCoins
+  const maxWager = multiplier > 0 ? Math.min(pool.maxPayout / multiplier, (pool as any).balance) / numCoins : (pool as any).balance / numCoins
 
   // Wager controls
   const adjustWager = (factor: number) => {

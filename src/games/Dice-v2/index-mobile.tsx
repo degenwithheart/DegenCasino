@@ -353,7 +353,7 @@ const MobileDiceGame: React.FC = () => {
   }
 
   const minWager = getMinimumWager()
-  const maxWager = multiplier > 0 ? Math.min(pool.maxPayout / multiplier, pool.balance) : pool.balance
+  const maxWager = multiplier > 0 ? Math.min(pool.maxPayout / multiplier, (pool as any).balance) : (pool as any).balance
 
   // Wager controls
   const adjustWager = (factor: number) => {

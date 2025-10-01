@@ -137,7 +137,7 @@ export default function BoardRenderer(props: BoardRendererProps) {
   }, [])
 
   return (
-    <GambaUi.Canvas render={({ ctx, size, canvas }) => {
+  <GambaUi.Canvas render={({ ctx, size, canvas }: any) => {
       if (!engine) return
       canvasElRef.current = canvas as HTMLCanvasElement
 

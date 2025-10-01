@@ -549,7 +549,7 @@ export default function PlinkoRenderer2D() {
             <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
               <GambaUi.Canvas
                 style={{ flex: 1, width: '100%', height: '100%' }}
-                render={({ ctx, size }, clock) => {
+                render={({ ctx, size }: any, clock: any) => {
                 if (!plinko) return
 
                 const bodies = plinko.getBodies()

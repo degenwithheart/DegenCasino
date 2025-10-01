@@ -23,6 +23,10 @@ export const NETWORK_ENDPOINTS = {
   devnet: {
     primary: import.meta.env.VITE_DEVNET_RPC_ENDPOINT ?? 'https://api.devnet.solana.com',
     backup: 'https://api.devnet.solana.com'
+  },
+  testnet: {
+    primary: import.meta.env.VITE_TESTNET_RPC_ENDPOINT ?? 'https://api.testnet.solana.com',
+    backup: import.meta.env.VITE_TESTNET_BACKUP ?? 'https://api.testnet.solana.com'
   }
 } as const
 
@@ -87,6 +91,12 @@ export const FEATURE_FLAGS = {
    * Provides native mobile experience with fullscreen browsers for transactions, wallets, and help.
    */
   ENABLE_MOBILE_BROWSER: false,
+  /**
+   * Access override / Back-soon feature flag.
+   * When true, the site will be allowed to enter the "back soon" mode via code/runtime.
+   * This flag can be used to quickly enable/disable the override behavior without changing env vars.
+   */
+  ACCESS_OVERRIDE: true,
 } as const
 
 export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users
@@ -240,20 +250,26 @@ export const PRESALE_ACTIVE = false // Set to false to disable presale and activ
 
 // Network feature toggles
 /** 
- * Enable/disable Solana Devnet network support and toggle functionality
+ * Enable/disable Solana test networks (Devnet/Testnet) support and toggle functionality
  * 
  * When set to true:
- * - Users can toggle between Mainnet and Devnet in TokenSelect
- * - DevnetWarning banner shows when on devnet
+ * - Users can toggle between Mainnet, Devnet, and Testnet in TokenSelect
+ * - Network warning banner shows for non-mainnet networks
  * - Network preference is saved to localStorage
  * 
  * When set to false:
  * - Network is forced to mainnet-only
  * - NetworkToggle component will not render
- * - DevnetWarning will never show
- * - All devnet functionality is disabled
+ * - Warning banners will never show
+ * - All test network functionality is disabled
  */
-export const ENABLE_DEVNET_SUPPORT = false // Set to false to disable devnet toggle and force mainnet-only
+export const ENABLE_TEST_NETWORKS = true // Set to false to force mainnet-only
+
+/**
+ * Individual network toggles - only checked if ENABLE_TEST_NETWORKS is true
+ */
+export const ENABLE_DEVNET_SUPPORT = true  // Enable/disable devnet support
+export const ENABLE_TESTNET_SUPPORT = true // Enable/disable testnet support
 
 /** 
  * Referral Tier Mode:

@@ -32,7 +32,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary';
 import { ComprehensiveErrorBoundary } from './components/ErrorBoundaries';
-import { DEFAULT_POOL, FEATURE_FLAGS, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, RPC_ENDPOINT, TOKEN_METADATA, TOKEN_METADATA_FETCHER } from './constants'
+import { DEFAULT_POOL, FEATURE_FLAGS, PLATFORM_CREATOR_ADDRESS, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE, PLATFORM_REFERRAL_FEE, POOLS, TOKEN_METADATA } from './constants'
 import { NetworkProvider, useNetwork } from './contexts/NetworkContext'
 import { MobileBrowserProvider } from './contexts/MobileBrowserContext'
 import { UnifiedThemeProvider } from './themes/UnifiedThemeContext'

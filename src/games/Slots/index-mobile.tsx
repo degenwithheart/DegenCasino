@@ -360,7 +360,7 @@ const MobileSlotsGame: React.FC = () => {
   }
 
   const minWager = getMinimumWager()
-  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, pool.balance) : pool.balance
+  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, (pool as any).balance) : (pool as any).balance
 
   // Wager controls
   const adjustWager = (factor: number) => {
@@ -447,8 +447,16 @@ const MobileSlotsGame: React.FC = () => {
 
       const result = await game.result()
       
-      // Generate slot combination based on result
-      const newCombination = getSlotCombination(result.resultIndex, SLOT_ITEMS, NUM_SLOTS)
+      // Generate slot combination based on result (use same seed & args as 2D/3D versions)
+      const seed = `${result.resultIndex}:${result.multiplier}:${result.payout}`
+      const newCombination = getSlotCombination(
+        NUM_SLOTS,
+        result.multiplier,
+        [...bet],
+        seed,
+        NUM_REELS,
+        NUM_ROWS,
+      )
       setCombination(newCombination)
       
       // Update stats

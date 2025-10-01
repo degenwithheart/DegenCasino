@@ -2,6 +2,7 @@ import React from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useNetwork } from '../../contexts/NetworkContext'
 import styled from 'styled-components'
 import { GambaTransaction, parseGambaTransaction } from 'gamba-core-v2'
 import { TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
@@ -317,13 +318,11 @@ const CopyButton = styled.button`
   }
 `
 
-async function fetchGambaTransaction(txId: string, userAddress?: string) {
+async function fetchGambaTransaction(connection: Connection, txId: string, userAddress?: string) {
   try {
     console.log('Fetching transaction:', txId)
     
-    // Use the same method as Gamba explorer - fetch directly from blockchain and parse
-    const connection = new Connection(import.meta.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
-    
+    // Use the provided connection to fetch and parse the transaction
     const transaction = await connection.getParsedTransaction(txId, { 
       commitment: "confirmed", 
       maxSupportedTransactionVersion: 0 
@@ -386,7 +385,7 @@ async function fetchGambaTransaction(txId: string, userAddress?: string) {
   }
 }
 
-async function fetchTransactionLogs(txId: string) {
+async function fetchTransactionLogs(connection: Connection, txId: string) {
   // Use Helius v0 API for enhanced transaction parsing
   try {
     const heliusResponse = await fetch(import.meta.env.HELIUS_V0_TRANSACTIONS?.replace('{txId}', txId) || `https://api.helius.xyz/v0/transactions/${txId}?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c`)
@@ -437,22 +436,65 @@ async function fetchTransactionLogs(txId: string) {
     console.warn('Helius RPC fallback failed:', heliusRpcError)
   }
 
-  // Primary endpoints first, then last resort public endpoints only if all paid services fail
-  const primaryEndpoints = [
-    import.meta.env.RPC_ENDPOINT,
-    import.meta.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c'
-  ].filter(Boolean);
-  
-  const lastResortEndpoints = [
-    'https://rpc.ankr.com/solana',
-    'https://api.mainnet-beta.solana.com'
-  ];
+  // Primary endpoints: prefer the app connection endpoint (if exposed).
+  // Only include Helius/mainnet backups when the derived endpoint is a mainnet endpoint.
+  const derivedEndpoint = (connection as any).rpcEndpoint || (connection as any)._rpcEndpoint || null
 
-  // Try primary endpoints first
+  function detectClusterFromEndpoint(ep: string | null) {
+    if (!ep) return 'mainnet'
+    const lowered = ep.toLowerCase()
+    if (lowered.includes('devnet')) return 'devnet'
+    if (lowered.includes('testnet')) return 'testnet'
+    // heuristics for common providers
+    if (lowered.includes('mainnet') || lowered.includes('mainnet-beta') || lowered.includes('syndica') || lowered.includes('helius') || lowered.includes('ankr') || lowered.includes('solana.com')) return 'mainnet'
+    return 'mainnet'
+  }
+
+  const currentCluster = detectClusterFromEndpoint(derivedEndpoint)
+
+  const primaryEndpoints = [derivedEndpoint].filter(Boolean)
+  // Only add Helius mainnet RPC as a primary fallback when current cluster is mainnet
+  if (currentCluster === 'mainnet') {
+    primaryEndpoints.push(import.meta.env.HELIUS_API_KEY || 'https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c')
+  }
+
+  // Last-resort public endpoints should match the detected cluster to avoid cross-cluster lookups
+  let lastResortEndpoints: string[] = []
+  if (currentCluster === 'devnet') {
+    lastResortEndpoints = ['https://api.devnet.solana.com']
+  } else if (currentCluster === 'testnet') {
+    lastResortEndpoints = ['https://api.testnet.solana.com']
+  } else {
+    lastResortEndpoints = ['https://rpc.ankr.com/solana', 'https://api.mainnet-beta.solana.com']
+  }
+
+  // First try using the app's authoritative connection
+  try {
+    const tx = await connection.getTransaction(txId, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 })
+    if (tx?.meta?.logMessages) {
+      return tx.meta.logMessages.map((log, index) => ({
+        index,
+        message: log,
+        level: log.includes('Error') ? 'ERROR' : 
+               log.includes('Warning') ? 'WARN' :
+               log.includes('success') || log.includes('Success') ? 'SUCCESS' : 'INFO',
+        timestamp: Date.now() - (((tx.meta?.logMessages?.length ?? 0) - index) * 100)
+      }))
+    }
+  } catch (error) {
+    console.warn('Primary app connection failed to fetch transaction logs, falling back to other endpoints:', error)
+  }
+
+  // Try primary endpoints (excluding the already-tried app endpoint) if the app connection failed
   for (const endpoint of primaryEndpoints) {
     try {
-      const connection = new Connection(endpoint!)
-      const tx = await connection.getTransaction(txId, { 
+      // skip endpoint if it matches the current connection's rpcEndpoint (if available)
+      // @ts-ignore - some Connection versions expose _rpcEndpoint or rpcEndpoint
+      const currentEndpoint = (connection as any).rpcEndpoint || (connection as any)._rpcEndpoint
+      if (currentEndpoint && endpoint === currentEndpoint) continue
+
+      const fallbackConn = new Connection(endpoint!)
+      const tx = await fallbackConn.getTransaction(txId, { 
         commitment: 'confirmed',
         maxSupportedTransactionVersion: 0 
       })
@@ -568,6 +610,7 @@ export default function TransactionView() {
   const [error, setError] = React.useState<string | null>(null)
   const [activeTab, setActiveTab] = React.useState('details')
   const { showWalletToast } = useWalletToast()
+  const { connection } = useNetwork()
 
   React.useEffect(() => {
     if (txId) {
@@ -576,7 +619,7 @@ export default function TransactionView() {
           setLoading(true)
           
           // Fetch transaction data
-          const result = await fetchGambaTransaction(txId, userParam || undefined)
+          const result = await fetchGambaTransaction(connection, txId, userParam || undefined)
           
           if (result && result.dataAvailable) {
             setTransaction(result)
@@ -587,7 +630,7 @@ export default function TransactionView() {
             setProofData(proof)
             
             // Fetch real transaction logs using Helius with fallback
-            const transactionLogs = await fetchTransactionLogs(txId)
+            const transactionLogs = await fetchTransactionLogs(connection, txId)
             // Ensure transactionLogs is always an array
             if (Array.isArray(transactionLogs)) {
               setLogs(transactionLogs)

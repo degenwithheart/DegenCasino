@@ -5,7 +5,7 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL, Transaction, SystemProgram } f
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
 import { usePageSEO } from '../../hooks/ui/useGameSEO'
-import { PLATFORM_CREATOR_ADDRESS, RPC_ENDPOINT } from '../../constants'
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants'
 import { useNetwork } from '../../contexts/NetworkContext'
 import {
   UnifiedPageContainer,

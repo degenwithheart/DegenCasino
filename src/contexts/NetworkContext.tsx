@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Connection } from '@solana/web3.js'
-import { ENABLE_DEVNET_SUPPORT } from '../constants'
+import { ENABLE_DEVNET_SUPPORT, ENABLE_TESTNET_SUPPORT, ENABLE_TEST_NETWORKS } from '../constants'
 
-export type SolanaNetwork = 'mainnet' | 'devnet'
+export type SolanaNetwork = 'mainnet' | 'devnet' | 'testnet'
 
 interface NetworkConfig {
   name: string
@@ -23,6 +23,12 @@ const NETWORK_CONFIGS: Record<SolanaNetwork, NetworkConfig> = {
     displayName: 'Devnet',
     rpcEndpoint: import.meta.env.VITE_DEVNET_RPC_ENDPOINT ?? 'https://api.devnet.solana.com',
     explorerUrl: 'https://explorer.solana.com'
+  },
+  testnet: {
+    name: 'testnet',
+    displayName: 'Testnet',
+    rpcEndpoint: import.meta.env.VITE_TESTNET_RPC_ENDPOINT ?? 'https://api.testnet.solana.com',
+    explorerUrl: 'https://explorer.solana.com'
   }
 }
 
@@ -32,6 +38,7 @@ interface NetworkContextValue {
   connection: Connection
   switchNetwork: (network: SolanaNetwork) => void
   isDevnet: boolean
+  isTestnet: boolean
   isMainnet: boolean
 }
 
@@ -51,11 +58,14 @@ interface NetworkProviderProps {
 
 export function NetworkProvider({ children }: NetworkProviderProps) {
   // Load saved network preference or default to mainnet
-  // Force mainnet if devnet support is disabled
+  // Force mainnet if test networks are disabled
   const [network, setNetwork] = useState<SolanaNetwork>(() => {
-    if (!ENABLE_DEVNET_SUPPORT) return 'mainnet'
-    const saved = localStorage.getItem('solana-network')
-    return (saved === 'devnet' || saved === 'mainnet') ? saved : 'mainnet'
+    if (!ENABLE_TEST_NETWORKS) return 'mainnet'
+    const saved = localStorage.getItem('solana-network') as SolanaNetwork
+    if (!saved || saved === 'mainnet') return 'mainnet'
+    if (saved === 'devnet' && ENABLE_DEVNET_SUPPORT) return 'devnet'
+    if (saved === 'testnet' && ENABLE_TESTNET_SUPPORT) return 'testnet'
+    return 'mainnet'
   })
 
   const [connection, setConnection] = useState<Connection>(() => 
@@ -71,9 +81,17 @@ export function NetworkProvider({ children }: NetworkProviderProps) {
   }, [network])
 
   const switchNetwork = (newNetwork: SolanaNetwork) => {
-    // Prevent switching to devnet if devnet support is disabled
-    if (!ENABLE_DEVNET_SUPPORT && newNetwork === 'devnet') {
+    // Validate network switch based on enabled networks
+    if (!ENABLE_TEST_NETWORKS && newNetwork !== 'mainnet') {
+      console.warn('Test networks are disabled in constants')
+      return
+    }
+    if (newNetwork === 'devnet' && !ENABLE_DEVNET_SUPPORT) {
       console.warn('Devnet support is disabled in constants')
+      return
+    }
+    if (newNetwork === 'testnet' && !ENABLE_TESTNET_SUPPORT) {
+      console.warn('Testnet support is disabled in constants')
       return
     }
     setNetwork(newNetwork)
@@ -85,6 +103,7 @@ export function NetworkProvider({ children }: NetworkProviderProps) {
     connection,
     switchNetwork,
     isDevnet: network === 'devnet',
+    isTestnet: network === 'testnet',
     isMainnet: network === 'mainnet'
   }
 

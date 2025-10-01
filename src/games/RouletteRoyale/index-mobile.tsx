@@ -405,7 +405,7 @@ const MobileRouletteGame: React.FC = () => {
   }
 
   const minWager = getMinimumWager()
-  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, pool.balance) : pool.balance
+  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, (pool as any).balance) : (pool as any).balance
 
   // Wager controls
   const adjustWager = (factor: number) => {

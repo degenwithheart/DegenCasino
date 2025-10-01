@@ -23,8 +23,7 @@ function useThrottle(callback: () => void, delay: number) {
   };
 }
 
-const SYNDICA_RPC = import.meta.env.RPC_ENDPOINT || "https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1";
-const HELIUS_RPC_BACKUP = import.meta.env.HELIUS_API_KEY || "https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c";
+import { useNetwork } from '../../contexts/NetworkContext'
 const PLATFORM_CREATOR = import.meta.env.PLATFORM_CREATOR;
 
 // --- DNS Check Hook with caching (only when triggered) ---
@@ -107,6 +106,9 @@ export default function ConnectionStatus() {
 
   const pool = useCurrentPool();
   const token = useCurrentToken();
+  const { networkConfig } = useNetwork()
+  const SYNDICA_RPC = networkConfig.rpcEndpoint
+  const HELIUS_RPC_BACKUP = import.meta.env.HELIUS_API_KEY || "https://mainnet.helius-rpc.com/?api-key=3bda9312-99fc-4ff4-9561-958d62a4a22c";
 
   // Use DNS hook - only check when modal is open
   const dnsStatus = useDnsStatus(showModal);

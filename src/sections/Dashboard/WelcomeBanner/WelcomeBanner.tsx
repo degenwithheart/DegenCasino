@@ -1,8 +1,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { POOLS } from "../../../constants";
 import { useTokenMeta } from "gamba-react-ui-v2";
-import { Connection } from '@solana/web3.js';
-import { RPC_ENDPOINT } from '../../../constants';
+// Note: Network-aware connection should be accessed via useNetwork() when needed
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useColorScheme } from "../../../themes/ColorSchemeContext";
 import { QUOTES } from "../../../constants/QuotesVault";

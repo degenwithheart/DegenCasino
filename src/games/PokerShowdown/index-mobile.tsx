@@ -488,7 +488,7 @@ const MobilePokerGame: React.FC = () => {
   }
 
   const minWager = getMinimumWager()
-  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, pool.balance) : pool.balance
+  const maxWager = maxMultiplier > 0 ? Math.min(pool.maxPayout / maxMultiplier, (pool as any).balance) : (pool as any).balance
 
   const adjustWager = (factor: number) => {
     const newWager = Math.max(minWager, wager * factor)

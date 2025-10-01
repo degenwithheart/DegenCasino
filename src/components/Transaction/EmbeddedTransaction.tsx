@@ -3,7 +3,6 @@ import { Connection } from '@solana/web3.js'
 import styled, { css } from 'styled-components'
 import { GambaTransaction } from 'gamba-core-v2'
 import { useColorScheme } from '../../themes/ColorSchemeContext'
-import { RPC_ENDPOINT } from '../../constants'
 import { useNetwork } from '../../contexts/NetworkContext'
 
 /**

@@ -40,6 +40,8 @@ import DevnetWarning from './components/Network/DevnetWarning';
 // Lazy load pages and components
 const Propagation = lazy(() => import('./pages/system/propagation'));
 const ChangelogPage = lazy(() => import('./pages/system/ChangelogPage'));
+const AccessOverridePage = lazy(() => import('./pages/system/AccessOverridePage'));
+const BackSoon = lazy(() => import('./pages/system/BackSoon'));
 // Lazy load pages
 const JackpotPage = lazy(() => import('./pages/features/JackpotPage'));
 const LeaderboardPage = lazy(() => import('./pages/features/LeaderboardPage'));
@@ -64,6 +66,48 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     currentLayoutTheme, 
     resolveComponent 
   } = useTheme();
+
+  // Access override / offline gate
+  const envVars = (import.meta as any).env || {};
+  const buildOverrideEnabled = envVars.VITE_ACCESS_OVERRIDE_ENABLED === 'true';
+  let storedOverride: any = null;
+  try {
+    storedOverride = JSON.parse(localStorage.getItem('access_override_ui') || 'null');
+  } catch (e) {
+    storedOverride = null;
+  }
+
+  const featureFlagAllowsOverride = FEATURE_FLAGS?.ACCESS_OVERRIDE === true;
+  const overrideEnabled = featureFlagAllowsOverride && (typeof storedOverride?.enabled === 'boolean' ? storedOverride.enabled : buildOverrideEnabled);
+  const overrideAccessMessage = storedOverride?.accessMessage ?? envVars.VITE_ACCESS_OVERRIDE_MESSAGE ?? '';
+  const overrideOfflineMessage = storedOverride?.offlineMessage ?? envVars.VITE_OFFLINE_MESSAGE ?? '';
+
+  // If override is enabled and user is not on an admin route, show a full-screen offline message
+  if (overrideEnabled && !location.pathname.startsWith('/admin')) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'linear-gradient(180deg, #0b0b0b, #121212)',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        zIndex: 99999,
+      }}>
+        <div style={{ maxWidth: 900, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '2.2rem', color: '#ff6666', marginBottom: 12 }}>We'll be back soon</h1>
+          {overrideAccessMessage ? <p style={{ color: '#ddd', fontSize: '1.05rem', marginBottom: 12 }}>{overrideAccessMessage}</p> : null}
+          {overrideOfflineMessage ? <div style={{ color: '#bbb', background: 'rgba(255,255,255,0.02)', padding: 16, borderRadius: 8 }}>{overrideOfflineMessage}</div> : null}
+
+          <div style={{ marginTop: 18 }}>
+            {/* <a href="/admin" style={{ color: 'white', textDecoration: 'underline', fontWeight: 600 }}>Admin / Manage Override</a> */}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Resolve theme-specific components or fall back to defaults
   const HeaderComponent = resolveComponent('components', 'Header') || Header;
@@ -118,6 +162,8 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/admin/override" element={<SafeSuspense level="route" componentName="Access Override Page"><AccessOverridePage /></SafeSuspense>} />
+              <Route path="/back-soon" element={<SafeSuspense level="route" componentName="Back Soon Page"><BackSoon /></SafeSuspense>} />
               <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
@@ -162,6 +208,8 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/admin/override" element={<SafeSuspense level="route" componentName="Access Override Page"><AccessOverridePage /></SafeSuspense>} />
+              <Route path="/back-soon" element={<SafeSuspense level="route" componentName="Back Soon Page"><BackSoon /></SafeSuspense>} />
               <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
@@ -207,6 +255,8 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
+              <Route path="/admin/override" element={<SafeSuspense level="route" componentName="Access Override Page"><AccessOverridePage /></SafeSuspense>} />
+              <Route path="/back-soon" element={<SafeSuspense level="route" componentName="Back Soon Page"><BackSoon /></SafeSuspense>} />
               <Route path="/explorer" element={<ErrorBoundaryWrapper level="route" componentName="Explorer"><ExplorerIndex /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/platform/:creator" element={<ErrorBoundaryWrapper level="route" componentName="Platform View"><PlatformView /></ErrorBoundaryWrapper>} />
               <Route path="/explorer/player/:address" element={<ErrorBoundaryWrapper level="route" componentName="Player View"><PlayerView /></ErrorBoundaryWrapper>} />
