@@ -32,7 +32,7 @@ scripts/*
 **/themeAutoDiscovery.ts
 **/themeConfig.ts
 
-# Ignore standardization guides and demos
-*_STANDARDIZATION_GUIDE.md
-DEMO_*.tsx
-THEME_CREATION_GUIDE.md
+# Ignore mobile build outputs (generated files)
+mobile-app/build/
+mobile-app/build/
+mobile-app/build/capacitor/www/
