@@ -5,14 +5,14 @@ import { useGameMeta } from '../useGameMeta'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameStats } from '../../hooks/game/useGameStats'
-import { PLINKO_CONFIG } from '../rtpConfig'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
-// Use centralized bet arrays from rtpConfig
-const BET = PLINKO_CONFIG.normal
-const DEGEN_BET = PLINKO_CONFIG.degen
-const PEGS = PLINKO_CONFIG.PEGS
-const BUCKETS = PLINKO_CONFIG.BUCKETS
+// Use centralized bet arrays from rtpConfig-v3
+const BET = BET_ARRAYS_V3.plinko.calculateBetArray('normal')
+const DEGEN_BET = BET_ARRAYS_V3.plinko.calculateBetArray('degen')
+const PEGS = BET_ARRAYS_V3.plinko.PEGS
+const BUCKETS = BET_ARRAYS_V3.plinko.BUCKETS
 
 interface GameStats {
   gamesPlayed: number
@@ -40,8 +40,8 @@ export function usePlinkoGameLogic() {
 
   // Pool restrictions
   const maxMultiplierForPool = useMemo(() => {
-    const normalMax = Math.max(...PLINKO_CONFIG.normal)
-    const degenMax = Math.max(...PLINKO_CONFIG.degen)
+    const normalMax = Math.max(...BET)
+    const degenMax = Math.max(...DEGEN_BET)
     return Math.max(normalMax, degenMax)
   }, [])
 

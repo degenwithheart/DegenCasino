@@ -24,7 +24,7 @@ export class DeviceAuthService {
 
     if (this.isEnabled) {
       // Register app pause listener for auth
-      App.addListener('appStateChange', async ({ isActive }) => {
+      App.addListener('appStateChange', async ({ isActive }: { isActive: boolean }) => {
         if (isActive) {
           await this.authenticate();
         }

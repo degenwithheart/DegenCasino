@@ -297,7 +297,7 @@ const JackpotInner: React.FC = () => {
               </StatusBadge>
               <GambaUi.Switch
                 checked={context.defaultJackpotFee > 0}
-                onChange={(checked) =>
+                onChange={(checked: boolean) =>
                   context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
                 }
               />

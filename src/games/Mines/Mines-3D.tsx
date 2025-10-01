@@ -2,7 +2,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useGameMeta } from '../useGameMeta'
@@ -65,7 +65,7 @@ export default function MinesV2() {
     return Array.from({ length: totalLevels }).map((_, level) => {
       // For the first level, use initial wager. For subsequent levels, use previous balance.
       const levelWager = level === 0 ? wager : previousBalance
-      const config = BET_ARRAYS_V2['mines']
+  const config = BET_ARRAYS_V3['mines']
       const multiplier = config.getMultiplier(mineCount, level + 1)
       const betArray = config.calculateBetArray(mineCount, level)
 
@@ -79,7 +79,7 @@ export default function MinesV2() {
 
   // Pool restrictions
   const maxMultiplier = React.useMemo(() => {
-    const config = BET_ARRAYS_V2['mines']
+  const config = BET_ARRAYS_V3['mines']
     // Calculate max possible multiplier for current mine count (full grid revealed)
     return config.getMultiplier(mineCount, MINES_GRID_SIZE - mineCount)
   }, [mineCount])

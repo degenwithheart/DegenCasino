@@ -33,6 +33,4 @@ scripts/*
 **/themeConfig.ts
 
 # Ignore mobile build outputs (generated files)
-mobile-app/build/
-mobile-app/build/
-mobile-app/build/capacitor/www/
+mobile-app

@@ -72,7 +72,7 @@ interface ProvablyFairModalProps { onClose: () => void; inline?: boolean }
 
 export function ProvablyFairModal(props: ProvablyFairModalProps) {
   const gamba = useGamba()
-  const platform = React.useContext(GambaPlatformContext)
+  const platform = React.useContext(GambaPlatformContext) as any
   const [initializing, setInitializing] = React.useState(false)
   const program = useGambaProgram()
   const sendTransaction = useSendTransaction()

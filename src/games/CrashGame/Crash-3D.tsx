@@ -12,7 +12,7 @@ import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapp
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { CRASH_CONFIG } from '../rtpConfig'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -168,26 +168,12 @@ export default function CrashGame() {
     }
   }
 
-  // Generate deterministic crash point from game result
+  // Generate deterministic crash point from game result using centralized crash bet array
   const generateCrashPoint = (seed: string) => {
     const rng = makeDeterministicRng(`crash:${seed}`)
     const base = rng()
-    
-    // Crash distribution - most crashes happen early, some go very high
-    // This creates the classic crash game distribution
-    if (base < 0.5) {
-      // 50% chance of crash between 1x and 2x
-      return 1 + base * 2
-    } else if (base < 0.8) {
-      // 30% chance of crash between 2x and 5x
-      return 2 + (base - 0.5) / 0.3 * 3
-    } else if (base < 0.95) {
-      // 15% chance of crash between 5x and 20x
-      return 5 + (base - 0.8) / 0.15 * 15
-    } else {
-      // 5% chance of very high multipliers (20x - 100x+)
-      return 20 + (base - 0.95) / 0.05 * 80
-    }
+    const outcomeIndex = Math.floor(base * 1000)
+    return (BET_ARRAYS_V3 as any)['crash'].getCrashMultiplier(outcomeIndex)
   }
 
   // Animate multiplier growth
@@ -315,16 +301,12 @@ export default function CrashGame() {
     if (gameState !== 'betting' || hasBet || wager <= 0) return
     
     try {
-      // Create a simple bet array for crash mechanics
-      // We use a basic win/lose scenario and handle the multiplier logic separately
-      const bet = [0, wager * 0.96] // House edge of 4%
-      
+      // Use centralized crash bet array for consistent on-chain validation
+      const bet = (BET_ARRAYS_V3 as any)['crash'].calculateBetArray()
       const result = game.play({ wager, bet })
       setGameResult(result)
       setHasBet(true)
-      
       console.log(`🎮 Bet placed: ${wager} SOL`)
-      
     } catch (error) {
       console.error('Failed to place bet:', error)
     }

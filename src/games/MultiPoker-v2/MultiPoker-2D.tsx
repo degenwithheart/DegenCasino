@@ -1,7 +1,7 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -25,11 +25,11 @@ interface HandTemplate {
 
 // Helper functions for V2 config
 const getHandTemplateFromResult = (resultIndex: number): HandTemplate => {
-  const config = BET_ARRAYS_V2['multipoker-v2']
+  const config = (BET_ARRAYS_V3 as any)['multipoker']
   const handTypeName = config.getHandName(resultIndex)
   const betArray = config.calculateBetArray()
   const payout = betArray[resultIndex] || 0
-  
+
   return {
     name: handTypeName,
     type: handTypeName as HandType
@@ -143,7 +143,7 @@ export default function MultiPokerV2() {
   }, [settings.enableMotion, hasPlayed, showingResult, hand])
 
   const maxMultiplier = React.useMemo(() => {
-    const config = BET_ARRAYS_V2['multipoker-v2']
+    const config = (BET_ARRAYS_V3 as any)['multipoker']
     const betArray = config.calculateBetArray()
     return Math.max(...betArray)
   }, [])
@@ -462,7 +462,7 @@ export default function MultiPokerV2() {
     
     // Next hand requirement for chain mode
     if (gameMode === 'chain' && inProgress && lastHandRank >= 0) {
-      const config = BET_ARRAYS_V2['multipoker-v2']
+      const config = (BET_ARRAYS_V3 as any)['multipoker']
       ctx.fillStyle = '#ffa500'
       ctx.font = '14px Arial'
       ctx.fillText(`Beat: ${config.getHandName(lastHandRank)}`, 20, chainLength > 0 ? 50 : 25)
@@ -685,7 +685,7 @@ export default function MultiPokerV2() {
     setRevealing(true)
 
     try {
-      const config = BET_ARRAYS_V2['multipoker-v2']
+      const config = (BET_ARRAYS_V3 as any)['multipoker']
       const betArray = config.calculateBetArray()
       
       await game.play({
@@ -1276,7 +1276,7 @@ export default function MultiPokerV2() {
                       color: 'rgba(33, 150, 243, 0.9)',
                       fontWeight: '600'
                     }}>
-                      {Math.round((1 - (BET_ARRAYS_V2['multipoker-v2'].calculateBetArray().filter(x => x === 0).length / BET_ARRAYS_V2['multipoker-v2'].calculateBetArray().length)) * 100)}%
+                                      {Math.round((1 - ((BET_ARRAYS_V3 as any)['multipoker'].calculateBetArray().filter((x: number) => x === 0).length / (BET_ARRAYS_V3 as any)['multipoker'].calculateBetArray().length)) * 100)}%
                     </div>
                   </div>
 
@@ -1379,7 +1379,7 @@ export default function MultiPokerV2() {
                       color: 'rgba(184, 51, 106, 0.9)',
                       fontWeight: '600'
                     }}>
-                      {lastHandRank >= 0 ? BET_ARRAYS_V2['multipoker-v2'].getHandName(lastHandRank) : 'None'}
+                      {lastHandRank >= 0 ? (BET_ARRAYS_V3 as any)['multipoker'].getHandName(lastHandRank) : 'None'}
                     </div>
                   </div>
 
@@ -1410,7 +1410,7 @@ export default function MultiPokerV2() {
                       color: 'rgba(33, 150, 243, 0.9)',
                       fontWeight: '600'
                     }}>
-                      {chainLength === 0 ? 'Straight+' : lastHandRank >= 0 ? BET_ARRAYS_V2['multipoker-v2'].getHandName(Math.min(lastHandRank + 1, 8)) : 'Beat Last'}
+                      {chainLength === 0 ? 'Straight+' : lastHandRank >= 0 ? (BET_ARRAYS_V3 as any)['multipoker'].getHandName(Math.min(lastHandRank + 1, 8)) : 'Beat Last'}
                     </div>
                   </div>
 

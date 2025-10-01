@@ -1,5 +1,5 @@
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
-export const OUTCOMES = BET_ARRAYS_V2['dice-v2'].OUTCOMES
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
+export const OUTCOMES = BET_ARRAYS_V3['dice'].OUTCOMES
 
 export { default as SOUND_LOSE } from './lose.mp3'
 export { default as SOUND_TICK } from './tick.mp3'

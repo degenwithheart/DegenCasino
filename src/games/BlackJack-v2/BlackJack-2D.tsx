@@ -2,7 +2,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useGameStats } from '../../hooks/game/useGameStats'
@@ -71,7 +71,7 @@ export default function BlackJackV2() {
   }, [])
 
   // Get configuration
-  const config = BET_ARRAYS_V2['blackjack-v2']
+  const config = (BET_ARRAYS_V3 as any)['blackjack']
 
   // Pool restrictions
   const maxMultiplier = React.useMemo(() => {

@@ -2,7 +2,7 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -342,19 +342,19 @@ export default function FlipV2() {
 
   // Helper functions from V2 config
   const getMultiplier = () => {
-    const config = BET_ARRAYS_V2['flip-v2']
+  const config = (BET_ARRAYS_V3 as any)['flip']
     const betArray = config.calculateBetArray(numCoins, atLeastK, side)
     const prob = config.probAtLeast(numCoins, atLeastK)
     return config.computeMultiplier(prob)
   }
 
   const getProbability = () => {
-    const config = BET_ARRAYS_V2['flip-v2']
+    const config = (BET_ARRAYS_V3 as any)['flip']
     return config.probAtLeast(numCoins, atLeastK)
   }
 
   const maxMultiplier = React.useMemo(() => {
-    const config = BET_ARRAYS_V2['flip-v2']
+  const config = (BET_ARRAYS_V3 as any)['flip']
     let max = 0
     for (let coins = 1; coins <= FLIP_SETTINGS.MAX_COINS; coins++) {
       for (let k = 1; k <= coins; k++) {
@@ -569,7 +569,7 @@ export default function FlipV2() {
     setInProgress(true)
     
     try {
-      const config = BET_ARRAYS_V2['flip-v2']
+  const config = (BET_ARRAYS_V3 as any)['flip']
       const betArray = config.calculateBetArray(numCoins, atLeastK, side)
       
       // Scale wager by number of coins - more coins = higher total bet

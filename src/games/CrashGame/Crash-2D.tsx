@@ -12,7 +12,7 @@ import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapp
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
@@ -176,7 +176,7 @@ export default function CrashGame() {
   const generateCrashMultiplier = (randomValue: number) => {
     // Convert random value to outcome index (0-999)
     const outcomeIndex = Math.floor(randomValue * 1000)
-    return BET_ARRAYS_V2['crashgame'].getCrashMultiplier(outcomeIndex)
+  return (BET_ARRAYS_V3 as any)['crash'].getCrashMultiplier(outcomeIndex)
   }
 
 
@@ -195,7 +195,7 @@ export default function CrashGame() {
     setRocketRotation(0)
     
     // Use centralized RTP configuration from rtpConfig-v2.ts
-    const bet = BET_ARRAYS_V2['crashgame'].calculateBetArray()
+  const bet = (BET_ARRAYS_V3 as any)['crash'].calculateBetArray()
     
     await game.play({ wager, bet })
 

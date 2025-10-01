@@ -3,7 +3,7 @@ import { GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui
 import { useGamba } from 'gamba-react-v2'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
@@ -94,7 +94,7 @@ export const useMagic8BallGameLogic = () => {
   })
 
   // Calculate multiplier
-  const multiplier = Number(BigInt(BET_ARRAYS_V2['magic8ball'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
+  const multiplier = Number(BigInt(BET_ARRAYS_V3['magic8ball'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
 
   // Calculate if pool will be exceeded
   const maxPayout = wager * multiplier
@@ -108,7 +108,7 @@ export const useMagic8BallGameLogic = () => {
 
     if (canvasX >= sliderLeft && canvasX <= sliderRight) {
       const percentage = (canvasX - sliderLeft) / sliderWidth
-      const newValue = Math.max(1, Math.min(BET_ARRAYS_V2['magic8ball'].OUTCOMES - 1, Math.round(percentage * (BET_ARRAYS_V2['magic8ball'].OUTCOMES - 2)) + 1))
+  const newValue = Math.max(1, Math.min(BET_ARRAYS_V3['magic8ball'].OUTCOMES - 1, Math.round(percentage * (BET_ARRAYS_V3['magic8ball'].OUTCOMES - 2)) + 1))
       setRollUnderIndex(newValue)
     }
   }, [])
@@ -268,7 +268,7 @@ export const useMagic8BallGameLogic = () => {
     sounds.play('play')
 
     // Use RTP config to get the bet array
-    const betArray = BET_ARRAYS_V2['magic8ball'].calculateBetArray()
+  const betArray = BET_ARRAYS_V3['magic8ball'].calculateBetArray()
 
     console.log('🎲 BET ARRAY DEBUG:', {
       rollUnderIndex,
@@ -296,7 +296,7 @@ export const useMagic8BallGameLogic = () => {
       luckyNumber = Math.floor(rng() * rollUnderIndex)
     } else {
       // Losing numbers are rollUnderIndex and above
-      luckyNumber = rollUnderIndex + Math.floor(rng() * (BET_ARRAYS_V2['magic8ball'].OUTCOMES - rollUnderIndex))
+  luckyNumber = rollUnderIndex + Math.floor(rng() * (BET_ARRAYS_V3['magic8ball'].OUTCOMES - rollUnderIndex))
     }
 
     console.log('🎲 DICE RESULT:', {

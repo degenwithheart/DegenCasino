@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useWagerInput, FAKE_TOKEN_MINT, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
-import { BET_ARRAYS_V2, RTP_TARGETS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -355,7 +355,7 @@ const MobileFlipGame: React.FC = () => {
   })
 
   // Calculate game values
-  const config = BET_ARRAYS_V2['flip-v2']
+  const config = (BET_ARRAYS_V3 as any)['flip']
   const betArray = config.calculateBetArray(numCoins, atLeastK, side)
   
   // Calculate probability and multiplier
@@ -377,7 +377,7 @@ const MobileFlipGame: React.FC = () => {
   }
 
   const winProbability = calculateWinProbability()
-  const multiplier = winProbability > 0 ? (1 / winProbability) * RTP_TARGETS_V2['flip-v2'] : 0
+  const multiplier = winProbability > 0 ? (1 / winProbability) * RTP_TARGETS_V3['flip'] : 0
   const totalWager = wager * numCoins
   const maxWin = multiplier * totalWager
   const poolExceeded = maxWin > pool.maxPayout
@@ -537,7 +537,7 @@ const MobileFlipGame: React.FC = () => {
       {/* Header */}
       <MobileHeader>
         <GameTitle>🪙 Coin Flip</GameTitle>
-        <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS_V2['flip-v2'] * 100).toFixed(0)}%</GameSubtitle>
+  <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS_V3['flip'] * 100).toFixed(0)}%</GameSubtitle>
       </MobileHeader>
 
       {/* Game Area */}

@@ -407,7 +407,7 @@ export function UserProfile() {
             <ActionButton
               $colorScheme={currentColorScheme}
               $variant="primary"
-              onClick={leaderboardModal.open}
+              onClick={leaderboardModal.openModal}
             >
               <FaCoins /> View Leaderboard
             </ActionButton>

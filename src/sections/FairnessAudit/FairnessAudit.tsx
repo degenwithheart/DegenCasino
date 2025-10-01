@@ -73,7 +73,7 @@ const runSample = (betVector: readonly number[], plays: number, wager: number, g
 // Import actual game implementations to test real behavior
 import { FLIP_CONFIG } from '../../games/rtpConfig'
 import { DICE_CONFIG } from '../../games/rtpConfig'
-import { CRASH_CONFIG } from '../../games/rtpConfig'
+import { CRASH_CONFIG_V3 } from '../../games/rtpConfig-v3'
 import { PLINKO_CONFIG } from '../../games/rtpConfig'
 import { MINES_CONFIG } from '../../games/rtpConfig'
 import { HILO_CONFIG } from '../../games/rtpConfig'
@@ -160,7 +160,7 @@ const getRealBetArrays = () => {
     hilo: HILO_CONFIG.calculateBetArray(6, true), // rank 6, betting HI
     
     // Crash - use actual game implementation
-    crash: CRASH_CONFIG.calculateBetArray(1.5),
+  crash: CRASH_CONFIG_V3.calculateBetArray(1.5),
     
     // Slots - use actual game implementation with realistic parameters
     slots: slotsBetArray(700, 100), // max payout 700, wager 100 = max 7x multiplier (matches game design)

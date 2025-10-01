@@ -1,7 +1,7 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
@@ -364,7 +364,7 @@ export default function CryptoChartGameV2() {
     try {
       sounds.play('play')
       
-      const betArray = BET_ARRAYS_V2['cryptochartgame-v2'].calculateBetArray(targetMultiplier)
+  const betArray = (BET_ARRAYS_V3 as any)['cryptochartgame'].calculateBetArray(targetMultiplier)
       await game.play({ wager: initialWager, bet: betArray })
       const result = await game.result()
 

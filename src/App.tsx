@@ -77,7 +77,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
     storedOverride = null;
   }
 
-  const featureFlagAllowsOverride = FEATURE_FLAGS?.ACCESS_OVERRIDE === true;
+  const featureFlagAllowsOverride = Boolean(FEATURE_FLAGS?.ACCESS_OVERRIDE);
   const overrideEnabled = featureFlagAllowsOverride && (typeof storedOverride?.enabled === 'boolean' ? storedOverride.enabled : buildOverrideEnabled);
   const overrideAccessMessage = storedOverride?.accessMessage ?? envVars.VITE_ACCESS_OVERRIDE_MESSAGE ?? '';
   const overrideOfflineMessage = storedOverride?.offlineMessage ?? envVars.VITE_OFFLINE_MESSAGE ?? '';

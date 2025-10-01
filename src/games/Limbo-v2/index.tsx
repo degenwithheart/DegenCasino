@@ -7,7 +7,7 @@ import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 import { GAME_CONFIG, GAME_STATES, LIMBO_ANIMATION, type GameState } from './constants'
 import { LIMBO_SOUNDS } from './sounds'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
@@ -435,7 +435,7 @@ export default function LimboGame({}: LimboGameProps) {
 
   // Generate bet array for Gamba
   const generateBetArray = useCallback((multiplier: number) => {
-    return BET_ARRAYS_V2['limbo-v2'].calculateBetArray(multiplier)
+  return (BET_ARRAYS_V3 as any)['limbo'].calculateBetArray(multiplier)
   }, [])
 
   // Play game

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useWagerInput, FAKE_TOKEN_MINT, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
-import { BET_ARRAYS_V2, RTP_TARGETS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN, OUTCOMES } from './constants'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -331,7 +331,7 @@ const MobileDiceGame: React.FC = () => {
     rollValue / OUTCOMES : 
     (OUTCOMES - rollValue - 1) / OUTCOMES
   
-  const multiplier = winChance > 0 ? (1 / winChance) * RTP_TARGETS_V2['dice-v2'] : 0
+  const multiplier = winChance > 0 ? (1 / winChance) * RTP_TARGETS_V3['dice'] : 0
   const maxWin = multiplier * wager
   const poolExceeded = maxWin > pool.maxPayout
 
@@ -372,7 +372,7 @@ const MobileDiceGame: React.FC = () => {
       sounds.play('play')
 
       // Create bet array
-      const diceConfig = BET_ARRAYS_V2['dice-v2']
+  const diceConfig = BET_ARRAYS_V3['dice']
       let betArray: number[]
       
       if (isRollUnder) {
@@ -382,7 +382,7 @@ const MobileDiceGame: React.FC = () => {
         const winProbability = (OUTCOMES - rollValue - 1) / OUTCOMES
         if (winProbability > 0) {
           const fairMultiplier = 1 / winProbability
-          const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['dice-v2']
+          const houseMultiplier = fairMultiplier * RTP_TARGETS_V3['dice']
           
           for (let i = rollValue + 1; i < OUTCOMES; i++) {
             betArray[i] = houseMultiplier
@@ -433,7 +433,7 @@ const MobileDiceGame: React.FC = () => {
       {/* Header */}
       <MobileHeader>
         <GameTitle>🎲 Dice</GameTitle>
-        <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS_V2['dice-v2'] * 100).toFixed(0)}%</GameSubtitle>
+  <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS_V3['dice'] * 100).toFixed(0)}%</GameSubtitle>
       </MobileHeader>
 
       {/* Game Area */}

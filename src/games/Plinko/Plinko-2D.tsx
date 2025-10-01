@@ -12,7 +12,7 @@ import { useGameStats } from '../../hooks/game/useGameStats'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
-import { PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { BET_ARRAYS_V3, getBucketColor } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { BucketScoreboard } from './BucketScoreboard'
 
@@ -35,11 +35,11 @@ function usePlinko(props: PlinkoProps, deps: React.DependencyList) {
   return plinko
 }
 
-// Use centralized bet arrays from rtpConfig
-const BET = PLINKO_CONFIG.normal
-const DEGEN_BET = PLINKO_CONFIG.degen
-const PEGS = PLINKO_CONFIG.PEGS
-const BUCKETS = PLINKO_CONFIG.BUCKETS
+// Use centralized bet arrays from rtpConfig-v3
+const BET = BET_ARRAYS_V3.plinko.calculateBetArray('normal')
+const DEGEN_BET = BET_ARRAYS_V3.plinko.calculateBetArray('degen')
+const PEGS = BET_ARRAYS_V3.plinko.PEGS
+const BUCKETS = BET_ARRAYS_V3.plinko.BUCKETS
 
 export default function PlinkoRenderer2D() {
   console.log('🎯 PLINKO COMPONENT LOADING...')
@@ -60,8 +60,8 @@ export default function PlinkoRenderer2D() {
 
   // Pool restrictions
   const maxMultiplierForPool = React.useMemo(() => {
-    const normalMax = Math.max(...PLINKO_CONFIG.normal)
-    const degenMax = Math.max(...PLINKO_CONFIG.degen)
+    const normalMax = Math.max(...BET_ARRAYS_V3.plinko.calculateBetArray('normal'))
+    const degenMax = Math.max(...BET_ARRAYS_V3.plinko.calculateBetArray('degen'))
     return Math.max(normalMax, degenMax)
   }, [])
 
@@ -369,8 +369,10 @@ export default function PlinkoRenderer2D() {
   // Dynamic bet array calculation for custom mode
   const bet = React.useMemo(() => {
     if (customMode) {
-      // Use centralized custom multiplier generation from RTP config
-      return PLINKO_CONFIG.createCustomMultipliers(customBuckets, customRows, degen ? 'degen' : 'normal')
+      // Use centralized custom multiplier generation from RTP config-v3
+      return BET_ARRAYS_V3.plinko._createMultipliers
+        ? BET_ARRAYS_V3.plinko._createMultipliers(customBuckets, customRows, degen ? 'degen' : 'normal')
+        : (degen ? DEGEN_BET : BET)
     }
     return degen ? DEGEN_BET : BET
   }, [customMode, customBuckets, customRows, degen])

@@ -82,7 +82,7 @@ const Hero = styled.div<{ $colorScheme: any }>`
     ${css`animation: ${shimmer} 3s ease-in-out infinite;`}
   }
   
-  ${media.mobile} {
+  ${media.mobileLg} {
     padding: 2rem 1rem;
   }
 `;
@@ -100,7 +100,7 @@ const HeroTitle = styled.h1<{ $colorScheme: any }>`
   text-transform: uppercase;
   letter-spacing: 2px;
   
-  ${media.mobile} {
+  ${media.mobileLg} {
     font-size: 2.5rem;
   }
   
@@ -182,7 +182,7 @@ const FeatureGrid = styled.div`
   gap: 2rem;
   margin: 4rem 0;
   
-  ${media.mobile} {
+  ${media.mobileLg} {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
@@ -292,7 +292,7 @@ const Step = styled(motion.div)<{ $colorScheme: any }>`
   position: relative;
   z-index: 1;
   
-  ${media.mobile} {
+  ${media.mobileLg} {
     flex-direction: column;
     text-align: center;
   }
@@ -311,7 +311,7 @@ const StepNumber = styled.div<{ $colorScheme: any }>`
   min-width: 60px;
   text-align: center;
   
-  ${media.mobile} {
+  ${media.mobileLg} {
     margin-right: 0;
     margin-bottom: 1rem;
   }
@@ -376,7 +376,7 @@ const CopyButton = styled(motion.button)<{ $colorScheme: any; $copied: boolean }
 `;
 
 const DegenMobileAppPage: React.FC = () => {
-  const { colorScheme } = useColorScheme();
+  const { currentColorScheme: colorScheme } = useColorScheme();
   const [copied, setCopied] = useState(false);
 
   // Fallback color scheme if undefined

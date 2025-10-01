@@ -7,7 +7,8 @@ declare global {
 }
 
 import { PublicKey } from '@solana/web3.js'
-import { FAKE_TOKEN_MINT, PoolToken, TokenMeta, makeHeliusTokenFetcher } from 'gamba-react-ui-v2'
+import { FAKE_TOKEN_MINT, PoolToken, UiTokenMeta } from 'gamba-react-ui-v2'
+import makeHeliusTokenFetcher from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Get RPC from the .env file or default to Syndica, not public RPC.
@@ -96,7 +97,7 @@ export const FEATURE_FLAGS = {
    * When true, the site will be allowed to enter the "back soon" mode via code/runtime.
    * This flag can be used to quickly enable/disable the override behavior without changing env vars.
    */
-  ACCESS_OVERRIDE: true,
+  ACCESS_OVERRIDE: false,
 } as const
 
 export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users
@@ -320,7 +321,7 @@ export const DEFAULT_POOL = POOLS[0]
 /**
  * Metadata for tokens supported by the platform.
  */
-type TokenMetaWithMinted = Partial<TokenMeta> & { mint: PublicKey; minted?: boolean };
+type TokenMetaWithMinted = Partial<UiTokenMeta> & { mint: PublicKey; minted?: boolean };
 
 export const TOKEN_METADATA: TokenMetaWithMinted[] = [
   {

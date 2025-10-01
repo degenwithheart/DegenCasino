@@ -87,7 +87,7 @@ export default function LobbyBackground() {
   return (
     <CanvasContainer>
       <GambaUi.Canvas
-        render={({ ctx, size }) => {
+  render={({ ctx, size }: { ctx: any; size: any }) => {
           const w = worldRef.current
           if (!w) return
 

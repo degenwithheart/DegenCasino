@@ -247,7 +247,7 @@ export default function TokenSelect({ setSelectedMint, selectedMint, initialTab 
   selectedMint?: PublicKey,
   initialTab?: 'free' | 'live' | 'tokens' | 'fees' | 'invite',
 }) {
-  const context = React.useContext(GambaPlatformContext)
+  const context = React.useContext(GambaPlatformContext) as any
   const selectedToken = useCurrentToken()
   const userAddress = useWalletAddress()
   const referralCount = useReferralCount(userAddress?.toBase58())

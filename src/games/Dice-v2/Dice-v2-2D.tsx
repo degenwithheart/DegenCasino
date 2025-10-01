@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
-import { BET_ARRAYS_V2, RTP_TARGETS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
@@ -51,7 +51,7 @@ const DiceV2Renderer2D: React.FC = () => {
     rollValue / OUTCOMES : 
     (OUTCOMES - rollValue - 1) / OUTCOMES
   
-  const multiplier = winChance > 0 ? (1 / winChance) * RTP_TARGETS_V2['dice-v2'] : 0
+  const multiplier = winChance > 0 ? (1 / winChance) * RTP_TARGETS_V3['dice'] : 0
   const maxWin = multiplier * wager
   const poolExceeded = maxWin > pool.maxPayout
 
@@ -70,7 +70,7 @@ const DiceV2Renderer2D: React.FC = () => {
       sounds.play('play')
 
       // Get dice bet array from RTP config
-      const diceConfig = BET_ARRAYS_V2['dice-v2']
+  const diceConfig = BET_ARRAYS_V3['dice']
       
       // Use the available calculateBetArray function for roll under, 
       // or create the bet array manually for roll over
@@ -83,7 +83,7 @@ const DiceV2Renderer2D: React.FC = () => {
         const winProbability = (OUTCOMES - rollValue - 1) / OUTCOMES
         if (winProbability > 0) {
           const fairMultiplier = 1 / winProbability
-          const houseMultiplier = fairMultiplier * RTP_TARGETS_V2['dice-v2']
+          const houseMultiplier = fairMultiplier * RTP_TARGETS_V3['dice']
           
           // Set winning outcomes (rollValue+1 to 99)
           for (let i = rollValue + 1; i < OUTCOMES; i++) {
@@ -157,7 +157,7 @@ const DiceV2Renderer2D: React.FC = () => {
         <GameStatsHeader
           gameName="Dice"
           gameMode="2D"
-          rtp={(RTP_TARGETS_V2['dice-v2'] * 100).toFixed(0)}
+          rtp={(RTP_TARGETS_V3['dice'] * 100).toFixed(0)}
           stats={gameStats.stats}
           onReset={gameStats.resetStats}
           isMobile={isMobile}

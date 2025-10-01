@@ -3,7 +3,7 @@ import { GambaUi, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui
 import { useGamba } from 'gamba-react-v2'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
@@ -94,7 +94,7 @@ export const useDiceV2GameLogic = () => {
   })
 
   // Calculate multiplier
-  const multiplier = Number(BigInt(BET_ARRAYS_V2['dice-v2'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
+  const multiplier = Number(BigInt(BET_ARRAYS_V3['dice'].OUTCOMES * BPS_PER_WHOLE) / BigInt(rollUnderIndex)) / BPS_PER_WHOLE
 
   // Calculate if pool will be exceeded
   const maxPayout = wager * multiplier
@@ -108,7 +108,7 @@ export const useDiceV2GameLogic = () => {
 
     if (canvasX >= sliderLeft && canvasX <= sliderRight) {
       const percentage = (canvasX - sliderLeft) / sliderWidth
-      const newValue = Math.max(1, Math.min(BET_ARRAYS_V2['dice-v2'].OUTCOMES - 1, Math.round(percentage * (BET_ARRAYS_V2['dice-v2'].OUTCOMES - 2)) + 1))
+  const newValue = Math.max(1, Math.min(BET_ARRAYS_V3['dice'].OUTCOMES - 1, Math.round(percentage * (BET_ARRAYS_V3['dice'].OUTCOMES - 2)) + 1))
       setRollUnderIndex(newValue)
     }
   }, [])
@@ -268,7 +268,7 @@ export const useDiceV2GameLogic = () => {
     sounds.play('play')
 
     // Use RTP config to get the bet array
-    const betArray = BET_ARRAYS_V2['dice-v2'].calculateBetArray(rollUnderIndex)
+  const betArray = BET_ARRAYS_V3['dice'].calculateBetArray(rollUnderIndex)
 
     console.log('🎲 BET ARRAY DEBUG:', {
       rollUnderIndex,
@@ -296,7 +296,7 @@ export const useDiceV2GameLogic = () => {
       luckyNumber = Math.floor(rng() * rollUnderIndex)
     } else {
       // Losing numbers are rollUnderIndex and above
-      luckyNumber = rollUnderIndex + Math.floor(rng() * (BET_ARRAYS_V2['dice-v2'].OUTCOMES - rollUnderIndex))
+  luckyNumber = rollUnderIndex + Math.floor(rng() * (BET_ARRAYS_V3['dice'].OUTCOMES - rollUnderIndex))
     }
 
     console.log('🎲 DICE RESULT:', {

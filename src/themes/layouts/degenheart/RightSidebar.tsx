@@ -9,7 +9,7 @@ import { ALL_GAMES } from '../../../games/allGames'
 import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData'
 import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats'
 import { RTP_TARGETS } from '../../../games/rtpConfig'
-import { RTP_TARGETS_V2 } from '../../../games/rtpConfig-v2'
+import { RTP_TARGETS_V3 } from '../../../games/rtpConfig-v3'
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
 import { GameRecentPlays } from '../../../components/Game/GameRecentPlays'
 
@@ -18,15 +18,13 @@ import { GameRecentPlays } from '../../../components/Game/GameRecentPlays'
 const getGameRTP = (gameId: string): string => {
   const gameKey = gameId.toLowerCase()
   
-  // Check V2 games first
-  if (gameKey.includes('-v2')) {
-    const v2Key = gameKey as keyof typeof RTP_TARGETS_V2
-    if (RTP_TARGETS_V2[v2Key]) {
-      return Math.round(RTP_TARGETS_V2[v2Key] * 100).toString()
-    }
+  // Prefer V3 mapping (includes aliases for common V2 ids)
+  const v3Key = gameKey as keyof typeof RTP_TARGETS_V3
+  if (RTP_TARGETS_V3[v3Key]) {
+    return Math.round(RTP_TARGETS_V3[v3Key] * 100).toString()
   }
-  
-  // Check V1 games
+
+  // Fallback to V1 games
   const v1Key = gameKey as keyof typeof RTP_TARGETS
   if (RTP_TARGETS[v1Key]) {
     return Math.round(RTP_TARGETS[v1Key] * 100).toString()

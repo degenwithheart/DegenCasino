@@ -11,7 +11,7 @@ import { useGameSEO } from '../../hooks/ui/useGameSEO'
 
 import { GAME_CONFIG, PAYTABLE, GAME_STATES, type GameState } from './constants'
 import { KENO_SOUNDS } from './sounds'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Enhanced Components imports
@@ -345,7 +345,7 @@ export default function KenoGame({}: KenoGameProps) {
 
   // Generate bet array for Gamba
   const generateBetArray = useCallback((selectionCount: number) => {
-    return BET_ARRAYS_V2['keno-v2'].calculateBetArray(selectionCount)
+    return (BET_ARRAYS_V3 as any)['keno'].calculateBetArray(selectionCount)
   }, [])
 
   // Simulate drawn numbers based on game result

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useWagerInput, FAKE_TOKEN_MINT, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
-import { BET_ARRAYS, RTP_TARGETS, PLINKO_CONFIG, getBucketColor } from '../rtpConfig'
+import { BET_ARRAYS_V3, RTP_TARGETS_V3, getBucketColor } from '../rtpConfig-v3'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
@@ -365,8 +365,8 @@ const MobilePlinkoGame: React.FC = () => {
   })
 
   // Get bucket configuration
-  const buckets = degen ? PLINKO_CONFIG.degen : PLINKO_CONFIG.normal
-  const pegs = degen ? PLINKO_CONFIG.PEGS.degen : PLINKO_CONFIG.PEGS.normal
+  const buckets = degen ? BET_ARRAYS_V3.plinko.calculateBetArray('degen') : BET_ARRAYS_V3.plinko.calculateBetArray('normal')
+  const pegs = degen ? BET_ARRAYS_V3.plinko.PEGS.degen : BET_ARRAYS_V3.plinko.PEGS.normal
   
   // Calculate max win and pool constraints
   const maxMultiplier = Math.max(...buckets)
@@ -514,7 +514,7 @@ const MobilePlinkoGame: React.FC = () => {
       {/* Header */}
       <MobileHeader>
         <GameTitle>🎯 Plinko</GameTitle>
-        <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS.plinko * 100).toFixed(0)}%</GameSubtitle>
+        <GameSubtitle>Mobile Edition • RTP {(RTP_TARGETS_V3.plinko * 100).toFixed(0)}%</GameSubtitle>
       </MobileHeader>
 
       {/* Game Area */}
@@ -539,17 +539,17 @@ const MobilePlinkoGame: React.FC = () => {
 
         {/* Mode Selector */}
         <ModeSelector>
-          <ModeButton 
+            <ModeButton 
             $active={!degen}
             onClick={() => setDegen(false)}
           >
-            Normal ({PLINKO_CONFIG.BUCKETS.normal} buckets)
+            Normal ({BET_ARRAYS_V3.plinko.BUCKETS.normal} buckets)
           </ModeButton>
           <ModeButton 
             $active={degen}
             onClick={() => setDegen(true)}
           >
-            Degen ({PLINKO_CONFIG.BUCKETS.degen} buckets)
+            Degen ({BET_ARRAYS_V3.plinko.BUCKETS.degen} buckets)
           </ModeButton>
         </ModeSelector>
 

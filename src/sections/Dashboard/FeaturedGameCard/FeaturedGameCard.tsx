@@ -1,4 +1,3 @@
-import { GameBundle } from 'gamba-react-ui-v2'
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
@@ -8,7 +7,7 @@ import { useProgressiveLoading } from '../../../hooks/system/useProgressiveLoadi
 import { FEATURED_GAMES } from '../../../games/featuredGames'
 import { GAME_CAPABILITIES } from '../../../constants'
 
-export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?: () => void }) {
+export function FeaturedGameCard({ game, onClick }: { game: { id: string; meta: { image?: string; background?: string }; live?: string }; onClick?: () => void }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { publicKey } = useWallet()
@@ -48,11 +47,11 @@ export function FeaturedGameCard({ game, onClick }: { game: GameBundle; onClick?
   return (
     <StyledFeaturedGameCard 
       onClick={handleClick} 
-      $background={game.meta?.background} 
+      $background={game.meta.background ?? ''} 
       $colorScheme={currentColorScheme}
       {...onGameHover(game.id)} // Add hover preloading
     >
-      <div className="image" style={{ backgroundImage: `url(${game.meta.image})` }} />
+  <div className="image" style={{ backgroundImage: `url(${game.meta.image ?? ''})` }} />
       
       {/* Featured badge - only show if this game is actually featured */}
       {isFeatured && (

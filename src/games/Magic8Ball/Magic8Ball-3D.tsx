@@ -12,7 +12,7 @@ import { useGameMeta } from '../useGameMeta'
 import styled from 'styled-components'
 import * as THREE from 'three'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { BET_ARRAYS_V2 } from '../rtpConfig-v2'
+import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 
 // Styled Container for 3D Scene with dynamic background
 const Container3D = styled.div<{ $gameState: 'idle' | 'playing' | 'win' | 'lose' }>`
@@ -322,7 +322,7 @@ function Magic8Ball3D() {
   const gameStats = useGameStats('magic8ball')
   
   // Get Magic 8-Ball multiplier from RTP config
-  const multiplier = BET_ARRAYS_V2['magic8ball'].getMultiplier()
+  const multiplier = (BET_ARRAYS_V3 as any)['magic8ball'].getMultiplier()
   const maxWin = multiplier * wager
   const poolExceeded = maxWin > pool.maxPayout
   
@@ -449,8 +449,8 @@ function Magic8Ball3D() {
       animationFrameRef.current = undefined
     }
 
-    // Get Magic 8-Ball bet array from RTP config
-    const betArray = BET_ARRAYS_V2['magic8ball'].calculateBetArray()
+  // Get Magic 8-Ball bet array from RTP v3 config
+  const betArray = (BET_ARRAYS_V3 as any)['magic8ball'].calculateBetArray()
 
     await game.play({ wager, bet: betArray })
     const result = await game.result()

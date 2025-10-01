@@ -12,7 +12,7 @@ import { LineLayer1, LineLayer2, LineLayer3, MultiplierText, Rocket, ScreenWrapp
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { CRASH_CONFIG } from '../rtpConfig'
+import { CRASH_CONFIG_V3 } from '../rtpConfig-v3'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import WIN_SOUND from './win.mp3'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
