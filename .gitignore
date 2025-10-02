@@ -35,4 +35,4 @@ scripts/*
 # Ignore mobile build outputs (generated files)
 mobile-app
 
-games-old
+**/games-old
