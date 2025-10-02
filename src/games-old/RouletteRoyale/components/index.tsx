@@ -1,8 +1,0 @@
-export { default as GameLobby } from './GameLobby'
-export { default as GameScreen } from './GameScreen'
-export { default as SingleplayerGameScreen } from './SingleplayerGameScreen'
-export { default as CreateSingleplayerGameModal } from './CreateSingleplayerGameModal'
-export { default as CreateMultiplayerGameModal } from './CreateMultiplayerGameModal'
-export { default as PlayersList } from './PlayersList'
-export { default as RouletteTable } from './RouletteTable'
-export { default as RouletteWheel } from './RouletteWheel'
