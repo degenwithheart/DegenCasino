@@ -1,21 +1,7 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
 import styled, { css, keyframes } from 'styled-components'
-// Spinner for slot animation
-const StyledSpinner = styled.div<{ 'data-spinning'?: boolean }>`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: ${props => props['data-spinning'] ? 1 : 0};
-  transition: opacity 0.3s;
-  z-index: 1;
-`
+import { StyledSpinner } from './Slot.styles'
 
 interface SlotProps {
   revealed:boolean
@@ -36,19 +22,15 @@ const reveal = keyframes`
 `
 
 const StyledSlot = styled.div<{$good: boolean, $revealed: boolean}>`
-  width: 100%;
-  aspect-ratio: 1;
+  width: 180px;
+  aspect-ratio: 1/1.3;
   position: relative;
   background: transparent;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   border: none;
   border-radius: 0;
   transition: all 0.3s ease;
   box-shadow: none;
-  margin: 5px;
 
   ${(props) => props.$revealed && css`
     animation: slotReveal 0.5s ease-out;

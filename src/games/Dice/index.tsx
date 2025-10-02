@@ -67,7 +67,7 @@ export default function Dice() {
   // slider internalizes pointer handling; no global handlers required
 
   // Game statistics tracking
-  const gameStats = useGameStats('dice-v2')  // Initialize with correct game ID
+  const gameStats = useGameStats('dice')  // Initialize with correct game ID
 
   // Graphics and effects
   const { settings } = useGraphics()

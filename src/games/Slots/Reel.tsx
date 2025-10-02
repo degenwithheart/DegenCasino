@@ -1,5 +1,6 @@
 import React from 'react'
 import { SLOT_ITEMS, SlotItem } from './constants'
+import { SLOTS_CONFIG } from './config'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -14,12 +15,12 @@ interface ReelProps {
 
 // Define specific sequences for each column to prevent matching top rows - using actual RTP config symbols
 const COLUMN_SEQUENCES = {
-  0: ['LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
-  1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY'], // Column 2 (reverse)
-  2: ['SOL', 'JUP', 'WOJAK', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
-  3: ['LEGENDARY', 'USDC', 'WOJAK', 'JUP', 'BONK', 'SOL', 'DGHRT'], // Column 4 (rotated)
-  4: ['BONK', 'DGHRT', 'WOJAK', 'JUP', 'LEGENDARY', 'SOL', 'USDC'], // Column 5 (shifted)
-  5: ['USDC', 'BONK', 'LEGENDARY', 'WOJAK', 'SOL', 'JUP', 'DGHRT'], // Column 6 (mixed)
+  0: ['MYTHICAL', 'LEGENDARY', 'DGHRT', 'SOL', 'USDC', 'JUP', 'BONK', 'WOJAK'], // Column 1
+  1: ['WOJAK', 'BONK', 'JUP', 'USDC', 'SOL', 'DGHRT', 'LEGENDARY', 'MYTHICAL'], // Column 2 (reverse)
+  2: ['SOL', 'JUP', 'WOJAK', 'MYTHICAL', 'BONK', 'USDC', 'DGHRT', 'LEGENDARY'], // Column 3 (offset)
+  3: ['LEGENDARY', 'USDC', 'WOJAK', 'JUP', 'MYTHICAL', 'BONK', 'SOL', 'DGHRT'], // Column 4 (rotated)
+  4: ['BONK', 'DGHRT', 'MYTHICAL', 'WOJAK', 'JUP', 'LEGENDARY', 'SOL', 'USDC'], // Column 5 (shifted)
+  5: ['USDC', 'MYTHICAL', 'BONK', 'LEGENDARY', 'WOJAK', 'SOL', 'JUP', 'DGHRT'], // Column 6 (mixed)
 }
 
 const continuousScrollUp = keyframes`
@@ -249,10 +250,42 @@ const FinalSlot = styled.div<{$good: boolean, $revealed: boolean, $enableMotion:
 `
 
 export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotion = true }: ReelProps) {
-  // Create spinning items sequence
+  // Create column-specific symbol sequences for strategic gameplay
   const spinItems = React.useMemo(() => {
-    const baseItems = SLOT_ITEMS.slice().sort(() => Math.random() - 0.5)
-    const repeatedItems = [...baseItems, ...baseItems, ...baseItems]
+    // Handle any number of reels by cycling through available sequences
+    const sequenceIndex = reelIndex % Object.keys(COLUMN_SEQUENCES).length
+    const columnSequence = COLUMN_SEQUENCES[sequenceIndex as keyof typeof COLUMN_SEQUENCES] || COLUMN_SEQUENCES[0]
+    
+    // Map symbol names to actual SlotItem objects using RTP config
+    const sequenceItems = columnSequence.map(symbolName => {
+      // Get the actual multiplier from RTP config symbols
+      const symbolFromConfig = SLOTS_CONFIG.symbols.find(s => s.name === symbolName)
+      if (!symbolFromConfig) {
+        console.error('Symbol not found in config during spinning:', symbolName)
+        return SLOT_ITEMS[0] // fallback to first item
+      }
+      
+      // Find the corresponding SLOT_ITEM with the exact multiplier
+      const slotItem = SLOT_ITEMS.find(item => Math.abs(item.multiplier - symbolFromConfig.multiplier) < 0.001)
+      if (!slotItem) {
+        console.error('SlotItem not found for multiplier during spinning:', symbolFromConfig.multiplier)
+        return SLOT_ITEMS[0] // fallback to first item
+      }
+      
+      return slotItem
+    })
+    
+    // Create a longer sequence with NO REPEATING symbols for smooth spinning
+    // Each sequence already has unique symbols, so we just extend it without duplicates
+    const repeatedItems = []
+    
+    // Add the base sequence (8 unique symbols)
+    repeatedItems.push(...sequenceItems)
+    
+    // Add two more copies for smooth looping during animation (24 total items)
+    repeatedItems.push(...sequenceItems)
+    repeatedItems.push(...sequenceItems)
+    
     return repeatedItems
   }, [reelIndex])
 

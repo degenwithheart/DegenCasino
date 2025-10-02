@@ -20,6 +20,7 @@ import {
   PLATFORM_CREATOR_ADDRESS,
   MULTIPLAYER_FEE,
   PLATFORM_REFERRAL_FEE,            // referral %
+  FEATURE_FLAGS,
 } from '../../constants'
 import * as S from './Jackpot.styles'
 
@@ -188,7 +189,7 @@ export default function Jackpot() {
               </S.MainContent>
             </S.GameContainer>
 
-            {!isSmall && (
+            {!isSmall && FEATURE_FLAGS.ENABLE_INGAME_RECENT_GAMES && (
               <S.RecentGamesSidebar>
                 <RecentGames />
               </S.RecentGamesSidebar>

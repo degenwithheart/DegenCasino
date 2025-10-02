@@ -8,7 +8,7 @@ import { FaTrophy, FaFire, FaCrown, FaGamepad, FaCoins, FaUsers, FaChartLine, Fa
 import { ALL_GAMES } from '../../../games/allGames'
 import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData'
 import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats'
-import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
+import { PLATFORM_CREATOR_ADDRESS, FEATURE_FLAGS } from '../../../constants'
 import { GameRecentPlays } from '../../../components/Game/GameRecentPlays'
 
 const pulse = keyframes`
@@ -698,13 +698,15 @@ export const RightSidebar: React.FC = () => {
               </div>
             </Section>
 
+            {FEATURE_FLAGS.ENABLE_INGAME_RECENT_GAMES && (
             <Section $colorScheme={currentColorScheme}>
               <SectionTitle $colorScheme={currentColorScheme}>
                 <FaDice />
                 Recent Plays
               </SectionTitle>
-              <GameRecentPlays gameId={gameId} limit={10} colorScheme={undefined} />
+                <GameRecentPlays gameId={gameId} limit={10} colorScheme={undefined} />
             </Section>
+            )}
           </>
         )
       }

@@ -4,11 +4,15 @@ import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
 import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
-import { GameControlsSection, MobileControls, DesktopControls, EnhancedWagerInput, EnhancedButton } from '../../components'
-import { generateGrid, revealAllMines, revealGold } from './utils'
+import { GameControlsSection, MobileControls, DesktopControls, EnhancedWagerInput, EnhancedButton, GameRecentPlaysHorizontal } from '../../components'
+import { generateGrid, revealAllMines, revealGold, getProgressiveMultiplier, getProgressiveWager } from './utils'
+import { useGameMeta } from '../useGameMeta'
+import { useGameStats } from '../../hooks/game/useGameStats'
 
 function Mines2D() {
   const game = GambaUi.useGame()
+  const meta = useGameMeta('mines')
+  const gameStats = useGameStats('mines')
   const sounds = useSound({
     tick: SOUND_TICK,
     win: SOUND_WIN,
@@ -30,7 +34,7 @@ function Mines2D() {
 
   const getMultiplierForLevel = (level: number) => {
     const remainingCells = GRID_SIZE - level
-    return Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+    return getProgressiveMultiplier(level, remainingCells, mines)
   }
 
   const levels = React.useMemo(
@@ -40,7 +44,7 @@ function Mines2D() {
       let previousBalance = initialWager
 
       return Array.from({ length: totalLevels }).map((_, level) => {
-        const wager = level === 0 ? initialWager : previousBalance
+        const wager = level === 0 ? initialWager : getProgressiveWager(level, initialWager, previousBalance, pool.maxPayout)
         const multiplier = getMultiplierForLevel(level)
         const remainingCells = GRID_SIZE - level
         const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier)
@@ -131,6 +135,10 @@ function Mines2D() {
 
   return (
     <>
+      <GambaUi.Portal target="recentplays">
+        <GameRecentPlaysHorizontal gameId="mines" />
+      </GambaUi.Portal>
+
       <GambaUi.Portal target="screen">
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <div style={{
@@ -168,7 +176,7 @@ function Mines2D() {
             </GambaUi.Responsive>
           </div>
 
-          {/* Styled info panels like mines-v2 */}
+          {/* Styled info panels like mines */}
           <GameControlsSection>
             <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#9358ff', marginBottom: 4 }}>LEVELS</div>
@@ -187,7 +195,16 @@ function Mines2D() {
 
             <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4caf50', marginBottom: 4 }}>TOTAL WON</div>
-              <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>{started ? totalGain.toFixed(4) : '0.0000'}</div>
+              <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>
+                <TokenValue amount={totalGain} />
+              </div>
+            </div>
+
+            <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ff9800', marginBottom: 4 }}>NEXT WAGER</div>
+              <div style={{ fontSize: '16px', color: 'rgba(255,152,0,0.9)', fontWeight: 600 }}>
+                <TokenValue amount={started ? (levels[currentLevel + 1]?.wager || 0) : initialWager} />
+              </div>
             </div>
           </GameControlsSection>
 

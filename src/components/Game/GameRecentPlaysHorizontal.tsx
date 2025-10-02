@@ -6,6 +6,7 @@ import { useMediaQuery } from '../../hooks/ui/useMediaQuery'
 
 // Import context directly - this component is used in both themes
 import { useDegenHeaderModal } from '../../themes/layouts/degenheart/DegenHeartLayout'
+import { FEATURE_FLAGS } from '../../constants'
 
 function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
   const [now, setNow] = React.useState(Date.now())
@@ -31,6 +32,8 @@ interface GameRecentPlaysHorizontalProps {
 }
 
 export function GameRecentPlaysHorizontal({ gameId, limit = 10 }: GameRecentPlaysHorizontalProps) {
+  // Global feature flag: hide the in-game recent plays UI when disabled
+  if (!FEATURE_FLAGS.ENABLE_INGAME_RECENT_GAMES) return null
   const events = useRecentPlays({ gameId, limit })
   const md = useMediaQuery('md')
   const { openShareModal } = useDegenHeaderModal()

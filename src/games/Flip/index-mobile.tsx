@@ -444,50 +444,25 @@ const MobileFlipGame: React.FC = () => {
       // Determine if we won
       const actuallyWon = result.payout > 0
       
-      // Generate coin flip results that match the actual win/loss outcome
+      // Use Gamba's resultIndex to generate deterministic results
       const results: Array<'heads' | 'tails'> = []
       
-      // Use deterministic RNG to generate consistent visual results
-      const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${numCoins}:${atLeastK}:${side}`
-      const rng = makeDeterministicRng(seed)
-      
-      if (actuallyWon) {
-        // We won - ensure we get at least atLeastK of the chosen side
-        let targetCount = 0
-        
-        // First, guarantee we meet the minimum requirement
-        for (let i = 0; i < atLeastK; i++) {
-          results.push(side)
-          targetCount++
-        }
-        
-        // Fill the remaining coins randomly
-        for (let i = atLeastK; i < numCoins; i++) {
-          const isTarget = rng() < 0.5
-          results.push(isTarget ? side : (side === 'heads' ? 'tails' : 'heads'))
-          if (isTarget) targetCount++
-        }
-      } else {
-        // We lost - ensure we DON'T meet the minimum requirement
-        const targetSideCount = Math.min(atLeastK - 1, numCoins) // Less than required
-        
-        // First, put some of the target side (but not enough to win)
-        for (let i = 0; i < targetSideCount; i++) {
-          results.push(side)
-        }
-        
-        // Fill the remaining with the opposite side
-        const oppositeSide = side === 'heads' ? 'tails' : 'heads'
-        for (let i = targetSideCount; i < numCoins; i++) {
-          results.push(oppositeSide)
-        }
+      // Each bit in resultIndex represents one coin flip
+      for (let i = 0; i < numCoins; i++) {
+        // Extract the i-th bit from resultIndex to determine heads/tails
+        const isHeads = ((result.resultIndex >> i) & 1) === 1
+        results.push(isHeads ? 'heads' : 'tails')
       }
       
-      // Shuffle results to make them look more random
-      for (let i = results.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [results[i], results[j]] = [results[j], results[i]]
-      }
+      // Verify results match the actual outcome
+      const matchingFlips = results.filter(r => r === side).length
+      console.assert(
+        (matchingFlips >= atLeastK) === actuallyWon,
+        'Visual result does not match game result',
+        { matchingFlips, atLeastK, actuallyWon }
+      )
+      
+      // Results are already in deterministic order from Gamba's resultIndex
       
       // Set animation results
       setTimeout(() => {

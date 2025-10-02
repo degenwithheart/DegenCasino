@@ -589,68 +589,30 @@ export default function FlipV2() {
       // Determine if we won based on blockchain result
       const actuallyWon = result.payout > 0
       
-      // Generate coin flip results that match the actual win/loss outcome
+      // Use Gamba's result directly to generate deterministic outcomes
       const results: boolean[] = []
       const coinRes: number[] = []
       
-      // Use deterministic RNG to generate consistent visual results
-      const seed = `${result.resultIndex}:${result.payout}:${result.multiplier}:${numCoins}:${atLeastK}:${side}`
-      const rng = makeDeterministicRng(seed)
-      
-      if (actuallyWon) {
-        // We won - ensure we get at least atLeastK of the chosen side
-        let headsCount = 0
-        let tailsCount = 0
-        
-        // First, guarantee we meet the minimum requirement
-        for (let i = 0; i < atLeastK; i++) {
-          const isHeads = side === 'heads'
-          results.push(isHeads)
-          coinRes.push(isHeads ? 1 : 0)
-          if (isHeads) headsCount++
-          else tailsCount++
-        }
-        
-        // Fill the remaining coins randomly
-        for (let i = atLeastK; i < numCoins; i++) {
-          const isHeads = rng() < 0.5
-          results.push(isHeads)
-          coinRes.push(isHeads ? 1 : 0)
-          if (isHeads) headsCount++
-          else tailsCount++
-        }
-      } else {
-        // We lost - ensure we DON'T meet the minimum requirement
-        let headsCount = 0
-        let tailsCount = 0
-        const targetSideCount = Math.min(atLeastK - 1, numCoins) // Less than required
-        
-        // First, put some of the target side (but not enough to win)
-        for (let i = 0; i < targetSideCount; i++) {
-          const isHeads = side === 'heads'
-          results.push(isHeads)
-          coinRes.push(isHeads ? 1 : 0)
-          if (isHeads) headsCount++
-          else tailsCount++
-        }
-        
-        // Fill the remaining with the opposite side or random (ensuring we don't win)
-        for (let i = targetSideCount; i < numCoins; i++) {
-          // Bias towards the opposite side to ensure we don't accidentally win
-          const isHeads = side === 'tails' ? (rng() < 0.7) : (rng() < 0.3)
-          results.push(isHeads)
-          coinRes.push(isHeads ? 1 : 0)
-          if (isHeads) headsCount++
-          else tailsCount++
-        }
+      // Each bit in resultIndex represents one coin flip
+      for (let i = 0; i < numCoins; i++) {
+        // Extract the i-th bit from resultIndex to determine heads/tails
+        const isHeads = ((result.resultIndex >> i) & 1) === 1
+        results.push(isHeads)
+        coinRes.push(isHeads ? 1 : 0)
       }
       
-      // Set coin animation results for final display
+      // Calculate final counts and set results
+      const headsCount = results.filter(r => r).length
+      const tailsCount = numCoins - headsCount
       setCoinResults(coinRes)
       
-      // Count wins (matching chosen side) - this should match the actual result
+      // Count winning flips and verify match with blockchain result
       const wins = results.filter(r => r === (side === 'heads')).length
-      const visualWon = wins >= atLeastK
+      console.assert(
+        (wins >= atLeastK) === actuallyWon,
+        'Visual result does not match game result',
+        { wins, atLeastK, actuallyWon }
+      )
       
       // Wait for animation to complete (animation takes 2 seconds)
       // Note: No additional wait needed here since animation runs synchronously

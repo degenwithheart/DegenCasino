@@ -1,5 +1,5 @@
 import { GambaTransaction } from 'gamba-core-v2'
-import { GAMES } from './games'
+import { ALL_GAMES } from './games/allGames'
 
 export const truncateString = (s: string, startLen = 4, endLen = startLen) => s.slice(0, startLen) + '...' + s.slice(-endLen)
 
@@ -27,8 +27,9 @@ export const extractMetadata = (event: GambaTransaction<'GameSettled'>) => {
       }
     }
     
-    const games = GAMES()
-    const game = games.find((x) => x.id === gameId)
+  // ALL_GAMES is the canonical registry of available games
+  const games = ALL_GAMES
+  const game = games.find((x) => x.id === gameId)
     
     return { game, gameId }
   } catch (error) {

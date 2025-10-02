@@ -159,13 +159,30 @@ export const CellButton = styled.button<{status: CellStatus, selected: boolean}>
 `
 
 export const StatusBar = styled.div`
-  width: 100%;
+  padding: 20px;
   display: flex;
-  justify-content: space-between;
-  color: white;
-  & > div:first-child {
-    display: flex;
-    color: #ffffffCC;
-    gap: 20px;
-  }
+  gap: 20px;
+  justify-content: center;
+`
+
+export const ProgressiveInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-top: 10px;
+`
+
+export const ProgressiveLabel = styled.div`
+  font-size: 14px;
+  color: #666;
+`
+
+export const ProgressiveValue = styled.div<{ $isActive?: boolean }>`
+  font-size: 16px;
+  font-weight: bold;
+  color: ${props => props.$isActive ? '#4caf50' : '#fff'};
 `

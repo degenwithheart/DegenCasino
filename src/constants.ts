@@ -93,6 +93,12 @@ export const FEATURE_FLAGS = {
    */
   ENABLE_MOBILE_BROWSER: false,
   /**
+   * Enable/disable the in-game (per-game) RecentGames custom component.
+   * The in-game RecentGames component is currently broken in some themes.
+   * Set this to false to hide the in-game recent games sidebar across all games.
+   */
+  ENABLE_INGAME_RECENT_GAMES: false,
+  /**
    * Access override / Back-soon feature flag.
    * When true, the site will be allowed to enter the "back soon" mode via code/runtime.
    * This flag can be used to quickly enable/disable the override behavior without changing env vars.
