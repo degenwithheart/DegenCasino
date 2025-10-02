@@ -887,9 +887,9 @@ export default function Dice() {
               pointerEvents: 'none',
               zIndex: 1000
             }}
-            {...(useGameMeta('dice-v2') && {
-              title: useGameMeta('dice-v2')!.name,
-              description: useGameMeta('dice-v2')!.description
+            {...(useGameMeta('dice') && {
+              title: useGameMeta('dice')!.name,
+              description: useGameMeta('dice')!.description
             })}
           />
         </div>

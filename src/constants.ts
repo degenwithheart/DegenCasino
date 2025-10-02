@@ -159,7 +159,7 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   },
-  'flip-v2': {
+  'flip': {
     supports2D: true,
     supports3D: false,
     default: '2D'
@@ -169,57 +169,7 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   },
-  'doubleornothing': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'doubleornothing-v2': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
   'crash': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'crashgame': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'cryptochartgame': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'cryptochartgame-v2': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'fancyvirtualhorseracing': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'fancyvirtualhorseracing-v2': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'multipoker': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'multipoker-v2': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'limbo-v2': {
     supports2D: true,
     supports3D: false,
     default: '2D'
@@ -359,7 +309,6 @@ export const TOS_HTML = `
 <p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
 <p><b>2. Legal Compliance:</b> Ensure online gambling and crypto gaming are legal where you live before playing.</p>
 <p><b>3. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer">BeGambleAware.org</a>.</p>
-<p><b>4. Optimal Display:</b> For the best gaming experience, we recommend using a 1920x1080 display resolution.</p>
 `
 
 /**
