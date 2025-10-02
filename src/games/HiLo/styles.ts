@@ -49,51 +49,18 @@ export const Option = styled.button<{ selected?: boolean }>`
   `}
 
   opacity: var(--opacity);
-  
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    font-size: 16px;
-    & > div:first-child {
-      font-size: 36px;
-      margin-right: 8px;
-    }
-  }
-  
-  @media (min-width: 641px) and (max-width: 768px) {
-    font-size: 18px;
-    & > div:first-child {
-      font-size: 42px;
-      margin-right: 9px;
-    }
-  }
-  
-  @media (min-width: 769px) and (max-width: 899px) {
-    font-size: 19px;
-    & > div:first-child {
-      font-size: 45px;
-      margin-right: 9px;
-    }
-  }
-  
-  @media (min-width: 900px) {
-    font-size: 20px;
-    & > div:first-child {
-      font-size: 48px;
-      margin-right: 10px;
-    }
-  }
 `
 
-export const Token = styled.div`
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
+export const Profit = styled.div`
+  font-size: 18px;
+  color: #005400;
+  position: absolute;
+  right: 0px;
+  bottom: -100px;
   border-radius: 50px;
   background: #69ff6d;
   padding: 5px;
-  /* Animation will be conditionally applied via class or props */
+  animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 `
 
 export const CardPreview = styled.div`
@@ -106,35 +73,10 @@ export const CardPreview = styled.div`
   & > div {
     transition: opacity .2s;
   }
-  
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    gap: 3px;
-    padding: 3px;
-    margin-top: 20px;
-  }
-  
-  @media (min-width: 641px) and (max-width: 768px) {
-    gap: 4px;
-    padding: 4px;
-    margin-top: 25px;
-  }
-  
-  @media (min-width: 769px) and (max-width: 899px) {
-    gap: 4px;
-    padding: 4px;
-    margin-top: 28px;
-  }
-  
-  @media (min-width: 900px) {
-    gap: 5px;
-    padding: 5px;
-    margin-top: 30px;
-  }
 `
 
-export const CardsContainer = styled.div<{ enableMotion?: boolean }>`
-  transition: ${props => props.enableMotion !== false ? 'transform .2s ease' : 'none'};
+export const CardsContainer = styled.div`
+  transition: transform .2s ease;
   perspective: 500px;
   display: flex;
   position: relative;
@@ -142,17 +84,15 @@ export const CardsContainer = styled.div<{ enableMotion?: boolean }>`
   align-items: center;
 `
 
-export const CardContainer = styled.div<{ enableMotion?: boolean }>`
+export const CardContainer = styled.div`
   position: absolute;
   bottom: 0;
-  transition: ${props => props.enableMotion !== false ? 'transform .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity .25s ease' : 'none'};
+  transition: transform .25s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity .25s ease;
   filter: drop-shadow(-10px 10px 0px #00000011);
   transform-origin: bottom;
   perspective: 500px;
   & > div {
-    ${props => props.enableMotion !== false && css`
-      animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
-    `}
+    animation: ${appear} .25s cubic-bezier(0.5, 0.9, 0.35, 1.05);
   }
 `
 
@@ -163,7 +103,7 @@ export const Card = styled.div<{$small?: boolean}>`
     padding: 5px;
     border-radius: 4px;
   ` : css`
-    height: 100px;
+    height: 160px;
     font-size: 70px;
     padding: 10px;
     border-radius: 8px;
@@ -190,70 +130,14 @@ export const Card = styled.div<{$small?: boolean}>`
     font-size: 128px;
     opacity: .9;
   }
-  
-  /* Responsive adjustments for large cards */
-  ${(props) => !props.$small && css`
-    @media (max-width: 640px) {
-      height: 80px;
-      font-size: 56px;
-      padding: 8px;
-    }
-    
-    @media (min-width: 641px) and (max-width: 768px) {
-      height: 90px;
-      font-size: 63px;
-      padding: 9px;
-    }
-    
-    @media (min-width: 769px) and (max-width: 899px) {
-      height: 95px;
-      font-size: 66px;
-      padding: 9px;
-    }
-    
-    @media (min-width: 900px) {
-      height: 100px;
-      font-size: 70px;
-      padding: 10px;
-    }
-  `}
-  
-  /* Responsive adjustments for small cards */
-  ${(props) => props.$small && css`
-    @media (max-width: 640px) {
-      height: 28px;
-      font-size: 12px;
-      padding: 4px;
-    }
-    
-    @media (min-width: 641px) and (max-width: 768px) {
-      height: 31px;
-      font-size: 13px;
-      padding: 4px;
-    }
-    
-    @media (min-width: 769px) and (max-width: 899px) {
-      height: 33px;
-      font-size: 14px;
-      padding: 4px;
-    }
-    
-    @media (min-width: 900px) {
-      height: 35px;
-      font-size: 15px;
-      padding: 5px;
-    }
-  `}
 `
 const float = keyframes`
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 `
 
-export const WarningMessage = styled.div<{ enableMotion?: boolean }>`
-  ${props => props.enableMotion !== false && css`
-    animation: ${float} 2s ease-in-out infinite;
-  `}
+export const WarningMessage = styled.div`
+  animation: ${float} 2s ease-in-out infinite;
   position: absolute;
   right: 0;
   top: 50%;
@@ -266,42 +150,4 @@ export const WarningMessage = styled.div<{ enableMotion?: boolean }>`
   color: black;
   white-space: nowrap;
   pointer-events: none;
-`
-
-export const Profit = styled.div<{ enableMotion?: boolean }>`
-  font-size: 18px;
-  color: #005400;
-  margin-top: 20px;
-  border-radius: 50px;
-  background: #69ff6d;
-  padding: 5px 10px;
-  ${props => props.enableMotion !== false && css`
-    animation: ${appear} .25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  `}
-  cursor: pointer;
-  
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    font-size: 14px;
-    margin-top: 16px;
-    padding: 4px 8px;
-  }
-  
-  @media (min-width: 641px) and (max-width: 768px) {
-    font-size: 16px;
-    margin-top: 18px;
-    padding: 4px 9px;
-  }
-  
-  @media (min-width: 769px) and (max-width: 899px) {
-    font-size: 17px;
-    margin-top: 19px;
-    padding: 5px 9px;
-  }
-  
-  @media (min-width: 900px) {
-    font-size: 18px;
-    margin-top: 20px;
-    padding: 5px 10px;
-  }
 `

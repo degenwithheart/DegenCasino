@@ -3,5 +3,5 @@ import { ALL_GAMES } from './allGames'
 
 // Example: Only show Dice, Crash, Plinko as featured
 export const FEATURED_GAMES: GameBundle[] = ALL_GAMES.filter(game => [
-  'slots', 'mines', 'magic8ball', 'plinko', 'dice-v2'
+  'dice', 'magic8ball', 'plinko', 'mines'
 ].includes(game.id));

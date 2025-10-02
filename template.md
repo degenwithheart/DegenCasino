@@ -86,7 +86,6 @@ export default function GameTemplate() {
         <GameStatsHeader
           gameName="GameTemplate"
           gameMode="Boilerplate"
-          rtp="--"
           stats={gameStats}
           onReset={handleResetStats}
           isMobile={isMobile}

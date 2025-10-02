@@ -22,7 +22,7 @@ export function attachMusic(snd: any) {
   snd.gain.set({ gain: musicManager.muted ? 0 : vol })
 
   if (!musicManager.sub) {
-      musicManager.sub = useSoundStore.subscribe((state: any) => {
+    musicManager.sub = useSoundStore.subscribe(state => {
       if (musicManager.sound) {
         musicManager.sound.gain.set({ gain: musicManager.muted ? 0 : state.volume })
       }

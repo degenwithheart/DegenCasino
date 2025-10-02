@@ -17,9 +17,7 @@ export const RANK_SYMBOLS: Record<number, string> = {
   11: 'K',
   12: 'A',
 }
-import { HILO_CONFIG } from '../rtpConfig'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
-export const RANKS = HILO_CONFIG.RANKS
+export const RANKS = Object.keys(RANK_SYMBOLS).length
 
 export { default as SOUND_CARD } from './card.mp3'
 export { default as SOUND_FINISH } from './finish.mp3'

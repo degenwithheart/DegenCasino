@@ -28,8 +28,7 @@ export class SimulationEngine {
 
   constructor(players: PlayerInfo[], seed?: string) {
     this.players = players;
-  // Always use deterministic rng (seed required externally). If no seed passed, derive from players list length.
-  this.rng     = makeRng(seed || JSON.stringify(players));
+    this.rng     = seed ? makeRng(seed) : Math.random;
   }
 
   recordRace(winnerIdx:number, target=TARGET_POINTS): RecordedRace {

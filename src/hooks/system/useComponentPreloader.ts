@@ -4,7 +4,7 @@ import { getCriticalGames, getHighPriorityGames, LoadingPriority } from '../../g
 // Game ID to folder path mapping based on allGames.ts structure
 const getGameFolderPath = (gameId: string): string => {
   const gamePathMap: { [key: string]: string } = {
-    'dice-v2': 'Dice-v2',
+    'dice': 'Dice',
     'magic8ball': 'Magic8Ball',
     'slots': 'Slots',
     'plinko-race': 'PlinkoRace',
@@ -157,21 +157,14 @@ export function useComponentPreloader() {
     try {
       // Dynamic import mapping for games
       const gameImportMap: Record<string, () => Promise<any>> = {
-        'dice-v2': () => import('../../games/Dice-v2'),
+        'dice': () => import('../../games/Dice'),
         'slots': () => import('../../games/Slots'),
         'mines': () => import('../../games/Mines'),
         'plinko': () => import('../../games/Plinko'),
-        'magic8ball': () => import('../../games/Magic8Ball'),
         'crash': () => import('../../games/CrashGame'),
-        'blackjack': () => import('../../games/BlackJack-v2'),
-        'multipoker': () => import('../../games/MultiPoker-v2'),
-        'flip-v2': () => import('../../games/Flip-v2'),
+        'blackjack': () => import('../../games/BlackJack'),
+        'flip': () => import('../../games/Flip'),
         'hilo': () => import('../../games/HiLo'),
-        'cryptochartgame-v2': () => import('../../games/CryptoChartGame-v2'),
-        'doubleornothing-v2': () => import('../../games/DoubleOrNothing-v2'),
-        'fancyvirtualhorseracing-v2': () => import('../../games/FancyVirtualHorseRacing-v2'),
-        'keno-v2': () => import('../../games/Keno-v2'),
-        'limbo-v2': () => import('../../games/Limbo-v2'),
       };
 
       const importFn = gameImportMap[gameId];

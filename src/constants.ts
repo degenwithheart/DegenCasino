@@ -109,7 +109,7 @@ export const GAME_RENDER_MODES = {
 
 // Game capability flags - defines which games support which modes
 export const GAME_CAPABILITIES = {
-  'dice-v2': {
+  'dice': {
     supports2D: true,
     supports3D: false,
     default: '2D'

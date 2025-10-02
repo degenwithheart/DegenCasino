@@ -22,7 +22,7 @@ export interface GameLoadingConfig {
 export const GAME_LOADING_CONFIGS: GameLoadingConfig[] = [
   // CRITICAL - Featured games and most popular
   {
-    id: 'dice-v2',
+    id: 'dice',
     priority: LoadingPriority.CRITICAL,
     preloadAssets: ['/webp/games/dice.webp'],
     popularity: 9,

@@ -12,7 +12,7 @@ export interface ExtendedGameBundle extends GameBundle {
 
 export const ALL_GAMES: ExtendedGameBundle[] = [
   {
-    id: 'dice-v2',
+    id: 'dice',
     live: 'up',
     meta: {
       name: 'Dice',
@@ -21,15 +21,15 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./Dice-v2')),
+    app: React.lazy(() => import('./Dice')),
   },
   {
     id: 'magic8ball',
     live: 'up',
     meta: {
-      name: 'Magic 8-Ball',
+      name: 'Magic 8 Ball',
       background: '#000000CC',
-      image: '/webp/games/magic8ball.png',
+      image: '/png/games/magic8ball.png',
       description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
       tag: 'Singleplayer',
     },
@@ -49,7 +49,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'plinkorace',
-    live: 'up',
+    live: 'down',
     meta: {
       name: 'PlinkoRace',
       background: '#000000CC',
@@ -60,7 +60,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     app: React.lazy(() => import('./PlinkoRace')),
   },
   {
-    id: 'flip-v2',
+    id: 'flip',
     live: 'up',
     meta: {
       name: 'Flip',
@@ -69,25 +69,11 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       description: `Launch a constellation of coins into the ethereal dance of probability, each one spinning its own tale of heads and tails. Set your target count and watch as multiple fates unfold simultaneously in the air above you, their golden surfaces catching light like falling stars. This is not one flip but a symphony of flips, each coin a note in a binomial ballad where mathematics becomes poetry. The more coins you dare to toss, the more complex the harmony becomes, yet the sweeter the potential reward. Choose your target wisely — for in this aerial ballet of chance, precision is rewarded and greed is punished. When they all settle, they speak in unison the language of calculated risk.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./Flip-v2')),
-  },
-  {
-    id: 'roulette-royale',
-    live: 'up',
-    meta: {
-      name: 'Roulette Royale',
-      background: '#000000CC',
-      image: '/webp/games/roulette.webp',
-      description: `The sacred wheel transforms into a battlefield of minds and fortunes, where multiple souls converge around a single table of destiny. This is not the solitary dance of chance, but a multiplayer symphony where each bet placed echoes with the hopes of others. Watch as fellow players lay their chips beside yours, all bound by the same spinning fate, all dreaming of the same golden moment when the ball finds their chosen number. Here, victory is not just about beating the odds — it is about outlasting, outthinking, and outplaying every other soul brave enough to join your table. Winner takes all in this royal court of chance.`,
-      tag: 'Multiplayer',
-      rtp: 97,
-      maxWin: '35x'
-    },
-    app: React.lazy(() => import('./RouletteRoyale')),
+    app: React.lazy(() => import('./Flip')),
   },
   {
     id: 'hilo',
-    live: 'up',
+    live: 'new',
     meta: {
       name: 'HiLo',
       background: '#000000CC',
@@ -123,7 +109,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'crash',
-    live: 'up',
+    live: 'new',
     meta: {
       name: 'Crash',
       background: '#000000CC',
@@ -135,7 +121,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'blackjack',
-    live: 'up',
+    live: 'new',
     meta: {
       name: 'BlackJack',
       background: '#000000CC',
@@ -143,92 +129,6 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       description: `Twenty-one is the sacred number, the delicate balance between ambition and ruin. Each card dealt is a whispered promise, a step closer to perfection or a stumble toward collapse. Hit and you chase the dream of completion, stand and you trust in what fate has already given you. The dealer waits with infinite patience, their hidden card a secret that could shatter your confidence or crown your courage. This is not just mathematics — it is psychology made manifest, where knowing when to be satisfied is as crucial as knowing when to risk it all. In BlackJack, victory belongs not to the lucky, but to those who understand that sometimes the greatest triumph is knowing when you have enough.`,
       tag: 'Singleplayer',
     },
-    app: React.lazy(() => import('./BlackJack-v2')),
-  },
-  {
-    id: 'multipoker',
-    live: 'up',
-    meta: {
-      name: 'Multi Poker',
-      background: '#000000CC',
-      image: '/webp/games/multi-poker.webp',
-      description: `Five cards arrive like old friends bearing secrets, each hand a story waiting to unfold across multiple stages of revelation. This is poker reimagined as a progressive journey where each round builds upon the last, each decision echoing through future possibilities. Watch as pairs bloom into trips, trips ascend to straights, and straights reach toward the holy grail of royal flush. The beauty lies not in a single perfect hand, but in the gradual construction of victory through patience and wisdom. Here, poker becomes architecture — each card placed with intention, each hold and fold a brushstroke in a masterpiece of calculated risk. Multi Poker rewards not just luck, but the art of progression itself.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./MultiPoker-v2')),
-  },
-  {
-    id: 'poker-showdown',
-    live: 'new',
-    meta: {
-      name: 'Poker Showdown',
-      background: '#000000CC',
-      image: '/webp/games/multi-poker.webp', // Reusing multi-poker image for now
-      description: `Strategy meets destiny in this multiplayer arena where minds clash before cards are ever dealt. Choose your approach—conservative safety, balanced wisdom, or aggressive ambition—then watch as fate unfolds your predetermined path. This is not mere chance, but calculated risk made manifest, where every decision echoes through the digital felt. Five cards become your weapon, strategy your shield, and the pot your prize. Here, victory belongs not to the lucky, but to those who understand that in poker, as in life, the choices made before the battle often determine its outcome.`,
-      tag: 'Multiplayer',
-      rtp: 94,
-      maxWin: '600x'
-    },
-    app: React.lazy(() => import('./PokerShowdown')),
-  },
-  {
-    id: 'cryptochartgame-v2',
-    live: 'new',
-    meta: {
-      name: 'Crypto Chart v2',
-      background: '#000000CC',
-      image: '/webp/games/crypto-chart.webp',
-      description: `Enter the volatile world of cryptocurrency trading where fortunes are made and lost in milliseconds. Set your target multiplier and watch as the market dances to the rhythm of chaos and opportunity. Will your chosen coin moon to astronomical heights, or will it get rugged before reaching your target? This is more than gambling — it's a simulation of the wild west of digital assets, where diamond hands are forged and paper hands are revealed. The chart never lies, but it often surprises. Navigate the peaks and valleys of price action in this romantic dance with financial destiny.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./CryptoChartGame-v2')),
-  },
-  {
-    id: 'doubleornothing-v2',
-    live: 'new',
-    meta: {
-      name: 'Double or Nothing v2',
-      background: '#000000CC',
-      image: '/webp/games/double-or-nothing.webp',
-      description: `The ultimate test of nerves and fortune distilled to its purest essence. Choose your poison: double your money with a coin flip, triple it with dice gods, or go full degen for the 10x moonshot. Each button hides a destiny — one leads to glory, the others to the void of nothing. This is capitalism in its rawest form, where greed meets probability in a beautiful, devastating embrace. The suspense builds as buttons reveal their secrets, and in that moment of revelation, you discover whether you're blessed by fortune or humbled by mathematics.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./DoubleOrNothing-v2')),
-  },
-  {
-    id: 'fancyvirtualhorseracing-v2',
-    live: 'new',
-    meta: {
-      name: 'Virtual Horse Racing v2',
-      background: '#000000CC',
-      image: '/webp/games/horse-racing.webp',
-      description: `Feel the thunder of hooves on digital dirt as eight magnificent steeds compete for glory in the most romantic of all sports. Each horse carries a story, a dream, and odds that whisper of both triumph and heartbreak. Lightning Bolt strikes like fate itself, while Lunar Eclipse moves with mysterious elegance through the pack. Choose your champion and watch as they gallop toward destiny, their every stride a heartbeat in the symphony of competition. This is not just racing — it's poetry in motion, where the finish line separates dreamers from believers.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./FancyVirtualHorseRacing-v2')),
-  },
-  {
-    id: 'keno-v2',
-    live: 'new',
-    meta: {
-      name: 'Keno v2',
-      background: '#000000CC',
-      image: '/webp/games/keno.webp',
-      description: `Enter the realm of numerical destiny where forty spheres hold the keys to fortune. Select your sacred numbers with the wisdom of the ancients, then watch as ten golden orbs emerge from the cosmic lottery to determine your fate. Each chosen number is a prayer whispered to Lady Luck herself, each match a love letter from the universe. The more selections you dare to make, the greater the potential for romantic triumph, yet the sweeter becomes each successful prediction. This is Keno — where mathematics dances with mysticism, and every draw brings the possibility of perfect numerical harmony.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./Keno-v2')),
-  },
-  {
-    id: 'limbo-v2',
-    live: 'new',
-    meta: {
-      name: 'Limbo v2',
-      background: '#000000CC',
-      image: '/webp/games/limbo.webp',
-      description: `Ascend the mystical ladder of multipliers where each rung brings both greater glory and deeper peril. Set your target in the heavens and watch as the cosmic counter climbs toward your chosen destiny. Will you reach the stars, or will fate crash your dreams back to earth? The higher you dare to aim, the rarer the air becomes, yet the sweeter the oxygen of victory tastes. This is Limbo — the ultimate test of greed versus wisdom, where knowing when to dream big and when to stay humble becomes the difference between earthly riches and celestial bankruptcy.`,
-      tag: 'Singleplayer',
-    },
-    app: React.lazy(() => import('./Limbo-v2')),
+    app: React.lazy(() => import('./BlackJack')),
   },
 ]

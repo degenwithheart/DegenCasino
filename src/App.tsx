@@ -26,7 +26,10 @@ const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper
 const Credits = lazy(() => import('./sections/Dashboard/Credits/Credits'));
 const DGHRTToken = lazy(() => import('./sections/DGHRTToken/DGHRTToken'));
 const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/DGHRTPresale'));
-const FairnessAudit = lazy(() => import('./sections/FairnessAudit/FairnessAudit'));
+// FairnessAudit temporarily disabled while games migrate. To re-enable set VITE_ENABLE_FAIRNESS_AUDIT=true
+const envVars = (import.meta as any).env || {};
+const ENABLE_FAIRNESS_AUDIT = false
+const FairnessAudit = null as any
 const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const DegenMobileUserProfile = lazy(() => import('./themes/layouts/degen-mobile/components/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));
@@ -158,7 +161,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
               <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
               <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
-              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
@@ -204,7 +206,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
               <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
               <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
-              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />
@@ -251,7 +252,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean })
               <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
               <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
               <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
-              <Route path="/audit" element={<SafeSuspense level="route" componentName="Fairness Audit Page"><FairnessAudit /></SafeSuspense>} />
               <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
               <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
               <Route path="/admin" element={<SafeSuspense level="route" componentName="Admin Page"><AdminPage /></SafeSuspense>} />

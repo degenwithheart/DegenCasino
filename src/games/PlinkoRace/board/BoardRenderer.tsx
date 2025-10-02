@@ -8,7 +8,6 @@ import {
   BucketType, DYNAMIC_SEQUENCE, DYNAMIC_EXTRA_MULT, DYNAMIC_DEDUCT_POINTS,
   DYNAMIC_CYCLE_FRAMES, SPEED_FACTOR,
 } from '../engine/constants'
-import { makeDeterministicRng } from '../../../fairness/deterministicRng'
 import { useMultiPlinko } from '../hooks/useMultiPlinko'
 
 const ARROW_W = 12, ARROW_H = 10
@@ -137,7 +136,7 @@ export default function BoardRenderer(props: BoardRendererProps) {
   }, [])
 
   return (
-  <GambaUi.Canvas render={({ ctx, size, canvas }: any) => {
+    <GambaUi.Canvas render={({ ctx, size, canvas }) => {
       if (!engine) return
       canvasElRef.current = canvas as HTMLCanvasElement
 
@@ -321,10 +320,7 @@ export default function BoardRenderer(props: BoardRendererProps) {
         if (m >= 5 && particles.length < 200) {
           ctx.globalCompositeOperation = 'lighter'
           const base = BALL_RADIUS * 1.2
-          // Derive deterministic variation factor from ball id & frame time bucket
-          const frameBucket = Math.floor(performance.now()/250)
-          const rng = makeDeterministicRng(`flame:${(b as any).id}:${frameBucket}`)
-          const f = 0.8 + rng()*0.4
+          const f = 0.8 + Math.random()*0.4
           const r1 = base * 2.3 * f
           const fg = ctx.createRadialGradient(x,y,0,x,y,r1)
           fg.addColorStop(0, `rgba(255,180,0,${0.6*f})`)
@@ -340,15 +336,14 @@ export default function BoardRenderer(props: BoardRendererProps) {
           ctx.beginPath(); ctx.arc(x,y,r2,0,2*Math.PI); ctx.fill()
           ctx.globalCompositeOperation = 'source-over'
 
-          const prng = makeDeterministicRng(`particle:${(b as any).id}:${particles.length}:${frameBucket}`)
           particles.push({
-            x: x + (prng()-0.5)*5,
-            y: y + (prng()-0.5)*5,
-            size: 2 + prng()*2,
-            opacity: 0.5 + prng()*0.5,
-            life: 20 + Math.floor(prng()*10),
-            vx: (prng()-0.5)*0.5,
-            vy: (prng()-0.5)*0.5 - 0.5,
+            x: x + (Math.random()-0.5)*5,
+            y: y + (Math.random()-0.5)*5,
+            size: 2 + Math.random()*2,
+            opacity: 0.5 + Math.random()*0.5,
+            life: 20 + Math.random()*10,
+            vx: (Math.random()-0.5)*0.5,
+            vy: (Math.random()-0.5)*0.5 - 0.5,
           } as Particle)
         }
 

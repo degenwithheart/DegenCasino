@@ -1,22 +1,20 @@
-import styled, { keyframes, css } from 'styled-components'
-import rocketAnimation from './rocket.webp'
-import { makeDeterministicRng } from '../../fairness/deterministicRng'
+import styled, { keyframes } from 'styled-components'
+import rocketAnimation from './rocket.gif'
 
-const generateMultipleBoxShadows = (n: number, seed: string) => {
-  const maxX = typeof window !== 'undefined' ? window.innerWidth : 1920
+const generateMultipleBoxShadows = (n: number) => {
+  const maxX = window.innerWidth
   const maxY = 4000
-  const rng = makeDeterministicRng(seed)
-  let value = `${(rng()*maxX).toFixed(2)}px ${(rng()*maxY).toFixed(2)}px #ffffff`
+
+  let value = `${Math.random() * maxX}px ${Math.random() * maxY}px #ffffff`
   for (let i = 2; i <= n; i++) {
-    value += `, ${(rng()*maxX).toFixed(2)}px ${(rng()*maxY).toFixed(2)}px #ffffff`
+    value += `, ${Math.random() * maxX}px ${Math.random() * maxY}px #ffffff`
   }
   return value
 }
 
-// Fixed seeds so visual field is reproducible across sessions
-const shadowsSmall = generateMultipleBoxShadows(700, 'crash:small')
-const shadowsMedium = generateMultipleBoxShadows(200, 'crash:medium')
-const shadowsBig = generateMultipleBoxShadows(100, 'crash:big')
+const shadowsSmall = generateMultipleBoxShadows(700)
+const shadowsMedium = generateMultipleBoxShadows(200)
+const shadowsBig = generateMultipleBoxShadows(100)
 
 export const animStar = keyframes`
   from {
@@ -27,26 +25,22 @@ export const animStar = keyframes`
   }
 `
 
-export const StarsLayer = styled.div<{ enableMotion?: boolean }>`
+export const StarsLayer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: transparent;
-  ${props => props.enableMotion !== false && css`
-    animation: ${animStar} linear infinite;
-  `}
+  animation: ${animStar} linear infinite;
 `
 
 export const StarsLayer1 = styled(StarsLayer)`
   width: 1px;
   height: 1px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 150s;
-  `}
+  animation-duration: 150s;
   opacity: 1;
-  transition: ${props => props.enableMotion !== false ? 'opacity 12s' : 'none'};
+  transition: opacity 12s;
   box-shadow: ${shadowsSmall};
 `
 
@@ -54,20 +48,16 @@ export const LineLayer1 = styled(StarsLayer)`
   width: 1px;
   height: 12px;
   top: -12px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 75s;
-  `}
+  animation-duration: 75s;
   opacity: 0;
-  transition: ${props => props.enableMotion !== false ? 'opacity 2s' : 'none'};
+  transition: opacity 2s;
   box-shadow: ${shadowsSmall};
 `
 
 export const StarsLayer2 = styled(StarsLayer)`
   width: 2px;
   height: 2px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 100s;
-  `}
+  animation-duration: 100s;
   box-shadow: ${shadowsMedium};
 `
 
@@ -75,20 +65,16 @@ export const LineLayer2 = styled(StarsLayer)`
   width: 2px;
   height: 25px;
   top: -25px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 6s;
-  `}
+  animation-duration: 6s;
   opacity: 0;
-  transition: ${props => props.enableMotion !== false ? 'opacity 1s' : 'none'};
+  transition: opacity 1s;
   box-shadow: ${shadowsMedium};
 `
 
 export const StarsLayer3 = styled(StarsLayer)`
   width: 3px;
   height: 3px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 50s;
-  `}
+  animation-duration: 50s;
   box-shadow: ${shadowsBig};
 `
 
@@ -96,11 +82,9 @@ export const LineLayer3 = styled(StarsLayer)`
   width: 2px;
   height: 50px;
   top: -50px;
-  ${props => props.enableMotion !== false && css`
-    animation-duration: 3s;
-  `}
+  animation-duration: 3s;
   opacity: 0;
-  transition: ${props => props.enableMotion !== false ? 'opacity 1s' : 'none'};
+  transition: opacity 1s;
   box-shadow: ${shadowsBig};
 `
 
@@ -123,7 +107,7 @@ export const MultiplierText = styled.div`
   font-family: monospace;
 `
 
-export const Rocket = styled.div<{ isExploding?: boolean; initialRotation?: number }>`
+export const Rocket = styled.div`
   position: absolute;
   width: 120px;
   aspect-ratio: 1 / 1;
@@ -131,26 +115,5 @@ export const Rocket = styled.div<{ isExploding?: boolean; initialRotation?: numb
   background-size: contain;
   background-repeat: no-repeat;
   transition: all 0.1s ease-out;
-  
-  ${props => props.isExploding && css`
-    animation: ${rocketExplode} 0.3s ease-out forwards;
-    --initial-rotation: ${props.initialRotation || 0}deg;
-  `}
-`
-
-// Rocket fade out when exploding
-export const rocketExplode = keyframes`
-  0% {
-    transform: rotate(var(--initial-rotation)) scale(1);
-    opacity: 1;
-  }
-  20% {
-    transform: rotate(var(--initial-rotation)) scale(1.1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: rotate(var(--initial-rotation)) scale(0.8);
-    opacity: 0;
-  }
 `
 

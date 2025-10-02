@@ -1,650 +1,197 @@
+import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
-import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V3, RTP_TARGETS_V3 } from '../rtpConfig-v3'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { EnhancedWagerInput, EnhancedButton, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
-import { useGameMeta } from '../useGameMeta'
-import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
-import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
-import { useGraphics } from '../../components/Game/GameScreenFrame'
-import { useGameStats } from '../../hooks/game/useGameStats'
-import { useIsCompact } from '../../hooks/ui/useIsCompact'
-import { 
-  GRID_SIZE as MINES_GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR,
-  SOUND_FINISH, SOUND_TICK, SOUND_WIN, SOUND_STEP, SOUND_EXPLODE
-} from './constants'
-import { CellState as MinesCellState, GameStatus, LoadState, GameConfig } from './types'
-import { generateGrid, revealGold, revealAllMines } from './utils'
+import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
+import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
+import { GameControlsSection, MobileControls, DesktopControls, EnhancedWagerInput, EnhancedButton } from '../../components'
+import { generateGrid, revealAllMines, revealGold } from './utils'
 
-// Game constants
-const GRID_COLS = 5
-const GRID_ROWS = 5
-
-type GamePhase = 'waiting' | 'playing' | 'won' | 'lost'
-
-export default function MinesV2() {
+function Mines2D() {
   const game = GambaUi.useGame()
-  const gamba = useGamba()
-  const pool = useCurrentPool()
   const sounds = useSound({
-    reveal: SOUND_TICK,
-    mine: SOUND_EXPLODE,
+    tick: SOUND_TICK,
     win: SOUND_WIN,
-    step: SOUND_STEP,
     finish: SOUND_FINISH,
+    step: SOUND_STEP,
+    explode: SOUND_EXPLODE,
   })
-  const { mobile: isMobile } = useIsCompact()
+  const pool = useCurrentPool()
 
-  // Game statistics tracking - using centralized hook
-  const gameStats = useGameStats('mines')
-
-  // Game state
-  const [wager, setWager] = useWagerInput()
-  const [mineCount, setMineCount] = React.useState(3)
-  const [cells, setCells] = React.useState<MinesCellState[]>(generateGrid(MINES_GRID_SIZE))
-  const [gamePhase, setGamePhase] = React.useState<GamePhase>('waiting')
-  const [currentLevel, setCurrentLevel] = React.useState(0)
+  const [grid, setGrid] = React.useState(generateGrid(GRID_SIZE))
+  const [currentLevel, setLevel] = React.useState(0)
+  const [selected, setSelected] = React.useState(-1)
   const [totalGain, setTotalGain] = React.useState(0)
-  const [started, setStarted] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
+  const [started, setStarted] = React.useState(false)
 
-  // Effects ref
-  const effectsRef = React.useRef<GameplayEffectsRef>(null)
+  const [initialWager, setInitialWager] = useWagerInput()
+  const [mines, setMines] = React.useState(MINE_SELECT[2])
 
-  // Graphics settings
-  const { settings } = useGraphics()
-  const enableMotion = settings.enableMotion
+  const getMultiplierForLevel = (level: number) => {
+    const remainingCells = GRID_SIZE - level
+    return Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+  }
 
-  // Progressive betting levels calculation (like original Mines)
-  const levels = React.useMemo(() => {
-    const totalLevels = MINES_GRID_SIZE - mineCount
-    let previousBalance = wager
+  const levels = React.useMemo(
+    () => {
+      const totalLevels = GRID_SIZE - mines
+      let cumProfit = 0
+      let previousBalance = initialWager
 
-    return Array.from({ length: totalLevels }).map((_, level) => {
-      // For the first level, use initial wager. For subsequent levels, use previous balance.
-      const levelWager = level === 0 ? wager : previousBalance
-  const config = BET_ARRAYS_V3['mines']
-      const multiplier = config.getMultiplier(mineCount, level + 1)
-      const betArray = config.calculateBetArray(mineCount, level)
+      return Array.from({ length: totalLevels }).map((_, level) => {
+        const wager = level === 0 ? initialWager : previousBalance
+        const multiplier = getMultiplierForLevel(level)
+        const remainingCells = GRID_SIZE - level
+        const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier)
 
-      const profit = levelWager * (multiplier - 1)
-      const balance = levelWager + profit
+        const profit = wager * (multiplier - 1)
+        cumProfit += profit
+        const balance = wager + profit
 
-      previousBalance = balance
-      return { bet: betArray, wager: levelWager, profit, balance, multiplier }
-    })
-  }, [wager, mineCount])
+        previousBalance = balance
+        return { bet, wager, profit, cumProfit, balance }
+      }).filter(x => Math.max(...x.bet) * x.wager < pool.maxPayout)
+    },
+    [initialWager, mines, pool.maxPayout],
+  )
 
-  // Pool restrictions
-  const maxMultiplier = React.useMemo(() => {
-  const config = BET_ARRAYS_V3['mines']
-    // Calculate max possible multiplier for current mine count (full grid revealed)
-    return config.getMultiplier(mineCount, MINES_GRID_SIZE - mineCount)
-  }, [mineCount])
-
-  const maxWagerForPool = React.useMemo(() => {
-    return pool.maxPayout / maxMultiplier
-  }, [pool.maxPayout, maxMultiplier])
-
-  const poolExceeded = React.useMemo(() => {
-    const maxCurrentLevelMultiplier = levels.length > 0 ? Math.max(...levels.map(l => l.multiplier)) : 1
-    return wager * maxCurrentLevelMultiplier > pool.maxPayout
-  }, [wager, levels, pool.maxPayout])
-
-  // Game state calculations
-  const remainingCells = MINES_GRID_SIZE - currentLevel
-  const gameFinished = remainingCells <= mineCount
+  const remainingCells = GRID_SIZE - currentLevel
+  const gameFinished = remainingCells <= mines
   const canPlay = started && !loading && !gameFinished
-  const currentLevelData = levels[currentLevel]
 
-  // Get current multiplier for display
-  const getCurrentMultiplier = () => {
-    return currentLevelData?.multiplier || 1
-  }
+  const { wager, bet } = levels[currentLevel] ?? {}
 
-  // Get next multiplier for display
-  const getNextMultiplier = () => {
-    const nextLevel = levels[currentLevel + 1]
-    return nextLevel?.multiplier || 1
-  }
-
-  // Start new game
-  const startGame = async () => {
-    setCells(generateGrid(MINES_GRID_SIZE))
-    setGamePhase('playing')
-    setCurrentLevel(0)
+  const start = () => {
+    setGrid(generateGrid(GRID_SIZE))
+    setLoading(false)
+    setLevel(0)
     setTotalGain(0)
     setStarted(true)
-    setLoading(false)
-    
-    sounds.play('step')
   }
 
-  // Cash out / End game
   const endGame = async () => {
     sounds.play('finish')
     reset()
   }
 
-  // Reset game
   const reset = () => {
-    setCells(generateGrid(MINES_GRID_SIZE))
-    setGamePhase('waiting')
-    setCurrentLevel(0)
+    setGrid(generateGrid(GRID_SIZE))
+    setLoading(false)
+    setLevel(0)
     setTotalGain(0)
     setStarted(false)
-    setLoading(false)
   }
 
-  // Reveal cell with Gamba integration and progressive betting
-  const revealCell = async (cellIndex: number) => {
-    if (!canPlay) return
-    if (cells[cellIndex].status !== 'hidden') return
-    if (gamba.isPlaying) return
-
+  const play = async (cellIndex: number) => {
     setLoading(true)
-    
+    setSelected(cellIndex)
     try {
-      sounds.play('step')
-      
-      // Use progressive betting from levels
-      const { bet, wager: levelWager } = currentLevelData
-
+      sounds.sounds.step.player.loop = true
+      sounds.play('step', {  })
+      sounds.sounds.tick.player.loop = true
+      sounds.play('tick', {  })
       await game.play({
         bet,
-        wager: levelWager,
-        metadata: [mineCount, currentLevel, cellIndex],
+        wager,
+        metadata: [currentLevel],
       })
 
       const result = await game.result()
 
-      // Check if player hit a mine (multiplier 0 = mine hit)
-      if (result.multiplier === 0) {
-        // Hit a mine - game over
+      sounds.sounds.tick.player.stop()
+
+      // Lose
+      if (result.payout === 0) {
         setStarted(false)
-        setGamePhase('lost')
-        
-        const newCells = revealAllMines(cells, cellIndex, mineCount)
-        setCells(newCells)
-        sounds.play('mine')
-
-        // Update stats for loss
-        gameStats.updateStats(0)
-
-        if (effectsRef.current) {
-          effectsRef.current.loseFlash('#ff4444', 2)
-        }
-      } else {
-        // Safe cell - reveal gold and advance level
-        const nextLevel = currentLevel + 1
-        setCurrentLevel(nextLevel)
-        
-        const newCells = revealGold(cells, cellIndex, result.profit)
-        setCells(newCells)
-        setTotalGain(result.payout)
-        sounds.play('reveal')
-
-        // Check if game is complete (all safe cells revealed)
-        if (nextLevel >= levels.length) {
-          // Game won - all safe cells revealed
-          sounds.play('win')
-          setGamePhase('won')
-
-          // Update stats for win
-          gameStats.updateStats(result.payout)
-
-          if (effectsRef.current) {
-            effectsRef.current.winFlash('#4caf50', 3)
-          }
-        }
+        setGrid(revealAllMines(grid, cellIndex, mines))
+        sounds.play('explode')
+        return
       }
-    } catch (error) {
-      console.error('Cell reveal failed:', error)
+
+      const nextLevel = currentLevel + 1
+      setLevel(nextLevel)
+      setGrid(revealGold(grid, cellIndex, result.profit))
+      setTotalGain(result.payout)
+
+      if (nextLevel < GRID_SIZE - mines) {
+        sounds.play('win', { playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) })
+      } else {
+        // No more squares
+        sounds.play('win', { playbackRate: .9 })
+        sounds.play('finish')
+      }
     } finally {
       setLoading(false)
+      setSelected(-1)
+      sounds.sounds.tick.player.stop()
+      sounds.sounds.step.player.stop()
     }
   }
-
-  // Canvas render function for GambaUi.Canvas
-  const renderCanvas = React.useCallback(({ ctx, size }: any) => {
-    // Clear canvas
-    ctx.clearRect(0, 0, size.width, size.height)
-    ctx.fillStyle = '#1a1a2e'
-    ctx.fillRect(0, 0, size.width, size.height)
-
-    // Draw game area
-    drawGameArea(ctx, size)
-  }, [gamePhase, mineCount, wager, cells, currentLevel, started, levels, getCurrentMultiplier, getNextMultiplier, totalGain])
-
-  // Draw game area
-  const drawGameArea = (ctx: CanvasRenderingContext2D, size?: { width: number; height: number }) => {
-    const canvasWidth = size?.width || ctx.canvas.width
-    const canvasHeight = size?.height || ctx.canvas.height
-    
-    const padding = 20
-    const gameAreaWidth = canvasWidth - padding * 2
-    const gameAreaHeight = canvasHeight - padding * 2
-    const gridSize = Math.min(gameAreaWidth, gameAreaHeight)
-    const cellSize = gridSize / GRID_COLS
-    const gridStartX = (canvasWidth - gridSize) / 2
-    const gridStartY = (canvasHeight - gridSize) / 2
-
-    // Draw grid background
-    ctx.fillStyle = 'rgba(26, 26, 46, 0.8)'
-    ctx.fillRect(gridStartX - 10, gridStartY - 10, gridSize + 20, gridSize + 20)
-
-    // Draw cells with gap
-    const gap = 8
-    const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
-    
-    for (let i = 0; i < MINES_GRID_SIZE; i++) {
-      const row = Math.floor(i / GRID_COLS)
-      const col = i % GRID_COLS
-      const x = gridStartX + col * (adjustedCellSize + gap)
-      const y = gridStartY + row * (adjustedCellSize + gap)
-
-      drawCell(ctx, x, y, adjustedCellSize, cells[i], i)
-    }
-
-    // Draw sidebar with counters
-    const sidebarWidth = isMobile ? 80 : 120
-    drawSidebar(ctx, canvasWidth, canvasHeight, sidebarWidth)
-  }
-
-  // Draw individual cell
-  const drawCell = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, cell: MinesCellState, index: number) => {
-    const padding = 2
-    const cellX = x + padding
-    const cellY = y + padding
-    const cellSize = size - padding * 2
-
-    // Cell background
-    switch (cell.status) {
-      case 'hidden':
-        ctx.fillStyle = '#333366'
-        break
-      case 'gold':
-        ctx.fillStyle = '#4caf50'
-        break
-      case 'mine':
-        ctx.fillStyle = '#f44336'
-        break
-    }
-
-    ctx.fillRect(cellX, cellY, cellSize, cellSize)
-
-    // Cell border
-    ctx.strokeStyle = 'rgba(147, 88, 255, 0.3)'
-    ctx.lineWidth = 1
-    ctx.strokeRect(cellX, cellY, cellSize, cellSize)
-
-    // Cell content
-    if (cell.status === 'mine') {
-      // Draw mine
-      ctx.fillStyle = '#ffffff'
-      ctx.font = `${cellSize * 0.6}px monospace`
-      ctx.textAlign = 'center'
-      ctx.fillText('💣', cellX + cellSize / 2, cellY + cellSize * 0.7)
-    } else if (cell.status === 'gold') {
-      // Draw gem
-      ctx.fillStyle = '#ffffff'
-      ctx.font = `${cellSize * 0.6}px monospace`
-      ctx.textAlign = 'center'
-      ctx.fillText('💎', cellX + cellSize / 2, cellY + cellSize * 0.7)
-    }
-  }
-
-  // Draw flat 2D gems card
-  const drawGemsCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, remainingGems: number) => {
-    const radius = Math.min(12, width * 0.1)
-
-    // Simple flat background
-    ctx.fillStyle = 'rgba(34, 197, 94, 0.9)'
-    ctx.beginPath()
-    ctx.roundRect(x, y, width, height, radius)
-    ctx.fill()
-
-    // Simple border
-    ctx.strokeStyle = 'rgba(74, 222, 128, 0.6)'
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
-    ctx.stroke()
-
-    // Gem icon - scaled for card
-    const iconSize = Math.min(20, height * 0.12)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `${iconSize}px Arial`
-    ctx.textAlign = 'center'
-    ctx.fillText('💎', x + width - iconSize * 0.7, y + iconSize + 8)
-
-    // Title - scaled for card
-    const titleSize = Math.min(14, height * 0.1)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${titleSize}px Arial`
-    ctx.fillText('GEMS LEFT', x + width / 2, y + titleSize + 12)
-
-    // Value - scaled for card
-    const valueSize = Math.min(32, height * 0.3)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${valueSize}px Arial`
-    ctx.fillText(remainingGems.toString(), x + width / 2, y + height * 0.55)
-  }
-
-  // Draw flat 2D mines card
-  const drawMinesCard = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, mineCount: number) => {
-    const radius = Math.min(12, width * 0.1)
-
-    // Simple flat background
-    ctx.fillStyle = 'rgba(239, 68, 68, 0.9)'
-    ctx.beginPath()
-    ctx.roundRect(x, y, width, height, radius)
-    ctx.fill()
-
-    // Simple border
-    ctx.strokeStyle = 'rgba(252, 165, 165, 0.6)'
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.roundRect(x + 1, y + 1, width - 2, height - 2, radius - 1)
-    ctx.stroke()
-
-    // Bomb icon - scaled for card
-    const iconSize = Math.min(18, height * 0.11)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `${iconSize}px Arial`
-    ctx.textAlign = 'center'
-    ctx.fillText('💣', x + width - iconSize * 0.7, y + iconSize + 8)
-
-    // Title - scaled for card
-    const titleSize = Math.min(14, height * 0.1)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${titleSize}px Arial`
-    ctx.fillText('MINES', x + width / 2, y + titleSize + 12)
-
-    // Value - scaled for card
-    const valueSize = Math.min(32, height * 0.3)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${valueSize}px Arial`
-    ctx.fillText(mineCount.toString(), x + width / 2, y + height * 0.55)
-  }
-
-  // Draw sidebar stats (2D version)
-  const drawSidebar = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, sidebarWidth: number) => {
-    // Position sidebar to the right of the centered grid
-    const padding = 20
-    const sidebarGap = isMobile ? 0 : 50 // Space between grid and sidebar
-    const availableWidth = canvasWidth - padding * 2 // Full width minus padding for grid sizing
-    const availableHeight = canvasHeight - padding * 2 // Same height calculation as grid
-    const gridSize = Math.min(availableWidth, availableHeight)
-    const gridStartX = (canvasWidth - gridSize) / 2
-    const sidebarX = gridStartX + gridSize + sidebarGap
-
-    const startY = (canvasHeight - gridSize) / 2 // Center vertically like grid
-    const cardHeight = (gridSize - 12) / 2 // Each counter takes half the available height minus gap
-    const gap = 12 // Small gap between counters
-
-    // Count revealed gems and remaining cells
-    const revealedGems = cells.filter(cell => cell.status === 'gold').length
-    const remainingGems = MINES_GRID_SIZE - mineCount - revealedGems
-
-    // Gems Counter (Green) - shows remaining gems - top half
-    drawGemsCard(ctx, sidebarX, startY, sidebarWidth, cardHeight, remainingGems)
-
-    // Mines Counter (Red) - bottom half
-    drawMinesCard(ctx, sidebarX, startY + cardHeight + gap, sidebarWidth, cardHeight, mineCount)
-  }
-
-  // Handle canvas clicks for GambaUi.Canvas
-  const handleCanvasClick = React.useCallback((event: React.MouseEvent) => {
-    const canvas = event.currentTarget as HTMLCanvasElement
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-
-    // Scale coordinates to canvas size
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
-    const canvasX = x * scaleX
-    const canvasY = y * scaleY
-
-    // Check if clicking on grid during play
-    if (started && gamePhase === 'playing') {
-      const padding = 20
-      const canvasWidth = canvas.width
-      const canvasHeight = canvas.height
-      const gameAreaWidth = canvasWidth - padding * 2
-      const gameAreaHeight = canvasHeight - padding * 2
-      const gridSize = Math.min(gameAreaWidth, gameAreaHeight - 100)
-      const cellSize = gridSize / GRID_COLS
-      const gridStartX = (canvasWidth - gridSize) / 2
-      const gridStartY = (canvasHeight - gridSize) / 2
-
-      if (canvasX >= gridStartX && canvasX < gridStartX + gridSize &&
-          canvasY >= gridStartY && canvasY < gridStartY + gridSize) {
-        
-        // Find which cell was clicked accounting for gaps
-        const gap = 8
-        const adjustedCellSize = (gridSize - (gap * (GRID_COLS - 1))) / GRID_COLS
-        let clickedIndex = -1
-        
-        for (let i = 0; i < MINES_GRID_SIZE; i++) {
-          const row = Math.floor(i / GRID_COLS)
-          const col = i % GRID_COLS
-          const cellX = gridStartX + col * (adjustedCellSize + gap)
-          const cellY = gridStartY + row * (adjustedCellSize + gap)
-
-          if (canvasX >= cellX && canvasX < cellX + adjustedCellSize &&
-              canvasY >= cellY && canvasY < cellY + adjustedCellSize) {
-            clickedIndex = i
-            break
-          }
-        }
-
-        if (clickedIndex >= 0) {
-          revealCell(clickedIndex)
-        }
-      }
-    }
-  }, [started, gamePhase, revealCell])
-
-  const gameMeta = useGameMeta('mines')
 
   return (
     <>
-      {/* Recent Plays Portal - positioned above stats */}
-      <GambaUi.Portal target="recentplays">
-        <GameRecentPlaysHorizontal gameId="mines" />
-      </GambaUi.Portal>
-
-      {/* Stats Portal - positioned above game screen */}
-      <GambaUi.Portal target="stats">
-        <GameStatsHeader
-          gameName="Mines"
-          gameMode="V2"
-          rtp="95"
-          stats={gameStats.stats}
-          onReset={gameStats.resetStats}
-          isMobile={isMobile}
-        />
-      </GambaUi.Portal>
-
       <GambaUi.Portal target="screen">
-        <div style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
-          perspective: '100px'
-        }}>
-          {/* Canvas for game UI - now starts from top since header is outside */}
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <div style={{
             position: 'absolute',
             top: '20px',
             left: '20px',
             right: '20px',
-            bottom: '120px', // Leave space for controls below
+            bottom: '120px', // leave room for controls
             borderRadius: '10px',
             overflow: 'hidden',
-            border: '2px solid rgba(147, 88, 255, 0.4)'
+            border: '2px solid rgba(147, 88, 255, 0.4)',
+            background: 'linear-gradient(135deg, #0a0511 0%, #0d0618 25%, #0f081c 50%, #0a0511 75%, #0a0511 100%)',
+            perspective: '100px'
           }}>
-            <GambaUi.Canvas
-              style={{
-                width: '100%',
-                height: '100%',
-                cursor: started && gamePhase === 'playing' && !loading ? 'pointer' : 'default'
-              }}
-              render={renderCanvas}
-              onMouseDown={handleCanvasClick}
-            />
+            <GambaUi.Responsive>
+              <Container>
+                <Grid>
+                  {grid.map((cell, index) => (
+                    <CellButton
+                      key={index}
+                      status={cell.status}
+                      selected={selected === index}
+                      onClick={() => play(index)}
+                      disabled={!canPlay || cell.status !== 'hidden'}
+                    >
+                      {(cell.status === 'gold') && (
+                        <div>
+                          +<TokenValue amount={cell.profit} />
+                        </div>
+                      )}
+                    </CellButton>
+                  ))}
+                </Grid>
+              </Container>
+            </GambaUi.Responsive>
           </div>
 
-          {/* Level Progress Display */}
+          {/* Styled info panels like mines-v2 */}
           <GameControlsSection>
-            {/* LEVEL */}
-            <div style={{
-              flex: '1',
-              height: '100%',
-              background: 'linear-gradient(135deg, rgba(147, 88, 255, 0.15) 0%, rgba(106, 27, 154, 0.25) 50%, rgba(147, 88, 255, 0.15) 100%)',
-              borderRadius: '12px',
-              border: '2px solid rgba(147, 88, 255, 0.4)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 4px 16px rgba(147, 88, 255, 0.2), inset 0 1px 0 rgba(147, 88, 255, 0.3)',
-              backdropFilter: 'blur(8px)'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 'bold',
-                color: '#9358ff',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                marginBottom: '4px'
-              }}>
-                LEVELS
-              </div>
-              <div style={{
-                fontSize: '16px',
-                color: 'rgba(147, 88, 255, 0.9)',
-                fontWeight: '600'
-              }}>
-                {started ? `${currentLevel + 1}/${levels.length}` : `1/${levels.length}`}
-              </div>
+            <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#9358ff', marginBottom: 4 }}>LEVELS</div>
+              <div style={{ fontSize: '16px', color: 'rgba(147,88,255,0.9)', fontWeight: 600 }}>{started ? `${currentLevel + 1}/${levels.length}` : `1/${levels.length}`}</div>
             </div>
 
-            {/* CURRENT */}
-            <div style={{
-              flex: '1',
-              height: '100%',
-              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
-              borderRadius: '12px',
-              border: '2px solid rgba(76, 175, 80, 0.4)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
-              backdropFilter: 'blur(8px)'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 'bold',
-                color: '#4caf50',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                marginBottom: '4px'
-              }}>
-                BASE x
-              </div>
-              <div style={{
-                fontSize: '16px',
-                color: 'rgba(76, 175, 80, 0.9)',
-                fontWeight: '600'
-              }}>
-                {started ? `${getCurrentMultiplier().toFixed(2)}x` : `${levels[0]?.multiplier.toFixed(2) || '1.00'}x`}
-              </div>
+            <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4caf50', marginBottom: 4 }}>BASE x</div>
+                <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>{started ? `${getMultiplierForLevel(currentLevel).toFixed(2)}x` : `${getMultiplierForLevel(0).toFixed(2) || '1.00'}x`}</div>
             </div>
 
-            {/* NEXT */}
-            <div style={{
-              flex: '1',
-              height: '100%',
-              background: 'linear-gradient(135deg, rgba(255, 235, 59, 0.15) 0%, rgba(251, 192, 45, 0.25) 50%, rgba(255, 235, 59, 0.15) 100%)',
-              borderRadius: '12px',
-              border: '2px solid rgba(255, 235, 59, 0.4)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 4px 16px rgba(255, 235, 59, 0.2), inset 0 1px 0 rgba(255, 235, 59, 0.3)',
-              backdropFilter: 'blur(8px)'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 'bold',
-                color: '#ffeb3b',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                marginBottom: '4px'
-              }}>
-                NEXT x
-              </div>
-              <div style={{
-                fontSize: '16px',
-                color: 'rgba(255, 235, 59, 0.9)',
-                fontWeight: '600'
-              }}>
-                {started ? `${getNextMultiplier().toFixed(2)}x` : (levels[1] ? `${levels[1].multiplier.toFixed(2)}x` : 'Start')}
-              </div>
+            <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffeb3b', marginBottom: 4 }}>NEXT x</div>
+              <div style={{ fontSize: '16px', color: 'rgba(255,235,59,0.9)', fontWeight: 600 }}>{started ? `${getMultiplierForLevel(currentLevel + 1).toFixed(2)}x` : (levels[1] ? `${getMultiplierForLevel(1).toFixed(2)}x` : 'Start')}</div>
             </div>
 
-            {/* TOTAL */}
-            <div style={{
-              flex: '1',
-              height: '100%',
-              background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.25) 50%, rgba(76, 175, 80, 0.15) 100%)',
-              borderRadius: '12px',
-              border: '2px solid rgba(76, 175, 80, 0.4)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 4px 16px rgba(76, 175, 80, 0.2), inset 0 1px 0 rgba(76, 175, 80, 0.3)',
-              backdropFilter: 'blur(8px)'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 'bold',
-                color: '#4caf50',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                marginBottom: '4px'
-              }}>
-                TOTAL WON
-              </div>
-              <div style={{
-                fontSize: '16px',
-                color: 'rgba(76, 175, 80, 0.9)',
-                fontWeight: '600'
-              }}>
-                {started ? totalGain.toFixed(4) : '0.0000'}
-              </div>
+            <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4caf50', marginBottom: 4 }}>TOTAL WON</div>
+              <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>{started ? totalGain.toFixed(4) : '0.0000'}</div>
             </div>
           </GameControlsSection>
 
-          <GameplayFrame
-            ref={effectsRef}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              pointerEvents: 'none',
-              zIndex: 1000
-            }}
-          />
+          {/* gameplay effects frame not required for this 2D port */}
         </div>
       </GambaUi.Portal>
 
@@ -652,54 +199,35 @@ export default function MinesV2() {
         {!started ? (
           <>
             <MobileControls
-              wager={wager}
-              setWager={setWager}
-              onPlay={startGame}
-              playDisabled={poolExceeded}
+              wager={initialWager}
+              setWager={setInitialWager}
+              onPlay={start}
+              playDisabled={pool.maxPayout === 0}
               playText="Start"
             >
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
-                <label style={{ color: '#fff', minWidth: '60px' }}>Mines:</label>
-                <select
-                  value={mineCount}
-                  onChange={(e) => setMineCount(Number(e.target.value))}
-                  style={{
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid rgba(147, 88, 255, 0.3)',
-                    background: '#1a1a2e',
-                    color: '#fff',
-                    flex: 1
-                  }}
-                >
-                  {MINE_SELECT.map(count => (
-                    <option key={count} value={count}>{count}</option>
-                  ))}
-                </select>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
+                <label style={{ color: '#fff', minWidth: 60 }}>Mines:</label>
+                <GambaUi.Select
+                  options={MINE_SELECT}
+                  value={mines}
+                  onChange={setMines}
+                  label={(m: number) => <>{m} Mines</>}
+                />
               </div>
             </MobileControls>
 
             <DesktopControls
-              onPlay={startGame}
-              playDisabled={poolExceeded}
+              onPlay={start}
+              playDisabled={pool.maxPayout === 0}
               playText="Start"
             >
-              <EnhancedWagerInput 
-                value={wager} 
-                onChange={setWager}
-              />
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <label style={{ color: '#fff', minWidth: '60px' }}>Mines:</label>
+              <EnhancedWagerInput value={initialWager} onChange={setInitialWager} />
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <label style={{ color: '#fff', minWidth: 60 }}>Mines:</label>
                 <select
-                  value={mineCount}
-                  onChange={(e) => setMineCount(Number(e.target.value))}
-                  style={{
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid rgba(147, 88, 255, 0.3)',
-                    background: '#1a1a2e',
-                    color: '#fff'
-                  }}
+                  value={mines}
+                  onChange={(e) => setMines(Number(e.target.value))}
+                  style={{ padding: 8, borderRadius: 4, border: '1px solid rgba(147, 88, 255, 0.3)', background: '#1a1a2e', color: '#fff' }}
                 >
                   {MINE_SELECT.map(count => (
                     <option key={count} value={count}>{count}</option>
@@ -711,32 +239,24 @@ export default function MinesV2() {
         ) : (
           <>
             <MobileControls
-              wager={wager}
-              setWager={setWager}
+              wager={initialWager}
+              setWager={setInitialWager}
               onPlay={endGame}
               playDisabled={loading || totalGain === 0}
               playText={totalGain > 0 ? 'Cash' : 'New'}
             >
               {started && totalGain > 0 && (
-                <div style={{ marginTop: '10px' }}>
-                  <EnhancedButton 
-                    onClick={endGame} 
-                    disabled={loading || totalGain === 0} 
-                    variant="primary"
-                  >
+                <div style={{ marginTop: 10 }}>
+                  <EnhancedButton onClick={endGame} disabled={loading || totalGain === 0} variant="primary">
                     💰 Cash Out
                   </EnhancedButton>
                 </div>
               )}
             </MobileControls>
-            
+
             <DesktopControls>
               {started && totalGain > 0 && (
-                <EnhancedButton 
-                  onClick={endGame} 
-                  disabled={loading || totalGain === 0} 
-                  variant="primary"
-                >
+                <EnhancedButton onClick={endGame} disabled={loading || totalGain === 0} variant="primary">
                   💰 Cash Out
                 </EnhancedButton>
               )}
@@ -747,3 +267,5 @@ export default function MinesV2() {
     </>
   )
 }
+
+export default Mines2D

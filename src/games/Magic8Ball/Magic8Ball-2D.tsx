@@ -3,7 +3,6 @@ import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'ga
 import { useGamba } from 'gamba-react-v2'
 import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { makeDeterministicRng } from '../../fairness/deterministicRng'
-import { BET_ARRAYS_V3 } from '../rtpConfig-v3'
 import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
@@ -99,8 +98,8 @@ export default function Magic8BallRenderer2D() {
   })
 
   // Magic 8-Ball 50/50 configuration
-  const multiplier = (BET_ARRAYS_V3 as any)['magic8ball'].getMultiplier()
-  const bet = React.useMemo(() => (BET_ARRAYS_V3 as any)['magic8ball'].calculateBetArray(), [])
+  const multiplier = 2 // Fixed multiplier for 50/50
+  const bet = React.useMemo(() => [1, 2, 5, 10, 20], [])
   const maxWin = multiplier * wager
 
   // Pool restrictions
@@ -252,7 +251,7 @@ export default function Magic8BallRenderer2D() {
   }, [shouldRenderParticles, particleCount])
 
   // Canvas render function
-  const renderCanvas = useCallback(({ ctx, size }: any, clock: any) => {
+  const renderCanvas = useCallback(({ ctx, size }: any) => {
     // Clear canvas
     ctx.clearRect(0, 0, size.width, size.height)
 
@@ -493,7 +492,7 @@ export default function Magic8BallRenderer2D() {
     sounds.play('play')
 
   // Get Magic 8-Ball bet array from RTP config
-  const betArray = (BET_ARRAYS_V3 as any)['magic8ball'].calculateBetArray()
+  const betArray = [1, 2, 5, 10, 20]
 
     console.log('� MAGIC 8-BALL BET ARRAY DEBUG:', {
       betArray,
@@ -605,6 +604,7 @@ export default function Magic8BallRenderer2D() {
       }
     }
   }, [])
+
 
 
 

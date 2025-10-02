@@ -1,7 +1,35 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { getBucketColor } from '../rtpConfig'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
+
+// Helper: determine color palette for a bucket multiplier
+function getBucketColor(multiplier: number) {
+  if (multiplier <= 0.99) {
+    return {
+      primary: 'rgba(239, 68, 68, 0.9)',
+      secondary: 'rgba(220, 38, 38, 0.85)',
+      tertiary: 'rgba(185, 28, 28, 0.9)'
+    }
+  } else if (multiplier >= 1.0 && multiplier <= 3.99) {
+    return {
+      primary: 'rgba(245, 158, 11, 0.9)',
+      secondary: 'rgba(217, 119, 6, 0.85)',
+      tertiary: 'rgba(180, 83, 9, 0.9)'
+    }
+  } else if (multiplier >= 4.0 && multiplier <= 6.99) {
+    return {
+      primary: 'rgba(34, 197, 94, 0.9)',
+      secondary: 'rgba(22, 163, 74, 0.85)',
+      tertiary: 'rgba(21, 128, 61, 0.9)'
+    }
+  } else {
+    return {
+      primary: 'rgba(59, 130, 246, 0.9)',
+      secondary: 'rgba(37, 99, 235, 0.85)',
+      tertiary: 'rgba(29, 78, 216, 0.9)'
+    }
+  }
+}
 
 const ScoreboardContainer = styled.div`
   position: absolute;

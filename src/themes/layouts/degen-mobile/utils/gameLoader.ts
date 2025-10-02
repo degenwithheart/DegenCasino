@@ -22,29 +22,21 @@ export const loadGameComponent = (game: ExtendedGameBundle): React.LazyExoticCom
   if (shouldUseMobileGames()) {
     // Handle specific games with mobile versions
     switch (game.id) {
-      case 'dice-v2':
+      case 'dice':
         // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Dice-v2/index-mobile'))
-      
-      case 'flip-v2':
+        return React.lazy(() => import('../../../../games/Dice/index'))
+
+      case 'flip':
         // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Flip-v2/index-mobile'))
-      
+        return React.lazy(() => import('../../../../games/Flip/index'))
+
       case 'slots':
         // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Slots/index-mobile'))
+        return React.lazy(() => import('../../../../games/Slots/index'))
       
       case 'plinko':
         // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Plinko/index-mobile'))
-      
-      case 'roulette-royale':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/RouletteRoyale/index-mobile'))
-      
-      case 'poker-showdown':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/PokerShowdown/index-mobile'))
+        return React.lazy(() => import('../../../../games/Plinko/index'))
       
       default:
         // For games without mobile versions, throw error to show popup

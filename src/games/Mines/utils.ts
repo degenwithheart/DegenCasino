@@ -1,5 +1,4 @@
 import { CellState } from './types'
-import { makeDeterministicRng } from '../../fairness/deterministicRng'
 
 export const generateGrid = (size: number) =>
   Array
@@ -22,14 +21,20 @@ export const revealAllMines = (
   cellIndex: number,
   numberOfMines: number,
 ) => {
-  const rng = makeDeterministicRng(`mines:${cellIndex}:${numberOfMines}:${cells.length}`)
-  const hidden = cells.map((cell, index) => index).filter(i => i !== cellIndex)
-  // Fisher-Yates deterministic shuffle
-  for (let i = hidden.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[hidden[i], hidden[j]] = [hidden[j], hidden[i]]
-  }
-  const mineIndices = [cellIndex, ...hidden.slice(0, numberOfMines - 1)]
+  const mineIndices = cells
+    .map((cell, index) => ({ cell, index }))
+    .sort((a, b) => {
+      if (a.index === cellIndex) return -1
+      if (b.index === cellIndex) return 1
+      if (a.cell.status === 'hidden' && b.cell.status === 'hidden') {
+        return Math.random() - .5
+      }
+      if (a.cell.status === 'hidden') return -1
+      if (b.cell.status === 'hidden') return 1
+      return 0
+    })
+    .map((x) => x.index)
+    .slice(0, numberOfMines)
 
   return cells.map<CellState>(
     (cell, i) => {

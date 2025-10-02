@@ -1,0 +1,58 @@
+import React, { Suspense, lazy } from 'react'
+import { useUserStore } from '../../hooks/data/useUserStore'
+import { GAME_CAPABILITIES } from '../../constants'
+import { useGameSEO } from '../../hooks/ui/useGameSEO'
+
+// Lazy load the 2D and 3D components
+const PlinkoRenderer2D = lazy(() => import('./Plinko-2D'))
+const PlinkoRenderer3D = lazy(() => import('./Plinko-3D'))
+
+const LoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '400px',
+    color: 'white',
+    fontSize: '18px'
+  }}>
+    Loading Plinko...
+  </div>
+)
+
+export default function Plinko() {
+  // SEO for Plinko game
+  const seoHelmet = useGameSEO({
+    gameName: "Plinko",
+    description: "Drop balls and watch them bounce through pegs to win! Classic Plinko game with multiple difficulty levels and big multipliers",
+    rtp: 98,
+    maxWin: "1000x"
+  })
+
+  // Use the reactive selector pattern to ensure re-renders
+  const currentMode = useUserStore(state => state.getGameRenderMode('plinko'))
+  const gameSupports3D = GAME_CAPABILITIES.plinko?.supports3D ?? false
+  
+  // Determine which component to render
+  const shouldUse3D = currentMode === '3D' && gameSupports3D
+  
+  // Force re-render with key when mode changes
+  const renderKey = `plinko-${currentMode}-${shouldUse3D ? '3d' : '2d'}`
+  
+  console.log('🎯 PLINKO WRAPPER RENDER:', { 
+    currentMode, 
+    gameSupports3D, 
+    shouldUse3D,
+    renderKey,
+    timestamp: Date.now()
+  })
+  
+  return (
+    <div key={renderKey}>
+      {seoHelmet}
+      <Suspense fallback={<LoadingFallback />}>
+        {shouldUse3D ? <PlinkoRenderer3D /> : <PlinkoRenderer2D />}
+      </Suspense>
+    </div>
+  )
+}

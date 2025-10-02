@@ -8,31 +8,23 @@ const Mines2D = React.lazy(() => import('./Mines-2D'))
 const Mines3D = React.lazy(() => import('./Mines-3D'))
 
 export default function MinesWrapper() {
-  // SEO for Mines game
   const seoHelmet = useGameSEO({
-    gameName: "Mines",
-    description: "Navigate the minefield and find hidden gems! Choose your risk level and discover treasures while avoiding mines",
-    rtp: 97,
-    maxWin: "500x"
+    gameName: 'Mines',
+    description: 'Mines game — select tiles and avoid the mines.',
+    maxWin: 'varies'
   })
 
-  // Get current render mode for this game
   const renderMode = useUserStore(state => state.getGameRenderMode('mines'))
-  
-  // Check if game supports 3D
   const gameSupports3D = GAME_CAPABILITIES['mines']?.supports3D ?? false
-  
-  // If 3D is not supported or not available, default to 2D
   const shouldRender3D = gameSupports3D && renderMode === '3D'
-  
-  console.log('💣 Mines Wrapper - Render Mode:', renderMode, 'Supports3D:', gameSupports3D, 'ShouldRender3D:', shouldRender3D)
-  
+
   return (
     <>
       {seoHelmet}
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading Mines...</div>}>
         {shouldRender3D ? <Mines3D /> : <Mines2D />}
       </Suspense>
     </>
   )
 }
+
