@@ -33,26 +33,34 @@ function getBucketColor(multiplier: number) {
 
 const ScoreboardContainer = styled.div`
   position: absolute;
-  right: 10px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   z-index: 1000;
-  pointer-events: none;
-  height: 320px; /* Fixed height for 6 tiles + title on desktop */
+  pointer-events: auto; /* allow hover interactions inside */
+  max-height: 68vh; /* cap height and allow scrolling */
+  width: 125px;
+  padding: 10px;
+  box-sizing: border-box;
   overflow: hidden;
-  
+  background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.06));
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+
   /* Mobile responsive adjustments */
   @media (max-width: 768px) {
-    right: 5px;
-    top: 20px;
+    right: 8px;
+    top: 16px;
     transform: none;
-    height: 200px; /* Fixed height for 4 tiles + title on mobile */
-    gap: 4px;
+    max-height: 40vh;
+    width: 64px;
+    gap: 6px;
+    padding: 8px;
   }
-  
+
   /* Hide on very small screens */
   @media (max-width: 480px) {
     display: none;
@@ -61,24 +69,30 @@ const ScoreboardContainer = styled.div`
 
 const TileGrid = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  height: 100%;
-  position: relative;
-  
+  flex-direction: column-reverse; /* newest at top visually */
+  gap: 10px;
+  width: 100%;
+  overflow-y: hidden;
+  padding-right: 4px; /* avoid touching scrollbar */
+
   @media (max-width: 768px) {
-    gap: 4px;
+    gap: 6px;
   }
 `
 
-const TileSlot = styled.div<{ position: number; isTransitioning?: boolean; isMobile: boolean }>`
-  position: absolute;
+const TileSlot = styled.div<{ isTransitioning?: boolean }>`
+  position: relative;
   width: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: translateY(${({ position, isMobile }) => position * (isMobile ? 40 : 48)}px);
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.28s ease;
+  transform: translateY(0);
+  opacity: 1;
+
   ${({ isTransitioning }) => isTransitioning && `
     z-index: 10;
+    transform: translateY(-4px);
   `}
 `
 
@@ -89,8 +103,8 @@ const BucketItem = styled.div<{
   isPlaceholder?: boolean;
 }>`
   position: relative;
-  width: 60px;
-  height: 40px;
+  width: 64px;
+  height: 44px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -103,8 +117,8 @@ const BucketItem = styled.div<{
   
   /* Mobile responsive adjustments */
   @media (max-width: 768px) {
-    width: 50px;
-    height: 32px;
+    width: 52px;
+    height: 36px;
     font-size: 12px;
     border-radius: 6px;
   }
@@ -148,23 +162,6 @@ const BucketItem = styled.div<{
       border: 3px solid ${colors.primary.replace('0.9)', '0.8)')};
     `;
   }}
-  
-  ${({ isActive }) => isActive && `
-    /* Enhanced 3D active state with glow effects */
-    transform: scale(1.15);
-    border-color: rgba(255, 255, 0, 0.8);
-    box-shadow: 
-      0 8px 20px rgba(255, 215, 0, 0.6),
-      0 6px 12px rgba(5, 5, 15, 0.4),
-      0 4px 8px rgba(8, 8, 20, 0.3),
-      0 2px 4px rgba(15, 15, 30, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    animation: bucketPulse 0.6s ease-out;
-    
-    @media (max-width: 768px) {
-      transform: scale(1.1);
-    }
-  `}
   
   /* Enhanced 3D highlight overlay */
   &::before {
@@ -251,8 +248,8 @@ const BucketIndex = styled.div`
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   
   @media (max-width: 768px) {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     font-size: 8px;
     top: -6px;
     left: -6px;
@@ -365,9 +362,7 @@ export const BucketScoreboard: React.FC<BucketScoreboardProps> = ({
         {tiles.map((tile, index) => (
           <TileSlot 
             key={tile.id}
-            position={index}
             isTransitioning={transitioning}
-            isMobile={isMobile}
           >
             <BucketItem
               multiplier={tile.isPlaceholder ? 0 : (multipliers[tile.bucketIndex] || 0)}

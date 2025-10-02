@@ -1,6 +1,14 @@
+// Flip Game Constants
+
 // Canvas dimensions
 export const CANVAS_WIDTH = 1200
 export const CANVAS_HEIGHT = 800
+
+// Sound paths
+export const SOUND_WIN = '/sounds/win.mp3'
+export const SOUND_LOSE = '/sounds/lose.mp3'
+export const SOUND_PLAY = '/sounds/play.mp3'
+export const SOUND_COIN = '/sounds/coin.mp3'
 
 // Color scheme - romantic casino colorScheme with degen background system
 export const ROMANTIC_COLORS = {
@@ -28,13 +36,3 @@ export const FLIP_SETTINGS = {
   DEFAULT_COINS: 1,
   DEFAULT_TARGET: 1
 } as const
-
-// Bet configuration
-export const SIDES = {
-  heads: [2, 0],
-  tails: [0, 2],
-} as const
-
-export type Side = keyof typeof SIDES
-
-export const WAGER_OPTIONS = [1, 5, 10, 50, 100] as const

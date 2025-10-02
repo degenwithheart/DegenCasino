@@ -34,5 +34,3 @@ scripts/*
 
 # Ignore mobile build outputs (generated files)
 mobile-app
-
-/src/games-old/

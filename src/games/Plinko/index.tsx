@@ -54,7 +54,7 @@ export default function Plinko() {
   const bet = degen ? DEGEN_BET : BET
   const rows = degen ? 12 : 14
 
-  const multipliers = React.useMemo(() => Array.from(new Set(bet)), [bet])
+  const baseMultipliers = React.useMemo(() => Array.from(new Set(bet)), [bet])
 
   // Graphics & UI state
   const { settings } = useGraphics()
@@ -69,6 +69,9 @@ export default function Plinko() {
   const [activeBuckets, setActiveBuckets] = useState<Set<number>>(new Set())
   const [recentHits, setRecentHits] = useState<number[]>([])
   const [poolExceeded, setPoolExceeded] = useState(false)
+  // Temporarily hide the right-side recent hits/scoreboard until multiplier mapping is fixed
+  const showBucketScoreboard = false
+  // settings use only the Basic panel now (Game Mode + Start Stagger)
 
   // Dynamic radii used in canvas rendering (scale-aware adjustments can be added)
   const dynamicPegRadius = PEG_RADIUS
@@ -81,8 +84,20 @@ export default function Plinko() {
     return m
   }, [recentHits])
 
-  const buckets = customMode ? customBuckets : multipliers.length
+  // buckets should reflect the multipliers currently used by the Plinko
+  // instance (custom or base). plinkoMultipliers is computed below after the
+  // custom state variables are declared.
+  const buckets = customMode ? customBuckets : baseMultipliers.length
   const displayRows = customMode ? customRows : rows
+
+  const plinkoMultipliers = React.useMemo(() => {
+    if (!customMode) return baseMultipliers
+    const out: number[] = []
+    for (let i = 0; i < customBuckets; i++) {
+      out.push(baseMultipliers[i % baseMultipliers.length])
+    }
+    return out
+  }, [customMode, customBuckets, baseMultipliers])
 
   // Simple color helper (copied from build artifacts) - returns rgba strings
   function getBucketColor(multiplier: number) {
@@ -113,9 +128,11 @@ export default function Plinko() {
     }
   }
 
-  const plinko = usePlinko({
-    rows,
-    multipliers,
+  const plinkoRows = customMode ? customRows : rows
+
+  const boardPlinko = usePlinko({
+    rows: plinkoRows,
+    multipliers: plinkoMultipliers,
     onContact(contact) {
       if (contact.peg && contact.plinko) {
         pegAnimations.current[contact.peg.plugin.pegIndex] = 1
@@ -140,13 +157,174 @@ export default function Plinko() {
         })
       }
     },
-  }, [rows, multipliers])
+  }, [plinkoRows, JSON.stringify(plinkoMultipliers)])
 
+  // Multi-instance state for simultaneous multi-ball replays
+  const [ballPlinkos, setBallPlinkos] = useState<PlinkoGame[]>([])
+  const [multiPlaying, setMultiPlaying] = useState(false)
+  const [completedBalls, setCompletedBalls] = useState(0)
+  const [ballStatuses, setBallStatuses] = useState<('pending' | 'animating' | 'done')[]>([])
+  // Start stagger in milliseconds between ball visual starts (0 = simultaneous)
+  const [ballStartStagger, setBallStartStagger] = useState<number>(0)
+  const [overallPlayState, setOverallPlayState] = useState<'idle' | 'loading' | 'launching' | 'playing' | 'done'>('idle')
+
+  // Cleanup any created Plinko instances on unmount or when plinkos change
+  useEffect(() => {
+    return () => {
+      ballPlinkos.forEach(p => {
+        try { p.cleanup() } catch (e) {}
+      })
+    }
+  }, [ballPlinkos])
+
+  // When user changes ballCount while idle, show pending placeholders for new count
+  useEffect(() => {
+    if (!multiPlaying) {
+      setBallStatuses(Array.from({ length: ballCount }, () => 'pending'))
+      setCompletedBalls(0)
+      setOverallPlayState('idle')
+    }
+  }, [ballCount, multiPlaying])
+
+  // Helper: wait until the plinko replay animation finishes. The engine keeps
+  // internal state for the current path and current frame; access those via
+  // bracket notation to avoid TypeScript private-field errors. This polls
+  // using requestAnimationFrame to be responsive.
+  const waitForPlinkoReplay = async (p: any) => {
+    return new Promise<void>((resolve) => {
+      const check = () => {
+        const path: Float32Array | null = p && p['currentPath']
+        const frame: number = p && p['currentFrame']
+        if (!path) return resolve()
+        const total = path.length / 2
+        if (frame >= total) return resolve()
+        requestAnimationFrame(check)
+      }
+      requestAnimationFrame(check)
+    })
+  }
+
+  // Play N balls simultaneously (or staggered). For each ball we first
+  // request a server result (multiplier), then create a dedicated Plinko
+  // instance that will replay that result independently. This allows many
+  // replays to animate at once without changing the engine internals.
   const play = async () => {
-    await game.play({ wager, bet })
-    const result = await game.result()
-    plinko.reset()
-    plinko.run(result.multiplier)
+    if (!boardPlinko) return
+    if (multiPlaying) return
+
+  setMultiPlaying(true)
+  setCompletedBalls(0)
+  setOverallPlayState('loading')
+
+    // Collect server results for each ball. We perform them sequentially to
+    // preserve server semantics; if desired this could be parallelized.
+    // Sequentially request server results for each ball to preserve server semantics
+    const results: number[] = []
+  setBallStatuses(Array.from({ length: ballCount }, () => 'pending'))
+  setCompletedBalls(0)
+    for (let i = 0; i < ballCount; i++) {
+      await game.play({ wager, bet })
+      const result = await game.result()
+      results.push(result.multiplier)
+    }
+
+    // Create an independent Plinko instance per ball. Each instance receives
+    // the same onContact handler so UI/state updates remain unified.
+    const instances: PlinkoGame[] = results.map(() => new PlinkoGame({
+      rows: plinkoRows,
+      multipliers: plinkoMultipliers,
+      onContact(contact) {
+        if (contact.peg && contact.plinko) {
+          pegAnimations.current[contact.peg.plugin.pegIndex] = 1
+          sounds.play('bump', { playbackRate: 1 + Math.random() * .05 })
+        }
+        if (contact.barrier && contact.plinko) {
+          sounds.play('bump', { playbackRate: .5 + Math.random() * .05 })
+        }
+        if (contact.bucket && contact.plinko) {
+          const idx = contact.bucket.plugin.bucketIndex
+          bucketAnimations.current[idx] = 1
+          sounds.play(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall')
+          setRecentHits(prev => {
+            const next = [...prev.slice(-19), idx]
+            return next
+          })
+          setActiveBuckets(prev => {
+            const next = new Set(prev)
+            next.add(idx)
+            return next
+          })
+        }
+      }
+    }))
+
+  setBallPlinkos(instances)
+  // we've got results, now launching
+  setOverallPlayState('launching')
+
+    // Start each instance with optional staggering and monitor completion.
+    await new Promise<void>(resolveAll => {
+      let finished = 0
+
+      instances.forEach((inst, idx) => {
+        // reset adds the precomputed start positions as live ball bodies
+        inst.reset()
+
+        const start = () => {
+          // mark animating
+          setBallStatuses(prev => {
+            const next = [...prev]
+            next[idx] = 'animating'
+            return next
+          })
+          setOverallPlayState('playing')
+          inst.run(results[idx])
+
+          // Poll this instance's private replay state and resolve when done
+          const check = () => {
+            const path: Float32Array | null = inst && (inst as any)['currentPath']
+            const frame: number = inst && (inst as any)['currentFrame']
+            if (!path) {
+              finished += 1
+              // mark done
+              setBallStatuses(prev => {
+                const next = [...prev]
+                next[idx] = 'done'
+                return next
+              })
+              setCompletedBalls(f => f + 1)
+              try { inst.cleanup() } catch (e) {}
+              if (finished >= instances.length) return resolveAll()
+              return
+            }
+            const total = path.length / 2
+            if (frame >= total) {
+              finished += 1
+              // mark done
+              setBallStatuses(prev => {
+                const next = [...prev]
+                next[idx] = 'done'
+                return next
+              })
+              setCompletedBalls(f => f + 1)
+              try { inst.cleanup() } catch (e) {}
+              if (finished >= instances.length) return resolveAll()
+              return
+            }
+            requestAnimationFrame(check)
+          }
+          requestAnimationFrame(check)
+        }
+
+        if (ballStartStagger > 0) setTimeout(start, idx * ballStartStagger)
+        else start()
+      })
+    })
+
+    // All done
+    setBallPlinkos([])
+    setMultiPlaying(false)
+    setCompletedBalls(0)
   }
 
   const mobile = useIsCompact();
@@ -171,6 +349,42 @@ export default function Plinko() {
 
       <GambaUi.Portal target="screen">
         <StyledPlinkoBackground>
+          {/* Left-side persistent per-ball status column (always visible) */}
+          {/* Inline styles & animation keyframes for the status column */}
+          <style>{`
+            .plinko-ball-status { width: 18px; height: 18px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color: #000; font-size: 10px; font-weight: 700; }
+            .plinko-ball-pulse { animation: plinkoPulse 520ms ease-out; }
+            @keyframes plinkoPulse {
+              0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+              40% { transform: scale(1.35); box-shadow: 0 6px 18px rgba(76,175,80,0.35); }
+              100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+            }
+            .plinko-ball-spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); border-top-color: rgba(255,255,255,0.6); animation: spin 1s linear infinite; }
+            @keyframes spin { to { transform: rotate(360deg); } }
+          `}</style>
+
+          {/* Left-side status column: fixed to viewport, vertically centered, constrained height */}
+          <div style={{ position: 'fixed', left: 18, top: '70%', transform: 'translateY(-50%)', zIndex: 800, pointerEvents: 'none', maxHeight: '70vh', overflow: 'hidden', width: 75 }}>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', background: 'linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.2))', padding: '8px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', boxSizing: 'border-box', pointerEvents: 'auto', maxHeight: '70vh', overflowY: 'auto' }}>
+              {Array.from({ length: 10 }).map((_, idx) => {
+                const isActive = idx < ballCount
+                const status = ballStatuses[idx]
+                const color = status === 'done' ? '#4caf50' : status === 'animating' ? '#ffd54f' : '#9e9e9e'
+                const opacity = isActive ? 1 : 0.32
+                const showBadge = isActive
+                const pulseClass = status === 'done' ? 'plinko-ball-pulse' : ''
+                return (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className={'plinko-ball-status ' + pulseClass} style={{ background: color, opacity }} title={`Ball ${idx + 1}: ${isActive ? (status || 'pending') : 'placeholder'}`}>
+                      {showBadge ? (status === 'pending' ? <div style={{ width: 10, height: 10, borderRadius: 6, background: 'rgba(255,255,255,0.15)' }} /> : (status === 'animating' ? <div className="plinko-ball-spinner" /> : <div style={{ fontSize: 10 }}>{idx + 1}</div>)) : null}
+                    </div>
+                  </div>
+                )
+              })}
+              {/* State label */}
+              <div style={{ marginTop: 6, fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>{overallPlayState === 'idle' ? 'Idle' : overallPlayState === 'loading' ? 'Loading...' : overallPlayState === 'launching' ? 'Launching' : overallPlayState === 'playing' ? 'Playing' : 'Done'}</div>
+            </div>
+          </div>
           {/* Gravity poetry background elements */}
           <div className="gravity-bg-elements" />
           <div className="melody-overlay" />
@@ -185,12 +399,14 @@ export default function Plinko() {
               <GambaUi.Canvas
                 style={{ flex: 1, width: '100%', height: '100%' }}
                 render={({ ctx, size }: any, clock: any) => {
-                if (!plinko) return
+                // Board Plinko must exist to render the static board
+                if (!boardPlinko) return
 
-                const bodies = plinko.getBodies()
+                // Main board bodies (pegs, barriers, buckets)
+                const boardBodies = boardPlinko.getBodies()
 
-                const xx = size.width / plinko.width
-                const yy = size.height / plinko.height
+                const xx = size.width / boardPlinko.width
+                const yy = size.height / boardPlinko.height
                 const s = Math.min(xx, yy)
 
                 ctx.clearRect(0, 0, size.width, size.height)
@@ -198,11 +414,11 @@ export default function Plinko() {
                 // ctx.fillStyle = '#0b0b13'
                 // ctx.fillRect(0, 0, size.width, size.height)
                 ctx.save()
-                ctx.translate(size.width / 2 - plinko.width / 2 * s, size.height / 2 - plinko.height / 2 * s)
+                ctx.translate(size.width / 2 - boardPlinko.width / 2 * s, size.height / 2 - boardPlinko.height / 2 * s)
                 ctx.scale(s, s)
                 if (debug) {
                   ctx.beginPath()
-                  bodies.forEach(({ vertices }) => {
+                  boardBodies.forEach(({ vertices }) => {
                     ctx.moveTo(vertices[0].x, vertices[0].y)
                     for (let j = 1; j < vertices.length; j += 1) {
                       ctx.lineTo(vertices[j].x, vertices[j].y)
@@ -213,23 +429,22 @@ export default function Plinko() {
                   ctx.strokeStyle = '#fff'
                   ctx.stroke()
                 }
-                // Always render balls and board, regardless of debug
-                bodies.forEach((body, i) => {
+                // Always render board elements
+                boardBodies.forEach((body, i) => {
                   const { label, position } = body
                   if (label === 'Peg') {
                     ctx.save()
                     ctx.translate(position.x, position.y)
-                    const animation = pegAnimations.current[body.plugin.pegIndex] ?? 0
-                    if (pegAnimations.current[body.plugin.pegIndex]) {
-                      pegAnimations.current[body.plugin.pegIndex] *= .9
+                    const animation = pegAnimations.current[body.plugin?.pegIndex] ?? 0
+                    if (pegAnimations.current[body.plugin?.pegIndex]) {
+                      pegAnimations.current[body.plugin?.pegIndex] *= .9
                     }
                     // Only apply scale animation if motion is enabled
+                    const animationEffect = settings.enableMotion ? animation : 0
                     if (settings.enableMotion) {
                       ctx.scale(1 + animation * .4, 1 + animation * .4)
                     }
                     const pegHue = (position.y + position.x + Date.now() * .05) % 360
-                    // Only apply animation effects if motion is enabled, otherwise use static values
-                    const animationEffect = settings.enableMotion ? animation : 0
                     ctx.fillStyle = 'hsla(' + pegHue + ', 75%, 60%, ' + (1 + animationEffect * 2) * .2 + ')'
                     ctx.beginPath()
                     ctx.arc(0, 0, dynamicPegRadius + 4, 0, Math.PI * 2)
@@ -240,20 +455,18 @@ export default function Plinko() {
                     ctx.arc(0, 0, dynamicPegRadius, 0, Math.PI * 2)
                     ctx.fill()
                     ctx.restore()
+                    return
                   }
                   if (label === 'Plinko') {
-                    // Draw plinko balls
+                    // BoardPlinko may contain pre-spawned bodies; draw them lightly
                     ctx.save()
                     ctx.translate(position.x, position.y)
-                    ctx.fillStyle = 'hsla(' + (i * 420 % 360) + ', 75%, 90%, .2)'
+                    ctx.fillStyle = 'hsla(' + (i * 420 % 360) + ', 75%, 90%, .08)'
                     ctx.beginPath()
                     ctx.arc(0, 0, dynamicBallRadius * 1.5, 0, Math.PI * 2)
                     ctx.fill()
-                    ctx.fillStyle = 'hsla(' + (i * 420 % 360) + ', 75%, 75%, 1)'
-                    ctx.beginPath()
-                    ctx.arc(0, 0, dynamicBallRadius, 0, Math.PI * 2)
-                    ctx.fill()
                     ctx.restore()
+                    return
                   }
                   if (label === 'Bucket') {
                     const animation = bucketAnimations.current[body.plugin.bucketIndex] ?? 0
@@ -309,17 +522,42 @@ export default function Plinko() {
                     ctx.restore()
                   }
                 })
+
+                // Render active ball instances (each has its own bodies)
+                if (ballPlinkos && ballPlinkos.length) {
+                  ballPlinkos.forEach((inst, instIdx) => {
+                    try {
+                      const bodies = inst.getBodies()
+                      bodies.forEach((body, bi) => {
+                        if (body.label !== 'Plinko') return
+                        const pos = body.position
+                        ctx.save()
+                        ctx.translate(pos.x, pos.y)
+                        const hue = (instIdx * 97 + bi * 137) % 360
+                        ctx.fillStyle = 'hsla(' + hue + ', 75%, 70%, 1)'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, dynamicBallRadius, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.restore()
+                      })
+                    } catch (e) {
+                      // ignore instance errors
+                    }
+                  })
+                }
                 ctx.restore()
               }}
             />
             
-            {/* Bucket Scoreboard */}
-            <BucketScoreboard
-              multipliers={multipliers}
-              activeBuckets={activeBuckets}
-              bucketHits={bucketHitsMap}
-              recentHits={recentHits}
-            />
+            {/* Bucket Scoreboard (hidden for now while multiplier mapping is fixed) */}
+            {showBucketScoreboard && (
+              <BucketScoreboard
+                multipliers={plinkoMultipliers}
+                activeBuckets={activeBuckets}
+                bucketHits={bucketHitsMap}
+                recentHits={recentHits}
+              />
+            )}
             </div>
           </GameScreenFrame>
           
@@ -348,14 +586,15 @@ export default function Plinko() {
                 maxWidth: '900px',
                 position: 'relative'
               }}>
-                {/* Header Section */}
-                <div style={{
+                {/* Header Section + Tabs */}
+                  <style>{`@keyframes settingsEnter { from { transform: translateY(8px) scale(.995); opacity: 0 } to { transform: translateY(0) scale(1); opacity: 1 } }`}</style>
+                  <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '24px',
-                  paddingBottom: '16px',
-                  borderBottom: '1px solid rgba(156, 39, 176, 0.3)'
+                  marginBottom: '12px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid rgba(156, 39, 176, 0.08)'
                 }}>
                   <div>
                     <h2 style={{
@@ -369,14 +608,7 @@ export default function Plinko() {
                     }}>
                       Plinko Settings
                     </h2>
-                    <p style={{
-                      margin: '4px 0 0 0',
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      fontSize: '14px',
-                      fontStyle: 'italic'
-                    }}>
-                      Customize your Plinko board configuration
-                    </p>
+                    <p style={{ margin: '6px 0 0 0', color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>Mode and Start Stagger live in Settings</p>
                   </div>
                   <button
                     onClick={() => setShowControls(false)}
@@ -399,164 +631,45 @@ export default function Plinko() {
                   </button>
                 </div>
                 
-                {/* Horizontal Controls Layout */}
+                {/* Horizontal Controls Layout (Basic: Game Mode + Start Stagger) */}
                 <div style={{
                   display: 'flex',
-                  gap: '24px',
-                  alignItems: 'flex-start'
+                  gap: '18px',
+                  alignItems: 'flex-start',
+                  animation: 'settingsEnter 220ms cubic-bezier(.2,.9,.2,1)'
                 }}>
-                  {/* Rows Control */}
-                  <div style={{
-                    flex: 1,
-                    background: 'rgba(0, 230, 118, 0.05)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    border: '1px solid rgba(0, 230, 118, 0.2)'
-                  }}>
-                    <div style={{
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      color: '#00e676',
-                      marginBottom: '12px'
-                    }}>
-                      ROWS ({customRows})
-                    </div>
-                    <p style={{
-                      fontSize: '12px',
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      margin: '0 0 16px 0',
-                      lineHeight: '1.4'
-                    }}>
-                      More rows create more randomness and wider ball distribution.
-                    </p>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: '8px'
-                    }}>
-                      {[10, 12, 14, 16, 18, 20].map(count => (
-                        <button
-                          key={count}
-                          onClick={() => setCustomRows(count)}
-                          disabled={gamba.isPlaying || count === 18 || count === 20}
-                          style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: `2px solid ${customRows === count ? '#00e676' : (count === 18 || count === 20) ? 'rgba(128, 128, 128, 0.4)' : 'rgba(0, 230, 118, 0.4)'}`,
-                            background: customRows === count 
-                              ? 'linear-gradient(135deg, rgba(0, 230, 118, 0.3) 0%, rgba(0, 200, 83, 0.4) 100%)'
-                              : (count === 18 || count === 20) 
-                                ? 'linear-gradient(135deg, rgba(128, 128, 128, 0.1) 0%, rgba(96, 96, 96, 0.2) 100%)'
-                                : 'linear-gradient(135deg, rgba(0, 230, 118, 0.1) 0%, rgba(0, 200, 83, 0.2) 100%)',
-                            color: customRows === count ? '#00e676' : (count === 18 || count === 20) ? 'rgba(128, 128, 128, 0.6)' : 'rgba(0, 230, 118, 0.8)',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            cursor: gamba.isPlaying || count === 18 || count === 20 ? 'not-allowed' : 'pointer',
-                            opacity: gamba.isPlaying || count === 18 || count === 20 ? 0.5 : 1,
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          {count}
-                        </button>
-                      ))}
+                  <div style={{ flex: 1, minHeight: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(156, 39, 176, 0.04)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(156, 39, 176, 0.12)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#9c27b0', marginBottom: '12px' }}>GAME MODE</div>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', margin: '0 0 12px 0' }}>Choose Normal or Degen mode for different bucket layouts.</p>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => { setCustomMode(false); setDegen(false) }} disabled={gamba.isPlaying} style={{ flex: 1, padding: '8px 12px', borderRadius: 10, border: 'none', background: !degen ? 'linear-gradient(135deg, #4caf50, #45a049)' : 'rgba(255,255,255,0.03)', color: !degen ? '#fff' : 'rgba(255,255,255,0.8)', fontWeight: 700 }}>Normal</button>
+                      <button onClick={() => { setCustomMode(false); setDegen(true) }} disabled={gamba.isPlaying} style={{ flex: 1, padding: '8px 12px', borderRadius: 10, border: 'none', background: degen ? 'linear-gradient(135deg, #ff9800, #f57c00)' : 'rgba(255,255,255,0.03)', color: degen ? '#fff' : 'rgba(255,255,255,0.8)', fontWeight: 700 }}>Degen</button>
                     </div>
                   </div>
-
-                  {/* Buckets Control */}
-                  <div style={{
-                    flex: 1,
-                    background: 'rgba(0, 188, 212, 0.05)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    border: '1px solid rgba(0, 188, 212, 0.2)'
-                  }}>
-                    <div style={{
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      color: '#00bcd4',
-                      marginBottom: '12px'
-                    }}>
-                      BUCKETS ({customBuckets})
-                    </div>
-                    <p style={{
-                      fontSize: '12px',
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      margin: '0 0 16px 0',
-                      lineHeight: '1.4'
-                    }}>
-                      Fewer buckets mean higher multipliers on edges but lower hit frequency.
-                    </p>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
-                      gap: '8px'
-                    }}>
-                      {[6, 8, 10, 12, 14, 16].map(count => (
-                        <button
-                          key={count}
-                          onClick={() => setCustomBuckets(count)}
-                          disabled={gamba.isPlaying || count === 14 || count === 16}
-                          style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: `2px solid ${customBuckets === count ? '#00bcd4' : (count === 14 || count === 16) ? 'rgba(128, 128, 128, 0.4)' : 'rgba(0, 188, 212, 0.4)'}`,
-                            background: customBuckets === count 
-                              ? 'linear-gradient(135deg, rgba(0, 188, 212, 0.3) 0%, rgba(0, 172, 193, 0.4) 100%)'
-                              : (count === 14 || count === 16)
-                                ? 'linear-gradient(135deg, rgba(128, 128, 128, 0.1) 0%, rgba(96, 96, 96, 0.2) 100%)'
-                                : 'linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 172, 193, 0.2) 100%)',
-                            color: customBuckets === count ? '#00bcd4' : (count === 14 || count === 16) ? 'rgba(128, 128, 128, 0.6)' : 'rgba(0, 188, 212, 0.8)',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            cursor: gamba.isPlaying || count === 14 || count === 16 ? 'not-allowed' : 'pointer',
-                            opacity: gamba.isPlaying || count === 14 || count === 16 ? 0.5 : 1,
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          {count}
-                        </button>
-                      ))}
-                    </div>
+                  <div style={{ flex: 1, minHeight: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'rgba(0, 188, 212, 0.04)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(0, 188, 212, 0.08)' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#00bcd4', marginBottom: '12px' }}>START STAGGER (ms)</div>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', margin: '0 0 12px 0' }}>Time (in MS) between visual starts when playing multiple balls.</p>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>{[0,50,100,200,400].map(ms => (<button key={ms} onClick={() => setBallStartStagger(ms)} disabled={gamba.isPlaying || multiPlaying} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: ballStartStagger === ms ? '2px solid rgba(0,0,0,0.6)' : '1px solid rgba(255,255,255,0.04)', background: ballStartStagger === ms ? 'rgba(255,255,255,0.06)' : 'transparent', color: ballStartStagger === ms ? '#fff' : 'rgba(255,255,255,0.8)', fontWeight: 700 }}>{ms === 0 ? '0 (sim)' : `${ms} ms`}</button>))}</div>
                   </div>
                 </div>
 
-                {/* Current Config Display */}
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(142, 36, 170, 0.05) 100%)',
-                  borderRadius: '12px',
-                  padding: 'clamp(16px, 3vw, 24px)',
-                  border: '1px solid rgba(156, 39, 176, 0.3)',
-                  textAlign: 'center'
-                }}>
-                  <div style={{
-                    fontSize: 'clamp(14px, 3vw, 16px)',
-                    fontWeight: 'bold',
-                    color: '#9c27b0',
-                    marginBottom: '8px'
-                  }}>
-                    CURRENT CONFIG
-                  </div>
-                  <div style={{
-                    fontSize: 'clamp(12px, 2.5vw, 14px)',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    lineHeight: '1.5'
-                  }}>
-                    🎯 <strong>{customMode ? 'Custom' : degen ? 'Degen' : 'Normal'}</strong> Mode • 
-                    📏 <strong>{rows}</strong> Rows • 
-                    🪣 <strong>{buckets}</strong> Buckets • 
-                    ⚡ <strong>{ballCount}</strong> Ball{ballCount > 1 ? 's' : ''} • 
-                    💰 Max: <strong>{Math.max(...bet).toFixed(2)}x</strong>
-                  </div>
+                {/* Summary row (current mode/rows/buckets/balls/max) */}
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12, color: 'rgba(255,255,255,0.9)', fontSize: 13 }}>
+                  <div>🎯 <strong>{customMode ? 'Custom' : degen ? 'Degen' : 'Normal'}</strong> Mode</div>
+                  <div>📏 <strong>{rows}</strong> Rows</div>
+                  <div>🪣 <strong>{buckets}</strong> Buckets</div>
+                  <div>⚡ <strong>{ballCount}</strong> Ball{ballCount > 1 ? 's' : ''}</div>
+                  <div>💰 Max: <strong>{Math.max(...bet).toFixed(2)}x</strong></div>
                 </div>
 
                 {/* Footer Info */}
                 <div style={{
                   textAlign: 'center',
-                  paddingTop: 'clamp(16px, 3vw, 20px)',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  paddingTop: 'clamp(12px, 2vw, 16px)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.06)',
                   color: 'rgba(255, 255, 255, 0.5)',
                   fontSize: 'clamp(10px, 2vw, 12px)',
-                  marginTop: 'clamp(16px, 3vw, 20px)'
+                  marginTop: 'clamp(12px, 2vw, 16px)'
                 }}>
                   💡 {customMode ? 'Experiment with different combinations to find your perfect risk/reward balance' : 'Use the controls above to quickly switch modes and ball counts'}
                 </div>
@@ -574,119 +687,7 @@ export default function Plinko() {
           playDisabled={gamba.isPlaying || poolExceeded}
           playText="Play"
         >
-          {/* Mode Toggle + Balls Dropdown + Settings */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            {/* Normal|Degen Toggle */}
-            <div style={{
-              display: 'flex',
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              padding: '2px',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <button
-                onClick={() => { setCustomMode(false); setDegen(false) }}
-                disabled={gamba.isPlaying}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: !customMode && !degen 
-                    ? 'linear-gradient(135deg, #4caf50, #45a049)'
-                    : 'transparent',
-                  color: !customMode && !degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                  opacity: gamba.isPlaying ? 0.5 : 1,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Normal
-              </button>
-              <button
-                onClick={() => { setCustomMode(false); setDegen(true) }}
-                disabled={gamba.isPlaying}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: !customMode && degen 
-                    ? 'linear-gradient(135deg, #ff9800, #f57c00)'
-                    : 'transparent',
-                  color: !customMode && degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                  opacity: gamba.isPlaying ? 0.5 : 1,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Degen
-              </button>
-            </div>
 
-            {/* Balls Dropdown */}
-            <select
-              value={ballCount}
-              onChange={(e) => setBallCount(Number(e.target.value))}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '4px 8px',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 87, 34, 0.4)',
-                background: 'rgba(255, 87, 34, 0.1)',
-                color: '#ff5722',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                opacity: gamba.isPlaying ? 0.5 : 1
-              }}
-            >
-              {[1, 3, 5, 10].map(count => (
-                <option key={count} value={count} style={{ background: '#1a1a1a', color: '#ff5722' }}>
-                  {count} Ball{count > 1 ? 's' : ''}
-                </option>
-              ))}
-            </select>
-
-            {/* Settings Button - Always visible */}
-            <button
-              onClick={() => { setCustomMode(true); setShowControls(true) }}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '4px 8px',
-                borderRadius: '8px',
-                border: '1px solid rgba(156, 39, 176, 0.4)',
-                background: 'rgba(156, 39, 176, 0.1)',
-                color: '#9c27b0',
-                fontSize: '12px',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                opacity: gamba.isPlaying ? 0.5 : 1,
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              ⚙️
-            </button>
-          </div>
-        </MobileControls>
-        
-        <DesktopControls
-          onPlay={() => play()}
-          playDisabled={gamba.isPlaying || poolExceeded}
-          playText="Play"
-        >
-          <EnhancedWagerInput value={wager} onChange={setWager} />
-          
           {/* Controls Container - EXACTLY like wager input */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.1) 50%, rgba(10, 5, 17, 0.85) 100%)',
@@ -698,57 +699,11 @@ export default function Plinko() {
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            width: 'fit-content'
+            width: isMobile ? '100%' : 'fit-content',
+            maxWidth: '100%'
           }}>
-            {/* Mode Toggle (where number input would be) */}
-            <div style={{
-              display: 'flex',
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '2px',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <button
-                onClick={() => { setCustomMode(false); setDegen(false) }}
-                disabled={gamba.isPlaying}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: !customMode && !degen 
-                    ? 'linear-gradient(135deg, #4caf50, #45a049)'
-                    : 'transparent',
-                  color: !customMode && !degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                  opacity: gamba.isPlaying ? 0.5 : 1,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Normal
-              </button>
-              <button
-                onClick={() => { setCustomMode(false); setDegen(true) }}
-                disabled={gamba.isPlaying}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: !customMode && degen 
-                    ? 'linear-gradient(135deg, #ff9800, #f57c00)'
-                    : 'transparent',
-                  color: !customMode && degen ? '#fff' : 'rgba(255, 255, 255, 0.7)',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
-                  opacity: gamba.isPlaying ? 0.5 : 1,
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Degen
-              </button>
-            </div>
+            {/* (Start Stagger moved into Settings) */}
+            {/* (Game Mode moved into Settings) */}
             
             {/* Balls Dropdown (where token would be) */}
             <select
@@ -774,27 +729,108 @@ export default function Plinko() {
               ))}
             </select>
 
-            {/* Settings Button (where info icon would be) */}
+            {/* Per-ball progress indicator */}
+            {multiPlaying && (
+              <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px', fontWeight: 'bold' }}>
+                Animating {completedBalls}/{ballCount}
+              </div>
+            )}
+
             <button
               onClick={() => { setCustomMode(true); setShowControls(true) }}
+              disabled={gamba.isPlaying}
+              style={{
+                marginLeft: 8,
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.04)',
+                color: 'rgba(212, 165, 116, 0.95)',
+                fontSize: '12px',
+                padding: '6px 10px',
+                borderRadius: 8,
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}
+              title="Game Mode & Start Stagger live in Settings"
+            >
+              <strong style={{ color: 'inherit' }}>{degen ? 'Degen' : 'Normal'}</strong>
+              <span style={{ opacity: 0.6 }}>•</span>
+              <span style={{ fontSize: 12 }}>{ballStartStagger}ms</span>
+            </button>
+          </div>
+        </MobileControls>
+        
+        <DesktopControls
+          onPlay={() => play()}
+          playDisabled={gamba.isPlaying || poolExceeded}
+          playText="Play"
+        >
+          <EnhancedWagerInput value={wager} onChange={setWager} />
+          
+          {/* Controls Container - EXACTLY like wager input */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(10, 5, 17, 0.85) 0%, rgba(139, 90, 158, 0.1) 50%, rgba(10, 5, 17, 0.85) 100%)',
+            border: '1px solid rgba(212, 165, 116, 0.4)',
+            borderRadius: '16px',
+            padding: '14px',
+            boxShadow: 'inset 0 2px 8px rgba(10, 5, 17, 0.4), 0 4px 16px rgba(212, 165, 116, 0.1), 0 0 0 1px rgba(212, 165, 116, 0.15)',
+            backdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            width: 'fit-content'
+          }}>
+            {/* (Start Stagger moved into Settings) */}
+            {/* (Game Mode moved into Settings) */}
+            
+            {/* Balls Dropdown (where token would be) */}
+            <select
+              value={ballCount}
+              onChange={(e) => setBallCount(Number(e.target.value))}
               disabled={gamba.isPlaying}
               style={{
                 background: 'transparent',
                 border: 'none',
                 color: 'rgba(212, 165, 116, 0.9)',
-                fontSize: '16px',
+                fontSize: '12px',
+                fontWeight: 'bold',
                 cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
                 opacity: gamba.isPlaying ? 0.5 : 1,
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0',
-                minWidth: '24px',
-                height: '24px'
+                outline: 'none',
+                fontFamily: 'Libre Baskerville, serif'
               }}
             >
-              ⚙️
+              {[1, 3, 5, 10].map(count => (
+                <option key={count} value={count} style={{ background: '#1a1a1a', color: '#ff5722' }}>
+                  {count} Ball{count > 1 ? 's' : ''}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => { setCustomMode(true); setShowControls(true) }}
+              disabled={gamba.isPlaying}
+              style={{
+                marginLeft: 8,
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.04)',
+                color: 'rgba(212, 165, 116, 0.95)',
+                fontSize: '12px',
+                padding: '6px 10px',
+                borderRadius: 8,
+                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer',
+                opacity: gamba.isPlaying ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}
+              title="Game Mode & Start Stagger live in Settings"
+            >
+              <strong style={{ color: 'inherit' }}>{degen ? 'Degen' : 'Normal'}</strong>
+              <span style={{ opacity: 0.6 }}>•</span>
+              <span style={{ fontSize: 12 }}>{ballStartStagger}ms</span>
             </button>
           </div>
         </DesktopControls>

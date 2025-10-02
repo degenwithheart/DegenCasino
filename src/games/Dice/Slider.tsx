@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
+import DICE_THEME from './theme'
+
+type DiceMode = 'under' | 'over' | 'between' | 'outside'
 
 interface SliderProps {
   min: number
@@ -8,7 +11,13 @@ interface SliderProps {
   value: number | [number, number]
   onChange: (value: number | [number, number]) => void
   disabled?: boolean
+  mode?: DiceMode
+  // optional external ref to the container (keeps existing code using sliderRef happy)
+  containerRef?: React.RefObject<HTMLDivElement>
 }
+
+// Small centralized theme tokens (kept local to this component for now)
+const THEME = DICE_THEME.colors
 
 const Container = styled.div`
   position: relative;
@@ -18,36 +27,43 @@ const Container = styled.div`
 
 const Track = styled.div`
   position: relative;
-  height: 14px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
+  height: 18px;
+  border-radius: 12px;
+  background: ${THEME.trackBg};
   overflow: visible;
 `
 
-const RangeFill = styled.div`
+const GreenFill = styled.div`
   position: absolute;
   height: 100%;
-  background: linear-gradient(90deg,#48bb78,#38a169);
-  border-radius: 10px;
+  background: linear-gradient(90deg, ${THEME.greenStart}, ${THEME.greenEnd});
+  border-radius: 12px;
+`
+
+const RedFill = styled.div`
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(90deg, ${THEME.redStart}, ${THEME.redEnd});
+  border-radius: 12px;
 `
 
 const Thumb = styled.div<{ $left: number; $active?: boolean }>`
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: #fff;
-  border: 2px solid rgba(0,0,0,0.25);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  background: linear-gradient(180deg, ${THEME.thumbLightStart}, ${THEME.thumbLightEnd});
+  border: 2px solid ${THEME.thumbBorder};
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
   transition: box-shadow .12s ease, transform .08s ease;
   cursor: pointer;
   left: ${p => p.$left}%;
 
   ${p => p.$active && css`
     transform: translate(-50%, -50%) scale(1.06);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.32);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.36);
   `}
 `
 
@@ -56,21 +72,56 @@ const Label = styled.div<{ $left: number; $active?: boolean }>`
   top: -28px;
   transform: translateX(-50%);
   left: ${p => p.$left}%;
-  background: rgba(50,41,67,0.12);
+  background: ${THEME.labelBg};
   padding: 4px 8px;
   border-radius: 8px;
-  color: #ff949f;
+  color: ${THEME.labelColor};
   font-size: 12px;
   min-width: 28px;
   text-align: center;
-  ${p => p.$active && css` color: #94ff94; `}
+  ${p => p.$active && css` color: ${THEME.activeLabelColor}; `}
 `
 
-export default function Slider({ min, max, value, onChange, disabled }: SliderProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [active, setActive] = useState<null | 'min' | 'max'>(null)
+const floatIn = keyframes`
+  from { opacity: 0; transform: translate(-50%, -6px) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+`
+
+const Tooltip = styled.div<{ $left: number }>`
+  position: absolute;
+  top: -48px;
+  transform: translateX(-50%);
+  left: ${p => p.$left}%;
+  background: rgba(20,20,30,0.95);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  animation: ${floatIn} 120ms ease-out;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid rgba(20,20,30,0.95);
+  }
+`
+
+export default function Slider({ min, max, value, onChange, disabled, mode, containerRef: externalRef }: SliderProps) {
+  const internalRef = useRef<HTMLDivElement | null>(null)
+  const containerRef = externalRef ?? internalRef
+  const [active, setActive] = useState<null | 'min' | 'max' | 'single'>(null)
   const isRange = Array.isArray(value)
-  const [localMin, localMax] = isRange ? value as [number, number] : [min, value as number]
+  const [localMin, localMax] = isRange ? (value as [number, number]) : [min, value as number]
 
   // Helper to convert clientX -> percent
   const clientXToPct = (clientX: number) => {
@@ -78,7 +129,6 @@ export default function Slider({ min, max, value, onChange, disabled }: SliderPr
     if (!rect) return 0
     let pct = ((clientX - rect.left) / rect.width) * 100
     pct = Math.max(0, Math.min(100, pct))
-    console.debug('[SLIDER-DEBUG] clientXToPct:', { clientX, pct, rect: { left: rect.left, width: rect.width } })
     return pct
   }
 
@@ -88,25 +138,27 @@ export default function Slider({ min, max, value, onChange, disabled }: SliderPr
     let up: ((e: PointerEvent) => void) | null = null
 
     move = (e: PointerEvent) => {
-      console.debug('[SLIDER-DEBUG] pointermove event', { active, clientX: e.clientX })
       if (!active) return
       const pct = clientXToPct(e.clientX)
       const valueSpan = max - min
       const val = Math.round(min + (pct / 100) * valueSpan)
-      console.debug('[SLIDER-DEBUG] computed', { pct, val, localMin, localMax })
-      if (active === 'min') {
-        const next = Math.min(val, localMax - 1)
-        console.debug('[SLIDER-DEBUG] set min ->', next)
-        onChange([Math.max(min, next), localMax])
+
+      if (isRange) {
+        if (active === 'min') {
+          const next = Math.min(val, localMax - 1)
+          onChange([Math.max(min, next), localMax])
+        } else if (active === 'max') {
+          const next = Math.max(val, localMin + 1)
+          onChange([localMin, Math.min(max, next)])
+        }
       } else {
-        const next = Math.max(val, localMin + 1)
-        console.debug('[SLIDER-DEBUG] set max ->', next)
-        onChange([localMin, Math.min(max, next)])
+        // single thumb
+        const next = Math.max(min, Math.min(max, val))
+        onChange(next)
       }
     }
 
     up = () => {
-      console.debug('[SLIDER-DEBUG] pointerup')
       setActive(null)
       if (move) window.removeEventListener('pointermove', move)
       if (up) window.removeEventListener('pointerup', up)
@@ -121,28 +173,31 @@ export default function Slider({ min, max, value, onChange, disabled }: SliderPr
       if (move) window.removeEventListener('pointermove', move)
       if (up) window.removeEventListener('pointerup', up)
     }
-  }, [active, localMin, localMax, min, max, onChange, disabled])
+  }, [active, localMin, localMax, min, max, onChange, disabled, isRange])
 
   // Decide which thumb is closest when clicking the track; only grab if within threshold
   const handlePointerDownOnTrack = (e: React.PointerEvent) => {
-    console.debug('[SLIDER-DEBUG] track pointerdown', { clientX: e.clientX, isRange, disabled })
-    if (!isRange || disabled) return
+    if (disabled) return
     const pct = clientXToPct(e.clientX)
     const valueSpan = max - min
     const clickedVal = Math.round(min + (pct / 100) * valueSpan)
+
+    if (!isRange) {
+      // single mode: jump to value and begin dragging
+      onChange(clickedVal)
+      setActive('single')
+      return
+    }
+
     const distMin = Math.abs(clickedVal - localMin)
     const distMax = Math.abs(clickedVal - localMax)
     const threshold = Math.max(2, valueSpan * 0.06) // 6% of span or min 2 units
-    console.debug('[SLIDER-DEBUG] track hit testing', { pct, clickedVal, distMin, distMax, threshold })
     if (distMin <= threshold && distMin <= distMax) {
-      console.debug('[SLIDER-DEBUG] grabbing min')
       setActive('min')
     } else if (distMax <= threshold) {
-      console.debug('[SLIDER-DEBUG] grabbing max')
       setActive('max')
     } else {
-      console.debug('[SLIDER-DEBUG] track click ignored (not near a thumb)')
-      // Don't jump thumbs when clicking the track
+      // ignore track click if not near a thumb
     }
   }
 
@@ -152,24 +207,71 @@ export default function Slider({ min, max, value, onChange, disabled }: SliderPr
     <Container>
       <div ref={containerRef} onPointerDown={handlePointerDownOnTrack}>
         <Track>
+          {/* Mode-aware fills */}
           {isRange ? (
             <>
-              <RangeFill style={{ left: `${pctOf(localMin)}%`, width: `${pctOf(localMax) - pctOf(localMin)}%` }} />
+              {mode === 'outside' ? (
+                <>
+                  {/* left outer green area: from 0 to localMin */}
+                  <GreenFill style={{ left: 0, width: `${pctOf(localMin)}%` }} />
+                  {/* right outer green area: from localMax to 100 */}
+                  <GreenFill style={{ left: `${pctOf(localMax)}%`, width: `${100 - pctOf(localMax)}%` }} />
+                  {/* middle red area: from localMin to localMax */}
+                  <RedFill style={{ left: `${pctOf(localMin)}%`, width: `${pctOf(localMax) - pctOf(localMin)}%` }} />
+                </>
+              ) : (
+                <>
+                  <GreenFill style={{ left: `${pctOf(localMin)}%`, width: `${pctOf(localMax) - pctOf(localMin)}%` }} />
+                  <RedFill style={{ left: 0, width: `${pctOf(localMin)}%` }} />
+                  <RedFill style={{ left: `${pctOf(localMax)}%`, width: `${100 - pctOf(localMax)}%` }} />
+                </>
+              )}
+
               <Thumb
+                role="slider"
+                aria-valuemin={min}
+                aria-valuemax={max}
+                aria-valuenow={localMin}
                 $left={pctOf(localMin)}
                 $active={active === 'min'}
-                onPointerDown={(e) => { e.stopPropagation(); console.debug('[SLIDER-DEBUG] thumb min pointerdown', { clientX: (e as any).clientX }); setActive('min') }}
+                onPointerDown={(e) => { e.stopPropagation(); setActive('min') }}
               />
+              {active === 'min' && <Tooltip $left={pctOf(localMin)}>{localMin}</Tooltip>}
               <Thumb
+                role="slider"
+                aria-valuemin={min}
+                aria-valuemax={max}
+                aria-valuenow={localMax}
                 $left={pctOf(localMax)}
                 $active={active === 'max'}
-                onPointerDown={(e) => { e.stopPropagation(); console.debug('[SLIDER-DEBUG] thumb max pointerdown', { clientX: (e as any).clientX }); setActive('max') }}
+                onPointerDown={(e) => { e.stopPropagation(); setActive('max') }}
               />
+              {active === 'max' && <Tooltip $left={pctOf(localMax)}>{localMax}</Tooltip>}
             </>
           ) : (
             <>
-              <RangeFill style={{ left: 0, width: `${pctOf(value as number)}%` }} />
-              <Thumb $left={pctOf(value as number)} $active={false} onPointerDown={(e) => { e.stopPropagation(); console.debug('[SLIDER-DEBUG] single thumb pointerdown') }} />
+              {mode === 'over' ? (
+                <>
+                  <GreenFill style={{ left: `${pctOf(value as number)}%`, width: `${100 - pctOf(value as number)}%` }} />
+                  <RedFill style={{ left: 0, width: `${pctOf(value as number)}%` }} />
+                </>
+              ) : (
+                <>
+                  <GreenFill style={{ left: 0, width: `${pctOf(value as number)}%` }} />
+                  <RedFill style={{ left: `${pctOf(value as number)}%`, width: `${100 - pctOf(value as number)}%` }} />
+                </>
+              )}
+
+              <Thumb
+                role="slider"
+                aria-valuemin={min}
+                aria-valuemax={max}
+                aria-valuenow={value as number}
+                $left={pctOf(value as number)}
+                $active={active === 'single'}
+                onPointerDown={(e) => { e.stopPropagation(); setActive('single') }}
+              />
+              {active === 'single' && <Tooltip $left={pctOf(value as number)}>{value as number}</Tooltip>}
             </>
           )}
         </Track>
@@ -180,7 +282,7 @@ export default function Slider({ min, max, value, onChange, disabled }: SliderPr
         const labelVal = Math.round(min + (i / 4) * (max - min))
         const left = pctOf(labelVal)
         return (
-          <Label key={i} $left={left} $active={(isRange ? (localMin <= labelVal) : (value as number) >= labelVal)}>
+          <Label key={i} $left={left} $active={(isRange ? (localMin <= labelVal && labelVal <= localMax) : (value as number) >= labelVal)}>
             {labelVal}
           </Label>
         )

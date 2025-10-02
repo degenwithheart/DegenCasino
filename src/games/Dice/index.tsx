@@ -7,13 +7,13 @@ import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import { Container, Result, RollUnder, Stats } from './styles'
 import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components'
 import { useIsCompact } from '../../hooks/ui/useIsCompact'
+import { useGameStats } from '../../hooks/game/useGameStats'
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGraphics } from '../../components/Game/GameScreenFrame'
 import { useGameMeta } from '../useGameMeta'
-import { useGameStats } from '../../hooks/game/useGameStats'
-
-type DiceMode = 'under' | 'over' | 'between' | 'outside'
+import styled, { css } from 'styled-components'
+import DICE_THEME from './theme'
 
 const calculateArraySize = (odds: number): number => {
   const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
@@ -43,6 +43,8 @@ export const outcomes = (odds: number) => {
   return payoutArray
 }
 
+type DiceMode = 'under' | 'over' | 'between' | 'outside'
+
 export default function Dice() {
   // Essential hooks
   const gamba = useGamba()
@@ -51,7 +53,6 @@ export default function Dice() {
   const { mobile: isMobile } = useIsCompact()
 
   // Game state
-  // KEEP original variables (so nothing is removed). We'll *augment* them with new mode/range state.
   const [resultIndex, setResultIndex] = useState(-1)
   const [rollUnderIndex, setRollUnderIndex] = useState(Math.floor(100 / 2))
   const [hasPlayed, setHasPlayed] = useState(false)
@@ -63,48 +64,7 @@ export default function Dice() {
   const [mode, setMode] = useState<DiceMode>('under') // default matches original behavior
   const [minRange, setMinRange] = useState(25)
   const [maxRange, setMaxRange] = useState(75)
-  // Active handle to ensure proper dragging z-index for overlapping range inputs
-  const [activeHandle, setActiveHandle] = useState<null | 'min' | 'max' | 'single'>(null)
-  const sliderRef = useRef<HTMLDivElement | null>(null)
-
-  // Manual drag handlers for dual-handle slider to ensure both handles are draggable
-  React.useEffect(() => {
-    let moveHandler: ((e: PointerEvent) => void) | null = null
-    let upHandler: ((e: PointerEvent) => void) | null = null
-
-    moveHandler = (e: PointerEvent) => {
-      if (!activeHandle) return
-      const rect = sliderRef.current?.getBoundingClientRect()
-      if (!rect) return
-      let pct = ((e.clientX - rect.left) / rect.width) * 100
-      pct = Math.max(1, Math.min(99, Math.round(pct)))
-      if (activeHandle === 'min') {
-        const val = Math.min(pct, maxRange - 1)
-        setMinRange(val)
-      } else if (activeHandle === 'max') {
-        const val = Math.max(pct, minRange + 1)
-        setMaxRange(val)
-      } else if (activeHandle === 'single') {
-        // update single handle (rollValue) for under/over modes
-        const val = Math.max(1, Math.min(99, Math.round(pct)))
-        setRollValue(val)
-      }
-    }
-
-    upHandler = () => {
-      setActiveHandle(null)
-    }
-
-    if (activeHandle) {
-      window.addEventListener('pointermove', moveHandler)
-      window.addEventListener('pointerup', upHandler)
-    }
-
-    return () => {
-      if (moveHandler) window.removeEventListener('pointermove', moveHandler)
-      if (upHandler) window.removeEventListener('pointerup', upHandler)
-    }
-  }, [activeHandle, minRange, maxRange])
+  // slider internalizes pointer handling; no global handlers required
 
   // Game statistics tracking
   const gameStats = useGameStats('dice-v2')  // Initialize with correct game ID
@@ -166,6 +126,73 @@ export default function Dice() {
 
   // Calculate pool exceeded (unchanged)
   const poolExceeded = maxWin > (pool?.maxPayout || 0)
+
+  // Styled control tiles using shared theme
+  const Tile = styled.div<{ $featured?: boolean }>`
+    background: ${DICE_THEME.colors.tileBg};
+    border-radius: 12px;
+    padding: ${DICE_THEME.sizes.tilePadding};
+    text-align: center;
+  width: clamp(180px, 32%, 300px);
+    height: 88px;
+    flex: 0 1 auto;
+    border: 2px solid ${DICE_THEME.colors.tileBorder};
+    box-shadow: 0 4px 16px rgba(26,32,44,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+
+    ${p => p.$featured && css`
+      border-color: ${DICE_THEME.colors.tileAccent};
+      background: linear-gradient(180deg, rgba(10,12,16,0.6), ${DICE_THEME.colors.tileBg});
+      box-shadow: 0 14px 40px rgba(10,12,20,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    `}
+  `
+
+  const TileLabel = styled.div<{ $featured?: boolean }>`
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: ${DICE_THEME.colors.labelColor};
+    letter-spacing: 0.2px;
+    ${p => p.$featured && css` color: ${DICE_THEME.colors.activeLabelColor}; `}
+  `
+
+  const TileValue = styled.div<{ $featured?: boolean }>`
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1.05;
+    white-space: nowrap;
+  `
+
+  // Decorative dice styled components using shared DICE_THEME tokens
+  const DiceBox = styled.div<{ $opacity?: number }>`
+    width: clamp(60px, 12vw, 80px);
+    height: clamp(60px, 12vw, 80px);
+    background: linear-gradient(135deg, ${DICE_THEME.colors.tileBorder} 0%, #2d3748 50%, ${DICE_THEME.colors.tileBg} 100%);
+    border-radius: clamp(8px, 2vw, 12px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.08);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    padding: clamp(8px, 2vw, 12px);
+    opacity: ${p => p.$opacity ?? 0.75};
+    pointer-events: none;
+    transform-style: preserve-3d;
+  `
+
+  const Pip = styled.div<{ $justify?: 'start' | 'center' | 'end'; $align?: 'start' | 'center' | 'end' }>`
+    width: clamp(4px, 1.2vw, 8px);
+    height: clamp(4px, 1.2vw, 8px);
+    background-color: ${DICE_THEME.colors.tileAccent};
+    border-radius: 50%;
+    justify-self: ${p => p.$justify || 'center'};
+    align-self: ${p => p.$align || 'center'};
+    box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  `
 
   const resetGame = () => {
     setHasPlayed(false)
@@ -400,478 +427,112 @@ export default function Dice() {
               maxWidth: '95%',
               position: 'relative'
             }}>
-              {/* Slider Track Numbers */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: 'clamp(8px, 2vw, 10px)',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                color: '#a0aec0'
-              }}>
-                <span>0</span>
-                <span>25</span>
-                <span>50</span>
-                <span>75</span>
-                <span>100</span>
-              </div>
+              {/* Slider Track Numbers moved into Slider component */}
 
-              {/* Slider Container */}
-              <div
-                ref={sliderRef}
-                onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
-                  // Prevent bar clicks from moving handles unless pointer is near a handle
-                  const rect = sliderRef.current?.getBoundingClientRect()
-                  if (!rect) return
-                  const pct = ((e.clientX) - rect.left) / rect.width * 100
-                  const distMin = Math.abs(pct - minRange)
-                  const distMax = Math.abs(pct - maxRange)
-                  const threshold = 6 // percent threshold to 'grab' a handle
-                  if (distMin <= threshold && distMin <= distMax) {
-                    setActiveHandle('min')
-                  } else if (distMax <= threshold) {
-                    setActiveHandle('max')
-                  } else {
-                    // do not jump handles on bar click
-                  }
-                }}
-                style={{
-                position: 'relative',
-                height: 'clamp(36px, 8vw, 40px)',
-                background: 'rgba(45, 55, 72, 0.8)',
-                borderRadius: '20px',
-                padding: '4px'
-              }}>
-                {/* Winning Area(s) */}
-                {/* Under: left area; Over: right area; Between: middle area; Outside: two outer areas */}
-                {mode === 'under' && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: '4px',
-                      top: '4px',
-                      bottom: '4px',
-                      width: `${rollValue}%`,
-                      background: 'linear-gradient(90deg, #48bb78, #38a169)',
-                      borderRadius: '16px'
-                    }}
-                  />
-                )}
-
-                {mode === 'over' && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      right: '4px',
-                      top: '4px',
-                      bottom: '4px',
-                      width: `${100 - rollValue}%`,
-                      background: 'linear-gradient(90deg, #48bb78, #38a169)',
-                      borderRadius: '16px'
-                    }}
-                  />
-                )}
-
-                {mode === 'between' && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${minRange}%`,
-                      top: '4px',
-                      bottom: '4px',
-                      width: `${Math.max(0, maxRange - minRange)}%`,
-                      background: 'linear-gradient(90deg, #48bb78, #38a169)',
-                      borderRadius: '16px'
-                    }}
-                  />
-                )}
-
-                {mode === 'outside' && (
-                  <>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: '4px',
-                        top: '4px',
-                        bottom: '4px',
-                        width: `${minRange}%`,
-                        background: 'linear-gradient(90deg, #48bb78, #38a169)',
-                        borderRadius: '16px'
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        right: '4px',
-                        top: '4px',
-                        bottom: '4px',
-                        width: `${100 - maxRange}%`,
-                        background: 'linear-gradient(90deg, #48bb78, #38a169)',
-                        borderRadius: '16px'
-                      }}
-                    />
-                  </>
-                )}
-
-                {/* Losing area(s) for visual contrast (simple approach) */}
-                {/* We'll show a single red area for under/over and the inverse for between/outside */}
-                { (mode === 'under') && (
-                  <div style={{
-                    position: 'absolute',
-                    right: '4px',
-                    top: '4px',
-                    bottom: '4px',
-                    width: `${100 - rollValue}%`,
-                    background: 'linear-gradient(90deg, #e53e3e, #c53030)',
-                    borderRadius: '16px'
-                  }} />
-                )}
-
-                { (mode === 'over') && (
-                  <div style={{
-                    position: 'absolute',
-                    left: '4px',
-                    top: '4px',
-                    bottom: '4px',
-                    width: `${rollValue}%`,
-                    background: 'linear-gradient(90deg, #e53e3e, #c53030)',
-                    borderRadius: '16px'
-                  }} />
-                )}
-
-                { (mode === 'between') && (
-                  <>
-                    <div style={{
-                      position: 'absolute',
-                      left: '4px',
-                      top: '4px',
-                      bottom: '4px',
-                      width: `${minRange}%`,
-                      background: 'linear-gradient(90deg, #e53e3e, #c53030)',
-                      borderRadius: '16px'
-                    }} />
-                    <div style={{
-                      position: 'absolute',
-                      right: '4px',
-                      top: '4px',
-                      bottom: '4px',
-                      width: `${100 - maxRange}%`,
-                      background: 'linear-gradient(90deg, #e53e3e, #c53030)',
-                      borderRadius: '16px'
-                    }} />
-                  </>
-                )}
-
-                { (mode === 'outside') && (
-                  <div style={{
-                    position: 'absolute',
-                    left: `${minRange}%`,
-                    top: '4px',
-                    bottom: '4px',
-                    width: `${Math.max(0, maxRange - minRange)}%`,
-                    background: 'linear-gradient(90deg, #e53e3e, #c53030)',
-                    borderRadius: '16px'
-                  }} />
-                )}
-
-                {/* Slider handles */}
-                { (mode === 'under' || mode === 'over') && (
-                  <div style={{
-                    position: 'absolute',
-                    left: `${rollValue}%`,
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 'clamp(28px, 6vw, 32px)',
-                    height: 'clamp(28px, 6vw, 32px)',
-                    background: 'linear-gradient(135deg, #e2e8f0, #cbd5e0)',
-                    borderRadius: '50%',
-                    border: '2px solid #4a5568',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                    touchAction: 'manipulation'
-                  }} />
-                )}
-
-                { (mode === 'between' || mode === 'outside') && (
-                  <>
-                    <div style={{
-                      position: 'absolute',
-                      left: `${minRange}%`,
-                      top: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      width: 'clamp(24px, 5vw, 28px)',
-                      height: 'clamp(24px, 5vw, 28px)',
-                      background: 'linear-gradient(135deg, #ffd47a, #ffb84d)',
-                      borderRadius: '50%',
-                      border: '2px solid #4a5568',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                      touchAction: 'manipulation'
-                    }} />
-                    <div style={{
-                      position: 'absolute',
-                      left: `${maxRange}%`,
-                      top: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      width: 'clamp(24px, 5vw, 28px)',
-                      height: 'clamp(24px, 5vw, 28px)',
-                      background: 'linear-gradient(135deg, #ffd47a, #ffb84d)',
-                      borderRadius: '50%',
-                      border: '2px solid #4a5568',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                      touchAction: 'manipulation'
-                    }} />
-                  </>
-                )}
-
-                {/* Slider Inputs */}
-                { (mode === 'under' || mode === 'over') ? (
-                  <input
-                    type="range"
-                    min="1"
-                    max="99"
-                    value={rollValue}
-                    onChange={(e) => setRollValue(parseInt(e.target.value))}
-                    style={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      opacity: 0,
-                      cursor: 'pointer'
-                    }}
-                  />
-                ) : (
-                  <>
-                    {/* minRange handle */}
-                    <input
-                      type="range"
-                      min="1"
-                      max={Math.max(2, maxRange - 1)}
-                      value={minRange}
-                      onPointerDown={() => setActiveHandle('min')}
-                      onPointerUp={() => setActiveHandle(null)}
-                      onChange={(e) => {
-                        const val = Math.min(parseInt(e.target.value), maxRange - 1)
-                        setMinRange(val)
-                      }}
-                      style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0,
-                        cursor: 'pointer',
-                        zIndex: activeHandle === 'min' ? 3 : 1
-                      }}
-                    />
-                    {/* maxRange handle */}
-                    <input
-                      type="range"
-                      min={Math.min(2, minRange + 1)}
-                      max="99"
-                      value={maxRange}
-                      onPointerDown={() => setActiveHandle('max')}
-                      onPointerUp={() => setActiveHandle(null)}
-                      onChange={(e) => {
-                        const val = Math.max(parseInt(e.target.value), minRange + 1)
-                        setMaxRange(val)
-                      }}
-                      style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0,
-                        cursor: 'pointer',
-                        zIndex: activeHandle === 'max' ? 3 : 1
-                      }}
-                    />
-                  </>
-                )}
+              {/* Slider Container (uses Slider component) */}
+              <div style={{ position: 'relative', height: 'clamp(36px, 8vw, 40px)', padding: '4px' }}>
+                <Slider
+                  min={0}
+                  max={100}
+                  value={mode === 'between' || mode === 'outside' ? [minRange, maxRange] : rollValue}
+                  onChange={(v) => {
+                    if (Array.isArray(v)) {
+                      setMinRange(v[0])
+                      setMaxRange(v[1])
+                    } else {
+                      setRollValue(v)
+                    }
+                  }}
+                  mode={mode}
+                />
               </div>
             </div>
 
             {/* 3D Decorative Dice - Mobile-First & Better Centered */}
-            <div style={{
-              position: 'absolute',
-              top: 'clamp(20px, 5vw, 40px)',
-              left: 'clamp(20px, 8vw, 60px)',
-              width: 'clamp(60px, 12vw, 80px)',
-              height: 'clamp(60px, 12vw, 80px)',
-              background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #1a202c 100%)',
-              borderRadius: 'clamp(8px, 2vw, 12px)',
-              transform: 'rotate(-15deg) perspective(100px) rotateX(15deg) rotateY(-15deg)',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gridTemplateRows: '1fr 1fr 1fr',
-              padding: 'clamp(8px, 2vw, 12px)',
-              opacity: 0.7,
-              pointerEvents: 'none'
-            }}>
+            <DiceBox style={{ position: 'absolute', top: 'clamp(20px, 5vw, 40px)', left: 'clamp(20px, 8vw, 60px)', transform: 'rotate(-15deg) perspective(100px) rotateX(15deg) rotateY(-15deg)' }} $opacity={0.7}>
               {/* Dice 4 pattern - four corners */}
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
-            </div>
-            <div style={{
-              position: 'absolute',
-              top: 'clamp(20px, 5vw, 40px)',
-              right: 'clamp(20px, 8vw, 60px)',
-              width: 'clamp(60px, 12vw, 80px)',
-              height: 'clamp(60px, 12vw, 80px)',
-              background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #1a202c 100%)',
-              borderRadius: 'clamp(8px, 2vw, 12px)',
-              transform: 'rotate(15deg) perspective(100px) rotateX(15deg) rotateY(15deg)',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gridTemplateRows: '1fr 1fr 1fr',
-              padding: 'clamp(8px, 2vw, 12px)',
-              opacity: 0.7,
-              pointerEvents: 'none'
-            }}>
+              <Pip $justify="start" $align="start" />
+              <div />
+              <Pip $justify="end" $align="start" />
+              <div />
+              <div />
+              <div />
+              <Pip $justify="start" $align="end" />
+              <div />
+              <Pip $justify="end" $align="end" />
+            </DiceBox>
+            <DiceBox style={{ position: 'absolute', top: 'clamp(20px, 5vw, 40px)', right: 'clamp(20px, 8vw, 60px)', transform: 'rotate(15deg) perspective(100px) rotateX(15deg) rotateY(15deg)' }} $opacity={0.7}>
               {/* Dice 5 pattern - four corners + center */}
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'center', alignSelf: 'center' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
-            </div>
-            <div style={{
-              position: 'absolute',
-              bottom: 'clamp(80px, 15vw, 120px)',
-              left: 'clamp(20px, 8vw, 60px)',
-              width: 'clamp(60px, 12vw, 80px)',
-              height: 'clamp(60px, 12vw, 80px)',
-              background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #1a202c 100%)',
-              borderRadius: 'clamp(8px, 2vw, 12px)',
-              transform: 'rotate(25deg) perspective(100px) rotateX(-15deg) rotateY(-25deg)',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gridTemplateRows: '1fr 1fr 1fr',
-              padding: 'clamp(8px, 2vw, 12px)',
-              opacity: 0.7,
-              pointerEvents: 'none'
-            }}>
+              <Pip $justify="start" $align="start" />
+              <div />
+              <Pip $justify="end" $align="start" />
+              <div />
+              <Pip $justify="center" $align="center" />
+              <div />
+              <Pip $justify="start" $align="end" />
+              <div />
+              <Pip $justify="end" $align="end" />
+            </DiceBox>
+            <DiceBox style={{ position: 'absolute', bottom: 'clamp(80px, 15vw, 120px)', left: 'clamp(20px, 8vw, 60px)', transform: 'rotate(25deg) perspective(100px) rotateX(-15deg) rotateY(-25deg)' }} $opacity={0.7}>
               {/* Dice 3 pattern - diagonal */}
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'center', alignSelf: 'center' }}></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
-            </div>
-            <div style={{
-              position: 'absolute',
-              bottom: 'clamp(80px, 15vw, 120px)',
-              right: 'clamp(20px, 8vw, 60px)',
-              width: 'clamp(60px, 12vw, 80px)',
-              height: 'clamp(60px, 12vw, 80px)',
-              background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #1a202c 100%)',
-              borderRadius: 'clamp(8px, 2vw, 12px)',
-              transform: 'rotate(-25deg) perspective(100px) rotateX(-15deg) rotateY(25deg)',
-              boxShadow: '0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gridTemplateRows: '1fr 1fr 1fr',
-              padding: 'clamp(8px, 2vw, 12px)',
-              opacity: 0.7,
-              pointerEvents: 'none'
-            }}>
+              <Pip $justify="start" $align="start" />
+              <div />
+              <div />
+              <div />
+              <Pip $justify="center" $align="center" />
+              <div />
+              <div />
+              <div />
+              <Pip $justify="end" $align="end" />
+            </DiceBox>
+            <DiceBox style={{ position: 'absolute', bottom: 'clamp(80px, 15vw, 120px)', right: 'clamp(20px, 8vw, 60px)', transform: 'rotate(-25deg) perspective(100px) rotateX(-15deg) rotateY(25deg)' }} $opacity={0.7}>
               {/* Dice 6 pattern - two columns of three */}
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'start' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'start' }}></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'center' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'center' }}></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'start', alignSelf: 'end' }}></div>
-              <div></div>
-              <div style={{ width: 'clamp(4px, 1.2vw, 8px)', height: 'clamp(4px, 1.2vw, 8px)', backgroundColor: '#fff', borderRadius: '50%', justifySelf: 'end', alignSelf: 'end' }}></div>
-            </div>
+              <Pip $justify="start" $align="start" />
+              <div />
+              <Pip $justify="end" $align="start" />
+              <Pip $justify="start" $align="center" />
+              <div />
+              <Pip $justify="end" $align="center" />
+              <Pip $justify="start" $align="end" />
+              <div />
+              <Pip $justify="end" $align="end" />
+            </DiceBox>
           </div>
 
           {/* GameControlsSection at bottom - Mobile-First Design */}
           <GameControlsSection>
             <div style={{ 
               display: 'flex',
-              gap: 'clamp(12px, 3vw, 20px)',
+              gap: 'clamp(12px, 3vw, 0px)',
               alignItems: 'center',
               width: '100%',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              padding: '8px 12px'
+              padding: '6px 10px',
+              maxWidth: '720px',
+              margin: '0 auto'
             }}>
               {/* Multiplier Panel */}
-              <div style={{
-                background: 'rgba(26, 32, 44, 0.9)',
-                borderRadius: '12px',
-                padding: 'clamp(14px, 3.5vw, 18px)',
-                textAlign: 'center',
-                minWidth: 'clamp(120px, 22vw, 160px)',
-                flex: '1 1 140px',
-                maxWidth: '190px',
-                border: '2px solid rgba(74, 85, 104, 0.5)',
-                boxShadow: '0 4px 16px rgba(26, 32, 44, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              }}>
-                <div style={{ 
-                  fontSize: 'clamp(12px, 2.5vw, 14px)', 
-                  marginBottom: '8px', 
-                  color: '#a0aec0' 
-                }}>
-                  Multiplier
-                </div>
-                <div style={{ 
-                  fontSize: 'clamp(16px, 4vw, 18px)', 
-                  fontWeight: 'bold', 
-                  color: '#fff' 
-                }}>
-                  {multiplier.toFixed(2)}x
-                </div>
-              </div>
-              
-              {/* Mode Selector removed from GameControlsSection - moved into Controls portal for better layout on mobile/desktop */}
-              
+              <Tile $featured>
+                <TileLabel>Multiplier</TileLabel>
+                <TileValue>{multiplier.toFixed(2)}x</TileValue>
+              </Tile>
+
+              {/* Single Game Mode Tile - hidden on mobile */}
+              {!isMobile && (
+                <Tile $featured>
+                  <TileLabel $featured>Game Mode</TileLabel>
+                  <TileValue $featured>
+                    {mode === 'under' ? `Roll Under ${rollValue}` : (mode === 'over' ? `Roll Over ${rollValue}` : (mode === 'between' ? `Roll Between ${minRange} – ${maxRange}` : `Roll Outside ${minRange} – ${maxRange}`))}
+                  </TileValue>
+                </Tile>
+              )}
+
               {/* Win Chance Panel */}
-              <div style={{
-                background: 'rgba(26, 32, 44, 0.9)',
-                borderRadius: '12px',
-                padding: 'clamp(14px, 3.5vw, 18px)',
-                textAlign: 'center',
-                minWidth: 'clamp(120px, 22vw, 160px)',
-                flex: '1 1 140px',
-                maxWidth: '190px',
-                border: '2px solid rgba(74, 85, 104, 0.5)',
-                boxShadow: '0 4px 16px rgba(26, 32, 44, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              }}>
-                <div style={{ 
-                  fontSize: 'clamp(12px, 2.5vw, 14px)', 
-                  marginBottom: '8px', 
-                  color: '#a0aec0' 
-                }}>
-                  Win Chance
-                </div>
-                <div style={{ 
-                  fontSize: 'clamp(16px, 4vw, 18px)', 
-                  fontWeight: 'bold', 
-                  color: '#fff' 
-                }}>
-                  {(winChance * 100).toFixed(0)}%
-                </div>
-              </div>
+              <Tile $featured>
+                <TileLabel>Win Chance</TileLabel>
+                <TileValue>{(winChance * 100).toFixed(0)}%</TileValue>
+              </Tile>
             </div>
           </GameControlsSection>
 
@@ -902,39 +563,65 @@ export default function Dice() {
           onPlay={hasPlayed ? resetGame : play}
           playDisabled={gamba.isPlaying || (!hasPlayed && poolExceeded)}
           playText={hasPlayed ? "Roll Again" : "Roll Dice"}
-        />
-
-        {/* Mode selector moved into controls portal for better spacing */}
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '8px 12px' }}>
-          {(['under', 'over', 'between', 'outside'] as DiceMode[]).map(m => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              disabled={gamba.isPlaying}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.06)',
-                background: mode === m ? 'linear-gradient(90deg, #2d3748, #1f2a36)' : 'rgba(0,0,0,0.3)',
-                color: mode === m ? '#48bb78' : '#e2e8f0',
-                fontWeight: mode === m ? 'bold' : 'normal',
-                cursor: gamba.isPlaying ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {m === 'under' && 'Roll Under'}
-              {m === 'over' && 'Roll Over'}
-              {m === 'between' && 'Roll Between'}
-              {m === 'outside' && 'Roll Outside'}
-            </button>
-          ))}
-        </div>
+        >
+          {/* Mode selector inside MobileControls */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '8px 12px' }}>
+            {(['under', 'over', 'between', 'outside'] as DiceMode[]).map(m => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: mode === m ? 'linear-gradient(90deg, #2d3748, #1f2a36)' : 'rgba(0,0,0,0.3)',
+                  color: mode === m ? '#48bb78' : '#e2e8f0',
+                  fontWeight: mode === m ? 'bold' : 'normal',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {m === 'under' && 'Roll Under'}
+                {m === 'over' && 'Roll Over'}
+                {m === 'between' && 'Roll Between'}
+                {m === 'outside' && 'Roll Outside'}
+              </button>
+            ))}
+          </div>
+        </MobileControls>
 
         <DesktopControls
           onPlay={hasPlayed ? resetGame : play}
           playDisabled={gamba.isPlaying || (!hasPlayed && poolExceeded)}
           playText={hasPlayed ? "Roll Again" : "Roll Dice"}
         >
+          {/* Wager input at the top */}
           <EnhancedWagerInput value={wager} onChange={setWager} />
+
+          {/* Mode selector below input, above play button */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '8px 12px' }}>
+            {(['under', 'over', 'between', 'outside'] as DiceMode[]).map(m => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                disabled={gamba.isPlaying}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: mode === m ? 'linear-gradient(90deg, #2d3748, #1f2a36)' : 'rgba(0,0,0,0.3)',
+                  color: mode === m ? '#48bb78' : '#e2e8f0',
+                  fontWeight: mode === m ? 'bold' : 'normal',
+                  cursor: gamba.isPlaying ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {m === 'under' && 'Roll Under'}
+                {m === 'over' && 'Roll Over'}
+                {m === 'between' && 'Roll Between'}
+                {m === 'outside' && 'Roll Outside'}
+              </button>
+            ))}
+          </div>
         </DesktopControls>
       </GambaUi.Portal>
     </>
