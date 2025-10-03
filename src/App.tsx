@@ -26,10 +26,7 @@ const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper
 const Credits = lazy(() => import('./sections/Dashboard/Credits/Credits'));
 const DGHRTToken = lazy(() => import('./sections/DGHRTToken/DGHRTToken'));
 const DGHRTPresale = lazy(() => import('./sections/DGHRTPresale/DGHRTPresale'));
-// FairnessAudit temporarily disabled while games migrate. To re-enable set VITE_ENABLE_FAIRNESS_AUDIT=true
 const envVars = (import.meta as any).env || {};
-const ENABLE_FAIRNESS_AUDIT = false
-const FairnessAudit = null as any
 const UserProfile = lazy(() => import('./sections/UserProfile/UserProfile'));
 const DegenMobileUserProfile = lazy(() => import('./themes/layouts/degen-mobile/components/UserProfile'));
 const Game = lazy(() => import('./sections/Game/Game'));

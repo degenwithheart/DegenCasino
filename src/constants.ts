@@ -64,7 +64,7 @@ export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
 
 // 2D/3D Toggle Feature Configuration
 export const FEATURE_FLAGS = {
-  TOGGLE_2D_3D_MODE: true, // Global feature flag to enable/disable the feature
+  TOGGLE_2D_3D_MODE: false, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
   
   // Game Status Blocking Configuration
@@ -81,7 +81,7 @@ export const FEATURE_FLAGS = {
    * The new system provides better UX with more recovery options and debugging info in dev mode.
    * The old system is lighter and simpler, suitable for production if you prefer minimal error UI.
    */
-  USE_COMPREHENSIVE_ERROR_SYSTEM: false,
+  USE_COMPREHENSIVE_ERROR_SYSTEM: true,
   
   // Mobile Browser Integration
   /**
@@ -97,7 +97,7 @@ export const FEATURE_FLAGS = {
    * The in-game RecentGames component is currently broken in some themes.
    * Set this to false to hide the in-game recent games sidebar across all games.
    */
-  ENABLE_INGAME_RECENT_GAMES: false,
+  ENABLE_INGAME_RECENT_GAMES: true,
   /**
    * Access override / Back-soon feature flag.
    * When true, the site will be allowed to enter the "back soon" mode via code/runtime.
@@ -220,7 +220,7 @@ export const PRESALE_ACTIVE = false // Set to false to disable presale and activ
  * - Warning banners will never show
  * - All test network functionality is disabled
  */
-export const ENABLE_TEST_NETWORKS = true // Set to false to force mainnet-only
+export const ENABLE_TEST_NETWORKS = false // Set to false to force mainnet-only
 
 /**
  * Individual network toggles - only checked if ENABLE_TEST_NETWORKS is true
@@ -515,10 +515,6 @@ export const MOBILE_FOOTER_LINKS_CONNECTED = [
     title: 'Games',
   },
   {
-    href: '/audit',
-    title: 'Audit',
-  },
-  {
     href: '/explorer',
     title: 'Explorer',
   },
@@ -529,10 +525,6 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
   {
     href: '/',
     title: 'Welcome',
-  },
-  {
-    href: '/audit',
-    title: 'Audit',
   },
   {
     href: '/aboutme',

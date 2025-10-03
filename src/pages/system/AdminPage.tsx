@@ -336,7 +336,7 @@ const ADMIN_COMMANDS: AdminCommand[] = [
     id: 'rtp-audit',
     title: 'RTP Audit',
     description: 'Run RTP validation tests for all games',
-    endpoint: '/api/audit/edgeCases?plays=10000',
+    endpoint: '/api/monitoring/comprehensive-test?plays=10000',
     method: 'GET'
   },
   {

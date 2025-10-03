@@ -83,7 +83,7 @@ const TEST_ENDPOINTS = [
   },
   {
     name: 'RTP Audit',
-    endpoint: '/api/audit/edgeCases?plays=1000',
+    endpoint: '/api/monitoring/comprehensive-test?plays=1000',
     critical: false,
     timeout: 15000
   }

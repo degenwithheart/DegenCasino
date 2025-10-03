@@ -1,14 +1,3 @@
-/**
- * Centralized RTP (Return To Player) Configuration for DegenCasino V2 Games
- *
- * This file contains RTP configurations specifically for the V2 canvas-based games.
- * Each V2 game has its own section with customizable parameters, bet arrays, and multipliers.
- *
- * V2 Games: magic8ball (currently implemented)
- *
- * Target: 94%-97% RTP with balanced win rates for sustainable operations.
- */
-
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 
 // Game configurations for V2 games

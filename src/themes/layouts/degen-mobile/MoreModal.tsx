@@ -191,8 +191,6 @@ const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
     },
     {
       icon: FaAward,
-      label: 'Fairness Audit',
-      path: '/audit',
       disabled: false
     }
   ]
@@ -322,13 +320,15 @@ const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
                 <MenuGrid>
                   {legalItems.map((item) => {
                     const IconComponent = item.icon
-                    
+
                     return (
                       <MenuItem
-                        key={item.path}
+                        key={item.path ?? item.label ?? Math.random().toString()}
                         $colorScheme={currentColorScheme}
                         $disabled={item.disabled}
-                        onClick={() => !item.disabled && handleNavigate(item.path)}
+                        onClick={() => {
+                          if (!item.disabled && item.path) handleNavigate(item.path)
+                        }}
                         disabled={item.disabled}
                       >
                         <MenuIcon $colorScheme={currentColorScheme}>

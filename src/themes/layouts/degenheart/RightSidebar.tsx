@@ -531,7 +531,7 @@ export const RightSidebar: React.FC = () => {
     }
 
     // Audit route
-    if (path === '/audit') {
+    if (false) {
       return (
         <>
           <Section $colorScheme={currentColorScheme}>
