@@ -1,5 +1,6 @@
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
+import * as Tone from 'tone'
 import { useGamba } from 'gamba-react-v2'
 import React from 'react'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
@@ -66,12 +67,29 @@ function Mines2D() {
 
   const { wager, bet } = levels[currentLevel] ?? {}
 
-  const start = () => {
-    setGrid(generateGrid(GRID_SIZE))
-    setLoading(false)
-    setLevel(0)
-    setTotalGain(0)
-    setStarted(true)
+  const start = async () => {
+    try {
+      // Initialize audio context
+      if (Tone.context.state !== 'running') {
+        await Tone.start()
+        await Tone.context.resume()
+        console.debug('🎵 Audio context initialized on game start')
+      }
+      
+      setGrid(generateGrid(GRID_SIZE))
+      setLoading(false)
+      setLevel(0)
+      setTotalGain(0)
+      setStarted(true)
+    } catch (error) {
+      console.warn('⚠️ Failed to initialize audio:', error)
+      // Continue with game start even if audio fails
+      setGrid(generateGrid(GRID_SIZE))
+      setLoading(false)
+      setLevel(0)
+      setTotalGain(0)
+      setStarted(true)
+    }
   }
 
   const endGame = async () => {

@@ -29,16 +29,15 @@ const CRITICAL_GAME_ASSETS = [
 const HIGH_PRIORITY_GAME_ASSETS = [
   '/webp/games/crash.webp',
   '/webp/games/blackjack.webp',
-  '/webp/games/multi-poker.webp',
   '/webp/games/flip.webp',
   '/webp/games/hilo.webp'
 ];
 
-// Game-specific caching strategies
+// Game-specific caching strategies - matches allGames.ts exactly
 const GAME_LOADING_PRIORITIES = {
   'critical': ['dice', 'slots', 'mines', 'plinko', 'magic8ball'],
-  'high': ['crash', 'blackjack', 'multipoker', 'flip-v2', 'hilo'],
-  'medium': ['cryptochartgame-v2', 'doubleornothing-v2', 'fancyvirtualhorseracing-v2', 'keno-v2', 'limbo-v2'],
+  'high': ['crash', 'blackjack', 'flip', 'hilo'],
+  'medium': ['plinkorace'],
   'low': [] // Populated dynamically
 };
 

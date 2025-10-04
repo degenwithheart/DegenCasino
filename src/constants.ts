@@ -130,37 +130,7 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   },
-  'plinko': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
-  'limbo': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'mines': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
-  'keno': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'keno-v2': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'blackjack': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'blackjack-v2': {
+  'plinkorace': {
     supports2D: true,
     supports3D: false,
     default: '2D'
@@ -175,12 +145,22 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   },
+  'mines': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
+  'plinko': {
+    supports2D: true,
+    supports3D: true,
+    default: '2D'
+  },
   'crash': {
     supports2D: true,
     supports3D: false,
     default: '2D'
   },
-  'plinkorace': {
+  'blackjack': {
     supports2D: true,
     supports3D: false,
     default: '2D'

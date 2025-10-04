@@ -7,21 +7,13 @@ const getGameFolderPath = (gameId: string): string => {
     'dice': 'Dice',
     'magic8ball': 'Magic8Ball',
     'slots': 'Slots',
-    'plinko-race': 'PlinkoRace',
-    'flip-v2': 'Flip-v2',
-    'roulette-royale': 'RouletteRoyale',
+    'plinkorace': 'PlinkoRace',
+    'flip': 'Flip',
     'hilo': 'HiLo',
     'mines': 'Mines',
     'plinko': 'Plinko',
     'crash': 'CrashGame',
-    'blackjack': 'BlackJack-v2',
-    'multipoker': 'MultiPoker-v2',
-    'poker-showdown': 'PokerShowdown',
-    'chart-game': 'CryptoChartGame-v2',
-    'double-or-nothing': 'DoubleOrNothing-v2',
-    'horse-racing': 'FancyVirtualHorseRacing-v2',
-    'keno': 'Keno-v2',
-    'limbo': 'Limbo-v2'
+    'blackjack': 'BlackJack'
   }
   return gamePathMap[gameId] || gameId
 }
@@ -155,16 +147,18 @@ export function useComponentPreloader() {
     }
 
     try {
-      // Dynamic import mapping for games
+      // Dynamic import mapping for games (matches game path map)
       const gameImportMap: Record<string, () => Promise<any>> = {
         'dice': () => import('../../games/Dice'),
+        'magic8ball': () => import('../../games/Magic8Ball'),
         'slots': () => import('../../games/Slots'),
+        'plinkorace': () => import('../../games/PlinkoRace'),
+        'flip': () => import('../../games/Flip'),
+        'hilo': () => import('../../games/HiLo'),
         'mines': () => import('../../games/Mines'),
         'plinko': () => import('../../games/Plinko'),
         'crash': () => import('../../games/CrashGame'),
-        'blackjack': () => import('../../games/BlackJack'),
-        'flip': () => import('../../games/Flip'),
-        'hilo': () => import('../../games/HiLo'),
+        'blackjack': () => import('../../games/BlackJack')
       };
 
       const importFn = gameImportMap[gameId];

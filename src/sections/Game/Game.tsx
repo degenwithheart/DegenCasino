@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import * as Tone from 'tone';
+
 // Styled modal content for info modal, matching casino modal look
 const InfoModalContent = styled.div`
   /* Mobile-first: Start with mobile viewport optimized styles */

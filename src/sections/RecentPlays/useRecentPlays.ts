@@ -62,11 +62,23 @@ export function useRecentPlays(params: Params = {}) {
     (evt) => {
       const { data, signature } = evt
 
+      console.debug('🎮 Processing game event:', { 
+        signature,
+        metadata: data.metadata,
+        creator: data.creator.toBase58(),
+        platformCreator: PLATFORM_CREATOR_ADDRESS.toBase58(),
+        currentGameId: gameIdRef.current
+      })
+
       // Platform filter
       if (
         !showAllRef.current &&
         !data.creator.equals(PLATFORM_CREATOR_ADDRESS)
       ) {
+        console.debug('⏭️ Skipping non-platform game:', {
+          eventCreator: data.creator.toBase58(),
+          platformCreator: PLATFORM_CREATOR_ADDRESS.toBase58()
+        })
         return
       }
 
@@ -76,10 +88,18 @@ export function useRecentPlays(params: Params = {}) {
           // Use the same extractMetadata function that the explorer uses
           const { gameId: extractedGameId } = extractMetadata(evt)
           
+          console.debug('🎲 Game ID check:', {
+            extractedGameId,
+            expectedGameId: gameIdRef.current,
+            matches: extractedGameId === gameIdRef.current,
+            rawMetadata: data.metadata
+          })
+          
           if (extractedGameId !== gameIdRef.current) {
             return // Skip if not matching game
           }
         } catch (error) {
+          console.warn('❌ Failed to extract game ID:', error, { metadata: data.metadata })
           return // Skip if metadata parsing fails
         }
       }
@@ -92,7 +112,13 @@ export function useRecentPlays(params: Params = {}) {
       const delay = isUserGame && inSuspense ? 3000 : 1
 
       setTimeout(() => {
-        setLiveEvents((all) => [evt, ...all])
+        console.debug('✨ Adding new game event:', {
+          signature: evt.signature,
+          gameId: gameIdRef.current,
+          metadata: evt.data.metadata,
+          delay
+        })
+        setLiveEvents((all: GambaTransaction<'GameSettled'>[]) => [evt, ...all])
       }, delay)
     },
     // re-subscribe whenever these change
@@ -103,17 +129,58 @@ export function useRecentPlays(params: Params = {}) {
   return React.useMemo(() => {
     let events = [...liveEvents, ...previousEvents]
     
+    console.debug('🎮 useRecentPlays filtering:', { 
+      gameId,
+      totalEvents: events.length,
+      firstEvent: events[0] ? {
+        signature: events[0].signature,
+        metadata: events[0].data.metadata
+      } : null
+    })
+    
     // Apply game filtering to historical events as well
     if (gameId) {
       const filteredEvents = events.filter(event => {
         try {
+          const metadata = event.data.metadata
+          
+          // Fast path for exact match
+          if (typeof metadata === 'string' && metadata.includes(gameId)) {
+            console.debug('✅ Direct gameId match:', { gameId, metadata })
+            return true
+          }
+          
           const { gameId: extractedGameId } = extractMetadata(event)
-          return extractedGameId === gameId
+          const matches = extractedGameId === gameId
+          
+          console.debug('🎲 Game filtering:', { 
+            event: event.signature,
+            metadata,
+            extractedGameId,
+            targetGameId: gameId,
+            matches
+          })
+          
+          return matches
         } catch (err) {
+          console.warn('❌ Failed to filter game:', err, {
+            signature: event.signature,
+            metadata: event.data.metadata
+          })
           return false
         }
       })
+      
       events = filteredEvents
+      console.debug('🎮 Filtered results:', {
+        gameId,
+        originalCount: events.length,
+        filteredCount: filteredEvents.length,
+        sampleEvents: filteredEvents.slice(0, 3).map(e => ({
+          signature: e.signature,
+          metadata: e.data.metadata
+        }))
+      })
     }
     
     return events.slice(0, limit)

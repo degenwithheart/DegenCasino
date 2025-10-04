@@ -1,6 +1,27 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+// Remove PURE annotations from final build
+function stripPureAnnotations() {
+  return {
+    name: 'strip-pure-annotations',
+    renderChunk(code) {
+      return code.replace(/\/\*#__PURE__\*\//g, '');
+    }
+  };
+}
+
+// Suppress all minor warnings
+function silentWarnings() {
+  return {
+    name: 'silent-warnings',
+    buildStart() {},
+    renderChunk(code, chunk, options) {
+      // nothing here; used only for Rollup onwarn override
+    }
+  };
+}
+
 const ENV_PREFIX = ['VITE_'];
 
 export default defineConfig(() => ({
@@ -11,52 +32,30 @@ export default defineConfig(() => ({
     hmr: { overlay: false },
     open: false,
     watch: { usePolling: true, interval: 100 },
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type','Authorization'],
-    },
-    // Suppress sourcemap warnings in dev
-    sourcemapIgnoreList: (relativeSourcePath, sourcemapPath) => {
-      return relativeSourcePath.includes('node_modules') &&
-             (relativeSourcePath.includes('@solana') ||
-              relativeSourcePath.includes('superstruct'));
-    },
+    cors: { origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] },
   },
   assetsInclude: ["**/*.glb"],
-  define: {
-    'process.env.ANCHOR_BROWSER': true,
-    'process.env.GAMBA_ENV': '"development"',
+  define: { 
+    'process.env.ANCHOR_BROWSER': true, 
+    'process.env.GAMBA_ENV': '"development"', 
     global: 'globalThis',
+    'process.env': '{}',
+    'global.Buffer': 'globalThis.Buffer'
   },
-  resolve: {
-    alias: {
-      buffer: 'buffer',
-    },
+  resolve: { 
+    alias: { 
+      buffer: 'buffer', 
+      stream: 'stream-browserify',
+      crypto: 'crypto-browserify'
+    } 
   },
   optimizeDeps: {
     include: [
-      'react', 
-      'react-dom', 
-      'buffer',
-      'crypto-browserify',
-      'stream-browserify',
-      'util',
-      'events',
-      'process',
-      '@solana/web3.js',
-      'gamba-core-v2',
-      'gamba-react-ui-v2',
-      'gamba-react-v2'
+      'react', 'react-dom', 'buffer', 'crypto-browserify', 'stream-browserify', 
+      'util', 'events', 'process', '@solana/web3.js',
+      'gamba-core-v2','gamba-react-ui-v2','gamba-react-v2'
     ],
-    esbuildOptions: { 
-      define: { 
-        global: 'globalThis',
-        'process.env': '{}',
-      },
-      // Disable sourcemaps for problematic packages
-      sourcemap: false
-    }
+    esbuildOptions: { define: { global: 'globalThis', 'process.env': '{}' }, sourcemap: false }
   },
   build: {
     outDir: 'dist',
@@ -64,66 +63,51 @@ export default defineConfig(() => ({
     target: 'es2020', 
     minify: 'esbuild',
     sourcemap: false,
-    esbuildOptions: {
-      drop: ['console', 'debugger'],
-      sourcemap: false,
-    },
+    esbuildOptions: { drop: ['console', 'debugger'], sourcemap: false },
     cssMinify: 'esbuild',
     rollupOptions: {
       onwarn(warning, warn) {
-        // Suppress sourcemap warnings for known problematic packages
-        if (warning.code === 'SOURCEMAP_ERROR' && 
-            (warning.message.includes('@solana/buffer-layout') || 
-             warning.message.includes('superstruct') ||
-             warning.message.includes('@solana/web3.js'))) {
-          return;
-        }
+        // SILENT: ignore all yellow/info warnings and PURE comments
+        if (
+          warning.code === 'SOURCEMAP_ERROR' ||
+          warning.code === 'PLUGIN_WARNING' ||
+          warning.code === 'MODULE_LEVEL_DIRECTIVE' ||
+          warning.message?.includes('/*#__PURE__*/') ||
+          warning.message?.includes('Module "fs" has been externalized') ||
+          warning.message?.includes('Module "stream" has been externalized') ||
+          warning.message?.includes('Module "path" has been externalized') ||
+          warning.message?.includes('Module "os" has been externalized')
+        ) return;
+
+        // only pass through red/critical errors
         warn(warning);
       },
       output: {
-        // More conservative chunking to avoid circular dependencies
         manualChunks: {
-          // Core React libraries
           'react-vendor': ['react', 'react-dom'],
-          // Large blockchain libraries
           'blockchain': ['@solana/web3.js', '@coral-xyz/anchor'],
-          // 3D libraries (separate due to size)
           'three': ['three', '@react-three/fiber', '@react-three/drei'],
-          // Physics and audio (separate due to size)
           'physics-audio': ['matter-js', 'tone'],
         },
         compact: true,
-        generatedCode: {
-          arrowFunctions: true,
-          constBindings: true,
-          objectShorthand: true
-        },
+        generatedCode: { arrowFunctions: true, constBindings: true, objectShorthand: true },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
       }
     },
   },
   plugins: [
-    react({ 
-      jsxRuntime: 'automatic',
-      // Ensure proper refresh runtime handling
-      babel: {
-        plugins: []
-      }
-    }),
+    react({ jsxRuntime: 'automatic', babel: { plugins: [] } }),
+    stripPureAnnotations(),
+    silentWarnings(),
     {
       name: 'buffer-polyfill',
       config(config, { command }) {
-        if (command === 'serve') {
-          config.define = config.define || {}
-          config.define.global = 'globalThis'
-        }
+        if (command === 'serve') config.define = { ...(config.define || {}), global: 'globalThis' };
       },
       configureServer(server) {
         server.middlewares.use('/', (req, res, next) => {
-          if (req.url && req.url.includes('.js')) {
-            res.setHeader('Content-Type', 'application/javascript');
-          }
+          if (req.url?.includes('.js')) res.setHeader('Content-Type', 'application/javascript');
           next();
         });
       }

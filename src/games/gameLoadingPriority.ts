@@ -1,5 +1,5 @@
 // Game loading priority and popularity system
-// Based on featured games, live status, and typical user patterns
+// Based on featured games, live stnd typical user patterns
 
 export enum LoadingPriority {
   CRITICAL = 0,      // Must load immediately (featured, most popular)
@@ -80,15 +80,7 @@ export const GAME_LOADING_CONFIGS: GameLoadingConfig[] = [
     conversionRate: 0.7
   },
   {
-    id: 'multipoker',
-    priority: LoadingPriority.HIGH,
-    preloadAssets: ['/webp/games/multi-poker.webp'],
-    popularity: 6,
-    averageSessionTime: 15,
-    conversionRate: 0.6
-  },
-  {
-    id: 'flip-v2',
+    id: 'flip',
     priority: LoadingPriority.HIGH,
     preloadAssets: ['/webp/games/flip.webp'],
     popularity: 7,
@@ -104,45 +96,13 @@ export const GAME_LOADING_CONFIGS: GameLoadingConfig[] = [
     conversionRate: 0.65
   },
 
-  // MEDIUM - New games and moderate popularity
+  // MEDIUM - Additional games
   {
-    id: 'cryptochartgame-v2',
+    id: 'plinkorace',
     priority: LoadingPriority.MEDIUM,
-    preloadAssets: ['/webp/games/crypto-chart.webp'],
-    popularity: 6,
-    averageSessionTime: 6,
-    conversionRate: 0.6
-  },
-  {
-    id: 'doubleornothing-v2',
-    priority: LoadingPriority.MEDIUM,
-    preloadAssets: ['/webp/games/double-or-nothing.webp'],
+    preloadAssets: ['/webp/games/plinko-race.webp'],
     popularity: 5,
-    averageSessionTime: 3,
-    conversionRate: 0.55
-  },
-  {
-    id: 'fancyvirtualhorseracing-v2',
-    priority: LoadingPriority.MEDIUM,
-    preloadAssets: ['/webp/games/horse-racing.webp'],
-    popularity: 5,
-    averageSessionTime: 4,
-    conversionRate: 0.5
-  },
-  {
-    id: 'keno-v2',
-    priority: LoadingPriority.MEDIUM,
-    preloadAssets: ['/webp/games/keno.webp'],
-    popularity: 4,
     averageSessionTime: 5,
-    conversionRate: 0.45
-  },
-  {
-    id: 'limbo-v2',
-    priority: LoadingPriority.MEDIUM,
-    preloadAssets: ['/webp/games/limbo.webp'],
-    popularity: 5,
-    averageSessionTime: 6,
     conversionRate: 0.5
   }
 ];
