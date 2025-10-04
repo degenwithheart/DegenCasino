@@ -686,7 +686,7 @@ export function PlatformView() {
             <div>Payout</div>
             <div>Time</div>
           </TableHeader>
-          {recentPlays.slice(0, 10).map((play, index) => (
+          {recentPlays.slice(0, 200).map((play, index) => (
             <RecentPlayRow 
               key={play.signature || index}
               play={play}
