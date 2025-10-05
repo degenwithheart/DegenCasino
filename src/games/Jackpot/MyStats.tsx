@@ -61,7 +61,7 @@ const containerVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 500,
       damping: 30,
       staggerChildren: 0.1,

@@ -1,28 +1,29 @@
-import React from 'react'
-import styled, { keyframes } from 'styled-components'
-import { FOOTER_LINKS, SIDEBAR_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../constants'
-import ConnectionStatus from '../components/Connection/ConnectionStatus'
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
+import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../constants';
+import ConnectionStatus from '../components/Connection/ConnectionStatus';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { useColorScheme } from '../themes/ColorSchemeContext';
+import { GlobalColorScheme } from '../themes/globalColorSchemes';
 import { useTheme } from '../themes/UnifiedThemeContext';
 import { liveGlow, moveGradient } from './Footer.styles';
 // ––––– Romantic Serenade Animations ––––– //
 
-const romanticGlow = keyframes`
-  0% { 
-    box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
-    text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(184, 51, 106, 0.5), 0 0 40px rgba(212, 165, 116, 0.3);
-    text-shadow: 0 0 15px rgba(184, 51, 106, 0.7), 0 0 25px rgba(212, 165, 116, 0.4);
-  }
-  100% { 
-    box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
-    text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
-  }
-`;
+// const romanticGlow = keyframes`
+//   0% { 
+//     box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+//     text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
+//   }
+//   50% { 
+//     box-shadow: 0 0 20px rgba(184, 51, 106, 0.5), 0 0 40px rgba(212, 165, 116, 0.3);
+//     text-shadow: 0 0 15px rgba(184, 51, 106, 0.7), 0 0 25px rgba(212, 165, 116, 0.4);
+//   }
+//   100% { 
+//     box-shadow: 0 0 12px rgba(212, 165, 116, 0.4);
+//     text-shadow: 0 0 8px rgba(212, 165, 116, 0.6);
+//   }
+// `;
 
 const loveLetterGradient = keyframes`
   0% { background-position: 0% 50%; }
@@ -37,7 +38,7 @@ const dreamlikeFloat = keyframes`
 
 // ––––– Styled Components ––––– //
 
-const StyledFooter = styled.footer<{ $colorScheme?: any }>`
+const StyledFooter = styled.footer<{ $colorScheme?: GlobalColorScheme; }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -106,9 +107,9 @@ const StyledFooter = styled.footer<{ $colorScheme?: any }>`
   @media (max-width: 900px) {
     display: none;
   }
-`
+`;
 
-const MobileFooter = styled.footer<{ $colorScheme?: any }>`
+const MobileFooter = styled.footer<{ $colorScheme?: GlobalColorScheme; }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -172,7 +173,7 @@ const MobileFooter = styled.footer<{ $colorScheme?: any }>`
   }
 `;
 
-const FooterLinks = styled.ul<{ $colorScheme?: any }>`
+const FooterLinks = styled.ul<{ $colorScheme?: GlobalColorScheme; }>`
   display: flex;
   gap: 24px;
   margin: 0;
@@ -220,7 +221,7 @@ const FooterLinks = styled.ul<{ $colorScheme?: any }>`
       opacity: 0.1;
     }
   }
-`
+`;
 
 const StyledConnectionStatus = styled.div`
   display: inline-block;
@@ -268,20 +269,20 @@ const StyledConnectionStatus = styled.div`
       font-size: 16px;
     }
   }
-`
+`;
 
 function Footer() {
   const { connected, publicKey } = useWallet();
-  const location = useLocation();
+  // const location = useLocation();
   const { currentColorScheme } = useColorScheme();
   const { currentLayoutTheme } = useTheme();
-  
+
   // Check if footer should be hidden based on theme config
   const footerStyle = currentLayoutTheme.config?.footerStyle;
   if (footerStyle === 'hidden') {
     return null;
   }
-  
+
   return (
     <>
       <StyledFooter $colorScheme={currentColorScheme}>
@@ -326,12 +327,12 @@ function Footer() {
               </button>
             );
           }
-          
+
           // Regular navigation links
-          const href = typeof link.href === 'string' && link.href.includes('${base58}') 
-            ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
+          const href = typeof link.href === 'string' && link.href.includes('${base58}')
+            ? link.href.replace('${base58}', publicKey?.toBase58() || '')
             : link.href;
-            
+
           return (
             <a
               key={link.title}

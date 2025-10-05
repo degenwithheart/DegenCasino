@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GambaUi, useCurrentToken } from 'gamba-react-ui-v2';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { tokenPriceService } from '../../services/TokenPriceService';
 import PriceIndicator from "../UI/PriceIndicator";
 
@@ -119,101 +119,6 @@ const WagerLabel = styled.div`
   letter-spacing: 1px;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-`;
-
-const WagerInputRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: linear-gradient(145deg, 
-    rgba(8, 8, 15, 0.9) 0%, 
-    rgba(12, 12, 20, 0.9) 100%
-  );
-  border: 2px solid rgba(255, 215, 0, 0.4);
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 215, 0, 0.1);
-  
-  input {
-    all: unset;
-    width: 100%;
-    color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-    text-align: center;
-    background: transparent;
-    
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-      font-weight: 600;
-    }
-    
-    &:focus {
-      outline: none;
-      animation: ${glow} 2s infinite;
-    }
-  }
-  
-  &:focus-within {
-    border-color: #ffd700;
-    box-shadow: 
-      inset 0 2px 8px rgba(0, 0, 0, 0.3),
-      0 0 0 3px rgba(255, 215, 0, 0.3),
-      0 4px 12px rgba(255, 215, 0, 0.2);
-  }
-  
-  &:hover:not(:focus-within) {
-    border-color: rgba(255, 215, 0, 0.6);
-    background: linear-gradient(145deg, 
-      rgba(10, 10, 18, 0.9) 0%, 
-      rgba(15, 15, 25, 0.9) 100%
-    );
-  }
-`;
-
-const PresetButtonsRow = styled.div`
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-`;
-
-const PresetButton = styled.button`
-  background: linear-gradient(145deg, 
-    rgba(0, 255, 225, 0.2) 0%, 
-    rgba(0, 200, 180, 0.2) 100%
-  );
-  border: 1px solid rgba(0, 255, 225, 0.4);
-  color: #fff;
-  font-weight: 600;
-  font-size: 11px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 35px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  
-  &:hover:not(:disabled) {
-    background: linear-gradient(145deg, 
-      rgba(0, 255, 225, 0.3) 0%, 
-      rgba(0, 200, 180, 0.3) 100%
-    );
-    border-color: rgba(0, 255, 225, 0.6);
-    transform: translateY(-1px) scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 255, 225, 0.3);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0) scale(1);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 `;
 
 // Play button section (right side)
@@ -350,8 +255,8 @@ const OptionButtonGroup = styled.div`
   justify-content: center;
 `;
 
-const OptionButton = styled.button<{ $selected?: boolean }>`
-  background: ${props => props.$selected 
+const OptionButton = styled.button<{ $selected?: boolean; }>`
+  background: ${props => props.$selected
     ? 'linear-gradient(145deg, #ffd700 0%, #ffeb3b 100%)'
     : 'linear-gradient(145deg, rgba(0, 255, 225, 0.2) 0%, rgba(0, 200, 180, 0.2) 100%)'
   };
@@ -389,10 +294,10 @@ const OptionButton = styled.button<{ $selected?: boolean }>`
   &:hover:not(:disabled) {
     transform: translateY(-2px) scale(1.05);
     border-color: ${props => props.$selected ? '#ffe066' : '#33ffec'};
-    background: ${props => props.$selected 
-      ? 'linear-gradient(145deg, #ffe066 0%, #ffeb3b 100%)'
-      : 'linear-gradient(145deg, rgba(0, 255, 225, 0.3) 0%, rgba(0, 200, 180, 0.3) 100%)'
-    };
+    background: ${props => props.$selected
+    ? 'linear-gradient(145deg, #ffe066 0%, #ffeb3b 100%)'
+    : 'linear-gradient(145deg, rgba(0, 255, 225, 0.3) 0%, rgba(0, 200, 180, 0.3) 100%)'
+  };
     box-shadow: 0 4px 12px ${props => props.$selected ? 'rgba(255, 215, 0, 0.4)' : 'rgba(0, 255, 225, 0.4)'};
     
     &::before {
@@ -454,7 +359,7 @@ const SliderLabel = styled.div`
 `;
 
 // Popup overlay
-const PopupOverlay = styled.div<{ $isOpen: boolean }>`
+const PopupOverlay = styled.div<{ $isOpen: boolean; }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -473,7 +378,7 @@ const PopupOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 // Popup container
-const PopupContainer = styled.div<{ $isOpen: boolean }>`
+const PopupContainer = styled.div<{ $isOpen: boolean; }>`
   background: linear-gradient(145deg, 
     rgba(18, 18, 28, 0.98) 0%, 
     rgba(25, 25, 40, 0.98) 50%, 
@@ -712,17 +617,20 @@ interface MobileControlsProps {
   children?: React.ReactNode;
 }
 
-interface OptionSelectorProps {
+interface OptionSelectorProps<T = unknown> {
   label: string;
-  options: Array<{ value: any; label: string }>;
-  selected: any;
-  onSelect: (value: any) => void;
+  // eslint-disable-next-line no-unused-vars
+  options: Array<{ value: T; label: string; }>;
+  selected: T;
+  // eslint-disable-next-line no-unused-vars
+  onSelect: (value: T) => void;
   disabled?: boolean;
 }
 
 interface SwitchControlProps {
   label: string;
   checked: boolean;
+  // eslint-disable-next-line no-unused-vars
   onChange: (checked: boolean) => void;
   disabled?: boolean;
 }
@@ -746,15 +654,13 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   children
 }) => {
   const token = useCurrentToken();
-  const [priceAgeMs, setPriceAgeMs] = useState<number | null>(null);
-  const [isPriceFetching, setIsPriceFetching] = useState(false);
+  const isPriceFetching = false; // Price fetching disabled
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [hasAutoRefreshed, setHasAutoRefreshed] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [popupInput, setPopupInput] = useState<string>('');
   // Preset amounts are USD values; display will show equivalent crypto amount
   const presetAmounts = [1, 5, 10, 25, 50, 100];
-  
+
   // Handle click outside to close popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -798,44 +704,28 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   useEffect(() => {
     const mintAddress = token?.mint?.toBase58();
     if (!mintAddress) {
-      setPriceAgeMs(null);
       return;
     }
 
     // Seed from cached price if available (does not trigger network fetch)
     const cached = tokenPriceService.getCachedTokenPrice(mintAddress);
     if (cached) {
-      setPriceAgeMs(Date.now() - cached.lastUpdated);
+      // Price age tracking removed
     } else {
-      setPriceAgeMs(Infinity);
+      // Price age tracking removed
     }
 
     // Poll cache age every second
     let cancelled = false;
     const iv = setInterval(() => {
-      const age = tokenPriceService.getPriceAge(mintAddress);
-      if (!cancelled) setPriceAgeMs(age);
+      tokenPriceService.getPriceAge(mintAddress);
+      if (!cancelled) {
+        // Price age tracking removed
+      }
     }, 1000);
 
     return () => { cancelled = true; clearInterval(iv); };
   }, [token?.mint?.toBase58()]);
-
-  // Manual refresh handler
-  const handleRefreshPrices = async () => {
-    const mintAddress = token?.mint?.toBase58();
-    if (!mintAddress) return;
-    setIsPriceFetching(true);
-    try {
-      await tokenPriceService.forceUpdate();
-      setHasAutoRefreshed(true);
-      const age = tokenPriceService.getPriceAge(mintAddress);
-      setPriceAgeMs(age);
-    } catch (err) {
-      console.error('Failed to refresh prices', err);
-    } finally {
-      setIsPriceFetching(false);
-    }
-  };
 
   const formatCryptoFromUsd = (usdAmount: number) => {
     const usdPrice = token?.usdPrice;
@@ -858,22 +748,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     // Use 4 significant digits for compact display
     let s = cryptoAmount.toPrecision(4);
     // Avoid scientific notation for small numbers by using Number()
-    try { s = Number(s).toString(); } catch (e) { /* keep s */ }
+    try { s = Number(s).toString(); } catch { /* keep s */ }
 
     // Trim trailing zeros and dot
     s = s.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
     return `≈${s} ${token?.symbol ?? ''}`;
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
-      const numericValue = inputValue === '' ? 0 : parseFloat(inputValue);
-      if (!isNaN(numericValue)) {
-        const wagerAmount = numericValue * token.baseWager;
-        setWager(wagerAmount);
-      }
-    }
   };
 
   const handlePopupInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -947,7 +826,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
                   </div>
                 </CompactWagerTrigger>
               </WagerSection>
-              
+
               {!hidePlayButton && (
                 <PlaySection>
                   <PlayButton onClick={handlePlayClick} disabled={playDisabled}>
@@ -958,7 +837,7 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
             </>
           )}
         </TopRow>
-        
+
         {children && (
           <GameOptionsSection>
             {children}
@@ -972,10 +851,10 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
           <PopupCloseButton onClick={() => setIsPopupOpen(false)}>
             ×
           </PopupCloseButton>
-          
+
           <PopupTitle>💰 Set Bet Amount</PopupTitle>
-          
-            <PopupWagerInput>
+
+          <PopupWagerInput>
             <input
               type="text"
               value={popupInput === '' ? (displayValue === 0 ? '' : displayValue.toString()) : popupInput}
@@ -992,17 +871,17 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
               <PriceIndicator token={token} showRefresh amount={undefined} />
             </div>
           </PopupWagerInput>
-          
+
           <PopupPresetButtons>
-    {presetAmounts.map((amount) => {
+            {presetAmounts.map((amount) => {
               const exact = formatCryptoFromUsd(amount);
               const short = formatCryptoShort(amount);
               return (
                 <PopupPresetButton
                   key={amount}
                   onClick={() => handlePresetClick(amount)}
-      disabled={!token?.usdPrice || isPriceFetching}
-      title={isPriceFetching ? 'Updating prices...' : (token?.usdPrice ? exact : 'Price unavailable')}
+                  disabled={!token?.usdPrice || isPriceFetching}
+                  title={isPriceFetching ? 'Updating prices...' : (token?.usdPrice ? exact : 'Price unavailable')}
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                     <div style={{ fontWeight: 800, fontSize: 16 }}>${amount}</div>

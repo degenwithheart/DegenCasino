@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import type { GlobalColorScheme } from '../../themes/globalColorSchemes';
 
 // Elegant animations from Credits page
 export const gracefulFloat = keyframes`
@@ -27,7 +28,7 @@ export const gradientMove = keyframes`
 `;
 
 // Shared container for all pages
-export const UnifiedPageContainer = styled.div<{ $colorScheme?: any }>`
+export const UnifiedPageContainer = styled.div<{ $colorScheme?: GlobalColorScheme; }>`
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
@@ -79,7 +80,7 @@ export const UnifiedPageContainer = styled.div<{ $colorScheme?: any }>`
 `;
 
 // Shared page title
-export const UnifiedPageTitle = styled.h1<{ $colorScheme?: any }>`
+export const UnifiedPageTitle = styled.h1<{ $colorScheme?: GlobalColorScheme; }>`
   font-size: 3rem;
   font-weight: 800;
   text-align: center;
@@ -109,7 +110,7 @@ export const UnifiedPageTitle = styled.h1<{ $colorScheme?: any }>`
 `;
 
 // Shared subtitle
-export const UnifiedSubtitle = styled.p<{ $colorScheme?: any }>`
+export const UnifiedSubtitle = styled.p<{ $colorScheme?: GlobalColorScheme; }>`
   text-align: center;
   font-size: 1.2rem;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255, 255, 255, 0.8)'};
@@ -124,7 +125,7 @@ export const UnifiedSubtitle = styled.p<{ $colorScheme?: any }>`
 `;
 
 // Shared section container
-export const UnifiedSection = styled.section<{ $colorScheme?: any }>`
+export const UnifiedSection = styled.section<{ $colorScheme?: GlobalColorScheme; }>`
   margin-bottom: 3rem;
   padding: 2rem;
   
@@ -151,7 +152,7 @@ export const UnifiedSection = styled.section<{ $colorScheme?: any }>`
 `;
 
 // Shared section title
-export const UnifiedSectionTitle = styled.h2<{ $colorScheme?: any }>`
+export const UnifiedSectionTitle = styled.h2<{ $colorScheme?: GlobalColorScheme; }>`
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -179,7 +180,7 @@ export const UnifiedSectionTitle = styled.h2<{ $colorScheme?: any }>`
 `;
 
 // Shared content text
-export const UnifiedContent = styled.div<{ $colorScheme?: any }>`
+export const UnifiedContent = styled.div<{ $colorScheme?: GlobalColorScheme; }>`
   color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   line-height: 1.6;
   font-size: 1rem;
@@ -218,7 +219,7 @@ export const UnifiedContent = styled.div<{ $colorScheme?: any }>`
 `;
 
 // Shared button style
-export const UnifiedButton = styled.button<{ $colorScheme?: any; $variant?: 'primary' | 'secondary' }>`
+export const UnifiedButton = styled.button<{ $colorScheme?: GlobalColorScheme; $variant?: 'primary' | 'secondary'; }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 10px;
@@ -229,20 +230,20 @@ export const UnifiedButton = styled.button<{ $colorScheme?: any; $variant?: 'pri
   position: relative;
   overflow: hidden;
   
-  background: ${({ $variant, $colorScheme }) => 
-    $variant === 'secondary' 
-      ? 'rgba(255, 255, 255, 0.1)' 
+  background: ${({ $variant, $colorScheme }) =>
+    $variant === 'secondary'
+      ? 'rgba(255, 255, 255, 0.1)'
       : `linear-gradient(135deg, ${$colorScheme?.colors?.primary || '#ffd700'} 0%, ${$colorScheme?.colors?.secondary || '#a259ff'} 100%)`
   };
   
-  color: ${({ $variant, $colorScheme }) => 
-    $variant === 'secondary' 
+  color: ${({ $variant, $colorScheme }) =>
+    $variant === 'secondary'
       ? $colorScheme?.colors?.text || '#fff'
       : '#000'
   };
   
-  border: 1px solid ${({ $variant, $colorScheme }) => 
-    $variant === 'secondary' 
+  border: 1px solid ${({ $variant }) =>
+    $variant === 'secondary'
       ? 'rgba(212, 165, 116, 0.3)'
       : 'transparent'
   };
@@ -286,7 +287,7 @@ export const UnifiedGrid = styled.div`
 `;
 
 // Special highlight section
-export const UnifiedHighlightSection = styled.div<{ $colorScheme?: any }>`
+export const UnifiedHighlightSection = styled.div<{ $colorScheme?: GlobalColorScheme; }>`
   text-align: center;
   padding: 3rem 2rem;
   margin: 2rem 0;

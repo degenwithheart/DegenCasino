@@ -1,6 +1,6 @@
 // Theme Component Resolver
 import React from 'react';
-import { LayoutTheme, LayoutThemeKey } from './layouts';
+import { LayoutTheme } from './layouts';
 
 /**
  * Component Type Definitions
@@ -13,9 +13,9 @@ export type ComponentName = string;
  * Maps component names to their default implementations
  */
 interface DefaultComponentRegistry {
-  components: Record<string, React.ComponentType<any>>;
-  sections: Record<string, React.ComponentType<any>>;
-  pages: Record<string, React.ComponentType<any>>;
+  components: Record<string, React.ComponentType<Record<string, unknown>>>;
+  sections: Record<string, React.ComponentType<Record<string, unknown>>>;
+  pages: Record<string, React.ComponentType<Record<string, unknown>>>;
 }
 
 /**
@@ -34,14 +34,14 @@ export class ThemeResolver {
   /**
    * Resolve a component - returns themed version or default fallback
    */
-  resolveComponent<T = any>(
+  resolveComponent<T extends Record<string, unknown> = Record<string, unknown>>(
     category: ComponentCategory,
     componentName: ComponentName
   ): React.ComponentType<T> | null {
     // Try to get themed override first
     const themeCategory = this.currentTheme[category];
     if (themeCategory && componentName in themeCategory) {
-      const themedComponent = (themeCategory as any)[componentName];
+      const themedComponent = (themeCategory as Record<string, React.ComponentType<T>>)[componentName];
       if (themedComponent) {
         return themedComponent;
       }
@@ -50,7 +50,7 @@ export class ThemeResolver {
     // Fallback to default component
     const defaultComponent = this.defaultComponents[category][componentName];
     if (defaultComponent) {
-      return defaultComponent;
+      return defaultComponent as React.ComponentType<T>;
     }
 
     // Component not found
@@ -70,7 +70,7 @@ export class ThemeResolver {
    */
   hasThemedOverride(category: ComponentCategory, componentName: ComponentName): boolean {
     const themeCategory = this.currentTheme[category];
-    return !!(themeCategory && componentName in themeCategory && (themeCategory as any)[componentName]);
+    return !!(themeCategory && componentName in themeCategory && (themeCategory as Record<string, unknown>)[componentName]);
   }
 
   /**

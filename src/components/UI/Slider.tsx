@@ -1,7 +1,8 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Icon } from './Icon'
-import { useColorScheme } from '../../themes/ColorSchemeContext'
+import React from 'react';
+import styled from 'styled-components';
+import { Icon } from './Icon';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
+import type { GlobalColorScheme } from '../../themes/globalColorSchemes';
 
 const Container = styled.div`
   position: relative;
@@ -13,9 +14,9 @@ const Container = styled.div`
       opacity: .5;
     }
   }
-`
+`;
 
-const SliderButton = styled.button<{ $colorScheme?: any }>`
+const SliderButton = styled.button<{ $colorScheme?: GlobalColorScheme; }>`
   all: unset;
   position: absolute;
   font-size: 24px;
@@ -33,9 +34,9 @@ const SliderButton = styled.button<{ $colorScheme?: any }>`
     opacity: 1!important;
     background: ${({ $colorScheme }) => $colorScheme?.colors?.background || 'var(--background-color)'};
   }
-`
+`;
 
-const StyledContent = styled.div<{ $colorScheme?: any }>`
+const StyledContent = styled.div<{ $colorScheme?: GlobalColorScheme; }>`
   display: flex;
   gap: 15px;
   width: 100%;
@@ -56,29 +57,29 @@ const StyledContent = styled.div<{ $colorScheme?: any }>`
     flex-grow: 0;
     flex-shrink: 0;
   }
-`
+`;
 
 export function SlideSection(props: React.PropsWithChildren) {
-  const ref = React.useRef<HTMLDivElement>(null!)
-  const leftArrow = React.useRef<HTMLButtonElement>(null!)
-  const rightArrow = React.useRef<HTMLButtonElement>(null!)
-  const { currentColorScheme } = useColorScheme()
+  const ref = React.useRef<HTMLDivElement>(null!);
+  const leftArrow = React.useRef<HTMLButtonElement>(null!);
+  const rightArrow = React.useRef<HTMLButtonElement>(null!);
+  const { currentColorScheme } = useColorScheme();
 
   const scroll = (x: number) => {
-    const left = ref.current.clientWidth / 2 * x
-    ref.current.scrollBy({ left, behavior: 'smooth' })
-  }
+    const left = ref.current.clientWidth / 2 * x;
+    ref.current.scrollBy({ left, behavior: 'smooth' });
+  };
 
   const _scroll = () => {
-    const target = ref.current
-    leftArrow.current.style.display = target.scrollLeft > 10 ? 'block' : 'none'
-    rightArrow.current.style.display = target.scrollLeft + target.clientWidth < target.scrollWidth - 10 ? 'block' : 'none'
-  }
+    const target = ref.current;
+    leftArrow.current.style.display = target.scrollLeft > 10 ? 'block' : 'none';
+    rightArrow.current.style.display = target.scrollLeft + target.clientWidth < target.scrollWidth - 10 ? 'block' : 'none';
+  };
 
   React.useEffect(
     () => _scroll(),
     [],
-  )
+  );
 
   return (
     <Container style={{ position: 'relative' }}>
@@ -92,5 +93,5 @@ export function SlideSection(props: React.PropsWithChildren) {
         <Icon.ArrowRight />
       </SliderButton>
     </Container>
-  )
+  );
 }

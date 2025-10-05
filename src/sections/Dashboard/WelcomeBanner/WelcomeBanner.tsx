@@ -1,13 +1,9 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { POOLS } from "../../../constants";
-import { useTokenMeta } from "gamba-react-ui-v2";
 // Note: Network-aware connection should be accessed via useNetwork() when needed
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useColorScheme } from "../../../themes/ColorSchemeContext";
+import React, { useEffect, useState } from "react";
 import { QUOTES } from "../../../constants/QuotesVault";
-import { 
-  UnifiedSection,
-  UnifiedPageTitle 
+import {
+  UnifiedSection
 } from '../../../components/UI/UnifiedDesign';
 import styled, { keyframes } from 'styled-components';
 
@@ -37,23 +33,23 @@ const AccentBar = styled.div`
 `;
 
 // Throttle hook for future-proofing (matches ConnectionStatus pattern)
-function useThrottle(callback: (...args: any[]) => void, delay: number) {
-  const lastCall = useRef(0);
-  return useCallback((...args: any[]) => {
-    const now = Date.now();
-    if (now - lastCall.current > delay) {
-      lastCall.current = now;
-      callback(...args);
-    }
-  }, [callback, delay]);
-}
+// function useThrottle(callback: (...args: any[]) => void, delay: number) {
+//   const lastCall = useRef(0);
+//   return useCallback((...args: any[]) => {
+//     const now = Date.now();
+//     if (now - lastCall.current > delay) {
+//       lastCall.current = now;
+//       callback(...args);
+//     }
+//   }, [callback, delay]);
+// }
 
-type JackpotInfo = {
-  icon?: string;
-  name: string;
-  symbol: string;
-  jackpot: number | string;
-};
+// type JackpotInfo = {
+//   icon?: string;
+//   name: string;
+//   symbol: string;
+//   jackpot: number | string;
+// };
 
 // Custom hook to cycle through random Degen/web3/Trench/casino quotes every 3 seconds
 function useRandomQuote(): string {
@@ -70,7 +66,6 @@ function useRandomQuote(): string {
 export function WelcomeBanner() {
   const wallet = useWallet();
   const quote = useRandomQuote();
-  const { currentColorScheme } = useColorScheme();
 
   // Track if wallet auto-connect attempt has finished to prevent flash
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
@@ -95,7 +90,7 @@ export function WelcomeBanner() {
     <UnifiedSection title="🎰 Welcome to the Casino of Chaos 🎰">
       {/* Gradient Line */}
       <AccentBar />
-      
+
       <div style={{
         width: '100%',
         minHeight: '56px',
@@ -115,7 +110,7 @@ export function WelcomeBanner() {
       }}>
         {quote}
       </div>
-      
+
       <div style={{
         display: 'flex',
         overflowX: 'auto',
@@ -152,17 +147,17 @@ export function WelcomeBanner() {
             flexShrink: 0,
             scrollSnapAlign: 'start'
           }}>
-            <h3 style={{ 
-              color: 'var(--text-primary)', 
-              fontSize: '1.1rem', 
-              margin: '0 0 0.5rem 0' 
+            <h3 style={{
+              color: 'var(--text-primary)',
+              fontSize: '1.1rem',
+              margin: '0 0 0.5rem 0'
             }}>
               {title}
             </h3>
-            <p style={{ 
-              color: 'var(--text-secondary)', 
-              fontSize: '0.9rem', 
-              margin: 0 
+            <p style={{
+              color: 'var(--text-secondary)',
+              fontSize: '0.9rem',
+              margin: 0
             }}>
               {text}
             </p>

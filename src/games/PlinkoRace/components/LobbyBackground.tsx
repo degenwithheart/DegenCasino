@@ -69,7 +69,7 @@ export default function LobbyBackground() {
         pointerEvents: 'none',
         background: 'transparent',   // ensure the canvas itself is transparent
       }}
-      render={({ ctx, size }) => {
+      render={({ ctx, size }: { ctx: CanvasRenderingContext2D; size: { width: number; height: number } }) => {
         const w = worldRef.current
         if (!w) return
 

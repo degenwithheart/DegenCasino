@@ -3,7 +3,7 @@ import { getCriticalGames, getHighPriorityGames, LoadingPriority } from '../../g
 
 // Game ID to folder path mapping based on allGames.ts structure
 const getGameFolderPath = (gameId: string): string => {
-  const gamePathMap: { [key: string]: string } = {
+  const gamePathMap: { [key: string]: string; } = {
     'dice': 'Dice',
     'magic8ball': 'Magic8Ball',
     'slots': 'Slots',
@@ -14,9 +14,9 @@ const getGameFolderPath = (gameId: string): string => {
     'plinko': 'Plinko',
     'crash': 'CrashGame',
     'blackjack': 'BlackJack'
-  }
-  return gamePathMap[gameId] || gameId
-}
+  };
+  return gamePathMap[gameId] || gameId;
+};
 
 // Enhanced preloader for lazy-loaded React components with game priority awareness
 export function useComponentPreloader() {
@@ -70,16 +70,16 @@ export function useComponentPreloader() {
     // Preload critical games after components
     const preloadCriticalGames = async () => {
       const criticalGames = getCriticalGames();
-      
+
       criticalGames.forEach((game, index) => {
         setTimeout(async () => {
           try {
             // Import the game component using correct folder path
-            const folderPath = getGameFolderPath(game.id)
+            const folderPath = getGameFolderPath(game.id);
             const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
             preloadedGames.current.add(game.id);
             console.log(`🎮 Preloaded critical game: ${game.id}`);
-            
+
             // Notify service worker to cache game assets
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
               navigator.serviceWorker.controller.postMessage({
@@ -97,13 +97,13 @@ export function useComponentPreloader() {
     // Progressive high priority games
     const preloadHighPriorityGames = async () => {
       const highPriorityGames = getHighPriorityGames();
-      
+
       highPriorityGames.forEach((game, index) => {
         setTimeout(async () => {
           try {
             // Only preload if not already loaded
             if (!preloadedGames.current.has(game.id)) {
-              const folderPath = getGameFolderPath(game.id)
+              const folderPath = getGameFolderPath(game.id);
               const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
               preloadedGames.current.add(game.id);
               console.log(`🎮 Preloaded high priority game: ${game.id}`);
@@ -121,7 +121,7 @@ export function useComponentPreloader() {
       preloadCriticalGames();
       preloadHighPriorityGames();
     }, 800); // Initial delay to not block first paint
-    
+
     return () => clearTimeout(timeoutId);
   }, []);
 
@@ -130,7 +130,7 @@ export function useComponentPreloader() {
     if (preloadedComponents.current.has(key)) {
       return; // Already preloaded
     }
-    
+
     try {
       await importFn();
       preloadedComponents.current.add(key);
@@ -172,8 +172,8 @@ export function useComponentPreloader() {
     }
   }, []);
 
-  return { 
-    preloadComponent, 
+  return {
+    preloadComponent,
     preloadGame,
     isComponentPreloaded: (key: string) => preloadedComponents.current.has(key),
     isGamePreloaded: (gameId: string) => preloadedGames.current.has(gameId),
@@ -185,7 +185,7 @@ export function useComponentPreloader() {
 // Hook to preload component on hover or focus
 export function useHoverPreload(importFn: () => Promise<any>, key: string) {
   const { preloadComponent } = useComponentPreloader();
-  
+
   const handlePreload = () => {
     preloadComponent(importFn, key);
   };

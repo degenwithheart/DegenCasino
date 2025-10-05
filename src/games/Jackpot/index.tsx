@@ -1,45 +1,45 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { LAMPORTS_PER_SOL }            from '@solana/web3.js'
-import { GambaUi, Multiplayer }        from 'gamba-react-ui-v2'
-import { useGame, useSpecificGames }   from 'gamba-react-v2'
-import { useWallet }                   from '@solana/wallet-adapter-react'
-import { BPS_PER_WHOLE }               from 'gamba-core-v2'
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { GambaUi, Multiplayer } from 'gamba-react-ui-v2';
+import { useGame, useSpecificGames } from 'gamba-react-v2';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
-import { Countdown }       from './Countdown'
-import { Pot }             from './Pot'
-import { WinnerAnimation } from './WinnerAnimation'
-import { Coinfalls }       from './Coinfall'
-import { TopPlayers }      from './TopPlayers'
-import { RecentPlayers }   from './RecentPlayers'
-import { RecentGames }     from './RecentGames'
-import { Waiting }         from './Waiting'
-import { MyStats }         from './MyStats'
+import { Countdown } from './Countdown';
+import { Pot } from './Pot';
+import { WinnerAnimation } from './WinnerAnimation';
+import { Coinfalls } from './Coinfall';
+import { TopPlayers } from './TopPlayers';
+import { RecentPlayers } from './RecentPlayers';
+import { RecentGames } from './RecentGames';
+import { Waiting } from './Waiting';
+import { MyStats } from './MyStats';
 
-import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET, DESIRED_MINT } from './config'
+import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET, DESIRED_MINT } from './config';
 import {
   PLATFORM_CREATOR_ADDRESS,
   MULTIPLAYER_FEE,
   PLATFORM_REFERRAL_FEE,            // referral %
   FEATURE_FLAGS,
-} from '../../constants'
-import * as S from './Jackpot.styles'
+} from '../../constants';
+import * as S from './Jackpot.styles';
 
 // Responsive media query hook
 const useMediaQuery = (q: string) => {
-  const [m, setM] = useState(matchMedia(q).matches)
+  const [m, setM] = useState(matchMedia(q).matches);
   useEffect(() => {
-    const mm = matchMedia(q)
-    const h = () => setM(mm.matches)
-    mm.addEventListener('change', h)
-    return () => mm.removeEventListener('change', h)
-  }, [q])
-  return m
-}
+    const mm = matchMedia(q);
+    const h = () => setM(mm.matches);
+    mm.addEventListener('change', h);
+    return () => mm.removeEventListener('change', h);
+  }, [q]);
+  return m;
+};
 
 // Component
 export default function Jackpot() {
-  const isSmall                  = useMediaQuery('(max-width: 900px)')
-  const { publicKey: walletKey } = useWallet()
+  const isSmall = useMediaQuery('(max-width: 900px)');
+  const { publicKey: walletKey } = useWallet();
 
   // Discover games (no auto polling)
   const {
@@ -49,65 +49,65 @@ export default function Jackpot() {
     maxPlayers: DESIRED_MAX_PLAYERS,
     winnersTarget: DESIRED_WINNERS_TARGET,
     mint: DESIRED_MINT,
-  } as any, 0)
+  } as any, 0);
 
   // Track last consumed gameId
-  const lastGameIdRef = useRef<number | null>(null)
+  const lastGameIdRef = useRef<number | null>(null);
 
   // Use first fresh game (skip previously consumed)
   const freshGames = games.filter(
     g => g.account.gameId.toNumber() !== lastGameIdRef.current,
-  )
-  const topGame = freshGames[0] ?? null
+  );
+  const topGame = freshGames[0] ?? null;
 
   // Live subscription
-  const liveGame = useGame(topGame?.publicKey ?? null).game
+  const liveGame = useGame(topGame?.publicKey ?? null).game;
 
   // Phase handling
-  type Phase = 'playing' | 'animation' | 'waiting'
-  const   [phase, setPhase] = useState<Phase>('waiting')
+  type Phase = 'playing' | 'animation' | 'waiting';
+  const [phase, setPhase] = useState<Phase>('waiting');
 
   // Set phase based on on-chain state
   useEffect(() => {
-    if (liveGame && liveGame.state.waiting)   setPhase('playing')
-    if (liveGame && liveGame.state.playing)   setPhase('playing')
-    if (liveGame && liveGame.state.settled)   setPhase('animation')
-  }, [liveGame])
+    if (liveGame && liveGame.state.waiting) setPhase('playing');
+    if (liveGame && liveGame.state.playing) setPhase('playing');
+    if (liveGame && liveGame.state.settled) setPhase('animation');
+  }, [liveGame]);
 
   // Poll while waiting only
   useEffect(() => {
-    if (phase !== 'waiting') return
-    refreshGames()                                    // kick off immediately
-    const id = setInterval(refreshGames, 5000)
-    return () => clearInterval(id)
-  }, [phase, refreshGames])
+    if (phase !== 'waiting') return;
+    refreshGames();                                    // kick off immediately
+    const id = setInterval(refreshGames, 5000);
+    return () => clearInterval(id);
+  }, [phase, refreshGames]);
 
   // After animation, mark game as consumed
   const handleAnimationDone = () => {
-    if (liveGame) lastGameIdRef.current = liveGame.gameId.toNumber()
-    setPhase('waiting')
-  }
+    if (liveGame) lastGameIdRef.current = liveGame.gameId.toNumber();
+    setPhase('waiting');
+  };
 
   // Derived helpers
-  const players          = liveGame?.players ?? []
-  const totalPotLamports = players.reduce((s, p) => s + p.wager.toNumber(), 0)
-  const waitingForPlayers= !!liveGame?.state.waiting
-  const settled          = !!liveGame?.state.settled
+  const players = liveGame?.players ?? [];
+  const totalPotLamports = players.reduce((s, p) => s + p.wager.toNumber(), 0);
+  const waitingForPlayers = !!liveGame?.state.waiting;
+  const settled = !!liveGame?.state.settled;
 
   const youJoined = useMemo(
     () => !!walletKey && players.some(p => p.user.equals(walletKey)),
     [walletKey, players],
-  )
-  const myEntry       = players.find(p => walletKey && p.user.equals(walletKey))
-  const myBetLamports = myEntry?.wager.toNumber() ?? 0
-  const myChancePct   = totalPotLamports
+  );
+  const myEntry = players.find(p => walletKey && p.user.equals(walletKey));
+  const myBetLamports = myEntry?.wager.toNumber() ?? 0;
+  const myChancePct = totalPotLamports
     ? (myBetLamports / totalPotLamports) * 100
-    : 0
+    : 0;
 
   // Timestamps for progress bar
-  const creationMs = liveGame ? Number(liveGame.creationTimestamp) * 1e3 : 0
-  const softMs     = liveGame ? Number(liveGame.softExpirationTimestamp) * 1e3 : 0
-  const totalDur   = Math.max(softMs - creationMs, 0)
+  const creationMs = liveGame ? Number(liveGame.creationTimestamp) * 1e3 : 0;
+  const softMs = liveGame ? Number(liveGame.softExpirationTimestamp) * 1e3 : 0;
+  const totalDur = Math.max(softMs - creationMs, 0);
 
   // Render
   return (
@@ -146,13 +146,13 @@ export default function Jackpot() {
                       <S.Badge
                         status={
                           waitingForPlayers ? 'waiting'
-                          : settled         ? 'settled'
-                                            : 'live'
+                            : settled ? 'settled'
+                              : 'live'
                         }
                       >
                         {waitingForPlayers ? 'Waiting'
-                        : settled          ? 'Settled'
-                                           : 'Live'}
+                          : settled ? 'Settled'
+                            : 'Live'}
                       </S.Badge>
                     </S.Header>
 
@@ -160,7 +160,7 @@ export default function Jackpot() {
                       <Countdown
                         creationTimestamp={creationMs}
                         softExpiration={softMs}
-                        onComplete={() => {}}
+                        onComplete={() => { }}
                       />
                     )}
 
@@ -209,7 +209,7 @@ export default function Jackpot() {
             account={liveGame!}
             creatorAddress={PLATFORM_CREATOR_ADDRESS}
             creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-            referralFee={PLATFORM_REFERRAL_FEE}         
+            referralFee={PLATFORM_REFERRAL_FEE}
             onTx={refreshGames}
           />
         )}
@@ -224,5 +224,5 @@ export default function Jackpot() {
         )}
       </GambaUi.Portal>
     </>
-  )
+  );
 }

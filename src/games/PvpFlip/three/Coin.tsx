@@ -2,7 +2,8 @@ import { useGLTF, useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import { Group } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
+// Simple clamp function
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 import MODEL_COIN from '../assets/Coin.glb?url'
 import TEXTURE_HEADS from '../assets/heads.png'
 import TEXTURE_TAILS from '../assets/tails.png'
@@ -46,7 +47,7 @@ export function Coin({ flipping, result }: CoinFlipProps) {
     }
   }, [flipping, result])
 
-  useFrame((_, dt) => {
+  useFrame((_: any, dt: number) => {
     if (flipping) {
       group.current.rotation.y += 25 * dt
     } else {

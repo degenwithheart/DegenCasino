@@ -126,8 +126,8 @@ export default function Roulette() {
         <GambaUi.Select
           options={CHIPS}
           value={selectedChip.value}
-          onChange={(value) => selectedChip.value = value}
-          label={(value) => (
+          onChange={(value: number) => selectedChip.value = value}
+          label={(value: number) => (
             <>
               <Chip value={value} /> = <TokenValue amount={token.baseWager * value} />
             </>

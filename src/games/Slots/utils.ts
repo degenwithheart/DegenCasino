@@ -130,7 +130,7 @@ export const getSlotCombination = (
   // Helper to get SlotItem by symbol name - using actual RTP config multipliers
   const getSymbolByName = (symbolName: string): SlotItem => {
     // Get the actual multiplier from RTP config symbols
-    const symbolFromConfig = SLOTS_CONFIG.symbols.find(s => s.name === symbolName)
+    const symbolFromConfig = SLOTS_CONFIG.symbols.find((s: any) => s.name === symbolName)
     if (!symbolFromConfig) {
       console.error('Symbol not found in config:', symbolName)
       return SLOT_ITEMS[0] // fallback to first item

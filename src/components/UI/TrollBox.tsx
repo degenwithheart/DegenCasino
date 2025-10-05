@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
-import styled, { css, keyframes } from 'styled-components'
-import useSWR from 'swr'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import styled, { css, keyframes } from 'styled-components';
+import useSWR from 'swr';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PLATFORM_CREATOR_ADDRESS } from '../../constants';
 import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
 import { useColorScheme } from '../../themes/ColorSchemeContext';
@@ -14,44 +14,48 @@ function getProfileUsername(publicKey: string | undefined): string {
   let storedUsername = '';
   try {
     storedUsername = localStorage.getItem(`username-${key}`) || '';
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
   if (!storedUsername) {
     storedUsername = generateUsernameFromWallet(key);
     try {
       localStorage.setItem(`username-${key}`, storedUsername);
-    } catch {}
+    } catch {
+      // Ignore localStorage errors
+    }
   }
   return storedUsername;
 }
 
-type Msg = { user: string; text: string; ts: number }
+type Msg = { user: string; text: string; ts: number; };
 
-const fetcher = (url: string) => fetch(url).then(r => r.json())
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 const stringToHslColor = (str: string, s: number, l: number): string => {
-  let hash = 0
+  let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return `hsl(${hash % 360}, ${s}%, ${l}%)`
-}
+  return `hsl(${hash % 360}, ${s}%, ${l}%)`;
+};
 
 const MinimizeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
-)
+);
 
 const ChatIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
   </svg>
-)
+);
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(5px) scale(0.95) }
   to   { opacity: 1; transform: translateY(0) scale(1) }
-`
+`;
 
 const romanticGlow = keyframes`
   0%, 100% { 
@@ -64,17 +68,17 @@ const romanticGlow = keyframes`
       0 0 32px rgba(212, 165, 116, 0.5),
       0 12px 48px rgba(10, 5, 17, 0.8);
   }
-`
+`;
 
-const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colorScheme?: any }>`
+const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colorScheme?: any; }>`
   position: fixed;
   bottom: ${({ $isMaximized }) => ($isMaximized ? '5vh' : $isMaximized ? '16px' : '100px')};
   right: ${({ $isMaximized }) => ($isMaximized ? '5vw' : $isMaximized ? '16px' : '20px')};
   z-index: 998;
   border-radius: ${({ $isMinimized, $isMaximized }) =>
     $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
-  background: ${({ $isMinimized }) => ($isMinimized ? 
-    'linear-gradient(135deg, var(--deep-crimson-rose) 0%, var(--soft-purple-twilight) 100%)' : 
+  background: ${({ $isMinimized }) => ($isMinimized ?
+    'linear-gradient(135deg, var(--deep-crimson-rose) 0%, var(--soft-purple-twilight) 100%)' :
     'linear-gradient(135deg, rgba(10, 5, 17, 0.95) 0%, rgba(139, 90, 158, 0.15) 50%, rgba(10, 5, 17, 0.95) 100%)'
   )};
   border: 1px solid rgba(212, 165, 116, 0.3);
@@ -101,7 +105,7 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
     & > *:not(${ExpandIconWrapper}) { display: none }
   `
       : $isMaximized
-      ? `
+        ? `
     width: min(600px, 96vw);
     height: min(80vh, 600px);
     max-width: 98vw;
@@ -115,7 +119,7 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
     font-size: clamp(0.95rem, 1.2vw, 1.15rem);
     border-radius: 24px;
   `
-      : `
+        : `
     width: clamp(260px, 32vw, 420px);
     max-width: 98vw;
     max-height: clamp(320px, 40vh, 520px);
@@ -124,13 +128,13 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
   `}
 
   @media (max-width: 479px) {
-    width: ${({ $isMinimized, $isMaximized }) => 
-      $isMinimized ? '48px' : $isMaximized ? '94vw' : '280px'};
+    width: ${({ $isMinimized, $isMaximized }) =>
+    $isMinimized ? '48px' : $isMaximized ? '94vw' : '280px'};
     height: ${({ $isMinimized }) => $isMinimized ? '48px' : 'auto'};
     right: ${({ $isMaximized }) => $isMaximized ? '3vw' : '12px'};
     bottom: ${({ $isMaximized }) => $isMaximized ? '3vh' : '90px'};
     border-radius: ${({ $isMinimized, $isMaximized }) =>
-      $isMinimized ? '50%' : $isMaximized ? '20px' : '16px'};
+    $isMinimized ? '50%' : $isMaximized ? '20px' : '16px'};
   }
 
   &::before {
@@ -146,7 +150,7 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
     pointer-events: none;
     z-index: -1;
     border-radius: ${({ $isMinimized, $isMaximized }) =>
-      $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
+    $isMinimized ? '50%' : $isMaximized ? '24px' : '18px'};
   }
 
   &::after {
@@ -159,18 +163,18 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
     background: linear-gradient(90deg, var(--love-letter-gold), var(--deep-crimson-rose), var(--love-letter-gold));
     background-size: 300% 100%;
     border-radius: ${({ $isMinimized, $isMaximized }) =>
-      $isMinimized ? '50%' : $isMaximized ? '24px 24px 0 0' : '18px 18px 0 0'};
+    $isMinimized ? '50%' : $isMaximized ? '24px 24px 0 0' : '18px 18px 0 0'};
     z-index: 1;
   }
 
   @media (max-width: 1024px) {
     ${({ $isMinimized, $isMaximized }) =>
-      $isMinimized
-        ? `
+    $isMinimized
+      ? `
       bottom: 12px;
       right: 12px;
     `
-        : $isMaximized
+      : $isMaximized
         ? `
       width: 98vw;
       height: 98vh;
@@ -187,15 +191,15 @@ const Wrapper = styled.div<{ $isMinimized: boolean; $isMaximized: boolean; $colo
       bottom: 80px;
     `}
   }
-`
+`;
 
 const MaximizeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="3" />
   </svg>
-)
+);
 
-const ContentContainer = styled.div<{ $isMinimized: boolean }>`
+const ContentContainer = styled.div<{ $isMinimized: boolean; }>`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -203,9 +207,9 @@ const ContentContainer = styled.div<{ $isMinimized: boolean }>`
   opacity: ${({ $isMinimized }) => ($isMinimized ? 0 : 1)};
   transition: opacity 0.2s;
   pointer-events: ${({ $isMinimized }) => ($isMinimized ? 'none' : 'auto')};
-`
+`;
 
-const Header = styled.div<{ $colorScheme?: any }>`
+const Header = styled.div<{ $colorScheme?: any; }>`
   padding: 12px 18px 10px 18px;
   border-bottom: 1.5px solid ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}22;
   display: flex;
@@ -218,21 +222,21 @@ const Header = styled.div<{ $colorScheme?: any }>`
   font-size: 1.08em;
   letter-spacing: 0.5px;
   text-shadow: 0 0 8px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}44;
-`
+`;
 
 const HeaderTitle = styled.span`
   flex-grow: 1;
   font-size: 0.9rem;
-`
+`;
 
-const HeaderStatus = styled.span<{ $colorScheme?: any }>`
+const HeaderStatus = styled.span<{ $colorScheme?: any; }>`
   font-size: 0.7rem;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#a0a0a0'};
   opacity: 0.8;
   margin: 0 8px;
-`
+`;
 
-const MinimizeButton = styled.button<{ $colorScheme?: any }>`
+const MinimizeButton = styled.button<{ $colorScheme?: any; }>`
   background: none;
   border: none;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#a0a0a0'};
@@ -244,13 +248,13 @@ const MinimizeButton = styled.button<{ $colorScheme?: any }>`
     background: ${({ $colorScheme }) => $colorScheme?.colors?.surface || 'rgba(255,255,255,0.1)'};
     color: ${({ $colorScheme }) => $colorScheme?.colors?.text || '#fff'};
   }
-`
+`;
 
 const ExpandIconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 
 const Log = styled.div`
   flex: 1;
@@ -270,9 +274,9 @@ const Log = styled.div`
     background: rgba(255,255,255,0.2);
     border-radius: 2px;
   }
-`
+`;
 
-const MessageItem = styled.div<{ $isOwn?: boolean }>`
+const MessageItem = styled.div<{ $isOwn?: boolean; }>`
   line-height: 1.4;
   animation: ${fadeIn} 0.3s ease-out;
   margin-bottom: 0.7em;
@@ -282,25 +286,25 @@ const MessageItem = styled.div<{ $isOwn?: boolean }>`
   box-shadow: 0 2px 12px rgba(162, 89, 255, 0.08), 0 1.5px 6px rgba(255, 215, 0, 0.06);
   border: 1.5px solid rgba(255, 215, 0, 0.13);
   position: relative;
-`
+`;
 
-const Username = styled.strong<{ userColor: string; $colorScheme?: any }>`
+const Username = styled.strong<{ userColor: string; $colorScheme?: any; }>`
   font-weight: 700;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   margin-right: 0.7em;
   font-size: 1.08em;
   letter-spacing: 0.01em;
   text-shadow: 0 1px 6px ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'}30;
-`
+`;
 
-const Timestamp = styled.span<{ $colorScheme?: any }>`
+const Timestamp = styled.span<{ $colorScheme?: any; }>`
   font-size: 0.78em;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#b6aaff'};
   opacity: 0.8;
   margin-left: auto;
   font-weight: 400;
   letter-spacing: 0.01em;
-`
+`;
 
 const InputRow = styled.div`
   display: flex;
@@ -308,14 +312,14 @@ const InputRow = styled.div`
   background: rgba(0,0,0,0.1);
   flex-shrink: 0;
   position: relative;
-`
+`;
 
-const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $colorScheme?: any }>`
+const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $colorScheme?: any; }>`
   position: absolute;
   bottom: 2px;
   right: 80px;
   font-size: 0.75rem;
-  color: ${({ $isAtLimit, $isNearLimit, $colorScheme }) => 
+  color: ${({ $isAtLimit, $isNearLimit, $colorScheme }) =>
     $isAtLimit ? $colorScheme?.colors?.error || '#ff6b6b' : $isNearLimit ? $colorScheme?.colors?.warning || '#ffa500' : $colorScheme?.colors?.textSecondary || '#888'};
   background: rgba(0, 0, 0, 0.7);
   padding: 2px 6px;
@@ -323,9 +327,9 @@ const CharCounter = styled.div<{ $isNearLimit: boolean; $isAtLimit: boolean; $co
   pointer-events: none;
   font-weight: 500;
   z-index: 1;
-`
+`;
 
-const TextInput = styled.input<{ $colorScheme?: any }>`
+const TextInput = styled.input<{ $colorScheme?: any; }>`
   flex: 1;
   background: transparent;
   border: none;
@@ -338,9 +342,9 @@ const TextInput = styled.input<{ $colorScheme?: any }>`
     color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || '#777'};
     opacity: 0.8;
   }
-`
+`;
 
-const SendBtn = styled.button<{ $colorScheme?: any }>`
+const SendBtn = styled.button<{ $colorScheme?: any; }>`
   background: ${({ $colorScheme }) => $colorScheme?.colors?.secondary || '#5e47ff'};
   border: none;
   padding: 0 12px;
@@ -362,7 +366,7 @@ const SendBtn = styled.button<{ $colorScheme?: any }>`
     opacity: 0.5;
     cursor: not-allowed;
   }
-`
+`;
 
 const LoadingText = styled.div`
   text-align: center;
@@ -370,43 +374,43 @@ const LoadingText = styled.div`
   padding: 1.5rem 0;
   font-style: italic;
   font-size: 0.8rem;
-`
+`;
 
 export default function TrollBox() {
-  const { publicKey, connected } = useWallet()
-  const walletModal = useWalletModal()
-  const { currentColorScheme } = useColorScheme()
-  
+  const { publicKey, connected } = useWallet();
+  const walletModal = useWalletModal();
+  const { currentColorScheme } = useColorScheme();
+
   // Initialize states from localStorage with fallbacks
   const [isMinimized, setIsMinimized] = useState(() => {
     try {
-      const saved = localStorage.getItem('trollbox-minimized')
+      const saved = localStorage.getItem('trollbox-minimized');
       if (saved !== null) {
-        return JSON.parse(saved)
+        return JSON.parse(saved);
       }
       // First time loading - start minimized if wallet is connected
-      return connected
+      return connected;
     } catch {
-      return connected // fallback to minimized if wallet connected
+      return connected; // fallback to minimized if wallet connected
     }
-  })
-  
+  });
+
   const [isMaximized, setIsMaximized] = useState(() => {
     try {
-      const saved = localStorage.getItem('trollbox-maximized')
-      return saved ? JSON.parse(saved) : false
+      const saved = localStorage.getItem('trollbox-maximized');
+      return saved ? JSON.parse(saved) : false;
     } catch {
-      return false
+      return false;
     }
-  })
-  
-  const [cooldown, setCooldown] = useState(0)
+  });
+
+  const [cooldown, setCooldown] = useState(0);
 
 
   const anonFallback = useMemo(
     () => 'anon' + Math.floor(Math.random() * 1e4).toString().padStart(4, '0'),
     [],
-  )
+  );
   const userName = useMemo(() => {
     if (connected && publicKey) {
       return getProfileUsername(publicKey.toBase58());
@@ -417,11 +421,11 @@ export default function TrollBox() {
   const swrKey =
     isMinimized || (typeof document !== 'undefined' && document.hidden)
       ? null
-      : '/api/chat/chat'
+      : '/api/chat/chat';
   const { data: messages = [], error, mutate } = useSWR<Msg[]>(swrKey, fetcher, {
     refreshInterval: 8000,
     dedupingInterval: 7500,
-  })
+  });
 
   // Check if connected wallet is creator
   const isCreator = connected && publicKey && publicKey.toBase58() === PLATFORM_CREATOR_ADDRESS.toBase58();
@@ -445,38 +449,38 @@ export default function TrollBox() {
     }
   }
 
-  const [text, setText] = useState('')
-  const [isSending, setIsSending] = useState(false)
-  const logRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [text, setText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const logRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const userColors = useMemo(() => {
-    const map: Record<string, string> = {}
+    const map: Record<string, string> = {};
     messages.forEach(m => {
-      if (!map[m.user]) map[m.user] = stringToHslColor(m.user, 70, 75)
-    })
-    if (!map[userName]) map[userName] = stringToHslColor(userName, 70, 75)
-    return map
-  }, [messages, userName])
+      if (!map[m.user]) map[m.user] = stringToHslColor(m.user, 70, 75);
+    });
+    if (!map[userName]) map[userName] = stringToHslColor(userName, 70, 75);
+    return map;
+  }, [messages, userName]);
 
   async function send() {
-    if (!connected) return walletModal.setVisible(true)
-    let txt = text.trim()
-    if (!txt || isSending || cooldown > 0) return
+    if (!connected) return walletModal.setVisible(true);
+    let txt = text.trim();
+    if (!txt || isSending || cooldown > 0) return;
     // Match API: max chars for text
-    if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS)
-    let uname = userName
-    if (uname.length > 24) uname = uname.slice(0, 24)
-    setIsSending(true)
-    const id = Date.now()
-    mutate([...messages, { user: uname, text: txt, ts: id }], false)
-    setText('')
+    if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS);
+    let uname = userName;
+    if (uname.length > 24) uname = uname.slice(0, 24);
+    setIsSending(true);
+    const id = Date.now();
+    mutate([...messages, { user: uname, text: txt, ts: id }], false);
+    setText('');
     try {
       const res = await fetch('/api/chat/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: uname, text: txt }),
-      })
+      });
       if (!res.ok) {
         // Optionally show error to user
         if (res.status === 400) {
@@ -484,12 +488,12 @@ export default function TrollBox() {
           // Optionally show a toast or error
         }
       }
-      mutate()
-      setCooldown(5)
+      mutate();
+      setCooldown(5);
     } catch {
-      mutate()
+      mutate();
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
   }
 
@@ -498,65 +502,65 @@ export default function TrollBox() {
       logRef.current.scrollTo({
         top: logRef.current.scrollHeight,
         behavior: 'smooth',
-      })
+      });
     }
-  }, [messages, isMinimized])
+  }, [messages, isMinimized]);
 
   useEffect(() => {
     if (!isMinimized && window.innerWidth > 480) {
-      const t = setTimeout(() => inputRef.current?.focus(), 300)
-      return () => clearTimeout(t)
+      const t = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => clearTimeout(t);
     }
-  }, [isMinimized])
+  }, [isMinimized]);
 
   useEffect(() => {
-    if (cooldown <= 0) return
-    const timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [cooldown])
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   // Save minimize state to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('trollbox-minimized', JSON.stringify(isMinimized))
+      localStorage.setItem('trollbox-minimized', JSON.stringify(isMinimized));
     } catch {
       // Ignore localStorage errors
     }
-  }, [isMinimized])
+  }, [isMinimized]);
 
   // Save maximize state to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('trollbox-maximized', JSON.stringify(isMaximized))
+      localStorage.setItem('trollbox-maximized', JSON.stringify(isMaximized));
     } catch {
       // Ignore localStorage errors
     }
-  }, [isMaximized])
+  }, [isMaximized]);
 
   const fmtTime = (ts: number) =>
     ts > Date.now() - 5000
       ? 'sending…'
-      : new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  const MAX_CHARS = 260
-  const remainingChars = MAX_CHARS - text.length
-  const isNearLimit = remainingChars <= 20
-  const isAtLimit = remainingChars <= 0
+  const MAX_CHARS = 260;
+  const remainingChars = MAX_CHARS - text.length;
+  const isNearLimit = remainingChars <= 20;
+  const isAtLimit = remainingChars <= 0;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
+    const newValue = e.target.value;
     // Only update if within limit or if user is deleting characters
     if (newValue.length <= MAX_CHARS) {
-      setText(newValue)
+      setText(newValue);
     }
-  }
+  };
 
-  const toggleMinimize = () => setIsMinimized((v: boolean) => !v)
-  const toggleMaximize = () => setIsMaximized((v: boolean) => !v)
+  const toggleMinimize = () => setIsMinimized((v: boolean) => !v);
+  const toggleMaximize = () => setIsMaximized((v: boolean) => !v);
   // If minimized, un-maximize
   useEffect(() => {
-    if (isMinimized && isMaximized) setIsMaximized(false)
-  }, [isMinimized, isMaximized])
+    if (isMinimized && isMaximized) setIsMaximized(false);
+  }, [isMinimized, isMaximized]);
 
   return (
     <Wrapper $isMinimized={isMinimized} $isMaximized={isMaximized} $colorScheme={currentColorScheme}>
@@ -614,16 +618,16 @@ export default function TrollBox() {
             onClick={() => !connected && walletModal.setVisible(true)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                send()
+                e.preventDefault();
+                send();
               }
             }}
             disabled={isSending || !swrKey}
             maxLength={MAX_CHARS}
           />
-          <CharCounter 
+          <CharCounter
             $colorScheme={currentColorScheme}
-            $isNearLimit={isNearLimit} 
+            $isNearLimit={isNearLimit}
             $isAtLimit={isAtLimit}
           >
             {remainingChars}
@@ -644,5 +648,5 @@ export default function TrollBox() {
         </InputRow>
       </ContentContainer>
     </Wrapper>
-  )
+  );
 }

@@ -10,12 +10,12 @@ export enum LoadingPriority {
 }
 
 export interface GameLoadingConfig {
-  id: string
-  priority: LoadingPriority
-  preloadAssets: string[]
-  popularity: number // 1-10 scale
-  averageSessionTime: number // estimated minutes
-  conversionRate: number // likelihood user will play after viewing
+  id: string;
+  priority: LoadingPriority;
+  preloadAssets: string[];
+  popularity: number; // 1-10 scale
+  averageSessionTime: number; // estimated minutes
+  conversionRate: number; // likelihood user will play after viewing
 }
 
 // Game loading configurations based on analysis of your current setup

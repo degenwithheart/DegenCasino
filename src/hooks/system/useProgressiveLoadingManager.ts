@@ -5,11 +5,11 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLocation } from 'react-router-dom';
 import { useComponentPreloader } from './useComponentPreloader';
-import { 
-  getCriticalGames, 
-  getHighPriorityGames, 
-  LoadingPriority, 
-  getLoadingRecommendation 
+import {
+  getCriticalGames,
+  getHighPriorityGames,
+  LoadingPriority,
+  getLoadingRecommendation
 } from '../../games/gameLoadingPriority';
 
 interface NetworkInfo {
@@ -40,13 +40,13 @@ export function useProgressiveLoadingManager() {
   const { publicKey, connected } = useWallet();
   const location = useLocation();
   const { preloadGame, preloadComponent, isGamePreloaded } = useComponentPreloader();
-  
+
   // Initialize user activity from session storage or defaults
   const initializeUserActivity = (): UserActivity => {
     const stored = sessionStorage.getItem(SESSION_KEYS.USER_ACTIVITY);
     const sessionStart = sessionStorage.getItem(SESSION_KEYS.SESSION_START);
     const now = Date.now();
-    
+
     if (stored && sessionStart) {
       const parsed = JSON.parse(stored);
       const sessionDuration = now - parseInt(sessionStart);
@@ -56,10 +56,10 @@ export function useProgressiveLoadingManager() {
         lastActive: now
       };
     }
-    
+
     // Set session start time
     sessionStorage.setItem(SESSION_KEYS.SESSION_START, now.toString());
-    
+
     return {
       level: 'low', // Start with low activity level
       gamesPlayed: [],
@@ -83,7 +83,7 @@ export function useProgressiveLoadingManager() {
   const getNetworkInfo = useCallback((): NetworkInfo => {
     const nav = navigator as any;
     const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
-    
+
     return {
       effectiveType: connection?.effectiveType || '4g',
       downlink: connection?.downlink || 10,
@@ -97,38 +97,38 @@ export function useProgressiveLoadingManager() {
     const now = Date.now();
     const sessionStart = parseInt(sessionStorage.getItem(SESSION_KEYS.SESSION_START) || now.toString());
     const timeSinceLastActive = now - userActivity.current.lastActive;
-    
+
     // Update session duration
     userActivity.current.sessionDuration = now - sessionStart;
     userActivity.current.lastActive = now;
-    
+
     if (action === 'route_change') {
       userActivity.current.routeChanges++;
     }
-    
+
     if (gameId) {
       // Track current game
       if (action === 'game_start') {
         userActivity.current.currentGame = gameId;
-        
+
         // Add to games played if not already there
         if (!userActivity.current.gamesPlayed.includes(gameId)) {
           userActivity.current.gamesPlayed.push(gameId);
           userActivity.current.gamesPlayedThisSession++;
-          
+
           // Store games played list in session storage
           sessionStorage.setItem(SESSION_KEYS.GAMES_PLAYED, JSON.stringify(userActivity.current.gamesPlayed));
         }
       } else if (action === 'game_end') {
         userActivity.current.currentGame = undefined;
       }
-      
+
     }
-    
+
     // Always update activity level based on current engagement (move outside gameId check)
     const gamesCount = userActivity.current.gamesPlayedThisSession;
     const sessionMinutes = userActivity.current.sessionDuration / (60 * 1000);
-    
+
     if (gamesCount >= 3 || sessionMinutes > 10) {
       userActivity.current.level = 'high';
     } else if (gamesCount >= 1 || sessionMinutes > 3) {
@@ -136,10 +136,10 @@ export function useProgressiveLoadingManager() {
     } else {
       userActivity.current.level = 'low';
     }
-    
+
     // Persist to session storage
     sessionStorage.setItem(SESSION_KEYS.USER_ACTIVITY, JSON.stringify(userActivity.current));
-    
+
     console.log('🏃 User Activity Updated:', {
       gamesPlayed: userActivity.current.gamesPlayedThisSession,
       level: userActivity.current.level,
@@ -153,7 +153,7 @@ export function useProgressiveLoadingManager() {
     const networkInfo = getNetworkInfo();
     const maxPriority = getLoadingRecommendation(
       networkInfo.effectiveType === '2g' || networkInfo.effectiveType === 'slow-2g' ? 'slow' :
-      networkInfo.effectiveType === '3g' ? 'medium' : 'fast',
+        networkInfo.effectiveType === '3g' ? 'medium' : 'fast',
       networkInfo.saveData ? 'save' : 'normal'
     );
 
@@ -161,11 +161,11 @@ export function useProgressiveLoadingManager() {
     if (maxPriority >= LoadingPriority.CRITICAL && !loadingState.current.criticalGamesLoaded) {
       const criticalGames = getCriticalGames();
       console.log('🎮 Intelligent preloading: Critical games');
-      
+
       for (const game of criticalGames) {
         if (!isGamePreloaded(game.id)) {
           await preloadGame(game.id);
-          
+
           // Notify service worker to preload game assets
           if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({
@@ -181,7 +181,7 @@ export function useProgressiveLoadingManager() {
     if (maxPriority >= LoadingPriority.HIGH && !loadingState.current.highPriorityGamesLoaded) {
       const highPriorityGames = getHighPriorityGames();
       console.log('🎮 Intelligent preloading: High priority games');
-      
+
       // Stagger high priority game loading
       highPriorityGames.forEach((game, index) => {
         setTimeout(async () => {
@@ -225,7 +225,7 @@ export function useProgressiveLoadingManager() {
     if (!connected || !publicKey || loadingState.current.userSpecificPreloaded) return;
 
     console.log('👤 Starting user-specific preloading');
-    
+
     // Preload user-specific components
     const userComponents = [
       { fn: () => import('../../sections/UserProfile/UserProfile'), key: 'user-profile' },
@@ -239,14 +239,14 @@ export function useProgressiveLoadingManager() {
 
     // Initialize RPC optimization for this user
     await optimizeRpcPrefetching();
-    
+
     loadingState.current.userSpecificPreloaded = true;
   }, [connected, publicKey, preloadComponent, optimizeRpcPrefetching]);
 
   // Route-based preloading
   const handleRoutePreloading = useCallback(async () => {
     const path = location.pathname;
-    
+
     // Preload likely next routes based on current route
     if (path === '/' || path === '/dashboard') {
       // From dashboard, user likely to visit games or jackpot
@@ -255,12 +255,12 @@ export function useProgressiveLoadingManager() {
     } else if (path.startsWith('/game/')) {
       // From game, user likely to visit leaderboard or try another game
       await preloadComponent(() => import('../../pages/features/LeaderboardPage'), 'leaderboard-page');
-      
+
       // Preload other popular games
       const criticalGames = getCriticalGames();
       const currentGameId = path.split('/game/')[1];
       const otherGames = criticalGames.filter(g => g.id !== currentGameId).slice(0, 2);
-      
+
       for (const game of otherGames) {
         await preloadGame(game.id);
       }
@@ -270,11 +270,11 @@ export function useProgressiveLoadingManager() {
   // Game hover preloading
   const preloadGameOnHover = useCallback(async (gameId: string) => {
     updateUserActivity();
-    
+
     if (!isGamePreloaded(gameId)) {
       console.log(`🎮 Hover preloading: ${gameId}`);
       await preloadGame(gameId);
-      
+
       // Cache game assets in service worker
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
@@ -299,32 +299,32 @@ export function useProgressiveLoadingManager() {
   useEffect(() => {
     const initializeProgressiveLoading = async () => {
       console.log('🚀 Initializing progressive loading manager');
-      
+
       // Initialize session if not exists
       if (!sessionStorage.getItem(SESSION_KEYS.SESSION_START)) {
         sessionStorage.setItem(SESSION_KEYS.SESSION_START, Date.now().toString());
         sessionStorage.setItem(SESSION_KEYS.GAMES_PLAYED, '[]');
         console.log('📊 Session tracking initialized');
       }
-      
+
       // Start with intelligent game preloading
       await intelligentGamePreload();
-      
+
       // Handle route-specific preloading
       await handleRoutePreloading();
-      
+
       // User-specific preloading if connected
       if (connected) {
         await handleUserSpecificPreloading();
       }
-      
+
       // Initial activity update
       updateUserActivity(undefined, 'route_change');
     };
 
     // Delay initialization to not block initial render
     const timeoutId = setTimeout(initializeProgressiveLoading, 1500);
-    
+
     return () => clearTimeout(timeoutId);
   }, [intelligentGamePreload, handleRoutePreloading, handleUserSpecificPreloading, connected, updateUserActivity]);
 
@@ -339,9 +339,9 @@ export function useProgressiveLoadingManager() {
   useEffect(() => {
     handleRoutePreloading();
     updateUserActivity(undefined, 'route_change');
-    
+
     // Detect if user navigated to a game page
-    const gameMatch = location.pathname.match(/\/game\/[^\/]+\/(.+)/);
+    const gameMatch = location.pathname.match(new RegExp('/game/[^/]+/(.+)'));
     if (gameMatch) {
       const gameId = gameMatch[1];
       updateUserActivity(gameId, 'game_start');
@@ -357,7 +357,7 @@ export function useProgressiveLoadingManager() {
     const sessionStart = parseInt(sessionStorage.getItem(SESSION_KEYS.SESSION_START) || Date.now().toString());
     const currentSessionDuration = Date.now() - sessionStart;
     const gamesPlayedList = JSON.parse(sessionStorage.getItem(SESSION_KEYS.GAMES_PLAYED) || '[]');
-    
+
     // Update current activity before returning stats
     const currentActivity = {
       ...userActivity.current,
@@ -365,7 +365,7 @@ export function useProgressiveLoadingManager() {
       gamesPlayed: gamesPlayedList,
       gamesPlayedThisSession: gamesPlayedList.length
     };
-    
+
     return {
       loadingState: loadingState.current,
       userActivity: currentActivity,

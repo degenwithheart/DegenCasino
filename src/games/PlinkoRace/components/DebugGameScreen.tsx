@@ -2,10 +2,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Keypair, PublicKey } from '@solana/web3.js';
-import { GambaUi, useSound }  from 'gamba-react-ui-v2';
-import Board                  from '../board/Board';
-import lobbymusicSnd          from '../sounds/lobby.mp3';
-import actionSnd              from '../sounds/action.mp3';
+import { GambaUi, useSound } from 'gamba-react-ui-v2';
+import Board from '../board/Board';
+import lobbymusicSnd from '../sounds/lobby.mp3';
+import actionSnd from '../sounds/action.mp3';
 import {
   musicManager,
   attachMusic,
@@ -22,7 +22,7 @@ const Page = styled.div`
   margin: 0 auto;
   padding: 16px;
   box-sizing: border-box;
-`
+`;
 
 const Panel = styled.div`
   background: #11151f;
@@ -30,7 +30,7 @@ const Panel = styled.div`
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.25);
-`
+`;
 
 const PanelHeader = styled.div`
   display: flex;
@@ -39,7 +39,7 @@ const PanelHeader = styled.div`
   gap: 12px;
   margin-bottom: 12px;
   h2 { margin: 0; font-size: 18px; }
-`
+`;
 
 const FormGrid = styled.div`
   display: grid;
@@ -48,13 +48,13 @@ const FormGrid = styled.div`
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
   }
-`
+`;
 
 const Field = styled.label`
   display: grid;
   gap: 8px;
   font-size: 14px;
-`
+`;
 
 const Input = styled.input`
   appearance: none;
@@ -71,7 +71,7 @@ const Input = styled.input`
     border-color: #5e47ff;
     box-shadow: 0 0 0 3px rgba(94,71,255,0.2);
   }
-`
+`;
 
 const Actions = styled.div`
   display: flex;
@@ -80,26 +80,26 @@ const Actions = styled.div`
   align-items: center;
   justify-content: flex-end;
   margin-top: 8px;
-`
+`;
 
 const Helper = styled.div`
   color: #9aa7bd;
   font-size: 12px;
-`
+`;
 
 export default function DebugGameScreen({
   onBack,
 }: {
   onBack: () => void;
 }) {
-  const [count,  setCount ] = useState(5);
+  const [count, setCount] = useState(5);
   const [winner, setWinner] = useState(0);
-  const [you,    setYou   ] = useState(0);        // which ball is “you”
-  const [players,   setPlayers]   = useState<PublicKey[]>([]);
+  const [you, setYou] = useState(0);        // which ball is “you”
+  const [players, setPlayers] = useState<PublicKey[]>([]);
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
 
   const [seedInput, setSeedInput] = useState('');
-  const [gamePk,    setGamePk]    = useState<string | null>(null);
+  const [gamePk, setGamePk] = useState<string | null>(null);
 
   const [gameOver, setGameOver] = useState(false);
 
@@ -146,7 +146,9 @@ export default function DebugGameScreen({
   );
   useEffect(() => {
     if (!waiting) {
-      try { musicManager.sound?.player.stop(); } catch {}
+      try { musicManager.sound?.player.stop(); } catch {
+        // Ignore audio stop errors
+      }
       const snd = actionSounds.action;
       if (snd) {
         snd.player.loop = true;
@@ -181,78 +183,78 @@ export default function DebugGameScreen({
     <>
       {players.length === 0 && (
         <Page>
-        <Panel>
-          <PanelHeader>
-            <h2>🐞 Debug Simulator</h2>
-          </PanelHeader>
-          <FormGrid>
-            <Field>
-              <span>Balls</span>
-              <Input
-                type="number"
-                min={1}
-                max={20}
-                step={1}
-                inputMode="numeric"
-                value={count}
-                onChange={e => setCount(+e.target.value)}
-              />
-              <Helper>How many players (1–20)</Helper>
-            </Field>
+          <Panel>
+            <PanelHeader>
+              <h2>🐞 Debug Simulator</h2>
+            </PanelHeader>
+            <FormGrid>
+              <Field>
+                <span>Balls</span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={20}
+                  step={1}
+                  inputMode="numeric"
+                  value={count}
+                  onChange={e => setCount(+e.target.value)}
+                />
+                <Helper>How many players (1–20)</Helper>
+              </Field>
 
-            <Field>
-              <span>Winner index</span>
-              <Input
-                type="number"
-                min={0}
-                step={1}
-                inputMode="numeric"
-                value={winner}
-                onChange={e => setWinner(+e.target.value)}
-              />
-              <Helper>Zero‑based index of the winner</Helper>
-            </Field>
+              <Field>
+                <span>Winner index</span>
+                <Input
+                  type="number"
+                  min={0}
+                  step={1}
+                  inputMode="numeric"
+                  value={winner}
+                  onChange={e => setWinner(+e.target.value)}
+                />
+                <Helper>Zero‑based index of the winner</Helper>
+              </Field>
 
-            <Field>
-              <span>Your index</span>
-              <Input
-                type="number"
-                min={0}
-                max={Math.max(0, count - 1)}
-                step={1}
-                inputMode="numeric"
-                value={you}
-                onChange={e => setYou(+e.target.value)}
-              />
-              <Helper>Which ball is “you” (0…{Math.max(0, count - 1)})</Helper>
-            </Field>
+              <Field>
+                <span>Your index</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={Math.max(0, count - 1)}
+                  step={1}
+                  inputMode="numeric"
+                  value={you}
+                  onChange={e => setYou(+e.target.value)}
+                />
+                <Helper>Which ball is “you” (0…{Math.max(0, count - 1)})</Helper>
+              </Field>
 
-            <Field>
-              <span>Seed (optional)</span>
-              <Input
-                type="text"
-                placeholder="Base58 seed or leave empty"
-                value={seedInput}
-                onChange={e => setSeedInput(e.target.value)}
-              />
-              <Helper>Leave empty to use a random seed</Helper>
-            </Field>
-          </FormGrid>
+              <Field>
+                <span>Seed (optional)</span>
+                <Input
+                  type="text"
+                  placeholder="Base58 seed or leave empty"
+                  value={seedInput}
+                  onChange={e => setSeedInput(e.target.value)}
+                />
+                <Helper>Leave empty to use a random seed</Helper>
+              </Field>
+            </FormGrid>
 
-          <Actions>
-            <GambaUi.Button main onClick={start}>Run race</GambaUi.Button>
-          </Actions>
-        </Panel>
+            <Actions>
+              <GambaUi.Button main onClick={start}>Run race</GambaUi.Button>
+            </Actions>
+          </Panel>
         </Page>
       )}
 
       {players.length > 0 && gamePk && (
         <Board
-          players          ={players}
-          winnerIdx        ={winnerIdx}
-          youIndexOverride ={you}
-          gamePk           ={gamePk}
-          onFinished       ={() => setGameOver(true)}
+          players={players}
+          winnerIdx={winnerIdx}
+          youIndexOverride={you}
+          gamePk={gamePk}
+          onFinished={() => setGameOver(true)}
         />
       )}
 

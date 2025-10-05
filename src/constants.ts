@@ -6,14 +6,14 @@ declare global {
   }
 }
 
-import { PublicKey } from '@solana/web3.js'
-import { FAKE_TOKEN_MINT, PoolToken, UiTokenMeta } from 'gamba-react-ui-v2'
-import makeHeliusTokenFetcher from 'gamba-react-ui-v2'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
+import { PublicKey } from '@solana/web3.js';
+import { FAKE_TOKEN_MINT, PoolToken } from 'gamba-react-ui-v2';
+import makeHeliusTokenFetcher from 'gamba-react-ui-v2';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
 // Get RPC from the .env file or default to Syndica, not public RPC.
 // Note: This is now primarily used as fallback. The NetworkContext provides dynamic RPC endpoints.
-export const RPC_ENDPOINT = import.meta.env.RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1'
+export const RPC_ENDPOINT = import.meta.env.RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1';
 
 // Network-specific configurations
 export const NETWORK_ENDPOINTS = {
@@ -29,49 +29,49 @@ export const NETWORK_ENDPOINTS = {
     primary: import.meta.env.VITE_TESTNET_RPC_ENDPOINT ?? 'https://api.testnet.solana.com',
     backup: import.meta.env.VITE_TESTNET_BACKUP ?? 'https://api.testnet.solana.com'
   }
-} as const
+} as const;
 
 // Solana address that will receive fees when somebody plays on this platform
 export const PLATFORM_CREATOR_ADDRESS = new PublicKey(
   '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ',
-)
+);
 
 // Explorer URL - Appears in RecentPlays
-export const EXPLORER_URL = 'https://degenheart.casino/explorer'
+export const EXPLORER_URL = 'https://degenheart.casino/explorer';
 
 // Platform URL - Appears in ShareModal
-export const PLATFORM_SHARABLE_URL = 'degenheart.casino'
+export const PLATFORM_SHARABLE_URL = 'degenheart.casino';
 
 // Creator fee (in %)
-export const PLATFORM_CREATOR_FEE = 0.07 // 7%
+export const PLATFORM_CREATOR_FEE = 0.07; // 7%
 
-export const MULTIPLAYER_FEE = 0.015 // 1.5% 
+export const MULTIPLAYER_FEE = 0.015; // 1.5% 
 
 // Jackpot fee (in %)
-export const PLATFORM_JACKPOT_FEE = 0.001 // 0.1%
+export const PLATFORM_JACKPOT_FEE = 0.001; // 0.1%
 
 // Referral fee (in %)
-export const PLATFORM_REFERRAL_FEE = 0.0025 // 0.25%
+export const PLATFORM_REFERRAL_FEE = 0.0025; // 0.25%
 
 // Fee conversions to basis points (BPS) using Gamba's BPS_PER_WHOLE for consistency
-export const PLATFORM_CREATOR_FEE_BPS = Math.round(PLATFORM_CREATOR_FEE * BPS_PER_WHOLE) // 700 BPS = 7%
-export const MULTIPLAYER_FEE_BPS = Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE) // 150 BPS = 1.5%
-export const PLATFORM_JACKPOT_FEE_BPS = Math.round(PLATFORM_JACKPOT_FEE * BPS_PER_WHOLE) // 10 BPS = 0.1%
-export const PLATFORM_REFERRAL_FEE_BPS = Math.round(PLATFORM_REFERRAL_FEE * BPS_PER_WHOLE) // 25 BPS = 0.25%
+export const PLATFORM_CREATOR_FEE_BPS = Math.round(PLATFORM_CREATOR_FEE * BPS_PER_WHOLE); // 700 BPS = 7%
+export const MULTIPLAYER_FEE_BPS = Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE); // 150 BPS = 1.5%
+export const PLATFORM_JACKPOT_FEE_BPS = Math.round(PLATFORM_JACKPOT_FEE * BPS_PER_WHOLE); // 10 BPS = 0.1%
+export const PLATFORM_REFERRAL_FEE_BPS = Math.round(PLATFORM_REFERRAL_FEE * BPS_PER_WHOLE); // 25 BPS = 0.25%
 
 /** If the user should be able to revoke an invite after they've accepted an invite */
-export const PLATFORM_ALLOW_REFERRER_REMOVAL = true
+export const PLATFORM_ALLOW_REFERRER_REMOVAL = true;
 
 // 2D/3D Toggle Feature Configuration
 export const FEATURE_FLAGS = {
   TOGGLE_2D_3D_MODE: false, // Global feature flag to enable/disable the feature
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
-  
+
   // Game Status Blocking Configuration
   BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'down' (maintenance)
   BLOCK_CREATING_GAMES: true, // Block access to games marked as 'new' (being created/added)
   RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING: true, // If true, only block in production. If false, block in all environments
-  
+
   // Error System Configuration
   /** 
    * Toggle between error systems:
@@ -82,7 +82,7 @@ export const FEATURE_FLAGS = {
    * The old system is lighter and simpler, suitable for production if you prefer minimal error UI.
    */
   USE_COMPREHENSIVE_ERROR_SYSTEM: true,
-  
+
   // Mobile Browser Integration
   /**
    * Enable Capacitor v7 mobile browser integration:
@@ -104,14 +104,14 @@ export const FEATURE_FLAGS = {
    * This flag can be used to quickly enable/disable the override behavior without changing env vars.
    */
   ACCESS_OVERRIDE: false,
-} as const
+} as const;
 
-export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D' // Default mode for new users
+export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D'; // Default mode for new users
 
 export const GAME_RENDER_MODES = {
   TWO_D: '2D',
   THREE_D: '3D',
-} as const
+} as const;
 
 // Game capability flags - defines which games support which modes
 export const GAME_CAPABILITIES = {
@@ -165,11 +165,11 @@ export const GAME_CAPABILITIES = {
     supports3D: false,
     default: '2D'
   }
-} as const
+} as const;
 
 // Dashboard component visibility toggles
-export const DASHBOARD_SHOW_RECENT_PLAYS = false // Toggle to show/hide RecentPlays on dashboard
-export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboard on dashboard
+export const DASHBOARD_SHOW_RECENT_PLAYS = false; // Toggle to show/hide RecentPlays on dashboard
+export const DASHBOARD_SHOW_LEADERBOARD = true; // Toggle to show/hide Leaderboard on dashboard
 
 // Presale and Token page toggle
 /**
@@ -183,7 +183,7 @@ export const DASHBOARD_SHOW_LEADERBOARD = true // Toggle to show/hide Leaderboar
  * - Token page is active and visible  
  * - Presale is disabled/hidden
  */
-export const PRESALE_ACTIVE = false // Set to false to disable presale and activate token page
+export const PRESALE_ACTIVE = false; // Set to false to disable presale and activate token page
 
 // Network feature toggles
 /** 
@@ -200,47 +200,47 @@ export const PRESALE_ACTIVE = false // Set to false to disable presale and activ
  * - Warning banners will never show
  * - All test network functionality is disabled
  */
-export const ENABLE_TEST_NETWORKS = false // Set to false to force mainnet-only
+export const ENABLE_TEST_NETWORKS = false; // Set to false to force mainnet-only
 
 /**
  * Individual network toggles - only checked if ENABLE_TEST_NETWORKS is true
  */
-export const ENABLE_DEVNET_SUPPORT = true  // Enable/disable devnet support
-export const ENABLE_TESTNET_SUPPORT = true // Enable/disable testnet support
+export const ENABLE_DEVNET_SUPPORT = true;  // Enable/disable devnet support
+export const ENABLE_TESTNET_SUPPORT = true; // Enable/disable testnet support
 
 /** 
  * Referral Tier Mode:
  * false = Badge/Status rewards only (safe, no financial promises)
  * true = Actual financial tier rewards (requires custom implementation)
  */
-export const REFERRAL_TIERS_FINANCIAL_MODE = false
+export const REFERRAL_TIERS_FINANCIAL_MODE = false;
 
 // Referral Tiers: [{ minReferrals, fee }] - 15 tier progression system
 // When REFERRAL_TIERS_FINANCIAL_MODE = false: fees shown as badges/status only
 // When REFERRAL_TIERS_FINANCIAL_MODE = true: fees would be actual rewards (needs custom implementation)
 export const REFERRAL_TIERS = [
-  { min: 0,    fee: 0.0025, name: 'Starter',     badge: '🌱' }, // 0.25% - Tier 1
-  { min: 3,    fee: 0.0035, name: 'Bronze I',    badge: '🥉' }, // 0.35% - Tier 2
-  { min: 7,    fee: 0.0050, name: 'Bronze II',   badge: '🥉' }, // 0.50% - Tier 3
-  { min: 15,   fee: 0.0075, name: 'Bronze III',  badge: '🥉' }, // 0.75% - Tier 4
-  { min: 25,   fee: 0.0100, name: 'Silver I',    badge: '🥈' }, // 1.00% - Tier 5
-  { min: 40,   fee: 0.0125, name: 'Silver II',   badge: '🥈' }, // 1.25% - Tier 6
-  { min: 60,   fee: 0.0150, name: 'Silver III',  badge: '🥈' }, // 1.50% - Tier 7
-  { min: 85,   fee: 0.0175, name: 'Gold I',      badge: '🥇' }, // 1.75% - Tier 8
-  { min: 115,  fee: 0.0200, name: 'Gold II',     badge: '🥇' }, // 2.00% - Tier 9
-  { min: 150,  fee: 0.0225, name: 'Gold III',    badge: '🥇' }, // 2.25% - Tier 10
-  { min: 200,  fee: 0.0250, name: 'Platinum I',  badge: '💎' }, // 2.50% - Tier 11
-  { min: 275,  fee: 0.0300, name: 'Platinum II', badge: '💎' }, // 3.00% - Tier 12
-  { min: 375,  fee: 0.0350, name: 'Diamond I',   badge: '💍' }, // 3.50% - Tier 13
-  { min: 500,  fee: 0.0400, name: 'Diamond II',  badge: '💍' }, // 4.00% - Tier 14
-  { min: 750,  fee: 0.0500, name: 'Legend',      badge: '👑' }, // 5.00% - Tier 15
-] as const
+  { min: 0, fee: 0.0025, name: 'Starter', badge: '🌱' }, // 0.25% - Tier 1
+  { min: 3, fee: 0.0035, name: 'Bronze I', badge: '🥉' }, // 0.35% - Tier 2
+  { min: 7, fee: 0.0050, name: 'Bronze II', badge: '🥉' }, // 0.50% - Tier 3
+  { min: 15, fee: 0.0075, name: 'Bronze III', badge: '🥉' }, // 0.75% - Tier 4
+  { min: 25, fee: 0.0100, name: 'Silver I', badge: '🥈' }, // 1.00% - Tier 5
+  { min: 40, fee: 0.0125, name: 'Silver II', badge: '🥈' }, // 1.25% - Tier 6
+  { min: 60, fee: 0.0150, name: 'Silver III', badge: '🥈' }, // 1.50% - Tier 7
+  { min: 85, fee: 0.0175, name: 'Gold I', badge: '🥇' }, // 1.75% - Tier 8
+  { min: 115, fee: 0.0200, name: 'Gold II', badge: '🥇' }, // 2.00% - Tier 9
+  { min: 150, fee: 0.0225, name: 'Gold III', badge: '🥇' }, // 2.25% - Tier 10
+  { min: 200, fee: 0.0250, name: 'Platinum I', badge: '💎' }, // 2.50% - Tier 11
+  { min: 275, fee: 0.0300, name: 'Platinum II', badge: '💎' }, // 3.00% - Tier 12
+  { min: 375, fee: 0.0350, name: 'Diamond I', badge: '💍' }, // 3.50% - Tier 13
+  { min: 500, fee: 0.0400, name: 'Diamond II', badge: '💍' }, // 4.00% - Tier 14
+  { min: 750, fee: 0.0500, name: 'Legend', badge: '👑' }, // 5.00% - Tier 15
+] as const;
 
 // Just a helper function
 const lp = (tokenMint: PublicKey | string, poolAuthority?: PublicKey | string): PoolToken => ({
   token: new PublicKey(tokenMint),
   authority: poolAuthority !== undefined ? new PublicKey(poolAuthority) : undefined,
-})
+});
 
 /**
  * List of supported liquidity pools on the platform.
@@ -249,15 +249,25 @@ export const POOLS = [
   lp('So11111111111111111111111111111111111111112'),
   lp('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
   lp(FAKE_TOKEN_MINT),
-]
+];
 
 // The default pool selected when the platform loads
-export const DEFAULT_POOL = POOLS[0]
+export const DEFAULT_POOL = POOLS[0];
 
 /**
  * Metadata for tokens supported by the platform.
  */
-type TokenMetaWithMinted = Partial<UiTokenMeta> & { mint: PublicKey; minted?: boolean };
+type TokenMetaWithMinted = {
+  mint: PublicKey;
+  name?: string;
+  symbol?: string;
+  image?: string;
+  decimals?: number;
+  baseWager?: number;
+  poolAuthority?: PublicKey;
+  usdPrice?: number;
+  minted?: boolean;
+};
 
 export const TOKEN_METADATA: TokenMetaWithMinted[] = [
   {
@@ -288,14 +298,14 @@ export const TOKEN_METADATA: TokenMetaWithMinted[] = [
     usdPrice: 1,
     minted: false, // Set to true when DGHRT is actually minted
   },
-]
+];
 
 /** HTML to display to user that they need to accept in order to continue */
 export const TOS_HTML = `
 <p><b>1. Age Requirement:</b> Must be 18+ or the legal gambling age in your area.</p>
 <p><b>2. Legal Compliance:</b> Ensure online gambling and crypto gaming are legal where you live before playing.</p>
 <p><b>3. Responsible Gaming:</b> Play responsibly and seek help if gambling becomes a problem. For support, visit <a href="https://www.begambleaware.org" target="_blank" rel="noopener noreferrer">BeGambleAware.org</a>.</p>
-`
+`;
 
 /**
  * Function to fetch token metadata dynamically using the Helius metadata API,
@@ -320,14 +330,14 @@ export const TOKEN_METADATA_FETCHER = async (mints: string[]) => {
  */
 export async function updateTokenPrices() {
   // CoinGecko IDs for supported tokens
-  const coingeckoMap: { [mint: string]: string } = {
+  const coingeckoMap: { [mint: string]: string; } = {
     'So11111111111111111111111111111111111111112': 'solana',
     'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': 'usd-coin',
   };
 
   // Build CoinGecko IDs list
   const ids = Object.values(coingeckoMap).join(',');
-  
+
   // Build proxy API URL (avoids CORS issues)
   const coingeckoUrl = `/api/services/coingecko?ids=${ids}&vs_currencies=usd`;
 
@@ -363,7 +373,7 @@ export async function updateTokenPrices() {
     ]);
     // If Helius wins, still update with CoinGecko when it resolves
     if (winner === 'helius') {
-      coingeckoPromise.catch(() => {}); // ignore errors
+      coingeckoPromise.catch(() => { }); // ignore errors
     }
   } catch (error) {
     if (typeof window !== 'undefined') window.HELIUS_UNAVAILABLE = true;
@@ -478,7 +488,7 @@ export const FOOTER_LINKS = [
     href: 'https://x.com/DegenWithHeart',
     title: 'X',
   },
-]
+];
 
 // Mobile-only footer links for connected users
 export const MOBILE_FOOTER_LINKS_CONNECTED = [
@@ -498,7 +508,7 @@ export const MOBILE_FOOTER_LINKS_CONNECTED = [
     href: '/explorer',
     title: 'Explorer',
   },
-]
+];
 
 // Mobile-only footer links for disconnected users
 export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
@@ -518,36 +528,36 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
     href: 'https://x.com/DegenWithHeart',
     title: 'X',
   },
-]
+];
 
-export const ENABLE_LEADERBOARD = true 
-export const ENABLE_TROLLBOX = true // Requires setup in vercel (check tutorial in discord)
+export const ENABLE_LEADERBOARD = true;
+export const ENABLE_TROLLBOX = true; // Requires setup in vercel (check tutorial in discord)
 
 /** If true, the featured game is fully playable inline on the dashboard */
-export const FEATURED_GAME_INLINE = false 
-export const FEATURED_GAME_ID: string | undefined = 'jackpot'   // ← put game id or leave undefined
+export const FEATURED_GAME_INLINE = false;
+export const FEATURED_GAME_ID: string | undefined = 'jackpot';   // ← put game id or leave undefined
 
 // ===================================
 // THEME & UI CONFIGURATION
 // ===================================
 
 /** Enable/disable theme selector in the UI */
-export const ENABLE_THEME_SELECTOR = true
+export const ENABLE_THEME_SELECTOR = true;
 
 /** Enable/disable color scheme selector in the UI */
-export const ENABLE_COLOR_SCHEME_SELECTOR = true
+export const ENABLE_COLOR_SCHEME_SELECTOR = true;
 
 /** Default layout theme to load on first visit */
-export const DEFAULT_LAYOUT_THEME = 'degenheart' // 'default' | 'degenheart'
+export const DEFAULT_LAYOUT_THEME = 'degenheart'; // 'default' | 'degenheart'
 
 /** Default color scheme to load on first visit */
-export const DEFAULT_COLOR_SCHEME = 'romanticDegen' // 'default' | 'romanticDegen' | 'cyberpunk' | etc.
+export const DEFAULT_COLOR_SCHEME = 'romanticDegen'; // 'default' | 'romanticDegen' | 'cyberpunk' | etc.
 
 /** Show theme selector in header (if false, only in settings modal) */
-export const SHOW_THEME_BUTTON_IN_HEADER = true
+export const SHOW_THEME_BUTTON_IN_HEADER = true;
 
 /** Enable experimental layout themes (Holy Grail, etc.) */
-export const ENABLE_EXPERIMENTAL_THEMES = true // Set to true when theme system is fully implemented
+export const ENABLE_EXPERIMENTAL_THEMES = true; // Set to true when theme system is fully implemented
 
 
 export { FAKE_TOKEN_MINT };

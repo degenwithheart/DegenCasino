@@ -1,96 +1,14 @@
 import styled from 'styled-components';
-import * as Tone from 'tone';
 
-// Styled modal content for info modal, matching casino modal look
-const InfoModalContent = styled.div`
-  /* Mobile-first: Start with mobile viewport optimized styles */
-  width: 98vw;
-  max-width: 98vw;
-  min-width: 0;
-  min-height: 200px;
-  max-height: 400px;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
-  padding: 0.25rem;
-  background: rgba(24, 24, 24, 0.95);
-  border-radius: 10px;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-  position: relative;
-  color: white;
-  
-  /* Small tablets */
-  @media (min-width: 640px) {
-    padding: 0.5rem;
-    border-radius: 1rem;
-    max-width: 90vw;
-    min-height: 250px;
-    max-height: 450px;
-  }
-  
-  /* Tablets */
-  @media (min-width: 768px) {
-    padding: 1rem;
-    max-width: 85vw;
-    min-height: 300px;
-    max-height: 500px;
-    margin-bottom: 3rem;
-    margin-top: 3rem;
-  }
-  
-  /* Desktop */
-  @media (min-width: 1024px) {
-    max-width: 80vw;
-    min-height: 350px;
-    margin-bottom: 4rem;
-    margin-top: 4rem;
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(162, 89, 255, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: 10px;
-    
-    @media (min-width: 640px) {
-      border-radius: 24px;
-    }
-  }
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #ffd700, #a259ff, #ff00cc, #ffd700);
-    background-size: 300% 100%;
-    animation: moveGradient 4s linear infinite;
-    border-radius: 10px 10px 0 0;
-    z-index: 1;
-    
-    @media (min-width: 640px) {
-      border-radius: 24px 24px 0 0;
-    }
-  }
-`;
 // src/sections/Game/Game.tsx
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { GambaUi, useSoundStore } from 'gamba-react-ui-v2'
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { GambaUi, useSoundStore } from 'gamba-react-ui-v2';
 
-import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, Modal, FullscreenPortal, GameStatsHeader } from '../../components'
-import { GameScalingProvider } from '../../contexts/GameScalingContext'
+import { GraphicsSettings, GraphicsSettingsIcon, FullscreenPortal } from '../../components';
+import { GameScalingProvider } from '../../contexts/GameScalingContext';
+import type { ExtendedGameBundle } from '../../games/allGames';
 
 // Direct import of Icon object from the Icon file
 const Icon = {
@@ -169,17 +87,16 @@ const Icon = {
       <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
     </svg>
   ),
-}
-import { GAMES } from '../../games'
-import { useUserStore } from '../../hooks/data/useUserStore'
-import { FEATURE_FLAGS } from '../../constants'
-import { GameSlider } from '../Dashboard/Dashboard'
-import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles'
-import { LoadingBar } from './LoadingBar'
-import { ProvablyFairModal } from './ProvablyFairModal'
-import { TransactionModal } from './TransactionModal'
-import { PortalSafetyMonitor } from '../../components/Game/PortalSafety'
-import { RenderModeToggle } from '../../components/Game/RenderModeToggle'
+};
+import { GAMES } from '../../games';
+import { useUserStore } from '../../hooks/data/useUserStore';
+import { FEATURE_FLAGS } from '../../constants';
+import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles';
+import { LoadingBar } from './LoadingBar';
+import { ProvablyFairModal } from './ProvablyFairModal';
+import { TransactionModal } from './TransactionModal';
+import { PortalSafetyMonitor } from '../../components/Game/PortalSafety';
+import { RenderModeToggle } from '../../components/Game/RenderModeToggle';
 import { keyframes } from 'styled-components';
 
 // Animated CSS illustrations for each error type
@@ -275,7 +192,7 @@ const ErrorGeneric = styled.div`
     color: #fff; font-size: 2.2rem; font-weight: bold;
   }
 `;
-function ErrorArt({ type }: { type: string }) {
+function ErrorArt({ type }: { type: string; }) {
   switch (type) {
     case '404':
       return <Error404><div>404</div></Error404>;
@@ -300,17 +217,7 @@ const ErrorScreen = ({
   message: string;
   details?: string;
 }) => {
-  const navigate = useNavigate()
-  const wallet = useWallet()
-  const walletModal = useWalletModal()
-
-  const reconnect = () => {
-    if (wallet.wallet) {
-      wallet.connect()
-    } else {
-      walletModal.setVisible(true)
-    }
-  }
+  const navigate = useNavigate();
 
   return (
     <div
@@ -367,19 +274,19 @@ const ErrorScreen = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 // Error Boundary to catch render-time exceptions
 class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { error: Error | null }
+  { children: React.ReactNode; },
+  { error: Error | null; }
 > {
-  constructor(props: any) {
-    super(props)
-    this.state = { error: null }
+  constructor(props: { children: React.ReactNode; }) {
+    super(props);
+    this.state = { error: null };
   }
   static getDerivedStateFromError(error: Error) {
-    return { error }
+    return { error };
   }
   render() {
     if (this.state.error) {
@@ -389,68 +296,52 @@ class ErrorBoundary extends React.Component<
           message="A rendering error occurred."
           details={this.state.error.stack || this.state.error.message}
         />
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
-}
-function CustomError() {
-  return (
-    <GambaUi.Portal target="error">
-      <GambaUi.Responsive>
-        <h1>😭 Oh no!</h1>
-        <p>Something went wrong</p>
-      </GambaUi.Responsive>
-    </GambaUi.Portal>
-  )
 }
 
 function CustomRenderer() {
-  const { game } = GambaUi.useGame()
-  const [info, setInfo] = useState(false)
-  const [provablyFair, setProvablyFair] = useState(false)
-  const [showSplash, setShowSplash] = useState(true)
-  const [graphicsSettings, setGraphicsSettings] = useState(false)
-  const [fullscreen, setFullscreen] = useState(false)
-  const [renderKey, setRenderKey] = useState(0)
-  const soundStore = useSoundStore()
-  const firstTimePlaying = useUserStore(s => !s.gamesPlayed.includes(game.id))
-  
+  const { game } = GambaUi.useGame();
+  const [info, setInfo] = useState(false);
+  const [provablyFair, setProvablyFair] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [graphicsSettings, setGraphicsSettings] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
+  const soundStore = useSoundStore();
+
   // Shared function to exit fullscreen with proper re-rendering
   const exitFullscreen = () => {
-    setFullscreen(false)
+    setFullscreen(false);
     // Force re-render of the main game by updating render key
     setTimeout(() => {
-      setRenderKey(prev => prev + 1)
-    }, 50)
-  }
-  const markGameAsPlayed = useUserStore(s => () => s.markGameAsPlayed(game.id, true))
-  const [ready, setReady] = useState(false)
-  const [txModal, setTxModal] = useState(false)
+      setRenderKey(prev => prev + 1);
+    }, 50);
+  };
+  const markGameAsPlayed = useUserStore(s => () => s.markGameAsPlayed(game.id, true));
+  const [ready, setReady] = useState(false);
+  const [txModal, setTxModal] = useState(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setReady(true), 750)
-    return () => clearTimeout(timeout)
-  }, [])
+    const timeout = setTimeout(() => setReady(true), 750);
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Reset splash screen when game changes
   useEffect(() => {
-    console.log('Game changed, setting showSplash to true for game:', game.id)
-    setShowSplash(true)
-  }, [game.id])
-
-  const closeInfo = () => {
-    markGameAsPlayed()
-    setInfo(false)
-  }
+    console.log('Game changed, setting showSplash to true for game:', game.id);
+    setShowSplash(true);
+  }, [game.id]);
 
   const handleSplashStart = () => {
-    console.log('Splash start clicked, setting showSplash to false')
-    setShowSplash(false)
-    markGameAsPlayed()
-  }
+    console.log('Splash start clicked, setting showSplash to false');
+    setShowSplash(false);
+    markGameAsPlayed();
+  };
 
-  console.log('CustomRenderer render:', { showSplash, ready, gameName: game.meta.name })
+  console.log('CustomRenderer render:', { showSplash, ready, gameName: game.meta.name });
 
   return (
     <>
@@ -525,17 +416,17 @@ function CustomRenderer() {
                         filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))'
                       }}
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement
+                        const target = e.target as HTMLImageElement;
                         // Try WebP version first, then fallback to original
                         if (!target.src.includes('.webp')) {
-                          const webpSrc = target.src.replace(/\.(png|jpg|jpeg)$/i, '.webp')
+                          const webpSrc = target.src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
                           if (webpSrc.includes('/games/')) {
-                            target.src = webpSrc
-                            return
+                            target.src = webpSrc;
+                            return;
                           }
                         }
-                        target.style.display = 'none'
-                        const container = target.parentElement
+                        target.style.display = 'none';
+                        const container = target.parentElement;
                         if (container) {
                           container.innerHTML = `
                             <div style="
@@ -547,54 +438,54 @@ function CustomRenderer() {
                               font-size: clamp(2.5rem, 5vw, 4rem); 
                               color: #ffd700;
                             ">🎮</div>
-                          `
+                          `;
                         }
                       }}
                     />
                   </div>
                 </div>
-                <h1 style={{ 
-                  fontSize: 'clamp(32px, 6vw, 48px)', 
-                  margin: '0 0 1rem 0', 
-                  background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
-                  WebkitBackgroundClip: 'text', 
-                  color: 'transparent', 
-                  fontWeight: 800 
+                <h1 style={{
+                  fontSize: 'clamp(32px, 6vw, 48px)',
+                  margin: '0 0 1rem 0',
+                  background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  fontWeight: 800
                 }}>
                   {game.meta.name}
                 </h1>
-                <p style={{ 
-                  fontSize: 'clamp(14px, 2.5vw, 18px)', 
-                  lineHeight: 1.6, 
-                  color: '#ffffffc9', 
-                  margin: '0 0 clamp(2rem, 4vw, 3rem) 0' 
+                <p style={{
+                  fontSize: 'clamp(14px, 2.5vw, 18px)',
+                  lineHeight: 1.6,
+                  color: '#ffffffc9',
+                  margin: '0 0 clamp(2rem, 4vw, 3rem) 0'
                 }}>
                   Ready to test your luck? Click start when you're ready to play!
                 </p>
-                <button 
-                  onClick={handleSplashStart} 
+                <button
+                  onClick={handleSplashStart}
                   style={{
-                    width: 'clamp(160px, 30vw, 200px)', 
-                    padding: 'clamp(14px, 2.5vw, 18px) clamp(20px, 4vw, 24px)', 
-                    fontSize: 'clamp(16px, 2.5vw, 18px)', 
+                    width: 'clamp(160px, 30vw, 200px)',
+                    padding: 'clamp(14px, 2.5vw, 18px) clamp(20px, 4vw, 24px)',
+                    fontSize: 'clamp(16px, 2.5vw, 18px)',
                     fontWeight: 700,
-                    borderRadius: 'clamp(12px, 2vw, 16px)', 
-                    border: '1px solid #ffffff22', 
+                    borderRadius: 'clamp(12px, 2vw, 16px)',
+                    border: '1px solid #ffffff22',
                     cursor: 'pointer',
-                    background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
+                    background: 'linear-gradient(135deg,#ffae00,#ff0066)',
                     color: '#fff',
-                    boxShadow: '0 8px 32px -4px #ff006688', 
+                    boxShadow: '0 8px 32px -4px #ff006688',
                     letterSpacing: '1px',
                     textTransform: 'uppercase',
                     transition: 'all 0.3s ease',
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 12px 40px -4px #ff006699'
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 12px 40px -4px #ff006699';
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 8px 32px -4px #ff006688'
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 32px -4px #ff006688';
                   }}
                 >
                   Start Game
@@ -630,12 +521,12 @@ function CustomRenderer() {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <button onClick={() => { setInfo(false); setProvablyFair(false) }}
+              <button onClick={() => { setInfo(false); setProvablyFair(false); }}
                 style={{
-                  position: 'absolute', 
-                  top: 'clamp(8px, 1.5vw, 10px)', 
-                  right: 'clamp(8px, 1.5vw, 10px)', 
-                  width: 'clamp(36px, 6vw, 42px)', 
+                  position: 'absolute',
+                  top: 'clamp(8px, 1.5vw, 10px)',
+                  right: 'clamp(8px, 1.5vw, 10px)',
+                  width: 'clamp(36px, 6vw, 42px)',
                   height: 'clamp(36px, 6vw, 42px)',
                   borderRadius: '50%', border: '1px solid #ffffff22',
                   background: 'linear-gradient(135deg,#ff0066,#ffae00)', color: 'white',
@@ -643,8 +534,8 @@ function CustomRenderer() {
                   fontSize: 'clamp(14px, 2.5vw, 16px)'
                 }}>✕</button>
               {info && (
-                <div style={{ 
-                  padding: 'clamp(24px, 6vw, 48px) clamp(20px, 4vw, 48px) clamp(24px, 4vw, 40px) clamp(20px, 4vw, 48px)' 
+                <div style={{
+                  padding: 'clamp(24px, 6vw, 48px) clamp(20px, 4vw, 48px) clamp(24px, 4vw, 40px) clamp(20px, 4vw, 48px)'
                 }}>
                   <div style={{ textAlign: 'center', marginBottom: 'clamp(20px, 4vw, 28px)' }}>
                     <div style={{
@@ -688,39 +579,39 @@ function CustomRenderer() {
                         />
                       </div>
                     </div>
-                    <h1 style={{ 
-                      fontSize: 'clamp(24px, 5vw, 34px)', 
-                      margin: 0, 
-                      background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)', 
-                      WebkitBackgroundClip: 'text', 
-                      color: 'transparent', 
-                      fontWeight: 800 
+                    <h1 style={{
+                      fontSize: 'clamp(24px, 5vw, 34px)',
+                      margin: 0,
+                      background: 'linear-gradient(90deg,#ffe27a,#ff5ba5)',
+                      WebkitBackgroundClip: 'text',
+                      color: 'transparent',
+                      fontWeight: 800
                     }}>{game.meta.name}</h1>
                   </div>
-                  <p style={{ 
-                    fontSize: 'clamp(14px, 2.5vw, 16px)', 
-                    lineHeight: 1.6, 
-                    color: '#ffffffc9', 
-                    margin: 'clamp(0px, 0px, 0px) 0 clamp(20px, 4vw, 28px) 0' 
+                  <p style={{
+                    fontSize: 'clamp(14px, 2.5vw, 16px)',
+                    lineHeight: 1.6,
+                    color: '#ffffffc9',
+                    margin: 'clamp(0px, 0px, 0px) 0 clamp(20px, 4vw, 28px) 0'
                   }}>{game.meta.description}</p>
                   <button onClick={() => setInfo(false)} style={{
-                    width: '100%', 
-                    padding: 'clamp(12px, 2.5vw, 15px) clamp(16px, 3vw, 20px)', 
-                    fontSize: 'clamp(14px, 2.5vw, 16px)', 
+                    width: '100%',
+                    padding: 'clamp(12px, 2.5vw, 15px) clamp(16px, 3vw, 20px)',
+                    fontSize: 'clamp(14px, 2.5vw, 16px)',
                     fontWeight: 600,
-                    borderRadius: 'clamp(12px, 2vw, 14px)', 
-                    border: '1px solid #ffffff22', 
+                    borderRadius: 'clamp(12px, 2vw, 14px)',
+                    border: '1px solid #ffffff22',
                     cursor: 'pointer',
-                    background: 'linear-gradient(135deg,#ffae00,#ff0066)', 
+                    background: 'linear-gradient(135deg,#ffae00,#ff0066)',
                     color: '#fff',
-                    boxShadow: '0 6px 24px -4px #ff006688', 
+                    boxShadow: '0 6px 24px -4px #ff006688',
                     letterSpacing: '.5px'
                   }}>Play Now</button>
                 </div>
               )}
               {provablyFair && (
-                <div style={{ 
-                  padding: 'clamp(40px, 8vw, 56px) clamp(20px, 4vw, 48px) clamp(24px, 5vw, 40px) clamp(20px, 4vw, 48px)' 
+                <div style={{
+                  padding: 'clamp(40px, 8vw, 56px) clamp(20px, 4vw, 48px) clamp(24px, 5vw, 40px) clamp(20px, 4vw, 48px)'
                 }}>
                   <ProvablyFairModal onClose={() => setProvablyFair(false)} inline />
                 </div>
@@ -732,7 +623,7 @@ function CustomRenderer() {
       {txModal && <TransactionModal onClose={() => setTxModal(false)} />}
       {graphicsSettings && !fullscreen && <GraphicsSettings onClose={() => setGraphicsSettings(false)} />}
       {fullscreen && (
-        <FullscreenPortal 
+        <FullscreenPortal
           key={`fullscreen-${renderKey}`}
           onExit={exitFullscreen}
           modals={graphicsSettings ? <GraphicsSettings onClose={() => setGraphicsSettings(false)} /> : undefined}
@@ -760,71 +651,71 @@ function CustomRenderer() {
           }
         />
       )}
-  {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
-        <Container key={`game-container-${renderKey}`}>
-          {/* Recent plays horizontal scroller */}
-          {ready && (
-            <div style={{ 
-              width: '100%', 
-              maxWidth: '100%', 
-              overflow: 'hidden', 
-              boxSizing: 'border-box' 
-            }}>
-              <GambaUi.PortalTarget target="recentplays" />
-            </div>
-          )}
-          
-          {/* Stats header as separate area above game screen */}
-          {ready && (
-            <div style={{ 
-              width: '100%', 
-              maxWidth: '100%', 
-              overflow: 'hidden', 
-              boxSizing: 'border-box' 
-            }}>
-              <GambaUi.PortalTarget target="stats" />
-            </div>
-          )}
-          
-          <Screen>
-            {!ready ? (
-              <Splash>
-                <svg 
-                  width="clamp(120px, 25vw, 180px)" 
-                  height="clamp(120px, 25vw, 180px)" 
-                  viewBox="0 0 180 180" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  style={{ display: 'block' }}
-                >
-                  <g>
-                    <circle
-                      cx="90" cy="90" r="80"
-                      stroke="#ffd700"
-                      strokeWidth="8"
-                      fill="#18181f"
-                      style={{
-                        transformOrigin: '90px 90px',
-                        animation: 'spin 1.2s linear infinite'
-                      }}
-                    />
-                    <text
-                      x="50%" y="50%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontFamily="'Luckiest Guy', cursive, sans-serif"
-                      fontSize="clamp(24px, 5vw, 36px)"
-                      fill="#ffd700"
-                      letterSpacing="2"
-                      style={{
-                        textTransform: 'uppercase',
-                        animation: 'pulse 1.2s ease-in-out infinite'
-                      }}
-                    >
-                      Loading
-                    </text>
-                  </g>
-                  <style>{`
+      {/* <GameSlider /> removed to prevent featured games from appearing on game pages */}
+      <Container key={`game-container-${renderKey}`}>
+        {/* Recent plays horizontal scroller */}
+        {ready && (
+          <div style={{
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden',
+            boxSizing: 'border-box'
+          }}>
+            <GambaUi.PortalTarget target="recentplays" />
+          </div>
+        )}
+
+        {/* Stats header as separate area above game screen */}
+        {ready && (
+          <div style={{
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden',
+            boxSizing: 'border-box'
+          }}>
+            <GambaUi.PortalTarget target="stats" />
+          </div>
+        )}
+
+        <Screen>
+          {!ready ? (
+            <Splash>
+              <svg
+                width="clamp(120px, 25vw, 180px)"
+                height="clamp(120px, 25vw, 180px)"
+                viewBox="0 0 180 180"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ display: 'block' }}
+              >
+                <g>
+                  <circle
+                    cx="90" cy="90" r="80"
+                    stroke="#ffd700"
+                    strokeWidth="8"
+                    fill="#18181f"
+                    style={{
+                      transformOrigin: '90px 90px',
+                      animation: 'spin 1.2s linear infinite'
+                    }}
+                  />
+                  <text
+                    x="50%" y="50%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontFamily="'Luckiest Guy', cursive, sans-serif"
+                    fontSize="clamp(24px, 5vw, 36px)"
+                    fill="#ffd700"
+                    letterSpacing="2"
+                    style={{
+                      textTransform: 'uppercase',
+                      animation: 'pulse 1.2s ease-in-out infinite'
+                    }}
+                  >
+                    Loading
+                  </text>
+                </g>
+                <style>{`
                     @keyframes spin {
                       100% { transform: rotate(360deg); }
                     }
@@ -833,98 +724,98 @@ function CustomRenderer() {
                       50% { opacity: 0.5; }
                     }
                   `}</style>
-                </svg>
-              </Splash>
-            ) : null}
-            <GambaUi.PortalTarget target="error" />
-            {ready && (
-              <GameScalingProvider
-                options={{
-                  minHeight: 280,
-                  maxHeight: 900,
-                  controlsReservedSpace: 120,
-                  headerReservedSpace: 60,
-                  aggressiveScaling: true,
-                }}
-              >
-                <GambaUi.PortalTarget target="screen" />
-              </GameScalingProvider>
-            )}
-          </Screen>
-          {/* Portal Safety Monitor - actively prevents unsafe sizing */}
-          <PortalSafetyMonitor 
-            enforceSafety={true} 
-            debugMode={false}
-            onSafetyChange={(status) => {
-              if (!status.isSafe) {
-                console.warn('🚨 Portal Safety Warning:', status.reasons)
-              }
-            }}
-          />
-          <LoadingBar />
-          <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
-            <div className="control-buttons">
-              <GambaUi.PortalTarget target="controls" />
-            </div>
-            <MetaControls>
-              <RenderModeToggle gameId={game?.id} />
-              <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
-                <Icon.Info />
-              </IconButton>
-              <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
-                <Icon.Fairness />
-              </IconButton>
-              <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
-                <GraphicsSettingsIcon />
-              </IconButton>
-              <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
-                <Icon.Fullscreen />
-              </IconButton>
-              <IconButton
-                onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
-                disabled={showSplash}
-              >
-                {soundStore.volume ? <Icon.Volume /> : <Icon.VolumeMuted />}
-              </IconButton>
-            </MetaControls>
-          </Controls>
-        </Container>
+              </svg>
+            </Splash>
+          ) : null}
+          <GambaUi.PortalTarget target="error" />
+          {ready && (
+            <GameScalingProvider
+              options={{
+                minHeight: 280,
+                maxHeight: 900,
+                controlsReservedSpace: 120,
+                headerReservedSpace: 60,
+                aggressiveScaling: true,
+              }}
+            >
+              <GambaUi.PortalTarget target="screen" />
+            </GameScalingProvider>
+          )}
+        </Screen>
+        {/* Portal Safety Monitor - actively prevents unsafe sizing */}
+        <PortalSafetyMonitor
+          enforceSafety={true}
+          debugMode={false}
+          onSafetyChange={(status) => {
+            if (!status.isSafe) {
+              console.warn('🚨 Portal Safety Warning:', status.reasons);
+            }
+          }}
+        />
+        <LoadingBar />
+        <Controls style={{ opacity: showSplash ? 0.3 : 1, pointerEvents: showSplash ? 'none' : 'auto' }}>
+          <div className="control-buttons">
+            <GambaUi.PortalTarget target="controls" />
+          </div>
+          <MetaControls>
+            <RenderModeToggle gameId={game?.id} />
+            <IconButton onClick={() => setInfo(true)} disabled={showSplash}>
+              <Icon.Info />
+            </IconButton>
+            <IconButton onClick={() => setProvablyFair(true)} disabled={showSplash}>
+              <Icon.Fairness />
+            </IconButton>
+            <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
+              <GraphicsSettingsIcon />
+            </IconButton>
+            <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
+              <Icon.Fullscreen />
+            </IconButton>
+            <IconButton
+              onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
+              disabled={showSplash}
+            >
+              {soundStore.volume ? <Icon.Volume /> : <Icon.VolumeMuted />}
+            </IconButton>
+          </MetaControls>
+        </Controls>
+      </Container>
     </>
-  )
+  );
 }
 
 export default function Game() {
-  const { wallet, gameId } = useParams()
-  const { publicKey } = useWallet()
-  const walletAdapter = useWallet()
-  const connectedWallet = publicKey?.toBase58()
-  const [loading, setLoading] = useState(true)
-  const [game, setGame] = useState<any | null>(null)
-  
+  const { wallet, gameId } = useParams();
+  const { publicKey } = useWallet();
+  const walletAdapter = useWallet();
+  const connectedWallet = publicKey?.toBase58();
+  const [loading, setLoading] = useState(true);
+  const [game, setGame] = useState<ExtendedGameBundle | null>(null);
+
   // Track if wallet auto-connect attempt has finished to prevent error flash
-  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false)
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
 
   useEffect(() => {
     const gameFound = GAMES().find(
       (x) => x.id.toLowerCase() === gameId?.toLowerCase(),
-    )
-    setGame(gameFound || null)
-    setLoading(false)
-  }, [gameId])
+    );
+    setGame(gameFound || null);
+    setLoading(false);
+  }, [gameId]);
 
   useEffect(() => {
     // If wallet.connecting just transitioned to false, mark auto-connect as attempted
     if (!walletAdapter.connecting) {
-      setAutoConnectAttempted(true)
+      setAutoConnectAttempted(true);
     }
-  }, [walletAdapter.connecting])
+  }, [walletAdapter.connecting]);
 
   // Improved wallet param logic:
   // 1. Wait for auto-connect attempt to complete before showing wallet errors
   // 2. If not connected after auto-connect, prompt to connect wallet.
   // 3. If connected and wallet param exists, require match.
   // 4. If connected and no wallet param, allow access.
-  
+
   // Don't show wallet errors until auto-connect has been attempted
   if (!autoConnectAttempted || walletAdapter.connecting) {
     return (
@@ -939,16 +830,16 @@ export default function Game() {
         <Spinner />
         <p style={{ marginTop: '12px', fontSize: '1.2rem' }}>Connecting...</p>
       </div>
-    )
+    );
   }
-  
+
   if (!connectedWallet) {
     return (
       <ErrorScreen
         type="400"
         message="Please connect your wallet to play."
       />
-    )
+    );
   }
   if (wallet && connectedWallet.toLowerCase() !== wallet.toLowerCase()) {
     return (
@@ -956,7 +847,7 @@ export default function Game() {
         type="400"
         message="Wallet mismatch. Please reconnect with the correct wallet."
       />
-    )
+    );
   }
 
   if (loading) {
@@ -972,7 +863,7 @@ export default function Game() {
         <Spinner />
         <p style={{ marginTop: '12px', fontSize: '1.2rem' }}>Loading game...</p>
       </div>
-    )
+    );
   }
 
   if (!game) {
@@ -981,7 +872,7 @@ export default function Game() {
         type="404"
         message="Game not found. Please check the URL or try again later."
       />
-    )
+    );
   }
 
   // Support custom .env variable for environment, fallback to GAMBA_ENV
@@ -989,9 +880,9 @@ export default function Game() {
   const isProd = env === 'production';
 
   // Determine if games should be blocked based on feature flags
-  const shouldBlockMaintenance = FEATURE_FLAGS.BLOCK_MAINTENANCE_GAMES && 
+  const shouldBlockMaintenance = FEATURE_FLAGS.BLOCK_MAINTENANCE_GAMES &&
     (FEATURE_FLAGS.RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING ? isProd : true);
-  const shouldBlockCreating = FEATURE_FLAGS.BLOCK_CREATING_GAMES && 
+  const shouldBlockCreating = FEATURE_FLAGS.BLOCK_CREATING_GAMES &&
     (FEATURE_FLAGS.RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING ? isProd : true);
 
   if (shouldBlockMaintenance && game.maintenance) {
@@ -1000,7 +891,7 @@ export default function Game() {
         type="503"
         message="🛠️ This game is currently under maintenance. Please check back later!"
       />
-    )
+    );
   }
 
   if (shouldBlockCreating && game.creating) {
@@ -1009,7 +900,7 @@ export default function Game() {
         type="1024"
         message="🧪 This game is being added soon. Check back for new games!"
       />
-    )
+    );
   }
 
   return (
@@ -1028,5 +919,5 @@ export default function Game() {
         <CustomRenderer />
       </ErrorBoundary>
     </GambaUi.Game>
-  )
+  );
 }

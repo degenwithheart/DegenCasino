@@ -1,155 +1,155 @@
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2'
-import * as Tone from 'tone'
-import { useGamba } from 'gamba-react-v2'
-import React from 'react'
-import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
-import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
-import { GameControlsSection, MobileControls, DesktopControls, EnhancedWagerInput, EnhancedButton, GameRecentPlaysHorizontal } from '../../components'
-import { generateGrid, revealAllMines, revealGold, getProgressiveMultiplier, getProgressiveWager } from './utils'
-import { useGameMeta } from '../useGameMeta'
-import { useGameStats } from '../../hooks/game/useGameStats'
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
+import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2';
+import * as Tone from 'tone';
+import { useGamba } from 'gamba-react-v2';
+import React from 'react';
+import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants';
+import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles';
+import { GameControlsSection, MobileControls, DesktopControls, EnhancedWagerInput, EnhancedButton, GameRecentPlaysHorizontal } from '../../components';
+import { generateGrid, revealAllMines, revealGold, getProgressiveMultiplier, getProgressiveWager } from './utils';
+import { useGameMeta } from '../useGameMeta';
+import { useGameStats } from '../../hooks/game/useGameStats';
 
 function Mines2D() {
-  const game = GambaUi.useGame()
-  const meta = useGameMeta('mines')
-  const gameStats = useGameStats('mines')
+  const game = GambaUi.useGame();
+  const meta = useGameMeta('mines');
+  const gameStats = useGameStats('mines');
   const sounds = useSound({
     tick: SOUND_TICK,
     win: SOUND_WIN,
     finish: SOUND_FINISH,
     step: SOUND_STEP,
     explode: SOUND_EXPLODE,
-  })
-  const pool = useCurrentPool()
+  });
+  const pool = useCurrentPool();
 
-  const [grid, setGrid] = React.useState(generateGrid(GRID_SIZE))
-  const [currentLevel, setLevel] = React.useState(0)
-  const [selected, setSelected] = React.useState(-1)
-  const [totalGain, setTotalGain] = React.useState(0)
-  const [loading, setLoading] = React.useState(false)
-  const [started, setStarted] = React.useState(false)
+  const [grid, setGrid] = React.useState(generateGrid(GRID_SIZE));
+  const [currentLevel, setLevel] = React.useState(0);
+  const [selected, setSelected] = React.useState(-1);
+  const [totalGain, setTotalGain] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+  const [started, setStarted] = React.useState(false);
 
-  const [initialWager, setInitialWager] = useWagerInput()
-  const [mines, setMines] = React.useState(MINE_SELECT[2])
+  const [initialWager, setInitialWager] = useWagerInput();
+  const [mines, setMines] = React.useState(MINE_SELECT[2]);
 
   const getMultiplierForLevel = (level: number) => {
-    const remainingCells = GRID_SIZE - level
-    return getProgressiveMultiplier(level, remainingCells, mines)
-  }
+    const remainingCells = GRID_SIZE - level;
+    return getProgressiveMultiplier(level, remainingCells, mines);
+  };
 
   const levels = React.useMemo(
     () => {
-      const totalLevels = GRID_SIZE - mines
-      let cumProfit = 0
-      let previousBalance = initialWager
+      const totalLevels = GRID_SIZE - mines;
+      let cumProfit = 0;
+      let previousBalance = initialWager;
 
       return Array.from({ length: totalLevels }).map((_, level) => {
-        const wager = level === 0 ? initialWager : getProgressiveWager(level, initialWager, previousBalance, pool.maxPayout)
-        const multiplier = getMultiplierForLevel(level)
-        const remainingCells = GRID_SIZE - level
-        const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier)
+        const wager = level === 0 ? initialWager : getProgressiveWager(level, initialWager, previousBalance, pool.maxPayout);
+        const multiplier = getMultiplierForLevel(level);
+        const remainingCells = GRID_SIZE - level;
+        const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier);
 
-        const profit = wager * (multiplier - 1)
-        cumProfit += profit
-        const balance = wager + profit
+        const profit = wager * (multiplier - 1);
+        cumProfit += profit;
+        const balance = wager + profit;
 
-        previousBalance = balance
-        return { bet, wager, profit, cumProfit, balance }
-      }).filter(x => Math.max(...x.bet) * x.wager < pool.maxPayout)
+        previousBalance = balance;
+        return { bet, wager, profit, cumProfit, balance };
+      }).filter(x => Math.max(...x.bet) * x.wager < pool.maxPayout);
     },
     [initialWager, mines, pool.maxPayout],
-  )
+  );
 
-  const remainingCells = GRID_SIZE - currentLevel
-  const gameFinished = remainingCells <= mines
-  const canPlay = started && !loading && !gameFinished
+  const remainingCells = GRID_SIZE - currentLevel;
+  const gameFinished = remainingCells <= mines;
+  const canPlay = started && !loading && !gameFinished;
 
-  const { wager, bet } = levels[currentLevel] ?? {}
+  const { wager, bet } = levels[currentLevel] ?? {};
 
   const start = async () => {
     try {
       // Initialize audio context
       if (Tone.context.state !== 'running') {
-        await Tone.start()
-        await Tone.context.resume()
-        console.debug('🎵 Audio context initialized on game start')
+        await Tone.start();
+        await Tone.context.resume();
+        console.debug('🎵 Audio context initialized on game start');
       }
-      
-      setGrid(generateGrid(GRID_SIZE))
-      setLoading(false)
-      setLevel(0)
-      setTotalGain(0)
-      setStarted(true)
+
+      setGrid(generateGrid(GRID_SIZE));
+      setLoading(false);
+      setLevel(0);
+      setTotalGain(0);
+      setStarted(true);
     } catch (error) {
-      console.warn('⚠️ Failed to initialize audio:', error)
+      console.warn('⚠️ Failed to initialize audio:', error);
       // Continue with game start even if audio fails
-      setGrid(generateGrid(GRID_SIZE))
-      setLoading(false)
-      setLevel(0)
-      setTotalGain(0)
-      setStarted(true)
+      setGrid(generateGrid(GRID_SIZE));
+      setLoading(false);
+      setLevel(0);
+      setTotalGain(0);
+      setStarted(true);
     }
-  }
+  };
 
   const endGame = async () => {
-    sounds.play('finish')
-    reset()
-  }
+    sounds.play('finish');
+    reset();
+  };
 
   const reset = () => {
-    setGrid(generateGrid(GRID_SIZE))
-    setLoading(false)
-    setLevel(0)
-    setTotalGain(0)
-    setStarted(false)
-  }
+    setGrid(generateGrid(GRID_SIZE));
+    setLoading(false);
+    setLevel(0);
+    setTotalGain(0);
+    setStarted(false);
+  };
 
   const play = async (cellIndex: number) => {
-    setLoading(true)
-    setSelected(cellIndex)
+    setLoading(true);
+    setSelected(cellIndex);
     try {
-      sounds.sounds.step.player.loop = true
-      sounds.play('step', {  })
-      sounds.sounds.tick.player.loop = true
-      sounds.play('tick', {  })
+      sounds.sounds.step.player.loop = true;
+      sounds.play('step', {});
+      sounds.sounds.tick.player.loop = true;
+      sounds.play('tick', {});
       await game.play({
         bet,
         wager,
         metadata: [currentLevel],
-      })
+      });
 
-      const result = await game.result()
+      const result = await game.result();
 
-      sounds.sounds.tick.player.stop()
+      sounds.sounds.tick.player.stop();
 
       // Lose
       if (result.payout === 0) {
-        setStarted(false)
-        setGrid(revealAllMines(grid, cellIndex, mines))
-        sounds.play('explode')
-        return
+        setStarted(false);
+        setGrid(revealAllMines(grid, cellIndex, mines));
+        sounds.play('explode');
+        return;
       }
 
-      const nextLevel = currentLevel + 1
-      setLevel(nextLevel)
-      setGrid(revealGold(grid, cellIndex, result.profit))
-      setTotalGain(result.payout)
+      const nextLevel = currentLevel + 1;
+      setLevel(nextLevel);
+      setGrid(revealGold(grid, cellIndex, result.profit));
+      setTotalGain(result.payout);
 
       if (nextLevel < GRID_SIZE - mines) {
-        sounds.play('win', { playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) })
+        sounds.play('win', { playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) });
       } else {
         // No more squares
-        sounds.play('win', { playbackRate: .9 })
-        sounds.play('finish')
+        sounds.play('win', { playbackRate: .9 });
+        sounds.play('finish');
       }
     } finally {
-      setLoading(false)
-      setSelected(-1)
-      sounds.sounds.tick.player.stop()
-      sounds.sounds.step.player.stop()
+      setLoading(false);
+      setSelected(-1);
+      sounds.sounds.tick.player.stop();
+      sounds.sounds.step.player.stop();
     }
-  }
+  };
 
   return (
     <>
@@ -203,7 +203,7 @@ function Mines2D() {
 
             <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#4caf50', marginBottom: 4 }}>BASE x</div>
-                <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>{started ? `${getMultiplierForLevel(currentLevel).toFixed(2)}x` : `${getMultiplierForLevel(0).toFixed(2) || '1.00'}x`}</div>
+              <div style={{ fontSize: '16px', color: 'rgba(76,175,80,0.9)', fontWeight: 600 }}>{started ? `${getMultiplierForLevel(currentLevel).toFixed(2)}x` : `${getMultiplierForLevel(0).toFixed(2) || '1.00'}x`}</div>
             </div>
 
             <div style={{ flex: '1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -300,7 +300,7 @@ function Mines2D() {
         )}
       </GambaUi.Portal>
     </>
-  )
+  );
 }
 
-export default Mines2D
+export default Mines2D;

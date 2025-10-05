@@ -1,5 +1,5 @@
-import type { GameBundle } from './types'
-import React from 'react'
+import type { GameBundle } from './types';
+import React from 'react';
 
 export interface ExtendedGameBundle extends GameBundle {
   id: string;
@@ -131,4 +131,4 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
     },
     app: React.lazy(() => import('./BlackJack')),
   },
-]
+];

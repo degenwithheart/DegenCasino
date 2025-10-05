@@ -1,6 +1,9 @@
 import { keyframes } from 'styled-components';
 import { DEFAULT_COLOR_SCHEME } from '../constants';
 
+// Type for styled-components keyframes
+type StyledKeyframes = ReturnType<typeof keyframes>;
+
 // Base animations that can be used across themes
 export const neonPulse = keyframes`
   0% {
@@ -267,11 +270,11 @@ export interface GlobalColorScheme {
     buttonGlow: string;
   };
   animations: {
-    primary: any;
-    secondary: any;
-    accent: any;
-    hover: any;
-    loading: any;
+    primary: StyledKeyframes;
+    secondary: StyledKeyframes;
+    accent: StyledKeyframes;
+    hover: StyledKeyframes;
+    loading: StyledKeyframes;
   };
   patterns: {
     background: string;
@@ -1008,11 +1011,14 @@ export { DEFAULT_COLOR_SCHEME };
 // Theme utility functions
 export const getColorSchemeValue = (colorScheme: GlobalColorScheme, path: string, fallback: string = ''): string => {
   const keys = path.split('.');
-  let value: any = colorScheme;
+  let value: unknown = colorScheme;
 
   for (const key of keys) {
-    value = value?.[key];
-    if (value === undefined) return fallback;
+    if (value && typeof value === 'object' && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else {
+      return fallback;
+    }
   }
 
   return typeof value === 'string' ? value : fallback;

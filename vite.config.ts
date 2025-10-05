@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 function stripPureAnnotations() {
   return {
     name: 'strip-pure-annotations',
-    renderChunk(code) {
+    renderChunk(code: string) {
       return code.replace(/\/\*#__PURE__\*\//g, '');
     }
   };
@@ -16,7 +16,7 @@ function silentWarnings() {
   return {
     name: 'silent-warnings',
     buildStart() {},
-    renderChunk(code, chunk, options) {
+    renderChunk(code: string, chunk: any, options: any) {
       // nothing here; used only for Rollup onwarn override
     }
   };

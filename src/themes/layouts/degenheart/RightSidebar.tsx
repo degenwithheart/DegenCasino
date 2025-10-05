@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react'
-import styled, { keyframes, css } from 'styled-components'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useColorScheme } from '../../ColorSchemeContext'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
-import { FaTrophy, FaFire, FaCrown, FaGamepad, FaCoins, FaUsers, FaChartLine, FaShieldAlt, FaChartBar, FaDice, FaStar } from 'react-icons/fa'
-import { ALL_GAMES } from '../../../games/allGames'
-import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData'
-import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats'
-import { PLATFORM_CREATOR_ADDRESS, FEATURE_FLAGS } from '../../../constants'
-import { GameRecentPlays } from '../../../components/Game/GameRecentPlays'
+import React, { useMemo } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useColorScheme } from '../../ColorSchemeContext';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
+import { FaTrophy, FaFire, FaCrown, FaGamepad, FaCoins, FaUsers, FaChartLine, FaShieldAlt, FaChartBar, FaDice, FaStar } from 'react-icons/fa';
+import { ALL_GAMES } from '../../../games/allGames';
+import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData';
+import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats';
+import { PLATFORM_CREATOR_ADDRESS, FEATURE_FLAGS } from '../../../constants';
+import { GameRecentPlays } from '../../../components/Game/GameRecentPlays';
 
 const pulse = keyframes`
   0%, 100% {
@@ -20,9 +20,9 @@ const pulse = keyframes`
     transform: scale(1.05);
     opacity: 0.8;
   }
-`
+`;
 
-const SidebarContainer = styled.aside<{ $colorScheme: any }>`
+const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
   background: linear-gradient(180deg, 
     ${props => props.$colorScheme.colors.surface}F8,
     ${props => props.$colorScheme.colors.background}F0
@@ -126,9 +126,9 @@ const SidebarContainer = styled.aside<{ $colorScheme: any }>`
       );
     }
   }
-`
+`;
 
-const Section = styled.div<{ $colorScheme: any }>`
+const Section = styled.div<{ $colorScheme: any; }>`
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.surface}85,
     ${props => props.$colorScheme.colors.surface}50
@@ -176,9 +176,9 @@ const Section = styled.div<{ $colorScheme: any }>`
       opacity: 1;
     }
   }
-`
+`;
 
-const SectionTitle = styled.h3<{ $colorScheme: any }>`
+const SectionTitle = styled.h3<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text};
   font-size: 1.1rem;
   font-weight: bold;
@@ -191,15 +191,15 @@ const SectionTitle = styled.h3<{ $colorScheme: any }>`
     color: ${props => props.$colorScheme.colors.accent};
     font-size: 1rem;
   }
-`
+`;
 
 const LeaderboardList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-`
+`;
 
-const LeaderboardItem = styled.div<{ $colorScheme: any; $rank: number }>`
+const LeaderboardItem = styled.div<{ $colorScheme: any; $rank: number; }>`
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -251,9 +251,9 @@ const LeaderboardItem = styled.div<{ $colorScheme: any; $rank: number }>`
   &:active {
     transform: translateY(-1px) translateX(2px);
   }
-`
+`;
 
-const RankBadge = styled.div<{ $colorScheme: any; $rank: number }>`
+const RankBadge = styled.div<{ $colorScheme: any; $rank: number; }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -270,39 +270,39 @@ const RankBadge = styled.div<{ $colorScheme: any; $rank: number }>`
         background: linear-gradient(135deg, #FFD700, #FFA500);
         color: #1a1a1a;
         box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-      `
+      `;
     } else {
       return `
         background: ${props.$colorScheme.colors.accent}30;
         color: ${props.$colorScheme.colors.text};
         border: 1px solid ${props.$colorScheme.colors.accent}40;
-      `
+      `;
     }
   }}
-`
+`;
 
 const PlayerInfo = styled.div`
   flex: 1;
   min-width: 0;
-`
+`;
 
-const PlayerName = styled.div<{ $colorScheme: any }>`
+const PlayerName = styled.div<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text};
   font-weight: 600;
   font-size: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
-const PlayerWinnings = styled.div<{ $colorScheme: any }>`
+const PlayerWinnings = styled.div<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.accent};
   font-size: 0.8rem;
   font-weight: 500;
   margin-top: 2px;
-`
+`;
 
-const JackpotDisplay = styled.div<{ $colorScheme: any }>`
+const JackpotDisplay = styled.div<{ $colorScheme: any; }>`
   text-align: center;
   padding: 1.5rem;
   background: linear-gradient(135deg, 
@@ -337,32 +337,32 @@ const JackpotDisplay = styled.div<{ $colorScheme: any }>`
       transparent
     );
   }
-`
+`;
 
-const JackpotAmount = styled.div<{ $colorScheme: any }>`
+const JackpotAmount = styled.div<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.accent};
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 0.25rem;
-`
+`;
 
-const JackpotLabel = styled.div<{ $colorScheme: any }>`
+const JackpotLabel = styled.div<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text};
   font-size: 0.8rem;
   opacity: 0.8;
-`
+`;
 
 export const RightSidebar: React.FC = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { currentColorScheme } = useColorScheme()
-  const { connected } = useWallet()
-  const pool = useCurrentPool()
-  const { data: leaderboardData, loading: leaderboardLoading } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58())
-  
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { currentColorScheme } = useColorScheme();
+  const { connected } = useWallet();
+  const pool = useCurrentPool();
+  const { data: leaderboardData, loading: leaderboardLoading } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58());
+
   // Initialize stats hooks
-  const globalStats = useGlobalGameStats() // For user profile sidebar
-  const gameStats = useGameStats() // For individual game routes (will be overridden below)
+  const globalStats = useGlobalGameStats(); // For user profile sidebar
+  const gameStats = useGameStats(); // For individual game routes (will be overridden below)
 
   // Hot games data
   const hotGames = useMemo(() => [
@@ -370,14 +370,14 @@ export const RightSidebar: React.FC = () => {
     { name: 'Plinko', status: 'Trending', emoji: '🏀' },
     { name: 'Mines', status: 'Hot', emoji: '💣' },
     { name: 'Slots', status: 'Classic', emoji: '🎰' }
-  ], [])
+  ], []);
 
   // Process leaderboard data
   const displayLeaderboard = useMemo(() => {
     if (!connected || leaderboardLoading || !leaderboardData?.length) {
       return [
         { name: 'No data yet', winnings: 'be the first!', rank: 1 }
-      ]
+      ];
     }
 
     if (leaderboardData.length > 0) {
@@ -385,17 +385,17 @@ export const RightSidebar: React.FC = () => {
         name: player.user || `Player ${player.user?.slice(0, 4) || Math.random().toString(36).slice(2, 6)}`,
         winnings: `${player.sol_volume.toFixed(2)} SOL`,
         rank: index + 1
-      }))
+      }));
     }
 
     return [
       { name: 'No data yet', winnings: 'be the first!', rank: 1 }
-    ]
-  }, [connected, leaderboardData, leaderboardLoading])
+    ];
+  }, [connected, leaderboardData, leaderboardLoading]);
 
   // Get contextual content based on current route
   const getContextualContent = () => {
-    const path = location.pathname
+    const path = location.pathname;
 
     // Profile route
     if (path.includes('/profile')) {
@@ -415,8 +415,8 @@ export const RightSidebar: React.FC = () => {
                     </strong>
                   </div>
                   <div style={{ marginBottom: '0.5rem' }}>
-                    Win Rate: <strong style={{ 
-                      color: globalStats.winRate > 60 ? '#00ff41' : globalStats.winRate < 30 ? '#dc143c' : currentColorScheme.colors.accent 
+                    Win Rate: <strong style={{
+                      color: globalStats.winRate > 60 ? '#00ff41' : globalStats.winRate < 30 ? '#dc143c' : currentColorScheme.colors.accent
                     }}>
                       {globalStats.winRate.toFixed(1)}%
                     </strong>
@@ -432,10 +432,10 @@ export const RightSidebar: React.FC = () => {
                     </strong>
                   </div>
                   {globalStats.stats.gamesPlayed > 0 && (
-                    <div style={{ 
-                      textAlign: 'center', 
-                      fontSize: '0.8rem', 
-                      fontStyle: 'italic', 
+                    <div style={{
+                      textAlign: 'center',
+                      fontSize: '0.8rem',
+                      fontStyle: 'italic',
                       marginTop: '1rem',
                       color: globalStats.isOnFire ? '#00ff41' : globalStats.isRekt ? '#dc143c' : 'inherit'
                     }}>
@@ -451,7 +451,7 @@ export const RightSidebar: React.FC = () => {
             </div>
           </Section>
         </>
-      )
+      );
     }
 
     // Leaderboard route
@@ -476,7 +476,7 @@ export const RightSidebar: React.FC = () => {
             </div>
           </Section>
         </>
-      )
+      );
     }
 
     // Jackpot route
@@ -502,7 +502,7 @@ export const RightSidebar: React.FC = () => {
             </div>
           </Section>
         </>
-      )
+      );
     }
 
     // Token/Presale routes  
@@ -527,7 +527,7 @@ export const RightSidebar: React.FC = () => {
             </div>
           </Section>
         </>
-      )
+      );
     }
 
     // Audit route
@@ -552,21 +552,21 @@ export const RightSidebar: React.FC = () => {
             </div>
           </Section>
         </>
-      )
+      );
     }
 
     // Game routes (check for individual games)
-    const pathSegments = path.split('/')
+    const pathSegments = path.split('/');
     if (pathSegments.length >= 4 && pathSegments[1] === 'game') {
-      const gameId = pathSegments[3]
-      const currentGame = ALL_GAMES.find(game => game.id.toLowerCase() === gameId.toLowerCase())
-      
+      const gameId = pathSegments[3];
+      const currentGame = ALL_GAMES.find(game => game.id.toLowerCase() === gameId.toLowerCase());
 
-      
+
+
       if (currentGame) {
         // Use game-specific stats for this game
-        const currentGameStats = useGameStats(gameId)
-        
+        const currentGameStats = useGameStats(gameId);
+
         return (
           <>
             <Section $colorScheme={currentColorScheme}>
@@ -574,12 +574,12 @@ export const RightSidebar: React.FC = () => {
                 <FaChartBar />
                 Live Game Stats
               </SectionTitle>
-              
+
               <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
                 <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '1.1rem', 
-                    fontWeight: 'bold', 
+                  <div style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
                     color: currentColorScheme.colors.accent,
                     marginBottom: '0.25rem'
                   }}>
@@ -589,16 +589,16 @@ export const RightSidebar: React.FC = () => {
                     {currentGame.meta.category || 'Casino'}
                   </div>
                 </div>
-                
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr', 
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
                   gap: '0.75rem',
                   marginBottom: '1rem'
                 }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                      fontWeight: 'bold', 
+                    <div style={{
+                      fontWeight: 'bold',
                       color: currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
@@ -608,18 +608,18 @@ export const RightSidebar: React.FC = () => {
                       Games
                     </div>
                   </div>
-                  
+
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                      fontWeight: 'bold', 
-                      color: currentGameStats.stats.gamesPlayed > 0 
-                        ? (currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100 > 60 
-                          ? '#00ff41' 
+                    <div style={{
+                      fontWeight: 'bold',
+                      color: currentGameStats.stats.gamesPlayed > 0
+                        ? (currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100 > 60
+                          ? '#00ff41'
                           : currentColorScheme.colors.accent
                         : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
-                      {currentGameStats.stats.gamesPlayed > 0 
+                      {currentGameStats.stats.gamesPlayed > 0
                         ? `${((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100).toFixed(1)}%`
                         : '0%'
                       }
@@ -628,10 +628,10 @@ export const RightSidebar: React.FC = () => {
                       Win Rate
                     </div>
                   </div>
-                  
+
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                      fontWeight: 'bold', 
+                    <div style={{
+                      fontWeight: 'bold',
                       color: currentGameStats.stats.wins > currentGameStats.stats.losses ? '#00ff41' : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
@@ -641,10 +641,10 @@ export const RightSidebar: React.FC = () => {
                       Wins
                     </div>
                   </div>
-                  
+
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                      fontWeight: 'bold', 
+                    <div style={{
+                      fontWeight: 'bold',
                       color: currentGameStats.stats.losses > currentGameStats.stats.wins ? '#dc143c' : currentColorScheme.colors.accent,
                       marginBottom: '0.25rem'
                     }}>
@@ -655,18 +655,18 @@ export const RightSidebar: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {currentGameStats.stats.gamesPlayed > 0 && (
                   <>
                     <div style={{ fontSize: '0.8rem', opacity: 0.7, textAlign: 'center', fontStyle: 'italic', marginBottom: '1rem' }}>
-                      {((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100) > 60 
+                      {((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100) > 60
                         ? '🔥 You\'re on fire! Keep it up!'
                         : ((currentGameStats.stats.wins / currentGameStats.stats.gamesPlayed) * 100) < 30 && currentGameStats.stats.gamesPlayed > 5
-                        ? '💀 Tough session, maybe take a break?'
-                        : '🎯 Steady gaming, good luck!'
+                          ? '💀 Tough session, maybe take a break?'
+                          : '🎯 Steady gaming, good luck!'
                       }
                     </div>
-                    
+
                     <div style={{ textAlign: 'center' }}>
                       <button
                         onClick={() => currentGameStats.resetStats()}
@@ -682,12 +682,12 @@ export const RightSidebar: React.FC = () => {
                           fontWeight: '600'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(220, 20, 60, 0.25)'
-                          e.currentTarget.style.borderColor = 'rgba(220, 20, 60, 0.5)'
+                          e.currentTarget.style.background = 'rgba(220, 20, 60, 0.25)';
+                          e.currentTarget.style.borderColor = 'rgba(220, 20, 60, 0.5)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(220, 20, 60, 0.15)'
-                          e.currentTarget.style.borderColor = 'rgba(220, 20, 60, 0.3)'
+                          e.currentTarget.style.background = 'rgba(220, 20, 60, 0.15)';
+                          e.currentTarget.style.borderColor = 'rgba(220, 20, 60, 0.3)';
                         }}
                       >
                         🔄 Reset Stats
@@ -699,16 +699,16 @@ export const RightSidebar: React.FC = () => {
             </Section>
 
             {FEATURE_FLAGS.ENABLE_INGAME_RECENT_GAMES && (
-            <Section $colorScheme={currentColorScheme}>
-              <SectionTitle $colorScheme={currentColorScheme}>
-                <FaDice />
-                Recent Plays
-              </SectionTitle>
+              <Section $colorScheme={currentColorScheme}>
+                <SectionTitle $colorScheme={currentColorScheme}>
+                  <FaDice />
+                  Recent Plays
+                </SectionTitle>
                 <GameRecentPlays gameId={gameId} limit={10} colorScheme={undefined} />
-            </Section>
+              </Section>
             )}
           </>
-        )
+        );
       }
     }
 
@@ -720,10 +720,10 @@ export const RightSidebar: React.FC = () => {
             <FaTrophy />
             Leaderboard
           </SectionTitle>
-          
+
           <LeaderboardList>
             {displayLeaderboard.map((player) => (
-              <LeaderboardItem 
+              <LeaderboardItem
                 key={`${player.name}-${player.rank}`}
                 $colorScheme={currentColorScheme}
                 $rank={player.rank}
@@ -749,7 +749,7 @@ export const RightSidebar: React.FC = () => {
             <FaCoins />
             Jackpot Pool
           </SectionTitle>
-          
+
           <JackpotDisplay $colorScheme={currentColorScheme}>
             <JackpotAmount $colorScheme={currentColorScheme}>
               {connected && pool && pool.jackpotBalance ? (
@@ -761,8 +761,8 @@ export const RightSidebar: React.FC = () => {
               )}
             </JackpotAmount>
             <JackpotLabel $colorScheme={currentColorScheme}>
-              {connected && pool && pool.jackpotBalance ? 'Total Jackpot' : 
-               connected ? 'to see jackpot' : 'to see jackpot'}
+              {connected && pool && pool.jackpotBalance ? 'Total Jackpot' :
+                connected ? 'to see jackpot' : 'to see jackpot'}
             </JackpotLabel>
           </JackpotDisplay>
         </Section>
@@ -772,7 +772,7 @@ export const RightSidebar: React.FC = () => {
             <FaFire />
             Hot Games
           </SectionTitle>
-          
+
           <LeaderboardList>
             {hotGames.map((game, index) => (
               <LeaderboardItem key={game.name} $colorScheme={currentColorScheme} $rank={index + 1}>
@@ -792,14 +792,14 @@ export const RightSidebar: React.FC = () => {
           </LeaderboardList>
         </Section>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <SidebarContainer $colorScheme={currentColorScheme}>
       {getContextualContent()}
     </SidebarContainer>
-  )
-}
+  );
+};
 
-export default RightSidebar
+export default RightSidebar;

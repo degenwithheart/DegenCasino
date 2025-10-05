@@ -1,115 +1,119 @@
 // src/components/GameScreen.tsx
-import React, { useEffect, useState } from 'react'
-import { PublicKey } from '@solana/web3.js'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useGame } from 'gamba-react-v2'
-import { GambaUi, Multiplayer } from 'gamba-react-ui-v2'
+import React, { useEffect, useState } from 'react';
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useGame } from 'gamba-react-v2';
+import { GambaUi, Multiplayer } from 'gamba-react-ui-v2';
 import {
   PLATFORM_CREATOR_ADDRESS,
   MULTIPLAYER_FEE,
   PLATFORM_REFERRAL_FEE, // ← add this
-} from '../../../constants'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import Board from '../board/Board'
-import { musicManager, stopAndDispose, attachMusic } from '../musicManager'
-import actionSnd from '../sounds/action.mp3'
-import { useSound } from 'gamba-react-ui-v2'
+} from '../../../constants';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
+import Board from '../board/Board';
+import { musicManager, stopAndDispose, attachMusic } from '../musicManager';
+import actionSnd from '../sounds/action.mp3';
+import { useSound } from 'gamba-react-ui-v2';
 
 export default function GameScreen({
   pk,
   onBack,
 }: {
-  pk: PublicKey
-  onBack: () => void
+  pk: PublicKey;
+  onBack: () => void;
 }) {
-  const { game: chainGame, metadata } = useGame(pk, { fetchMetadata: true })
-  const { publicKey } = useWallet()
+  const { game: chainGame, metadata } = useGame(pk, { fetchMetadata: true });
+  const { publicKey } = useWallet();
 
-  const [snapPlayers, setSnapPlayers] = useState<PublicKey[] | null>(null)
-  const [snapWinner, setSnapWinner]   = useState<number | null>(null)
-  const [snapPayouts, setSnapPayouts] = useState<number[] | null>(null)
-  const [replayDone, setReplayDone]   = useState(false)
+  const [snapPlayers, setSnapPlayers] = useState<PublicKey[] | null>(null);
+  const [snapWinner, setSnapWinner] = useState<number | null>(null);
+  const [snapPayouts, setSnapPayouts] = useState<number[] | null>(null);
+  const [replayDone, setReplayDone] = useState(false);
 
   useEffect(() => {
-    if (!chainGame?.state.settled || snapPlayers) return
-    const w = Number(chainGame.winnerIndexes[0])
-    setSnapPlayers(chainGame.players.map(p => p.user))
-    setSnapWinner(w)
+    if (!chainGame?.state.settled || snapPlayers) return;
+    const w = Number(chainGame.winnerIndexes[0]);
+    setSnapPlayers(chainGame.players.map(p => p.user));
+    setSnapWinner(w);
     setSnapPayouts(
       chainGame.players.map(p =>
         Number((p as any).pendingPayout ?? (p as any).pending_payout ?? 0),
       ),
-    )
-  }, [chainGame, snapPlayers])
+    );
+  }, [chainGame, snapPlayers]);
 
   useEffect(() => {
     if (snapPlayers && snapPlayers.length === 0) {
-      setReplayDone(true)
+      setReplayDone(true);
     }
-  }, [snapPlayers])
+  }, [snapPlayers]);
 
-  const [timeLeft, setTimeLeft] = useState(0)
+  const [timeLeft, setTimeLeft] = useState(0);
   useEffect(() => {
-    if (!chainGame?.softExpirationTimestamp) return
-    const end = Number(chainGame.softExpirationTimestamp) * 1000
-    const tick = () => setTimeLeft(Math.max(end - Date.now(), 0))
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [chainGame?.softExpirationTimestamp])
+    if (!chainGame?.softExpirationTimestamp) return;
+    const end = Number(chainGame.softExpirationTimestamp) * 1000;
+    const tick = () => setTimeLeft(Math.max(end - Date.now(), 0));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [chainGame?.softExpirationTimestamp]);
 
-  const waiting        = snapPlayers === null
-  const boardPlayers   = waiting
+  const waiting = snapPlayers === null;
+  const boardPlayers = waiting
     ? (chainGame?.players.map(p => p.user) || [])
-    : snapPlayers!
-  const boardWinnerIdx = waiting ? null : snapWinner
-  const boardPayouts   = waiting ? undefined : snapPayouts!
+    : snapPlayers!;
+  const boardWinnerIdx = waiting ? null : snapWinner;
+  const boardPayouts = waiting ? undefined : snapPayouts!;
 
   const formatTime = (ms: number) => {
-    const tot = Math.ceil(ms / 1000)
-    const m   = Math.floor(tot / 60)
-    const s   = tot % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
+    const tot = Math.ceil(ms / 1000);
+    const m = Math.floor(tot / 60);
+    const s = tot % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
-    clearTimeout(musicManager.timer)
-    musicManager.count += 1
+    clearTimeout(musicManager.timer);
+    musicManager.count += 1;
 
     return () => {
-      musicManager.count -= 1
+      musicManager.count -= 1;
       if (musicManager.count === 0) {
-        musicManager.timer = setTimeout(stopAndDispose, 200)
+        musicManager.timer = setTimeout(stopAndDispose, 200);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   const { play: playAction, sounds: actionSounds } = useSound(
     { action: actionSnd },
     { disposeOnUnmount: false }
-  )
+  );
   useEffect(() => {
     if (!waiting) {
       // stop lobby immediately
-      try { musicManager.sound?.player.stop() } catch {}
+      try { musicManager.sound?.player.stop(); } catch {
+        // Ignore audio stop errors
+      }
       // start action loop and attach for volume control
-      const snd = actionSounds.action
+      const snd = actionSounds.action;
       if (snd) {
-        snd.player.loop = true
+        snd.player.loop = true;
         const startWhenReady = () => {
           if (snd.ready) {
-            playAction('action')
-            attachMusic(snd)
+            playAction('action');
+            attachMusic(snd);
             // re-apply mute state after attaching
-            try { snd.gain.set({ gain: musicManager.muted ? 0 : snd.gain.get().gain }) } catch {}
+            try { snd.gain.set({ gain: musicManager.muted ? 0 : snd.gain.get().gain }); } catch {
+              // Ignore audio gain setting errors
+            }
           } else {
-            setTimeout(startWhenReady, 100)
+            setTimeout(startWhenReady, 100);
           }
-        }
-        startWhenReady()
+        };
+        startWhenReady();
       }
     }
-  }, [waiting, playAction, actionSounds])
+  }, [waiting, playAction, actionSounds]);
 
   return (
     <>
@@ -178,7 +182,7 @@ export default function GameScreen({
               creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
               referralFee={PLATFORM_REFERRAL_FEE}     // ← pass platform referral %
               enableMetadata
-              onTx={() => {}}
+              onTx={() => { }}
             />
           ) : (
             <Multiplayer.EditBet
@@ -186,11 +190,11 @@ export default function GameScreen({
               account={chainGame}
               creatorAddress={PLATFORM_CREATOR_ADDRESS}
               creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
-              onComplete={() => {}}
+              onComplete={() => { }}
             />
           )
         ) : null}
       </GambaUi.Portal>
     </>
-  )
+  );
 }

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { GambaUi, TokenValue, useCurrentPool, useCurrentToken, useSound, useWagerInput, FAKE_TOKEN_MINT, useTokenMeta } from 'gamba-react-ui-v2'
 import { useGamba } from 'gamba-react-v2'
 import styled from 'styled-components'
-import { BET_ARRAYS, RTP_TARGETS } from '../rtpConfig'
+import { BET_ARRAYS, RTP_TARGETS } from './config'
 import { useGameStats } from '../../hooks/game/useGameStats'
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame'
 import { useGameMeta } from '../useGameMeta'
@@ -448,7 +448,7 @@ const MobileSlotsGame: React.FC = () => {
       const result = await game.result()
       
       // Generate slot combination based on result
-      const newCombination = getSlotCombination(result.resultIndex, SLOT_ITEMS, NUM_SLOTS)
+      const newCombination = getSlotCombination(NUM_SLOTS, 1, bet, result.resultIndex.toString(), NUM_REELS, NUM_ROWS)
       setCombination(newCombination)
       
       // Update stats

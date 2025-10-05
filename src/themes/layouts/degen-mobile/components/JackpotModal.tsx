@@ -1,12 +1,12 @@
-import React from 'react'
-import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurrentToken, useTokenMeta, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2'
-import styled from 'styled-components'
-import { Modal } from './Modal'
-import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE_BPS, PLATFORM_CREATOR_FEE_BPS } from '../../../../constants'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../../../themes/ColorSchemeContext'
-import { spacing, animations, media } from '../breakpoints'
+import React from 'react';
+import { GambaUi, TokenValue, useCurrentPool, useGambaPlatformContext, useCurrentToken, useTokenMeta, FAKE_TOKEN_MINT } from 'gamba-react-ui-v2';
+import styled from 'styled-components';
+import { Modal } from './Modal';
+import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_FEE, PLATFORM_JACKPOT_FEE_BPS, PLATFORM_CREATOR_FEE_BPS } from '../../../../constants';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useColorScheme } from '../../../../themes/ColorSchemeContext';
+import { spacing, animations, media } from '../breakpoints';
 import {
   HeaderSection,
   Title,
@@ -16,18 +16,18 @@ import {
   ActionButtons,
   PrimaryButton,
   SecondaryButton
-} from './Jackpot.styles'
+} from './Jackpot.styles';
 
 interface JackpotModalProps {
   isOpen: boolean;
-  onClose: () => void
+  onClose: () => void;
 }
 
 const ControlText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-`
+`;
 
 const ControlTitle = styled.span`
   font-size: 1.1rem;
@@ -36,7 +36,7 @@ const ControlTitle = styled.span`
   text-shadow: 0 0 8px #6ffaff;
   font-family: 'Orbitron', monospace;
   letter-spacing: 0.05em;
-`
+`;
 
 const ControlSubtitle = styled.span`
   font-size: 0.9rem;
@@ -44,9 +44,9 @@ const ControlSubtitle = styled.span`
   font-family: 'JetBrains Mono', monospace;
   text-align: center;
   line-height: 1.4;
-`
+`;
 
-const StatusBadge = styled.span<{ $enabled: boolean }>`
+const StatusBadge = styled.span<{ $enabled: boolean; }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -73,7 +73,7 @@ const StatusBadge = styled.span<{ $enabled: boolean }>`
     content: '${({ $enabled }) => $enabled ? '🟢' : '🔴'}';
     font-size: 1rem;
   }
-`
+`;
 
 const PoolStatsContainer = styled.div`
   background: rgba(162, 89, 255, 0.08);
@@ -82,7 +82,7 @@ const PoolStatsContainer = styled.div`
   padding: 1rem;
   margin: 1.2rem 0;
   box-shadow: 0 0 16px rgba(162, 89, 255, 0.15);
-`
+`;
 
 const PoolStatsTitle = styled.h4`
   color: #a259ff;
@@ -93,7 +93,7 @@ const PoolStatsTitle = styled.h4`
   letter-spacing: 0.08em;
   text-shadow: 0 0 8px #a259ff88;
   font-family: 'Orbitron', monospace;
-`
+`;
 
 const PoolStatsGrid = styled.div`
   display: grid;
@@ -104,7 +104,7 @@ const PoolStatsGrid = styled.div`
     grid-template-columns: 1fr;
     gap: 0.6rem;
   }
-`
+`;
 
 const PoolStatItem = styled.div`
   display: flex;
@@ -122,14 +122,14 @@ const PoolStatItem = styled.div`
     border-color: rgba(111, 250, 255, 0.4);
     box-shadow: 0 0 12px rgba(111, 250, 255, 0.2);
   }
-`
+`;
 
 const PoolStatLabel = styled.span`
   color: #eaf6fb;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: 'JetBrains Mono', monospace;
-`
+`;
 
 const PoolStatValue = styled.span`
   color: #6ffaff;
@@ -137,7 +137,7 @@ const PoolStatValue = styled.span`
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   text-shadow: 0 0 6px #6ffaff88;
-`
+`;
 
 const InfoText = styled.p`
   color: #eaf6fb;
@@ -147,15 +147,10 @@ const InfoText = styled.p`
   margin: 1rem 0;
   line-height: 1.5;
   opacity: 0.9;
-`
-
-interface JackpotModalProps {
-  isOpen: boolean;
-  onClose: () => void
-}
+`;
 
 // Modern TikTok/Instagram style container
-const ModernJackpotContainer = styled.div<{ $colorScheme?: any }>`
+const ModernJackpotContainer = styled.div<{ $colorScheme?: any; }>`
   max-width: 480px;
   margin: 0 auto;
   padding: ${spacing.xl};
@@ -203,34 +198,34 @@ const ModernJackpotContainer = styled.div<{ $colorScheme?: any }>`
     position: relative;
     z-index: 2;
   }
-`
+`;
 
 const JackpotInner: React.FC = () => {
-  const pool = useCurrentPool()
-  const context = useGambaPlatformContext()
-  const token = useCurrentToken()
-  const { connected } = useWallet()
-  const meta = useTokenMeta(token?.mint)
-  const { currentColorScheme } = useColorScheme()
+  const pool = useCurrentPool();
+  const context = useGambaPlatformContext();
+  const token = useCurrentToken();
+  const { connected } = useWallet();
+  const meta = useTokenMeta(token?.mint);
+  const { currentColorScheme } = useColorScheme();
 
   // Calculate minimum wager in token amount ($1 USD for real tokens)
   const getMinimumWager = () => {
     if (token?.mint?.equals?.(FAKE_TOKEN_MINT)) {
-      return meta?.baseWager ?? 0 // For free tokens, use base wager
+      return meta?.baseWager ?? 0; // For free tokens, use base wager
     }
 
     // For real tokens, minimum is $1 USD
-    const tokenPrice = meta?.usdPrice ?? 0
+    const tokenPrice = meta?.usdPrice ?? 0;
     if (tokenPrice > 0) {
-      const tokenAmount = 1 / tokenPrice // $1 worth of tokens
-      return tokenAmount * (meta?.baseWager ?? Math.pow(10, meta?.decimals ?? 9))
+      const tokenAmount = 1 / tokenPrice; // $1 worth of tokens
+      return tokenAmount * (meta?.baseWager ?? Math.pow(10, meta?.decimals ?? 9));
     }
 
-    return meta?.baseWager ?? 0
-  }
+    return meta?.baseWager ?? 0;
+  };
 
-  const minimumWager = getMinimumWager()
-  const poolFeePercentage = (PLATFORM_CREATOR_FEE_BPS / BPS_PER_WHOLE * 100).toFixed(3)
+  const minimumWager = getMinimumWager();
+  const poolFeePercentage = (PLATFORM_CREATOR_FEE_BPS / BPS_PER_WHOLE * 100).toFixed(3);
 
   return (
     <ModernJackpotContainer $colorScheme={currentColorScheme}>
@@ -275,7 +270,7 @@ const JackpotInner: React.FC = () => {
       </PoolStatsContainer>
 
       {connected && (
-        <div style={{ 
+        <div style={{
           background: 'rgba(111, 250, 255, 0.08)',
           border: '1px solid rgba(111, 250, 255, 0.3)',
           borderRadius: '12px',
@@ -286,7 +281,7 @@ const JackpotInner: React.FC = () => {
             <ControlText style={{ alignItems: 'center', textAlign: 'center' }}>
               <ControlTitle>Jackpot Participation</ControlTitle>
               <ControlSubtitle>
-                {context.defaultJackpotFee === 0 
+                {context.defaultJackpotFee === 0
                   ? "Currently disabled – you won't contribute and are not eligible to win"
                   : 'Currently enabled – you contribute and are eligible to win'}
               </ControlSubtitle>
@@ -310,10 +305,10 @@ const JackpotInner: React.FC = () => {
         May the odds be ever in your favor! 🍀
       </InfoText>
     </ModernJackpotContainer>
-  )
-}
+  );
+};
 
-export const JackpotContent = JackpotInner
+export const JackpotContent = JackpotInner;
 
 const JackpotModal: React.FC<JackpotModalProps> = ({ isOpen, onClose }) => {
   const { currentColorScheme } = useColorScheme();
@@ -321,7 +316,7 @@ const JackpotModal: React.FC<JackpotModalProps> = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen} onClose={onClose}>
       <JackpotContent />
     </Modal>
-  )
-}
+  );
+};
 
-export default JackpotModal
+export default JackpotModal;

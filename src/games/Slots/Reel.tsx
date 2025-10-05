@@ -259,7 +259,7 @@ export function Reel({ revealed, good, reelIndex, items, isSpinning, enableMotio
     // Map symbol names to actual SlotItem objects using RTP config
     const sequenceItems = columnSequence.map(symbolName => {
       // Get the actual multiplier from RTP config symbols
-      const symbolFromConfig = SLOTS_CONFIG.symbols.find(s => s.name === symbolName)
+      const symbolFromConfig = SLOTS_CONFIG.symbols.find((s: any) => s.name === symbolName)
       if (!symbolFromConfig) {
         console.error('Symbol not found in config during spinning:', symbolName)
         return SLOT_ITEMS[0] // fallback to first item
