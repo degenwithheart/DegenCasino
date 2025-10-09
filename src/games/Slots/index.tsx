@@ -1,11 +1,11 @@
-import React, { Suspense } from 'react'
-import { useUserStore } from '../../hooks/data/useUserStore'
-import { GAME_CAPABILITIES } from '../../constants'
-import { useGameSEO } from '../../hooks/ui/useGameSEO'
+import React, { Suspense } from 'react';
+import { useUserStore } from '../../hooks/data/useUserStore';
+import { useGameSEO } from '../../hooks/ui/useGameSEO';
+import { ALL_GAMES } from '../allGames';
 
 // Lazy load the 2D and 3D components
-const SlotsRenderer2D = React.lazy(() => import('./Slots-2D'))
-const SlotsRenderer3D = React.lazy(() => import('./Slots-3D'))
+const SlotsRenderer2D = React.lazy(() => import('./Slots-2D'));
+const SlotsRenderer3D = React.lazy(() => import('./Slots-3D'));
 
 const LoadingFallback = () => (
   <div style={{
@@ -18,7 +18,7 @@ const LoadingFallback = () => (
   }}>
     Loading Slots...
   </div>
-)
+);
 
 export default function Slots() {
   // SEO for Slots game
@@ -27,24 +27,25 @@ export default function Slots() {
     description: "Spin the reels and hit the jackpot! Classic slot machine with multiple paylines and bonus features",
     rtp: 96,
     maxWin: "1000x"
-  })
+  });
 
-  const currentMode = useUserStore(state => state.getGameRenderMode('slots'))
-  const gameSupports3D = GAME_CAPABILITIES.slots?.supports3D ?? false
-  
+  const currentMode = useUserStore(state => state.getGameRenderMode('slots'));
+  const slotsGame = ALL_GAMES.find(g => g.id === 'slots');
+  const gameSupports3D = slotsGame?.capabilities?.supports3D ?? false;
+
   // Determine which component to render
-  const shouldUse3D = currentMode === '3D' && gameSupports3D
-  
-  console.log('🎯 SLOTS WRAPPER LOADING...', { 
-    currentMode, 
-    gameSupports3D, 
+  const shouldUse3D = currentMode === '3D' && gameSupports3D;
+
+  console.log('🎯 SLOTS WRAPPER LOADING...', {
+    currentMode,
+    gameSupports3D,
     shouldUse3D,
     timestamp: Date.now()
-  })
-  
+  });
+
   // Force re-render with key when mode changes
-  const renderKey = `slots-${currentMode}-${shouldUse3D ? '3d' : '2d'}`
-  
+  const renderKey = `slots-${currentMode}-${shouldUse3D ? '3d' : '2d'}`;
+
   return (
     <div key={renderKey}>
       {seoHelmet}
@@ -52,5 +53,5 @@ export default function Slots() {
         {shouldUse3D ? <SlotsRenderer3D /> : <SlotsRenderer2D />}
       </Suspense>
     </div>
-  )
+  );
 }

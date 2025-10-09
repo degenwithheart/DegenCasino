@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import { useColorScheme } from '../../../ColorSchemeContext'
-import { useNavigate } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useUserStore } from '../../../../hooks/data/useUserStore'
-import { ALL_GAMES } from '../../../../games/allGames'
-import { FEATURED_GAMES } from '../../../../games/featuredGames'
-import { GameCard } from '../../../../sections/Dashboard/GameCard'
-import { FeaturedGameCard } from '../../../../sections/Dashboard/FeaturedGameCard/FeaturedGameCard'
-import GameInfoModal from './GameInfoModal'
-import { spacing, media, animations } from '../breakpoints'
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { useColorScheme } from '../../../ColorSchemeContext';
+import { useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useUserStore } from '../../../../hooks/data/useUserStore';
+import { ALL_GAMES } from '../../../../games/allGames';
+import { FEATURED_GAMES } from '../../../../games/featuredGames';
+import { GameCard } from '../../../../sections/Dashboard/GameCard';
+import { FeaturedGameCard } from '../../../../sections/Dashboard/FeaturedGameCard/FeaturedGameCard';
+import GameInfoModal from './GameInfoModal';
+import { spacing, media, animations } from '../breakpoints';
 
-const FeedContainer = styled.div<{ $colorScheme: any }>`
+const FeedContainer = styled.div<{ $colorScheme: any; }>`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -35,9 +35,9 @@ const FeedContainer = styled.div<{ $colorScheme: any }>`
     border-radius: 16px;
     gap: ${spacing.base};
   }
-`
+`;
 
-const FeedItem = styled.div<{ $colorScheme: any }>`
+const FeedItem = styled.div<{ $colorScheme: any; }>`
   width: 100%;
   background: linear-gradient(135deg,
     ${props => props.$colorScheme.colors.surface}95,
@@ -65,28 +65,28 @@ const FeedItem = styled.div<{ $colorScheme: any }>`
   ${media.maxMobile} {
     border-radius: 16px;
   }
-`
+`;
 
-const FeedHeader = styled.div<{ $colorScheme: any }>`
+const FeedHeader = styled.div<{ $colorScheme: any; }>`
   padding: ${spacing.base};
   border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}10;
   background: linear-gradient(135deg,
     ${props => props.$colorScheme.colors.surface} 0%,
     ${props => props.$colorScheme.colors.background} 100%
   );
-`
+`;
 
-const FeedTitle = styled.h3<{ $colorScheme: any }>`
+const FeedTitle = styled.h3<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text};
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
   text-align: center;
-`
+`;
 
 const FeedContent = styled.div`
   padding: ${spacing.base};
-`
+`;
 
 const HorizontalScroller = styled.div`
   display: flex;
@@ -104,29 +104,29 @@ const HorizontalScroller = styled.div`
 
   /* Snap scrolling */
   scroll-snap-type: x mandatory;
-`
+`;
 
 const GameTile = styled.div`
   flex-shrink: 0;
   width: 200px;
   scroll-snap-align: start;
-`
+`;
 
 const GameTileSmall = styled.div`
   flex-shrink: 0;
   width: 160px;
   scroll-snap-align: start;
-`
+`;
 
 const VerticalGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: ${spacing.base};
-`
+`;
 
 const GameTileLarge = styled.div`
   width: 100%;
-`
+`;
 
 // Stories section styles
 const StoriesScroller = styled.div`
@@ -145,9 +145,9 @@ const StoriesScroller = styled.div`
 
   /* Snap to story items */
   scroll-snap-type: x mandatory;
-`
+`;
 
-const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean }>`
+const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean; }>`
   flex-shrink: 0;
   width: 64px;
   height: 64px;
@@ -181,7 +181,7 @@ const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean }>`
       transform: scale(1.05);
     }
   }
-`
+`;
 
 const StoryImage = styled.img`
   width: 100%;
@@ -191,13 +191,13 @@ const StoryImage = styled.img`
   position: absolute;
   top: 0;
   left: 0;
-`
+`;
 
 const StoryIcon = styled.div`
   font-size: 24px;
-`
+`;
 
-const StoryLabel = styled.div<{ $colorScheme: any }>`
+const StoryLabel = styled.div<{ $colorScheme: any; }>`
   position: absolute;
   bottom: -20px;
   left: 50%;
@@ -209,62 +209,62 @@ const StoryLabel = styled.div<{ $colorScheme: any }>`
   max-width: 64px;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
-interface FeedProps {}
+interface FeedProps { }
 
 const Feed: React.FC<FeedProps> = () => {
-  const { currentColorScheme } = useColorScheme()
-  const navigate = useNavigate()
-  const { publicKey } = useWallet()
-  const { gamesPlayed } = useUserStore()
-  const [visible, setVisible] = useState(false)
-  const [selectedGame, setSelectedGame] = useState<any>(null)
-  const [gameInfoModalOpen, setGameInfoModalOpen] = useState(false)
+  const { currentColorScheme } = useColorScheme();
+  const navigate = useNavigate();
+  const { publicKey } = useWallet();
+  const { gamesPlayed } = useUserStore();
+  const [visible, setVisible] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
+  const [gameInfoModalOpen, setGameInfoModalOpen] = useState(false);
 
-    // Filter games
-  const singleplayerGames = ALL_GAMES.filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'new')
-  const multiplayerGames = ALL_GAMES.filter(g => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'new')
-  const featuredGames = FEATURED_GAMES
+  // Filter games
+  const singleplayerGames = ALL_GAMES.filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'coming-soon' && g.mobileAvailable === 'yes');
+  const multiplayerGames = ALL_GAMES.filter(g => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'coming-soon' && g.mobileAvailable === 'yes');
+  const featuredGames = FEATURED_GAMES;
 
   useEffect(() => {
-    setVisible(true)
-  }, [])
+    setVisible(true);
+  }, []);
 
   const handleGameClick = (game: any) => {
-    setSelectedGame(game)
-    setGameInfoModalOpen(true)
-  }
+    setSelectedGame(game);
+    setGameInfoModalOpen(true);
+  };
 
   const handlePlayGame = (game: any) => {
-    if (!publicKey) return
-    const wallet = publicKey.toBase58()
-    navigate(`/game/${wallet}/${game.id}`)
-  }
+    if (!publicKey) return;
+    const wallet = publicKey.toBase58();
+    navigate(`/game/${wallet}/${game.id}`);
+  };
 
   const handleCloseGameInfo = () => {
-    setGameInfoModalOpen(false)
-    setSelectedGame(null)
-  }
+    setGameInfoModalOpen(false);
+    setSelectedGame(null);
+  };
 
   const handleStoryClick = (gameId: string) => {
-    if (!publicKey) return
-    const wallet = publicKey.toBase58()
-    navigate(`/game/${wallet}/${gameId}`)
-  }
+    if (!publicKey) return;
+    const wallet = publicKey.toBase58();
+    navigate(`/game/${wallet}/${gameId}`);
+  };
 
   // Get played games for stories
   const playedGames = gamesPlayed
     .map(gameId => ALL_GAMES.find(game => game.id === gameId))
     .filter(Boolean)
-    .slice(0, 8) // Limit to 8 stories
+    .slice(0, 8); // Limit to 8 stories
 
   const storyItems = playedGames.map(game => ({
     id: game!.id,
     name: game!.meta.name,
     image: game!.meta.image,
     hasPlayed: true
-  }))
+  }));
 
   return (
     <>
@@ -404,7 +404,7 @@ const Feed: React.FC<FeedProps> = () => {
         onPlay={handlePlayGame}
       />
     </>
-  )
-}
+  );
+};
 
-export default Feed
+export default Feed;

@@ -68,8 +68,8 @@ export const FEATURE_FLAGS = {
   ENABLE_PER_GAME_MODE_PREFERENCES: true, // Allow per-game mode preferences
 
   // Game Status Blocking Configuration
-  BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'down' (maintenance)
-  BLOCK_CREATING_GAMES: true, // Block access to games marked as 'new' (being created/added)
+  BLOCK_MAINTENANCE_GAMES: true, // Block access to games marked as 'offline' (maintenance)
+  BLOCK_CREATING_GAMES: true, // Block access to games marked as 'coming-soon' (being created/added)
   RESPECT_ENVIRONMENT_FOR_GAME_BLOCKING: true, // If true, only block in production. If false, block in all environments
 
   // Error System Configuration
@@ -111,60 +111,6 @@ export const DEFAULT_GAME_MODE: '2D' | '3D' = '2D'; // Default mode for new user
 export const GAME_RENDER_MODES = {
   TWO_D: '2D',
   THREE_D: '3D',
-} as const;
-
-// Game capability flags - defines which games support which modes
-export const GAME_CAPABILITIES = {
-  'dice': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'magic8ball': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
-  'slots': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'plinkorace': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'flip': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'hilo': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'mines': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
-  'plinko': {
-    supports2D: true,
-    supports3D: true,
-    default: '2D'
-  },
-  'crash': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  },
-  'blackjack': {
-    supports2D: true,
-    supports3D: false,
-    default: '2D'
-  }
 } as const;
 
 // Dashboard component visibility toggles

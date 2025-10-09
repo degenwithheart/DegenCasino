@@ -1,32 +1,17 @@
-import React, { useState, useCallback } from 'react';
-import { GambaUi }                       from 'gamba-react-ui-v2';
-import type { PublicKey }                from '@solana/web3.js';
+import React, { Suspense } from 'react';
+import { useUserStore } from '../../hooks/data/useUserStore';
 
-import Lobby            from './components/Lobby';
-import GameScreen       from './components/GameScreen';
-import DebugGameScreen  from './components/DebugGameScreen';
+const PlinkoRace2D = React.lazy(() => import('./PlinkoRace-2D'));
+const PlinkoRace3D = React.lazy(() => import('./PlinkoRace-3D'));
 
 export default function PlinkoRace() {
-  const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null);
-  const [debugMode,    setDebugMode]    = useState(false);
+  const renderMode = useUserStore((state) => state.gameRenderMode);
 
-  const handleBack = useCallback(() => {
-    setSelectedGame(null);
-    setDebugMode(false);
-  }, []);
+  const GameComponent = renderMode === '3D' ? PlinkoRace3D : PlinkoRace2D;
 
   return (
-    <GambaUi.Portal target="screen">
-      {debugMode ? (
-        <DebugGameScreen onBack={() => setDebugMode(false)} />
-      ) : selectedGame ? (
-        <GameScreen pk={selectedGame} onBack={handleBack} />
-      ) : (
-        <Lobby
-          onSelect={setSelectedGame}
-          onDebug ={() => setDebugMode(true)}
-        />
-      )}
-    </GambaUi.Portal>
+    <Suspense fallback={<div>Loading...</div>}>
+      <GameComponent />
+    </Suspense>
   );
 }

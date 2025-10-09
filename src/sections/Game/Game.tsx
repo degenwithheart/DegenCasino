@@ -799,7 +799,11 @@ export default function Game() {
     const gameFound = GAMES().find(
       (x) => x.id.toLowerCase() === gameId?.toLowerCase(),
     );
-    setGame(gameFound || null);
+    // Ensure the found game matches ExtendedGameBundle interface
+    const extendedGame = gameFound && 'mobileAvailable' in gameFound
+      ? gameFound as ExtendedGameBundle
+      : null;
+    setGame(extendedGame);
     setLoading(false);
   }, [gameId]);
 

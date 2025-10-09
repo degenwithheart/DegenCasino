@@ -1,63 +1,62 @@
-import React from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { StyledFeaturedGameCard } from './FeaturedGameCard.styles'
-import { useColorScheme } from '../../../themes/ColorSchemeContext'
-import { useProgressiveLoading } from '../../../hooks/system/useProgressiveLoading'
-import { FEATURED_GAMES } from '../../../games/featuredGames'
-import { GAME_CAPABILITIES } from '../../../constants'
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { StyledFeaturedGameCard } from './FeaturedGameCard.styles';
+import { useColorScheme } from '../../../themes/ColorSchemeContext';
+import { useProgressiveLoading } from '../../../hooks/system/useProgressiveLoading';
+import { FEATURED_GAMES } from '../../../games/featuredGames';
 
-export function FeaturedGameCard({ game, onClick }: { game: { id: string; meta: { image?: string; background?: string }; live?: string }; onClick?: () => void }) {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { publicKey } = useWallet()
-  const { currentColorScheme } = useColorScheme()
-  const { onGameHover, onGameClick } = useProgressiveLoading()
+export function FeaturedGameCard({ game, onClick }: { game: { id: string; meta: { image?: string; background?: string; }; live?: string; }; onClick?: () => void; }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { publicKey } = useWallet();
+  const { currentColorScheme } = useColorScheme();
+  const { onGameHover, onGameClick } = useProgressiveLoading();
 
   // Check if this game is actually featured
-  const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id)
+  const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id);
 
   // Check live status from the extended game properties
-  const gameWithStatus = game as any // Cast to access extended properties
-  const isDown = gameWithStatus.live === 'down'
-  const isNew = gameWithStatus.live === 'new'
+  const gameWithStatus = game as any; // Cast to access extended properties
+  const isDown = gameWithStatus.live === 'offline';
+  const isNew = gameWithStatus.live === 'coming-soon';
 
   // 2D/3D mode overlay logic
-  const capabilities = GAME_CAPABILITIES[game.id as keyof typeof GAME_CAPABILITIES]
-  let modeLabel = ''
+  const capabilities = (game as any).capabilities;
+  let modeLabel = '';
   if (capabilities) {
-    if (capabilities.supports2D && capabilities.supports3D) modeLabel = '2D | 3D'
-    else if (capabilities.supports2D) modeLabel = '2D'
-    else if (capabilities.supports3D) modeLabel = '3D'
+    if (capabilities.supports2D && capabilities.supports3D) modeLabel = '2D | 3D';
+    else if (capabilities.supports2D) modeLabel = '2D';
+    else if (capabilities.supports3D) modeLabel = '3D';
   }
 
   const handleClick = () => {
     if (onClick) {
       // If custom onClick is provided, use it instead of default navigation
-      onClick()
+      onClick();
     } else {
       // Default behavior: navigate to game
-      if (!publicKey) return
-      const wallet = publicKey.toBase58()
-      onGameClick(game.id) // Track game click for analytics
-      navigate(`/game/${wallet}/${game.id}`)
+      if (!publicKey) return;
+      const wallet = publicKey.toBase58();
+      onGameClick(game.id); // Track game click for analytics
+      navigate(`/game/${wallet}/${game.id}`);
     }
-  }
+  };
 
   return (
-    <StyledFeaturedGameCard 
-      onClick={handleClick} 
-      $background={game.meta.background ?? ''} 
+    <StyledFeaturedGameCard
+      onClick={handleClick}
+      $background={game.meta.background ?? ''}
       $colorScheme={currentColorScheme}
       {...onGameHover(game.id)} // Add hover preloading
     >
-  <div className="image" style={{ backgroundImage: `url(${game.meta.image ?? ''})` }} />
-      
+      <div className="image" style={{ backgroundImage: `url(${game.meta.image ?? ''})` }} />
+
       {/* Featured badge - only show if this game is actually featured */}
       {isFeatured && (
         <div className="featured-badge">🌟</div>
       )}
-      
+
       {/* Live status icons (top-right) */}
       {isDown && (
         <div style={{
@@ -110,5 +109,5 @@ export function FeaturedGameCard({ game, onClick }: { game: { id: string; meta: 
         </div>
       )}
     </StyledFeaturedGameCard>
-  )
+  );
 }

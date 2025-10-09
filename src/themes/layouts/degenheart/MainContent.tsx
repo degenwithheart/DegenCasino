@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from 'react'
-import styled, { keyframes, css } from 'styled-components'
-import { useNavigate } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { useColorScheme } from '../../ColorSchemeContext'
-import { useHandleWalletConnect } from '../../../sections/walletConnect'
-import { ALL_GAMES } from '../../../games/allGames'
-import { TOKEN_METADATA } from '../../../constants'
-import { media, spacing, typography } from './breakpoints'
+import React, { useState, useMemo } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { useColorScheme } from '../../ColorSchemeContext';
+import { useHandleWalletConnect } from '../../../sections/walletConnect';
+import { ALL_GAMES } from '../../../games/allGames';
+import { TOKEN_METADATA } from '../../../constants';
+import { media, spacing, typography } from './breakpoints';
 
 // Romantic animations for the DegenHeart Casino dashboard
 const heartGlow = keyframes`
@@ -19,7 +19,7 @@ const heartGlow = keyframes`
     box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.2);
     transform: translateY(-2px);
   }
-`
+`;
 
 const heartFloat = keyframes`
   0%, 100% {
@@ -31,7 +31,7 @@ const heartFloat = keyframes`
   66% {
     transform: translateY(-4px) rotate(-1deg);
   }
-`
+`;
 
 const shimmer = keyframes`
   0% {
@@ -40,9 +40,9 @@ const shimmer = keyframes`
   100% {
     background-position: 1000px 0;
   }
-`
+`;
 
-const DashboardContainer = styled.div<{ $colorScheme: any }>`
+const DashboardContainer = styled.div<{ $colorScheme: any; }>`
   /* Mobile-first: Minimal padding for content optimization */
   padding: ${spacing.mobile.base};
   background: ${props => props.$colorScheme.colors.background};
@@ -60,9 +60,9 @@ const DashboardContainer = styled.div<{ $colorScheme: any }>`
   ${media.desktop} {
     padding: ${spacing.desktop.base};
   }
-`
+`;
 
-const WelcomeSection = styled.section<{ $colorScheme: any }>`
+const WelcomeSection = styled.section<{ $colorScheme: any; }>`
   text-align: center;
   margin-bottom: 3rem;
   padding: 3rem 2rem;
@@ -90,9 +90,9 @@ const WelcomeSection = styled.section<{ $colorScheme: any }>`
     );
     ${css`animation: ${shimmer} 3s ease-in-out infinite;`}
   }
-`
+`;
 
-const HeartTitle = styled.h1<{ $colorScheme: any }>`
+const HeartTitle = styled.h1<{ $colorScheme: any; }>`
   font-size: 3.5rem;
   font-weight: 900;
   color: ${props => props.$colorScheme.colors.accent};
@@ -116,9 +116,9 @@ const HeartTitle = styled.h1<{ $colorScheme: any }>`
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
-`
+`;
 
-const WelcomeText = styled.p<{ $colorScheme: any }>`
+const WelcomeText = styled.p<{ $colorScheme: any; }>`
   font-size: 1.3rem;
   color: ${props => props.$colorScheme.colors.text}90;
   line-height: 1.6;
@@ -131,16 +131,16 @@ const WelcomeText = styled.p<{ $colorScheme: any }>`
   @media (max-width: 768px) {
     font-size: 1.1rem;
   }
-`
+`;
 
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
-`
+`;
 
-const StatCard = styled.div<{ $colorScheme: any }>`
+const StatCard = styled.div<{ $colorScheme: any; }>`
   background: ${props => props.$colorScheme.colors.surface};
   border: 1px solid ${props => props.$colorScheme.colors.border};
   border-radius: 12px;
@@ -174,27 +174,27 @@ const StatCard = styled.div<{ $colorScheme: any }>`
   &:hover::before {
     opacity: 1;
   }
-`
+`;
 
-const StatValue = styled.div<{ $colorScheme: any }>`
+const StatValue = styled.div<{ $colorScheme: any; }>`
   font-size: 2rem;
   font-weight: 700;
   color: ${props => props.$colorScheme.colors.accent};
   margin-bottom: 0.5rem;
-`
+`;
 
-const StatLabel = styled.div<{ $colorScheme: any }>`
+const StatLabel = styled.div<{ $colorScheme: any; }>`
   font-size: 0.9rem;
   color: ${props => props.$colorScheme.colors.text}70;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-`
+`;
 
 const GamesSection = styled.section`
   margin-bottom: 3rem;
-`
+`;
 
-const SectionTitle = styled.h2<{ $colorScheme: any }>`
+const SectionTitle = styled.h2<{ $colorScheme: any; }>`
   font-size: 2rem;
   font-weight: 700;
   color: ${props => props.$colorScheme.colors.text};
@@ -216,7 +216,7 @@ const SectionTitle = styled.h2<{ $colorScheme: any }>`
       transparent
     );
   }
-`
+`;
 
 const GameFilters = styled.div`
   display: flex;
@@ -224,9 +224,9 @@ const GameFilters = styled.div`
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
-`
+`;
 
-const FilterButton = styled.button<{ $colorScheme: any; $active: boolean }>`
+const FilterButton = styled.button<{ $colorScheme: any; $active: boolean; }>`
   padding: 0.75rem 1.5rem;
   border: 1px solid ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.border};
   background: ${props => props.$active ? props.$colorScheme.colors.accent + '20' : props.$colorScheme.colors.surface};
@@ -243,7 +243,7 @@ const FilterButton = styled.button<{ $colorScheme: any; $active: boolean }>`
     border-color: ${props => props.$colorScheme.colors.accent};
     transform: translateY(-2px);
   }
-`
+`;
 
 const GamesGrid = styled.div`
   display: grid;
@@ -254,9 +254,9 @@ const GamesGrid = styled.div`
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
   }
-`
+`;
 
-const GameCard = styled.div<{ $colorScheme: any }>`
+const GameCard = styled.div<{ $colorScheme: any; }>`
   background: ${props => props.$colorScheme.colors.surface};
   border: 2px solid ${props => props.$colorScheme.colors.border};
   border-radius: 16px;
@@ -270,9 +270,9 @@ const GameCard = styled.div<{ $colorScheme: any }>`
     border-color: ${props => props.$colorScheme.colors.accent};
     box-shadow: 0 15px 40px ${props => props.$colorScheme.colors.accent}30;
   }
-`
+`;
 
-const GameImage = styled.div<{ $backgroundImage: string }>`
+const GameImage = styled.div<{ $backgroundImage: string; }>`
   height: 200px;
   background-image: url(${props => props.$backgroundImage});
   background-size: cover;
@@ -288,9 +288,9 @@ const GameImage = styled.div<{ $backgroundImage: string }>`
     height: 50%;
     background: linear-gradient(transparent, rgba(0,0,0,0.7));
   }
-`
+`;
 
-const GameStatus = styled.div<{ $colorScheme: any; $status: string }>`
+const GameStatus = styled.div<{ $colorScheme: any; $status: string; }>`
   position: absolute;
   top: 12px;
   right: 12px;
@@ -303,17 +303,17 @@ const GameStatus = styled.div<{ $colorScheme: any; $status: string }>`
   
   ${props => {
     switch (props.$status) {
-      case 'up':
+      case 'online':
         return `
           background: rgba(34, 197, 94, 0.9);
           color: white;
         `;
-      case 'new':
+      case 'coming-soon':
         return `
           background: rgba(251, 191, 36, 0.9);
           color: white;
         `;
-      case 'down':
+      case 'offline':
         return `
           background: rgba(239, 68, 68, 0.9);
           color: white;
@@ -325,22 +325,22 @@ const GameStatus = styled.div<{ $colorScheme: any; $status: string }>`
         `;
     }
   }}
-`
+`;
 
 const GameInfo = styled.div`
   padding: 1.5rem;
-`
+`;
 
-const GameName = styled.h3<{ $colorScheme: any }>`
+const GameName = styled.h3<{ $colorScheme: any; }>`
   font-size: 1.3rem;
   font-weight: 700;
   color: ${props => props.$colorScheme.colors.text};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-`
+`;
 
-const GameDescription = styled.p<{ $colorScheme: any }>`
+const GameDescription = styled.p<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text}80;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -348,18 +348,18 @@ const GameDescription = styled.p<{ $colorScheme: any }>`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-`
+`;
 
-const ConnectPrompt = styled.div<{ $colorScheme: any }>`
+const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
   text-align: center;
   padding: 3rem 2rem;
   background: ${props => props.$colorScheme.colors.surface};
   border-radius: 16px;
   border: 2px dashed ${props => props.$colorScheme.colors.border};
   margin: 2rem 0;
-`
+`;
 
-const ConnectButton = styled.button<{ $colorScheme: any }>`
+const ConnectButton = styled.button<{ $colorScheme: any; }>`
   padding: 1rem 2rem;
   background: ${props => props.$colorScheme.colors.accent};
   color: white;
@@ -377,46 +377,46 @@ const ConnectButton = styled.button<{ $colorScheme: any }>`
     transform: translateY(-2px);
     box-shadow: 0 8px 20px ${props => props.$colorScheme.colors.accent}40;
   }
-`
+`;
 
 const MainContent: React.FC = () => {
-  const { currentColorScheme } = useColorScheme()
-  const navigate = useNavigate()
-  const { connected, publicKey } = useWallet()
-  const handleWalletConnect = useHandleWalletConnect()
-  const [gameFilter, setGameFilter] = useState<'all' | 'up' | 'new'>('all')
+  const { currentColorScheme } = useColorScheme();
+  const navigate = useNavigate();
+  const { connected, publicKey } = useWallet();
+  const handleWalletConnect = useHandleWalletConnect();
+  const [gameFilter, setGameFilter] = useState<'all' | 'online' | 'coming-soon'>('all');
 
   // Filter games based on status
   const filteredGames = useMemo(() => {
     if (gameFilter === 'all') {
-      return ALL_GAMES.filter(game => game.live !== 'down')
+      return ALL_GAMES.filter(game => game.live !== 'offline');
     }
-    return ALL_GAMES.filter(game => game.live === gameFilter)
-  }, [gameFilter])
+    return ALL_GAMES.filter(game => game.live === gameFilter);
+  }, [gameFilter]);
 
   // Get game statistics
   const gameStats = useMemo(() => {
-    const total = ALL_GAMES.length
-    const live = ALL_GAMES.filter(game => game.live === 'up').length
-    const newGames = ALL_GAMES.filter(game => game.live === 'new').length
-    const maintenance = ALL_GAMES.filter(game => game.live === 'down').length
-    
-    return { total, live, newGames, maintenance }
-  }, [])
+    const total = ALL_GAMES.length;
+    const live = ALL_GAMES.filter(game => game.live === 'online').length;
+    const newGames = ALL_GAMES.filter(game => game.live === 'coming-soon').length;
+    const maintenance = ALL_GAMES.filter(game => game.live === 'offline').length;
+
+    return { total, live, newGames, maintenance };
+  }, []);
 
   const handleGameClick = (gameId: string, status: string) => {
-    if (status === 'down') return
+    if (status === 'offline') return;
     if (!connected) {
-      handleWalletConnect()
-      return
+      handleWalletConnect();
+      return;
     }
-    const wallet = publicKey?.toBase58()
-    navigate(`/game/${wallet}/${gameId}`)
-  }
+    const wallet = publicKey?.toBase58();
+    navigate(`/game/${wallet}/${gameId}`);
+  };
 
   const handleConnectWallet = () => {
-    handleWalletConnect()
-  }
+    handleWalletConnect();
+  };
 
   return (
     <DashboardContainer $colorScheme={currentColorScheme}>
@@ -425,7 +425,7 @@ const MainContent: React.FC = () => {
           DegenHeart Casino
         </HeartTitle>
         <WelcomeText $colorScheme={currentColorScheme}>
-          Welcome to the Casino of Chaos where romance meets risk in a jazz-at-midnight atmosphere. 
+          Welcome to the Casino of Chaos where romance meets risk in a jazz-at-midnight atmosphere.
           Experience provably fair gaming in the most elegant of all casino layouts.
         </WelcomeText>
       </WelcomeSection>
@@ -453,7 +453,7 @@ const MainContent: React.FC = () => {
         <SectionTitle $colorScheme={currentColorScheme}>
           Romantic Degen Games Collection
         </SectionTitle>
-        
+
         <GameFilters>
           <FilterButton
             $colorScheme={currentColorScheme}
@@ -464,15 +464,15 @@ const MainContent: React.FC = () => {
           </FilterButton>
           <FilterButton
             $colorScheme={currentColorScheme}
-            $active={gameFilter === 'up'}
-            onClick={() => setGameFilter('up')}
+            $active={gameFilter === 'online'}
+            onClick={() => setGameFilter('online')}
           >
             Live
           </FilterButton>
           <FilterButton
             $colorScheme={currentColorScheme}
-            $active={gameFilter === 'new'}
-            onClick={() => setGameFilter('new')}
+            $active={gameFilter === 'coming-soon'}
+            onClick={() => setGameFilter('coming-soon')}
           >
             New
           </FilterButton>
@@ -501,10 +501,10 @@ const MainContent: React.FC = () => {
             >
               <GameImage $backgroundImage={game.meta.image}>
                 <GameStatus $colorScheme={currentColorScheme} $status={game.live}>
-                  {game.live === 'up' ? 'Live' : game.live === 'new' ? 'New' : 'Maintenance'}
+                  {game.live === 'online' ? 'Live' : game.live === 'coming-soon' ? 'New' : 'Maintenance'}
                 </GameStatus>
               </GameImage>
-              
+
               <GameInfo>
                 <GameName $colorScheme={currentColorScheme}>
                   {game.meta.name}
@@ -518,7 +518,7 @@ const MainContent: React.FC = () => {
         </GamesGrid>
       </GamesSection>
     </DashboardContainer>
-  )
-}
+  );
+};
 
-export default MainContent
+export default MainContent;

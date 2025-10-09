@@ -1,13 +1,13 @@
-import type { GameBundle } from '../../games/types'
-import React, { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { StyledGameCard, tileAnimation, bounce, spin, flip, shake, effectAnimations } from './GameCard.styles'
-import { FEATURED_GAMES } from '../../games/featuredGames'
-import { GAME_CAPABILITIES } from '../../constants'
+import type { GameBundle } from '../../games/types';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { StyledGameCard, tileAnimation, bounce, spin, flip, shake, effectAnimations } from './GameCard.styles';
+import { FEATURED_GAMES } from '../../games/featuredGames';
+import { ALL_GAMES } from '../../games/allGames';
 
 // WebP-aware image component for game cards
-function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
+function OptimizedGameImage({ src, alt }: { src: string; alt: string; }) {
   const [imageSrc, setImageSrc] = useState(() => {
     // Try WebP first if it's a PNG/JPG from games directory
     if (src.match(/\.(png|jpg|jpeg)$/i)) {
@@ -43,9 +43,9 @@ function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
         style={{ display: 'none' }}
       />
       {/* Visible div with background image */}
-      <div 
-        className="image" 
-        style={{ 
+      <div
+        className="image"
+        style={{
           backgroundImage: imageLoaded ? `url(${imageSrc})` : 'none',
           backgroundSize: '100% auto',
           backgroundPosition: 'center',
@@ -57,35 +57,35 @@ function OptimizedGameImage({ src, alt }: { src: string; alt: string }) {
 }
 
 
-export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => void }) {
-  const location = useLocation()
-  const small = location.pathname !== '/'
-  const navigate = useNavigate()
-  const { publicKey } = useWallet()
+export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => void; }) {
+  const location = useLocation();
+  const small = location.pathname !== '/';
+  const navigate = useNavigate();
+  const { publicKey } = useWallet();
 
   // Check if this game is featured
-  const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id)
+  const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id);
 
   // Check live status from the extended game properties
-  const gameWithStatus = game as any // Cast to access extended properties
-  const isDown = gameWithStatus.live === 'down'
-  const isNew = gameWithStatus.live === 'new'
+  const gameWithStatus = game as any; // Cast to access extended properties
+  const isDown = gameWithStatus.live === 'offline';
+  const isNew = gameWithStatus.live === 'coming-soon';
 
   // 2D/3D mode overlay logic
-  const capabilities = GAME_CAPABILITIES[game.id as keyof typeof GAME_CAPABILITIES]
-  let modeLabel = ''
-  if (capabilities) {
-    if (capabilities.supports2D && capabilities.supports3D) modeLabel = '2D | 3D'
-    else if (capabilities.supports2D) modeLabel = '2D'
-    else if (capabilities.supports3D) modeLabel = '3D'
+  const gameCapabilities = (game as any).capabilities;
+  let modeLabel = '';
+  if (gameCapabilities) {
+    if (gameCapabilities.supports2D && gameCapabilities.supports3D) modeLabel = '2D | 3D';
+    else if (gameCapabilities.supports2D) modeLabel = '2D';
+    else if (gameCapabilities.supports3D) modeLabel = '3D';
   }
 
   const handleClick = () => {
-    if (!publicKey) return
-    const wallet = publicKey.toBase58()
-    navigate(`/game/${wallet}/${game.id}`)
-    if (onClick) onClick()
-  }
+    if (!publicKey) return;
+    const wallet = publicKey.toBase58();
+    navigate(`/game/${wallet}/${game.id}`);
+    if (onClick) onClick();
+  };
 
   return (
     <StyledGameCard
@@ -96,7 +96,7 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
     >
       <div className="background" />
       <OptimizedGameImage src={game.meta.image} alt={game.meta.name} />
-      
+
       {/* Live status icons (top-right) - prioritize the existing maintenance/creating checks first */}
       {game.maintenance && (
         <div style={{
@@ -203,5 +203,5 @@ export function GameCard({ game, onClick }: { game: GameBundle; onClick?: () => 
         </div>
       )}
     </StyledGameCard>
-  )
+  );
 }

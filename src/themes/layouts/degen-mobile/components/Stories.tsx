@@ -1,16 +1,16 @@
-import React from 'react'
-import styled from 'styled-components'
-import { useColorScheme } from '../../../../themes/ColorSchemeContext'
-import { useUserStore } from '../../../../hooks/data/useUserStore'
-import { ALL_GAMES } from '../../../../games/allGames'
-import { spacing, media, components, animations } from '../breakpoints'
+import React from 'react';
+import styled from 'styled-components';
+import { useColorScheme } from '../../../../themes/ColorSchemeContext';
+import { useUserStore } from '../../../../hooks/data/useUserStore';
+import { ALL_GAMES } from '../../../../games/allGames';
+import { spacing, media, components, animations } from '../breakpoints';
 
-const StoriesContainer = styled.div<{ $colorScheme: any }>`
+const StoriesContainer = styled.div<{ $colorScheme: any; }>`
   width: 100%;
   padding: ${spacing.sm} 0;
   background: ${props => props.$colorScheme.colors.background};
   border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}10;
-`
+`;
 
 const StoriesScroller = styled.div`
   display: flex;
@@ -28,9 +28,9 @@ const StoriesScroller = styled.div`
 
   /* Snap to story items */
   scroll-snap-type: x mandatory;
-`
+`;
 
-const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean }>`
+const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean; }>`
   flex-shrink: 0;
   width: 64px;
   height: 64px;
@@ -66,21 +66,21 @@ const StoryItem = styled.div<{ $colorScheme: any; $hasPlayed?: boolean }>`
       box-shadow: 0 4px 16px ${props => props.$colorScheme.colors.primary}40;
     }
   }
-`
+`;
 
 const StoryImage = styled.img`
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-`
+`;
 
 const StoryIcon = styled.div`
   font-size: 24px;
   color: white;
-`
+`;
 
-const StoryLabel = styled.div<{ $colorScheme: any }>`
+const StoryLabel = styled.div<{ $colorScheme: any; }>`
   position: absolute;
   bottom: -20px;
   left: 50%;
@@ -91,36 +91,36 @@ const StoryLabel = styled.div<{ $colorScheme: any }>`
   max-width: 64px;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
-interface StoriesProps {}
+interface StoriesProps { }
 
 const Stories: React.FC<StoriesProps> = () => {
-  const { currentColorScheme } = useColorScheme()
-  const { gamesPlayed } = useUserStore()
+  const { currentColorScheme } = useColorScheme();
+  const { gamesPlayed } = useUserStore();
 
   // Only show stories if user has played games
   if (gamesPlayed.length === 0) {
-    return null
+    return null;
   }
 
   // Get played games from the games registry
   const playedGames = gamesPlayed
     .map(gameId => ALL_GAMES.find(game => game.id === gameId))
-    .filter(Boolean)
-    .slice(0, 8) // Limit to 8 stories
+    .filter(game => game && game.mobileAvailable === 'yes')
+    .slice(0, 8); // Limit to 8 stories
 
   const storyItems = playedGames.map(game => ({
     id: game!.id,
     name: game!.meta.name,
     image: game!.meta.image,
     hasPlayed: true
-  }))
+  }));
 
   const handleStoryClick = (gameId: string) => {
     // Navigate to game or show preview
-    console.log('Story clicked:', gameId)
-  }
+    console.log('Story clicked:', gameId);
+  };
 
   return (
     <StoriesContainer $colorScheme={currentColorScheme}>
@@ -144,7 +144,7 @@ const Stories: React.FC<StoriesProps> = () => {
         ))}
       </StoriesScroller>
     </StoriesContainer>
-  )
-}
+  );
+};
 
-export default Stories
+export default Stories;

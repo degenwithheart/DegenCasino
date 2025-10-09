@@ -468,7 +468,7 @@ export const RightSidebar: React.FC = () => {
                 Total Players: <strong>{leaderboardData?.length || 0}</strong>
               </div>
               <div style={{ marginBottom: '0.5rem' }}>
-                Active Games: <strong>{ALL_GAMES.filter(g => g.live === 'up').length}</strong>
+                Active Games: <strong>{ALL_GAMES.filter(g => g.live === 'online').length}</strong>
               </div>
               <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>
                 Rankings update weekly

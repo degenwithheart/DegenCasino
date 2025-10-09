@@ -10,22 +10,22 @@
 export const breakpoints = {
   // Mobile (default) - no media query needed
   mobile: '0px',
-  
+
   // Small mobile (landscape phones)
   mobileLg: '480px',
-  
+
   // Tablets (portrait)
   tablet: '768px',
-  
-  // Tablets (landscape) / Small laptops
+
+  // Small laptops / large tablets
   tabletLg: '1024px',
-  
-  // Desktop / Large laptops
+
+  // Medium desktops
   desktop: '1280px',
-  
+
   // Large desktop / External monitors
   desktopLg: '1440px',
-  
+
   // Ultra-wide / 4K monitors
   ultraWide: '1920px'
 } as const;
@@ -39,34 +39,34 @@ export const media = {
   desktop: `@media (min-width: ${breakpoints.desktop})`,
   desktopLg: `@media (min-width: ${breakpoints.desktopLg})`,
   ultraWide: `@media (min-width: ${breakpoints.ultraWide})`,
-  
+
   // Max-width queries (for specific overrides)
   maxMobile: `@media (max-width: ${parseInt(breakpoints.mobileLg) - 1}px)`,
   maxMobileLg: `@media (max-width: ${parseInt(breakpoints.tablet) - 1}px)`,
   maxTablet: `@media (max-width: ${parseInt(breakpoints.tabletLg) - 1}px)`,
   maxTabletLg: `@media (max-width: ${parseInt(breakpoints.desktop) - 1}px)`,
   maxDesktop: `@media (max-width: ${parseInt(breakpoints.desktopLg) - 1}px)`,
-  
+
   // Range queries (between breakpoints)
   mobileOnly: `@media (max-width: ${parseInt(breakpoints.mobileLg) - 1}px)`,
   mobileLgOnly: `@media (min-width: ${breakpoints.mobileLg}) and (max-width: ${parseInt(breakpoints.tablet) - 1}px)`,
   tabletOnly: `@media (min-width: ${breakpoints.tablet}) and (max-width: ${parseInt(breakpoints.tabletLg) - 1}px)`,
   tabletLgOnly: `@media (min-width: ${breakpoints.tabletLg}) and (max-width: ${parseInt(breakpoints.desktop) - 1}px)`,
-  
+
   // Orientation queries
   landscape: '@media (orientation: landscape)',
   portrait: '@media (orientation: portrait)',
-  
+
   // High DPI displays
   retina: '@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)',
-  
+
   // Touch devices
   touch: '@media (hover: none) and (pointer: coarse)',
   mouse: '@media (hover: hover) and (pointer: fine)',
-  
+
   // Accessibility - reduced motion
   reduceMotion: '@media (prefers-reduced-motion: reduce)',
-  
+
   // Dark mode preference
   darkMode: '@media (prefers-color-scheme: dark)',
   lightMode: '@media (prefers-color-scheme: light)'
@@ -74,20 +74,27 @@ export const media = {
 
 // Grid layout breakpoints for DegenHeart theme
 export const gridBreakpoints = {
-  // Mobile: Single column layout
+  // Mobile: Single column layout (never used due to mobile theme auto-switch)
   mobile: {
     areas: `"header" "main" "footer"`,
     rows: '80px 1fr 65px',
     columns: '1fr'
   },
-  
+
   // Tablet: Single column layout (hide both sidebars for better content focus)
   tablet: {
     areas: `"header" "main" "footer"`,
     rows: '80px 1fr 60px',
     columns: '1fr'
   },
-  
+
+  // Small Desktop: Two column layout (main + right sidebar only)
+  smallDesktop: {
+    areas: `"header header" "main right" "footer footer"`,
+    rows: '80px 1fr 60px',
+    columns: '1fr 220px'
+  },
+
   // Desktop: Three column layout (full layout)
   desktop: {
     areas: `"header header header" "left main right" "footer footer footer"`,
@@ -115,7 +122,7 @@ export const typography = {
       relaxed: 1.75
     }
   },
-  
+
   tablet: {
     fontSize: {
       xs: '0.8125rem',  // 13px
@@ -128,7 +135,7 @@ export const typography = {
       '4xl': '2.5rem'   // 40px
     }
   },
-  
+
   desktop: {
     fontSize: {
       xs: '0.875rem',   // 14px
@@ -154,7 +161,7 @@ export const spacing = {
     '2xl': '2.5rem', // 40px
     '3xl': '3rem'    // 48px
   },
-  
+
   tablet: {
     xs: '0.375rem',  // 6px
     sm: '0.625rem',  // 10px
@@ -164,7 +171,7 @@ export const spacing = {
     '2xl': '3rem',   // 48px
     '3xl': '4rem'    // 64px
   },
-  
+
   desktop: {
     xs: '0.5rem',    // 8px
     sm: '0.75rem',   // 12px
@@ -195,7 +202,7 @@ export const components = {
       fontSize: '1rem'
     }
   },
-  
+
   input: {
     mobile: {
       height: '44px',
@@ -213,7 +220,7 @@ export const components = {
       fontSize: '1rem'
     }
   },
-  
+
   modal: {
     mobile: {
       margin: '1rem',

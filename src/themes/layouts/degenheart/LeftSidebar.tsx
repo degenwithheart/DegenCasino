@@ -1,14 +1,14 @@
-import React, { useMemo, useContext } from 'react'
-import styled from 'styled-components'
-import { useLocation, Link } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2'
-import { useColorScheme } from '../../ColorSchemeContext'
-import { SIDEBAR_LINKS } from '../../../constants'
-import { ALL_GAMES } from '../../../games/allGames'
-import { useDegenGamesModal } from './DegenHeartLayout'
+import React, { useMemo, useContext } from 'react';
+import styled from 'styled-components';
+import { useLocation, Link } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
+import { useColorScheme } from '../../ColorSchemeContext';
+import { SIDEBAR_LINKS } from '../../../constants';
+import { ALL_GAMES } from '../../../games/allGames';
+import { useDegenGamesModal } from './DegenHeartLayout';
 
-const SidebarContainer = styled.aside<{ $colorScheme: any }>`
+const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
   background: linear-gradient(180deg, 
     ${props => props.$colorScheme.colors.surface}F8,
     ${props => props.$colorScheme.colors.background}F0
@@ -112,9 +112,9 @@ const SidebarContainer = styled.aside<{ $colorScheme: any }>`
       );
     }
   }
-`
+`;
 
-const SectionTitle = styled.h3<{ $colorScheme: any }>`
+const SectionTitle = styled.h3<{ $colorScheme: any; }>`
   font-size: 0.8rem;
   font-weight: 700;
   color: ${props => props.$colorScheme.colors.text}60;
@@ -124,7 +124,7 @@ const SectionTitle = styled.h3<{ $colorScheme: any }>`
   padding: 0 1rem;
   border-bottom: 1px solid ${props => props.$colorScheme.colors.border}30;
   padding-bottom: 0.5rem;
-`
+`;
 
 const NavList = styled.ul`
   list-style: none;
@@ -133,9 +133,9 @@ const NavList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-`
+`;
 
-const NavItem = styled.li<{ $colorScheme: any; $active: boolean }>`
+const NavItem = styled.li<{ $colorScheme: any; $active: boolean; }>`
   border-radius: 16px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -186,9 +186,9 @@ const NavItem = styled.li<{ $colorScheme: any; $active: boolean }>`
   &:active {
     transform: translateX(4px) scale(0.98);
   }
-`
+`;
 
-const NavLinkStyled = styled(Link)<{ $colorScheme: any; $active: boolean }>`
+const NavLinkStyled = styled(Link) <{ $colorScheme: any; $active: boolean; }>`
   width: 100%;
   display: flex;
   align-items: center;
@@ -218,9 +218,9 @@ const NavLinkStyled = styled(Link)<{ $colorScheme: any; $active: boolean }>`
     outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
     outline-offset: 2px;
   }
-`
+`;
 
-const NavLinkExternal = styled.a<{ $colorScheme: any; $active: boolean }>`
+const NavLinkExternal = styled.a<{ $colorScheme: any; $active: boolean; }>`
   width: 100%;
   display: flex;
   align-items: center;
@@ -250,9 +250,9 @@ const NavLinkExternal = styled.a<{ $colorScheme: any; $active: boolean }>`
     outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
     outline-offset: 2px;
   }
-`
+`;
 
-const NavButton = styled.button<{ $colorScheme: any; $active: boolean }>`
+const NavButton = styled.button<{ $colorScheme: any; $active: boolean; }>`
   width: 100%;
   display: flex;
   align-items: center;
@@ -277,9 +277,9 @@ const NavButton = styled.button<{ $colorScheme: any; $active: boolean }>`
     outline: 2px solid ${props => props.$colorScheme.colors.accent}50;
     outline-offset: 2px;
   }
-`
+`;
 
-const IconWrapper = styled.div<{ $colorScheme: any; $active: boolean }>`
+const IconWrapper = styled.div<{ $colorScheme: any; $active: boolean; }>`
   font-size: 1.2rem;
   color: ${props => props.$active ? props.$colorScheme.colors.accent : props.$colorScheme.colors.text}80;
   transition: all 0.3s ease;
@@ -288,25 +288,25 @@ const IconWrapper = styled.div<{ $colorScheme: any; $active: boolean }>`
   justify-content: center;
   width: 24px;
   height: 24px;
-`
+`;
 
-const LinkText = styled.span<{ $colorScheme: any }>`
+const LinkText = styled.span<{ $colorScheme: any; }>`
   font-size: 0.9rem;
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
-const LinkDescription = styled.span<{ $colorScheme: any }>`
+const LinkDescription = styled.span<{ $colorScheme: any; }>`
   font-size: 0.7rem;
   color: ${props => props.$colorScheme.colors.text}60;
   margin-top: 0.2rem;
   line-height: 1.2;
   display: block;
-`
+`;
 
-const QuickStats = styled.div<{ $colorScheme: any }>`
+const QuickStats = styled.div<{ $colorScheme: any; }>`
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.accent}15,
     ${props => props.$colorScheme.colors.surface}40
@@ -340,9 +340,9 @@ const QuickStats = styled.div<{ $colorScheme: any }>`
       transparent
     );
   }
-`
+`;
 
-const StatItem = styled.div<{ $colorScheme: any }>`
+const StatItem = styled.div<{ $colorScheme: any; }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -351,32 +351,32 @@ const StatItem = styled.div<{ $colorScheme: any }>`
   &:last-child {
     margin-bottom: 0;
   }
-`
+`;
 
-const StatLabel = styled.span<{ $colorScheme: any }>`
+const StatLabel = styled.span<{ $colorScheme: any; }>`
   font-size: 0.8rem;
   color: ${props => props.$colorScheme.colors.text}70;
-`
+`;
 
-const StatValue = styled.span<{ $colorScheme: any }>`
+const StatValue = styled.span<{ $colorScheme: any; }>`
   font-size: 0.9rem;
   font-weight: 600;
   color: ${props => props.$colorScheme.colors.accent};
-`
+`;
 
 const LeftSidebar: React.FC = () => {
-  const { currentColorScheme } = useColorScheme()
-  const location = useLocation()
-  const { connected, publicKey } = useWallet()
-  const pool = useCurrentPool()
-  const { openGamesModal } = useDegenGamesModal()
+  const { currentColorScheme } = useColorScheme();
+  const location = useLocation();
+  const { connected, publicKey } = useWallet();
+  const pool = useCurrentPool();
+  const { openGamesModal } = useDegenGamesModal();
 
   // Calculate real statistics from available data
   const realStats = useMemo(() => {
-    const liveGames = ALL_GAMES.filter(game => game.live === 'up').length
-    const totalGames = ALL_GAMES.length
-    const downGames = ALL_GAMES.filter(game => game.live === 'down').length
-    
+    const liveGames = ALL_GAMES.filter(game => game.live === 'online').length;
+    const totalGames = ALL_GAMES.length;
+    const downGames = ALL_GAMES.filter(game => game.live === 'offline').length;
+
     return {
       gamesOnline: liveGames,
       totalGames,
@@ -384,26 +384,26 @@ const LeftSidebar: React.FC = () => {
       // Pool stats - only show if connected and pool available
       poolBalance: connected && pool ? pool.maxPayout : null,
       jackpotBalance: connected && pool ? pool.jackpotBalance : null
-    }
-  }, [connected, pool])
+    };
+  }, [connected, pool]);
 
   // Filter links based on showWhen conditions
   const visibleLinks = SIDEBAR_LINKS.filter(link => {
     if (link.showWhen) {
-      return link.showWhen(connected, publicKey)
+      return link.showWhen(connected, publicKey);
     }
-    return true
-  })
+    return true;
+  });
 
   // Group sidebar links by section if they have one
   const groupedLinks = visibleLinks.reduce((groups, link) => {
-    const section = (link as any).section || 'Main'
+    const section = (link as any).section || 'Main';
     if (!groups[section]) {
-      groups[section] = []
+      groups[section] = [];
     }
-    groups[section].push(link)
-    return groups
-  }, {} as Record<string, typeof SIDEBAR_LINKS>)
+    groups[section].push(link);
+    return groups;
+  }, {} as Record<string, typeof SIDEBAR_LINKS>);
 
   return (
     <SidebarContainer $colorScheme={currentColorScheme}>
@@ -412,17 +412,17 @@ const LeftSidebar: React.FC = () => {
           <SectionTitle $colorScheme={currentColorScheme}>
             {section}
           </SectionTitle>
-          
+
           <NavList>
             {links.map((link) => {
-              const linkPath = typeof link.to === 'function' ? link.to(publicKey?.toBase58() || null) : link.to
-              const isActive = location.pathname === linkPath
-              const IconComponent = link.icon
-              
+              const linkPath = typeof link.to === 'function' ? link.to(publicKey?.toBase58() || null) : link.to;
+              const isActive = location.pathname === linkPath;
+              const IconComponent = link.icon;
+
               // Handle external links
               if (link.external) {
                 return (
-                  <NavItem 
+                  <NavItem
                     key={`${link.label}-${linkPath}`}
                     $colorScheme={currentColorScheme}
                     $active={isActive}
@@ -450,13 +450,13 @@ const LeftSidebar: React.FC = () => {
                       </div>
                     </NavLinkExternal>
                   </NavItem>
-                )
+                );
               }
-              
+
               // Handle Games modal button
               if (link.label === 'Games') {
                 return (
-                  <NavItem 
+                  <NavItem
                     key={`${link.label}-${linkPath}`}
                     $colorScheme={currentColorScheme}
                     $active={isActive}
@@ -465,7 +465,7 @@ const LeftSidebar: React.FC = () => {
                       $colorScheme={currentColorScheme}
                       $active={isActive}
                       onClick={() => {
-                        openGamesModal()
+                        openGamesModal();
                       }}
                       title={(link as any).description}
                     >
@@ -484,12 +484,12 @@ const LeftSidebar: React.FC = () => {
                       </div>
                     </NavButton>
                   </NavItem>
-                )
+                );
               }
-              
+
               // Handle internal navigation links
               return (
-                <NavItem 
+                <NavItem
                   key={`${link.label}-${linkPath}`}
                   $colorScheme={currentColorScheme}
                   $active={isActive}
@@ -515,27 +515,27 @@ const LeftSidebar: React.FC = () => {
                     </div>
                   </NavLinkStyled>
                 </NavItem>
-              )
+              );
             })}
           </NavList>
         </div>
       ))}
-      
+
       <QuickStats $colorScheme={currentColorScheme}>
         <SectionTitle $colorScheme={currentColorScheme}>
           Quick Stats
         </SectionTitle>
-        
+
         <StatItem $colorScheme={currentColorScheme}>
           <StatLabel $colorScheme={currentColorScheme}>Games Online</StatLabel>
           <StatValue $colorScheme={currentColorScheme}>{realStats.gamesOnline}</StatValue>
         </StatItem>
-        
+
         <StatItem $colorScheme={currentColorScheme}>
           <StatLabel $colorScheme={currentColorScheme}>Total Games</StatLabel>
           <StatValue $colorScheme={currentColorScheme}>{realStats.totalGames}</StatValue>
         </StatItem>
-        
+
         {connected && realStats.jackpotBalance ? (
           <StatItem $colorScheme={currentColorScheme}>
             <StatLabel $colorScheme={currentColorScheme}>Jackpot Pool</StatLabel>
@@ -549,7 +549,7 @@ const LeftSidebar: React.FC = () => {
             <StatValue $colorScheme={currentColorScheme}>Connect Wallet</StatValue>
           </StatItem>
         )}
-        
+
         {connected && realStats.poolBalance ? (
           <StatItem $colorScheme={currentColorScheme}>
             <StatLabel $colorScheme={currentColorScheme}>Max Payout</StatLabel>
@@ -565,7 +565,7 @@ const LeftSidebar: React.FC = () => {
         )}
       </QuickStats>
     </SidebarContainer>
-  )
-}
+  );
+};
 
-export default LeftSidebar
+export default LeftSidebar;

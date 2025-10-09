@@ -2,7 +2,7 @@ import React from 'react';
 
 export type GameBundle = {
   id: string;
-  live: 'up' | 'down' | 'new';
+  live: 'online' | 'offline' | 'coming-soon';
   meta: {
     name: string;
     image: string;

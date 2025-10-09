@@ -15,9 +15,9 @@ import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useColorScheme } from "../../themes/ColorSchemeContext";
 import { TotalBetsTopBar } from "../../components/TopBar/TotalBetsTopBar";
 import { usePlatformStats } from "../../hooks/data/usePlatformStats";
-import { 
-  UnifiedPageContainer, 
-  UnifiedSection, 
+import {
+  UnifiedPageContainer,
+  UnifiedSection,
   UnifiedPageTitle
 } from "../../components/UI/UnifiedDesign";
 import {
@@ -52,7 +52,7 @@ const AccentBar = styled.div`
 `;
 
 // Dashboard stats section container
-const DashboardStatsSection = styled.div<{ $colorScheme?: any }>`
+const DashboardStatsSection = styled.div<{ $colorScheme?: any; }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,7 +64,7 @@ const DashboardStatsSection = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export function GameSlider({ compact }: { compact?: boolean }) {
+export function GameSlider({ compact }: { compact?: boolean; }) {
   return (
     <GameSliderWrapper>
       {FEATURED_GAMES.map((game) => (
@@ -79,9 +79,9 @@ export function GameSlider({ compact }: { compact?: boolean }) {
 export function Dashboard() {
   // SEO for Dashboard
   const seoHelmet = usePageSEO(
-    "DegenHeart.casino - Solana On-chain Web3 Casino", 
+    "DegenHeart.casino - Solana On-chain Web3 Casino",
     "Welcome to the Casino of Chaos 🔥 No sign-ups, no BS. Just connect and dive in. Non-custodial, provably fair Solana casino with instant payouts."
-  )
+  );
 
   const { connected, connect, publicKey } = useWallet();
   const { compact, screenTooSmall } = useIsCompact();
@@ -96,9 +96,9 @@ export function Dashboard() {
   const { stats, loading, error } = usePlatformStats();
 
   // Filtered game lists
-  const singleplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'new');
-  const multiplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'new');
-  const liveNewGames = GAMES().filter(g => g.live === 'new');
+  const singleplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'coming-soon');
+  const multiplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'coming-soon');
+  const liveNewGames = GAMES().filter(g => g.live === 'coming-soon');
 
   useEffect(() => {
     setVisible(true);
@@ -115,10 +115,10 @@ export function Dashboard() {
         {connected && (
           <>
             {/* Toggle Buttons */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              gap: compact ? '0.8rem' : '1.5rem', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: compact ? '0.8rem' : '1.5rem',
               margin: '2rem 0',
               flexWrap: 'wrap'
             }}>
@@ -154,11 +154,11 @@ export function Dashboard() {
 
             {/* Dashboard Stats Section - Total Bets */}
             <DashboardStatsSection $colorScheme={currentColorScheme}>
-              <TotalBetsTopBar 
-                stats={stats} 
-                loading={loading} 
-                error={error} 
-                colorScheme={currentColorScheme} 
+              <TotalBetsTopBar
+                stats={stats}
+                loading={loading}
+                error={error}
+                colorScheme={currentColorScheme}
               />
             </DashboardStatsSection>
 
@@ -169,7 +169,7 @@ export function Dashboard() {
                   <AccentBar />
                   <GameSlider compact={compact} />
                 </UnifiedSection>
-                
+
                 <UnifiedSection title="🎮 Singleplayer Games">
                   <AccentBar />
                   <GameSliderWrapper>
@@ -180,7 +180,7 @@ export function Dashboard() {
                     ))}
                   </GameSliderWrapper>
                 </UnifiedSection>
-                
+
                 <UnifiedSection title="🎲 Multiplayer Games">
                   <AccentBar />
                   <GameSliderWrapper>
@@ -191,7 +191,7 @@ export function Dashboard() {
                     ))}
                   </GameSliderWrapper>
                 </UnifiedSection>
-                
+
                 <UnifiedSection title="🚀 Coming Soon">
                   <AccentBar />
                   <GameSliderWrapper>

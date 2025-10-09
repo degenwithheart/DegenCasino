@@ -3,29 +3,42 @@ import React from 'react';
 
 export interface ExtendedGameBundle extends GameBundle {
   id: string;
-  live: "up" | "down" | "new";
+  live: "online" | "offline" | "coming-soon";
   meta: GameBundle['meta'] & {
     tag?: string;
   };
+  mobileAvailable: "yes" | "no";
   app: React.LazyExoticComponent<React.ComponentType<any>>;
+  capabilities: {
+    supports2D: boolean;
+    supports3D: boolean;
+    default: '2D' | '3D';
+  };
 }
 
 export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'dice',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Dice',
       background: '#000000CC',
       image: '/webp/games/dice.webp',
-      description: `Peer into the mystical 8-ball and let cosmic forces generate your fortune. This is no ordinary dice — it is an oracle wrapped in canvas and code, where physics and magic converge to birth your lucky number. Watch as ethereal particles swirl around the enchanted sphere, its surface rippling with otherworldly energy before revealing the number that fate has chosen for you. Each generation is a séance with chance itself, a communion between your desire and the universe's hidden mathematics. The 8-ball does not roll — it dreams, it meditates, it channels pure possibility into digital form. Here, luck is not cast but conjured, not rolled but received like a gift from the cosmos.`,
+      description: `Roll the dice and test your luck in this classic probability game. Choose your betting mode - roll under, over, between, or outside ranges to maximize your winnings. Each roll brings the thrill of chance with provably fair outcomes.`,
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Dice')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'magic8ball',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Magic 8 Ball',
       background: '#000000CC',
@@ -34,10 +47,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Magic8Ball')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'slots',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Slots',
       background: '#000000CC',
@@ -46,10 +65,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Slots')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'plinkorace',
-    live: 'down',
+    live: 'offline',
+    mobileAvailable: 'no',
     meta: {
       name: 'PlinkoRace',
       background: '#000000CC',
@@ -58,10 +83,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Multiplayer',
     },
     app: React.lazy(() => import('./PlinkoRace')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'flip',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Flip',
       background: '#000000CC',
@@ -70,10 +101,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Flip')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'hilo',
-    live: 'new',
+    live: 'coming-soon',
+    mobileAvailable: 'no',
     meta: {
       name: 'HiLo',
       background: '#000000CC',
@@ -82,10 +119,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./HiLo')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'mines',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Mines',
       background: '#000000CC',
@@ -94,10 +137,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Mines')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'plinko',
-    live: 'up',
+    live: 'online',
+    mobileAvailable: 'no',
     meta: {
       name: 'Plinko',
       background: '#000000CC',
@@ -106,10 +155,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./Plinko')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'crash',
-    live: 'new',
+    live: 'coming-soon',
+    mobileAvailable: 'no',
     meta: {
       name: 'Crash',
       background: '#000000CC',
@@ -118,10 +173,16 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./CrashGame')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
   {
     id: 'blackjack',
-    live: 'new',
+    live: 'coming-soon',
+    mobileAvailable: 'no',
     meta: {
       name: 'BlackJack',
       background: '#000000CC',
@@ -130,5 +191,10 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./BlackJack')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
   },
 ];

@@ -1,26 +1,19 @@
-import React, { useState, useCallback } from 'react'
-import { GambaUi } from 'gamba-react-ui-v2'
-import type { PublicKey } from '@solana/web3.js'
+import React, { Suspense } from 'react';
+import { useUserStore } from '../../hooks/data/useUserStore';
 
-import Lobby from './components/Lobby'
-import GameScreen from './components/GameScreen'
+const PvpFlip2D = React.lazy(() => import('./PvpFlip-2D'));
+const PvpFlip3D = React.lazy(() => import('./PvpFlip-3D'));
 
 export default function PvpFlip() {
-  const [selectedGame, setSelectedGame] = useState<PublicKey | null>(null)
+  const renderMode = useUserStore((state) => state.gameRenderMode);
 
-  const handleBack = useCallback(() => {
-    setSelectedGame(null)
-  }, [])
+  const GameComponent = renderMode === '3D' ? PvpFlip3D : PvpFlip2D;
 
   return (
-    <GambaUi.Portal target="screen">
-      {selectedGame ? (
-        <GameScreen pk={selectedGame} onBack={handleBack} />
-      ) : (
-        <Lobby onSelect={setSelectedGame} />
-      )}
-    </GambaUi.Portal>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <GameComponent />
+    </Suspense>
+  );
 }
 
 

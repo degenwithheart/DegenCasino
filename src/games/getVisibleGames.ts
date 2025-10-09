@@ -9,10 +9,10 @@ import type { GameBundle } from './types';
 export function getVisibleGames(): GameBundle[] {
   // Always return all games for menu, but mark maintenance/creating games
   return ALL_GAMES.map(game => {
-    if (game.live === 'down') {
+    if (game.live === 'offline') {
       return { ...game, maintenance: true, creating: false };
     }
-    if (game.live === 'new') {
+    if (game.live === 'coming-soon') {
       return { ...game, maintenance: false, creating: true };
     }
     return { ...game, maintenance: false, creating: false };

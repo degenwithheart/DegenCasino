@@ -8,43 +8,59 @@ import type { ExtendedGameBundle } from '../../../../games/allGames';
  */
 
 /**
- * Load appropriate game component based on device type
- * Mobile devices: Load index-mobile.tsx if it exists, fallback to index.tsx
- * Tablets: Load index.tsx (desktop version)
+ * Dynamically import mobile version of a game
+ * Follows convention: /src/games/{GameName}/index-mobile.tsx
+ */
+const importMobileGame = (gameId: string) => {
+  // Capitalize first letter for folder name convention
+  const gameFolderName = gameId.charAt(0).toUpperCase() + gameId.slice(1);
+
+  console.log(`📱 Importing mobile game: ${gameId} -> ${gameFolderName}`);
+
+  return React.lazy(() =>
+    import(`../../../../games/${gameFolderName}/index-mobile`)
+      .then((module) => {
+        console.log(`✅ Mobile game loaded successfully: ${gameId}`);
+        return module;
+      })
+      .catch((error) => {
+        // Fallback to desktop version if mobile doesn't exist
+        console.warn(`❌ Mobile version not found for ${gameId}, falling back to desktop:`, error);
+        return import(`../../../../games/${gameFolderName}/index`);
+      })
+  );
+};
+
+/**
+ * Load appropriate game component based on device type and game availability
  */
 export const loadGameComponent = (game: ExtendedGameBundle): React.LazyExoticComponent<React.ComponentType<any>> => {
+  console.log(`🔄 Loading game component for: ${game.id}`, {
+    shouldUseDesktop: shouldUseDesktopGames(),
+    shouldUseMobile: shouldUseMobileGames(),
+    mobileAvailable: game.mobileAvailable
+  });
+
   // Tablets always use desktop version
   if (shouldUseDesktopGames()) {
+    console.log(`🖥️ Using desktop version for: ${game.id}`);
     return game.app; // Original desktop version
   }
 
-  // Mobile devices: Try to load mobile version
+  // Mobile devices: Check if mobile version is available
   if (shouldUseMobileGames()) {
-    // Handle specific games with mobile versions
-    switch (game.id) {
-      case 'dice':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Dice/index'));
-
-      case 'flip':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Flip/index'));
-
-      case 'slots':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Slots/index'));
-
-      case 'plinko':
-        // @ts-ignore - Dynamic import for mobile version
-        return React.lazy(() => import('../../../../games/Plinko/index'));
-
-      default:
-        // For games without mobile versions, throw error to show popup
-        throw new Error(`MOBILE_VERSION_NOT_AVAILABLE:${game.id}`);
+    if (game.mobileAvailable === 'yes') {
+      console.log(`📱 Using mobile version for: ${game.id}`);
+      return importMobileGame(game.id);
+    } else {
+      // Game not available on mobile - fallback to desktop version
+      console.warn(`⚠️ Mobile version not available for: ${game.id}, falling back to desktop version`);
+      return game.app; // Use desktop version as fallback
     }
   }
 
   // Default fallback
+  console.log(`🔄 Using default version for: ${game.id}`);
   return game.app;
 };
 

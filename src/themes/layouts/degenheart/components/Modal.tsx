@@ -11,10 +11,10 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: scale(1); }
 `;
 
-const Overlay = styled.div<{ $variant?: 'popup' | 'viewport' }>`
+const Overlay = styled.div<{ $variant?: 'popup' | 'viewport'; }>`
   position: ${({ $variant }) => $variant === 'viewport' ? 'absolute' : 'fixed'};
-  ${({ $variant }) => $variant === 'viewport' ? 
-    'inset: 0;' : 
+  ${({ $variant }) => $variant === 'viewport' ?
+    'inset: 0;' :
     'inset: 0;'
   }
   background: rgba(0, 0, 0, 0.85);
@@ -82,6 +82,26 @@ const CloseButton = styled.button`
     color: #000;
     transform: scale(1.1);
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+`;
+
+export const ModalContent = styled.div<{ $maxWidth?: string; $colorScheme?: any; }>`
+  width: 100%;
+  max-width: ${props => props.$maxWidth || '600px'};
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: ${props => props.$colorScheme?.colors?.text || '#fff'};
+  background: transparent;
+  
+  /* Mobile-first responsive adjustments */
+  @media (max-width: 768px) {
+    padding: 1rem;
+    max-width: 95vw;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    max-width: 100vw;
   }
 `;
 
