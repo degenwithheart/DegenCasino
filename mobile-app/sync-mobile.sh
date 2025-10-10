@@ -154,6 +154,15 @@ fi
 if [ "$SKIP_CAPACITOR" -eq 0 ] && [ -f "$SCRIPT_DIR/build-signed-apk.sh" ]; then
   echo "  → Auto-rebuilding APK with latest content..."
   run_safe "$SCRIPT_DIR/build-signed-apk.sh"
+elif [ "$SKIP_CAPACITOR" -eq 1 ]; then
+  # In CI/Vercel environment, trigger Vercel APK build
+  echo "  → Triggering Vercel APK build for deployment..."
+  # Make a request to our API endpoint to ensure APK gets built
+  if command -v curl >/dev/null 2>&1; then
+    echo "    $ curl -s -X POST https://www.degenheart.casino/api/mobile-apk -H 'X-Build-Trigger: true'"
+    curl -s -X POST "https://www.degenheart.casino/api/mobile-apk" -H "X-Build-Trigger: true" -H "User-Agent: Vercel-Build-Agent" > /dev/null 2>&1 || true
+    echo "  ✓ Vercel APK build triggered"
+  fi
 else
   # Try to copy existing APK if auto-rebuild fails
   echo "  → Checking for existing APK..."

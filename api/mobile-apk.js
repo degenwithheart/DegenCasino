@@ -5,12 +5,14 @@ export const config = {
 
 export default async function handler(req, res) {
     try {
-        console.log('📱 APK download requested');
+        const isBuildTrigger = req.headers['x-build-trigger'] === 'true' || req.headers['user-agent']?.includes('Vercel-Build-Agent');
+
+        console.log('📱 APK request -', isBuildTrigger ? 'Build trigger' : 'User download');
 
         // First, try to serve existing APK from Vercel's file system
         const existingAPK = await checkExistingAPK();
 
-        if (existingAPK.exists) {
+        if (existingAPK.exists && !isBuildTrigger) {
             console.log('✅ Serving existing APK from cache');
 
             res.setHeader('Content-Type', 'application/vnd.android.package-archive');
@@ -23,12 +25,22 @@ export default async function handler(req, res) {
             return res.status(200).send(existingAPK.content);
         }
 
-        // APK not found, build it once and cache
-        console.log('🔨 APK not found, building new one...');
+        // APK not found or build trigger, build it once and cache
+        console.log('🔨 Building APK...', isBuildTrigger ? '(triggered by build)' : '(on demand)');
         const buildResult = await buildAndCacheAPK(req);
 
         if (buildResult.success) {
             console.log('✅ APK built and cached successfully');
+
+            // If this is a build trigger, just return success status
+            if (isBuildTrigger) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'APK built and cached',
+                    size: buildResult.size,
+                    buildTime: new Date().toISOString()
+                });
+            }
 
             res.setHeader('Content-Type', 'application/vnd.android.package-archive');
             res.setHeader('Content-Disposition', 'attachment; filename="DegenCasino.apk"');
@@ -40,7 +52,16 @@ export default async function handler(req, res) {
             return res.status(200).send(buildResult.content);
         }
 
-        // Fallback instructions
+        // If this was a build trigger that failed, return error status
+        if (isBuildTrigger) {
+            return res.status(500).json({
+                success: false,
+                message: 'APK build failed during deployment',
+                error: buildResult.error || 'Unknown error'
+            });
+        }
+
+        // Fallback instructions for user requests
         const instructions = `
 # DegenCasino Mobile App
 
@@ -70,6 +91,17 @@ Refresh to try the installer again.
 
     } catch (error) {
         console.error('❌ Mobile app service failed:', error);
+
+        // Check if this was a build trigger
+        const isBuildTrigger = req.headers['x-build-trigger'] === 'true' || req.headers['user-agent']?.includes('Vercel-Build-Agent');
+
+        if (isBuildTrigger) {
+            return res.status(500).json({
+                success: false,
+                message: 'Mobile app service failed during build',
+                error: error.message
+            });
+        }
 
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Retry-After', '300');
