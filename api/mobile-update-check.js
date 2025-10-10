@@ -3,7 +3,7 @@ export const config = {
   runtime: 'edge',
 };
 
-export default async function handler(req: Request) {
+export default async function handler(req) {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -40,7 +40,7 @@ export default async function handler(req: Request) {
   }
 }
 
-async function getLatestVersion(): Promise<string> {
+async function getLatestVersion() {
   // Use build timestamp or git commit as version
   const buildTime = process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 8) ||
     new Date().toISOString().substring(0, 19).replace(/[-:T]/g, '');

@@ -2,7 +2,7 @@
   "name": "@degenwithheart/degenheart-casino",
   "private": true,
   "version": "3.5.1",
-  "description": "DegenHeart.casino. Solana on-chain, provably fair Web3 casino with instant payouts, jackpots, leaderboards, and a 3D “Casino of Chaos.",
+  "description": "DegenHeart.casino. Solana on-chain, provably fair Web3 casino with instant payouts, jackpots, leaderboards, and a 3D \"Casino of Chaos.\"",
   "lastUpdated": "2025-09-25",
   "scripts": {
     "dev": "vite",
@@ -99,9 +99,6 @@
     "vite-bundle-analyzer": "^1.2.1",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-compression2": "^2.2.0"
-  },
-  "engines": {
-    "node": ">=20.12.0"
   },
   "overrides": {
     "trim-newlines": "^3.0.1",
