@@ -22,12 +22,13 @@ mobile-app/config/*
 *.keystore
 dghrt-keystore.*
 
-# Ignore APK files (too large for GitHub)
+# Ignore APK files (too large for GitHub, built by Vercel)
 *.apk
 **/*.apk
 mobile-app/build/capacitor/www/mobile/
-public/mobile/
+mobile-app/build/capacitor/android/app/build/
 dist/mobile/
+public/mobile/
 
 # Ignore backup and temporary files
 *.bak
