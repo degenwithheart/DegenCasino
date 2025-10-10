@@ -2,7 +2,20 @@
 # sync-mobile.sh
 # Sync Capacitor v7 project with latest dependencies and plugins (Android only)
 
-set -e
+#!/bin/bash
+# Don't exit on first error; we will handle non-critical failures explicitly
+set +e
+
+# Helper to run a command but continue on error, logging a warning
+run_safe() {
+  echo "    $ $*"
+  "$@"
+  local rc=$?
+  if [ $rc -ne 0 ]; then
+    echo "    ⚠️  Command failed with exit code $rc: $*"
+  fi
+  return $rc
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -48,20 +61,20 @@ if [ -d "$BUILD_DIR/capacitor" ]; then
   cd "$BUILD_DIR/capacitor"
   
   # Update package.json if needed
-  if ! grep -q '"@capacitor/core": "\^7.0.0"' package.json; then
-    echo "  → Updating Capacitor to v7..."
-    npm install @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0 >/dev/null 2>&1
-  fi
+    if ! grep -q '"@capacitor/core": "\^7.0.0"' package.json; then
+      echo "  → Updating Capacitor to v7..."
+      run_safe npm install @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0
+    fi
   
   # Install Browser plugin
-  if ! grep -q '"@capacitor/browser"' package.json; then
-    echo "  → Installing Browser plugin..."
-    npm install @capacitor/browser@^7.0.0 >/dev/null 2>&1
-  fi
+    if ! grep -q '"@capacitor/browser"' package.json; then
+      echo "  → Installing Browser plugin..."
+      run_safe npm install @capacitor/browser@^7.0.0
+    fi
   
   # Sync platforms
   echo "  → Syncing platforms..."
-  npx cap sync >/dev/null 2>&1
+  run_safe npx cap sync
   
   echo "  ✓ Capacitor v7 sync complete"
 else
