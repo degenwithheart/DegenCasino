@@ -15,6 +15,7 @@ scripts/*
 !scripts/compress-build.mjs
 !scripts/monitor-rpc.mjs
 !scripts/post-build-mobile-sync.mjs
+!scripts/vite-with-fallback.mjs
 
 # Ignore keystore files (sensitive)
 mobile-app/config/*
