@@ -9,7 +9,7 @@
     "dev:edge": "vercel dev",
     "dev:prod": "npm run build:compress && vercel dev --prod",
     "build": "vite build",
-    "build:compress": "vite build && node scripts/compress-build.mjs && npm run mobile:sync:safe",
+    "build:compress": "vite build && node scripts/compress-build.mjs",
     "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
