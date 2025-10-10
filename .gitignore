@@ -32,6 +32,3 @@ scripts/*
 **/themeRegistration.ts
 **/themeAutoDiscovery.ts
 **/themeConfig.ts
-
-# Ignore mobile build outputs (generated files)
-mobile-app
