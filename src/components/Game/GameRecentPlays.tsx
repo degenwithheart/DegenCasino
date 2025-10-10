@@ -4,6 +4,7 @@ import { useTokenMeta } from 'gamba-react-ui-v2';
 import { useRecentPlays } from '../../sections/RecentPlays/useRecentPlays';
 import { useMediaQuery } from '../../hooks/ui/useMediaQuery';
 import { extractMetadata } from '../../utils';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
 
 // Import context directly - this component is used in both themes
 import { useDegenHeaderModal } from '../../themes/layouts/degenheart/DegenHeartLayout';
@@ -119,7 +120,7 @@ function CompactRecentPlay({ event, colorScheme, onClick }: {
           fontSize: '0.7rem',
           flexShrink: 0
         }}>
-          {data.user.toBase58().slice(0, 4)}…
+          {generateUsernameFromWallet(data.user.toBase58())} — {data.user.toBase58().slice(-4)}
         </div>
 
         <div style={{

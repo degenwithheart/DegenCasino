@@ -6,6 +6,7 @@ import { useNetwork } from '../../contexts/NetworkContext';
 import styled from 'styled-components';
 import { GambaTransaction, parseGambaTransaction } from 'gamba-core-v2';
 import { ExplorerHeader } from '../Explorer/ExplorerHeader';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
 import { useWalletToast, WALLET_TOAST_MESSAGES, WalletToastInput } from '../../utils/wallet/solanaWalletToast';
 import { ALL_GAMES } from '../../games/allGames';
 
@@ -617,7 +618,7 @@ async function hashString(str: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-const copyToClipboard = async (text: string, _showToast?: (key: keyof typeof WALLET_TOAST_MESSAGES, _customMessage?: Partial<WalletToastInput>) => void) => {  
+const copyToClipboard = async (text: string, _showToast?: (key: keyof typeof WALLET_TOAST_MESSAGES, _customMessage?: Partial<WalletToastInput>) => void) => {
   try {
     await navigator.clipboard.writeText(text);
     if (_showToast) {
@@ -879,8 +880,8 @@ export default function TransactionView() {
                       <DetailItem>
                         <DetailLabel>Player</DetailLabel>
                         <DetailValue>
-                          🎮 <PlayerLink to={`/explorer/player/${transaction.player}`}>
-                            {transaction.player}
+                          🎮 <PlayerLink to={`/explorer/player/${transaction.player}`} title={transaction.player}>
+                            {generateUsernameFromWallet(transaction.player)} — {transaction.player.slice(-4)}
                           </PlayerLink>
                         </DetailValue>
                       </DetailItem>

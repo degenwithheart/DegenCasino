@@ -1,41 +1,40 @@
-import React, { useState, createContext, useContext, useEffect } from 'react'
-import styled from 'styled-components'
-import { useColorScheme } from '../../../themes/ColorSchemeContext'
-import Header from './Header'
-import MainContent from './MainContent'
-import BottomNavigation from './BottomNavigation'
-import { Modal } from './components/Modal'
-import { ShareModal } from './components/ShareModal'
-import AllGamesContentModal from './components/AllGamesContentModal'
-import { ConnectionStatusContent } from './components/ConnectionStatusContent'
-import { BonusContent } from './components/BonusModal'
-import { JackpotContent } from './components/JackpotModal'
-import { ColorSchemeSelector } from '../../../components'
-import { LeaderboardsContent } from './components/LeaderboardsModal'
-import BonusModal from './components/BonusModal'
-import JackpotModal from './components/JackpotModal'
-import TokenSelect from './components/TokenSelect'
-import UserProfile from './components/UserProfile'
-import MoreModal from './MoreModal'
-import GestureHandler from './components/GestureHandler'
-import { PLATFORM_CREATOR_ADDRESS } from '../../../constants'
-import { media, gridBreakpoints, spacing, components } from './breakpoints'
-import { GameLoadingProvider } from './contexts/GameLoadingContext'
+import React, { useState, createContext, useContext, useEffect } from 'react';
+import styled from 'styled-components';
+import { useColorScheme } from '../../../themes/ColorSchemeContext';
+import Header from './Header';
+import MainContent from './MainContent';
+import BottomNavigation from './BottomNavigation';
+import { Modal } from './components/Modal';
+import { ShareModal } from './components/ShareModal';
+import AllGamesContentModal from './components/AllGamesContentModal';
+import { ConnectionStatusContent } from './components/ConnectionStatusContent';
+import { BonusContent } from './components/BonusModal';
+import { JackpotContent } from './components/JackpotModal';
+import { ColorSchemeSelector } from '../../../components';
+import { LeaderboardsContent } from './components/LeaderboardsModal';
+import BonusModal from './components/BonusModal';
+import JackpotModal from './components/JackpotModal';
+import TokenSelect from './components/TokenSelect';
+import UserProfile from './components/UserProfile';
+import MoreModal from './MoreModal';
+import GestureHandler from './components/GestureHandler';
+import { PLATFORM_CREATOR_ADDRESS } from '../../../constants';
+import { media, gridBreakpoints, spacing, components } from './breakpoints';
 
 // Mobile-specific context for bottom navigation and modals
-const DegenMobileContext = createContext<{ 
+const DegenMobileContext = createContext<{
   openGamesModal: () => void;
   activeBottomTab: string;
   setActiveBottomTab: (tab: string) => void;
   showBottomNav: boolean;
   setShowBottomNav: (show: boolean) => void;
-}>({ 
-  openGamesModal: () => {},
+}>({
+  openGamesModal: () => { },
   activeBottomTab: 'home',
-  setActiveBottomTab: () => {},
+  setActiveBottomTab: () => { },
   showBottomNav: true,
-  setShowBottomNav: () => {}
-})
+  setShowBottomNav: () => { }
+});
 
 // Context for mobile modal system (slide-up modals)
 const DegenMobileModalContext = createContext<{
@@ -48,20 +47,20 @@ const DegenMobileModalContext = createContext<{
   openShareModal: (game: any) => void;
   openMoreModal: () => void;
 }>({
-  openBonusModal: () => {},
-  openJackpotModal: () => {},
-  openLeaderboardModal: () => {},
-  openThemeSelector: () => {},
-  openTokenSelect: () => {},
-  openConnectionStatus: () => {},
-  openShareModal: () => {},
-  openMoreModal: () => {}
-})
+  openBonusModal: () => { },
+  openJackpotModal: () => { },
+  openLeaderboardModal: () => { },
+  openThemeSelector: () => { },
+  openTokenSelect: () => { },
+  openConnectionStatus: () => { },
+  openShareModal: () => { },
+  openMoreModal: () => { }
+});
 
-export const useDegenMobile = () => useContext(DegenMobileContext)
-export const useDegenMobileModal = () => useContext(DegenMobileModalContext)
+export const useDegenMobile = () => useContext(DegenMobileContext);
+export const useDegenMobileModal = () => useContext(DegenMobileModalContext);
 
-const LayoutContainer = styled.div<{ $colorScheme: any; $showBottomNav: boolean }>`
+const LayoutContainer = styled.div<{ $colorScheme: any; $showBottomNav: boolean; }>`
   display: grid;
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
@@ -99,7 +98,7 @@ const LayoutContainer = styled.div<{ $colorScheme: any; $showBottomNav: boolean 
     padding-left: ${spacing.safeArea.left};
     padding-right: ${spacing.safeArea.right};
   }
-`
+`;
 
 const GridHeader = styled.header`
   grid-area: header;
@@ -123,7 +122,7 @@ const GridHeader = styled.header`
       height: calc(${components.header.heightLg} + ${spacing.safeArea.top});
     }
   }
-`
+`;
 
 const GridMain = styled.main`
   grid-area: main;
@@ -145,9 +144,9 @@ const GridMain = styled.main`
   ${media.safeArea} {
     padding-bottom: calc(${components.bottomNav.height} + ${spacing.safeArea.bottom} + ${spacing.xs});
   }
-`
+`;
 
-const GridBottomNav = styled.nav<{ $show: boolean }>`
+const GridBottomNav = styled.nav<{ $show: boolean; }>`
   grid-area: bottomnav;
   position: fixed;
   bottom: 0;
@@ -165,7 +164,7 @@ const GridBottomNav = styled.nav<{ $show: boolean }>`
     padding-bottom: ${spacing.safeArea.bottom};
     height: calc(${components.bottomNav.height} + ${spacing.safeArea.bottom});
   }
-`
+`;
 
 // GridFooter removed - mobile theme uses bottom navigation instead
 
@@ -174,39 +173,39 @@ interface DegenMobileLayoutProps {
 }
 
 const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
-  const { currentColorScheme } = useColorScheme()
-  
+  const { currentColorScheme } = useColorScheme();
+
   // Mobile-specific state
-  const [activeBottomTab, setActiveBottomTab] = useState('home')
-  const [showBottomNav, setShowBottomNav] = useState(true)
-  
+  const [activeBottomTab, setActiveBottomTab] = useState('home');
+  const [showBottomNav, setShowBottomNav] = useState(true);
+
   // Modal state
-  const [bonusModalOpen, setBonusModalOpen] = useState(false)
-  const [jackpotModalOpen, setJackpotModalOpen] = useState(false)
-  const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false)
-  const [themeSelectorOpen, setThemeSelectorOpen] = useState(false)
-  const [tokenSelectOpen, setTokenSelectOpen] = useState(false)
-  const [connectionStatusOpen, setConnectionStatusOpen] = useState(false)
-  const [shareModalOpen, setShareModalOpen] = useState(false)
-  const [shareGame, setShareGame] = useState<any>(null)
-  const [gamesModalOpen, setGamesModalOpen] = useState(false)
-  const [moreModalOpen, setMoreModalOpen] = useState(false)
-  
+  const [bonusModalOpen, setBonusModalOpen] = useState(false);
+  const [jackpotModalOpen, setJackpotModalOpen] = useState(false);
+  const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false);
+  const [themeSelectorOpen, setThemeSelectorOpen] = useState(false);
+  const [tokenSelectOpen, setTokenSelectOpen] = useState(false);
+  const [connectionStatusOpen, setConnectionStatusOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareGame, setShareGame] = useState<any>(null);
+  const [gamesModalOpen, setGamesModalOpen] = useState(false);
+  const [moreModalOpen, setMoreModalOpen] = useState(false);
+
   // Gesture handling for navigation
   const handleSwipeLeft = () => {
-    const tabs = ['home', 'games', 'jackpot', 'profile', 'more']
-    const currentIndex = tabs.indexOf(activeBottomTab)
-    const nextIndex = (currentIndex + 1) % tabs.length
-    setActiveBottomTab(tabs[nextIndex])
-  }
+    const tabs = ['home', 'games', 'jackpot', 'profile', 'more'];
+    const currentIndex = tabs.indexOf(activeBottomTab);
+    const nextIndex = (currentIndex + 1) % tabs.length;
+    setActiveBottomTab(tabs[nextIndex]);
+  };
 
   const handleSwipeRight = () => {
-    const tabs = ['home', 'games', 'jackpot', 'profile', 'more']
-    const currentIndex = tabs.indexOf(activeBottomTab)
-    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
-    setActiveBottomTab(tabs[prevIndex])
-  }
-  
+    const tabs = ['home', 'games', 'jackpot', 'profile', 'more'];
+    const currentIndex = tabs.indexOf(activeBottomTab);
+    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+    setActiveBottomTab(tabs[prevIndex]);
+  };
+
   // Mobile context values
   const mobileContextValue = {
     openGamesModal: () => setGamesModalOpen(true),
@@ -214,8 +213,8 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
     setActiveBottomTab,
     showBottomNav,
     setShowBottomNav
-  }
-  
+  };
+
   const modalContextValue = {
     openBonusModal: () => setBonusModalOpen(true),
     openJackpotModal: () => setJackpotModalOpen(true),
@@ -224,21 +223,20 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
     openTokenSelect: () => setTokenSelectOpen(true),
     openConnectionStatus: () => setConnectionStatusOpen(true),
     openShareModal: (game: any) => {
-      setShareGame(game)
-      setShareModalOpen(true)
+      setShareGame(game);
+      setShareModalOpen(true);
     },
     openMoreModal: () => setMoreModalOpen(true)
-  }
-  
+  };
+
   return (
-    <GameLoadingProvider>
-      <DegenMobileContext.Provider value={mobileContextValue}>
-        <DegenMobileModalContext.Provider value={modalContextValue}>
-          <LayoutContainer $colorScheme={currentColorScheme} $showBottomNav={showBottomNav}>
+    <DegenMobileContext.Provider value={mobileContextValue}>
+      <DegenMobileModalContext.Provider value={modalContextValue}>
+        <LayoutContainer $colorScheme={currentColorScheme} $showBottomNav={showBottomNav}>
           <GridHeader>
             <Header />
           </GridHeader>
-          
+
           <GridMain>
             <GestureHandler
               onSwipeLeft={handleSwipeLeft}
@@ -247,85 +245,84 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
               <MainContent>{children}</MainContent>
             </GestureHandler>
           </GridMain>
-          
+
           <GridBottomNav $show={showBottomNav}>
             <BottomNavigation />
           </GridBottomNav>
         </LayoutContainer>
-        
+
         {/* Mobile-optimized slide-up modals */}
-        <AllGamesContentModal 
-          isOpen={gamesModalOpen} 
+        <AllGamesContentModal
+          isOpen={gamesModalOpen}
           onClose={() => setGamesModalOpen(false)}
         />
-        
-        <Modal 
-          isOpen={bonusModalOpen} 
+
+        <Modal
+          isOpen={bonusModalOpen}
           onClose={() => setBonusModalOpen(false)}
           title="Bonus"
         >
           <BonusContent />
         </Modal>
-        
-        <Modal 
-          isOpen={jackpotModalOpen} 
+
+        <Modal
+          isOpen={jackpotModalOpen}
           onClose={() => setJackpotModalOpen(false)}
           title="Jackpot"
         >
           <JackpotContent />
         </Modal>
-        
-        <Modal 
-          isOpen={leaderboardModalOpen} 
+
+        <Modal
+          isOpen={leaderboardModalOpen}
           onClose={() => setLeaderboardModalOpen(false)}
           title="Leaderboard"
         >
           <LeaderboardsContent creator={PLATFORM_CREATOR_ADDRESS.toString()} />
         </Modal>
-        
-        <Modal 
-          isOpen={themeSelectorOpen} 
+
+        <Modal
+          isOpen={themeSelectorOpen}
           onClose={() => setThemeSelectorOpen(false)}
           title="Theme"
         >
           <ColorSchemeSelector />
         </Modal>
-        
-        <Modal 
-          isOpen={tokenSelectOpen} 
+
+        <Modal
+          isOpen={tokenSelectOpen}
           onClose={() => setTokenSelectOpen(false)}
           title="Select Token"
         >
           <TokenSelect />
         </Modal>
-        
-        <Modal 
-          isOpen={connectionStatusOpen} 
+
+        <Modal
+          isOpen={connectionStatusOpen}
           onClose={() => setConnectionStatusOpen(false)}
           title="Connection"
         >
           <ConnectionStatusContent />
         </Modal>
-        
+
         {shareModalOpen && shareGame && (
-          <ShareModal 
+          <ShareModal
             game={shareGame}
             onClose={() => {
-              setShareModalOpen(false)
-              setShareGame(null)
+              setShareModalOpen(false);
+              setShareGame(null);
             }}
           />
         )}
-        
+
         {/* More menu modal with additional options */}
-        <MoreModal 
-          isOpen={moreModalOpen} 
+        <MoreModal
+          isOpen={moreModalOpen}
           onClose={() => setMoreModalOpen(false)}
         />
-        </DegenMobileModalContext.Provider>
-      </DegenMobileContext.Provider>
-    </GameLoadingProvider>
-  )
-}
+      </DegenMobileModalContext.Provider>
+    </DegenMobileContext.Provider>
+  );
+};
 
-export default DegenMobileLayout
+export default DegenMobileLayout;

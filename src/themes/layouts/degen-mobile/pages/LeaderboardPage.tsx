@@ -1,20 +1,21 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { usePageSEO } from '../../../../hooks/ui/useGameSEO'
-import { useLeaderboardData } from '../../../../hooks/data/useLeaderboardData'
-import { PLATFORM_CREATOR_ADDRESS } from '../../../../constants'
-import { 
-  ModalOverlay, 
-  ModalContainer, 
-  Header, 
-  Title, 
-  CloseButton, 
-  Content, 
+import React from 'react';
+import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUtils';
+import { useNavigate } from 'react-router-dom';
+import { usePageSEO } from '../../../../hooks/ui/useGameSEO';
+import { useLeaderboardData } from '../../../../hooks/data/useLeaderboardData';
+import { PLATFORM_CREATOR_ADDRESS } from '../../../../constants';
+import {
+  ModalOverlay,
+  ModalContainer,
+  Header,
+  Title,
+  CloseButton,
+  Content,
   PageContent,
   Card,
   ActionButton
-} from '../components/ModalComponents'
-import styled from 'styled-components'
+} from '../components/ModalComponents';
+import styled from 'styled-components';
 
 // Special leaderboard entry component
 const LeaderboardEntry = styled.div`
@@ -62,7 +63,7 @@ const LeaderboardEntry = styled.div`
     color: #ffd700;
     font-size: 1.125rem;
   }
-`
+`;
 
 const ChampionshipBadge = styled.div`
   display: inline-flex;
@@ -75,40 +76,40 @@ const ChampionshipBadge = styled.div`
   font-weight: 700;
   margin-bottom: 24px;
   box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-`
+`;
 
 export default function LeaderboardPage() {
-  const navigate = useNavigate()
-  const { data: leaderboardData, loading, error } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58())
+  const navigate = useNavigate();
+  const { data: leaderboardData, loading, error } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58());
 
   // SEO optimization
   usePageSEO(
     'Leaderboard - DegenHeart Casino',
     'Top players and biggest wins at DegenHeart Casino'
-  )
+  );
 
   const handleClose = () => {
-    navigate(-1)
-  }
+    navigate(-1);
+  };
 
   // Process real leaderboard data
   const topPlayers = React.useMemo(() => {
     if (!leaderboardData || leaderboardData.length === 0) {
-      return [{ rank: 1, name: 'No players yet', address: 'Be the first!', amount: '0 SOL' }]
+      return [{ rank: 1, name: 'No players yet', address: 'Be the first!', amount: '0 SOL' }];
     }
-    
+
     return leaderboardData.slice(0, 10).map((player, index) => ({
       rank: index + 1,
-      name: `${player.user.slice(0, 8)}...${player.user.slice(-4)}`,
-      address: `${player.user.slice(0, 4)}...${player.user.slice(-4)}`,
+      name: `${generateUsernameFromWallet(player.user)} — ${player.user.slice(-4)}`,
+      address: player.user,
       amount: `${player.sol_volume.toFixed(4)} SOL`
-    }))
-  }, [leaderboardData])
+    }));
+  }, [leaderboardData]);
 
   return (
     <>
       <ModalOverlay onClick={handleClose}>
-        <ModalContainer 
+        <ModalContainer
           $variant="leaderboard"
           onClick={(e) => e.stopPropagation()}
         >
@@ -118,7 +119,7 @@ export default function LeaderboardPage() {
             </Title>
             <CloseButton $variant="leaderboard" onClick={handleClose} />
           </Header>
-          
+
           <Content>
             <PageContent $variant="leaderboard">
               <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -129,7 +130,7 @@ export default function LeaderboardPage() {
                   Top players by wagered amount (SOL)
                 </p>
               </div>
-              
+
               <Card $variant="leaderboard">
                 <h3>👑 Hall of Champions</h3>
                 <div style={{ marginTop: '24px' }}>
@@ -155,12 +156,12 @@ export default function LeaderboardPage() {
                   )}
                 </div>
               </Card>
-              
+
 
             </PageContent>
           </Content>
         </ModalContainer>
       </ModalOverlay>
     </>
-  )
+  );
 }

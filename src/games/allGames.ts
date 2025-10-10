@@ -20,7 +20,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'dice',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Dice',
       background: '#000000CC',
@@ -38,7 +38,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'magic8ball',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Magic 8 Ball',
       background: '#000000CC',
@@ -56,7 +56,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'slots',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Slots',
       background: '#000000CC',
@@ -74,7 +74,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'plinkorace',
     live: 'offline',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'PlinkoRace',
       background: '#000000CC',
@@ -92,7 +92,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'flip',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Flip',
       background: '#000000CC',
@@ -110,7 +110,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'hilo',
     live: 'coming-soon',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'HiLo',
       background: '#000000CC',
@@ -128,7 +128,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'mines',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Mines',
       background: '#000000CC',
@@ -146,7 +146,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'plinko',
     live: 'online',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Plinko',
       background: '#000000CC',
@@ -164,7 +164,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'crash',
     live: 'coming-soon',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'Crash',
       background: '#000000CC',
@@ -182,7 +182,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   {
     id: 'blackjack',
     live: 'coming-soon',
-    mobileAvailable: 'no',
+    mobileAvailable: 'yes',
     meta: {
       name: 'BlackJack',
       background: '#000000CC',

@@ -265,7 +265,7 @@ const WagerInput = styled.div`
   background: rgba(26, 15, 46, 0.8);
   border: 2px solid rgba(139, 90, 158, 0.5);
   border-radius: 16px;
-  padding: 20px 16px;
+  padding: 10px 20px;
   text-align: center;
 `;
 

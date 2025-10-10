@@ -1,20 +1,21 @@
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
-import styled, { keyframes } from 'styled-components'
-import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
-import { useWalletAddress } from 'gamba-react-v2'
-import { Modal } from '../Modal/Modal'
-import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics'
-import { truncateString } from '../../utils'
-import { formatTierDisplay, getReferralTierInfo } from '../../utils/user/referralTier'
-import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
-import { useColorScheme } from '../../themes/ColorSchemeContext'
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import styled, { keyframes } from 'styled-components';
+import { Link } from 'react-router-dom';
+import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2';
+import { useWalletAddress } from 'gamba-react-v2';
+import { Modal } from '../Modal/Modal';
+import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics';
+import { truncateString } from '../../utils';
+import { formatTierDisplay, getReferralTierInfo } from '../../utils/user/referralTier';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 const quantumDissolve = keyframes`
   0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-5deg); }
   60% { opacity: 1; filter: blur(2px); transform: scale(1.05) rotate(1deg); }
   100% { opacity: 1; filter: blur(0); transform: scale(1) rotate(0deg); }
-`
+`;
 
 const glowPulse = keyframes`
   0%, 100% {
@@ -23,7 +24,7 @@ const glowPulse = keyframes`
   50% {
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.3);
   }
-`
+`;
 
 const ModalContent = styled.div`
   width: 100%;
@@ -50,7 +51,7 @@ const ModalContent = styled.div`
     overflow-y: auto;
     border-radius: 20px;
   }
-`
+`;
 
 const HeaderSection = styled.div`
   text-align: center;
@@ -70,7 +71,7 @@ const HeaderSection = styled.div`
     background: linear-gradient(90deg, transparent, #ffd700, transparent);
     border-radius: 1px;
   }
-`
+`;
 
 const Title = styled.h2`
   margin: 0 0 0.75rem 0;
@@ -96,7 +97,7 @@ const Title = styled.h2`
   @media (max-width: 600px) {
     font-size: 1.8rem;
   }
-`
+`;
 
 const Subtitle = styled.p`
   margin: 0;
@@ -106,7 +107,7 @@ const Subtitle = styled.p`
   font-weight: 400;
   max-width: 400px;
   margin: 0 auto;
-`
+`;
 
 const LeaderboardList = styled.div`
   display: flex;
@@ -133,7 +134,7 @@ const LeaderboardList = styled.div`
       background: linear-gradient(180deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 140, 0, 0.6) 100%);
     }
   }
-`
+`;
 
 const ListHeader = styled.div`
   display: grid;
@@ -156,18 +157,18 @@ const ListHeader = styled.div`
     font-size: 0.8rem;
     padding: 0.75rem;
   }
-`
+`;
 
-const HeaderRank = styled.div``
-const HeaderPlayer = styled.div``
+const HeaderRank = styled.div``;
+const HeaderPlayer = styled.div``;
 const HeaderReferrals = styled.div`
   @media (max-width: 600px) {
     display: none;
   }
-`
-const HeaderEarnings = styled.div``
+`;
+const HeaderEarnings = styled.div``;
 
-const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean }>`
+const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean; }>`
   display: grid;
   grid-template-columns: 70px 1fr 120px 120px;
   gap: 1rem;
@@ -212,19 +213,19 @@ const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean }>`
 
   &:hover {
     background: ${props =>
-      props.$isCurrentUser
-        ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 140, 0, 0.15) 100%)'
-        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)'
-    };
+    props.$isCurrentUser
+      ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 140, 0, 0.15) 100%)'
+      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)'
+  };
     transform: translateY(-2px);
     box-shadow:
       0 8px 25px rgba(0, 0, 0, 0.3),
       0 0 20px rgba(255, 215, 0, 0.1);
     border-color: ${props =>
-      props.$isCurrentUser
-        ? 'rgba(255, 215, 0, 0.6)'
-        : 'rgba(255, 215, 0, 0.3)'
-    };
+    props.$isCurrentUser
+      ? 'rgba(255, 215, 0, 0.6)'
+      : 'rgba(255, 215, 0, 0.3)'
+  };
   }
 
   @media (max-width: 600px) {
@@ -239,16 +240,28 @@ const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean }>`
       }
     `}
   }
-`
+`;
 
-const RankNumber = styled.div<{ rank: number }>`
+const RankLink = styled(Link)`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.12);
+    border-radius: 16px;
+  }
+`;
+
+const RankNumber = styled.div<{ rank: number; }>`
   font-size: ${props => props.rank <= 3 ? '1.4rem' : '1.1rem'};
   font-weight: 800;
   color: ${props => {
-    if (props.rank === 1) return '#ffd700'
-    if (props.rank === 2) return '#c0c0c0'
-    if (props.rank === 3) return '#cd7f32'
-    return 'rgba(255, 255, 255, 0.8)'
+    if (props.rank === 1) return '#ffd700';
+    if (props.rank === 2) return '#c0c0c0';
+    if (props.rank === 3) return '#cd7f32';
+    return 'rgba(255, 255, 255, 0.8)';
   }};
   text-align: center;
   display: flex;
@@ -258,20 +271,20 @@ const RankNumber = styled.div<{ rank: number }>`
 
   &::before {
     content: ${props => {
-      if (props.rank === 1) return "'🥇'"
-      if (props.rank === 2) return "'🥈'"
-      if (props.rank === 3) return "'🥉'"
-      return `'${props.rank}'`
-    }};
+    if (props.rank === 1) return "'🥇'";
+    if (props.rank === 2) return "'🥈'";
+    if (props.rank === 3) return "'🥉'";
+    return `'${props.rank}'`;
+  }};
     font-size: ${props => props.rank <= 3 ? '1.2em' : '1em'};
   }
-`
+`;
 
 const PlayerInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-`
+`;
 
 const PlayerAddress = styled.div`
   font-weight: 700;
@@ -286,7 +299,7 @@ const PlayerAddress = styled.div`
     font-size: 0.8em;
     opacity: 0.7;
   }
-`
+`;
 
 const PlayerTier = styled.div`
   font-size: 0.8rem;
@@ -304,7 +317,7 @@ const PlayerTier = styled.div`
     content: '🏅';
     font-size: 0.7em;
   }
-`
+`;
 
 const ReferralCount = styled.div`
   font-weight: 700;
@@ -319,7 +332,7 @@ const ReferralCount = styled.div`
   @media (max-width: 600px) {
     display: none;
   }
-`
+`;
 
 const EarningsAmount = styled.div`
   font-weight: 700;
@@ -330,7 +343,7 @@ const EarningsAmount = styled.div`
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-`
+`;
 
 const LoadingText = styled.div`
   text-align: center;
@@ -348,7 +361,7 @@ const LoadingText = styled.div`
     font-size: 2rem;
     opacity: 0.6;
   }
-`
+`;
 
 const EmptyStateText = styled.div`
   text-align: center;
@@ -367,20 +380,20 @@ const EmptyStateText = styled.div`
     font-size: 2rem;
     opacity: 0.6;
   }
-`
+`;
 
 interface ReferralLeaderboardModalProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalProps) {
-  const userAddress = useWalletAddress()
-  const token = useCurrentToken()
-  const leaderboard = useReferralLeaderboard(20)
-  const [isLoading, setIsLoading] = useState(false)
-  const { currentColorScheme } = useColorScheme()
+  const userAddress = useWalletAddress();
+  const token = useCurrentToken();
+  const leaderboard = useReferralLeaderboard(20);
+  const [isLoading, setIsLoading] = useState(false);
+  const { currentColorScheme } = useColorScheme();
 
-  const userKey = userAddress?.toBase58()
+  const userKey = userAddress?.toBase58();
 
   return (
     <>
@@ -411,41 +424,42 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
                 </ListHeader>
 
                 {leaderboard.map((entry, index) => {
-                  const rank = index + 1
-                  const isCurrentUser = entry.address === userKey
-                  const tierInfo = getReferralTierInfo(entry.referralCount)
-                  const username = generateUsernameFromWallet(entry.address)
+                  const rank = index + 1;
+                  const isCurrentUser = entry.address === userKey;
+                  const tierInfo = getReferralTierInfo(entry.referralCount);
+                  const username = generateUsernameFromWallet(entry.address);
 
                   return (
-                    <RankItem
-                      key={entry.address}
-                      $isTop3={rank <= 3}
-                      $isCurrentUser={isCurrentUser}
-                    >
-                      <RankNumber rank={rank} />
+                    <RankLink key={entry.address} to={`/explorer/player/${entry.address}`} title={entry.address}>
+                      <RankItem
+                        $isTop3={rank <= 3}
+                        $isCurrentUser={isCurrentUser}
+                      >
+                        <RankNumber rank={rank} />
 
-                      <PlayerInfo>
-                        <PlayerAddress title={entry.address}>
-                          {isCurrentUser ? 'You' : `${username} (${truncateString(entry.address, 6, 4)})`}
-                        </PlayerAddress>
-                        <PlayerTier>
-                          {formatTierDisplay(tierInfo)}
-                        </PlayerTier>
-                      </PlayerInfo>
+                        <PlayerInfo>
+                          <PlayerAddress>
+                            {isCurrentUser ? 'You' : `${username} — ${entry.address.slice(-4)}`}
+                          </PlayerAddress>
+                          <PlayerTier>
+                            {formatTierDisplay(tierInfo)}
+                          </PlayerTier>
+                        </PlayerInfo>
 
-                      <ReferralCount>
-                        {entry.referralCount}
-                      </ReferralCount>
+                        <ReferralCount>
+                          {entry.referralCount}
+                        </ReferralCount>
 
-                      <EarningsAmount>
-                        <TokenValue
-                          amount={entry.totalEarnings}
-                          mint={token.mint}
-                          exact
-                        />
-                      </EarningsAmount>
-                    </RankItem>
-                  )
+                        <EarningsAmount>
+                          <TokenValue
+                            amount={entry.totalEarnings}
+                            mint={token.mint}
+                            exact
+                          />
+                        </EarningsAmount>
+                      </RankItem>
+                    </RankLink>
+                  );
                 })}
               </LeaderboardList>
             )}
@@ -454,27 +468,27 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
         document.body
       )}
     </>
-  )
+  );
 }
 
 // Export hook for easy usage
 export function useReferralLeaderboardModal() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
 
   const Modal = isOpen ? (
     ReactDOM.createPortal(
       <ReferralLeaderboardModal onClose={closeModal} />,
       document.body
     )
-  ) : null
+  ) : null;
 
   return {
     openModal,
     closeModal,
     Modal,
     isOpen,
-  }
+  };
 }

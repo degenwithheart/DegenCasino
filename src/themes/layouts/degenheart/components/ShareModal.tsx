@@ -13,6 +13,13 @@ const Inner = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  /* Mobile-first: Consistent even padding */
+  padding: 0.5rem;
+  box-sizing: border-box;
+  
+  ${media.tablet} {
+    padding: 1rem;
+  }
 `;
 
 const GameResult = styled.div`
@@ -20,11 +27,17 @@ const GameResult = styled.div`
   gap: 12px;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 16px;
+  /* Mobile-first: Consistent padding */
+  padding: 0.75rem;
+  box-sizing: border-box;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid #ffd700;
   border-radius: 12px;
   margin-bottom: 12px;
+  
+  ${media.tablet} {
+    padding: 1rem;
+  }
 `;
 
 const TokenIcon = styled.img`
@@ -63,10 +76,16 @@ const BrandingSection = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px;
+  /* Mobile-first: Consistent padding */
+  padding: 0.5rem;
+  box-sizing: border-box;
   border-radius: 12px;
   border: 1px solid #ffd700;
   font-size: 14px;
+  
+  ${media.tablet} {
+    padding: 0.75rem;
+  }
 
   img {
     height: 24px;

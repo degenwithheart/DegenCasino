@@ -1,35 +1,37 @@
-import React, { useMemo, useState, useEffect } from 'react'
-import styled, { css } from 'styled-components'
-import type { IdlAccounts } from '@coral-xyz/anchor'
-import type { Multiplayer } from '@gamba-labs/multiplayer-sdk'
-import { LAMPORTS_PER_SOL } from '@solana/web3.js'
+import React, { useMemo, useState, useEffect } from 'react';
+import styled, { css } from 'styled-components';
+import { Link } from 'react-router-dom';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
+import type { IdlAccounts } from '@coral-xyz/anchor';
+import type { Multiplayer } from '@gamba-labs/multiplayer-sdk';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-type Player = IdlAccounts<Multiplayer>['game']['players'][number]
+type Player = IdlAccounts<Multiplayer>['game']['players'][number];
 
 interface TopPlayersProps {
-  players: Player[]
-  totalPot: number
-  $isOverlay?: boolean
+  players: Player[];
+  totalPot: number;
+  $isOverlay?: boolean;
 }
 
-const COMPACT_BREAKPOINT = 900
+const COMPACT_BREAKPOINT = 900;
 
 function useIsCompact(): boolean {
   const [isCompact, setIsCompact] = useState(
     () =>
       typeof window !== 'undefined' &&
       window.innerWidth <= COMPACT_BREAKPOINT
-  )
+  );
   useEffect(() => {
     const onResize = () =>
-      setIsCompact(window.innerWidth <= COMPACT_BREAKPOINT)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-  return isCompact
+      setIsCompact(window.innerWidth <= COMPACT_BREAKPOINT);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isCompact;
 }
 
-const Container = styled.div<{ $isOverlay: boolean }>`
+const Container = styled.div<{ $isOverlay: boolean; }>`
   position: relative;
   ${({ $isOverlay }) =>
     $isOverlay
@@ -55,7 +57,7 @@ const Container = styled.div<{ $isOverlay: boolean }>`
     padding: 8px;
     height: auto;
   }
-`
+`;
 
 const Title = styled.h3`
   margin: 0 0 10px;
@@ -66,7 +68,7 @@ const Title = styled.h3`
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     display: none;
   }
-`
+`;
 
 const List = styled.ul`
   list-style: none;
@@ -75,7 +77,7 @@ const List = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`
+`;
 
 const PlayerItem = styled.li`
   display: flex;
@@ -89,7 +91,13 @@ const PlayerItem = styled.li`
     padding: 4px;
     border-radius: 6px;
   }
-`
+`;
+
+const PlayerLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: block;
+`;
 
 const PlayerRank = styled.div`
   font-size: 0.9rem;
@@ -104,14 +112,14 @@ const PlayerRank = styled.div`
     margin-right: 6px;
     min-width: 20px;
   }
-`
+`;
 
 const PlayerInfo = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-`
+`;
 
 const PlayerAddress = styled.div`
   font-size: 0.8rem;
@@ -124,7 +132,7 @@ const PlayerAddress = styled.div`
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     font-size: 0.7rem;
   }
-`
+`;
 
 const PlayerWager = styled.div`
   font-size: 0.8rem;
@@ -137,7 +145,7 @@ const PlayerWager = styled.div`
     font-size: 0.7rem;
     margin-top: 1px;
   }
-`
+`;
 
 const Fade = styled.div`
   content: '';
@@ -156,26 +164,26 @@ const Fade = styled.div`
   @media (max-width: ${COMPACT_BREAKPOINT}px) {
     display: none;
   }
-`
+`;
 
 export function TopPlayers({
   players,
   totalPot,
   $isOverlay = false,
 }: TopPlayersProps) {
-  const isCompact = useIsCompact()
+  const isCompact = useIsCompact();
 
   // sort & limit count based on layout
   const sorted = useMemo(() => {
     const all = [...players].sort(
       (a, b) => b.wager.toNumber() - a.wager.toNumber()
-    )
-    const maxCount = isCompact ? 3 : 7
-    return all.slice(0, maxCount)
-  }, [players, isCompact])
+    );
+    const maxCount = isCompact ? 3 : 7;
+    return all.slice(0, maxCount);
+  }, [players, isCompact]);
 
-  const shorten = (addr: string) =>
-    `${addr.slice(0, 4)}…${addr.slice(-4)}`
+  // show generated username with a short wallet hint
+  // e.g. "alice — 3f4b"
 
   return (
     <Container $isOverlay={$isOverlay}>
@@ -183,28 +191,33 @@ export function TopPlayers({
 
       <List>
         {sorted.map((p, i) => {
-          const sol = p.wager.toNumber() / LAMPORTS_PER_SOL
+          const sol = p.wager.toNumber() / LAMPORTS_PER_SOL;
           const pct = totalPot
             ? (p.wager.toNumber() / totalPot) * 100
-            : 0
+            : 0;
+
+          const addr = p.user.toBase58();
+          const username = generateUsernameFromWallet(addr);
 
           return (
-            <PlayerItem key={p.user.toBase58()}>
-              <PlayerRank>#{i + 1}</PlayerRank>
-              <PlayerInfo>
-                <PlayerAddress>
-                  {shorten(p.user.toBase58())}
-                </PlayerAddress>
-                <PlayerWager>
-                  {sol.toFixed(2)} SOL • {pct.toFixed(1)} %
-                </PlayerWager>
-              </PlayerInfo>
-            </PlayerItem>
-          )
+            <PlayerLink key={addr} to={`/explorer/player/${addr}`} title={addr}>
+              <PlayerItem>
+                <PlayerRank>#{i + 1}</PlayerRank>
+                <PlayerInfo>
+                  <PlayerAddress>
+                    {username} — {addr.slice(-4)}
+                  </PlayerAddress>
+                  <PlayerWager>
+                    {sol.toFixed(2)} SOL • {pct.toFixed(1)} %
+                  </PlayerWager>
+                </PlayerInfo>
+              </PlayerItem>
+            </PlayerLink>
+          );
         })}
       </List>
 
       {!isCompact && players.length > 8 && <Fade />}
     </Container>
-  )
+  );
 }

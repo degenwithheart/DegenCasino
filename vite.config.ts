@@ -45,7 +45,8 @@ export default defineConfig(() => ({
   },
   resolve: {
     alias: {
-      buffer: 'buffer',
+      // use the ESM entry so Vite bundles the polyfill instead of externalizing
+      buffer: 'buffer/',
       stream: 'stream-browserify',
       crypto: 'crypto-browserify'
     }

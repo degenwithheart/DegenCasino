@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useLocation, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
+import { usePlatformStats } from '../../../hooks/data/usePlatformStats';
 import { useColorScheme } from '../../ColorSchemeContext';
 import { SIDEBAR_LINKS } from '../../../constants';
 import { ALL_GAMES } from '../../../games/allGames';
@@ -378,6 +379,8 @@ const LeftSidebar: React.FC = () => {
   const { connected, publicKey } = useWallet();
   const pool = useCurrentPool();
   const { openGamesModal } = useDegenGamesModal();
+  // Platform stats for Total Bets
+  const { stats: platformStats, loading: platformLoading } = usePlatformStats();
 
   // Calculate real statistics from available data
   const realStats = useMemo(() => {
@@ -571,6 +574,27 @@ const LeftSidebar: React.FC = () => {
             <StatValue $colorScheme={currentColorScheme}>Connect Wallet</StatValue>
           </StatItem>
         )}
+
+        {/* Platform-level totals: Total Bets and Games Played */}
+        {(() => {
+          const solVolume = platformStats?.sol_volume || platformStats?.volume || 0;
+          const formattedSol = platformLoading ? 'Loading' : `${solVolume.toLocaleString(undefined, { maximumFractionDigits: 4 })} SOL`;
+          const playsCount = platformStats?.plays || platformStats?.total_games || 0;
+
+          return (
+            <>
+              <StatItem $colorScheme={currentColorScheme}>
+                <StatLabel $colorScheme={currentColorScheme}>Total Bets</StatLabel>
+                <StatValue $colorScheme={currentColorScheme}>{formattedSol}</StatValue>
+              </StatItem>
+
+              <StatItem $colorScheme={currentColorScheme}>
+                <StatLabel $colorScheme={currentColorScheme}>Games Played</StatLabel>
+                <StatValue $colorScheme={currentColorScheme}>{playsCount}</StatValue>
+              </StatItem>
+            </>
+          );
+        })()}
       </QuickStats>
     </SidebarContainer>
   );

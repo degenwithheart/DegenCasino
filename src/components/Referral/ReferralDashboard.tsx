@@ -1,12 +1,13 @@
-import React from 'react'
-import styled from 'styled-components'
-import { GambaUi, TokenValue, useCurrentToken, useReferral } from 'gamba-react-ui-v2'
-import { useWalletAddress } from 'gamba-react-v2'
-import { truncateString } from '../../utils'
-import { useReferralAnalytics, useReferralCount } from '../../hooks/analytics/useReferralAnalytics'
-import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../../utils/user/referralTier'
-import { useWalletToast } from '../../utils/wallet/solanaWalletToast'
-import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
+import React from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { GambaUi, TokenValue, useCurrentToken, useReferral } from 'gamba-react-ui-v2';
+import { useWalletAddress } from 'gamba-react-v2';
+import { truncateString } from '../../utils';
+import { useReferralAnalytics, useReferralCount } from '../../hooks/analytics/useReferralAnalytics';
+import { getReferralTierInfo, getReferralsToNextTier, formatTierDisplay } from '../../utils/user/referralTier';
+import { useWalletToast } from '../../utils/wallet/solanaWalletToast';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
 
 const Container = styled.div`
   display: flex;
@@ -29,7 +30,7 @@ const Container = styled.div`
     font-size: 1.5rem;
     filter: drop-shadow(0 0 8px #ffd700);
   }
-`
+`;
 
 const SectionTitle = styled.h3`
   margin: 0 0 1rem 0;
@@ -39,14 +40,14 @@ const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-`
+`;
 
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
-`
+`;
 
 const StatCard = styled.div`
   background: rgba(255, 255, 255, 0.05);
@@ -54,25 +55,25 @@ const StatCard = styled.div`
   padding: 1rem;
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.1);
-`
+`;
 
 const StatValue = styled.div`
   font-size: 1.4rem;
   font-weight: 700;
   color: #00ff88;
   margin-bottom: 0.25rem;
-`
+`;
 
 const StatLabel = styled.div`
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-`
+`;
 
 const TierProgress = styled.div`
   margin: 1rem 0;
-`
+`;
 
 const TierInfo = styled.div`
   display: flex;
@@ -80,16 +81,16 @@ const TierInfo = styled.div`
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-`
+`;
 
 const CurrentTier = styled.span`
   color: #ffd700;
   font-weight: 600;
-`
+`;
 
 const NextTier = styled.span`
   color: rgba(255, 255, 255, 0.7);
-`
+`;
 
 const ProgressBar = styled.div`
   background: rgba(255, 255, 255, 0.1);
@@ -97,15 +98,15 @@ const ProgressBar = styled.div`
   height: 8px;
   overflow: hidden;
   position: relative;
-`
+`;
 
-const ProgressFill = styled.div<{ progress: number }>`
+const ProgressFill = styled.div<{ progress: number; }>`
   background: linear-gradient(90deg, #00ff88, #ffd700);
   height: 100%;
   width: ${props => props.progress * 100}%;
   transition: width 0.3s ease;
   border-radius: 8px;
-`
+`;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -115,7 +116,7 @@ const ButtonGroup = styled.div`
   @media (max-width: 600px) {
     flex-direction: column;
   }
-`
+`;
 
 const ShareButton = styled.div`
   .gamba-button {
@@ -133,11 +134,11 @@ const ShareButton = styled.div`
       box-shadow: 0 0 24px rgba(0, 255, 136, 0.5) !important;
     }
   }
-`
+`;
 
 const RecentReferrals = styled.div`
   margin-top: 1rem;
-`
+`;
 
 const ReferralList = styled.div`
   display: flex;
@@ -145,7 +146,7 @@ const ReferralList = styled.div`
   gap: 0.5rem;
   max-height: 200px;
   overflow-y: auto;
-`
+`;
 
 const ReferralItem = styled.div`
   display: flex;
@@ -156,67 +157,79 @@ const ReferralItem = styled.div`
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.9rem;
-`
+`;
+
+const ReferralLink = styled(Link)`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.12);
+    border-radius: 8px;
+  }
+`;
 
 const ReferralAddress = styled.span`
   color: #ffd700;
   font-weight: 600;
-`
+`;
 
 const ReferralStats = styled.span`
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.8rem;
-`
+`;
 
 interface ReferralDashboardProps {
-  className?: string
+  className?: string;
 }
 
 export function ReferralDashboard({ className }: ReferralDashboardProps) {
-  const userAddress = useWalletAddress()
-  const referral = useReferral()
-  const token = useCurrentToken()
-  const stats = useReferralAnalytics()
-  const referralCount = useReferralCount(userAddress?.toBase58())
-  const { showWalletToast } = useWalletToast()
-  
-  const tierInfo = getReferralTierInfo(referralCount)
-  const referralsToNext = getReferralsToNextTier(referralCount)
+  const userAddress = useWalletAddress();
+  const referral = useReferral();
+  const token = useCurrentToken();
+  const stats = useReferralAnalytics();
+  const referralCount = useReferralCount(userAddress?.toBase58());
+  const { showWalletToast } = useWalletToast();
+
+  const tierInfo = getReferralTierInfo(referralCount);
+  const referralsToNext = getReferralsToNextTier(referralCount);
 
   const handleCopyLink = async () => {
     try {
-      await referral.copyLinkToClipboard()
-      showWalletToast('REFERRAL_COPY_SUCCESS')
+      await referral.copyLinkToClipboard();
+      showWalletToast('REFERRAL_COPY_SUCCESS');
     } catch (error) {
-      console.error('Failed to copy referral link:', error)
+      console.error('Failed to copy referral link:', error);
     }
-  }
+  };
 
-const shareTexts = {
+  const shareTexts = {
     twitter: `🎰 Join me on DegenCasino! Get started with my referral link and we both win! 💰
 
 ${referral.referralLink}`,
     telegram: `🎯 Play at DegenCasino with my link and get a bonus! 🚀 ${referral.referralLink}`,
     discord: `Hey! Check out DegenCasino - provably fair gaming on Solana! 🎲 Use my link: ${referral.referralLink}`,
     whatsapp: `🎰 I'm playing DegenCasino and earning crypto! Join me: ${referral.referralLink}`
-  }
+  };
 
   const handleShare = (platform: 'twitter' | 'telegram' | 'discord') => {
-    const message = shareTexts[platform]
-    
+    const message = shareTexts[platform];
+
     switch (platform) {
       case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank')
-        break
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank');
+        break;
       case 'telegram':
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(referral.referralLink || '')}&text=${encodeURIComponent('🎯 Play at DegenCasino with my link and get a bonus! 🚀')}`, '_blank')
-        break
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(referral.referralLink || '')}&text=${encodeURIComponent('🎯 Play at DegenCasino with my link and get a bonus! 🚀')}`, '_blank');
+        break;
       case 'discord':
-        navigator.clipboard.writeText(message)
-        showWalletToast('REFERRAL_COPY_SUCCESS')
-        break
+        navigator.clipboard.writeText(message);
+        showWalletToast('REFERRAL_COPY_SUCCESS');
+        break;
     }
-  }
+  };
 
   if (!userAddress) {
     return (
@@ -226,13 +239,13 @@ ${referral.referralLink}`,
           Connect your wallet to view referral stats
         </div>
       </Container>
-    )
+    );
   }
 
   return (
     <Container className={className}>
       <SectionTitle>🎁 Referral Dashboard</SectionTitle>
-      
+
       {/* Stats Grid */}
       <StatsGrid>
         <StatCard>
@@ -241,7 +254,7 @@ ${referral.referralLink}`,
         </StatCard>
         <StatCard>
           <StatValue>
-            {tierInfo.isFinancialMode 
+            {tierInfo.isFinancialMode
               ? `${tierInfo.currentFee}%`
               : `${tierInfo.currentTierData.badge} ${tierInfo.currentTierData.name}`
             }
@@ -311,26 +324,28 @@ ${referral.referralLink}`,
           </h4>
           <ReferralList>
             {stats.recentReferrals.map((ref, index) => {
-              const username = generateUsernameFromWallet(ref.address)
+              const username = generateUsernameFromWallet(ref.address);
               return (
-                <ReferralItem key={ref.address}>
-                  <div>
-                    <ReferralAddress>
-                      {username} ({truncateString(ref.address, 6, 4)})
-                    </ReferralAddress>
+                <ReferralLink key={ref.address} to={`/explorer/player/${ref.address}`} title={ref.address}>
+                  <ReferralItem>
+                    <div>
+                      <ReferralAddress>
+                        {username} — {ref.address.slice(-4)}
+                      </ReferralAddress>
+                      <ReferralStats>
+                        {' • '}{ref.gameCount} games
+                      </ReferralStats>
+                    </div>
                     <ReferralStats>
-                      {' • '}{ref.gameCount} games
+                      <TokenValue amount={ref.totalWagered} mint={token.mint} />
                     </ReferralStats>
-                  </div>
-                  <ReferralStats>
-                    <TokenValue amount={ref.totalWagered} mint={token.mint} />
-                  </ReferralStats>
-                </ReferralItem>
-              )
+                  </ReferralItem>
+                </ReferralLink>
+              );
             })}
           </ReferralList>
         </RecentReferrals>
       )}
     </Container>
-  )
+  );
 }

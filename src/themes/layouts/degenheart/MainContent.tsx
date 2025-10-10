@@ -67,7 +67,8 @@ const WelcomeSection = styled.section<{ $colorScheme: any; }>`
   text-align: center;
   margin-bottom: 2rem;
   /* Mobile-first: Even padding on all sides */
-  padding: 1.5rem 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.surface}90,
     ${props => props.$colorScheme.colors.background}50
@@ -77,14 +78,14 @@ const WelcomeSection = styled.section<{ $colorScheme: any; }>`
   position: relative;
   overflow: hidden;
   
-  /* Tablet and up: More generous padding */
+  /* Tablet and up: More generous even padding */
   ${media.tablet} {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
     margin-bottom: 2.5rem;
   }
   
   ${media.desktop} {
-    padding: 3rem 2rem;
+    padding: 2rem;
     margin-bottom: 3rem;
   }
   
@@ -171,6 +172,8 @@ const StatCard = styled.div<{ $colorScheme: any; }>`
   border: 1px solid ${props => props.$colorScheme.colors.border};
   border-radius: 12px;
   padding: 1.5rem;
+  box-sizing: border-box;
+  width: 100%;
   text-align: center;
   transition: all 0.3s ease;
   position: relative;
@@ -300,6 +303,11 @@ const GameCard = styled.div<{ $colorScheme: any; }>`
   cursor: pointer;
   transition: all 0.4s ease;
   position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
     transform: translateY(-8px) scale(1.02);
@@ -314,6 +322,7 @@ const GameImage = styled.div<{ $backgroundImage: string; }>`
   background-size: cover;
   background-position: center;
   position: relative;
+  flex-shrink: 0;
   
   &::before {
     content: '';
@@ -365,6 +374,8 @@ const GameStatus = styled.div<{ $colorScheme: any; $status: string; }>`
 
 const GameInfo = styled.div`
   padding: 1.5rem;
+  text-align: center;
+  flex: 1 1 auto;
 `;
 
 const GameName = styled.h3<{ $colorScheme: any; }>`
@@ -393,6 +404,8 @@ const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
   border-radius: 16px;
   border: 2px dashed ${props => props.$colorScheme.colors.border};
   margin: 2rem 0;
+  box-sizing: border-box;
+  width: 100%;
 `;
 
 const ConnectButton = styled.button<{ $colorScheme: any; }>`

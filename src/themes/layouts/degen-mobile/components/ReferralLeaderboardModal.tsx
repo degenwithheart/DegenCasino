@@ -1,21 +1,22 @@
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
-import styled, { keyframes } from 'styled-components'
-import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
-import { useWalletAddress } from 'gamba-react-v2'
-import { Modal } from './Modal'
-import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../../../hooks/analytics/useReferralAnalytics'
-import { truncateString } from '../../../../utils'
-import { formatTierDisplay, getReferralTierInfo } from '../../../../utils/user/referralTier'
-import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUtils'
-import { useColorScheme } from '../../../../themes/ColorSchemeContext'
-import { spacing, animations, media } from '../breakpoints'
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import styled, { keyframes } from 'styled-components';
+import { Link } from 'react-router-dom';
+import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2';
+import { useWalletAddress } from 'gamba-react-v2';
+import { Modal } from './Modal';
+import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../../../hooks/analytics/useReferralAnalytics';
+import { truncateString } from '../../../../utils';
+import { formatTierDisplay, getReferralTierInfo } from '../../../../utils/user/referralTier';
+import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUtils';
+import { useColorScheme } from '../../../../themes/ColorSchemeContext';
+import { spacing, animations, media } from '../breakpoints';
 
 const quantumDissolve = keyframes`
   0% { opacity: 0; filter: blur(12px); transform: scale(0.8) rotate(-5deg); }
   60% { opacity: 1; filter: blur(2px); transform: scale(1.05) rotate(1deg); }
   100% { opacity: 1; filter: blur(0); transform: scale(1) rotate(0deg); }
-`
+`;
 
 const glowPulse = keyframes`
   0%, 100% {
@@ -24,9 +25,9 @@ const glowPulse = keyframes`
   50% {
     box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.3);
   }
-`
+`;
 
-const ModalContent = styled.div<{ $colorScheme?: any }>`
+const ModalContent = styled.div<{ $colorScheme?: any; }>`
   width: 100%;
   max-width: 700px;
   padding: ${spacing['3xl']};
@@ -69,18 +70,18 @@ const ModalContent = styled.div<{ $colorScheme?: any }>`
     );
     border-radius: 24px 24px 0 0;
   }
-`
+`;
 
 const Header = styled.div`
   text-align: center;
   margin-bottom: ${spacing['3xl']};
-  
+
   ${media.maxMobile} {
     margin-bottom: ${spacing.xl};
   }
-`
+`;
 
-const Title = styled.h2<{ $colorScheme?: any }>`
+const Title = styled.h2<{ $colorScheme?: any; }>`
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 ${spacing.sm} 0;
@@ -92,11 +93,11 @@ const Title = styled.h2<{ $colorScheme?: any }>`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 0 0 20px ${props => props.$colorScheme?.colors?.primary || '#ffd700'}50;
-  
+
   ${media.maxMobile} {
     font-size: 1.6rem;
   }
-`
+`;
 
 const Subtitle = styled.p`
   font-size: 1rem;
@@ -107,7 +108,7 @@ const Subtitle = styled.p`
   ${media.maxMobile} {
     font-size: 0.9rem;
   }
-`
+`;
 
 const LeaderboardContainer = styled.div`
   display: flex;
@@ -138,9 +139,9 @@ const LeaderboardContainer = styled.div`
     max-height: 350px;
     gap: ${spacing.sm};
   }
-`
+`;
 
-const LeaderboardEntry = styled.div<{ $isUser: boolean; $colorScheme?: any }>`
+const LeaderboardEntry = styled.div<{ $isUser: boolean; $colorScheme?: any; }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -152,7 +153,7 @@ const LeaderboardEntry = styled.div<{ $isUser: boolean; $colorScheme?: any }>`
       )`
     : 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))'
   };
-  border: 1px solid ${props => props.$isUser 
+  border: 1px solid ${props => props.$isUser
     ? props.$colorScheme?.colors?.primary || '#ffd700'
     : 'rgba(255, 255, 255, 0.08)'
   };
@@ -164,12 +165,12 @@ const LeaderboardEntry = styled.div<{ $isUser: boolean; $colorScheme?: any }>`
   &:hover {
     transform: translateY(-2px);
     background: ${props => props.$isUser
-      ? `linear-gradient(135deg,
+    ? `linear-gradient(135deg,
           ${props.$colorScheme?.colors?.primary || '#ffd700'}30,
           ${props.$colorScheme?.colors?.accent || '#a259ff'}30
         )`
-      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04))'
-    };
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04))'
+  };
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
 
@@ -185,7 +186,19 @@ const LeaderboardEntry = styled.div<{ $isUser: boolean; $colorScheme?: any }>`
     gap: ${spacing.sm};
     border-radius: 12px;
   }
-`
+`;
+
+const LeaderboardLink = styled(Link)`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.12);
+    border-radius: 16px;
+  }
+`;
 
 const UserInfo = styled.div`
   display: flex;
@@ -197,9 +210,9 @@ const UserInfo = styled.div`
     width: 100%;
     justify-content: space-between;
   }
-`
+`;
 
-const RankBadge = styled.div<{ $rank: number; $colorScheme?: any }>`
+const RankBadge = styled.div<{ $rank: number; $colorScheme?: any; }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,10 +223,10 @@ const RankBadge = styled.div<{ $rank: number; $colorScheme?: any }>`
   font-size: 1rem;
   color: #000;
   background: ${props => {
-    if (props.$rank === 1) return 'linear-gradient(135deg, #FFD700, #FFA500)'
-    if (props.$rank === 2) return 'linear-gradient(135deg, #C0C0C0, #A8A8A8)'
-    if (props.$rank === 3) return 'linear-gradient(135deg, #CD7F32, #B8860B)'
-    return `linear-gradient(135deg, ${props.$colorScheme?.colors?.primary || '#ffd700'}80, ${props.$colorScheme?.colors?.accent || '#a259ff'}80)`
+    if (props.$rank === 1) return 'linear-gradient(135deg, #FFD700, #FFA500)';
+    if (props.$rank === 2) return 'linear-gradient(135deg, #C0C0C0, #A8A8A8)';
+    if (props.$rank === 3) return 'linear-gradient(135deg, #CD7F32, #B8860B)';
+    return `linear-gradient(135deg, ${props.$colorScheme?.colors?.primary || '#ffd700'}80, ${props.$colorScheme?.colors?.accent || '#a259ff'}80)`;
   }};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   
@@ -222,16 +235,16 @@ const RankBadge = styled.div<{ $rank: number; $colorScheme?: any }>`
     height: 36px;
     font-size: 0.9rem;
   }
-`
+`;
 
 const UserDetails = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${spacing.xs};
   flex: 1;
-`
+`;
 
-const Username = styled.div<{ $colorScheme?: any }>`
+const Username = styled.div<{ $colorScheme?: any; }>`
   font-weight: 600;
   font-size: 1rem;
   color: ${props => props.$colorScheme?.colors?.primary || '#ffd700'};
@@ -240,7 +253,7 @@ const Username = styled.div<{ $colorScheme?: any }>`
   ${media.maxMobile} {
     font-size: 0.9rem;
   }
-`
+`;
 
 const UserAddress = styled.div`
   font-size: 0.8rem;
@@ -250,7 +263,7 @@ const UserAddress = styled.div`
   ${media.maxMobile} {
     font-size: 0.75rem;
   }
-`
+`;
 
 const Stats = styled.div`
   display: flex;
@@ -264,9 +277,9 @@ const Stats = styled.div`
     text-align: left;
     width: 100%;
   }
-`
+`;
 
-const StatValue = styled.div<{ $colorScheme?: any }>`
+const StatValue = styled.div<{ $colorScheme?: any; }>`
   font-weight: 700;
   font-size: 1rem;
   color: ${props => props.$colorScheme?.colors?.accent || '#00ff88'};
@@ -275,7 +288,7 @@ const StatValue = styled.div<{ $colorScheme?: any }>`
   ${media.maxMobile} {
     font-size: 0.9rem;
   }
-`
+`;
 
 const StatLabel = styled.div`
   font-size: 0.75rem;
@@ -286,9 +299,9 @@ const StatLabel = styled.div`
   ${media.maxMobile} {
     font-size: 0.7rem;
   }
-`
+`;
 
-const TierBadge = styled.span<{ $colorScheme?: any }>`
+const TierBadge = styled.span<{ $colorScheme?: any; }>`
   background: linear-gradient(135deg,
     ${props => props.$colorScheme?.colors?.primary || '#ffd700'}20,
     ${props => props.$colorScheme?.colors?.accent || '#a259ff'}20
@@ -306,7 +319,7 @@ const TierBadge = styled.span<{ $colorScheme?: any }>`
     padding: 4px ${spacing.xs};
     font-size: 0.65rem;
   }
-`
+`;
 
 const EmptyStateText = styled.div`
   text-align: center;
@@ -330,9 +343,9 @@ const EmptyStateText = styled.div`
     padding: ${spacing['2xl']} ${spacing.base};
     font-size: 1rem;
   }
-`
+`;
 
-const CloseButton = styled.button<{ $colorScheme?: any }>`
+const CloseButton = styled.button<{ $colorScheme?: any; }>`
   position: absolute;
   top: ${spacing.base};
   right: ${spacing.base};
@@ -354,19 +367,19 @@ const CloseButton = styled.button<{ $colorScheme?: any }>`
     font-size: 1.3rem;
     padding: ${spacing.xs};
   }
-`
+`;
 
 interface ReferralLeaderboardModalProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalProps) {
-  const userAddress = useWalletAddress()
-  const token = useCurrentToken()
-  const leaderboard = useReferralLeaderboard(20) // Show top 20
-  const { currentColorScheme } = useColorScheme()
-  
-  const userKey = userAddress?.toBase58()
+  const userAddress = useWalletAddress();
+  const token = useCurrentToken();
+  const leaderboard = useReferralLeaderboard(20); // Show top 20
+  const { currentColorScheme } = useColorScheme();
+
+  const userKey = userAddress?.toBase58();
 
   return ReactDOM.createPortal(
     <Modal isOpen={true} onClose={onClose}>
@@ -374,7 +387,7 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
         <CloseButton onClick={onClose} $colorScheme={currentColorScheme}>
           ×
         </CloseButton>
-        
+
         <Header>
           <Title $colorScheme={currentColorScheme}>🏆 Referral Leaderboard</Title>
           <Subtitle>Top players by referral performance</Subtitle>
@@ -389,79 +402,79 @@ export function ReferralLeaderboardModal({ onClose }: ReferralLeaderboardModalPr
             </EmptyStateText>
           ) : (
             leaderboard.map((entry, index) => {
-              const rank = index + 1
-              const isUser = entry.address === userKey
-              const username = generateUsernameFromWallet(entry.address)
-              const tierInfo = getReferralTierInfo(entry.referralCount)
+              const rank = index + 1;
+              const isUser = entry.address === userKey;
+              const username = generateUsernameFromWallet(entry.address);
+              const tierInfo = getReferralTierInfo(entry.referralCount);
 
               return (
-                <LeaderboardEntry 
-                  key={entry.address} 
-                  $isUser={isUser}
-                  $colorScheme={currentColorScheme}
-                >
-                  <UserInfo>
-                    <RankBadge $rank={rank} $colorScheme={currentColorScheme}>
-                      {rank}
-                    </RankBadge>
-                    <UserDetails>
-                      <Username $colorScheme={currentColorScheme}>
-                        {username}
-                        {isUser && ' (You)'}
-                      </Username>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
-                        <UserAddress>
-                          {truncateString(entry.address, 6, 4)}
-                        </UserAddress>
-                        <TierBadge $colorScheme={currentColorScheme}>
-                          {formatTierDisplay(tierInfo)}
-                        </TierBadge>
+                <LeaderboardLink key={entry.address} to={`/explorer/player/${entry.address}`} title={entry.address}>
+                  <LeaderboardEntry
+                    $isUser={isUser}
+                    $colorScheme={currentColorScheme}
+                  >
+                    <UserInfo>
+                      <RankBadge $rank={rank} $colorScheme={currentColorScheme}>
+                        {rank}
+                      </RankBadge>
+                      <UserDetails>
+                        <Username $colorScheme={currentColorScheme}>
+                          {username}{isUser ? ' (You)' : ` — ${entry.address.slice(-4)}`}
+                        </Username>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
+                          <UserAddress>
+                            {truncateString(entry.address, 6, 4)}
+                          </UserAddress>
+                          <TierBadge $colorScheme={currentColorScheme}>
+                            {formatTierDisplay(tierInfo)}
+                          </TierBadge>
+                        </div>
+                      </UserDetails>
+                    </UserInfo>
+
+                    <Stats>
+                      <div style={{ display: 'flex', gap: spacing.lg }}>
+                        <div>
+                          <StatValue $colorScheme={currentColorScheme}>
+                            {entry.referralCount}
+                          </StatValue>
+                          <StatLabel>Referrals</StatLabel>
+                        </div>
+                        <div>
+                          <StatValue $colorScheme={currentColorScheme}>
+                            <TokenValue amount={entry.totalEarnings} mint={token.mint} />
+                          </StatValue>
+                          <StatLabel>Earnings</StatLabel>
+                        </div>
                       </div>
-                    </UserDetails>
-                  </UserInfo>
-                  
-                  <Stats>
-                    <div style={{ display: 'flex', gap: spacing.lg }}>
-                      <div>
-                        <StatValue $colorScheme={currentColorScheme}>
-                          {entry.referralCount}
-                        </StatValue>
-                        <StatLabel>Referrals</StatLabel>
-                      </div>
-                      <div>
-                        <StatValue $colorScheme={currentColorScheme}>
-                          <TokenValue amount={entry.totalEarnings} mint={token.mint} />
-                        </StatValue>
-                        <StatLabel>Earnings</StatLabel>
-                      </div>
-                    </div>
-                  </Stats>
-                </LeaderboardEntry>
-              )
+                    </Stats>
+                  </LeaderboardEntry>
+                </LeaderboardLink>
+              );
             })
           )}
         </LeaderboardContainer>
       </ModalContent>
     </Modal>,
     document.body
-  )
+  );
 }
 
 // Export hook for easy usage
 export function useReferralLeaderboardModal() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
 
   const Modal = isOpen ? (
     <ReferralLeaderboardModal onClose={closeModal} />
-  ) : null
+  ) : null;
 
   return {
     isOpen,
     openModal,
     closeModal,
     Modal,
-  }
+  };
 }

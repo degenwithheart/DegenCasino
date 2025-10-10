@@ -293,7 +293,7 @@ export default function Dice() {
                     background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 25%, #4a5568 50%, #2d3748 75%, #1a202c 100%)',
                     display: 'flex',
                     flexDirection: 'column',
-                    padding: '20px 16px',
+                    padding: '10px 20px',
                     boxSizing: 'border-box',
                     gap: '20px'
                 }}>

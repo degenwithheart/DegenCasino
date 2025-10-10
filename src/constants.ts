@@ -104,7 +104,7 @@ export const FEATURE_FLAGS = {
    * toggle the UI skin independently of whether the Capacitor mobile browser
    * integration is enabled.
    */
-  ENABLE_DEGEN_MOBILE_THEME: false,
+  ENABLE_DEGEN_MOBILE_THEME: true,
   /**
    * Enable/disable the in-game (per-game) RecentGames custom component.
    */

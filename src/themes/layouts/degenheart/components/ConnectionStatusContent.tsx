@@ -3,7 +3,8 @@ import { useCurrentPool, useCurrentToken } from "gamba-react-ui-v2";
 import { FAKE_TOKEN_MINT } from "gamba-react-ui-v2";
 import styled, { keyframes } from 'styled-components';
 import { useColorScheme } from '../../../ColorSchemeContext';
-import { useNetwork } from '../../../../contexts/NetworkContext'
+import { useNetwork } from '../../../../contexts/NetworkContext';
+import { media } from '../breakpoints';
 
 // Animations
 const ping = keyframes`
@@ -14,7 +15,7 @@ const ping = keyframes`
 `;
 
 // Styled Components
-const ModalTitle = styled.h2<{ $colorScheme: any }>`
+const ModalTitle = styled.h2<{ $colorScheme: any; }>`
   font-size: 1.8rem;
   color: ${props => props.$colorScheme.colors.accent};
   text-align: center;
@@ -28,15 +29,21 @@ const StatusGrid = styled.div`
   margin-bottom: 1rem;
 `;
 
-const StatusItem = styled.div<{ $status: 'Online' | 'Issues' | 'Offline' | 'Secured' | 'Unsecured' | 'Loading'; $colorScheme: any }>`
+const StatusItem = styled.div<{ $status: 'Online' | 'Issues' | 'Offline' | 'Secured' | 'Unsecured' | 'Loading'; $colorScheme: any; }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  /* Mobile-first: Consistent padding */
+  padding: 0.75rem;
+  box-sizing: border-box;
   background: ${props => props.$colorScheme.colors.surface}40;
   border: 1px solid ${props => props.$colorScheme.colors.accent}20;
   border-radius: 12px;
   backdrop-filter: blur(10px);
+  
+  ${media.tablet} {
+    padding: 1rem;
+  }
   
   .label {
     font-weight: 600;
@@ -54,30 +61,30 @@ const StatusItem = styled.div<{ $status: 'Online' | 'Issues' | 'Offline' | 'Secu
     text-transform: uppercase;
     
     ${({ $status }) => {
-      switch($status) {
-        case 'Online':
-        case 'Secured':
-          return `
+    switch ($status) {
+      case 'Online':
+      case 'Secured':
+        return `
             background: rgba(34, 197, 94, 0.2);
             color: #22c55e;
             border: 1px solid rgba(34, 197, 94, 0.3);
           `;
-        case 'Issues':
-        case 'Loading':
-          return `
+      case 'Issues':
+      case 'Loading':
+        return `
             background: rgba(234, 179, 8, 0.2);
             color: #eab308;
             border: 1px solid rgba(234, 179, 8, 0.3);
           `;
-        case 'Offline':
-        case 'Unsecured':
-          return `
+      case 'Offline':
+      case 'Unsecured':
+        return `
             background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
           `;
-      }
-    }}
+    }
+  }}
   }
 `;
 
@@ -104,7 +111,7 @@ function useDnsStatus(shouldCheck = false) {
       const cachedData = localStorage.getItem('dns-status-cache');
       const cacheTime = localStorage.getItem('dns-status-cache-time');
       const now = Date.now();
-      
+
       if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) {
         setDnsStatus(JSON.parse(cachedData));
       } else {
@@ -117,12 +124,12 @@ function useDnsStatus(shouldCheck = false) {
     const cachedData = localStorage.getItem('dns-status-cache');
     const cacheTime = localStorage.getItem('dns-status-cache-time');
     const now = Date.now();
-    
+
     if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) {
       setDnsStatus(JSON.parse(cachedData));
       return;
     }
-    
+
     setDnsStatus("Loading");
     const checkDnsStatus = async () => {
       try {
@@ -135,7 +142,7 @@ function useDnsStatus(shouldCheck = false) {
           }
           return;
         }
-        
+
         const data = await res.json();
         if (!cancelled && data && data.status) {
           setDnsStatus(data.status);
@@ -148,7 +155,7 @@ function useDnsStatus(shouldCheck = false) {
         if (!cancelled) setDnsStatus("Offline");
       }
     };
-    
+
     checkDnsStatus();
     return () => { cancelled = true; };
   }, [shouldCheck]);
@@ -163,22 +170,22 @@ export const ConnectionStatusContent: React.FC = () => {
     "Secured" | "Unsecured" | "Loading" | "Issues" | "Offline" | null
   >("Loading");
   const [lastTxTime, setLastTxTime] = useState<string | null>(null);
-  
+
   const { currentColorScheme } = useColorScheme();
   const pool = useCurrentPool();
   const token = useCurrentToken();
-  const { networkConfig } = useNetwork()
-  const SYNDICA_RPC = networkConfig.rpcEndpoint
-  
+  const { networkConfig } = useNetwork();
+  const SYNDICA_RPC = networkConfig.rpcEndpoint;
+
   const dnsStatus = useDnsStatus(true); // Always check when modal is open
-  
+
   const THROTTLE_MS = 10000;
 
   // Health check function
   const throttledHealthCheck = useThrottle(async () => {
     const primaryEndpoints = [SYNDICA_RPC, HELIUS_RPC_BACKUP];
     const lastResortEndpoints = ["https://rpc.ankr.com/solana", "https://api.mainnet-beta.solana.com"];
-    
+
     for (const endpoint of primaryEndpoints) {
       const start = performance.now();
       try {
@@ -189,7 +196,7 @@ export const ConnectionStatusContent: React.FC = () => {
         });
         const elapsed = performance.now() - start;
         const data = await res.json();
-        
+
         if (data.result === "ok") {
           setRpcPing(Math.round(elapsed));
           setRpcHealth({ isHealthy: true });
@@ -199,9 +206,9 @@ export const ConnectionStatusContent: React.FC = () => {
         continue;
       }
     }
-    
+
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     for (const endpoint of lastResortEndpoints) {
       const start = performance.now();
       try {
@@ -212,7 +219,7 @@ export const ConnectionStatusContent: React.FC = () => {
         });
         const elapsed = performance.now() - start;
         const data = await res.json();
-        
+
         if (data.result === "ok") {
           setRpcPing(Math.round(elapsed));
           setRpcHealth({ isHealthy: true });
@@ -222,7 +229,7 @@ export const ConnectionStatusContent: React.FC = () => {
         continue;
       }
     }
-    
+
     setRpcHealth({ isHealthy: false });
     setRpcPing(null);
   }, THROTTLE_MS);
@@ -235,9 +242,9 @@ export const ConnectionStatusContent: React.FC = () => {
         setTransactionStatus("Issues");
         return;
       }
-      
+
       const data = await res.json();
-      
+
       if (data.rpcHealth?.isHealthy && data.transactionSecurity?.isSecured) {
         setTransactionStatus("Secured");
         if (data.transactionSecurity?.lastTxTime) {
@@ -254,12 +261,12 @@ export const ConnectionStatusContent: React.FC = () => {
   useEffect(() => {
     throttledHealthCheck();
     throttledTxCheck();
-    
+
     const interval = setInterval(() => {
       throttledHealthCheck();
       throttledTxCheck();
     }, THROTTLE_MS);
-    
+
     return () => clearInterval(interval);
   }, [throttledHealthCheck, throttledTxCheck]);
 
@@ -300,8 +307,8 @@ export const ConnectionStatusContent: React.FC = () => {
           </StatusItem>
         )}
 
-        <StatusItem 
-          $status={dnsStatus} 
+        <StatusItem
+          $status={dnsStatus}
           $colorScheme={currentColorScheme}
         >
           <span className="label">📡 DNS Status:</span>
@@ -316,10 +323,10 @@ export const ConnectionStatusContent: React.FC = () => {
         {pool && (
           <StatusItem $status="Online" $colorScheme={currentColorScheme}>
             <span className="label">🏊 Pool:</span>
-            <span style={{ 
-              fontSize: '0.7rem', 
-              color: currentColorScheme.colors.text + '70', 
-              fontFamily: 'monospace' 
+            <span style={{
+              fontSize: '0.7rem',
+              color: currentColorScheme.colors.text + '70',
+              fontFamily: 'monospace'
             }}>
               {pool.publicKey?.toBase58().slice(0, 8)}...
             </span>

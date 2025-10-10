@@ -1,1 +1,0 @@
-import{j as r}from"./three-D4AtYCWe.js";import t from"./HiLo-2D-D1yyve1A.js";import"./react-vendor-faCf7XlP.js";import"./index-Dyfdn2uN.js";import"./blockchain-C0nfa7Sw.js";import"./physics-audio-DLMfKFaI.js";function n(o){return r.jsx(t,{...o})}export{n as default};

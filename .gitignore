@@ -18,7 +18,6 @@ scripts/*
 !scripts/vite-with-fallback.mjs
 
 # Ignore keystore files (sensitive)
-mobile-app/config/*
 *.jks
 *.keystore
 dghrt-keystore.*
@@ -26,8 +25,6 @@ dghrt-keystore.*
 # Ignore APK files (too large for GitHub, built by Vercel)
 *.apk
 **/*.apk
-mobile-app/build/capacitor/www/mobile/
-mobile-app/build/capacitor/android/app/build/
 dist/mobile/
 public/mobile/
 

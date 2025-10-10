@@ -228,7 +228,7 @@ const GridMain = styled.main`
     margin-top: 10px;
     margin-bottom: 10px;
     margin-left: 0; /* Align with left viewport edge */
-    margin-right: 10px; /* Small gap from right sidebar */
+    margin-right: 0px; /* Small gap from right sidebar */
     padding: 1.25rem;
   }
 
@@ -236,15 +236,15 @@ const GridMain = styled.main`
   ${media.desktop} {
     margin-top: 10px;
     margin-bottom: 10px;
-    margin-left: 10px; /* Gap from left sidebar */
-    margin-right: 10px; /* Gap from right sidebar */
+    margin-left: 0px; /* Gap from left sidebar */
+    margin-right: 0px; /* Gap from right sidebar */
     padding: 1.5rem;
   }
 
   /* Large desktop: Maintain consistent spacing */
   ${media.desktopLg} {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
     padding: 1.5rem;
   }
 `;

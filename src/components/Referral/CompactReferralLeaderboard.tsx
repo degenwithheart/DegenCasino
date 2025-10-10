@@ -1,12 +1,13 @@
-import React from 'react'
-import styled from 'styled-components'
-import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2'
-import { useWalletAddress } from 'gamba-react-v2'
-import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics'
-import { truncateString } from '../../utils'
-import { getReferralTierInfo, formatTierDisplay } from '../../utils/user/referralTier'
-import { useReferralLeaderboardModal } from './ReferralLeaderboardModal'
-import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils'
+import React from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { GambaUi, TokenValue, useCurrentToken } from 'gamba-react-ui-v2';
+import { useWalletAddress } from 'gamba-react-v2';
+import { useReferralLeaderboard, ReferralLeaderboardEntry } from '../../hooks/analytics/useReferralAnalytics';
+import { truncateString } from '../../utils';
+import { getReferralTierInfo, formatTierDisplay } from '../../utils/user/referralTier';
+import { useReferralLeaderboardModal } from './ReferralLeaderboardModal';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
 
 const Container = styled.div`
   background: rgba(255, 255, 255, 0.03);
@@ -25,13 +26,13 @@ const Container = styled.div`
     filter: drop-shadow(0 0 8px #ffd700);
     z-index: 1;
   }
-`
+`;
 
 const Header = styled.div`
   padding: 1.5rem 1.5rem 0.75rem;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-`
+`;
 
 const Title = styled.h3`
   margin: 0 0 0.5rem 0;
@@ -39,14 +40,14 @@ const Title = styled.h3`
   font-size: 1.3rem;
   font-weight: 700;
   text-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
-`
+`;
 
 const Subtitle = styled.p`
   margin: 0;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
   line-height: 1.3;
-`
+`;
 
 const LeaderboardList = styled.div`
   padding: 1rem;
@@ -74,23 +75,23 @@ const LeaderboardList = styled.div`
       background: rgba(255, 215, 0, 0.5);
     }
   }
-`
+`;
 
-const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean }>`
+const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean; }>`
   display: grid;
   grid-template-columns: 40px 1fr auto;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: ${props => 
-    props.$isCurrentUser 
-      ? 'rgba(255, 215, 0, 0.08)' 
-      : props.$isTop3 
-        ? 'rgba(255, 255, 255, 0.06)' 
+  background: ${props =>
+    props.$isCurrentUser
+      ? 'rgba(255, 215, 0, 0.08)'
+      : props.$isTop3
+        ? 'rgba(255, 255, 255, 0.06)'
         : 'rgba(255, 255, 255, 0.03)'
   };
-  border: ${props => 
-    props.$isCurrentUser 
-      ? '1px solid rgba(255, 215, 0, 0.2)' 
+  border: ${props =>
+    props.$isCurrentUser
+      ? '1px solid rgba(255, 215, 0, 0.2)'
       : '1px solid rgba(255, 255, 255, 0.05)'
   };
   border-radius: 8px;
@@ -115,16 +116,28 @@ const RankItem = styled.div<{ $isTop3: boolean; $isCurrentUser?: boolean }>`
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-1px);
   }
-`
+`;
 
-const RankNumber = styled.div<{ rank: number }>`
+const RankLink = styled(Link)`
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+    border-radius: 8px;
+  }
+`;
+
+const RankNumber = styled.div<{ rank: number; }>`
   font-size: ${props => props.rank <= 3 ? '1rem' : '0.9rem'};
   font-weight: 700;
   color: ${props => {
-    if (props.rank === 1) return '#ffd700'
-    if (props.rank === 2) return '#c0c0c0'
-    if (props.rank === 3) return '#cd7f32'
-    return 'rgba(255, 255, 255, 0.7)'
+    if (props.rank === 1) return '#ffd700';
+    if (props.rank === 2) return '#c0c0c0';
+    if (props.rank === 3) return '#cd7f32';
+    return 'rgba(255, 255, 255, 0.7)';
   }};
   text-align: center;
   display: flex;
@@ -133,20 +146,20 @@ const RankNumber = styled.div<{ rank: number }>`
   
   &::before {
     content: ${props => {
-      if (props.rank === 1) return "'🥇'"
-      if (props.rank === 2) return "'🥈'"
-      if (props.rank === 3) return "'🥉'"
-      return `'${props.rank}'`
-    }};
+    if (props.rank === 1) return "'🥇'";
+    if (props.rank === 2) return "'🥈'";
+    if (props.rank === 3) return "'🥉'";
+    return `'${props.rank}'`;
+  }};
   }
-`
+`;
 
 const PlayerInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
   min-width: 0;
-`
+`;
 
 const PlayerAddress = styled.div`
   font-weight: 600;
@@ -154,19 +167,19 @@ const PlayerAddress = styled.div`
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
 const PlayerTier = styled.div`
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.6);
-`
+`;
 
 const EarningsAmount = styled.div`
   font-weight: 600;
   color: white;
   text-align: right;
   font-size: 0.85rem;
-`
+`;
 
 const EmptyState = styled.div`
   text-align: center;
@@ -174,7 +187,7 @@ const EmptyState = styled.div`
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.9rem;
   line-height: 1.4;
-`
+`;
 
 const ViewAllButton = styled.div`
   padding: 1rem;
@@ -195,15 +208,15 @@ const ViewAllButton = styled.div`
       box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3) !important;
     }
   }
-`
+`;
 
 export function CompactReferralLeaderboard() {
-  const userAddress = useWalletAddress()
-  const token = useCurrentToken()
-  const leaderboard = useReferralLeaderboard(5) // Show top 5
-  const leaderboardModal = useReferralLeaderboardModal()
-  
-  const userKey = userAddress?.toBase58()
+  const userAddress = useWalletAddress();
+  const token = useCurrentToken();
+  const leaderboard = useReferralLeaderboard(5); // Show top 5
+  const leaderboardModal = useReferralLeaderboardModal();
+
+  const userKey = userAddress?.toBase58();
 
   return (
     <>
@@ -223,37 +236,42 @@ export function CompactReferralLeaderboard() {
         ) : (
           <LeaderboardList>
             {leaderboard.map((entry, index) => {
-              const rank = index + 1
-              const isCurrentUser = entry.address === userKey
-              const tierInfo = getReferralTierInfo(entry.referralCount)
-              const username = generateUsernameFromWallet(entry.address)
-              
+              const rank = index + 1;
+              const isCurrentUser = entry.address === userKey;
+              const tierInfo = getReferralTierInfo(entry.referralCount);
+              const username = generateUsernameFromWallet(entry.address);
+
               return (
-                <RankItem 
-                  key={entry.address} 
-                  $isTop3={rank <= 3}
-                  $isCurrentUser={isCurrentUser}
+                <RankLink
+                  key={entry.address}
+                  to={`/explorer/player/${entry.address}`}
+                  title={entry.address}
                 >
-                  <RankNumber rank={rank} />
-                  
-                  <PlayerInfo>
-                    <PlayerAddress>
-                      {isCurrentUser ? 'You' : `${username} (${truncateString(entry.address, 6, 4)})`}
-                    </PlayerAddress>
-                    <PlayerTier>
-                      {entry.referralCount} referrals • {tierInfo.currentTierData.badge} {tierInfo.currentTierData.name}
-                    </PlayerTier>
-                  </PlayerInfo>
-                  
-                  <EarningsAmount>
-                    <TokenValue 
-                      amount={entry.totalEarnings} 
-                      mint={token.mint}
-                      exact
-                    />
-                  </EarningsAmount>
-                </RankItem>
-              )
+                  <RankItem
+                    $isTop3={rank <= 3}
+                    $isCurrentUser={isCurrentUser}
+                  >
+                    <RankNumber rank={rank} />
+
+                    <PlayerInfo>
+                      <PlayerAddress>
+                        {isCurrentUser ? 'You' : `${username} — ${entry.address.slice(-4)}`}
+                      </PlayerAddress>
+                      <PlayerTier>
+                        {entry.referralCount} referrals • {tierInfo.currentTierData.badge} {tierInfo.currentTierData.name}
+                      </PlayerTier>
+                    </PlayerInfo>
+
+                    <EarningsAmount>
+                      <TokenValue
+                        amount={entry.totalEarnings}
+                        mint={token.mint}
+                        exact
+                      />
+                    </EarningsAmount>
+                  </RankItem>
+                </RankLink>
+              );
             })}
           </LeaderboardList>
         )}
@@ -264,8 +282,8 @@ export function CompactReferralLeaderboard() {
           </GambaUi.Button>
         </ViewAllButton>
       </Container>
-      
+
       {leaderboardModal.Modal}
     </>
-  )
+  );
 }

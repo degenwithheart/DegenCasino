@@ -1,40 +1,42 @@
 // apps/platform/src/sections/RecentPlays/RecentPlays.tsx
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { useNavigate } from 'react-router-dom'
-import { BPS_PER_WHOLE, GambaTransaction } from 'gamba-core-v2'
-import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2'
-import { useMediaQuery } from '../../hooks/ui/useMediaQuery'
-import { extractMetadata } from '../../utils'
-import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants'
-import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { useNavigate } from 'react-router-dom';
+import { BPS_PER_WHOLE, GambaTransaction } from 'gamba-core-v2';
+import { GambaUi, TokenValue, useTokenMeta } from 'gamba-react-ui-v2';
+import { useMediaQuery } from '../../hooks/ui/useMediaQuery';
+import { extractMetadata } from '../../utils';
+import { generateUsernameFromWallet } from '../../utils/user/userProfileUtils';
+import { Link } from 'react-router-dom';
+import { EXPLORER_URL, PLATFORM_CREATOR_ADDRESS } from '../../constants';
+import { Container, Jackpot, Profit, Recent, Skeleton } from './RecentPlays.styles';
 import { ShareModal } from "../../components/Share/ShareModal";
-import { useRecentPlays } from './useRecentPlays'
-import { useColorScheme } from '../../themes/ColorSchemeContext'
+import { useRecentPlays } from './useRecentPlays';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
-function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string }) {
-  const diff = Date.now() - time
+function TimeDiff({ time, suffix = 'ago' }: { time: number; suffix?: string; }) {
+  const diff = Date.now() - time;
   return React.useMemo(() => {
-    const sec = Math.floor(diff / 1000)
-    const min = Math.floor(sec / 60)
-    const hrs = Math.floor(min / 60)
-    if (hrs >= 1) return `${hrs}h ${suffix}`
-    if (min >= 1) return `${min}m ${suffix}`
-    return 'Just now'
-  }, [diff, suffix])
+    const sec = Math.floor(diff / 1000);
+    const min = Math.floor(sec / 60);
+    const hrs = Math.floor(min / 60);
+    if (hrs >= 1) return `${hrs}h ${suffix}`;
+    if (min >= 1) return `${min}m ${suffix}`;
+    return 'Just now';
+  }, [diff, suffix]);
 }
 
-function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
-  const data = event.data
-  const token = useTokenMeta(data.tokenMint)
-  const md = useMediaQuery('md')
+function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'>; }) {
+  const data = event.data;
+  const token = useTokenMeta(data.tokenMint);
+  const md = useMediaQuery('md');
 
-  const multiplier = data.bet[data.resultIndex.toNumber()] / BPS_PER_WHOLE
-  const wager = data.wager.toNumber()
-  const payout = multiplier * wager
-  const profit = payout - wager
+  const multiplier = data.bet[data.resultIndex.toNumber()] / BPS_PER_WHOLE;
+  const wager = data.wager.toNumber();
+  const payout = multiplier * wager;
+  const profit = payout - wager;
 
-  const { game } = extractMetadata(event)
+  const { game } = extractMetadata(event);
 
   return (
     <>
@@ -76,7 +78,9 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
           fontWeight: '600',
           fontFamily: 'JetBrains Mono, monospace'
         }}>
-          {data.user.toBase58().slice(0, 6)}…
+          <Link to={`/explorer/player/${data.user.toBase58()}`} title={data.user.toBase58()} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {generateUsernameFromWallet(data.user.toBase58())} — {data.user.toBase58().slice(-4)}
+          </Link>
         </div>
         {md && (
           <div style={{
@@ -209,7 +213,7 @@ function RecentPlay({ event }: { event: GambaTransaction<'GameSettled'> }) {
         </div>
       )}
     </>
-  )
+  );
 }
 
 
@@ -218,11 +222,11 @@ export interface RecentPlaysProps {
 }
 
 export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysProps) {
-  const events = useRecentPlays({ showAllPlatforms })
-  const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>()
-  const md = useMediaQuery('md')
-  const navigate = useNavigate()
-  const { currentColorScheme } = useColorScheme()
+  const events = useRecentPlays({ showAllPlatforms });
+  const [selectedGame, setSelectedGame] = React.useState<GambaTransaction<'GameSettled'>>();
+  const md = useMediaQuery('md');
+  const navigate = useNavigate();
+  const { currentColorScheme } = useColorScheme();
 
   return (
     <>
@@ -233,7 +237,7 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
         )
       }
 
-            <Container $colorScheme={currentColorScheme}>
+      <Container $colorScheme={currentColorScheme}>
         {/* Modern Header */}
         <div style={{
           display: 'flex',
@@ -340,5 +344,5 @@ export default function RecentPlays({ showAllPlatforms = false }: RecentPlaysPro
         </div>
       </Container>
     </>
-  )
+  );
 }

@@ -13,8 +13,7 @@ import { useHandleWalletConnect } from "../walletConnect";
 import { TOKEN_METADATA, updateTokenPrices, ENABLE_LEADERBOARD, DASHBOARD_SHOW_RECENT_PLAYS, DASHBOARD_SHOW_LEADERBOARD } from "../../constants";
 import { useIsCompact } from "../../hooks/ui/useIsCompact";
 import { useColorScheme } from "../../themes/ColorSchemeContext";
-import { TotalBetsTopBar } from "../../components/TopBar/TotalBetsTopBar";
-import { usePlatformStats } from "../../hooks/data/usePlatformStats";
+// Total Bets moved to LeftSidebar QuickStats
 import {
   UnifiedPageContainer,
   UnifiedSection,
@@ -92,8 +91,7 @@ export function Dashboard() {
 
   const [activeSection, setActiveSection] = useState<'games' | 'plays' | 'referrals'>('games');
 
-  // Platform stats for Total Bets display
-  const { stats, loading, error } = usePlatformStats();
+  // Platform stats moved to LeftSidebar QuickStats
 
   // Filtered game lists
   const singleplayerGames = GAMES().filter(g => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'coming-soon');
@@ -152,15 +150,7 @@ export function Dashboard() {
               )}
             </div>
 
-            {/* Dashboard Stats Section - Total Bets */}
-            <DashboardStatsSection $colorScheme={currentColorScheme}>
-              <TotalBetsTopBar
-                stats={stats}
-                loading={loading}
-                error={error}
-                colorScheme={currentColorScheme}
-              />
-            </DashboardStatsSection>
+            {/* Dashboard Stats Section - Total Bets moved to LeftSidebar */}
 
             {/* Toggle Content */}
             {activeSection === 'games' && (

@@ -1,44 +1,45 @@
 // src/games/PvpFlip/components/Lobby.tsx
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
-import { useGambaProvider, useSpecificGames } from 'gamba-react-v2'
-import { GambaUi } from 'gamba-react-ui-v2'
-import { DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET } from '../config'
-import CreateGameModal from './CreateGameModal'
-import { fetchPlayerMetadata } from '@gamba-labs/multiplayer-sdk'
-import HEADS_IMG from '../assets/heads.png'
-import TAILS_IMG from '../assets/tails.png'
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useGambaProvider, useSpecificGames } from 'gamba-react-v2';
+import { GambaUi } from 'gamba-react-ui-v2';
+import { DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET } from '../config';
+import CreateGameModal from './CreateGameModal';
+import { fetchPlayerMetadata } from '@gamba-labs/multiplayer-sdk';
+import { generateUsernameFromWallet } from '../../../utils/user/userProfileUtils';
+import HEADS_IMG from '../assets/heads.png';
+import TAILS_IMG from '../assets/tails.png';
 
-const sol = (lamports: number) => lamports / LAMPORTS_PER_SOL
-const shorten = (pk: PublicKey) => pk.toBase58().slice(0, 4) + '...'
+const sol = (lamports: number) => lamports / LAMPORTS_PER_SOL;
+const shorten = (pk: PublicKey) => pk.toBase58().slice(0, 4) + '...';
 const formatDuration = (ms: number) => {
-  const total = Math.ceil(ms / 1000)
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
+  const total = Math.ceil(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+};
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-`
+`;
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`
+`;
 const Button = styled.button`
   padding: 8px 16px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-`
+`;
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-`
+`;
 const TH = styled.th`
   text-align: left;
   padding: 8px 12px;
@@ -46,66 +47,66 @@ const TH = styled.th`
   font-size: 0.9rem;
   text-transform: uppercase;
   border-bottom: 1px solid #333;
-`
-const TR = styled.tr<{ $clickable?: boolean }>`
+`;
+const TR = styled.tr<{ $clickable?: boolean; }>`
   &:hover {
     background: ${({ $clickable }) => ($clickable ? '#1c1c1c' : 'inherit')};
   }
   cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
-`
+`;
 const TD = styled.td`
   padding: 10px 12px;
   font-size: 0.95rem;
   border-bottom: 1px solid #222;
-`
+`;
 
 export default function Lobby({
   onSelect,
 }: {
-  onSelect(pk: PublicKey): void
+  onSelect(pk: PublicKey): void;
 }) {
   const { games, loading, refresh } = useSpecificGames(
     { maxPlayers: DESIRED_MAX_PLAYERS, winnersTarget: DESIRED_WINNERS_TARGET },
     0,
-  )
+  );
 
-  const { anchorProvider } = useGambaProvider()
-  const [metas, setMetas] = useState<Record<string, Record<string, string>>>({})
+  const { anchorProvider } = useGambaProvider();
+  const [metas, setMetas] = useState<Record<string, Record<string, string>>>({});
 
   // Fetch player metadata for all visible games to know chosen sides
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     const load = async () => {
       try {
         const entries = await Promise.all(
           games.map(async (g) => {
             try {
-              const md = await fetchPlayerMetadata(anchorProvider as any, (g.account as any).gameSeed)
-              return [g.publicKey.toBase58(), md] as const
+              const md = await fetchPlayerMetadata(anchorProvider as any, (g.account as any).gameSeed);
+              return [g.publicKey.toBase58(), md] as const;
             } catch {
-              return [g.publicKey.toBase58(), {}] as const
+              return [g.publicKey.toBase58(), {}] as const;
             }
           })
-        )
+        );
         if (!cancelled) {
-          const next: Record<string, Record<string, string>> = {}
-          for (const [k, v] of entries) next[k] = v
-          setMetas(next)
+          const next: Record<string, Record<string, string>> = {};
+          for (const [k, v] of entries) next[k] = v;
+          setMetas(next);
         }
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [games, anchorProvider])
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [games, anchorProvider]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [now, setNow] = useState(Date.now())
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(id)
-  }, [])
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <GambaUi.Portal target="screen">
@@ -137,34 +138,34 @@ export default function Lobby({
                 maxBet,
                 softExpirationTimestamp,
                 state,
-              } = g.account as any
+              } = g.account as any;
 
               // Maker's chosen side from metadata, fallback to "Random"
-              const md = metas[g.publicKey.toBase58()] || {}
-              const makerMeta = (md[gameMaker.toBase58()] ?? '').toLowerCase().trim()
+              const md = metas[g.publicKey.toBase58()] || {};
+              const makerMeta = (md[gameMaker.toBase58()] ?? '').toLowerCase().trim();
               const makerSide: 'heads' | 'tails' | undefined =
                 makerMeta === 'heads' || makerMeta === 'head'
                   ? 'heads'
                   : makerMeta === 'tails' || makerMeta === 'tail'
                     ? 'tails'
-                    : undefined
+                    : undefined;
 
-              let betLabel: string
+              let betLabel: string;
               if ('sameWager' in wagerType) {
-                betLabel = `${sol(wager.toNumber()).toFixed(2)} SOL`
+                betLabel = `${sol(wager.toNumber()).toFixed(2)} SOL`;
               } else if ('customWager' in wagerType) {
-                betLabel = 'Unlimited'
+                betLabel = 'Unlimited';
               } else {
-                betLabel = `${sol(minBet.toNumber()).toFixed(2)} – ${sol(maxBet.toNumber()).toFixed(2)} SOL`
+                betLabel = `${sol(minBet.toNumber()).toFixed(2)} – ${sol(maxBet.toNumber()).toFixed(2)} SOL`;
               }
 
-              const startMs = Number(softExpirationTimestamp) * 1000
-              const msLeft = startMs - now
+              const startMs = Number(softExpirationTimestamp) * 1000;
+              const msLeft = startMs - now;
               const startsIn = state.waiting
                 ? msLeft > 0
                   ? formatDuration(msLeft)
                   : 'Ready to start'
-                : 'Started'
+                : 'Started';
 
               return (
                 <TR
@@ -172,7 +173,9 @@ export default function Lobby({
                   $clickable
                   onClick={() => onSelect(g.publicKey)}
                 >
-                  <TD>{shorten(gameMaker)}</TD>
+                  <TD title={gameMaker.toBase58()}>
+                    {generateUsernameFromWallet(gameMaker.toBase58())} — {gameMaker.toBase58().slice(-4)}
+                  </TD>
                   <TD>
                     {makerSide ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -189,7 +192,7 @@ export default function Lobby({
                   <TD>{betLabel}</TD>
                   <TD>{startsIn}</TD>
                 </TR>
-              )
+              );
             })}
 
             {!loading && games.length === 0 && (
@@ -209,7 +212,7 @@ export default function Lobby({
         />
       </Wrapper>
     </GambaUi.Portal>
-  )
+  );
 }
 
 

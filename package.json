@@ -17,9 +17,9 @@
     "monitor": "node scripts/monitor-rpc.mjs",
     "monitor:prod": "node scripts/monitor-rpc.mjs --url=https://degenheart.casino --interval=60",
     "monitor:fast": "node scripts/monitor-rpc.mjs --interval=30",
-    "mobile:sync": "cd mobile-app && ./sync-mobile.sh",
-    "mobile:build": "cd mobile-app && ./build-mobile.sh",
-    "mobile:sync:safe": "cd mobile-app && (./sync-mobile.sh && echo 'Mobile Sync: Passed' && (curl -s -X POST https://www.degenheart.casino/api/mobile-update-check -H 'Content-Type: application/json' -d '{\"currentVersion\":\"test\",\"platform\":\"test\"}' | grep -q 'hasUpdate' && echo 'Mobile Update: Passed' || echo 'Mobile Update: Failed')) || (echo 'Mobile Sync: Failed' && echo 'Continuing...')"
+    "mobile:sync": "echo 'Mobile app support removed'",
+    "mobile:build": "echo 'Mobile app support removed'",
+    "mobile:sync:safe": "echo 'Mobile app support removed'"
   },
   "dependencies": {
     "@capacitor/browser": "^7.0.0",

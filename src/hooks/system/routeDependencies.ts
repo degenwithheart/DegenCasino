@@ -24,47 +24,47 @@ export const ROUTE_DEPENDENCIES: Record<string, RouteDependencies> = {
 
     // Game pages - need game-specific components
     '/game/dice': {
-        components: ['GamePage', 'DiceGame'],
+        components: ['DiceGame'],
         games: ['dice'], // Preload the current game
         priority: 'critical'
     },
     '/game/slots': {
-        components: ['GamePage', 'SlotsGame'],
+        components: ['SlotsGame'],
         games: ['slots'],
         priority: 'critical'
     },
     '/game/mines': {
-        components: ['GamePage', 'MinesGame'],
+        components: ['MinesGame'],
         games: ['mines'],
         priority: 'critical'
     },
     '/game/crash': {
-        components: ['GamePage', 'CrashGame'],
+        components: ['CrashGame'],
         games: ['crash'],
         priority: 'critical'
     },
     '/game/blackjack': {
-        components: ['GamePage', 'BlackJackGame'],
+        components: ['BlackJackGame'],
         games: ['blackjack'],
         priority: 'critical'
     },
     '/game/plinko': {
-        components: ['GamePage', 'PlinkoGame'],
+        components: ['PlinkoGame'],
         games: ['plinko'],
         priority: 'critical'
     },
     '/game/flip': {
-        components: ['GamePage', 'FlipGame'],
+        components: ['FlipGame'],
         games: ['flip'],
         priority: 'critical'
     },
     '/game/hilo': {
-        components: ['GamePage', 'HiLoGame'],
+        components: ['HiLoGame'],
         games: ['hilo'],
         priority: 'critical'
     },
     '/game/magic8ball': {
-        components: ['GamePage', 'Magic8BallGame'],
+        components: ['Magic8BallGame'],
         games: ['magic8ball'],
         priority: 'critical'
     },
