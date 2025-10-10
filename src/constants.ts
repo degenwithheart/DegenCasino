@@ -12,7 +12,7 @@ import makeHeliusTokenFetcher from 'gamba-react-ui-v2';
 import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
 // Mobile app configuration
-export const ENABLE_MOBILE_APP = true;
+export const ENABLE_MOBILE_APP = false;
 
 // Get RPC from the .env file or default to Syndica, not public RPC.
 // Note: This is now primarily used as fallback. The NetworkContext provides dynamic RPC endpoints.
@@ -94,7 +94,7 @@ export const FEATURE_FLAGS = {
    * 
    * Provides native mobile experience with fullscreen browsers for transactions, wallets, and help.
    */
-  ENABLE_MOBILE_BROWSER: true,
+  ENABLE_MOBILE_BROWSER: false,
   /**
    * Show or hide the Degen Mobile theme (mobile-only UI skin named "degen-mobile").
    * - true: enable the degen-mobile theme and related mobile-only UI tweaks
@@ -107,8 +107,6 @@ export const FEATURE_FLAGS = {
   ENABLE_DEGEN_MOBILE_THEME: false,
   /**
    * Enable/disable the in-game (per-game) RecentGames custom component.
-   * The in-game RecentGames component is currently broken in some themes.
-   * Set this to false to hide the in-game recent games sidebar across all games.
    */
   ENABLE_INGAME_RECENT_GAMES: true,
   /**

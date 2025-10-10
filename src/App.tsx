@@ -8,7 +8,7 @@ import RouterErrorBoundary from './components/RouterErrorBoundary';
 import { RouteTransitionWrapper, RouteLoadingSpinner } from './components/RouteTransitionWrapper';
 import { SafeSuspense, WindowErrorHandler } from './components/ErrorBoundaries';
 import { ErrorBoundaryWrapper } from './utils/errorBoundaryUtils';
-import { ENABLE_TROLLBOX, FEATURE_FLAGS } from './constants';
+import { ENABLE_TROLLBOX, FEATURE_FLAGS, ENABLE_MOBILE_APP } from './constants';
 import { useWalletToast } from './utils/wallet/solanaWalletToast';
 import { useUserStore } from './hooks/data/useUserStore';
 import { useServiceWorker, preloadCriticalAssets } from './hooks/system/useServiceWorker';
@@ -146,7 +146,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPageComponent /></SafeSuspense>} />
                 <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPageComponent /></SafeSuspense>} />
                 <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPageComponent /></SafeSuspense>} />
-                <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />
+                {ENABLE_MOBILE_APP && <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />}
                 <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPageComponent /></SafeSuspense>} />
                 <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
                 <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
@@ -191,7 +191,7 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/jackpot" element={<SafeSuspense level="route" componentName="Jackpot Page"><JackpotPageComponent /></SafeSuspense>} />
                 <Route path="/bonus" element={<SafeSuspense level="route" componentName="Bonus Page"><BonusPageComponent /></SafeSuspense>} />
                 <Route path="/leaderboard" element={<SafeSuspense level="route" componentName="Leaderboard Page"><LeaderboardPageComponent /></SafeSuspense>} />
-                <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />
+                {ENABLE_MOBILE_APP && <Route path="/mobile" element={<SafeSuspense level="route" componentName="Mobile App Page"><MobileAppPageComponent /></SafeSuspense>} />}
                 <Route path="/select-token" element={<SafeSuspense level="route" componentName="Select Token Page"><SelectTokenPageComponent /></SafeSuspense>} />
                 <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
                 <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />

@@ -3,18 +3,29 @@ export const config = {
     runtime: 'edge',
 };
 
-export default async function handler(req, res) {
+export default async function handler(req) {
+    // Mobile app functionality is disabled
+    return new Response('Mobile app functionality has been disabled.', {
+        status: 503,
+        headers: {
+            'Content-Type': 'text/plain'
+        }
+    });
+
+    /* Disabled mobile app code:
     try {
-        const isBuildTrigger = req.headers['x-build-trigger'] === 'true' || req.headers['user-agent']?.includes('Vercel-Build-Agent');
-
+        // Edge runtime uses different request object
+        const headers = req.headers || new Headers();
+        const isBuildTrigger = headers.get('x-build-trigger') === 'true' || headers.get('user-agent')?.includes('Vercel-Build-Agent');
+    
         console.log('📱 APK request -', isBuildTrigger ? 'Build trigger' : 'User download');
-
+    
         // First, try to serve existing APK from Vercel's file system
         const existingAPK = await checkExistingAPK();
-
+    
         if (existingAPK.exists && !isBuildTrigger) {
             console.log('✅ Serving existing APK from cache');
-
+    
             return new Response(existingAPK.content, {
                 status: 200,
                 headers: {
@@ -27,14 +38,16 @@ export default async function handler(req, res) {
                 }
             });
         }
-
+    
         // APK not found or build trigger, build it once and cache
         console.log('🔨 Building APK...', isBuildTrigger ? '(triggered by build)' : '(on demand)');
+        console.log('🔍 Host header:', headers.get('host'));
+        console.log('🔍 User-Agent:', headers.get('user-agent'));
         const buildResult = await buildAndCacheAPK(req);
-
+    
         if (buildResult.success) {
             console.log('✅ APK built and cached successfully');
-
+    
             // If this is a build trigger, just return success status
             if (isBuildTrigger) {
                 return new Response(JSON.stringify({
@@ -49,7 +62,7 @@ export default async function handler(req, res) {
                     }
                 });
             }
-
+    
             return new Response(buildResult.content, {
                 status: 200,
                 headers: {
@@ -62,7 +75,7 @@ export default async function handler(req, res) {
                 }
             });
         }
-
+    
         // If this was a build trigger that failed, return error status
         if (isBuildTrigger) {
             return new Response(JSON.stringify({
@@ -76,31 +89,31 @@ export default async function handler(req, res) {
                 }
             });
         }
-
+    
         // Fallback instructions for user requests
         const instructions = `
-# DegenCasino Mobile App
-
-🔨 Building PWA installer...
-
-## Quick Install:
-Visit: ${req.headers.host}/api/mobile-apk
-
-## Manual Build:
-\`\`\`bash
-git clone https://github.com/degenwithheart/DegenCasino.git
-cd DegenCasino/mobile-app
-./build-signed-apk.sh
-\`\`\`
-
-## Features:
-✅ Hot updates every 2 minutes
-✅ Offline support with local fallback  
-✅ All games and features included
-
-Refresh to try the installer again.
-`;
-
+    # DegenCasino Mobile App
+    
+    🔨 Building PWA installer...
+    
+    ## Quick Install:
+    Visit: ${headers.get('host') || 'www.degenheart.casino'}/api/mobile-apk
+    
+    ## Manual Build:
+    \`\`\`bash
+    git clone https://github.com/degenwithheart/DegenCasino.git
+    cd DegenCasino/mobile-app
+    ./build-signed-apk.sh
+    \`\`\`
+    
+    ## Features:
+    ✅ Hot updates every 2 minutes
+    ✅ Offline support with local fallback  
+    ✅ All games and features included
+    
+    Refresh to try the installer again.
+    `;
+    
         return new Response(instructions, {
             status: 202,
             headers: {
@@ -108,13 +121,14 @@ Refresh to try the installer again.
                 'Retry-After': '180'
             }
         });
-
+    
     } catch (error) {
         console.error('❌ Mobile app service failed:', error);
-
+    
         // Check if this was a build trigger
-        const isBuildTrigger = req.headers['x-build-trigger'] === 'true' || req.headers['user-agent']?.includes('Vercel-Build-Agent');
-
+        const headers = req.headers || new Headers();
+        const isBuildTrigger = headers.get('x-build-trigger') === 'true' || headers.get('user-agent')?.includes('Vercel-Build-Agent');
+    
         if (isBuildTrigger) {
             return new Response(JSON.stringify({
                 success: false,
@@ -127,7 +141,7 @@ Refresh to try the installer again.
                 }
             });
         }
-
+    
         return new Response('Mobile app service temporarily unavailable.', {
             status: 503,
             headers: {
@@ -136,16 +150,16 @@ Refresh to try the installer again.
             }
         });
     }
-}
-
-// Simple in-memory cache for Edge runtime (rebuilds every deployment)
-let apkCache = null;
-
-async function checkExistingAPK() {
+    }
+    
+    // Simple in-memory cache for Edge runtime (rebuilds every deployment)
+    let apkCache = null;
+    
+    async function checkExistingAPK() {
     try {
         // In Edge runtime, we'll use simple in-memory caching
         // APK will be rebuilt on each new deployment, cached for that deployment session
-
+    
         if (apkCache && apkCache.content) {
             console.log('📦 Found APK in memory cache');
             return {
@@ -155,35 +169,39 @@ async function checkExistingAPK() {
                 buildTime: apkCache.buildTime
             };
         }
-
+    
         console.log('💭 No APK in memory cache');
         return { exists: false };
-
+    
     } catch (error) {
         console.log('No existing APK found:', error.message);
         return { exists: false };
     }
-}
-
-async function buildAndCacheAPK(req) {
+    }
+    
+    async function buildAndCacheAPK(req) {
     try {
         console.log('🔨 Building APK for the first time...');
-
-        // Get the web app content
-        const webAppUrl = `https://${req.headers.host}`;
+    
+        // Get the web app content - handle Edge runtime request properly
+        const headers = req.headers || new Headers();
+        const host = headers.get('host') || 'www.degenheart.casino';
+        const webAppUrl = `https://${host}`;
         console.log('📱 Fetching web app from:', webAppUrl);
-
+    
+        console.log('🌐 Attempting to fetch:', webAppUrl);
         const webAppResponse = await fetch(webAppUrl);
-
+    
+        console.log('📡 Fetch response status:', webAppResponse.status);
         if (!webAppResponse.ok) {
-            throw new Error(`Failed to fetch web app: ${webAppResponse.status}`);
+            throw new Error(`Failed to fetch web app: ${webAppResponse.status} ${webAppResponse.statusText}`);
         }
-
+    
         const htmlContent = await webAppResponse.text();
-
+    
         // Create a comprehensive mobile app bundle
         const apkContent = await createMobileAppBundle(htmlContent, webAppUrl);
-
+    
         // Cache in memory for this deployment session
         const metadata = {
             buildTime: new Date().toISOString(),
@@ -191,7 +209,7 @@ async function buildAndCacheAPK(req) {
             webAppUrl: webAppUrl,
             version: process.env.VERCEL_GIT_COMMIT_SHA || 'unknown'
         };
-
+    
         // Store in memory cache
         apkCache = {
             content: apkContent,
@@ -199,17 +217,17 @@ async function buildAndCacheAPK(req) {
             buildTime: metadata.buildTime,
             metadata: metadata
         };
-
+    
         console.log('✅ APK built and cached in memory');
         console.log(`📦 Size: ${(apkContent.length / 1024 / 1024).toFixed(2)} MB`);
-
+    
         return {
             success: true,
             content: apkContent,
             size: apkContent.length,
             metadata: metadata
         };
-
+    
     } catch (error) {
         console.error('❌ APK build failed:', error);
         return {
@@ -217,20 +235,20 @@ async function buildAndCacheAPK(req) {
             error: error.message
         };
     }
-}
-
-async function createMobileAppBundle(htmlContent, webAppUrl) {
+    }
+    
+    async function createMobileAppBundle(htmlContent, webAppUrl) {
     console.log('📱 Creating comprehensive mobile app bundle...');
-
+    
     // Create a sophisticated PWA that acts like a native app
     const mobileApp = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>DegenCasino Mobile</title>
-    
+     
     <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/json;base64,${Buffer.from(JSON.stringify({
         name: "DegenCasino",
@@ -255,12 +273,12 @@ async function createMobileAppBundle(htmlContent, webAppUrl) {
             }
         ]
     })).toString('base64')}">
-    
+     
     <!-- iOS PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DegenCasino">
-    
+     
     <style>
         * { 
             margin: 0; 
@@ -399,8 +417,8 @@ async function createMobileAppBundle(htmlContent, webAppUrl) {
             100% { transform: rotate(360deg); }
         }
     </style>
-</head>
-<body>
+    </head>
+    <body>
     <div class="container">
         <div class="logo">🎰</div>
         <h1>DegenCasino</h1>
@@ -435,7 +453,7 @@ async function createMobileAppBundle(htmlContent, webAppUrl) {
             </ul>
         </div>
     </div>
-    
+     
     <script>
         let deferredPrompt;
         let installButton = document.getElementById('installBtn');
@@ -514,8 +532,10 @@ async function createMobileAppBundle(htmlContent, webAppUrl) {
         console.log('🔗 Casino URL: ${webAppUrl}');
         console.log('📱 Built: ${new Date().toISOString()}');
     </script>
-</body>
-</html>`;
-
-    return Buffer.from(mobileApp);
+    </body>
+    </html>`;
+    
+        return Buffer.from(mobileApp);
+    }
+    */
 }
