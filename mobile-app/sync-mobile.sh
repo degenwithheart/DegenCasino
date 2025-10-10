@@ -17,6 +17,9 @@ run_safe() {
   return $rc
 }
 
+# Track any critical failures (we'll exit non-zero if any occur)
+CRITICAL_FAIL=0
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$SCRIPT_DIR/build"
@@ -64,21 +67,63 @@ if [ -d "$BUILD_DIR/capacitor" ]; then
     if ! grep -q '"@capacitor/core": "\^7.0.0"' package.json; then
       echo "  → Updating Capacitor to v7..."
       run_safe npm install @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0
+      rc=$?
+      if [ $rc -ne 0 ]; then
+        echo "  ⚠️  Capacitor install failed (critical)."
+        CRITICAL_FAIL=1
+      fi
+    fi
+
+    # CI fallback: if capacitor modules are in top-level node_modules but not in the capacitor project,
+    # copy them over to avoid network installs during Vercel builds.
+    TOP_NODE_MODULES="$PROJECT_ROOT/node_modules"
+    TARGET_NODE_MODULES="$BUILD_DIR/capacitor/node_modules"
+    if [ -d "$TOP_NODE_MODULES/@capacitor" ] && [ ! -d "$TARGET_NODE_MODULES/@capacitor" ]; then
+      echo "  → Copying @capacitor modules from top-level node_modules to capacitor project (CI fallback)"
+      mkdir -p "$TARGET_NODE_MODULES"
+      run_safe cp -R "$TOP_NODE_MODULES/@capacitor" "$TARGET_NODE_MODULES/"
     fi
   
   # Install Browser plugin
     if ! grep -q '"@capacitor/browser"' package.json; then
       echo "  → Installing Browser plugin..."
       run_safe npm install @capacitor/browser@^7.0.0
+      rc=$?
+      if [ $rc -ne 0 ]; then
+        echo "  ⚠️  Browser plugin install failed (non-fatal)."
+        # Not marking as critical; mobile app can still function without this plugin during CI
+      fi
     fi
   
   # Sync platforms
   echo "  → Syncing platforms..."
   run_safe npx cap sync
-  
-  echo "  ✓ Capacitor v7 sync complete"
+  rc=$?
+  if [ $rc -ne 0 ]; then
+    echo "  ⚠️  npx cap sync failed (critical). Collecting diagnostics..."
+    echo "  --- Diagnostic: current directory ---"
+    pwd
+    echo "  --- Diagnostic: node version ---"
+    node -v 2>/dev/null || echo "(node not found)"
+    echo "  --- Diagnostic: package.json dependencies ---"
+    node -e "try{console.log(JSON.stringify(require('./package.json').dependencies||{},null,2))}catch(e){console.error('cannot read package.json:',e.message)}" 2>/dev/null || true
+    echo "  --- Diagnostic: npm ls @capacitor/android (top-level) ---"
+    npm ls @capacitor/android --depth=0 2>&1 || true
+    echo "  --- Diagnostic: node_modules entries matching 'capacitor' ---"
+    ls -1 node_modules 2>/dev/null | grep capacitor || echo "(no capacitor modules found)"
+    echo "  --- Diagnostic end ---"
+    CRITICAL_FAIL=1
+  else
+    echo "  ✓ Capacitor v7 sync complete"
+  fi
 else
   echo "  ⚠️ Capacitor project not found. Run setup-mobile-apps.sh first."
 fi
 
 echo "=== Mobile Sync Complete ==="
+
+# Fail hard if any critical step failed so the caller can mark sync as failed
+if [ $CRITICAL_FAIL -ne 0 ]; then
+  echo "  ❌ One or more critical steps failed during mobile sync."
+  exit 1
+fi
