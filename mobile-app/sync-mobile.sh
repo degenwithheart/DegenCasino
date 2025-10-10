@@ -29,7 +29,8 @@ if [ -d "$DIST_DIR" ]; then
       
       # Inject updater script into index.html
       if [ -f "$BUILD_DIR/capacitor/www/index.html" ]; then
-        sed -i '' 's|</head>|<script src="/js/mobile-updater.js"></script></head>|' "$BUILD_DIR/capacitor/www/index.html"
+        # Insert script tag before closing head tag
+        awk '/<\/head>/ {print "<script src=\"/js/mobile-updater.js\"></script>"} {print}' "$BUILD_DIR/capacitor/www/index.html" > "$BUILD_DIR/capacitor/www/index.html.tmp" && mv "$BUILD_DIR/capacitor/www/index.html.tmp" "$BUILD_DIR/capacitor/www/index.html"
         echo "  ✓ Hot update system installed"
       fi
     fi
