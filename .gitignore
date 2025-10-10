@@ -17,17 +17,6 @@ scripts/*
 !scripts/post-build-mobile-sync.mjs
 !scripts/vite-with-fallback.mjs
 
-# Ignore keystore files (sensitive)
-*.jks
-*.keystore
-dghrt-keystore.*
-
-# Ignore APK files (too large for GitHub, built by Vercel)
-*.apk
-**/*.apk
-dist/mobile/
-public/mobile/
-
 # Ignore development files
 **/ThemeLayoutWrapper.tsx
 **/game3DConfigs.ts

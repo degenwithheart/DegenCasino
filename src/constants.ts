@@ -94,7 +94,7 @@ export const FEATURE_FLAGS = {
    * 
    * Provides native mobile experience with fullscreen browsers for transactions, wallets, and help.
    */
-  ENABLE_MOBILE_BROWSER: false,
+  ENABLE_MOBILE_BROWSER: true,
   /**
    * Show or hide the Degen Mobile theme (mobile-only UI skin named "degen-mobile").
    * - true: enable the degen-mobile theme and related mobile-only UI tweaks
@@ -370,7 +370,7 @@ export const SIDEBAR_LINKS = [
     to: '/mobile',
     label: 'Mobile App',
     icon: FaMobile,
-    showWhen: () => true,
+    showWhen: () => ENABLE_MOBILE_APP || FEATURE_FLAGS.ENABLE_MOBILE_BROWSER,
     external: false,
   },
   {

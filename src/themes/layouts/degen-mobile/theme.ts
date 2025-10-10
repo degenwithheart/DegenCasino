@@ -7,6 +7,7 @@ import SelectTokenPageComponent from './pages/SelectTokenPage';
 import AdminPage from './pages/AdminPage';
 import TermsPage from './pages/TermsPage';
 import Whitepaper from './pages/WhitepaperPage';
+import UserProfile from './pages/UserProfile';
 
 export const degenMobileTheme: LayoutTheme = {
   id: 'degen-mobile',
@@ -17,6 +18,12 @@ export const degenMobileTheme: LayoutTheme = {
   components: {
     Header,
     Footer, // Hidden/minimal on mobile
+  },
+
+  // Section overrides
+  sections: {
+    Dashboard,
+    UserProfile,
   },
 
   // Mobile-specific pages with TikTok/Instagram styling
