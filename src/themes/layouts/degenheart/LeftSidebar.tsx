@@ -7,6 +7,7 @@ import { useColorScheme } from '../../ColorSchemeContext';
 import { SIDEBAR_LINKS } from '../../../constants';
 import { ALL_GAMES } from '../../../games/allGames';
 import { useDegenGamesModal } from './DegenHeartLayout';
+import { media } from './breakpoints';
 
 const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
   background: linear-gradient(180deg, 
@@ -15,13 +16,20 @@ const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
   );
   backdrop-filter: blur(20px);
   border-right: 3px solid ${props => props.$colorScheme.colors.accent}30;
-  padding: 2rem 1rem;
+  /* Even padding on all sides for consistent spacing */
+  padding: 1.5rem 1rem;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   position: relative;
+  box-sizing: border-box;
+  
+  ${media.desktop} {
+    padding: 2rem 1.25rem;
+    gap: 2rem;
+  }
   
   /* Enhanced scrolling for all devices */
   -webkit-overflow-scrolling: touch;

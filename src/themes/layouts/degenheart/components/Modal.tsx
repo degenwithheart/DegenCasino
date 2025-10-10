@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { media } from '../breakpoints';
 
 interface Props extends React.PropsWithChildren {
   onClose?: () => void;
@@ -34,15 +35,26 @@ const Content = styled.div`
   );
   border: 2px solid #ffd700;
   border-radius: 16px;
-  padding: 2rem;
+  /* Mobile-first: Consistent even padding */
+  padding: 1rem;
   max-width: min(90vw, 800px);
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
+  box-sizing: border-box;
   box-shadow: 
     0 0 50px rgba(255, 215, 0, 0.3),
     inset 0 0 30px rgba(162, 89, 255, 0.1);
   animation: ${fadeIn} 0.3s ease;
+  
+  /* Tablet and up: More generous padding */
+  @media (min-width: 768px) {
+    padding: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 2rem;
+  }
   
   &::-webkit-scrollbar {
     width: 8px;
@@ -89,19 +101,26 @@ export const ModalContent = styled.div<{ $maxWidth?: string; $colorScheme?: any;
   width: 100%;
   max-width: ${props => props.$maxWidth || '600px'};
   margin: 0 auto;
-  padding: 1.5rem;
+  /* Mobile-first: Consistent even padding */
+  padding: 1rem;
   color: ${props => props.$colorScheme?.colors?.text || '#fff'};
   background: transparent;
+  box-sizing: border-box;
   
   /* Mobile-first responsive adjustments */
-  @media (max-width: 768px) {
-    padding: 1rem;
+  ${media.maxMobileLg} {
+    padding: 0.75rem;
     max-width: 95vw;
   }
   
-  @media (max-width: 480px) {
+  ${media.maxMobile} {
     padding: 0.75rem;
     max-width: 100vw;
+  }
+  
+  /* Tablet and up */
+  ${media.tablet} {
+    padding: 1.5rem;
   }
 `;
 

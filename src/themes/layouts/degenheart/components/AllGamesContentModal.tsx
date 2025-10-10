@@ -12,22 +12,29 @@ const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Singlepla
 const MULTIPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Multiplayer');
 
 const ModalContentContainer = styled.div<{ $colorScheme: any; }>`
-  padding: 0.5rem;
+  /* Mobile-first: Consistent even padding */
+  padding: 0.75rem;
   width: 100%;
   height: 500px;
   overflow-y: auto;
   color: ${props => props.$colorScheme.colors.text};
+  box-sizing: border-box;
   
   ${media.maxMobile} {
     height: 400px;
-    padding: 0.25rem;
+    padding: 0.75rem;
+  }
+  
+  ${media.tablet} {
+    padding: 1rem;
   }
 `;
 
 const HeaderSection = styled.div<{ $colorScheme: any; }>`
   text-align: center;
   margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  /* Consistent even padding */
+  padding: 0 0.5rem 0.75rem 0.5rem;
   border-bottom: 2px solid ${props => props.$colorScheme.colors.accent}30;
 `;
 

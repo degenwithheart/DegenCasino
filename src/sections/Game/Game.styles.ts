@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components';
 
 const splashAnimation = keyframes`
   0% {
@@ -10,17 +10,16 @@ const splashAnimation = keyframes`
   100% {
     opacity: 0;
   }
-`
+`;
 
 export const loadingAnimation = keyframes`
   0% { left: 0%; transform: translateX(-100%); }
   100% { left: 100%; transform: translateX(50%); }
-`
+`;
 
 export const Container = styled.div`
-  /* Mobile-first: Start with mobile styles - prevent overflow */
-  margin: 0 0.5rem;
-  max-width: calc(100vw - 1rem);
+  margin: 0;
+  max-width: calc(100vw - 1.5rem);
   width: 100%;
   position: relative;
   display: grid;
@@ -38,7 +37,7 @@ export const Container = styled.div`
   
   /* Small mobile devices */
   @media (min-width: 375px) {
-    margin: 0 0.75rem;
+    margin: 0;
     max-width: calc(100vw - 1.5rem);
   }
   
@@ -71,7 +70,7 @@ export const Container = styled.div`
     margin: 0 auto;
     max-width: min(calc(100vw - 6rem), 1400px);
   }
-`
+`;
 
 export const SettingControls = styled.div`
   & > button {
@@ -85,7 +84,7 @@ export const SettingControls = styled.div`
       opacity: 1;
     }
   }
-`
+`;
 
 export const Splash = styled.div`
   pointer-events: none;
@@ -114,7 +113,7 @@ export const Splash = styled.div`
   @media (min-width: 1024px) {
     font-size: 42px;
   }
-`
+`;
 
 export const Screen = styled.div`
   position: relative;
@@ -165,7 +164,7 @@ export const Screen = styled.div`
     width: 100%;
     height: 100%;
   }
-`
+`;
 
 export const IconButton = styled.button`
   background: linear-gradient(135deg, #ffd700 0%, #ff0066 100%);
@@ -206,7 +205,7 @@ export const IconButton = styled.button`
 
 `;
 
-export const StyledLoadingIndicator = styled.div<{$active: boolean}>`
+export const StyledLoadingIndicator = styled.div<{ $active: boolean; }>`
   position: relative;
   height: 3px;
   width: 100%;
@@ -225,7 +224,7 @@ export const StyledLoadingIndicator = styled.div<{$active: boolean}>`
       opacity: 1;
     `}
   }
-`
+`;
 
 export const Controls = styled.div`
   background: linear-gradient(120deg, #18181f 60%, #2d0036 100%);
@@ -467,9 +466,9 @@ export const spinnerAnimation = keyframes`
   to {
     transform: rotate(360deg);
   }
-`
+`;
 
-export const Spinner = styled.div<{$small?: boolean}>`
+export const Spinner = styled.div<{ $small?: boolean; }>`
   --spinner-size: 1em;
   --spinner-border: 2px;
   --color: white;
@@ -484,7 +483,7 @@ export const Spinner = styled.div<{$small?: boolean}>`
   height: var(--spinner-size);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-`
+`;
 
 // Enhanced Wager Input Styles
 export const WagerInputContainer = styled.div`
@@ -555,7 +554,7 @@ export const WagerDisplay = styled.div`
   }
 `;
 
-export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
+export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger'; }>`
   background: ${props => {
     switch (props.variant) {
       case 'primary':
@@ -589,15 +588,15 @@ export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | '
   z-index: 1;
   box-shadow: 
     0 2px 8px ${props => {
-      switch (props.variant) {
-        case 'primary':
-          return 'rgba(255, 215, 0, 0.3)';
-        case 'danger':
-          return 'rgba(255, 71, 87, 0.3)';
-        default:
-          return 'rgba(0, 255, 225, 0.3)';
-      }
-    }},
+    switch (props.variant) {
+      case 'primary':
+        return 'rgba(255, 215, 0, 0.3)';
+      case 'danger':
+        return 'rgba(255, 71, 87, 0.3)';
+      default:
+        return 'rgba(0, 255, 225, 0.3)';
+    }
+  }},
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   text-shadow: ${props => props.variant === 'primary' ? '0 1px 2px rgba(0,0,0,0.3)' : '0 1px 2px rgba(0,0,0,0.5)'};
 
@@ -612,41 +611,41 @@ export const WagerButton = styled.button<{ variant?: 'primary' | 'secondary' | '
     transform: translateY(-1px) scale(1.02);
     box-shadow: 
       0 4px 12px ${props => {
-        switch (props.variant) {
-          case 'primary':
-            return 'rgba(255, 215, 0, 0.4)';
-          case 'danger':
-            return 'rgba(255, 71, 87, 0.4)';
-          default:
-            return 'rgba(0, 255, 225, 0.4)';
-        }
-      }},
+    switch (props.variant) {
+      case 'primary':
+        return 'rgba(255, 215, 0, 0.4)';
+      case 'danger':
+        return 'rgba(255, 71, 87, 0.4)';
+      default:
+        return 'rgba(0, 255, 225, 0.4)';
+    }
+  }},
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
     border-color: ${props => {
-      switch (props.variant) {
-        case 'primary':
-          return '#ffe066';
-        case 'danger':
-          return '#ff5975';
-        default:
-          return '#33ffec';
-      }
-    }};
+    switch (props.variant) {
+      case 'primary':
+        return '#ffe066';
+      case 'danger':
+        return '#ff5975';
+      default:
+        return '#33ffec';
+    }
+  }};
   }
 
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.98);
     box-shadow: 
       0 1px 4px ${props => {
-        switch (props.variant) {
-          case 'primary':
-            return 'rgba(255, 215, 0, 0.3)';
-          case 'danger':
-            return 'rgba(255, 71, 87, 0.3)';
-          default:
-            return 'rgba(0, 255, 225, 0.3)';
-        }
-      }},
+    switch (props.variant) {
+      case 'primary':
+        return 'rgba(255, 215, 0, 0.3)';
+      case 'danger':
+        return 'rgba(255, 71, 87, 0.3)';
+      default:
+        return 'rgba(0, 255, 225, 0.3)';
+    }
+  }},
       inset 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
@@ -678,7 +677,7 @@ export const WagerButtonGroup = styled.div`
   }
 `;
 
-export const PlayButton = styled.button<{ disabled?: boolean }>`
+export const PlayButton = styled.button<{ disabled?: boolean; }>`
   background: linear-gradient(135deg, #ff0066 0%, #ff3385 50%, #ffd700 100%);
   border: 3px solid #ffd700;
   color: #fff;
@@ -943,8 +942,8 @@ export const CompactWagerLabel = styled(WagerLabel)`
 `;
 
 // Game-specific control buttons (for things like mine count, multipliers, etc.)
-export const GameOptionButton = styled.button<{ selected?: boolean }>`
-  background: ${props => props.selected 
+export const GameOptionButton = styled.button<{ selected?: boolean; }>`
+  background: ${props => props.selected
     ? 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)'
     : 'linear-gradient(135deg, rgba(0, 255, 225, 0.2) 0%, rgba(0, 212, 170, 0.2) 100%)'
   };
@@ -971,10 +970,10 @@ export const GameOptionButton = styled.button<{ selected?: boolean }>`
   &:hover:not(:disabled) {
     transform: translateY(-1px) scale(1.02);
     border-color: ${props => props.selected ? '#ffe066' : '#33ffec'};
-    background: ${props => props.selected 
-      ? 'linear-gradient(135deg, #ffe066 0%, #ffeb3b 100%)'
-      : 'linear-gradient(135deg, rgba(0, 255, 225, 0.3) 0%, rgba(0, 212, 170, 0.3) 100%)'
-    };
+    background: ${props => props.selected
+    ? 'linear-gradient(135deg, #ffe066 0%, #ffeb3b 100%)'
+    : 'linear-gradient(135deg, rgba(0, 255, 225, 0.3) 0%, rgba(0, 212, 170, 0.3) 100%)'
+  };
   }
 
   &:active:not(:disabled) {

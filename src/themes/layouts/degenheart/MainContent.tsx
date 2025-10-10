@@ -43,29 +43,31 @@ const shimmer = keyframes`
 `;
 
 const DashboardContainer = styled.div<{ $colorScheme: any; }>`
-  /* Mobile-first: Minimal padding for content optimization */
-  padding: ${spacing.mobile.base};
+  /* Mobile-first: Consistent even padding on all sides - 0.75rem */
+  padding: 0.75rem;
   background: ${props => props.$colorScheme.colors.background};
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden; /* Prevent horizontal scroll */
   position: relative; /* Contain modal overlays within this component */
+  box-sizing: border-box;
   
-  /* Tablet: More generous spacing */
+  /* Tablet: More generous even spacing */
   ${media.tablet} {
-    padding: ${spacing.tablet.base};
+    padding: 1.5rem;
   }
   
   /* Desktop: Full spacing for comfortable viewing */
   ${media.desktop} {
-    padding: ${spacing.desktop.base};
+    padding: 2rem;
   }
 `;
 
 const WelcomeSection = styled.section<{ $colorScheme: any; }>`
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 3rem 2rem;
+  margin-bottom: 2rem;
+  /* Mobile-first: Even padding on all sides */
+  padding: 1.5rem 1rem;
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.surface}90,
     ${props => props.$colorScheme.colors.background}50
@@ -74,6 +76,17 @@ const WelcomeSection = styled.section<{ $colorScheme: any; }>`
   border: 2px solid ${props => props.$colorScheme.colors.accent}30;
   position: relative;
   overflow: hidden;
+  
+  /* Tablet and up: More generous padding */
+  ${media.tablet} {
+    padding: 2rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  ${media.desktop} {
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+  }
   
   &::before {
     content: '';
@@ -113,7 +126,8 @@ const HeartTitle = styled.h1<{ $colorScheme: any; }>`
   text-shadow: 0 0 30px ${props => props.$colorScheme.colors.accent}60;
   ${css`animation: ${heartFloat} 6s ease-in-out infinite;`}
   
-  @media (max-width: 768px) {
+  /* Mobile font size adjustment */
+  ${media.maxMobileLg} {
     font-size: 2.5rem;
   }
 `;
@@ -128,16 +142,28 @@ const WelcomeText = styled.p<{ $colorScheme: any; }>`
   z-index: 2;
   font-style: italic;
   
-  @media (max-width: 768px) {
+  /* Mobile font size adjustment */
+  ${media.maxMobileLg} {
     font-size: 1.1rem;
   }
 `;
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  /* Mobile-first: Smaller min-width for better mobile fit */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  
+  ${media.tablet} {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  ${media.desktop} {
+    margin-bottom: 3rem;
+  }
 `;
 
 const StatCard = styled.div<{ $colorScheme: any; }>`
@@ -191,7 +217,16 @@ const StatLabel = styled.div<{ $colorScheme: any; }>`
 `;
 
 const GamesSection = styled.section`
-  margin-bottom: 3rem;
+  /* Mobile-first: Smaller bottom margin */
+  margin-bottom: 2rem;
+  
+  ${media.tablet} {
+    margin-bottom: 2.5rem;
+  }
+  
+  ${media.desktop} {
+    margin-bottom: 3rem;
+  }
 `;
 
 const SectionTitle = styled.h2<{ $colorScheme: any; }>`
@@ -250,7 +285,8 @@ const GamesGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   
-  @media (max-width: 768px) {
+  /* Mobile grid adjustments */
+  ${media.maxMobileLg} {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
   }

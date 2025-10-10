@@ -1,15 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useColorScheme } from '../../ColorSchemeContext'
-import { useDegenGamesModal } from './DegenHeartLayout'
-import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants'
-import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine } from 'react-icons/fa'
-import { media, spacing, components } from './breakpoints'
-import { ConnectionStatus } from './components'
+import React from 'react';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useColorScheme } from '../../ColorSchemeContext';
+import { useDegenGamesModal } from './DegenHeartLayout';
+import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants';
+import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine } from 'react-icons/fa';
+import { media, spacing, components } from './breakpoints';
+import { ConnectionStatus } from './components';
 
-const FooterContainer = styled.footer<{ $colorScheme: any }>`
+const FooterContainer = styled.footer<{ $colorScheme: any; }>`
   width: 100%;
   height: 65px;
   background: linear-gradient(135deg, 
@@ -21,6 +21,7 @@ const FooterContainer = styled.footer<{ $colorScheme: any }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Consistent even padding for desktop */
   padding: 0 2rem;
   position: relative;
   z-index: 1000;
@@ -62,51 +63,54 @@ const FooterContainer = styled.footer<{ $colorScheme: any }>`
   ${media.tabletLg} {
     display: flex;
   }
-`
+`;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
   gap: 2rem;
   
-  @media (max-width: 768px) {
+  /* Mobile layout adjustments */
+  ${media.maxMobileLg} {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-`
+`;
 
-const CopyrightText = styled.div<{ $colorScheme: any }>`
+const CopyrightText = styled.div<{ $colorScheme: any; }>`
   font-size: 0.8rem;
   color: ${props => props.$colorScheme.colors.text}70;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   
-  @media (max-width: 768px) {
+  /* Mobile layout adjustments */
+  ${media.maxMobileLg} {
     flex-direction: column;
     gap: 0.25rem;
   }
-`
+`;
 
-const HeartIcon = styled(FaHeart)<{ $colorScheme: any }>`
+const HeartIcon = styled(FaHeart) <{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.accent};
   font-size: 0.8rem;
-`
+`;
 
 const FooterLinks = styled.nav`
   display: flex;
   align-items: center;
   gap: 1.5rem;
   
-  @media (max-width: 768px) {
+  /* Mobile layout adjustments */
+  ${media.maxMobileLg} {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
-`
+`;
 
-const FooterLink = styled.a<{ $colorScheme: any }>`
+const FooterLink = styled.a<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text}80;
   text-decoration: none;
   font-size: 0.8rem;
@@ -120,25 +124,26 @@ const FooterLink = styled.a<{ $colorScheme: any }>`
     background: ${props => props.$colorScheme.colors.accent}10;
     transform: translateY(-1px);
   }
-`
+`;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 1.5rem;
   
-  @media (max-width: 768px) {
+  /* Mobile layout adjustments */
+  ${media.maxMobileLg} {
     justify-content: center;
   }
-`
+`;
 
 const SocialLinks = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-`
+`;
 
-const SocialLink = styled.a<{ $colorScheme: any }>`
+const SocialLink = styled.a<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text}70;
   font-size: 1.3rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -173,9 +178,9 @@ const SocialLink = styled.a<{ $colorScheme: any }>`
   &:active {
     transform: translateY(-1px) scale(1.05);
   }
-`
+`;
 
-const StatusDot = styled.div<{ $colorScheme: any }>`
+const StatusDot = styled.div<{ $colorScheme: any; }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -201,17 +206,17 @@ const StatusDot = styled.div<{ $colorScheme: any }>`
       opacity: 0;
     }
   }
-`
+`;
 
-const StatusText = styled.span<{ $colorScheme: any }>`
+const StatusText = styled.span<{ $colorScheme: any; }>`
   font-size: 0.8rem;
   color: ${props => props.$colorScheme.colors.text}70;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-`
+`;
 
-const MobileFooter = styled.nav<{ $colorScheme: any }>`
+const MobileFooter = styled.nav<{ $colorScheme: any; }>`
   position: fixed;
   bottom: 0;
   left: 0;
@@ -226,7 +231,8 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  /* Mobile-first: Consistent even padding - 0.75rem matches header */
+  padding: 0 0.75rem;
   z-index: 9999; /* Ensure it's above everything */
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   
@@ -255,7 +261,7 @@ const MobileFooter = styled.nav<{ $colorScheme: any }>`
   }
   
   /* These styles are now applied to the MobileNavLinks children */
-`
+`;
 
 const MobileNavContainer = styled.div`
   flex: 1;
@@ -269,13 +275,13 @@ const MobileNavContainer = styled.div`
   &::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
   }
-`
+`;
 
-const MobileNavLinks = styled.div<{ $colorScheme: any }>`
+const MobileNavLinks = styled.div<{ $colorScheme: any; }>`
   display: flex;
   align-items: center;
   gap: 2rem;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
   min-width: max-content; /* Ensure content doesn't shrink */
   
   /* Snap scrolling for better UX */
@@ -324,9 +330,9 @@ const MobileNavLinks = styled.div<{ $colorScheme: any }>`
       transform: translateY(0) scale(1);
     }
   }
-`
+`;
 
-const SidebarToggleButton = styled.button<{ $colorScheme: any }>`
+const SidebarToggleButton = styled.button<{ $colorScheme: any; }>`
   background: ${props => props.$colorScheme.colors.surface}80;
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
@@ -353,183 +359,183 @@ const SidebarToggleButton = styled.button<{ $colorScheme: any }>`
   @media (min-width: 769px) {
     display: none; /* Hide on desktop */
   }
-`
+`;
 
 const Footer: React.FC = () => {
-  const { currentColorScheme } = useColorScheme()
-  const navigate = useNavigate()
-  const { connected, publicKey } = useWallet()
-  const { toggleLeftSidebar, toggleRightSidebar, leftSidebarOpen, rightSidebarOpen } = useDegenGamesModal()
+  const { currentColorScheme } = useColorScheme();
+  const navigate = useNavigate();
+  const { connected, publicKey } = useWallet();
+  const { toggleLeftSidebar, toggleRightSidebar, leftSidebarOpen, rightSidebarOpen } = useDegenGamesModal();
 
   const socialIcons = {
     Twitter: FaTwitter,
     Discord: FaDiscord,
     Telegram: FaTelegram,
     GitHub: FaGithub
-  }
+  };
 
   const handleLinkClick = (href: string, label: string) => {
     if (href.startsWith('http')) {
-      window.open(href, '_blank', 'noopener,noreferrer')
+      window.open(href, '_blank', 'noopener,noreferrer');
     } else {
       // Handle internal navigation
-      navigate(href)
+      navigate(href);
     }
-  }
+  };
 
   const handleMobileLinkClick = (link: any) => {
     // Special handling for Games modal trigger (only available when connected)
     if ('label' in link && link.label === 'Games') {
-      window.dispatchEvent(new CustomEvent('openGamesModal'))
-      return
+      window.dispatchEvent(new CustomEvent('openGamesModal'));
+      return;
     }
-    
+
     // Regular navigation links - handle dynamic href replacement
-    const href = typeof link.href === 'string' && link.href.includes('${base58}') 
-      ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
-      : link.href
-      
+    const href = typeof link.href === 'string' && link.href.includes('${base58}')
+      ? link.href.replace('${base58}', publicKey?.toBase58() || '')
+      : link.href;
+
     if (href) {
-      handleLinkClick(href, link.title)
+      handleLinkClick(href, link.title);
     }
-  }
+  };
 
   return (
     <>
       <FooterContainer $colorScheme={currentColorScheme}>
-      <LeftSection>
-        <CopyrightText $colorScheme={currentColorScheme}>
-          <span>© 2024 DegenHeart.Casino</span>
-          <span>Made with</span>
-          <HeartIcon $colorScheme={currentColorScheme} />
-          <span>on Solana</span>
-        </CopyrightText>
-        
-        <FooterLinks>
-          {FOOTER_LINKS.map((link) => (
-            <FooterLink
-              key={link.href}
-              $colorScheme={currentColorScheme}
-              href={link.href}
-              onClick={(e) => {
-                e.preventDefault()
-                handleLinkClick(link.href, link.title)
-              }}
-              title={link.title}
-            >
-              {link.title}
-            </FooterLink>
-          ))}
-        </FooterLinks>
-      </LeftSection>
+        <LeftSection>
+          <CopyrightText $colorScheme={currentColorScheme}>
+            <span>© 2024 DegenHeart.Casino</span>
+            <span>Made with</span>
+            <HeartIcon $colorScheme={currentColorScheme} />
+            <span>on Solana</span>
+          </CopyrightText>
 
-      <RightSection>
-        <ConnectionStatus />
-        
-        <SocialLinks>
-          <SocialLink
-            $colorScheme={currentColorScheme}
-            href="https://x.com/DegenWithHeart"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Follow us on X"
-          >
-            <FaTwitter />
-          </SocialLink>
-          
-          <SocialLink
-            $colorScheme={currentColorScheme}
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Join our Discord"
-          >
-            <FaDiscord />
-          </SocialLink>
-          
-          <SocialLink
-            $colorScheme={currentColorScheme}
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Join our Telegram"
-          >
-            <FaTelegram />
-          </SocialLink>
-          
-          <SocialLink
-            $colorScheme={currentColorScheme}
-            href="https://github.com/degenwithheart"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="View our GitHub"
-          >
-            <FaGithub />
-          </SocialLink>
-        </SocialLinks>
-      </RightSection>
-    </FooterContainer>
-
-    {/* Mobile Footer - shows different links based on wallet connection state */}
-    <MobileFooter $colorScheme={currentColorScheme}>
-      {/* Left Sidebar Toggle Button */}
-      <SidebarToggleButton 
-        $colorScheme={currentColorScheme} 
-        onClick={toggleLeftSidebar}
-        title="Toggle Navigation Menu"
-      >
-        {leftSidebarOpen ? <FaTimes /> : <FaBars />}
-      </SidebarToggleButton>
-      
-      {/* Scrollable Center Navigation Links */}
-      <MobileNavContainer>
-        <MobileNavLinks $colorScheme={currentColorScheme}>
-          {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
-            // Special handling for Games modal trigger (only available when connected)
-            if ('label' in link && link.label === 'Games') {
-              return (
-                <button
-                  key={link.title}
-                  type="button"
-                  onClick={() => handleMobileLinkClick(link)}
-                >
-                  {link.title}
-                </button>
-              )
-            }
-            
-            // Regular navigation links
-            const href = typeof link.href === 'string' && link.href.includes('${base58}') 
-              ? link.href.replace('${base58}', publicKey?.toBase58() || '') 
-              : link.href
-              
-            return (
-              <a
-                key={link.title}
-                href={href}
+          <FooterLinks>
+            {FOOTER_LINKS.map((link) => (
+              <FooterLink
+                key={link.href}
+                $colorScheme={currentColorScheme}
+                href={link.href}
                 onClick={(e) => {
-                  e.preventDefault()
-                  handleMobileLinkClick(link)
+                  e.preventDefault();
+                  handleLinkClick(link.href, link.title);
                 }}
+                title={link.title}
               >
                 {link.title}
-              </a>
-            )
-          })}
-        </MobileNavLinks>
-      </MobileNavContainer>
-      
-      {/* Right Sidebar Toggle Button */}
-      <SidebarToggleButton 
-        $colorScheme={currentColorScheme} 
-        onClick={toggleRightSidebar}
-        title="Toggle Stats & Info Panel"
-      >
-        {rightSidebarOpen ? <FaTimes /> : <FaChartLine />}
-      </SidebarToggleButton>
-    </MobileFooter>
-  </>
-  )
-}
+              </FooterLink>
+            ))}
+          </FooterLinks>
+        </LeftSection>
 
-export default Footer
+        <RightSection>
+          <ConnectionStatus />
+
+          <SocialLinks>
+            <SocialLink
+              $colorScheme={currentColorScheme}
+              href="https://x.com/DegenWithHeart"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Follow us on X"
+            >
+              <FaTwitter />
+            </SocialLink>
+
+            <SocialLink
+              $colorScheme={currentColorScheme}
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Join our Discord"
+            >
+              <FaDiscord />
+            </SocialLink>
+
+            <SocialLink
+              $colorScheme={currentColorScheme}
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Join our Telegram"
+            >
+              <FaTelegram />
+            </SocialLink>
+
+            <SocialLink
+              $colorScheme={currentColorScheme}
+              href="https://github.com/degenwithheart"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View our GitHub"
+            >
+              <FaGithub />
+            </SocialLink>
+          </SocialLinks>
+        </RightSection>
+      </FooterContainer>
+
+      {/* Mobile Footer - shows different links based on wallet connection state */}
+      <MobileFooter $colorScheme={currentColorScheme}>
+        {/* Left Sidebar Toggle Button */}
+        <SidebarToggleButton
+          $colorScheme={currentColorScheme}
+          onClick={toggleLeftSidebar}
+          title="Toggle Navigation Menu"
+        >
+          {leftSidebarOpen ? <FaTimes /> : <FaBars />}
+        </SidebarToggleButton>
+
+        {/* Scrollable Center Navigation Links */}
+        <MobileNavContainer>
+          <MobileNavLinks $colorScheme={currentColorScheme}>
+            {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
+              // Special handling for Games modal trigger (only available when connected)
+              if ('label' in link && link.label === 'Games') {
+                return (
+                  <button
+                    key={link.title}
+                    type="button"
+                    onClick={() => handleMobileLinkClick(link)}
+                  >
+                    {link.title}
+                  </button>
+                );
+              }
+
+              // Regular navigation links
+              const href = typeof link.href === 'string' && link.href.includes('${base58}')
+                ? link.href.replace('${base58}', publicKey?.toBase58() || '')
+                : link.href;
+
+              return (
+                <a
+                  key={link.title}
+                  href={href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleMobileLinkClick(link);
+                  }}
+                >
+                  {link.title}
+                </a>
+              );
+            })}
+          </MobileNavLinks>
+        </MobileNavContainer>
+
+        {/* Right Sidebar Toggle Button */}
+        <SidebarToggleButton
+          $colorScheme={currentColorScheme}
+          onClick={toggleRightSidebar}
+          title="Toggle Stats & Info Panel"
+        >
+          {rightSidebarOpen ? <FaTimes /> : <FaChartLine />}
+        </SidebarToggleButton>
+      </MobileFooter>
+    </>
+  );
+};
+
+export default Footer;

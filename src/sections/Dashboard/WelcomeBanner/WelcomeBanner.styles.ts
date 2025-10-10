@@ -57,7 +57,7 @@ export const neonPulse = romanticPulse;
 export const fadeInOut = dreamlikeFadeInOut;
 export const sparkle = candlestickSparkle;
 
-export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $colorScheme?: any }>`
+export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; $colorScheme?: any; }>`
   margin: ${({ $isVisible, $isLoading }) =>
     $isLoading || $isVisible ? '2rem 0' : '0'
   };
@@ -117,54 +117,54 @@ export const Container = styled.div<{ $isVisible: boolean; $isLoading: boolean; 
 
   @media (max-width: 900px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1.5rem 0' : '0'
-    };
+    $isLoading || $isVisible ? '1.5rem 0' : '0'
+  };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1.25rem' : '0'
-    };
+    $isLoading || $isVisible ? '1.25rem' : '0'
+  };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '16px' : '0'
-    };
+    $isLoading || $isVisible ? '16px' : '0'
+  };
   }
 
   @media (max-width: 700px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1rem 0' : '0'
-    };
+    $isLoading || $isVisible ? '1rem 0' : '0'
+  };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '1rem' : '0'
-    };
+    $isLoading || $isVisible ? '1rem' : '0'
+  };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '14px' : '0'
-    };
+    $isLoading || $isVisible ? '14px' : '0'
+  };
   }
 
   @media (max-width: 480px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.75rem 0' : '0'
-    };
+    $isLoading || $isVisible ? '0.75rem 0' : '0'
+  };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.75rem' : '0'
-    };
+    $isLoading || $isVisible ? '0.75rem' : '0'
+  };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '12px' : '0'
-    };
+    $isLoading || $isVisible ? '12px' : '0'
+  };
   }
 
   @media (max-width: 400px) {
     margin: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.5rem 0' : '0'
-    };
+    $isLoading || $isVisible ? '0.5rem 0' : '0'
+  };
     padding: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '0.5rem' : '0'
-    };
+    $isLoading || $isVisible ? '0.5rem' : '0'
+  };
     border-radius: ${({ $isVisible, $isLoading }) =>
-      $isLoading || $isVisible ? '10px' : '0'
-    };
+    $isLoading || $isVisible ? '10px' : '0'
+  };
   }
 `;
 
-export const Banner = styled.div<{ $colorScheme?: any }>`
+export const Banner = styled.div<{ $colorScheme?: any; }>`
   position: relative;
   border-radius: 16px;
   width: 100%;
@@ -245,7 +245,7 @@ export const Banner = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const BannerBottomBar = styled.div<{ $colorScheme?: any }>`
+export const BannerBottomBar = styled.div<{ $colorScheme?: any; }>`
   position: absolute;
   left: 0;
   right: 0;
@@ -278,13 +278,13 @@ export const BannerBottomBar = styled.div<{ $colorScheme?: any }>`
 
   @media (max-width: 480px) {
     height: 60px;
-    padding: 0 0.75rem;
+    padding: 0;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
   }
 `;
 
-export const Heading = styled.h2<{ $colorScheme?: any }>`
+export const Heading = styled.h2<{ $colorScheme?: any; }>`
   color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   font-size: 2.8rem;
   font-weight: 700;
@@ -371,7 +371,7 @@ export const Heading = styled.h2<{ $colorScheme?: any }>`
   }
 `;
 
-export const JackpotTicker = styled.div<{ $colorScheme?: any }>`
+export const JackpotTicker = styled.div<{ $colorScheme?: any; }>`
   width: 100%;
   min-height: 56px;
   display: flex;
@@ -437,7 +437,7 @@ export const JackpotTicker = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const HeroOverlay = styled.div<{ $colorScheme?: any }>`
+export const HeroOverlay = styled.div<{ $colorScheme?: any; }>`
   position: absolute;
   inset: 0;
   background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
@@ -520,7 +520,7 @@ export const HeroOverlay = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const FeatureGrid = styled.div<{ $colorScheme?: any }>`
+export const FeatureGrid = styled.div<{ $colorScheme?: any; }>`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
@@ -553,7 +553,7 @@ export const FeatureGrid = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const FeatureCard = styled.div<{ $colorScheme?: any }>`
+export const FeatureCard = styled.div<{ $colorScheme?: any; }>`
   background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
     linear-gradient(135deg, 
       ${$colorScheme.colors.surface}80 0%, 
@@ -637,7 +637,7 @@ export const FeatureCard = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const QuotesSection = styled.div<{ $colorScheme?: any }>`
+export const QuotesSection = styled.div<{ $colorScheme?: any; }>`
   margin: 1.5rem 0;
   padding: 1rem;
   background: ${({ $colorScheme }) => $colorScheme?.colors?.surface ? `
@@ -682,7 +682,7 @@ export const QuotesSection = styled.div<{ $colorScheme?: any }>`
   }
 `;
 
-export const QuotesTicker = styled.div<{ $colorScheme?: any }>`
+export const QuotesTicker = styled.div<{ $colorScheme?: any; }>`
   width: 100%;
   min-height: 56px;
   display: flex;

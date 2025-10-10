@@ -1,5 +1,4 @@
 const CACHE_NAME = 'degencasino-v3-progressive';
-const GAME_CACHE_NAME = 'degencasino-games-v1';
 const RPC_CACHE_NAME = 'degencasino-rpc-v1';
 
 // Enhanced static assets with game priorities
@@ -16,31 +15,6 @@ const STATIC_ASSETS = [
   '/webp/icons/icon-512.webp',
 ];
 
-// Critical game assets to preload immediately
-const CRITICAL_GAME_ASSETS = [
-  '/webp/games/dice.webp',
-  '/webp/games/slots.webp',
-  '/webp/games/mines.webp',
-  '/webp/games/plinko.webp',
-  '/webp/games/magic8ball.png'
-];
-
-// High priority game assets to preload after critical
-const HIGH_PRIORITY_GAME_ASSETS = [
-  '/webp/games/crash.webp',
-  '/webp/games/blackjack.webp',
-  '/webp/games/flip.webp',
-  '/webp/games/hilo.webp'
-];
-
-// Game-specific caching strategies - matches allGames.ts exactly
-const GAME_LOADING_PRIORITIES = {
-  'critical': ['dice', 'slots', 'mines', 'plinko', 'magic8ball'],
-  'high': ['crash', 'blackjack', 'flip', 'hilo'],
-  'medium': ['plinkorace'],
-  'low': [] // Populated dynamically
-};
-
 // Enhanced cache strategies with game-specific handling
 const CACHE_STRATEGIES = {
   // Static assets - cache first with longer TTL
@@ -48,11 +22,6 @@ const CACHE_STRATEGIES = {
     /\.(css|js|woff2|woff|ttf)$/,
     /\/webp\/icons\//,
     /\/png\/icons\//
-  ],
-  // Game assets - prioritized caching with immediate availability
-  gameAssets: [
-    /\/webp\/games\//,
-    /\/png\/games\//
   ],
   // RPC and API calls - smart caching with stale-while-revalidate
   rpcCalls: [
@@ -83,11 +52,6 @@ self.addEventListener('install', (event) => {
         console.log('📦 Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       }),
-      // Cache critical game assets
-      caches.open(GAME_CACHE_NAME).then((gameCache) => {
-        console.log('🎮 Caching critical game assets');
-        return gameCache.addAll(CRITICAL_GAME_ASSETS);
-      }),
       // Initialize RPC cache
       caches.open(RPC_CACHE_NAME).then((rpcCache) => {
         console.log('⚡ Initializing RPC cache');
@@ -96,8 +60,7 @@ self.addEventListener('install', (event) => {
     ])
       .then(() => {
         console.log('✅ Enhanced Service Worker installed');
-        // Schedule background preloading of high priority assets
-        self.postMessage({ type: 'PRELOAD_HIGH_PRIORITY' });
+        // Service workers don't have postMessage - communicate through clients instead
         return self.skipWaiting();
       })
       .catch((error) => {
@@ -137,19 +100,8 @@ self.addEventListener('activate', (event) => {
 
 // Progressive loading scheduler
 function scheduleProgressiveLoading() {
-  // Preload high priority game assets after 2 seconds
-  setTimeout(() => {
-    caches.open(GAME_CACHE_NAME).then((gameCache) => {
-      console.log('🎮 Preloading high priority game assets');
-      HIGH_PRIORITY_GAME_ASSETS.forEach(asset => {
-        fetch(asset).then(response => {
-          if (response.ok) {
-            gameCache.put(asset, response);
-          }
-        }).catch(() => { }); // Silent fail for background loading
-      });
-    });
-  }, 2000);
+  // Service worker handles static assets only - games are handled by React lazy loading
+  console.log('🎯 Progressive loading initialized - static assets cached');
 }
 
 // Fetch event - implement caching strategies
@@ -183,22 +135,17 @@ async function handleFetch(request) {
   const pathname = url.pathname;
 
   try {
-    // Strategy 1: Game Assets - Prioritized caching
-    if (CACHE_STRATEGIES.gameAssets.some(pattern => pattern.test(pathname))) {
-      return await gameAssetStrategy(request);
-    }
-
-    // Strategy 2: RPC Calls - Smart caching with TTL
+    // Strategy 1: RPC Calls - Smart caching with TTL
     if (CACHE_STRATEGIES.rpcCalls.some(pattern => pattern.test(pathname))) {
       return await rpcCacheStrategy(request);
     }
 
-    // Strategy 3: Static Assets - Cache first
+    // Strategy 2: Static Assets - Cache first
     if (CACHE_STRATEGIES.static.some(pattern => pattern.test(pathname))) {
       return await cacheFirst(request, CACHE_NAME);
     }
 
-    // Strategy 4: Network First (API calls, HTML)
+    // Strategy 3: Network First (API calls, HTML)
     if (CACHE_STRATEGIES.networkFirst.some(pattern => pattern.test(pathname))) {
       return await networkFirst(request);
     }
@@ -234,37 +181,6 @@ async function cacheFirst(request, cacheName = CACHE_NAME) {
     return networkResponse;
   } catch (error) {
     console.warn('Network failed for:', request.url);
-    throw error;
-  }
-}
-
-// Game Asset Strategy - Optimized for game resources
-async function gameAssetStrategy(request) {
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-  const cachedResponse = await gameCache.match(request);
-
-  // Always return cached version immediately for games
-  if (cachedResponse) {
-    // Background update for critical games
-    if (isCriticalGameAsset(request.url)) {
-      fetch(request).then(response => {
-        if (response.ok && response.type !== 'opaque') {
-          gameCache.put(request, response);
-        }
-      }).catch(() => { }); // Silent background update
-    }
-    return cachedResponse;
-  }
-
-  // Not in cache, fetch and cache
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok && networkResponse.type !== 'opaque') {
-      gameCache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch (error) {
-    console.warn('Game asset fetch failed:', request.url);
     throw error;
   }
 }
@@ -374,46 +290,8 @@ async function networkWithCacheFallback(request) {
   }
 }
 
-// Enhanced message handling for progressive loading
+// Message handling for cache management and statistics
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'CACHE_URLS') {
-    const urls = event.data.urls;
-    const isGameAsset = urls.some(url => url.includes('/games/'));
-    const cacheName = isGameAsset ? GAME_CACHE_NAME : CACHE_NAME;
-
-    event.waitUntil(
-      caches.open(cacheName).then((cache) => {
-        return cache.addAll(urls);
-      })
-    );
-  }
-
-  if (event.data && event.data.type === 'PRELOAD_GAME') {
-    const gameId = event.data.gameId;
-    event.waitUntil(preloadGameAssets(gameId));
-  }
-
-  if (event.data && event.data.type === 'PRELOAD_PRIORITY') {
-    const priority = event.data.priority; // 'critical', 'high', 'medium'
-    event.waitUntil(preloadGamesByPriority(priority));
-  }
-
-  if (event.data && event.data.type === 'PRELOAD_USER_FAVORITES') {
-    const favoriteGames = event.data.favoriteGames || [];
-    event.waitUntil(preloadUserFavorites(favoriteGames));
-  }
-
-  if (event.data && event.data.type === 'PRELOAD_RECENT_GAMES') {
-    const recentGames = event.data.recentGames || [];
-    event.waitUntil(preloadRecentGames(recentGames));
-  }
-
-  if (event.data && event.data.type === 'PRELOAD_SIMILAR_GAMES') {
-    const currentGame = event.data.currentGame;
-    const similarGames = event.data.similarGames || [];
-    event.waitUntil(preloadSimilarGames(currentGame, similarGames));
-  }
-
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
   }
@@ -423,85 +301,7 @@ self.addEventListener('message', (event) => {
       event.ports[0].postMessage({ type: 'CACHE_STATS', stats });
     }));
   }
-});// Preload specific game assets
-async function preloadGameAssets(gameId) {
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-  const gameAssets = [
-    `/webp/games/${gameId}.webp`,
-    `/png/games/${gameId}.png`
-  ];
-
-  for (const asset of gameAssets) {
-    try {
-      const response = await fetch(asset);
-      if (response.ok) {
-        await gameCache.put(asset, response);
-        console.log(`🎮 Preloaded ${asset}`);
-      }
-    } catch (error) {
-      console.warn(`Failed to preload ${asset}:`, error);
-    }
-  }
-}
-
-// Preload games by priority level
-async function preloadGamesByPriority(priority) {
-  const games = GAME_LOADING_PRIORITIES[priority] || [];
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-
-  for (const gameId of games) {
-    await preloadGameAssets(gameId);
-  }
-
-  console.log(`🎮 Preloaded ${priority} priority games: ${games.join(', ')}`);
-}
-
-// Preload user's favorite games
-async function preloadUserFavorites(favoriteGames) {
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-
-  for (const gameId of favoriteGames.slice(0, 5)) { // Limit to top 5 favorites
-    await preloadGameAssets(gameId);
-  }
-
-  console.log(`⭐ Preloaded user favorites: ${favoriteGames.slice(0, 5).join(', ')}`);
-}
-
-// Preload recently played games
-async function preloadRecentGames(recentGames) {
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-
-  for (const gameId of recentGames.slice(0, 3)) { // Limit to 3 most recent
-    await preloadGameAssets(gameId);
-  }
-
-  console.log(`🕒 Preloaded recent games: ${recentGames.slice(0, 3).join(', ')}`);
-}
-
-// Preload similar games based on current game
-async function preloadSimilarGames(currentGame, similarGames) {
-  const gameCache = await caches.open(GAME_CACHE_NAME);
-
-  // Define game categories for better recommendations
-  const gameCategories = {
-    dice: ['magic8ball', 'flip', 'hilo'],
-    slots: ['crash', 'blackjack', 'roulette'],
-    mines: ['plinko', 'dice', 'hilo'],
-    plinko: ['mines', 'dice', 'flip'],
-    crash: ['slots', 'blackjack', 'flip'],
-    blackjack: ['slots', 'crash', 'roulette'],
-    flip: ['dice', 'hilo', 'magic8ball'],
-    hilo: ['dice', 'flip', 'magic8ball']
-  };
-
-  const recommendedGames = similarGames.length > 0 ? similarGames : (gameCategories[currentGame] || []);
-
-  for (const gameId of recommendedGames.slice(0, 3)) {
-    await preloadGameAssets(gameId);
-  }
-
-  console.log(`🎯 Preloaded similar games for ${currentGame}: ${recommendedGames.slice(0, 3).join(', ')}`);
-}// Get cache statistics
+});// Get cache statistics
 async function getCacheStats() {
   const cacheNames = await caches.keys();
   const stats = {};

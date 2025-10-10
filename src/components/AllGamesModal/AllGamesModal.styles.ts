@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components';
 
 // Romantic animations for all games modal
 export const loveLetterSparkle = keyframes`
@@ -10,7 +10,7 @@ export const loveLetterSparkle = keyframes`
     opacity: 1; 
     transform: rotate(180deg) scale(1.2); 
   }
-`
+`;
 
 export const romanticGradientMove = keyframes`
   0% { 
@@ -19,7 +19,7 @@ export const romanticGradientMove = keyframes`
   100% { 
     background-position: 100% 50%; 
   }
-`
+`;
 
 export const candlestickGlow = keyframes`
   0%, 100% {
@@ -34,13 +34,13 @@ export const candlestickGlow = keyframes`
       0 0 60px rgba(184, 51, 106, 0.3),
       inset 0 1px 0 rgba(212, 165, 116, 0.4);
   }
-`
+`;
 
 // Keep old exports for compatibility
 export const sparkle = loveLetterSparkle;
 export const moveGradient = romanticGradientMove;
 
-export const ModalContent = styled.div<{ $colorScheme?: any }>`
+export const ModalContent = styled.div<{ $colorScheme?: any; }>`
   /* Desktop/base: cap at 700px while respecting dynamic viewport (handles mobile browser UI) */
   width: min(700px, 96dvw);
   min-width: 0;
@@ -150,7 +150,7 @@ export const HeaderSection = styled.div`
   }
 `;
 
-export const Title = styled.h1<{ $colorScheme?: any }>`
+export const Title = styled.h1<{ $colorScheme?: any; }>`
   color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || 'var(--love-letter-gold)'};
   font-size: clamp(1.4rem, 5vw, 2.2rem);
   font-weight: 600;
@@ -201,7 +201,7 @@ export const HorizontalScroll = styled.div`
 
   @media (max-width: 479px) {
     gap: 0.5rem;
-    padding: 0.25rem 0 0.75rem 0;
+    padding: 0.25rem 0 0.25rem 0;
   }
 `;
 

@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Modal, ModalContent } from './Modal';
 import { PLATFORM_SHARABLE_URL } from '../../../../constants';
 import { extractMetadata } from '../../../../utils';
+import { media } from '../breakpoints';
 
 const Inner = styled.div`
   display: flex;
@@ -82,7 +83,8 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 12px;
 
-  @media (max-width: 480px) {
+  /* Mobile layout for very small screens */
+  ${media.maxMobile} {
     flex-direction: column;
   }
 `;

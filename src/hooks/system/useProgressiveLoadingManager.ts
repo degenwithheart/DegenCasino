@@ -1,5 +1,5 @@
 // Progressive Loading Manager Hook
-// Orchestrates all loading systems: Service Worker, Component Preloader, and RPC Cache
+// Hybrid loading system: Route-specific + Idle progressive + Lazy loading
 
 import { useEffect, useCallback, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -12,6 +12,11 @@ import {
   getLoadingRecommendation,
   type GameLoadingConfig
 } from '../../games/gameLoadingPriority';
+import {
+  getRouteDependencies,
+  getLikelyNextRoutes,
+  type RouteDependencies
+} from './routeDependencies';
 
 interface NetworkInfo {
   effectiveType: '4g' | '3g' | '2g' | 'slow-2g' | undefined;
@@ -79,6 +84,46 @@ export function useProgressiveLoadingManager() {
     userSpecificPreloaded: false,
     rpcOptimized: false
   });
+
+  // Track preloaded components and idle loading state
+  const preloadedComponents = useRef(new Set<string>());
+  const idleLoadingActive = useRef(false);
+
+  // Component key to import function mapping
+  const preloadComponentByKey = useCallback(async (componentKey: string) => {
+    const componentMap: Record<string, () => Promise<any>> = {
+      // Page components that exist
+      'Dashboard': () => import('../../sections/Dashboard/Dashboard'),
+      'GameGrid': () => import('../../sections/Dashboard/Dashboard'), // Part of Dashboard
+      'RecentPlays': () => import('../../sections/Dashboard/Dashboard'), // Part of Dashboard
+      'GamePage': () => import('../../sections/Game/Game'),
+      'JackpotPage': () => import('../../pages/features/JackpotPage'),
+      'LeaderboardPage': () => import('../../pages/features/LeaderboardPage'),
+      'BonusPage': () => import('../../pages/features/BonusPage'),
+      'AboutMe': () => import('../../sections/Dashboard/AboutMe/AboutMe'),
+      'Terms': () => import('../../sections/Dashboard/Terms/Terms'),
+
+      // Game components (these will be lazy loaded within pages)
+      'DiceGame': () => import('../../games/Dice'),
+      'SlotsGame': () => import('../../games/Slots'),
+      'MinesGame': () => import('../../games/Mines'),
+      'CrashGame': () => import('../../games/CrashGame'),
+      'BlackJackGame': () => import('../../games/BlackJack'),
+      'PlinkoGame': () => import('../../games/Plinko'),
+      'FlipGame': () => import('../../games/Flip'),
+      'HiLoGame': () => import('../../games/HiLo'),
+      'Magic8BallGame': () => import('../../games/Magic8Ball')
+    };
+
+    const importFn = componentMap[componentKey];
+    if (importFn) {
+      await importFn();
+      preloadedComponents.current.add(componentKey);
+      console.log(`📦 Preloaded component: ${componentKey}`);
+    } else {
+      console.warn(`Unknown component key: ${componentKey} - skipping preload`);
+    }
+  }, []);
 
   // Detect network conditions
   const getNetworkInfo = useCallback((): NetworkInfo => {
@@ -174,73 +219,116 @@ export function useProgressiveLoadingManager() {
       .sort((a, b) => b.popularity - a.popularity); // Sort by popularity
   }, []);
 
-  // Intelligent game preloading based on current context and user behavior
-  const intelligentGamePreload = useCallback(async () => {
-    const networkInfo = getNetworkInfo();
-    const maxPriority = getLoadingRecommendation(
-      networkInfo.effectiveType === '2g' || networkInfo.effectiveType === 'slow-2g' ? 'slow' :
-        networkInfo.effectiveType === '3g' ? 'medium' : 'fast',
-      networkInfo.saveData ? 'save' : 'normal'
-    );
-
-    const currentPath = location.pathname;
-
-    // Only preload games on relevant pages to avoid unnecessary loading
-    const shouldPreloadGames = currentPath === '/' ||
-      currentPath === '/dashboard' ||
-      currentPath.startsWith('/game/');
-
-    if (!shouldPreloadGames) {
-      console.log('🎮 Skipping game preloading - not on game-related page');
+  // Route-specific loading: Load exactly what the current page needs
+  const loadRouteDependencies = useCallback(async (pathname: string) => {
+    const routeDeps = getRouteDependencies(pathname);
+    if (!routeDeps) {
+      console.log(`📄 No specific dependencies for route: ${pathname}`);
       return;
     }
 
-    // Determine how many games to preload based on context
-    let gamesToPreload: GameLoadingConfig[] = [];
-    let preloadReason = '';
+    console.log(`📄 Loading route dependencies for ${pathname}:`, routeDeps.components);
 
-    if (currentPath === '/' || currentPath === '/dashboard') {
-      // On main pages, only preload critical games (most popular)
-      gamesToPreload = getCriticalGames().slice(0, 3); // Limit to top 3 critical games
-      preloadReason = 'dashboard - critical games only';
-    } else if (currentPath.startsWith('/game/')) {
-      // On game pages, preload similar games based on current game
-      const currentGameId = currentPath.split('/game/')[1]?.split('/')[0];
-      if (currentGameId) {
-        const similarGames = getSimilarGames(currentGameId);
-        gamesToPreload = similarGames.slice(0, 2); // Limit to 2 similar games
-        preloadReason = `playing ${currentGameId} - similar games`;
+    // Load critical components immediately
+    const criticalComponents = routeDeps.components.filter(comp => routeDeps.priority === 'critical');
+    for (const component of criticalComponents) {
+      if (!preloadedComponents.current.has(component)) {
+        try {
+          await preloadComponentByKey(component);
+          preloadedComponents.current.add(component);
+        } catch (error) {
+          console.warn(`Failed to preload component ${component}:`, error);
+        }
       }
     }
 
-    // Filter out already preloaded games
-    gamesToPreload = gamesToPreload.filter(game => !isGamePreloaded(game.id));
-
-    if (gamesToPreload.length === 0) {
-      console.log('🎮 No games need preloading');
-      return;
-    }
-
-    console.log(`🎮 Intelligent preloading (${preloadReason}):`, gamesToPreload.map(g => g.id));
-
-    // Load games with smart staggering
-    for (const [index, game] of gamesToPreload.entries()) {
-      // Stagger loading to avoid overwhelming the network
-      setTimeout(async () => {
-        if (!isGamePreloaded(game.id)) {
-          await preloadGame(game.id);
-
-          // Notify service worker to cache game assets
-          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-              type: 'PRELOAD_GAME',
-              gameId: game.id
-            });
-          }
+    // Load games for this route
+    if (routeDeps.games) {
+      for (const gameId of routeDeps.games) {
+        if (!isGamePreloaded(gameId)) {
+          setTimeout(() => preloadGame(gameId), Math.random() * 200); // Slight stagger
         }
-      }, index * 500); // 500ms between each game instead of 1000ms
+      }
     }
-  }, [location.pathname, preloadGame, isGamePreloaded, getNetworkInfo]);
+
+    // Load high priority components with slight delay
+    const highPriorityComponents = routeDeps.components.filter(comp => routeDeps.priority === 'high');
+    setTimeout(() => {
+      highPriorityComponents.forEach(component => {
+        if (!preloadedComponents.current.has(component)) {
+          preloadComponentByKey(component).catch(error =>
+            console.warn(`Failed to preload high priority component ${component}:`, error)
+          );
+        }
+      });
+    }, 100);
+  }, [preloadGame, isGamePreloaded]);
+
+  // Idle progressive loading: Preload likely next routes when user is idle
+  const startIdleProgressiveLoading = useCallback(() => {
+    if (idleLoadingActive.current) return;
+
+    const currentPath = location.pathname;
+    const likelyRoutes = getLikelyNextRoutes(currentPath);
+
+    if (likelyRoutes.length === 0) return;
+
+    idleLoadingActive.current = true;
+    console.log(`😴 Starting idle progressive loading for routes:`, likelyRoutes);
+
+    // Preload route dependencies in background when idle
+    let routeIndex = 0;
+    const preloadNextRoute = () => {
+      if (routeIndex >= likelyRoutes.length) {
+        idleLoadingActive.current = false;
+        return;
+      }
+
+      const route = likelyRoutes[routeIndex];
+      const routeDeps = getRouteDependencies(route);
+
+      if (routeDeps) {
+        console.log(`😴 Idle preloading route: ${route}`);
+
+        // Preload components for this likely route
+        routeDeps.components.forEach((component, compIndex) => {
+          setTimeout(() => {
+            if (!preloadedComponents.current.has(component)) {
+              preloadComponentByKey(component).catch(() => {
+                // Silent fail for idle loading
+              });
+            }
+          }, compIndex * 200); // Stagger component loading
+        });
+
+        // Preload games for this route
+        if (routeDeps.games) {
+          routeDeps.games.forEach((gameId, gameIndex) => {
+            setTimeout(() => {
+              if (!isGamePreloaded(gameId)) {
+                preloadGame(gameId).catch(() => {
+                  // Silent fail for idle loading
+                });
+              }
+            }, gameIndex * 300);
+          });
+        }
+      }
+
+      routeIndex++;
+      // Schedule next route preload with delay
+      setTimeout(preloadNextRoute, 2000); // 2 second delay between routes
+    };
+
+    // Start after initial idle period
+    setTimeout(preloadNextRoute, 3000);
+  }, [location.pathname, preloadGame, isGamePreloaded]);
+
+  // Legacy intelligent game preloading (kept for compatibility but replaced by route-specific)
+  const intelligentGamePreload = useCallback(async () => {
+    // This is now handled by route-specific loading and idle progressive loading
+    console.log('🎮 Game preloading now handled by route-specific and idle loading');
+  }, []);
 
   // User-behavior based intelligent preloading
   const preloadUserBehaviorBased = useCallback(async () => {
@@ -252,20 +340,12 @@ export function useProgressiveLoadingManager() {
 
     const recentGames = [...new Set(userActivity.current.gamesPlayed.slice(-5))]; // Last 5 unique games
 
-    // Preload favorites
-    if (favoriteGames.length > 0 && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'PRELOAD_USER_FAVORITES',
-        favoriteGames
-      });
-    }
-
-    // Preload recent games
-    if (recentGames.length > 0 && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'PRELOAD_RECENT_GAMES',
-        recentGames
-      });
+    // Preload favorites and recent games via React lazy loading
+    const gamesToPreload = [...new Set([...favoriteGames, ...recentGames])];
+    for (const gameId of gamesToPreload.slice(0, 3)) {
+      if (!isGamePreloaded(gameId)) {
+        setTimeout(() => preloadGame(gameId), Math.random() * 2000); // Random delay up to 2s
+      }
     }
 
     loadingState.current.userSpecificPreloaded = true;
@@ -273,7 +353,7 @@ export function useProgressiveLoadingManager() {
 
   // Preload similar games when user is on a game page
   const preloadSimilarGames = useCallback(async (currentGameId: string) => {
-    if (!currentGameId || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+    if (!currentGameId) return;
 
     // Define game similarity mapping
     const similarGamesMap: Record<string, string[]> = {
@@ -289,11 +369,12 @@ export function useProgressiveLoadingManager() {
 
     const similarGames = similarGamesMap[currentGameId] || [];
 
-    navigator.serviceWorker.controller.postMessage({
-      type: 'PRELOAD_SIMILAR_GAMES',
-      currentGame: currentGameId,
-      similarGames
-    });
+    // Preload similar games via React lazy loading
+    for (const gameId of similarGames.slice(0, 2)) {
+      if (!isGamePreloaded(gameId)) {
+        setTimeout(() => preloadGame(gameId), Math.random() * 1500); // Random delay up to 1.5s
+      }
+    }
   }, []);
 
   // User-specific preloading when wallet connects
@@ -313,11 +394,11 @@ export function useProgressiveLoadingManager() {
       await preloadComponent(fn, key);
     }
 
-    // Initialize RPC optimization for this user
-    await optimizeRpcPrefetching();
+    // RPC optimization not implemented yet - skip for now
+    // await optimizeRpcPrefetching();
 
     loadingState.current.userSpecificPreloaded = true;
-  }, [connected, publicKey, preloadComponent, optimizeRpcPrefetching]);
+  }, [connected, publicKey, preloadComponent]);
 
   // Route-based preloading
   const handleRoutePreloading = useCallback(async () => {
@@ -387,7 +468,7 @@ export function useProgressiveLoadingManager() {
     const timeoutId = setTimeout(initializeProgressiveLoading, 1500);
 
     return () => clearTimeout(timeoutId);
-  }, [intelligentGamePreload, handleRoutePreloading, handleUserSpecificPreloading, connected, updateUserActivity]);
+  }, [updateUserActivity]);
 
   // Handle wallet connection changes
   useEffect(() => {
@@ -396,23 +477,26 @@ export function useProgressiveLoadingManager() {
     }
   }, [connected, publicKey, handleUserSpecificPreloading]);
 
-  // Handle route changes
+  // Handle route changes - NEW HYBRID APPROACH
   useEffect(() => {
     const handleRouteChange = async () => {
-      console.log('🛣️ Route changed, updating preloading strategy');
+      console.log('🛣️ Route changed - loading route-specific dependencies');
 
-      // Reset loading state for new route context
-      loadingState.current.criticalGamesLoaded = false;
-      loadingState.current.highPriorityGamesLoaded = false;
+      // Load exactly what this route needs immediately
+      await loadRouteDependencies(location.pathname);
 
-      // Update preloading based on new route
-      await intelligentGamePreload();
-      await handleRoutePreloading();
+      // Update user activity
       updateUserActivity(undefined, 'route_change');
+
+      // Start idle progressive loading after route-specific loading is done
+      // This preloads likely next routes when user is idle
+      setTimeout(() => {
+        startIdleProgressiveLoading();
+      }, 2000); // Wait 2 seconds for initial route loading to complete
     };
 
     handleRouteChange();
-  }, [location.pathname, intelligentGamePreload, handleRoutePreloading, updateUserActivity]);
+  }, [location.pathname, loadRouteDependencies, startIdleProgressiveLoading, updateUserActivity]);
 
   // Performance monitoring with live session data
   const getPerformanceStats = useCallback(() => {
@@ -446,8 +530,4 @@ export function useProgressiveLoadingManager() {
     preloadSimilarGames,
     isProgressiveLoadingActive: () => loadingState.current.criticalGamesLoaded
   };
-}
-
-function optimizeRpcPrefetching() {
-  throw new Error('Function not implemented.');
 }
