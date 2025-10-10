@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import compression from 'vite-plugin-compression2';
 
 // Remove PURE annotations from final build
 function stripPureAnnotations() {
@@ -84,10 +85,12 @@ export default defineConfig(() => ({
       },
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'blockchain': ['@solana/web3.js', '@coral-xyz/anchor'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
+          'blockchain': ['@solana/web3.js', '@coral-xyz/anchor', '@solana/wallet-adapter-react', '@solana/wallet-adapter-react-ui', '@solana/wallet-adapter-wallets'],
+          'gamba-core': ['gamba-core-v2', 'gamba-react-v2', 'gamba-react-ui-v2'],
           'three': ['three', '@react-three/fiber', '@react-three/drei'],
           'physics-audio': ['matter-js', 'tone'],
+          'ui-vendor': ['@radix-ui/themes', 'framer-motion', 'styled-components'],
         },
         compact: true,
         generatedCode: { arrowFunctions: true, constBindings: true, objectShorthand: true },
@@ -98,6 +101,10 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic', babel: { plugins: [] } }),
+    compression({
+      include: /\.(js|css|html|json|svg|txt|xml|woff|woff2|ttf|eot)$/,
+      threshold: 1024,
+    }),
     stripPureAnnotations(),
     silentWarnings(),
     {

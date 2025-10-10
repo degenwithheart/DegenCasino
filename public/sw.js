@@ -19,7 +19,7 @@ const STATIC_ASSETS = [
 // Critical game assets to preload immediately
 const CRITICAL_GAME_ASSETS = [
   '/webp/games/dice.webp',
-  '/webp/games/slots.webp', 
+  '/webp/games/slots.webp',
   '/webp/games/mines.webp',
   '/webp/games/plinko.webp',
   '/webp/games/magic8ball.png'
@@ -75,7 +75,7 @@ const CACHE_STRATEGIES = {
 // Install event - cache critical assets with priority loading
 self.addEventListener('install', (event) => {
   console.log('🔧 Enhanced Service Worker installing...');
-  
+
   event.waitUntil(
     Promise.all([
       // Cache static assets
@@ -94,28 +94,28 @@ self.addEventListener('install', (event) => {
         return Promise.resolve(); // RPC cache populated on demand
       })
     ])
-    .then(() => {
-      console.log('✅ Enhanced Service Worker installed');
-      // Schedule background preloading of high priority assets
-      self.postMessage({ type: 'PRELOAD_HIGH_PRIORITY' });
-      return self.skipWaiting();
-    })
-    .catch((error) => {
-      console.error('❌ Cache installation failed:', error);
-    })
+      .then(() => {
+        console.log('✅ Enhanced Service Worker installed');
+        // Schedule background preloading of high priority assets
+        self.postMessage({ type: 'PRELOAD_HIGH_PRIORITY' });
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('❌ Cache installation failed:', error);
+      })
   );
 });
 
 // Activate event - clean old caches and setup progressive loading
 self.addEventListener('activate', (event) => {
   console.log('🚀 Enhanced Service Worker activating...');
-  
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((cacheName) => 
+            .filter((cacheName) =>
               !cacheName.startsWith('degencasino-v3') &&
               !cacheName.startsWith('degencasino-games') &&
               !cacheName.startsWith('degencasino-rpc')
@@ -146,7 +146,7 @@ function scheduleProgressiveLoading() {
           if (response.ok) {
             gameCache.put(asset, response);
           }
-        }).catch(() => {}); // Silent fail for background loading
+        }).catch(() => { }); // Silent fail for background loading
       });
     });
   }, 2000);
@@ -156,10 +156,10 @@ function scheduleProgressiveLoading() {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') return;
-  
+
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
@@ -181,36 +181,36 @@ self.addEventListener('fetch', (event) => {
 async function handleFetch(request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
-  
+
   try {
     // Strategy 1: Game Assets - Prioritized caching
     if (CACHE_STRATEGIES.gameAssets.some(pattern => pattern.test(pathname))) {
       return await gameAssetStrategy(request);
     }
-    
+
     // Strategy 2: RPC Calls - Smart caching with TTL
     if (CACHE_STRATEGIES.rpcCalls.some(pattern => pattern.test(pathname))) {
       return await rpcCacheStrategy(request);
     }
-    
+
     // Strategy 3: Static Assets - Cache first
     if (CACHE_STRATEGIES.static.some(pattern => pattern.test(pathname))) {
       return await cacheFirst(request, CACHE_NAME);
     }
-    
+
     // Strategy 4: Network First (API calls, HTML)
     if (CACHE_STRATEGIES.networkFirst.some(pattern => pattern.test(pathname))) {
       return await networkFirst(request);
     }
-    
+
     // Strategy 5: Stale While Revalidate (General assets)
     if (CACHE_STRATEGIES.staleWhileRevalidate.some(pattern => pattern.test(pathname))) {
       return await staleWhileRevalidate(request);
     }
-    
+
     // Default: Network with cache fallback
     return await networkWithCacheFallback(request);
-    
+
   } catch (error) {
     console.error('Enhanced fetch error:', error);
     return await cacheFirst(request) || new Response('Offline', { status: 503 });
@@ -221,11 +221,11 @@ async function handleFetch(request) {
 async function cacheFirst(request, cacheName = CACHE_NAME) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
-  
+
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok && networkResponse.type !== 'opaque') {
@@ -242,7 +242,7 @@ async function cacheFirst(request, cacheName = CACHE_NAME) {
 async function gameAssetStrategy(request) {
   const gameCache = await caches.open(GAME_CACHE_NAME);
   const cachedResponse = await gameCache.match(request);
-  
+
   // Always return cached version immediately for games
   if (cachedResponse) {
     // Background update for critical games
@@ -251,11 +251,11 @@ async function gameAssetStrategy(request) {
         if (response.ok && response.type !== 'opaque') {
           gameCache.put(request, response);
         }
-      }).catch(() => {}); // Silent background update
+      }).catch(() => { }); // Silent background update
     }
     return cachedResponse;
   }
-  
+
   // Not in cache, fetch and cache
   try {
     const networkResponse = await fetch(request);
@@ -274,17 +274,17 @@ async function rpcCacheStrategy(request) {
   const rpcCache = await caches.open(RPC_CACHE_NAME);
   const cacheKey = request.url + (request.method === 'POST' ? await request.clone().text() : '');
   const cachedResponse = await rpcCache.match(cacheKey);
-  
+
   // Check if cached response is still fresh (5 minutes for most RPC calls)
   if (cachedResponse) {
     const cachedTime = cachedResponse.headers.get('sw-cached-time');
     const maxAge = getRpcCacheMaxAge(request.url);
-    
+
     if (cachedTime && (Date.now() - parseInt(cachedTime)) < maxAge) {
       return cachedResponse;
     }
   }
-  
+
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok && networkResponse.type !== 'opaque') {
@@ -345,7 +345,7 @@ async function networkFirst(request) {
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE_NAME);
   const cachedResponse = await cache.match(request);
-  
+
   // Always try to fetch in background
   const fetchPromise = fetch(request).then((networkResponse) => {
     if (networkResponse.ok && networkResponse.type !== 'opaque') {
@@ -353,7 +353,7 @@ async function staleWhileRevalidate(request) {
     }
     return networkResponse;
   }).catch(() => cachedResponse);
-  
+
   // Return cached version immediately if available
   return cachedResponse || fetchPromise;
 }
@@ -380,43 +380,57 @@ self.addEventListener('message', (event) => {
     const urls = event.data.urls;
     const isGameAsset = urls.some(url => url.includes('/games/'));
     const cacheName = isGameAsset ? GAME_CACHE_NAME : CACHE_NAME;
-    
+
     event.waitUntil(
       caches.open(cacheName).then((cache) => {
         return cache.addAll(urls);
       })
     );
   }
-  
+
   if (event.data && event.data.type === 'PRELOAD_GAME') {
     const gameId = event.data.gameId;
     event.waitUntil(preloadGameAssets(gameId));
   }
-  
+
   if (event.data && event.data.type === 'PRELOAD_PRIORITY') {
     const priority = event.data.priority; // 'critical', 'high', 'medium'
     event.waitUntil(preloadGamesByPriority(priority));
   }
-  
+
+  if (event.data && event.data.type === 'PRELOAD_USER_FAVORITES') {
+    const favoriteGames = event.data.favoriteGames || [];
+    event.waitUntil(preloadUserFavorites(favoriteGames));
+  }
+
+  if (event.data && event.data.type === 'PRELOAD_RECENT_GAMES') {
+    const recentGames = event.data.recentGames || [];
+    event.waitUntil(preloadRecentGames(recentGames));
+  }
+
+  if (event.data && event.data.type === 'PRELOAD_SIMILAR_GAMES') {
+    const currentGame = event.data.currentGame;
+    const similarGames = event.data.similarGames || [];
+    event.waitUntil(preloadSimilarGames(currentGame, similarGames));
+  }
+
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
   }
-  
+
   if (event.data && event.data.type === 'GET_CACHE_STATS') {
     event.waitUntil(getCacheStats().then(stats => {
       event.ports[0].postMessage({ type: 'CACHE_STATS', stats });
     }));
   }
-});
-
-// Preload specific game assets
+});// Preload specific game assets
 async function preloadGameAssets(gameId) {
   const gameCache = await caches.open(GAME_CACHE_NAME);
   const gameAssets = [
     `/webp/games/${gameId}.webp`,
     `/png/games/${gameId}.png`
   ];
-  
+
   for (const asset of gameAssets) {
     try {
       const response = await fetch(asset);
@@ -434,25 +448,70 @@ async function preloadGameAssets(gameId) {
 async function preloadGamesByPriority(priority) {
   const games = GAME_LOADING_PRIORITIES[priority] || [];
   const gameCache = await caches.open(GAME_CACHE_NAME);
-  
+
   for (const gameId of games) {
     await preloadGameAssets(gameId);
   }
-  
+
   console.log(`🎮 Preloaded ${priority} priority games: ${games.join(', ')}`);
 }
 
-// Get cache statistics
+// Preload user's favorite games
+async function preloadUserFavorites(favoriteGames) {
+  const gameCache = await caches.open(GAME_CACHE_NAME);
+
+  for (const gameId of favoriteGames.slice(0, 5)) { // Limit to top 5 favorites
+    await preloadGameAssets(gameId);
+  }
+
+  console.log(`⭐ Preloaded user favorites: ${favoriteGames.slice(0, 5).join(', ')}`);
+}
+
+// Preload recently played games
+async function preloadRecentGames(recentGames) {
+  const gameCache = await caches.open(GAME_CACHE_NAME);
+
+  for (const gameId of recentGames.slice(0, 3)) { // Limit to 3 most recent
+    await preloadGameAssets(gameId);
+  }
+
+  console.log(`🕒 Preloaded recent games: ${recentGames.slice(0, 3).join(', ')}`);
+}
+
+// Preload similar games based on current game
+async function preloadSimilarGames(currentGame, similarGames) {
+  const gameCache = await caches.open(GAME_CACHE_NAME);
+
+  // Define game categories for better recommendations
+  const gameCategories = {
+    dice: ['magic8ball', 'flip', 'hilo'],
+    slots: ['crash', 'blackjack', 'roulette'],
+    mines: ['plinko', 'dice', 'hilo'],
+    plinko: ['mines', 'dice', 'flip'],
+    crash: ['slots', 'blackjack', 'flip'],
+    blackjack: ['slots', 'crash', 'roulette'],
+    flip: ['dice', 'hilo', 'magic8ball'],
+    hilo: ['dice', 'flip', 'magic8ball']
+  };
+
+  const recommendedGames = similarGames.length > 0 ? similarGames : (gameCategories[currentGame] || []);
+
+  for (const gameId of recommendedGames.slice(0, 3)) {
+    await preloadGameAssets(gameId);
+  }
+
+  console.log(`🎯 Preloaded similar games for ${currentGame}: ${recommendedGames.slice(0, 3).join(', ')}`);
+}// Get cache statistics
 async function getCacheStats() {
   const cacheNames = await caches.keys();
   const stats = {};
-  
+
   for (const cacheName of cacheNames) {
     const cache = await caches.open(cacheName);
     const keys = await cache.keys();
     stats[cacheName] = keys.length;
   }
-  
+
   return stats;
 }
 

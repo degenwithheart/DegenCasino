@@ -1,56 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/webp/casino.webp" as="image" type="image/webp">
-    <link rel="preload" href="/webp/icons/favicon.webp" as="image" type="image/webp">
-    <link rel="preload" href="/png/icons/favicon.png" as="image" type="image/png">
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    
-    <!-- Romantic Degen Trader Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,200..1000;1,9..40,200..1000&display=swap" rel="stylesheet">
 
-    <!-- Favicon and app icons -->
-    <link rel="icon" type="image/png" href="/png/icons/favicon.png">
-    <link rel="apple-touch-icon" href="/png/icons/icon-512.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="manifest" href="/manifest.webmanifest">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <!-- Preload critical assets -->
+  <link rel="preload" href="/webp/casino.webp" as="image" type="image/webp">
+  <link rel="preload" href="/webp/icons/favicon.webp" as="image" type="image/webp">
+  <link rel="preload" href="/png/icons/favicon.png" as="image" type="image/png">
+  <!-- Preload critical game assets for instant availability -->
+  <link rel="preload" href="/webp/games/dice.webp" as="image" type="image/webp">
+  <link rel="preload" href="/webp/games/slots.webp" as="image" type="image/webp">
+  <link rel="preload" href="/webp/games/mines.webp" as="image" type="image/webp">
+  <link rel="preload" href="/webp/games/plinko.webp" as="image" type="image/webp">
+  <!-- Preconnect to external services -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.mainnet-beta.solana.com">
+  <link rel="preconnect" href="https://www.quicknode.pro">
+  <link rel="preconnect" href="https://helius-rpc.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="dns-prefetch" href="//api.mainnet-beta.solana.com">
+  <link rel="dns-prefetch" href="//www.quicknode.pro">
+  <link rel="dns-prefetch" href="//helius-rpc.com">
 
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="DegenHeart.casino - Solana On-chain Web3 casino" />
-    <meta property="og:description" content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
-    <meta property="og:image" content="/png/images/casino.png" />
-    <meta property="og:url" content="https://degenheart.casino" />
-    <meta property="og:site_name" content="DegenHeart.casino" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:alt" content="DegenHeart.casino Logo" />
-    <meta property="og:type" content="website" />
+  <!-- Romantic Degen Trader Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,200..1000;1,9..40,200..1000&display=swap"
+    rel="stylesheet">
 
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="DegenHeart.casino - Solana On-chain Web3 casino🔥" />
-    <meta name="twitter:description" content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
-    <meta name="twitter:image" content="/png/images/casino.png" />
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script>
-      // Global buffer polyfill - must be available before any modules load
-      if (typeof global === 'undefined') {
-        var global = globalThis;
-      }
-    </script>
-    <script type="module" src="./src/index.tsx"></script>
-  </body>
+  <!-- Favicon and app icons -->
+  <link rel="icon" type="image/png" href="/png/icons/favicon.png">
+  <link rel="apple-touch-icon" href="/png/icons/icon-512.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="/manifest.webmanifest">
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="DegenHeart.casino - Solana On-chain Web3 casino" />
+  <meta property="og:description"
+    content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
+  <meta property="og:image" content="/png/images/casino.png" />
+  <meta property="og:url" content="https://degenheart.casino" />
+  <meta property="og:site_name" content="DegenHeart.casino" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="DegenHeart.casino Logo" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DegenHeart.casino - Solana On-chain Web3 casino🔥" />
+  <meta name="twitter:description"
+    content="Welcome to the **Casino of Chaos** 🔥 No sign-ups, no BS. Just connect and dive in. 🛡️ **Non-Custodial** — You own your wallet, you call the shots. ✅ **Provably Fair** — 100% transparent, on-chain randomness. ⚡ **Instant Payouts** — Winnings? Straight to your wallet. No waiting." />
+  <meta name="twitter:image" content="/png/images/casino.png" />
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script>
+    // Global buffer polyfill - must be available before any modules load
+    if (typeof global === 'undefined') {
+      var global = globalThis;
+    }
+  </script>
+  <script type="module" src="./src/index.tsx"></script>
+</body>
+
 </html>
