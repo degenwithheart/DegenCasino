@@ -15,14 +15,17 @@ export default async function handler(req, res) {
         if (existingAPK.exists && !isBuildTrigger) {
             console.log('✅ Serving existing APK from cache');
 
-            res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-            res.setHeader('Content-Disposition', 'attachment; filename="DegenCasino.apk"');
-            res.setHeader('Content-Length', existingAPK.size.toString());
-            res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour cache
-            res.setHeader('X-Served-From', 'vercel-cache');
-            res.setHeader('X-Build-Time', existingAPK.buildTime);
-
-            return res.status(200).send(existingAPK.content);
+            return new Response(existingAPK.content, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.android.package-archive',
+                    'Content-Disposition': 'attachment; filename="DegenCasino.apk"',
+                    'Content-Length': existingAPK.size.toString(),
+                    'Cache-Control': 'public, max-age=3600',
+                    'X-Served-From': 'edge-cache',
+                    'X-Build-Time': existingAPK.buildTime
+                }
+            });
         }
 
         // APK not found or build trigger, build it once and cache
@@ -34,30 +37,43 @@ export default async function handler(req, res) {
 
             // If this is a build trigger, just return success status
             if (isBuildTrigger) {
-                return res.status(200).json({
+                return new Response(JSON.stringify({
                     success: true,
                     message: 'APK built and cached',
                     size: buildResult.size,
                     buildTime: new Date().toISOString()
+                }), {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
             }
 
-            res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-            res.setHeader('Content-Disposition', 'attachment; filename="DegenCasino.apk"');
-            res.setHeader('Content-Length', buildResult.size.toString());
-            res.setHeader('Cache-Control', 'public, max-age=3600');
-            res.setHeader('X-Built-On', 'vercel');
-            res.setHeader('X-Build-Time', new Date().toISOString());
-
-            return res.status(200).send(buildResult.content);
+            return new Response(buildResult.content, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.android.package-archive',
+                    'Content-Disposition': 'attachment; filename="DegenCasino.apk"',
+                    'Content-Length': buildResult.size.toString(),
+                    'Cache-Control': 'public, max-age=3600',
+                    'X-Built-On': 'edge',
+                    'X-Build-Time': new Date().toISOString()
+                }
+            });
         }
 
         // If this was a build trigger that failed, return error status
         if (isBuildTrigger) {
-            return res.status(500).json({
+            return new Response(JSON.stringify({
                 success: false,
                 message: 'APK build failed during deployment',
                 error: buildResult.error || 'Unknown error'
+            }), {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
         }
 
@@ -85,9 +101,13 @@ cd DegenCasino/mobile-app
 Refresh to try the installer again.
 `;
 
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Retry-After', '180');
-        return res.status(202).send(instructions);
+        return new Response(instructions, {
+            status: 202,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Retry-After': '180'
+            }
+        });
 
     } catch (error) {
         console.error('❌ Mobile app service failed:', error);
@@ -96,54 +116,47 @@ Refresh to try the installer again.
         const isBuildTrigger = req.headers['x-build-trigger'] === 'true' || req.headers['user-agent']?.includes('Vercel-Build-Agent');
 
         if (isBuildTrigger) {
-            return res.status(500).json({
+            return new Response(JSON.stringify({
                 success: false,
                 message: 'Mobile app service failed during build',
                 error: error.message
+            }), {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
         }
 
-        res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Retry-After', '300');
-        return res.status(503).send('Mobile app service temporarily unavailable.');
+        return new Response('Mobile app service temporarily unavailable.', {
+            status: 503,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Retry-After': '300'
+            }
+        });
     }
 }
 
+// Simple in-memory cache for Edge runtime (rebuilds every deployment)
+let apkCache = null;
+
 async function checkExistingAPK() {
     try {
-        const fs = require('fs').promises;
+        // In Edge runtime, we'll use simple in-memory caching
+        // APK will be rebuilt on each new deployment, cached for that deployment session
 
-        // Check for APK in /tmp directory (persists across function calls in same deployment)
-        const apkPath = '/tmp/degencasino-latest.apk';
-        const metaPath = '/tmp/degencasino-apk-meta.json';
-
-        const apkExists = await fs.access(apkPath).then(() => true).catch(() => false);
-
-        if (apkExists) {
-            const stats = await fs.stat(apkPath);
-            let buildTime = stats.mtime.toISOString();
-
-            // Try to get more detailed metadata
-            try {
-                const metaExists = await fs.access(metaPath).then(() => true).catch(() => false);
-                if (metaExists) {
-                    const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
-                    buildTime = meta.buildTime;
-                }
-            } catch (metaError) {
-                console.log('Could not read APK metadata');
-            }
-
-            const content = await fs.readFile(apkPath);
-
+        if (apkCache && apkCache.content) {
+            console.log('📦 Found APK in memory cache');
             return {
                 exists: true,
-                content: content,
-                size: stats.size,
-                buildTime: buildTime
+                content: apkCache.content,
+                size: apkCache.size,
+                buildTime: apkCache.buildTime
             };
         }
 
+        console.log('💭 No APK in memory cache');
         return { exists: false };
 
     } catch (error) {
@@ -155,8 +168,6 @@ async function checkExistingAPK() {
 async function buildAndCacheAPK(req) {
     try {
         console.log('🔨 Building APK for the first time...');
-
-        const fs = require('fs').promises;
 
         // Get the web app content
         const webAppUrl = `https://${req.headers.host}`;
@@ -173,13 +184,7 @@ async function buildAndCacheAPK(req) {
         // Create a comprehensive mobile app bundle
         const apkContent = await createMobileAppBundle(htmlContent, webAppUrl);
 
-        // Cache the APK in /tmp directory
-        const apkPath = '/tmp/degencasino-latest.apk';
-        const metaPath = '/tmp/degencasino-apk-meta.json';
-
-        await fs.writeFile(apkPath, apkContent);
-
-        // Save metadata
+        // Cache in memory for this deployment session
         const metadata = {
             buildTime: new Date().toISOString(),
             size: apkContent.length,
@@ -187,9 +192,15 @@ async function buildAndCacheAPK(req) {
             version: process.env.VERCEL_GIT_COMMIT_SHA || 'unknown'
         };
 
-        await fs.writeFile(metaPath, JSON.stringify(metadata, null, 2));
+        // Store in memory cache
+        apkCache = {
+            content: apkContent,
+            size: apkContent.length,
+            buildTime: metadata.buildTime,
+            metadata: metadata
+        };
 
-        console.log('✅ APK built and cached successfully');
+        console.log('✅ APK built and cached in memory');
         console.log(`📦 Size: ${(apkContent.length / 1024 / 1024).toFixed(2)} MB`);
 
         return {
