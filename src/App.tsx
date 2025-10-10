@@ -47,7 +47,6 @@ const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const MobileAppPage = lazy(() => import('./pages/features/MobileAppPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
 import { useTheme } from './themes/UnifiedThemeContext';
-import { MobileBrowserTest } from './components/Mobile/MobileBrowserTest';
 import PWAInstallBanner from './components/PWA/PWAInstallBanner';
 
 // Preload components for better UX
@@ -413,7 +412,6 @@ export default function App() {
             <CacheDebugWrapper />
             <ProgressiveLoadingMonitor />
             <PWAInstallBanner />
-            {FEATURE_FLAGS.ENABLE_MOBILE_BROWSER && <MobileBrowserTest />}
           </GamesModalContext.Provider>
         </GraphicsProvider>
       </ProgressiveLoadingProvider>

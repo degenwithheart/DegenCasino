@@ -1,192 +1,134 @@
-// Simple mobile updater for DegenCasino
-// Works with Capacitor apps and Vercel Edge Runtime
+// Plain-JS mobile updater for DegenCasino (no TypeScript, no imports)
+// This file is intended to run inside the Capacitor webview. It uses
+// Capacitor's global `Capacitor` and the available plugin globals when present.
 
-class DegenCasinoUpdater {
-  static UPDATE_CHECK_URL = 'https://degenheart.casino/api/mobile-update-check';
-  static CURRENT_VERSION_KEY = 'degenCasinoMobileVersion';
-  
-  static async checkForUpdates() { from '@capacitor/core';
-import { Preferences } from '@capacitor/preferences';
-import { Network } from '@capacitor/network';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+ 
+(function () {
+  const UPDATE_CHECK_URL = 'https://degenheart.casino/api/mobile-update-check';
+  const CURRENT_VERSION_KEY = 'degenCasinoMobileVersion';
+  const UPDATE_BUNDLE_DIR = 'updates';
 
-/**
- * UpdateInfo structure:
- * - version: string
- * - buildTime: string  
- * - downloadUrl: string
- * - size: number
- * - mandatory: boolean
- */
+  const isNative = typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
 
-export class DegenCasinoUpdater {
-  static UPDATE_CHECK_URL = 'https://degenheart.casino/api/mobile-update-check';
-  static CURRENT_VERSION_KEY = 'currentAppVersion';
-  static UPDATE_BUNDLE_DIR = 'updates';
-  
-  static async checkForUpdates(): Promise<UpdateInfo | null> {
-    if (!Capacitor.isNativePlatform()) {
-      console.log('📱 Hot updates only work on native platforms');
-      return null;
-    }
-
+  async function getCurrentVersion() {
     try {
-      // Check network connectivity
-      const networkStatus = await Network.getStatus();
-      if (!networkStatus.connected) {
-        console.log('📡 No network connection, skipping update check');
-        return null;
+      // Try Capacitor Preferences if available
+      if (isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        const { Preferences } = window.Capacitor.Plugins;
+        const res = await Preferences.get({ key: CURRENT_VERSION_KEY });
+        return (res && res.value) || '1.0.0';
       }
 
-      console.log('🔍 Checking for app updates...');
-      
-      // Get current version
-      const currentVersion = await this.getCurrentVersion();
-      console.log('📦 Current version:', currentVersion);
-
-      // Check for updates from server
-      const response = await fetch(this.UPDATE_CHECK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          currentVersion,
-          platform: Capacitor.getPlatform()
-        })
-      });
-
-      if (!response.ok) {
-        console.warn('⚠️ Update check failed:', response.statusText);
-        return null;
-      }
-
-      const updateInfo: UpdateInfo = await response.json();
-      
-      if (updateInfo.version !== currentVersion) {
-        console.log('🎉 New update available:', updateInfo.version);
-        return updateInfo;
-      }
-
-      console.log('✅ App is up to date');
-      return null;
-
-    } catch (error) {
-      console.error('❌ Update check failed:', error);
-      return null;
-    }
-  }
-
-  static async downloadAndInstallUpdate(updateInfo: UpdateInfo): Promise<boolean> {
-    try {
-      console.log('⬇️ Downloading update:', updateInfo.version);
-
-      // Download the update bundle
-      const response = await fetch(updateInfo.downloadUrl);
-      if (!response.ok) {
-        throw new Error(`Download failed: ${response.statusText}`);
-      }
-
-      const updateBundle = await response.text();
-      
-      // Save to filesystem
-      const fileName = `update-${updateInfo.version}.html`;
-      await Filesystem.writeFile({
-        path: `${this.UPDATE_BUNDLE_DIR}/${fileName}`,
-        data: updateBundle,
-        directory: Directory.Data
-      });
-
-      // Update the current version
-      await this.setCurrentVersion(updateInfo.version);
-      
-      console.log('✅ Update installed successfully');
-      return true;
-
-    } catch (error) {
-      console.error('❌ Update installation failed:', error);
-      return false;
-    }
-  }
-
-  static async getCurrentVersion(): Promise<string> {
-    try {
-      const result = await Preferences.get({ key: this.CURRENT_VERSION_KEY });
-      return result.value || '1.0.0';
-    } catch (error) {
-      console.warn('Failed to get current version:', error);
+      // Fallback to localStorage for browser
+      return localStorage.getItem(CURRENT_VERSION_KEY) || '1.0.0';
+    } catch (e) {
+      console.warn('getCurrentVersion failed', e);
       return '1.0.0';
     }
   }
 
-  static async setCurrentVersion(version: string): Promise<void> {
+  async function setCurrentVersion(version) {
     try {
-      await Preferences.set({
-        key: this.CURRENT_VERSION_KEY,
-        value: version
-      });
-    } catch (error) {
-      console.error('Failed to set current version:', error);
+      if (isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) {
+        const { Preferences } = window.Capacitor.Plugins;
+        await Preferences.set({ key: CURRENT_VERSION_KEY, value: version });
+        return;
+      }
+      localStorage.setItem(CURRENT_VERSION_KEY, version);
+    } catch (e) {
+      console.warn('setCurrentVersion failed', e);
     }
   }
 
-  static async initializeUpdater(): Promise<void> {
+  async function checkForUpdates() {
+    if (!isNative) {
+      // Only run on native platforms (Capacitor)
+      return null;
+    }
+
     try {
-      // Create updates directory
-      await Filesystem.mkdir({
-        path: this.UPDATE_BUNDLE_DIR,
-        directory: Directory.Data,
-        recursive: true
+      // Basic network check if Capacitor Network plugin exists
+      if (window.Capacitor.Plugins && window.Capacitor.Plugins.Network) {
+        const { Network } = window.Capacitor.Plugins;
+        const status = await Network.getStatus();
+        if (!status.connected) return null;
+      }
+
+      const currentVersion = await getCurrentVersion();
+
+      const resp = await fetch(UPDATE_CHECK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentVersion, platform: window.Capacitor.getPlatform() })
       });
 
-      console.log('🚀 DegenCasino Updater initialized');
-    } catch (error) {
-      console.error('Failed to initialize updater:', error);
+      if (!resp.ok) return null;
+      const info = await resp.json();
+      if (!info || !info.version) return null;
+      if (info.version !== currentVersion) return info;
+      return null;
+    } catch (e) {
+      console.warn('checkForUpdates error', e);
+      return null;
     }
   }
 
-  static async checkAndUpdate(showUI: boolean = true): Promise<boolean> {
-    const updateInfo = await this.checkForUpdates();
-    
-    if (!updateInfo) {
+  async function downloadAndInstallUpdate(info) {
+    try {
+      const resp = await fetch(info.downloadUrl);
+      if (!resp.ok) throw new Error('download failed');
+      const bundle = await resp.text();
+
+      // Attempt to save with Filesystem plugin if available
+      if (isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+        const { Filesystem } = window.Capacitor.Plugins;
+        try {
+          await Filesystem.writeFile({ path: `${UPDATE_BUNDLE_DIR}/update-${info.version}.html`, data: bundle, directory: 'DATA' });
+        } catch (e) {
+          console.warn('Filesystem write failed', e);
+        }
+      }
+
+      await setCurrentVersion(info.version);
+      return true;
+    } catch (e) {
+      console.warn('downloadAndInstallUpdate failed', e);
       return false;
     }
+  }
 
-    if (showUI) {
-      const shouldUpdate = confirm(
-        `🎰 New DegenCasino update available!\n\n` +
-        `Version: ${updateInfo.version}\n` +
-        `Size: ${(updateInfo.size / 1024 / 1024).toFixed(2)} MB\n\n` +
-        `Update now?`
-      );
+  async function checkAndUpdate(showUI) {
+    const info = await checkForUpdates();
+    if (!info) return false;
 
-      if (!shouldUpdate && !updateInfo.mandatory) {
-        return false;
-      }
+    if (showUI !== false) {
+      const ok = confirm(`New update ${info.version} available. Install now?`);
+      if (!ok && !info.mandatory) return false;
     }
 
-    const success = await this.downloadAndInstallUpdate(updateInfo);
-    
-    if (success) {
-      if (showUI) {
-        alert('🎉 Update installed! The app will reload with the latest version.');
-      }
-      // Reload the app
+    const ok = await downloadAndInstallUpdate(info);
+    if (ok && showUI !== false) {
+      alert('Update installed. Reloading.');
       window.location.reload();
     }
-
-    return success;
+    return ok;
   }
-}
 
-// Auto-initialize when the script loads
-if (Capacitor.isNativePlatform()) {
-  document.addEventListener('DOMContentLoaded', () => {
-    DegenCasinoUpdater.initializeUpdater();
-    
-    // Check for updates on app start (silent)
-    setTimeout(() => {
-      DegenCasinoUpdater.checkAndUpdate(false);
-    }, 2000);
-  });
-}
+  // Initialize on DOM ready for native platforms
+  if (isNative) {
+    document.addEventListener('DOMContentLoaded', function () {
+      // Run silently after short delay
+      setTimeout(() => { checkAndUpdate(false).catch(() => { }); }, 2000);
+    });
+  }
+
+  // Expose API on window for integration code
+  window.DegenCasinoUpdater = {
+    checkForUpdates,
+    downloadAndInstallUpdate,
+    getCurrentVersion,
+    setCurrentVersion,
+    checkAndUpdate
+  };
+
+})();

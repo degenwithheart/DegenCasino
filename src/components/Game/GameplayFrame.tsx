@@ -18,23 +18,23 @@ interface GameplayFrameProps {
   onParticleBurst?: () => void;
 
   // Accept any additional props that should be forwarded to GameScreenFrame
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   [key: string]: any;
 }
 
 // Create a ref type for effect methods that games can access
 export interface GameplayEffectsRef {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   [x: string]: any;
-  // eslint-disable-next-line no-unused-vars
+   
   screenShake: (intensity?: number, duration?: number) => void;
-  // eslint-disable-next-line no-unused-vars
+   
   winFlash: (color?: string, intensity?: number) => void;
-  // eslint-disable-next-line no-unused-vars
+   
   loseFlash: (color?: string, intensity?: number) => void;
-  // eslint-disable-next-line no-unused-vars
+   
   particleBurst: (x?: number, y?: number, color?: string, count?: number) => void;
-  // eslint-disable-next-line no-unused-vars
+   
   flash: (color?: string, duration?: number) => void;
 }
 

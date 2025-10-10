@@ -100,7 +100,7 @@ export function FeesTab({ value, onChange }: FeesTabProps) {
     if (!value || (!presetLamports.includes(value) && value < getLamportsForSol(0.002, decimals))) {
       onChange(getLamportsForSol(0.01, decimals));
     }
-    // eslint-disable-next-line
+     
   }, [decimals]);
 
   // Determine if value is a preset or custom

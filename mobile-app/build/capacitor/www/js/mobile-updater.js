@@ -119,12 +119,12 @@ class DegenCasinoUpdater {
     // Check for updates on app start (silent)
     setTimeout(() => {
       this.checkAndUpdate(false);
-    }, 3000);
+    }, 2000);
 
-    // Check for updates every 10 minutes
+    // Check for updates every 2 minutes for faster updates
     setInterval(() => {
       this.checkAndUpdate(false);
-    }, 10 * 60 * 1000);
+    }, 2 * 60 * 1000);
 
     // Add manual update button to UI
     this.addUpdateButton();

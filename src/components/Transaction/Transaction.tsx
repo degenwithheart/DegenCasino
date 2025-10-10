@@ -617,7 +617,7 @@ async function hashString(str: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-const copyToClipboard = async (text: string, _showToast?: (key: keyof typeof WALLET_TOAST_MESSAGES, _customMessage?: Partial<WalletToastInput>) => void) => { // eslint-disable-line no-unused-vars
+const copyToClipboard = async (text: string, _showToast?: (key: keyof typeof WALLET_TOAST_MESSAGES, _customMessage?: Partial<WalletToastInput>) => void) => {  
   try {
     await navigator.clipboard.writeText(text);
     if (_showToast) {

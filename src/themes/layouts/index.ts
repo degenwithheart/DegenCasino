@@ -2,6 +2,7 @@
 import React from 'react';
 import { degenHeartTheme } from './degenheart/index';
 import { degenMobileTheme } from './degen-mobile/index';
+import { FEATURE_FLAGS } from '../../constants';
 
 /**
  * Layout Theme Definition Interface
@@ -11,7 +12,7 @@ export interface LayoutTheme {
   id: string;
   name: string;
   description: string;
-  
+
   // Component overrides - each is optional, falls back to default if not provided
   components?: {
     Header?: React.ComponentType<any>;
@@ -19,7 +20,7 @@ export interface LayoutTheme {
     Sidebar?: React.ComponentType<any>;
     // Add more as needed
   };
-  
+
   // Section overrides
   sections?: {
     Dashboard?: React.ComponentType<any>;
@@ -27,7 +28,7 @@ export interface LayoutTheme {
     UserProfile?: React.ComponentType<any>;
     // Add more as needed
   };
-  
+
   // Page overrides for routes
   pages?: {
     JackpotPage?: React.ComponentType<any>;
@@ -41,7 +42,7 @@ export interface LayoutTheme {
     MobileAppPage?: React.ComponentType<any>;
     // Add more as needed
   };
-  
+
   // Layout-specific configuration
   config?: {
     enableSidebar?: boolean;
@@ -63,7 +64,7 @@ export const AVAILABLE_LAYOUT_THEMES = {
     description: 'The default DegenHeart Casino layout',
     // No component overrides - uses existing src/components/ and src/sections/
   },
-  
+
   'degenheart': degenHeartTheme,
   'degen-mobile': degenMobileTheme,
 } as const;
@@ -100,20 +101,27 @@ export const getLayoutThemeWithMobileDetection = (key: LayoutThemeKey): LayoutTh
     // Use the same mobile detection logic as mobileDetection.ts
     const userAgent = navigator.userAgent.toLowerCase();
     const mobileKeywords = [
-      'android', 'iphone', 'ipad', 'ipod', 'blackberry', 
+      'android', 'iphone', 'ipad', 'ipod', 'blackberry',
       'windows phone', 'mobile', 'webos', 'opera mini'
     ];
     const hasMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword));
     const hasSmallScreen = window.innerWidth <= 768;
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    // Always use mobile theme on mobile devices, regardless of user preference
+
+    // Use mobile theme on mobile devices, but respect the feature flag that can disable it
     if (hasMobileUserAgent || (hasSmallScreen && isTouchDevice)) {
-      console.log('📱 Mobile device detected in layout resolver - Using degen-mobile theme');
-      return MOBILE_THEME;
+      if (FEATURE_FLAGS?.ENABLE_DEGEN_MOBILE_THEME) {
+        console.log('📱 Mobile device detected in layout resolver - Using degen-mobile theme');
+        return MOBILE_THEME;
+      }
+
+      // If mobile theme is disabled, fallback to the requested theme (or default)
+      console.log('📱 Mobile device detected but degen-mobile theme is disabled via FEATURE_FLAGS - using fallback theme:', key);
+      const fallbackKey: LayoutThemeKey = (key === 'degen-mobile' ? DEFAULT_LAYOUT_THEME : key) as LayoutThemeKey;
+      return AVAILABLE_LAYOUT_THEMES[fallbackKey] || AVAILABLE_LAYOUT_THEMES.default;
     }
   }
-  
+
   // Use selected theme on desktop
   console.log('🖥️ Desktop device in layout resolver - Using theme:', key);
   return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.default;

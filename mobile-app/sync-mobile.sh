@@ -66,6 +66,11 @@ if [ -d "$DIST_DIR" ]; then
     rm -rf "$BUILD_DIR/capacitor/www"
     cp -r "$DIST_DIR" "$BUILD_DIR/capacitor/www"
     
+    # Remove compressed files that cause Android build conflicts
+    echo "  → Removing compressed files..."
+    find "$BUILD_DIR/capacitor/www" -name "*.gz" -delete
+    find "$BUILD_DIR/capacitor/www" -name "*.br" -delete
+    
     # Copy hot update system
     echo "  → Installing hot update system..."
     if [ -f "$SCRIPT_DIR/hot-updates/mobile-updater.js" ]; then
@@ -133,18 +138,8 @@ else
   run_safe npx cap sync
   rc=$?
   if [ $rc -ne 0 ]; then
-    echo "  ⚠️  npx cap sync failed (critical). Collecting diagnostics..."
-    echo "  --- Diagnostic: current directory ---"
-    pwd
-    echo "  --- Diagnostic: node version ---"
-    node -v 2>/dev/null || echo "(node not found)"
-    echo "  --- Diagnostic: package.json dependencies ---"
-    node -e "try{console.log(JSON.stringify(require('./package.json').dependencies||{},null,2))}catch(e){console.error('cannot read package.json:',e.message)}" 2>/dev/null || true
-    echo "  --- Diagnostic: npm ls @capacitor/android (top-level) ---"
-    npm ls @capacitor/android --depth=0 2>&1 || true
-    echo "  --- Diagnostic: node_modules entries matching 'capacitor' ---"
-    ls -1 node_modules 2>/dev/null | grep capacitor || echo "(no capacitor modules found)"
-    echo "  --- Diagnostic end ---"
+    echo "  ⚠️  npx cap sync failed (critical)."
+    # Keep this as a critical failure but avoid verbose diagnostics in CI logs
     CRITICAL_FAIL=1
   else
     echo "  ✓ Capacitor v7 sync complete"
@@ -153,6 +148,16 @@ else
   echo "  ⚠️ Capacitor project not found. Run setup-mobile-apps.sh first."
 # end SKIP_CAPACITOR guard
   fi
+fi
+
+# Auto-rebuild APK with latest content for hot updates
+if [ "$SKIP_CAPACITOR" -eq 0 ] && [ -f "$SCRIPT_DIR/build-signed-apk.sh" ]; then
+  echo "  → Auto-rebuilding APK with latest content..."
+  run_safe "$SCRIPT_DIR/build-signed-apk.sh"
+else
+  # Try to copy existing APK if auto-rebuild fails
+  echo "  → Checking for existing APK..."
+  run_safe "$SCRIPT_DIR/copy-apk-if-exists.sh"
 fi
 
 echo "=== Mobile Sync Complete ==="

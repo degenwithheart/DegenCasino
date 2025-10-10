@@ -619,10 +619,10 @@ interface MobileControlsProps {
 
 interface OptionSelectorProps<T = unknown> {
   label: string;
-  // eslint-disable-next-line no-unused-vars
+   
   options: Array<{ value: T; label: string; }>;
   selected: T;
-  // eslint-disable-next-line no-unused-vars
+   
   onSelect: (value: T) => void;
   disabled?: boolean;
 }
@@ -630,7 +630,7 @@ interface OptionSelectorProps<T = unknown> {
 interface SwitchControlProps {
   label: string;
   checked: boolean;
-  // eslint-disable-next-line no-unused-vars
+   
   onChange: (checked: boolean) => void;
   disabled?: boolean;
 }

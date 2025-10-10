@@ -16,6 +16,19 @@ scripts/*
 !scripts/monitor-rpc.mjs
 !scripts/post-build-mobile-sync.mjs
 
+# Ignore keystore files (sensitive)
+mobile-app/config/*
+*.jks
+*.keystore
+dghrt-keystore.*
+
+# Ignore APK files (too large for GitHub)
+*.apk
+**/*.apk
+mobile-app/build/capacitor/www/mobile/
+public/mobile/
+dist/mobile/
+
 # Ignore backup and temporary files
 *.bak
 *.old.*

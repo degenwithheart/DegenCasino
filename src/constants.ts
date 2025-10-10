@@ -94,7 +94,17 @@ export const FEATURE_FLAGS = {
    * 
    * Provides native mobile experience with fullscreen browsers for transactions, wallets, and help.
    */
-  ENABLE_MOBILE_BROWSER: false,
+  ENABLE_MOBILE_BROWSER: true,
+  /**
+   * Show or hide the Degen Mobile theme (mobile-only UI skin named "degen-mobile").
+   * - true: enable the degen-mobile theme and related mobile-only UI tweaks
+   * - false: use the regular responsive site styling on mobile
+   *
+   * This flag is intentionally separate from ENABLE_MOBILE_BROWSER so you can
+   * toggle the UI skin independently of whether the Capacitor mobile browser
+   * integration is enabled.
+   */
+  ENABLE_DEGEN_MOBILE_THEME: false,
   /**
    * Enable/disable the in-game (per-game) RecentGames custom component.
    * The in-game RecentGames component is currently broken in some themes.

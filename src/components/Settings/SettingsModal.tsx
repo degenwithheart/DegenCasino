@@ -1,6 +1,6 @@
 import React from 'react';
 // Allow injected build-time constant from Vite define
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 declare const __APP_VERSION__: string | undefined;
 import { Modal } from '../Modal/Modal';
 import { useUserStore } from '../../hooks/data/useUserStore';

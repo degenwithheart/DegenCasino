@@ -37,7 +37,7 @@ function idle(cb: () => void) {
 // Lightweight dynamic access to user store (lazy require to avoid cycle)
 function getUserSettings() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const { useUserStore } = require('../data/useUserStore');
     return useUserStore.getState();
   } catch { return {} as any; }

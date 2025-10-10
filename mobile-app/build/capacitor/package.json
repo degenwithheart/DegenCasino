@@ -1,22 +1,18 @@
 {
-  "name": "degen-casino-capacitor",
+  "name": "capacitor",
   "version": "1.0.0",
-  "scripts": {
-    "build": "echo 'Place web build here'",
-    "sync": "npx cap sync",
-    "install-plugins": "npm install @capacitor/browser && npx cap sync"
-  },
-  "dependencies": {
-    "@capacitor/browser": "^7.0.0",
-    "@capacitor/core": "^7.0.0"
-  },
-  "devDependencies": {
-    "@capacitor/android": "^7.4.3",
-    "@capacitor/cli": "^7.0.0"
-  },
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/browser": "^7.0.2",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  }
 }

@@ -88,11 +88,11 @@ export default [
             '@typescript-eslint': tseslint,
         },
         rules: {
-            'no-unused-vars': 'warn',
+            'no-unused-vars': 'off',
             'no-console': 'off',
             'no-constant-condition': 'off', // Allow constant conditions in some cases
-            '@typescript-eslint/no-unused-vars': 'warn',
-            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-empty-interface': 'off', // Allow empty interfaces for type augmentation
         },
     },

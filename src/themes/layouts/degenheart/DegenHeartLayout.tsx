@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, createContext, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useColorScheme } from '../../ColorSchemeContext';
 import Header from './Header';
@@ -66,6 +66,9 @@ const LayoutContainer = styled.div<{ $colorScheme: any; }>`
   box-sizing: border-box; /* Include borders and padding in width calculations */
   background: ${props => props.$colorScheme.colors.background};
   
+  /* Enable touch events for drag functionality */
+  touch-action: manipulation; /* Allow normal touch interactions */
+  
   /* Mobile-first: Single column layout by default */
   grid-template-areas: ${gridBreakpoints.mobile.areas};
   grid-template-rows: ${gridBreakpoints.mobile.rows};
@@ -120,7 +123,7 @@ const GridHeader = styled.header`
   }
 `;
 
-const GridLeftSidebar = styled.aside<{ $isOpen?: boolean; }>`
+const GridLeftSidebar = styled.aside<{ $isOpen?: boolean; $isDragging?: boolean; }>`
   grid-area: left;
   /* Mobile-first: Hidden by default, drawer when needed */
   display: none;
@@ -133,11 +136,15 @@ const GridLeftSidebar = styled.aside<{ $isOpen?: boolean; }>`
     left: 0;
     bottom: 65px;
     width: min(320px, 85vw); /* Responsive width with max constraint */
-    height: auto;
+    height: calc(100vh - 145px); /* Fixed height to enable scrolling */
     z-index: 9998; /* Higher z-index to ensure visibility */
     transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform ${props => props.$isDragging ? '0s' : '0.3s cubic-bezier(0.4, 0, 0.2, 1)'};
     box-shadow: ${props => props.$isOpen ? '8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
+    
+    /* Enable scrolling */
+    overflow-y: auto;
+    overflow-x: hidden;
     
     /* Enhanced mobile/tablet touch support */
     -webkit-overflow-scrolling: touch;
@@ -166,6 +173,10 @@ const GridLeftSidebar = styled.aside<{ $isOpen?: boolean; }>`
     z-index: 900;
     transform: none;
     box-shadow: none;
+    
+    /* Enable scrolling on desktop */
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   /* Large desktop: Wider sidebar */
@@ -238,7 +249,7 @@ const GridMain = styled.main`
   }
 `;
 
-const GridRightSidebar = styled.aside<{ $isOpen?: boolean; }>`
+const GridRightSidebar = styled.aside<{ $isOpen?: boolean; $isDragging?: boolean; }>`
   grid-area: right;
   /* Mobile-first: Hidden by default, drawer when needed */
   display: none;
@@ -251,11 +262,15 @@ const GridRightSidebar = styled.aside<{ $isOpen?: boolean; }>`
     right: 0;
     bottom: 65px;
     width: min(320px, 85vw); /* Responsive width with max constraint */
-    height: auto;
+    height: calc(100vh - 145px); /* Fixed height to enable scrolling */
     z-index: 1100;
     transform: translateX(${props => props.$isOpen ? '0' : '100%'});
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform ${props => props.$isDragging ? '0s' : '0.3s cubic-bezier(0.4, 0, 0.2, 1)'};
     box-shadow: ${props => props.$isOpen ? '-8px 0 32px rgba(0, 0, 0, 0.5)' : 'none'};
+    
+    /* Enable scrolling */
+    overflow-y: auto;
+    overflow-x: hidden;
     
     /* Enhanced mobile/tablet touch support */
     -webkit-overflow-scrolling: touch;
@@ -284,11 +299,49 @@ const GridRightSidebar = styled.aside<{ $isOpen?: boolean; }>`
   /* Desktop: Full three-column layout with wider sidebar */
   ${media.desktop} {
     width: 250px;
+    
+    /* Enable scrolling on desktop */
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   /* Large desktop: Even wider sidebar */
   ${media.desktopLg} {
     width: 280px;
+  }
+`;
+
+const DragZoneLeft = styled.div<{ $visible: boolean; }>`
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 20px;
+  bottom: 65px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, transparent 100%);
+  z-index: 10000;
+  opacity: ${props => props.$visible ? 1 : 0};
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  
+  ${media.tablet} {
+    display: none; /* Hide on desktop */
+  }
+`;
+
+const DragZoneRight = styled.div<{ $visible: boolean; }>`
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 20px;
+  bottom: 65px;
+  background: linear-gradient(270deg, rgba(59, 130, 246, 0.3) 0%, transparent 100%);
+  z-index: 10000;
+  opacity: ${props => props.$visible ? 1 : 0};
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  
+  ${media.tablet} {
+    display: none; /* Hide on desktop */
   }
 `;
 
@@ -357,6 +410,14 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
 
+  // Drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [currentDragX, setCurrentDragX] = useState(0);
+  const dragThreshold = 50; // Minimum distance to trigger drag
+  const layoutRef = useRef<HTMLDivElement>(null);
+
   // Header modal states
   const [showBonusModal, setShowBonusModal] = useState(false);
   const [showJackpotModal, setShowJackpotModal] = useState(false);
@@ -381,6 +442,66 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const closeSidebars = () => {
     setLeftSidebarOpen(false);
     setRightSidebarOpen(false);
+  };
+
+  // Drag handlers - only trigger from screen edges
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const screenWidth = window.innerWidth;
+    const edgeZone = 50; // 50px edge zone
+
+    // Only start drag if touch is in edge zones
+    if (touch.clientX <= edgeZone || touch.clientX >= screenWidth - edgeZone) {
+      setDragStartX(touch.clientX);
+      setDragStartY(touch.clientY);
+      setCurrentDragX(touch.clientX);
+      setIsDragging(false);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (dragStartX === 0) return; // No valid drag started
+
+    const deltaX = e.touches[0].clientX - dragStartX;
+    const deltaY = e.touches[0].clientY - dragStartY;
+
+    // Start dragging if horizontal movement is significant
+    if (!isDragging && Math.abs(deltaX) > 15 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      setIsDragging(true);
+      e.preventDefault(); // Prevent scrolling during drag
+    }
+
+    if (isDragging) {
+      setCurrentDragX(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging || dragStartX === 0) {
+      setDragStartX(0);
+      return;
+    }
+
+    const deltaX = currentDragX - dragStartX;
+    const absDeltaX = Math.abs(deltaX);
+    const screenWidth = window.innerWidth;
+
+    // Check if drag is significant enough
+    if (absDeltaX > dragThreshold) {
+      // Left edge drag to right - open left sidebar
+      if (dragStartX <= 50 && deltaX > 0) {
+        setLeftSidebarOpen(true);
+        setRightSidebarOpen(false);
+      }
+      // Right edge drag to left - open right sidebar  
+      else if (dragStartX >= screenWidth - 50 && deltaX < 0) {
+        setRightSidebarOpen(true);
+        setLeftSidebarOpen(false);
+      }
+    }
+
+    setIsDragging(false);
+    setDragStartX(0);
   };
 
   // Handle escape key to close sidebars
@@ -429,7 +550,17 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           setShareModalGame(game);
         }
       }}>
-        <LayoutContainer $colorScheme={currentColorScheme}>
+        <LayoutContainer
+          $colorScheme={currentColorScheme}
+          ref={layoutRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Drag zone indicators */}
+          <DragZoneLeft $visible={isDragging && dragStartX <= 50} />
+          <DragZoneRight $visible={isDragging && dragStartX >= window.innerWidth - 50} />
+
           {/* Mobile backdrop */}
           <MobileBackdrop
             $visible={leftSidebarOpen || rightSidebarOpen}
@@ -446,7 +577,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
             <Header />
           </GridHeader>
 
-          <GridLeftSidebar $isOpen={leftSidebarOpen}>
+          <GridLeftSidebar $isOpen={leftSidebarOpen} $isDragging={isDragging}>
             <LeftSidebar />
           </GridLeftSidebar>
 
@@ -454,7 +585,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
             {children || <MainContent />}
           </GridMain>
 
-          <GridRightSidebar $isOpen={rightSidebarOpen}>
+          <GridRightSidebar $isOpen={rightSidebarOpen} $isDragging={isDragging}>
             <RightSidebar />
           </GridRightSidebar>
 

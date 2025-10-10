@@ -1,1 +1,0 @@
-import{j as o}from"./three-D4AtYCWe.js";import r from"./PlinkoRace-2D-CkGXdOLj.js";import"./react-vendor-faCf7XlP.js";import"./index-eL7pTMGs.js";import"./blockchain-C0nfa7Sw.js";import"./physics-audio-DLMfKFaI.js";import"./matter-Csocjh7Y.js";function s(){return o.jsx(r,{})}export{s as default};
