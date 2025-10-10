@@ -4,11 +4,11 @@
 class DegenCasinoUpdater {
   static UPDATE_CHECK_URL = 'https://degenheart.casino/api/mobile-update-check';
   static CURRENT_VERSION_KEY = 'degenCasinoMobileVersion';
-  
+
   static async checkForUpdates() {
     try {
       console.log('🔍 Checking for app updates...');
-      
+
       const currentVersion = this.getCurrentVersion();
       console.log('📦 Current version:', currentVersion);
 
@@ -29,7 +29,7 @@ class DegenCasinoUpdater {
       }
 
       const updateInfo = await response.json();
-      
+
       if (updateInfo.hasUpdate) {
         console.log('🎉 New update available:', updateInfo.version);
         return updateInfo;
@@ -52,18 +52,19 @@ class DegenCasinoUpdater {
       if (updateInfo.hasUpdate) {
         // Store new version
         this.setCurrentVersion(updateInfo.version);
-        
+
         // Clear caches and reload
         if ('caches' in window) {
           const cacheNames = await caches.keys();
           await Promise.all(cacheNames.map(name => caches.delete(name)));
         }
-        
-        // Force reload with cache bypass
-        window.location.reload(true);
+
+        // Force reload with cache bypass using timestamp
+        const cacheBustUrl = window.location.href + (window.location.href.includes('?') ? '&' : '?') + '_cache_bust=' + Date.now();
+        window.location.href = cacheBustUrl;
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('❌ Update failed:', error);
@@ -91,7 +92,7 @@ class DegenCasinoUpdater {
 
   static async checkAndUpdate(showUI = true) {
     const updateInfo = await this.checkForUpdates();
-    
+
     if (!updateInfo) {
       return false;
     }
@@ -114,21 +115,21 @@ class DegenCasinoUpdater {
 
   static init() {
     console.log('🚀 DegenCasino Mobile Updater initialized');
-    
+
     // Check for updates on app start (silent)
     setTimeout(() => {
       this.checkAndUpdate(false);
     }, 3000);
-    
+
     // Check for updates every 10 minutes
     setInterval(() => {
       this.checkAndUpdate(false);
     }, 10 * 60 * 1000);
-    
+
     // Add manual update button to UI
     this.addUpdateButton();
   }
-  
+
   static addUpdateButton() {
     // Add a floating update button
     const updateButton = document.createElement('button');
@@ -150,24 +151,24 @@ class DegenCasinoUpdater {
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       transition: all 0.3s ease;
     `;
-    
+
     updateButton.onmouseover = () => {
       updateButton.style.transform = 'scale(1.1)';
       updateButton.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
     };
-    
+
     updateButton.onmouseout = () => {
       updateButton.style.transform = 'scale(1)';
       updateButton.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
     };
-    
+
     updateButton.onclick = () => {
       updateButton.innerHTML = '⏳';
       this.checkAndUpdate(true).finally(() => {
         updateButton.innerHTML = '🔄';
       });
     };
-    
+
     document.body.appendChild(updateButton);
   }
 }

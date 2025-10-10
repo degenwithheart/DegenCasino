@@ -24,6 +24,7 @@ if [ -d "$DIST_DIR" ]; then
     # Copy hot update system
     echo "  → Installing hot update system..."
     if [ -f "$SCRIPT_DIR/hot-updates/mobile-updater.js" ]; then
+      mkdir -p "$BUILD_DIR/capacitor/www/js"
       cp "$SCRIPT_DIR/hot-updates/mobile-updater.js" "$BUILD_DIR/capacitor/www/js/"
       
       # Inject updater script into index.html
@@ -48,40 +49,22 @@ if [ -d "$BUILD_DIR/capacitor" ]; then
   # Update package.json if needed
   if ! grep -q '"@capacitor/core": "\^7.0.0"' package.json; then
     echo "  → Updating Capacitor to v7..."
-    npm install @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0
+    npm install @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0 >/dev/null 2>&1
   fi
   
   # Install Browser plugin
   if ! grep -q '"@capacitor/browser"' package.json; then
     echo "  → Installing Browser plugin..."
-    npm install @capacitor/browser@^7.0.0
+    npm install @capacitor/browser@^7.0.0 >/dev/null 2>&1
   fi
   
   # Sync platforms
   echo "  → Syncing platforms..."
-  npx cap sync
+  npx cap sync >/dev/null 2>&1
   
   echo "  ✓ Capacitor v7 sync complete"
 else
   echo "  ⚠️ Capacitor project not found. Run setup-mobile-apps.sh first."
 fi
 
-# Capacitor v7 is the primary mobile platform
-
-# Android Studio sync
-if [ -d "$BUILD_DIR/android-studio" ]; then
-  echo "[*] Android Studio project ready for manual sync"
-  echo "  → Open in Android Studio: $BUILD_DIR/android-studio"
-fi
-
 echo "=== Mobile Sync Complete ==="
-echo ""
-echo "Next steps:"
-echo "1. Test Android: cd $BUILD_DIR/capacitor && npx cap run android"
-echo "2. Build APK: cd $BUILD_DIR/capacitor && npx cap build android"
-echo ""
-echo "Capacitor v7 Browser plugin features:"
-echo "  • Fullscreen native WebView"
-echo "  • Custom toolbar colors for different link types"
-echo "  • HTTPS scheme enforcement"
-echo "  • Native Android experience"

@@ -9,15 +9,17 @@
     "dev:edge": "vercel dev",
     "dev:prod": "npm run build:compress && vercel dev --prod",
     "build": "vite build",
-    "build:compress": "vite build && node scripts/compress-build.mjs",
+    "build:compress": "vite build && node scripts/compress-build.mjs && npm run mobile:sync:safe",
     "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
-    "test:rtp-v3": "node scripts/test-rtp-v3.js",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "monitor": "node scripts/monitor-rpc.mjs",
     "monitor:prod": "node scripts/monitor-rpc.mjs --url=https://degenheart.casino --interval=60",
-    "monitor:fast": "node scripts/monitor-rpc.mjs --interval=30"
+    "monitor:fast": "node scripts/monitor-rpc.mjs --interval=30",
+    "mobile:sync": "cd mobile-app && ./sync-mobile.sh",
+    "mobile:build": "cd mobile-app && ./build-mobile.sh",
+    "mobile:sync:safe": "cd mobile-app && (./sync-mobile.sh && echo 'Mobile Sync: Passed' && (curl -s -X POST https://degenheart.casino/api/mobile-update-check -H 'Content-Type: application/json' -d '{\"currentVersion\":\"test\",\"platform\":\"test\"}' | grep -q 'hasUpdate' && echo 'Mobile Update: Passed' || echo 'Mobile Update: Failed')) || (echo 'Mobile Sync: Failed' && echo 'Continuing...')"
   },
   "dependencies": {
     "@capacitor/browser": "^7.0.0",

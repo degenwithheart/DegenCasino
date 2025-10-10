@@ -11,6 +11,9 @@ import { FAKE_TOKEN_MINT, PoolToken } from 'gamba-react-ui-v2';
 import makeHeliusTokenFetcher from 'gamba-react-ui-v2';
 import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
+// Mobile app configuration
+export const ENABLE_MOBILE_APP = true;
+
 // Get RPC from the .env file or default to Syndica, not public RPC.
 // Note: This is now primarily used as fallback. The NetworkContext provides dynamic RPC endpoints.
 export const RPC_ENDPOINT = import.meta.env.RPC_ENDPOINT ?? 'https://solana-mainnet.api.syndica.io/api-key/4jiiRsRb2BL8pD6S8H3kNNr8U7YYuyBkfuce3f1ngmnYCKS5KSXwvRx53p256RNQZydrDWt1TdXxVbRrmiJrdk3RdD58qtYSna1';

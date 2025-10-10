@@ -14,6 +14,7 @@ node_modules
 scripts/*
 !scripts/compress-build.mjs
 !scripts/monitor-rpc.mjs
+!scripts/post-build-mobile-sync.mjs
 
 # Ignore backup and temporary files
 *.bak
