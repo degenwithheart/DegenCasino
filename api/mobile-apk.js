@@ -1,6 +1,6 @@
 // Vercel API for APK building and download with smart caching
 export const config = {
-    runtime: 'nodejs18.x',
+    runtime: 'edge',
 };
 
 export default async function handler(req, res) {
