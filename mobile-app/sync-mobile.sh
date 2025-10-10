@@ -27,6 +27,35 @@ DIST_DIR="$PROJECT_ROOT/dist"
 
 echo "=== DegenCasino Mobile Sync ==="
 
+# Detect CI / Vercel environment: when present, skip installing or running Capacitor
+SKIP_CAPACITOR=0
+# allow explicit override via SKIP_CAPACITOR_OVERRIDE=1
+if [ "${SKIP_CAPACITOR_OVERRIDE:-}" = "1" ]; then
+  SKIP_CAPACITOR=1
+elif [ -n "$VERCEL" ] || [ "${CI:-}" = "true" ]; then
+  # running on Vercel or other CI; skip Capacitor actions
+  SKIP_CAPACITOR=1
+fi
+
+# If we're skipping Capacitor actions in CI, ensure a minimal capacitor folder exists
+if [ "$SKIP_CAPACITOR" -eq 1 ]; then
+  if [ ! -d "$BUILD_DIR/capacitor" ]; then
+    echo "  → Creating minimal capacitor project folders (CI fallback)"
+    mkdir -p "$BUILD_DIR/capacitor/www"
+    # create a minimal package.json so some tools don't error out
+    if [ ! -f "$BUILD_DIR/capacitor/package.json" ]; then
+      cat > "$BUILD_DIR/capacitor/package.json" <<EOF
+{
+  "name": "degen-casino-capacitor",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {}
+}
+EOF
+    fi
+  fi
+fi
+
 # Check if main web build exists and copy it
 if [ -d "$DIST_DIR" ]; then
   echo "[*] Copying latest web build to mobile projects..."
@@ -58,10 +87,14 @@ else
   echo "  → Run 'npm run build' first to generate web build"
 fi
 
-# Capacitor v7 Sync
-if [ -d "$BUILD_DIR/capacitor" ]; then
-  echo "[*] Syncing Capacitor v7..."
-  cd "$BUILD_DIR/capacitor"
+# Capacitor v7 Sync (skip in CI/Vercel when Capacitor is not available)
+if [ "$SKIP_CAPACITOR" -eq 1 ]; then
+  echo "[*] Skipping Capacitor install/sync in CI/Vercel environment (SKIP_CAPACITOR enabled)."
+else
+  # Only run Capacitor actions when the capacitor project exists
+  if [ -d "$BUILD_DIR/capacitor" ]; then
+    echo "[*] Syncing Capacitor v7..."
+    cd "$BUILD_DIR/capacitor"
   
   # Update package.json if needed
     if ! grep -q '"@capacitor/core": "\^7.0.0"' package.json; then
@@ -118,6 +151,8 @@ if [ -d "$BUILD_DIR/capacitor" ]; then
   fi
 else
   echo "  ⚠️ Capacitor project not found. Run setup-mobile-apps.sh first."
+# end SKIP_CAPACITOR guard
+  fi
 fi
 
 echo "=== Mobile Sync Complete ==="
