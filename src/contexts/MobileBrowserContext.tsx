@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { useBrowser } from '../hooks/mobile/useBrowser';
 
 interface MobileBrowserContextType {
@@ -36,7 +35,7 @@ export const MobileBrowserProvider: React.FC<MobileBrowserProviderProps> = ({ ch
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -45,8 +44,8 @@ export const MobileBrowserProvider: React.FC<MobileBrowserProviderProps> = ({ ch
     console.log('DegenCasino Mobile Browser Provider initialized:', {
       isNativePlatform: browser.isNativePlatform,
       isMobile,
-      platform: Capacitor.getPlatform(),
-      isCapacitor: Capacitor.isNativePlatform()
+      platform: 'web',
+      isCapacitor: false
     });
   }, [browser.isNativePlatform, isMobile]);
 
