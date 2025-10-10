@@ -30,14 +30,6 @@ mobile-app/build/capacitor/android/app/build/
 dist/mobile/
 public/mobile/
 
-# Ignore backup and temporary files
-*.bak
-*.old.*
-*.original.*
-*.broken.*
-*.temp
-*.tmp
-
 # Ignore development files
 **/ThemeLayoutWrapper.tsx
 **/game3DConfigs.ts
