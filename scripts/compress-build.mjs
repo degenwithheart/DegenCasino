@@ -17,14 +17,14 @@ class BuildCompressor {
 
   async getFilesToCompress() {
     const files = [];
-    
+
     const walk = (dir) => {
       const items = fs.readdirSync(dir);
-      
+
       for (const item of items) {
         const fullPath = path.join(dir, item);
         const stat = fs.statSync(fullPath);
-        
+
         if (stat.isDirectory()) {
           walk(fullPath);
         } else if (this.shouldCompress(fullPath, stat.size)) {
@@ -32,7 +32,7 @@ class BuildCompressor {
         }
       }
     };
-    
+
     walk(this.distDir);
     return files;
   }
@@ -40,13 +40,13 @@ class BuildCompressor {
   shouldCompress(filePath, size) {
     // Only compress files larger than 1KB
     if (size < 1024) return false;
-    
+
     const ext = path.extname(filePath).toLowerCase();
     const compressibleExtensions = [
       '.js', '.css', '.html', '.json', '.svg', '.txt', '.xml',
       '.woff', '.woff2', '.ttf', '.eot'
     ];
-    
+
     return compressibleExtensions.includes(ext);
   }
 
@@ -54,12 +54,12 @@ class BuildCompressor {
     try {
       const content = fs.readFileSync(filePath);
       const originalSize = content.length;
-      
+
       // Generate gzip
       const gzipContent = await gzipAsync(content, { level: 9 });
       const gzipPath = `${filePath}.gz`;
       fs.writeFileSync(gzipPath, gzipContent);
-      
+
       // Generate brotli
       const brotliContent = await brotliAsync(content, {
         params: {
@@ -69,16 +69,16 @@ class BuildCompressor {
       });
       const brotliPath = `${filePath}.br`;
       fs.writeFileSync(brotliPath, brotliContent);
-      
+
       const relativePath = path.relative(this.distDir, filePath);
       const gzipRatio = ((1 - gzipContent.length / originalSize) * 100).toFixed(1);
       const brotliRatio = ((1 - brotliContent.length / originalSize) * 100).toFixed(1);
-      
+
       console.log(`✅ ${relativePath}`);
       console.log(`   📦 Original: ${this.formatSize(originalSize)}`);
       console.log(`   🗜️  Gzip: ${this.formatSize(gzipContent.length)} (${gzipRatio}% saved)`);
       console.log(`   🔥 Brotli: ${this.formatSize(brotliContent.length)} (${brotliRatio}% saved)`);
-      
+
       return {
         original: originalSize,
         gzip: gzipContent.length,
@@ -101,18 +101,18 @@ class BuildCompressor {
   async run() {
     console.log('🔍 Scanning for compressible files...');
     const files = await this.getFilesToCompress();
-    
+
     if (files.length === 0) {
       console.log('ℹ️  No files found to compress');
       return;
     }
-    
+
     console.log(`📝 Found ${files.length} files to compress\n`);
-    
+
     let totalOriginal = 0;
     let totalGzip = 0;
     let totalBrotli = 0;
-    
+
     for (const file of files) {
       const result = await this.compressFile(file);
       if (result) {
@@ -122,7 +122,7 @@ class BuildCompressor {
       }
       console.log(''); // Empty line for readability
     }
-    
+
     console.log('📊 Compression Summary:');
     console.log(`   📦 Total Original: ${this.formatSize(totalOriginal)}`);
     console.log(`   🗜️  Total Gzip: ${this.formatSize(totalGzip)} (${((1 - totalGzip / totalOriginal) * 100).toFixed(1)}% saved)`);
