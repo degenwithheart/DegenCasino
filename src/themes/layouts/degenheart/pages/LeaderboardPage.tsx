@@ -150,8 +150,8 @@ export default function LeaderboardPage() {
                                                 cursor: 'pointer',
                                                 fontFamily: 'monospace'
                                             }}
-                                            onMouseEnter={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.9)'}
-                                            onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.6)'}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)')}
                                             title="View on Solscan"
                                         >
                                             🔍
@@ -168,8 +168,8 @@ export default function LeaderboardPage() {
                                                 cursor: 'pointer',
                                                 fontFamily: 'monospace'
                                             }}
-                                            onMouseEnter={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.9)'}
-                                            onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.6)'}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)')}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)')}
                                             title="View Player Profile"
                                         >
                                             👤

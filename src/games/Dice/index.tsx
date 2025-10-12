@@ -7,7 +7,6 @@ import { ALL_GAMES } from '../allGames';
 // Lazy load 2D, 3D, and Mobile components
 const Dice2D = React.lazy(() => import('./Dice-2D'));
 const Dice3D = React.lazy(() => import('./Dice-3D'));
-const DiceMobile = React.lazy(() => import('./index-mobile'));
 
 export default function DiceWrapper() {
   const seoHelmet = useGameSEO({
@@ -35,7 +34,7 @@ export default function DiceWrapper() {
   const getGameComponent = () => {
     if (isMobile) {
       console.log('🎲 Loading MOBILE Dice component');
-      return <DiceMobile />;
+      return <Dice2D />;
     }
     const component = shouldRender3D ? <Dice3D /> : <Dice2D />;
     console.log('🎲 Loading DESKTOP Dice component:', shouldRender3D ? '3D' : '2D');

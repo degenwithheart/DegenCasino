@@ -59,7 +59,7 @@
     "tone": "^15.1.22",
     "tweetnacl": "^1.0.3",
     "uuid": "^10.0.0",
-    "zustand": "^4.4.1"
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",
