@@ -4,7 +4,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import styled from 'styled-components';
-import { Modal, ModalContent } from './Modal';
 import { PLATFORM_SHARABLE_URL } from '../../../../constants';
 import { extractMetadata } from '../../../../utils';
 import { media } from '../breakpoints';
@@ -145,114 +144,110 @@ export const ShareModal: React.FC<ShareModalProps> = ({ event, onClose }) => {
   const tokenMeta = useTokenMeta(event.data.tokenMint);
 
   return (
-    <Modal onClose={onClose}>
-      <ModalContent $maxWidth="420px">
-        <Inner>
+    <Inner>
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '16px'
+      }}>
+        <div style={{
+          fontSize: '1.25rem',
+          fontWeight: 'bold',
+          color: '#ffd700',
+          marginBottom: '8px'
+        }}>
+          {game?.meta?.name || 'Game'} Results
+        </div>
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          marginBottom: '16px'
+        }}>
+          <GameIcon src={game?.meta?.image} alt={game?.meta?.name || 'Game'} />
+
           <div style={{
-            textAlign: 'center',
-            marginBottom: '16px'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            <div style={{
-              fontSize: '1.25rem',
-              fontWeight: 'bold',
-              color: '#ffd700',
-              marginBottom: '8px'
-            }}>
-              {game?.meta?.name || 'Game'} Results
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '16px',
-              marginBottom: '16px'
-            }}>
-              <GameIcon src={game?.meta?.image} alt={game?.meta?.name || 'Game'} />
-
+            <TokenIcon src={tokenMeta.image} alt={tokenMeta.name} />
+            <div style={{ textAlign: 'left' }}>
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <TokenIcon src={tokenMeta.image} alt={tokenMeta.name} />
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{
-                    fontSize: '14px',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    marginBottom: '4px'
-                  }}>
-                    Wager
-                  </div>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: '#fff'
-                  }}>
-                    <TokenValue exact amount={wager} mint={event.data.tokenMint} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <ProfitDisplay $isProfit={isProfit}>
-                {isProfit ? '+' : ''}<TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
-                <div className="multiplier">
-                  {multiplier.toFixed(2)}x
-                </div>
-              </ProfitDisplay>
-            </div>
-
-            {/* Transaction Details */}
-            <div style={{
-              marginTop: '12px',
-              padding: '8px 12px',
-              background: 'rgba(255, 215, 0, 0.1)',
-              borderRadius: '8px',
-              border: '1px solid #ffd700'
-            }}>
-              <div style={{
-                fontSize: '0.75rem',
+                fontSize: '14px',
                 color: 'rgba(255, 255, 255, 0.6)',
                 marginBottom: '4px'
               }}>
-                Transaction
+                Wager
               </div>
               <div style={{
-                fontSize: '0.8rem',
-                fontWeight: '500',
-                color: '#ffd700',
-                fontFamily: 'JetBrains Mono, monospace',
-                wordBreak: 'break-all'
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#fff'
               }}>
-                {event.signature}
+                <TokenValue exact amount={wager} mint={event.data.tokenMint} />
               </div>
             </div>
           </div>
+        </div>
 
-          <BrandingSection>
-            <img src="/webp/$DGHRT.webp" alt="DegenHeart" />
-            <div>
-              play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <ProfitDisplay $isProfit={isProfit}>
+            {isProfit ? '+' : ''}<TokenValue exact amount={Math.abs(profit)} mint={event.data.tokenMint} />
+            <div className="multiplier">
+              {multiplier.toFixed(2)}x
             </div>
-          </BrandingSection>
+          </ProfitDisplay>
+        </div>
 
-          <ButtonGroup>
-            <GambaUi.Button size="small" onClick={viewTransaction}>
-              View Details
-            </GambaUi.Button>
-            <GambaUi.Button size="small" onClick={gotoGame}>
-              Play {game?.meta?.name || 'Game'}
-            </GambaUi.Button>
-          </ButtonGroup>
-        </Inner>
-      </ModalContent>
-    </Modal>
+        {/* Transaction Details */}
+        <div style={{
+          marginTop: '12px',
+          padding: '8px 12px',
+          background: 'rgba(255, 215, 0, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid #ffd700'
+        }}>
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'rgba(255, 255, 255, 0.6)',
+            marginBottom: '4px'
+          }}>
+            Transaction
+          </div>
+          <div style={{
+            fontSize: '0.8rem',
+            fontWeight: '500',
+            color: '#ffd700',
+            fontFamily: 'JetBrains Mono, monospace',
+            wordBreak: 'break-all'
+          }}>
+            {event.signature}
+          </div>
+        </div>
+      </div>
+
+      <BrandingSection>
+        <img src="/webp/$DGHRT.webp" alt="DegenHeart" />
+        <div>
+          play on <span className="platform-name">{PLATFORM_SHARABLE_URL}</span>
+        </div>
+      </BrandingSection>
+
+      <ButtonGroup>
+        <GambaUi.Button size="small" onClick={viewTransaction}>
+          View Details
+        </GambaUi.Button>
+        <GambaUi.Button size="small" onClick={gotoGame}>
+          Play {game?.meta?.name || 'Game'}
+        </GambaUi.Button>
+      </ButtonGroup>
+    </Inner>
   );
 };

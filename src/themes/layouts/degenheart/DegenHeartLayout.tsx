@@ -6,14 +6,12 @@ import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 import MainContent from './MainContent';
-import { Modal, ModalContent } from './components/Modal';
+import { Modal } from './components/Modal';
 import { ShareModal } from './components/ShareModal';
 import AllGamesContentModal from './components/AllGamesContentModal';
 import { ConnectionStatusContent } from './components/ConnectionStatusContent';
-import { BonusContent, JackpotContent, ColorSchemeSelector } from '../../../components';
-import { LeaderboardsContent } from '../../../sections/LeaderBoard/LeaderboardsModal';
-import TokenSelect from '../../../sections/TokenSelect';
-import { PLATFORM_CREATOR_ADDRESS } from '../../../constants';
+import { BonusPage, JackpotPage, LeaderboardPage, SelectTokenPage } from './pages';
+import { ColorSchemeSelector } from '../../../components';
 import { media, gridBreakpoints } from './breakpoints';
 
 // Create a local games modal context for degen theme
@@ -594,74 +592,83 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           </GridFooter>
 
           {/* Degen Games Modal - renders in viewport mode covering main content area */}
-          {showGamesModal && (
-            <Modal variant="viewport" onClose={() => setShowGamesModal(false)}>
-              <AllGamesContentModal onGameClick={() => setShowGamesModal(false)} />
-            </Modal>
-          )}
+          <Modal
+            isOpen={showGamesModal}
+            onClose={() => setShowGamesModal(false)}
+            title="🎮 All Games"
+            maxHeight="90vh"
+          >
+            <AllGamesContentModal onGameClick={() => setShowGamesModal(false)} />
+          </Modal>
 
           {/* Header Modals - render in viewport mode covering main content area */}
-          {showBonusModal && (
-            <Modal variant="viewport" onClose={() => setShowBonusModal(false)}>
-              <ModalContent $maxWidth="600px">
-                <BonusContent />
-              </ModalContent>
-            </Modal>
-          )}
+          <Modal
+            isOpen={showBonusModal}
+            onClose={() => setShowBonusModal(false)}
+            title="🎁 Bonus"
+            maxHeight="80vh"
+          >
+            <BonusPage />
+          </Modal>
 
-          {showJackpotModal && (
-            <Modal variant="viewport" onClose={() => setShowJackpotModal(false)}>
-              <ModalContent $maxWidth="700px">
-                <JackpotContent />
-              </ModalContent>
-            </Modal>
-          )}
+          <Modal
+            isOpen={showJackpotModal}
+            onClose={() => setShowJackpotModal(false)}
+            title="💰 Jackpot"
+            maxHeight="80vh"
+          >
+            <JackpotPage />
+          </Modal>
 
-          {showLeaderboardModal && (
-            <Modal variant="viewport" onClose={() => setShowLeaderboardModal(false)}>
-              <ModalContent $maxWidth="800px">
-                <LeaderboardsContent
-                  creator={PLATFORM_CREATOR_ADDRESS.toBase58()}
-                />
-              </ModalContent>
-            </Modal>
-          )}
+          <Modal
+            isOpen={showLeaderboardModal}
+            onClose={() => setShowLeaderboardModal(false)}
+            title="🏆 Leaderboard"
+            maxHeight="85vh"
+          >
+            <LeaderboardPage />
+          </Modal>
 
-          {shareModalGame && (
-            <Modal variant="viewport" onClose={() => setShareModalGame(undefined)}>
+          <Modal
+            isOpen={!!shareModalGame}
+            onClose={() => setShareModalGame(undefined)}
+            title="📤 Share Result"
+            maxHeight="80vh"
+          >
+            {shareModalGame && (
               <ShareModal
                 event={shareModalGame}
                 onClose={() => setShareModalGame(undefined)}
               />
-            </Modal>
-          )}
+            )}
+          </Modal>
 
-          {/* Debug: Show shareModalGame state */}
-          {console.log('ShareModal state in render:', shareModalGame)}
+          <Modal
+            isOpen={showThemeSelector}
+            onClose={() => setShowThemeSelector(false)}
+            title="🎨 Theme Selector"
+            maxHeight="70vh"
+          >
+            <ColorSchemeSelector />
+          </Modal>
 
-          {showThemeSelector && (
-            <Modal variant="viewport" onClose={() => setShowThemeSelector(false)}>
-              <ModalContent $maxWidth="500px">
-                <ColorSchemeSelector />
-              </ModalContent>
-            </Modal>
-          )}
+          <Modal
+            isOpen={showTokenSelect}
+            onClose={() => setShowTokenSelect(false)}
+            title="💎 Select Token"
+            maxHeight="75vh"
+          >
+            <SelectTokenPage />
+          </Modal>
 
-          {showTokenSelect && (
-            <Modal variant="viewport" onClose={() => setShowTokenSelect(false)}>
-              <ModalContent $maxWidth="500px">
-                <TokenSelect />
-              </ModalContent>
-            </Modal>
-          )}
-
-          {showConnectionStatus && (
-            <Modal variant="viewport" onClose={() => setShowConnectionStatus(false)}>
-              <ModalContent $maxWidth="600px">
-                <ConnectionStatusContent />
-              </ModalContent>
-            </Modal>
-          )}
+          <Modal
+            isOpen={showConnectionStatus}
+            onClose={() => setShowConnectionStatus(false)}
+            title="📡 Connection Status"
+            maxHeight="75vh"
+          >
+            <ConnectionStatusContent />
+          </Modal>
         </LayoutContainer>
       </DegenHeaderModalContext.Provider>
     </DegenGamesModalContext.Provider>

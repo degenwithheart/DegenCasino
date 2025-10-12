@@ -1,157 +1,138 @@
 import React, { useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { media } from '../breakpoints';
+import ReactDOM from 'react-dom';
+import { FaTimes } from 'react-icons/fa';
+import { useColorScheme } from '../../../ColorSchemeContext';
+import {
+  ModalBackdrop,
+  ModalContainer,
+  ModalHeader,
+  ModalTitle,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalActionButton
+} from './Modal.styles';
 
-interface Props extends React.PropsWithChildren {
-  onClose?: () => void;
-  variant?: 'popup' | 'viewport';
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  maxHeight?: string;
+  showCloseButton?: boolean;
+  actions?: Array<{
+    label: string;
+    variant: 'primary' | 'secondary' | 'danger';
+    onClick: () => void;
+    disabled?: boolean;
+  }>;
 }
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-`;
+export const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  maxHeight,
+  showCloseButton = true,
+  actions
+}) => {
+  const { currentColorScheme } = useColorScheme();
 
-const Overlay = styled.div<{ $variant?: 'popup' | 'viewport'; }>`
-  position: ${({ $variant }) => $variant === 'viewport' ? 'absolute' : 'fixed'};
-  ${({ $variant }) => $variant === 'viewport' ?
-    'inset: 0;' :
-    'inset: 0;'
-  }
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(12px);
-  z-index: ${({ $variant }) => $variant === 'viewport' ? '1000' : '9999'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: ${fadeIn} 0.3s ease;
-`;
-
-const Content = styled.div`
-  background: linear-gradient(135deg, 
-    rgba(26, 26, 26, 0.95) 0%, 
-    rgba(45, 27, 105, 0.9) 50%,
-    rgba(26, 26, 26, 0.95) 100%
-  );
-  border: 2px solid #ffd700;
-  border-radius: 16px;
-  /* Mobile-first: Consistent even padding */
-  padding: 1rem;
-  max-width: min(90vw, 800px);
-  max-height: 85vh;
-  overflow-y: auto;
-  position: relative;
-  box-sizing: border-box;
-  box-shadow: 
-    0 0 50px rgba(255, 215, 0, 0.3),
-    inset 0 0 30px rgba(162, 89, 255, 0.1);
-  animation: ${fadeIn} 0.3s ease;
-  
-  /* Tablet and up: More generous padding */
-  @media (min-width: 768px) {
-    padding: 1.5rem;
-  }
-  
-  @media (min-width: 1024px) {
-    padding: 2rem;
-  }
-  
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(26, 26, 26, 0.5);
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #ffd700, #a259ff);
-    border-radius: 4px;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: 2px solid #ffd700;
-  color: #ffd700;
-  font-size: 1.2rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 1;
-  
-  &:hover {
-    background: #ffd700;
-    color: #000;
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-  }
-`;
-
-export const ModalContent = styled.div<{ $maxWidth?: string; $colorScheme?: any; }>`
-  width: 100%;
-  max-width: ${props => props.$maxWidth || '600px'};
-  margin: 0 auto;
-  /* Mobile-first: Consistent even padding */
-  padding: 1rem;
-  color: ${props => props.$colorScheme?.colors?.text || '#fff'};
-  background: transparent;
-  box-sizing: border-box;
-  
-  /* Mobile-first responsive adjustments */
-  ${media.maxMobileLg} {
-    padding: 0.75rem;
-    max-width: 95vw;
-  }
-  
-  ${media.maxMobile} {
-    padding: 0.75rem;
-    max-width: 100vw;
-  }
-  
-  /* Tablet and up */
-  ${media.tablet} {
-    padding: 1.5rem;
-  }
-`;
-
-export const Modal: React.FC<Props> = ({ children, onClose, variant = 'popup' }) => {
+  // Close modal on escape key
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && onClose) onClose();
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    // Only close if it's a direct click on the overlay, not during scroll or drag
-    if (e.target === e.currentTarget && e.detail === 1 && onClose) {
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scrolling when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  // Handle backdrop click
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  return (
-    <Overlay $variant={variant} onClick={handleOverlayClick}>
-      <Content>
-        {onClose && (
-          <CloseButton onClick={onClose} aria-label="Close modal">
-            ×
-          </CloseButton>
+  // Prevent modal content click from closing modal
+  const handleContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  if (!isOpen) return null;
+
+  const modalContent = (
+    <ModalBackdrop
+      $isOpen={isOpen}
+      $colorScheme={currentColorScheme}
+      onClick={handleBackdropClick}
+    >
+      <ModalContainer
+        $isOpen={isOpen}
+        $colorScheme={currentColorScheme}
+        $maxHeight={maxHeight}
+        onClick={handleContentClick}
+      >
+        {(title || showCloseButton) && (
+          <ModalHeader $colorScheme={currentColorScheme}>
+            {title && (
+              <ModalTitle $colorScheme={currentColorScheme}>
+                {title}
+              </ModalTitle>
+            )}
+
+            {showCloseButton && (
+              <ModalCloseButton
+                $colorScheme={currentColorScheme}
+                onClick={onClose}
+                aria-label="Close modal"
+              >
+                <FaTimes />
+              </ModalCloseButton>
+            )}
+          </ModalHeader>
         )}
-        {children}
-      </Content>
-    </Overlay>
+
+        <ModalContent>
+          {children}
+        </ModalContent>
+
+        {actions && actions.length > 0 && (
+          <ModalFooter $colorScheme={currentColorScheme}>
+            {actions.map((action, index) => (
+              <ModalActionButton
+                key={index}
+                $colorScheme={currentColorScheme}
+                $variant={action.variant}
+                onClick={action.onClick}
+                disabled={action.disabled}
+              >
+                {action.label}
+              </ModalActionButton>
+            ))}
+          </ModalFooter>
+        )}
+      </ModalContainer>
+    </ModalBackdrop>
+  );
+
+  // Render modal in portal to ensure proper z-index stacking
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
   );
 };
-
-export default Modal;

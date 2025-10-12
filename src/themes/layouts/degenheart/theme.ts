@@ -1,5 +1,6 @@
 import { LayoutTheme } from '../index';
 import { Header, Footer, Game, LeftSidebar } from './index';
+import { Dashboard } from './Dashboard';
 import React from 'react';
 
 // Lazy load themed pages
@@ -19,6 +20,7 @@ export const degenHeartTheme: LayoutTheme = {
 
   // Sections with themed overrides
   sections: {
+    Dashboard,
     Game,
   },
 

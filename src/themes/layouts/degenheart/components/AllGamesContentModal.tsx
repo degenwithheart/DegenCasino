@@ -2,286 +2,261 @@ import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useColorScheme } from '../../../ColorSchemeContext';
-import { ModalContent } from './Modal';
+import { useColorScheme } from '../../../../themes/ColorSchemeContext';
 import { ALL_GAMES } from '../../../../games/allGames';
-import { media, spacing, typography } from '../breakpoints';
+import { spacing, typography, media, components } from '../breakpoints';
 
-// Filter by meta.tag for 'Singleplayer' and 'Multiplayer'
-const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Singleplayer');
-const MULTIPLAYER_GAMES = ALL_GAMES.filter(game => game.meta.tag === 'Multiplayer');
+// Filter games by tag and mobile availability
+const SINGLEPLAYER_GAMES = ALL_GAMES.filter(game =>
+  game.meta.tag === 'Singleplayer' && game.mobileAvailable === 'yes'
+);
+const MULTIPLAYER_GAMES = ALL_GAMES.filter(game =>
+  game.meta.tag === 'Multiplayer' && game.mobileAvailable === 'yes'
+);
 
-const ModalContentContainer = styled.div<{ $colorScheme: any; }>`
-  /* Mobile-first: Consistent even padding */
-  padding: 0.75rem;
-  width: 100%;
-  height: 500px;
-  overflow-y: auto;
+const ModalContent = styled.div<{ $colorScheme: any; }>`
   color: ${props => props.$colorScheme.colors.text};
-  box-sizing: border-box;
   
-  ${media.maxMobile} {
-    height: 400px;
-    padding: 0.75rem;
-  }
-  
-  ${media.tablet} {
-    padding: 1rem;
-  }
+  /* Mobile-first layout */
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 `;
 
-const HeaderSection = styled.div<{ $colorScheme: any; }>`
-  text-align: center;
-  margin-bottom: 1rem;
-  /* Consistent even padding */
-  padding: 0 0.5rem 0.75rem 0.5rem;
-  border-bottom: 2px solid ${props => props.$colorScheme.colors.accent}30;
+const TabContainer = styled.div`
+  display: flex;
+  margin-bottom: ${spacing.mobile.base};
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 4px;
 `;
 
-const Title = styled.h1<{ $colorScheme: any; }>`
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: ${props => props.$colorScheme.colors.accent};
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-shadow: 0 0 20px ${props => props.$colorScheme.colors.accent}80;
+const TabButton = styled.button<{ $colorScheme: any; $active: boolean; }>`
+  flex: 1;
+  padding: ${spacing.mobile.sm} ${spacing.mobile.base};
   
-  ${media.maxMobile} {
-    font-size: 1.5rem;
-  }
-`;
-
-const SectionTitle = styled.h2<{ $colorScheme: any; }>`
-  color: ${props => props.$colorScheme.colors.accent};
-  font-size: 1.2rem;
-  margin: 1.5rem 0 0.75rem 0;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  text-shadow: 0 0 8px ${props => props.$colorScheme.colors.accent}60;
+  background: ${props => props.$active
+    ? props.$colorScheme.colors.accent
+    : 'transparent'
+  };
   
-  &:first-of-type {
-    margin-top: 0;
-  }
+  color: ${props => props.$active
+    ? 'white'
+    : props.$colorScheme.colors.text
+  };
   
-  ${media.maxMobile} {
-    font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  
+  font-size: ${typography.mobile.fontSize.sm};
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
 const GamesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${spacing.mobile.base};
   
-  ${media.maxMobile} {
+  ${media.mobileLg} {
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+  }
+  
+  ${media.tablet} {
+    grid-template-columns: repeat(3, 1fr);
   }
 `;
 
 const GameCard = styled.div<{ $colorScheme: any; }>`
-  background: ${props => props.$colorScheme.colors.surface};
-  border: 2px solid ${props => props.$colorScheme.colors.border};
-  border-radius: 16px;
+  background: ${props => props.$colorScheme.colors.surface}60;
+  border: 1px solid ${props => props.$colorScheme.colors.accent}30;
+  border-radius: 8px;
+  
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.4s ease;
-  position: relative;
+  transition: all 0.3s ease;
   
-  &:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: ${props => props.$colorScheme.colors.accent};
-    box-shadow: 0 15px 40px ${props => props.$colorScheme.colors.accent}30;
+  /* Touch-friendly */
+  min-height: 44px;
+  
+  &:active {
+    transform: scale(0.98);
+    background: ${props => props.$colorScheme.colors.accent}20;
+  }
+  
+  ${media.mouse} {
+    &:hover {
+      transform: translateY(-4px);
+      border-color: ${props => props.$colorScheme.colors.accent};
+      box-shadow: 0 8px 20px ${props => props.$colorScheme.colors.accent}30;
+    }
   }
 `;
 
-const GameImage = styled.div<{ $backgroundImage: string; }>`
-  height: 80px;
+const GameImage = styled.div<{ $backgroundImage: string; $colorScheme: any; }>`
+  height: 60px;
   background-image: url(${props => props.$backgroundImage});
   background-size: cover;
   background-position: center;
   position: relative;
   
+  /* Overlay for better text readability */
   &::before {
     content: '';
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
-    height: 50%;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    bottom: 0;
+    background: linear-gradient(180deg, 
+      transparent 0%, 
+      rgba(0, 0, 0, 0.7) 100%
+    );
+  }
+  
+  ${media.mobileLg} {
+    height: 80px;
   }
 `;
 
-const GameStatus = styled.div<{ $colorScheme: any; $status: string; }>`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  
-  ${props => {
-    switch (props.$status) {
-      case 'online':
-        return `
-          background: rgba(34, 197, 94, 0.9);
-          color: white;
-        `;
-      case 'coming-soon':
-        return `
-          background: rgba(251, 191, 36, 0.9);
-          color: white;
-        `;
-      case 'offline':
-        return `
-          background: rgba(239, 68, 68, 0.9);
-          color: white;
-        `;
-      default:
-        return `
-          background: ${props.$colorScheme.colors.surface};
-          color: ${props.$colorScheme.colors.text};
-        `;
-    }
-  }}
-`;
-
 const GameInfo = styled.div`
-  padding: 0.5rem;
+  padding: ${spacing.mobile.sm};
 `;
 
 const GameName = styled.h3<{ $colorScheme: any; }>`
-  font-size: 0.9rem;
-  font-weight: 700;
+  margin: 0;
   color: ${props => props.$colorScheme.colors.text};
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-`;
-
-const GameDescription = styled.p<{ $colorScheme: any; }>`
-  color: ${props => props.$colorScheme.colors.text}80;
-  font-size: 0.7rem;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  font-size: ${typography.mobile.fontSize.sm};
+  font-weight: 600;
+  line-height: 1.2;
+  
+  /* Truncate long names */
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
-type AllGamesContentModalProps = {
-  onGameClick?: () => void;
-};
+const GameStatus = styled.div<{ $status: 'online' | 'offline' | 'coming-soon'; $colorScheme: any; }>`
+  display: inline-block;
+  margin-top: ${spacing.mobile.xs};
+  padding: 2px 6px;
+  
+  background: ${props => {
+    switch (props.$status) {
+      case 'online': return '#10B98140';
+      case 'offline': return '#EF444440';
+      case 'coming-soon': return '#F59E0B40';
+      default: return props.$colorScheme.colors.accent + '40';
+    }
+  }};
+  
+  color: ${props => {
+    switch (props.$status) {
+      case 'online': return '#10B981';
+      case 'offline': return '#EF4444';
+      case 'coming-soon': return '#F59E0B';
+      default: return props.$colorScheme.colors.accent;
+    }
+  }};
+  
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+`;
+
+const EmptyState = styled.div<{ $colorScheme: any; }>`
+  text-align: center;
+  padding: ${spacing.mobile.xl};
+  color: ${props => props.$colorScheme.colors.text}80;
+  
+  font-size: ${typography.mobile.fontSize.base};
+  line-height: 1.5;
+`;
+
+interface AllGamesContentModalProps {
+  onGameClick: () => void;
+}
 
 const AllGamesContentModal: React.FC<AllGamesContentModalProps> = ({ onGameClick }) => {
-  const { currentColorScheme } = useColorScheme();
   const navigate = useNavigate();
-  const { publicKey } = useWallet();
+  const { connected, publicKey } = useWallet();
+  const { currentColorScheme } = useColorScheme();
+  const [activeTab, setActiveTab] = useState<'single' | 'multi'>('single');
 
-  const handleGameClick = (gameId: string, gameStatus: string) => {
-    if (gameStatus === 'offline') {
-      return; // Don't navigate to games that are down
-    }
+  const currentGames = useMemo(() => {
+    return activeTab === 'single' ? SINGLEPLAYER_GAMES : MULTIPLAYER_GAMES;
+  }, [activeTab]);
 
-    // Navigate to correct game route with wallet address
-    if (publicKey) {
-      navigate(`/game/${publicKey.toBase58()}/${gameId}`);
+  const handleGameClick = (gameId: string) => {
+    if (connected && publicKey) {
+      navigate(`/game/${publicKey.toString()}/${gameId}`);
+      onGameClick(); // Close modal after navigation
     } else {
-      // If no wallet connected, prompt user to connect
+      // If wallet not connected, prompt user to connect wallet
       console.warn('No wallet connected - cannot navigate to game');
+      // Could add wallet modal trigger here if needed
       return;
-    }
-    onGameClick?.(); // Close the modal
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'online': return 'Live';
-      case 'coming-soon': return 'New';
-      case 'offline': return 'Maintenance';
-      default: return '';
     }
   };
 
   return (
-    <ModalContent $colorScheme={currentColorScheme} $maxWidth="700px">
-      <ModalContentContainer $colorScheme={currentColorScheme}>
-        <HeaderSection $colorScheme={currentColorScheme}>
-          <Title $colorScheme={currentColorScheme}>ALL GAMES</Title>
-        </HeaderSection>
+    <>
+      <TabContainer>
+        <TabButton
+          $colorScheme={currentColorScheme}
+          $active={activeTab === 'single'}
+          onClick={() => setActiveTab('single')}
+        >
+          🎯 Singleplayer ({SINGLEPLAYER_GAMES.length})
+        </TabButton>
+        <TabButton
+          $colorScheme={currentColorScheme}
+          $active={activeTab === 'multi'}
+          onClick={() => setActiveTab('multi')}
+        >
+          👥 Multiplayer ({MULTIPLAYER_GAMES.length})
+        </TabButton>
+      </TabContainer>
 
-        {SINGLEPLAYER_GAMES.length > 0 && (
-          <>
-            <SectionTitle $colorScheme={currentColorScheme}>
-              Singleplayer Games
-            </SectionTitle>
-            <GamesGrid>
-              {SINGLEPLAYER_GAMES.map(game => (
-                <GameCard
-                  key={game.id}
-                  $colorScheme={currentColorScheme}
-                  onClick={() => handleGameClick(game.id, game.live)}
-                >
-                  <GameImage $backgroundImage={game.meta.image}>
-                    <GameStatus $colorScheme={currentColorScheme} $status={game.live}>
-                      {getStatusText(game.live)}
-                    </GameStatus>
-                  </GameImage>
+      {currentGames.length > 0 ? (
+        <GamesGrid>
+          {currentGames.map((game) => (
+            <GameCard
+              key={game.id}
+              $colorScheme={currentColorScheme}
+              onClick={() => handleGameClick(game.id)}
+            >
+              <GameImage
+                $backgroundImage={game.meta.image}
+                $colorScheme={currentColorScheme}
+              />
 
-                  <GameInfo>
-                    <GameName $colorScheme={currentColorScheme}>
-                      {game.meta.name}
-                    </GameName>
-                    <GameDescription $colorScheme={currentColorScheme}>
-                      {game.meta.description}
-                    </GameDescription>
-                  </GameInfo>
-                </GameCard>
-              ))}
-            </GamesGrid>
-          </>
-        )}
+              <GameInfo>
+                <GameName $colorScheme={currentColorScheme}>
+                  {game.meta.name}
+                </GameName>
 
-        {MULTIPLAYER_GAMES.length > 0 && (
-          <>
-            <SectionTitle $colorScheme={currentColorScheme}>
-              Multiplayer Games
-            </SectionTitle>
-            <GamesGrid>
-              {MULTIPLAYER_GAMES.map(game => (
-                <GameCard
-                  key={game.id}
-                  $colorScheme={currentColorScheme}
-                  onClick={() => handleGameClick(game.id, game.live)}
-                >
-                  <GameImage $backgroundImage={game.meta.image}>
-                    <GameStatus $colorScheme={currentColorScheme} $status={game.live}>
-                      {getStatusText(game.live)}
-                    </GameStatus>
-                  </GameImage>
-
-                  <GameInfo>
-                    <GameName $colorScheme={currentColorScheme}>
-                      {game.meta.name}
-                    </GameName>
-                    <GameDescription $colorScheme={currentColorScheme}>
-                      {game.meta.description}
-                    </GameDescription>
-                  </GameInfo>
-                </GameCard>
-              ))}
-            </GamesGrid>
-          </>
-        )}
-      </ModalContentContainer>
-    </ModalContent>
+                <GameStatus $status={game.live} $colorScheme={currentColorScheme}>
+                  {game.live}
+                </GameStatus>
+              </GameInfo>
+            </GameCard>
+          ))}
+        </GamesGrid>
+      ) : (
+        <EmptyState $colorScheme={currentColorScheme}>
+          <div>🎮</div>
+          <div>No {activeTab === 'single' ? 'singleplayer' : 'multiplayer'} games available</div>
+        </EmptyState>
+      )}
+    </>
   );
 };
 

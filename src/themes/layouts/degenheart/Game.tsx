@@ -8,7 +8,6 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { GambaUi, useSoundStore } from 'gamba-react-ui-v2';
 
 import { GameSplashScreen, GraphicsSettings, GraphicsSettingsIcon, FullscreenPortal, GameStatsHeader } from '../../../components';
-import { Modal } from './components/Modal';
 import { GameScalingProvider } from '../../../contexts/GameScalingContext';
 import { useIsCompact } from '../../../hooks/ui/useIsCompact';
 
@@ -87,7 +86,6 @@ const Icon = {
 import { GAMES } from '../../../games';
 import { useUserStore } from '../../../hooks/data/useUserStore';
 import { FEATURE_FLAGS } from '../../../constants';
-import { GameSlider } from '../../../sections/Dashboard/Dashboard';
 import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from '../../../sections/Game/Game.styles';
 import { LoadingBar } from '../../../sections/Game/LoadingBar';
 import { ProvablyFairModal } from '../../../sections/Game/ProvablyFairModal';

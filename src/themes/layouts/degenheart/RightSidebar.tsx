@@ -6,6 +6,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
 import { FaTrophy, FaFire, FaCrown, FaGamepad, FaCoins, FaUsers, FaChartLine, FaShieldAlt, FaChartBar, FaDice, FaStar } from 'react-icons/fa';
 import { ALL_GAMES } from '../../../games/allGames';
+import { useReferralLeaderboard } from '../../../hooks/analytics/useReferralAnalytics';
 import { useLeaderboardData } from '../../../hooks/data/useLeaderboardData';
 import { generateUsernameFromWallet } from '../../../utils/user/userProfileUtils';
 import { useGameStats, useGlobalGameStats } from '../../../hooks/game/useGameStats';
@@ -476,7 +477,11 @@ export const RightSidebar: React.FC = () => {
   const { currentColorScheme } = useColorScheme();
   const { connected } = useWallet();
   const pool = useCurrentPool();
-  const { data: leaderboardData, loading: leaderboardLoading } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58());
+  // Global leaderboard (alltime) - keep unchanged
+  const { data: globalLeaderboardData, loading: globalLeaderboardLoading } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58());
+
+  // Use the referral leaderboard hook (separate from the general leaderboard)
+  const referralLeaderboard = useReferralLeaderboard(5);
 
   // Initialize stats hooks
   const globalStats = useGlobalGameStats(); // For user profile sidebar
@@ -490,31 +495,45 @@ export const RightSidebar: React.FC = () => {
     { name: 'Slots', status: 'Classic', emoji: '🎰' }
   ], []);
 
-  // Process leaderboard data
-  const displayLeaderboard = useMemo(() => {
-    if (!connected || leaderboardLoading || !leaderboardData?.length) {
+  // Process global leaderboard data (keeps the original leaderboard behavior)
+  const displayGlobalLeaderboard = useMemo(() => {
+    if (!globalLeaderboardData || globalLeaderboardLoading || globalLeaderboardData.length === 0) {
       return [
         { name: 'No data yet', winnings: 'be the first!', rank: 1 }
       ];
     }
 
-    if (leaderboardData.length > 0) {
-      return leaderboardData.slice(0, 5).map((player, index) => {
-        const wallet = player.user || '';
-        const name = generateUsernameFromWallet(wallet);
-        return {
-          name,
-          rawWallet: wallet,
-          winnings: `${player.sol_volume.toFixed(2)} SOL`,
-          rank: index + 1
-        };
-      });
+    return globalLeaderboardData.slice(0, 5).map((player, index) => {
+      const wallet = player.user || '';
+      const name = generateUsernameFromWallet(wallet);
+      return {
+        name,
+        rawWallet: wallet,
+        winnings: `${player.sol_volume.toFixed(2)} SOL`,
+        rank: index + 1
+      };
+    });
+  }, [globalLeaderboardData, globalLeaderboardLoading]);
+
+  // Process referral leaderboard data (separate dataset)
+  const displayReferralLeaderboard = useMemo(() => {
+    if (!connected || !referralLeaderboard || referralLeaderboard.length === 0) {
+      return [
+        { name: 'No referrals yet', winnings: 'Invite friends to get started!', rank: 1 }
+      ];
     }
 
-    return [
-      { name: 'No data yet', winnings: 'be the first!', rank: 1 }
-    ];
-  }, [connected, leaderboardData, leaderboardLoading]);
+    return referralLeaderboard.slice(0, 5).map((entry, index) => {
+      const wallet = entry.address || '';
+      const name = generateUsernameFromWallet(wallet);
+      return {
+        name,
+        rawWallet: wallet,
+        winnings: `${entry.referralCount} referrals`,
+        rank: index + 1
+      };
+    });
+  }, [connected, referralLeaderboard]);
 
   // Get contextual content based on current route
   const getContextualContent = () => {
@@ -640,7 +659,7 @@ export const RightSidebar: React.FC = () => {
             </SectionTitle>
             <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
               <div style={{ marginBottom: '0.5rem' }}>
-                Total Players: <strong>{leaderboardData?.length || 0}</strong>
+                Total Players: <strong>{referralLeaderboard?.length || 0}</strong>
               </div>
               <div style={{ marginBottom: '0.5rem' }}>
                 Active Games: <strong>{ALL_GAMES.filter(g => g.live === 'online').length}</strong>
@@ -897,7 +916,42 @@ export const RightSidebar: React.FC = () => {
           </SectionTitle>
 
           <div style={{ marginBottom: '1rem' }}>
-            {displayLeaderboard.map((player) => {
+            {displayGlobalLeaderboard.map((player) => {
+              const raw = (player as any).rawWallet as string | undefined;
+              const key = raw || `${player.name}-${player.rank}`;
+              if (raw) {
+                return (
+                  <LeaderboardLink key={key} to={`/explorer/player/${raw}`} title={raw}>
+                    <StatItem $colorScheme={currentColorScheme}>
+                      <StatLabel $colorScheme={currentColorScheme}>
+                        <div className="name">{player.name}</div>
+                      </StatLabel>
+                      <StatValue $colorScheme={currentColorScheme}>{player.winnings}</StatValue>
+                    </StatItem>
+                  </LeaderboardLink>
+                );
+              }
+
+              return (
+                <StatItem key={key} $colorScheme={currentColorScheme}>
+                  <StatLabel $colorScheme={currentColorScheme}>
+                    <div className="name">{player.name}</div>
+                  </StatLabel>
+                  <StatValue $colorScheme={currentColorScheme}>{player.winnings}</StatValue>
+                </StatItem>
+              );
+            })}
+          </div>
+        </QuickStats>
+
+        <QuickStats $colorScheme={currentColorScheme}>
+          <SectionTitle $colorScheme={currentColorScheme}>
+            <FaUsers />
+            Referral Leaderboard
+          </SectionTitle>
+
+          <div style={{ marginBottom: '1rem' }}>
+            {displayReferralLeaderboard.map((player) => {
               const raw = (player as any).rawWallet as string | undefined;
               const key = raw || `${player.name}-${player.rank}`;
               if (raw) {
@@ -924,42 +978,7 @@ export const RightSidebar: React.FC = () => {
               );
             })}
           </div>
-        </QuickStats>
-
-        <QuickStats $colorScheme={currentColorScheme}>
-          <SectionTitle $colorScheme={currentColorScheme}>
-            <FaCoins />
-            Jackpot Pool
-          </SectionTitle>
-
-          <StatItem $colorScheme={currentColorScheme}>
-            <StatLabel $colorScheme={currentColorScheme}>Current Pool</StatLabel>
-            <StatValue $colorScheme={currentColorScheme}>
-              {connected && pool && pool.jackpotBalance ? (
-                <TokenValue amount={pool.jackpotBalance} />
-              ) : connected ? (
-                'No Jackpot'
-              ) : (
-                'Connect Wallet'
-              )}
-            </StatValue>
-          </StatItem>
-
-          <div style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>Win jackpots by playing games with max bets!</div>
-        </QuickStats>
-
-        <QuickStats $colorScheme={currentColorScheme}>
-          <SectionTitle $colorScheme={currentColorScheme}>
-            <FaFire />
-            Hot Games
-          </SectionTitle>
-
-          {hotGames.map((game, index) => (
-            <StatItem key={game.name} $colorScheme={currentColorScheme}>
-              <StatLabel $colorScheme={currentColorScheme}>{game.name}</StatLabel>
-              <StatValue $colorScheme={currentColorScheme}>{game.status}</StatValue>
-            </StatItem>
-          ))}
+          <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Top referrers earn exclusive rewards — share your link!</div>
         </QuickStats>
       </>
     );
