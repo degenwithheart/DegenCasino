@@ -18,6 +18,7 @@ export interface LayoutTheme {
     Header?: React.ComponentType<any>;
     Footer?: React.ComponentType<any>;
     Sidebar?: React.ComponentType<any>;
+    TOSModal?: React.ComponentType<any>;
     // Add more as needed
   };
 

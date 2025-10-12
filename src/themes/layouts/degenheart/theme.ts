@@ -1,6 +1,7 @@
 import { LayoutTheme } from '../index';
 import { Header, Footer, Game, LeftSidebar } from './index';
 import { Dashboard } from './Dashboard';
+import TOSModal from './components/TOSModal';
 import React from 'react';
 
 // Lazy load themed pages
@@ -16,6 +17,7 @@ export const degenHeartTheme: LayoutTheme = {
     Header,
     Footer,
     Sidebar: LeftSidebar,
+    TOSModal,
   },
 
   // Sections with themed overrides

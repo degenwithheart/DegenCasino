@@ -8,6 +8,7 @@ import AdminPage from './pages/AdminPage';
 import TermsPage from './pages/TermsPage';
 import Whitepaper from './pages/WhitepaperPage';
 import UserProfile from './pages/UserProfile';
+import TOSModal from './components/TOSModal';
 
 export const degenMobileTheme: LayoutTheme = {
   id: 'degen-mobile',
@@ -18,6 +19,7 @@ export const degenMobileTheme: LayoutTheme = {
   components: {
     Header,
     Footer, // Hidden/minimal on mobile
+    TOSModal,
   },
 
   // Section overrides

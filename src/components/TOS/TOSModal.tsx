@@ -1,21 +1,22 @@
-import React from 'react'
-import { Modal } from '../Modal/Modal'
-import { TOS_HTML } from '../../constants'
-import styled, { keyframes } from 'styled-components'
-import { useColorScheme } from '../../themes/ColorSchemeContext'
+import React, { useMemo } from 'react';
+import { TOS_HTML } from '../../constants';
+import { useTheme } from '../../themes/UnifiedThemeContext';
+import { Modal } from '../Modal/Modal';
+import styled, { keyframes } from 'styled-components';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
-`
+`;
 
 const HeaderSection = styled.div`
   text-align: center;
   margin-bottom: 1.5rem;
   position: relative;
-`
+`;
 
-const Title = styled.h2<{ $colorScheme?: any }>`
+const Title = styled.h2<{ $colorScheme?: any; }>`
   color: ${({ $colorScheme }) => $colorScheme?.colors?.primary || '#ffd700'};
   font-size: 1.8rem;
   font-weight: 700;
@@ -23,7 +24,7 @@ const Title = styled.h2<{ $colorScheme?: any }>`
   letter-spacing: 0.15em;
   text-shadow: 0 0 16px #ffd700cc, 0 0 4px #fff;
   font-family: 'Orbitron', 'JetBrains Mono', monospace;
-`
+`;
 
 const Subtitle = styled.p`
   color: #a259ff;
@@ -32,7 +33,7 @@ const Subtitle = styled.p`
   letter-spacing: 0.1em;
   text-shadow: 0 0 8px #a259ff88;
   font-family: 'JetBrains Mono', monospace;
-`
+`;
 
 const TOSContentWrapper = styled.div`
   background: rgba(255, 215, 0, 0.08);
@@ -76,7 +77,7 @@ const TOSContentWrapper = styled.div`
       }
     }
   }
-`
+`;
 
 const ComplianceText = styled.p`
   color: #a259ff;
@@ -86,7 +87,7 @@ const ComplianceText = styled.p`
   margin: 1.5rem 0 2rem;
   line-height: 1.7;
   text-shadow: 0 0 8px #a259ff;
-`
+`;
 
 const AcceptButton = styled.button`
   margin: 0 auto;
@@ -112,18 +113,18 @@ const AcceptButton = styled.button`
   &:active {
     transform: scale(0.98);
   }
-`
+`;
 
 interface TOSModalProps {
-  onClose: () => void
-  onAccept: () => void
+  onClose: () => void;
+  onAccept: () => void;
 }
 
-const TOSInner: React.FC<{ onAccept: () => void }> = ({ onAccept }) => {
+const TOSInner: React.FC<{ onAccept: () => void; }> = ({ onAccept }) => {
   const { currentColorScheme } = useColorScheme();
   return (
-    <div style={{ 
-      maxWidth: '500px', 
+    <div style={{
+      maxWidth: '500px',
       margin: '0 auto',
       padding: '1.5rem',
       color: '#eaf6fb',
@@ -144,25 +145,40 @@ const TOSInner: React.FC<{ onAccept: () => void }> = ({ onAccept }) => {
         I UNDERSTAND & ACCEPT
       </AcceptButton>
     </div>
-  )
-}
+  );
+};
 
-export const TOSContent: React.FC<{ onAccept: () => void }> = ({ onAccept }) => (
+export const TOSContent: React.FC<{ onAccept: () => void; }> = ({ onAccept }) => (
   <TOSInner onAccept={onAccept} />
-)
+);
 
 const TOSModal: React.FC<TOSModalProps> = ({ onClose, onAccept }) => {
+  const { resolveComponent } = useTheme();
+
+  // Try to resolve themed TOSModal component
+  const ThemedTOSModal = useMemo(() =>
+    resolveComponent('components', 'TOSModal'),
+    [resolveComponent]
+  );
+
+  // If themed component exists, use it
+  if (ThemedTOSModal) {
+    const Component = ThemedTOSModal as React.ComponentType<TOSModalProps>;
+    return <Component onClose={onClose} onAccept={onAccept} />;
+  }
+
+  // Fallback to default implementation
   const { currentColorScheme } = useColorScheme();
   const handleAccept = () => {
-    onAccept()
-    onClose()
-  }
+    onAccept();
+    onClose();
+  };
 
   return (
     <Modal onClose={onClose}>
       <TOSContent onAccept={handleAccept} />
     </Modal>
-  )
-}
+  );
+};
 
-export default TOSModal
+export default TOSModal;
