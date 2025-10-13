@@ -7,6 +7,7 @@ import {
   ModalContainer,
   ModalHeader,
   ModalTitle,
+  ModalStatus,
   ModalCloseButton,
   ModalContent,
   ModalFooter,
@@ -17,6 +18,7 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  status?: string;
   children: React.ReactNode;
   maxHeight?: string;
   showCloseButton?: boolean;
@@ -32,6 +34,7 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
+  status,
   children,
   maxHeight,
   showCloseButton = true,
@@ -90,9 +93,16 @@ export const Modal: React.FC<ModalProps> = ({
         {(title || showCloseButton) && (
           <ModalHeader $colorScheme={currentColorScheme}>
             {title && (
-              <ModalTitle $colorScheme={currentColorScheme}>
-                {title}
-              </ModalTitle>
+              <div>
+                <ModalTitle $colorScheme={currentColorScheme}>
+                  {title}
+                </ModalTitle>
+                {status && (
+                  <ModalStatus $colorScheme={currentColorScheme}>
+                    {status}
+                  </ModalStatus>
+                )}
+              </div>
             )}
 
             {showCloseButton && (

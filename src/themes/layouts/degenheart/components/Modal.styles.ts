@@ -131,6 +131,16 @@ export const ModalTitle = styled.h2<{ $colorScheme: any; }>`
   line-height: 1.2;
 `;
 
+// Modal status
+export const ModalStatus = styled.div<{ $colorScheme: any; }>`
+  margin-top: 4px;
+  
+  color: ${props => props.$colorScheme.colors.textSecondary};
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 0.8;
+`;
+
 // Modal close button
 export const ModalCloseButton = styled.button<{ $colorScheme: any; }>`
   display: flex;

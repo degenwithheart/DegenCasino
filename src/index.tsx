@@ -4,21 +4,6 @@ globalThis.Buffer = Buffer;
 globalThis.global = globalThis;
 globalThis.process = globalThis.process || { env: {}, browser: true };
 
-import * as ReactRoot from 'react';
-console.log('🏷️ App React identity:', ReactRoot);
-
-import * as ReactLocal from 'react';
-console.log('🏷️ useConnection React identity:', ReactLocal);
-
-// Debug domain information
-if (import.meta.env.MODE !== 'production') {
-  console.log('🌐 Current domain:', window.location.hostname);
-  console.log('🌐 Current origin:', window.location.origin);
-  console.log('🌐 User agent:', navigator.userAgent);
-  console.log('🌐 Referrer:', document.referrer);
-}
-
-
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';

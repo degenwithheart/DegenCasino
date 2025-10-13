@@ -90,9 +90,11 @@ export const gridBreakpoints = {
 
   // Small Desktop: Two column layout (main + right sidebar only)
   smallDesktop: {
-    areas: `"header header" "main right" "footer footer"`,
+    // Use a compact three-column layout for tablet-large / small-desktop
+    // This ensures left/right sidebars display consistently at >= tabletLg
+    areas: `"header header header" "left main right" "footer footer footer"`,
     rows: '80px 1fr 60px',
-    columns: '1fr 220px'
+    columns: '200px 1fr 200px'
   },
 
   // Desktop: Three column layout (full layout)

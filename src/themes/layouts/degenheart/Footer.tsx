@@ -3,9 +3,11 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useColorScheme } from '../../ColorSchemeContext';
+import { useChatNotifications } from '../../../contexts/ChatNotificationContext';
 import { useDegenGamesModal } from './DegenHeartLayout';
-import { FOOTER_LINKS, MOBILE_FOOTER_LINKS_CONNECTED, MOBILE_FOOTER_LINKS_DISCONNECTED } from '../../../constants';
-import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine } from 'react-icons/fa';
+import { useDegenHeaderModal } from './DegenHeartLayout';
+import { FOOTER_LINKS } from '../../../constants';
+import { FaTwitter, FaDiscord, FaTelegram, FaGithub, FaHeart, FaBars, FaTimes, FaChartLine, FaComments, FaCoins, FaGamepad, FaGift } from 'react-icons/fa';
 import { media, spacing, components } from './breakpoints';
 import { ConnectionStatus } from './components';
 
@@ -24,7 +26,7 @@ const FooterContainer = styled.footer<{ $colorScheme: any; }>`
   /* Consistent even padding for desktop */
   padding: 0 2rem;
   position: relative;
-  z-index: 1000;
+  z-index: 100;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   
   &::before {
@@ -233,7 +235,7 @@ const MobileFooter = styled.nav<{ $colorScheme: any; }>`
   justify-content: space-between;
   /* Mobile-first: Consistent even padding - 0.75rem matches header */
   padding: 0 0.75rem;
-  z-index: 9999; /* Ensure it's above everything */
+  z-index: 100;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   
   &::before {
@@ -263,75 +265,6 @@ const MobileFooter = styled.nav<{ $colorScheme: any; }>`
   /* These styles are now applied to the MobileNavLinks children */
 `;
 
-const MobileNavContainer = styled.div`
-  flex: 1;
-  margin: 0 4rem; /* Space for sidebar buttons */
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-  
-  &::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
-`;
-
-const MobileNavLinks = styled.div<{ $colorScheme: any; }>`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 0 0.5rem;
-  min-width: max-content; /* Ensure content doesn't shrink */
-  
-  /* Snap scrolling for better UX */
-  scroll-snap-type: x mandatory;
-  
-  > * {
-    scroll-snap-align: center;
-    flex-shrink: 0; /* Prevent items from shrinking */
-  }
-  
-  a, button {
-    color: ${props => props.$colorScheme.colors.accent};
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 0.6rem 1.2rem;
-    border-radius: 12px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    background: none;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap; /* Prevent text wrapping */
-    
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}20, transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    &:hover {
-      background: ${props => props.$colorScheme.colors.accent}20;
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 4px 12px ${props => props.$colorScheme.colors.accent}30;
-      
-      &::before {
-        opacity: 1;
-      }
-    }
-    
-    &:active {
-      transform: translateY(0) scale(1);
-    }
-  }
-`;
-
 const SidebarToggleButton = styled.button<{ $colorScheme: any; }>`
   background: ${props => props.$colorScheme.colors.surface}80;
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
@@ -356,9 +289,150 @@ const SidebarToggleButton = styled.button<{ $colorScheme: any; }>`
     font-size: 1.2rem;
   }
 
-  @media (min-width: 769px) {
-    display: none; /* Hide on desktop */
+  ${media.tabletLg} {
+    display: none; /* Hide on tablet-large and up (>=1024px) */
   }
+`;
+
+const UnreadBadge = styled.div<{ $colorScheme: any; }>`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: ${p => p.$colorScheme.colors.accent};
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+`;
+
+const MobileNavPill = styled.div<{ $colorScheme: any; }>`
+  flex: 1;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin: 0 1rem;
+  
+  /* Notch cutout for center button */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    z-index: -1;
+  }
+  
+  border-radius: 45px;
+  position: relative;
+  
+  transition: all 0.3s ease;
+`;
+
+const MobileNavItem = styled.button<{
+  $colorScheme: any;
+  $active: boolean;
+  $disabled?: boolean;
+  $isCenter?: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  width: ${props => props.$isCenter ? '75px' : '50px'};
+  height: ${props => props.$isCenter ? '75px' : '50px'};
+  padding: 0;
+  flex-shrink: 0;
+  position: ${props => props.$isCenter ? 'relative' : 'static'};
+  z-index: ${props => props.$isCenter ? '10' : '1'};
+  
+  background: ${props => {
+    if (props.$disabled) return 'rgba(255,255,255,0.1)';
+    if (props.$isCenter) return '#d4a574';
+    return 'rgba(255,255,255,0.2)';
+  }};
+  
+  color: ${props => {
+    if (props.$disabled) return 'rgba(255,255,255,0.4)';
+    return '#ffffff';
+  }};
+  
+  border: none;
+  border-radius: 50%;
+  
+  box-shadow: ${props => {
+    if (props.$disabled) return 'none';
+    if (props.$isCenter) return '0 4px 12px rgba(212, 165, 116, 0.4)';
+    return '0 2px 8px rgba(0,0,0,0.2)';
+  }};
+  
+  font-size: 1rem;
+  font-weight: 500;
+  
+  transform: ${props => props.$isCenter ? 'translateY(-8px)' : 'none'};
+  
+  backdrop-filter: blur(10px);
+  
+  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.3s ease;
+  position: relative;
+  
+  /* Responsive sizing */
+  ${media.tablet} {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+  
+  /* Smooth scaling on press */
+  &:active:not(:disabled) {
+    transform: scale(0.88);
+  }
+  
+  /* Hover effects for desktop */
+  ${media.mouse} {
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+  }
+  
+  ${media.reduceMotion} {
+    transition: none;
+    
+    &:active {
+      transform: none;
+    }
+  }
+`;
+
+const MobileNavIcon = styled.div<{ $size?: 'sm' | 'base' | 'lg'; }>`
+  font-size: ${props => {
+    switch (props.$size) {
+      case 'sm': return '16px';
+      case 'lg': return '24px';
+      default: return '20px';
+    }
+  }};
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  
+  /* Add subtle glow effect on active */
+  filter: ${props => props.$size === 'lg' ? 'drop-shadow(0 0 8px currentColor)' : 'none'};
 `;
 
 const Footer: React.FC = () => {
@@ -366,6 +440,8 @@ const Footer: React.FC = () => {
   const navigate = useNavigate();
   const { connected, publicKey } = useWallet();
   const { toggleLeftSidebar, toggleRightSidebar, leftSidebarOpen, rightSidebarOpen } = useDegenGamesModal();
+  const { unreadCount, resetUnread } = useChatNotifications();
+  const { openBonusModal, openJackpotModal } = useDegenHeaderModal();
 
   const socialIcons = {
     Twitter: FaTwitter,
@@ -380,23 +456,6 @@ const Footer: React.FC = () => {
     } else {
       // Handle internal navigation
       navigate(href);
-    }
-  };
-
-  const handleMobileLinkClick = (link: any) => {
-    // Special handling for Games modal trigger (only available when connected)
-    if ('label' in link && link.label === 'Games') {
-      window.dispatchEvent(new CustomEvent('openGamesModal'));
-      return;
-    }
-
-    // Regular navigation links - handle dynamic href replacement
-    const href = typeof link.href === 'string' && link.href.includes('${base58}')
-      ? link.href.replace('${base58}', publicKey?.toBase58() || '')
-      : link.href;
-
-    if (href) {
-      handleLinkClick(href, link.title);
     }
   };
 
@@ -487,51 +546,63 @@ const Footer: React.FC = () => {
           {leftSidebarOpen ? <FaTimes /> : <FaBars />}
         </SidebarToggleButton>
 
-        {/* Scrollable Center Navigation Links */}
-        <MobileNavContainer>
-          <MobileNavLinks $colorScheme={currentColorScheme}>
-            {(connected ? MOBILE_FOOTER_LINKS_CONNECTED : MOBILE_FOOTER_LINKS_DISCONNECTED).map((link) => {
-              // Special handling for Games modal trigger (only available when connected)
-              if ('label' in link && link.label === 'Games') {
-                return (
-                  <button
-                    key={link.title}
-                    type="button"
-                    onClick={() => handleMobileLinkClick(link)}
-                  >
-                    {link.title}
-                  </button>
-                );
-              }
+        {/* Pill-style Navigation */}
+        <MobileNavPill $colorScheme={currentColorScheme}>
+          {/* Jackpot Button */}
+          <MobileNavItem
+            $colorScheme={currentColorScheme}
+            $active={false}
+            onClick={() => openJackpotModal()}
+            aria-label="Jackpot"
+          >
+            <MobileNavIcon>
+              <FaCoins />
+            </MobileNavIcon>
+          </MobileNavItem>
 
-              // Regular navigation links
-              const href = typeof link.href === 'string' && link.href.includes('${base58}')
-                ? link.href.replace('${base58}', publicKey?.toBase58() || '')
-                : link.href;
+          {/* Games Button - Center */}
+          <MobileNavItem
+            $colorScheme={currentColorScheme}
+            $active={false} // Games modal doesn't have a direct route
+            $isCenter={true}
+            onClick={() => window.dispatchEvent(new CustomEvent('openGamesModal'))}
+            aria-label="Games"
+          >
+            <MobileNavIcon $size="lg">
+              <FaGamepad />
+            </MobileNavIcon>
+          </MobileNavItem>
 
-              return (
-                <a
-                  key={link.title}
-                  href={href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleMobileLinkClick(link);
-                  }}
-                >
-                  {link.title}
-                </a>
-              );
-            })}
-          </MobileNavLinks>
-        </MobileNavContainer>
+          {/* Bonus Button */}
+          <MobileNavItem
+            $colorScheme={currentColorScheme}
+            $active={false}
+            onClick={() => openBonusModal()}
+            aria-label="Bonus"
+          >
+            <MobileNavIcon>
+              <FaGift />
+            </MobileNavIcon>
+          </MobileNavItem>
+        </MobileNavPill>
 
         {/* Right Sidebar Toggle Button */}
         <SidebarToggleButton
           $colorScheme={currentColorScheme}
-          onClick={toggleRightSidebar}
-          title="Toggle Stats & Info Panel"
+          onClick={() => {
+            // When opening the chat sidebar, reset unread count
+            if (!rightSidebarOpen) {
+              resetUnread();
+            }
+            toggleRightSidebar();
+          }}
+          title={unreadCount > 0 ? `Chat (${unreadCount} unread)` : 'Toggle Chat Panel'}
+          aria-label={unreadCount > 0 ? `Chat ${unreadCount} unread` : 'Toggle Chat Panel'}
         >
-          {rightSidebarOpen ? <FaTimes /> : <FaChartLine />}
+          {rightSidebarOpen ? <FaTimes /> : <FaComments />}
+          {unreadCount > 0 && !rightSidebarOpen && (
+            <UnreadBadge $colorScheme={currentColorScheme}>{unreadCount > 99 ? '99+' : unreadCount}</UnreadBadge>
+          )}
         </SidebarToggleButton>
       </MobileFooter>
     </>

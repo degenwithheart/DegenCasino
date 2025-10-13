@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useColorScheme } from '../../ColorSchemeContext';
+import { useChatNotifications } from '../../../contexts/ChatNotificationContext';
 import Header from './Header';
 import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
@@ -10,7 +11,7 @@ import { Modal } from './components/Modal';
 import { ShareModal } from './components/ShareModal';
 import AllGamesContentModal from './components/AllGamesContentModal';
 import { ConnectionStatusContent } from './components/ConnectionStatusContent';
-import { BonusPage, JackpotPage, LeaderboardPage, SelectTokenPage } from './pages';
+import { BonusPage, JackpotPage, LeaderboardPage, SelectTokenPage, TrollBoxPage } from './pages';
 import { ColorSchemeSelector } from '../../../components';
 import { media, gridBreakpoints } from './breakpoints';
 
@@ -40,6 +41,7 @@ const DegenHeaderModalContext = createContext<{
   openTokenSelect: () => void;
   openConnectionStatus: () => void;
   openShareModal: (game: any) => void;
+  openTrollBoxModal: () => void;
 }>({
   openBonusModal: () => { },
   openJackpotModal: () => { },
@@ -47,7 +49,8 @@ const DegenHeaderModalContext = createContext<{
   openThemeSelector: () => { },
   openTokenSelect: () => { },
   openConnectionStatus: () => { },
-  openShareModal: () => { }
+  openShareModal: () => { },
+  openTrollBoxModal: () => { }
 });
 
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext);
@@ -157,7 +160,20 @@ const GridLeftSidebar = styled.aside<{ $isOpen?: boolean; $isDragging?: boolean;
   
   /* Small Desktop: Keep left sidebar hidden for cleaner two-column layout */
   ${media.tabletLg} {
-    display: none;
+    /* Show left sidebar in tabletLg (>=1024px) to match smallDesktop grid
+       previously defined. This prevents the gap where left sidebar is hidden
+       but right sidebar is visible. */
+    display: block;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 200px;
+    height: calc(100vh - 140px);
+    z-index: 900;
+    transform: none;
+    box-shadow: none;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   /* Desktop: Show as fixed sidebar */
@@ -404,6 +420,7 @@ interface DegenHeartLayoutProps {
 
 const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const { currentColorScheme } = useColorScheme();
+  const { resetUnread } = useChatNotifications();
   const [showGamesModal, setShowGamesModal] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
@@ -423,6 +440,8 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [showTokenSelect, setShowTokenSelect] = useState(false);
   const [showConnectionStatus, setShowConnectionStatus] = useState(false);
+  const [showTrollBoxModal, setShowTrollBoxModal] = useState(false);
+  const [trollBoxStatus, setTrollBoxStatus] = useState('Connecting…');
 
   // Share modal state
   const [shareModalGame, setShareModalGame] = useState<any>(undefined);
@@ -546,6 +565,10 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
         openShareModal: (game: any) => {
           console.log('ShareModal triggered with game:', game);
           setShareModalGame(game);
+        },
+        openTrollBoxModal: () => {
+          resetUnread();
+          toggleRightSidebar();
         }
       }}>
         <LayoutContainer
@@ -584,7 +607,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           </GridMain>
 
           <GridRightSidebar $isOpen={rightSidebarOpen} $isDragging={isDragging}>
-            <RightSidebar />
+            <RightSidebar onChatStatusChange={setTrollBoxStatus} chatStatus={trollBoxStatus} />
           </GridRightSidebar>
 
           <GridFooter>

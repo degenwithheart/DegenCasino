@@ -18,6 +18,7 @@ import { ProgressiveLoadingProvider } from './hooks/system/useProgressiveLoading
 import { useRouteChangeHandler, addRouteTransitionCSS } from './hooks/system/useRouteChangeHandler';
 import { Dashboard } from './sections/Dashboard/Dashboard';
 import { GamesModalContext } from './contexts/GamesModalContext';
+import { ChatNotificationProvider } from './contexts/ChatNotificationContext';
 // Lazy load non-critical pages
 const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
@@ -166,7 +167,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><UserProfile /></SafeSuspense>} />
                 <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
               </Routes>
-              {ENABLE_TROLLBOX && connected && <TrollBox />}
             </DegenHeartLayout>
           </Suspense>
         </RouteTransitionWrapper>
@@ -211,7 +211,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/:wallet/profile" element={<SafeSuspense level="route" componentName="User Profile Page"><DegenMobileUserProfile /></SafeSuspense>} />
                 <Route path="/game/:wallet/:gameId" element={<SafeSuspense level="route" componentName="Game Page"><GameComponent /></SafeSuspense>} />
               </Routes>
-              {ENABLE_TROLLBOX && connected && <TrollBox />}
             </DegenMobileLayout>
           </Suspense>
         </RouteTransitionWrapper>
@@ -393,26 +392,28 @@ export default function App() {
     <ErrorBoundaryWrapper level="app" componentName="DegenHeart Casino App">
       <ProgressiveLoadingProvider value={{ preloadGameOnHover, getPerformanceStats, isProgressiveLoadingActive }}>
         <GraphicsProvider>
-          <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
-            {showGamesModal && (
-              <Modal onClose={() => setShowGamesModal(false)}>
-                <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
-              </Modal>
-            )}
-            {newcomer && (
-              <TOSModal
-                onClose={() => set({ newcomer: false })}
-                onAccept={() => set({ newcomer: false })}
-              />
-            )}
-            <ScrollToTop />
-            <ErrorHandler />
-            {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM && <WindowErrorHandler />}
-            <AppContent autoConnectAttempted={autoConnectAttempted} />
-            <CacheDebugWrapper />
-            <ProgressiveLoadingMonitor />
-            <PWAInstallBanner />
-          </GamesModalContext.Provider>
+          <ChatNotificationProvider>
+            <GamesModalContext.Provider value={{ openGamesModal: () => setShowGamesModal(true) }}>
+              {showGamesModal && (
+                <Modal onClose={() => setShowGamesModal(false)}>
+                  <AllGamesModal onGameClick={() => setShowGamesModal(false)} />
+                </Modal>
+              )}
+              {newcomer && (
+                <TOSModal
+                  onClose={() => set({ newcomer: false })}
+                  onAccept={() => set({ newcomer: false })}
+                />
+              )}
+              <ScrollToTop />
+              <ErrorHandler />
+              {FEATURE_FLAGS.USE_COMPREHENSIVE_ERROR_SYSTEM && <WindowErrorHandler />}
+              <AppContent autoConnectAttempted={autoConnectAttempted} />
+              <CacheDebugWrapper />
+              <ProgressiveLoadingMonitor />
+              <PWAInstallBanner />
+            </GamesModalContext.Provider>
+          </ChatNotificationProvider>
         </GraphicsProvider>
       </ProgressiveLoadingProvider>
     </ErrorBoundaryWrapper>

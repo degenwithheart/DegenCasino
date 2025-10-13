@@ -1,5 +1,5 @@
-import styled, { keyframes } from 'styled-components'
-import { spacing, components, animations, media } from '../breakpoints'
+import styled, { keyframes } from 'styled-components';
+import { spacing, components, animations, media } from '../breakpoints';
 
 // Modern bottom sheet animations
 export const slideUp = keyframes`
@@ -11,7 +11,7 @@ export const slideUp = keyframes`
     transform: translateY(0) scale(1);
     opacity: 1;
   }
-`
+`;
 
 export const slideDown = keyframes`
   from {
@@ -22,7 +22,7 @@ export const slideDown = keyframes`
     transform: translateY(100%) scale(0.95);
     opacity: 0;
   }
-`
+`;
 
 export const backdropFadeIn = keyframes`
   from {
@@ -33,7 +33,7 @@ export const backdropFadeIn = keyframes`
     opacity: 1;
     backdrop-filter: blur(20px);
   }
-`
+`;
 
 export const backdropFadeOut = keyframes`
   from {
@@ -44,10 +44,10 @@ export const backdropFadeOut = keyframes`
     opacity: 0;
     backdrop-filter: blur(0px);
   }
-`
+`;
 
 // Premium modal backdrop with enhanced glass effect
-export const ModalBackdrop = styled.div<{ $isOpen: boolean; $colorScheme: any }>`
+export const ModalBackdrop = styled.div<{ $isOpen: boolean; $colorScheme: any; }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -77,10 +77,10 @@ export const ModalBackdrop = styled.div<{ $isOpen: boolean; $colorScheme: any }>
   ${media.safeArea} {
     padding-bottom: ${spacing.safeArea.bottom};
   }
-`
+`;
 
 // Modern bottom sheet modal container
-export const ModalContainer = styled.div<{ $isOpen: boolean; $colorScheme: any; $maxHeight?: string }>`
+export const ModalContainer = styled.div<{ $isOpen: boolean; $colorScheme: any; $maxHeight?: string; }>`
   width: 100%;
   max-width: 100vw;
   max-height: ${props => props.$maxHeight || '85vh'};
@@ -117,10 +117,10 @@ export const ModalContainer = styled.div<{ $isOpen: boolean; $colorScheme: any; 
       display: none;
     }
   }
-`
+`;
 
 // Clean modal header
-export const ModalHeader = styled.div<{ $colorScheme: any }>`
+export const ModalHeader = styled.div<{ $colorScheme: any; }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -129,20 +129,30 @@ export const ModalHeader = styled.div<{ $colorScheme: any }>`
   border-bottom: 1px solid ${props => props.$colorScheme.colors.accent}10;
   
   background: ${props => props.$colorScheme.colors.surface};
-`
+`;
 
 // Modal title
-export const ModalTitle = styled.h2<{ $colorScheme: any }>`
+export const ModalTitle = styled.h2<{ $colorScheme: any; }>`
   margin: 0;
   
   color: ${props => props.$colorScheme.colors.text};
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.2;
-`
+`;
+
+// Modal status
+export const ModalStatus = styled.div<{ $colorScheme: any; }>`
+  margin-top: 4px;
+  
+  color: ${props => props.$colorScheme.colors.textSecondary};
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 0.8;
+`;
 
 // Modal close button
-export const ModalCloseButton = styled.button<{ $colorScheme: any }>`
+export const ModalCloseButton = styled.button<{ $colorScheme: any; }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,7 +181,7 @@ export const ModalCloseButton = styled.button<{ $colorScheme: any }>`
       background: ${props => props.$colorScheme.colors.accent}10;
     }
   }
-`
+`;
 
 // Clean modal content area
 export const ModalContent = styled.div`
@@ -187,10 +197,10 @@ export const ModalContent = styled.div`
   ${media.tablet} {
     max-height: calc(80vh - 120px);
   }
-`
+`;
 
 // Clean modal footer
-export const ModalFooter = styled.div<{ $colorScheme: any }>`
+export const ModalFooter = styled.div<{ $colorScheme: any; }>`
   display: flex;
   gap: ${spacing.base};
   
@@ -198,12 +208,12 @@ export const ModalFooter = styled.div<{ $colorScheme: any }>`
   border-top: 1px solid ${props => props.$colorScheme.colors.accent}10;
   
   background: ${props => props.$colorScheme.colors.surface};
-`
+`;
 
 // Modern action button
-export const ModalActionButton = styled.button<{ 
-  $colorScheme: any; 
-  $variant: 'primary' | 'secondary' | 'danger' 
+export const ModalActionButton = styled.button<{
+  $colorScheme: any;
+  $variant: 'primary' | 'secondary' | 'danger';
 }>`
   flex: 1;
   
@@ -220,10 +230,10 @@ export const ModalActionButton = styled.button<{
   
   color: ${props => {
     switch (props.$variant) {
-      case 'primary': 
-      case 'danger': 
+      case 'primary':
+      case 'danger':
         return 'white';
-      default: 
+      default:
         return props.$colorScheme.colors.text;
     }
   }};
@@ -252,4 +262,4 @@ export const ModalActionButton = styled.button<{
     opacity: 0.5;
     cursor: not-allowed;
   }
-`
+`;

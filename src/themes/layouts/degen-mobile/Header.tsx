@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useColorScheme } from '../../../themes/ColorSchemeContext';
-import { FaBars, FaUser, FaWifi, FaSignal, FaTimes, FaTrophy, FaGift, FaGem } from 'react-icons/fa';
+import { FaBars, FaUser, FaWifi, FaSignal, FaTimes, FaTrophy, FaGift, FaGem, FaComments } from 'react-icons/fa';
 import { useDegenMobile, useDegenMobileModal } from './DegenMobileLayout';
+import { useChatNotifications } from '../../../contexts/ChatNotificationContext';
 import { spacing, components, typography, media, animations } from './breakpoints';
 
 const HeaderContainer = styled.header<{ $colorScheme: any; }>`
@@ -126,6 +127,25 @@ const HeaderQuickButton = styled.button<{ $colorScheme: any; }>`
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
   }
+`;
+
+const MobileNotificationBadge = styled.div`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: linear-gradient(135deg, #ff4757, #ff3838);
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: bold;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  box-shadow: 0 1px 4px rgba(255, 71, 87, 0.4);
+  z-index: 10;
 `;
 
 const HeaderActions = styled.div`
@@ -269,7 +289,8 @@ const Header: React.FC<HeaderProps> = () => {
   const location = useLocation();
   const { connected } = useWallet();
   const { currentColorScheme } = useColorScheme();
-  const { openConnectionStatus } = useDegenMobileModal();
+  const { openConnectionStatus, openTrollBoxModal } = useDegenMobileModal();
+  const { unreadCount, hasNewMessages } = useChatNotifications();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -331,6 +352,21 @@ const Header: React.FC<HeaderProps> = () => {
           >
             <FaTrophy />
           </HeaderQuickButton>
+
+          <div style={{ position: 'relative' }}>
+            <HeaderQuickButton
+              $colorScheme={currentColorScheme}
+              onClick={() => (connected ? openTrollBoxModal() : navigate('/'))}
+              title="Chat"
+            >
+              <FaComments />
+            </HeaderQuickButton>
+            {hasNewMessages && (
+              <MobileNotificationBadge>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </MobileNotificationBadge>
+            )}
+          </div>
         </CenterSection>
 
         <HeaderActions>

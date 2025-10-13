@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { useColorScheme } from '../../../themes/ColorSchemeContext';
+import { useChatNotifications } from '../../../contexts/ChatNotificationContext';
 import Header from './Header';
 import MainContent from './MainContent';
 import BottomNavigation from './BottomNavigation';
@@ -19,6 +20,7 @@ import UserProfile from './components/UserProfile';
 import MoreModal from './MoreModal';
 import GestureHandler from './components/GestureHandler';
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants';
+import TrollBoxPage from './pages/TrollBoxPage';
 import { media, gridBreakpoints, spacing, components } from './breakpoints';
 
 // Mobile-specific context for bottom navigation and modals
@@ -46,6 +48,7 @@ const DegenMobileModalContext = createContext<{
   openConnectionStatus: () => void;
   openShareModal: (game: any) => void;
   openMoreModal: () => void;
+  openTrollBoxModal: () => void;
 }>({
   openBonusModal: () => { },
   openJackpotModal: () => { },
@@ -54,7 +57,8 @@ const DegenMobileModalContext = createContext<{
   openTokenSelect: () => { },
   openConnectionStatus: () => { },
   openShareModal: () => { },
-  openMoreModal: () => { }
+  openMoreModal: () => { },
+  openTrollBoxModal: () => { }
 });
 
 export const useDegenMobile = () => useContext(DegenMobileContext);
@@ -174,6 +178,7 @@ interface DegenMobileLayoutProps {
 
 const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   const { currentColorScheme } = useColorScheme();
+  const { resetUnread } = useChatNotifications();
 
   // Mobile-specific state
   const [activeBottomTab, setActiveBottomTab] = useState('home');
@@ -190,6 +195,8 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   const [shareGame, setShareGame] = useState<any>(null);
   const [gamesModalOpen, setGamesModalOpen] = useState(false);
   const [moreModalOpen, setMoreModalOpen] = useState(false);
+  const [trollBoxModalOpen, setTrollBoxModalOpen] = useState(false);
+  const [trollBoxStatus, setTrollBoxStatus] = useState('Connecting…');
 
   // Gesture handling for navigation
   const handleSwipeLeft = () => {
@@ -226,7 +233,11 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
       setShareGame(game);
       setShareModalOpen(true);
     },
-    openMoreModal: () => setMoreModalOpen(true)
+    openMoreModal: () => setMoreModalOpen(true),
+    openTrollBoxModal: () => {
+      resetUnread();
+      setTrollBoxModalOpen(true);
+    }
   };
 
   return (
@@ -320,6 +331,15 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
           isOpen={moreModalOpen}
           onClose={() => setMoreModalOpen(false)}
         />
+
+        <Modal
+          isOpen={trollBoxModalOpen}
+          onClose={() => setTrollBoxModalOpen(false)}
+          title="💬 Serenade Chat"
+          status={trollBoxStatus}
+        >
+          <TrollBoxPage onStatusChange={setTrollBoxStatus} />
+        </Modal>
       </DegenMobileModalContext.Provider>
     </DegenMobileContext.Provider>
   );

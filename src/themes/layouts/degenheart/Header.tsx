@@ -6,11 +6,12 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useCurrentPool, useGambaPlatformContext, useUserBalance } from 'gamba-react-ui-v2';
 import { useColorScheme } from '../../ColorSchemeContext';
 import { useHandleWalletConnect } from '../../../sections/walletConnect';
-import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy } from 'react-icons/fa';
-import { SIDEBAR_LINKS, PLATFORM_CREATOR_ADDRESS, ENABLE_LEADERBOARD } from '../../../constants';
+import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy, FaComments } from 'react-icons/fa';
+import { SIDEBAR_LINKS, PLATFORM_CREATOR_ADDRESS, ENABLE_LEADERBOARD, ENABLE_TROLLBOX } from '../../../constants';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useIsCompact } from '../../../hooks/ui/useIsCompact';
 import { useDegenHeaderModal } from './DegenHeartLayout';
+import { useChatNotifications } from '../../../contexts/ChatNotificationContext';
 
 import { media, typography, spacing, components } from './breakpoints';
 
@@ -437,11 +438,6 @@ const TokenButton = styled.button<{ $colorScheme: any; }>`
   &:active {
     transform: translateY(-1px) scale(0.98);
   }
-
-  /* Hide on mobile for space optimization */
-  ${media.maxMobileLg} {
-    display: none;
-  }
 `;
 
 const BonusButton = styled.button<{ $colorScheme: any; }>`
@@ -601,6 +597,25 @@ const LeaderboardButton = styled.button<{ $colorScheme: any; }>`
   ${media.maxMobileLg} {
     display: none;
   }
+`;
+
+const NotificationBadge = styled.div<{ $colorScheme: any; }>`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #ff4757, #ff3838);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid ${props => props.$colorScheme.colors.surface};
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+  z-index: 10;
 `;
 
 const WalletButton = styled.button<{ $colorScheme: any; }>`
@@ -778,7 +793,8 @@ const Header: React.FC = () => {
   const context = useGambaPlatformContext();
   const balance = useUserBalance();
   const { compact: isCompact, mobile } = useIsCompact();
-  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect } = useDegenHeaderModal();
+  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect, openTrollBoxModal } = useDegenHeaderModal();
+  const { unreadCount, hasNewMessages } = useChatNotifications();
   const walletModal = useWalletModal();
   const handleWalletConnect = useHandleWalletConnect();
   const toast = useToast();
@@ -947,13 +963,15 @@ const Header: React.FC = () => {
 
           {connected && (
             <>
-              <TokenButton
-                $colorScheme={currentColorScheme}
-                onClick={() => openTokenSelect()}
-              >
-                <FaCoins />
-                {!isCompact && 'Tokens'}
-              </TokenButton>
+              {!mobile && (
+                <TokenButton
+                  $colorScheme={currentColorScheme}
+                  onClick={() => openTokenSelect()}
+                >
+                  <FaCoins />
+                  {!isCompact && 'Tokens'}
+                </TokenButton>
+              )}
 
               <ThemeButton
                 $colorScheme={currentColorScheme}
@@ -965,36 +983,47 @@ const Header: React.FC = () => {
             </>
           )}
 
-          <WalletDropdownContainer ref={dropdownRef}>
-            <WalletButton $colorScheme={currentColorScheme} onClick={handleWalletClick}>
-              {connected && publicKey
-                ? formatAddress(publicKey.toString())
-                : 'Connect Wallet'
-              }
-            </WalletButton>
+          {/* Mobile: Show TokenSelect instead of Wallet */}
+          {mobile && connected ? (
+            <TokenButton
+              $colorScheme={currentColorScheme}
+              onClick={() => openTokenSelect()}
+            >
+              <FaCoins />
+              {!isCompact && 'Tokens'}
+            </TokenButton>
+          ) : (
+            <WalletDropdownContainer ref={dropdownRef}>
+              <WalletButton $colorScheme={currentColorScheme} onClick={handleWalletClick}>
+                {connected && publicKey
+                  ? formatAddress(publicKey.toString())
+                  : 'Connect Wallet'
+                }
+              </WalletButton>
 
-            {connected && walletDropdownOpen && (
-              <WalletDropdown $colorScheme={currentColorScheme}>
-                <DropdownItem $colorScheme={currentColorScheme} onClick={handleCopyAddress}>
-                  <FaCopy />
-                  Copy Address
-                  <small>{formatAddress(publicKey?.toString() || '')}</small>
-                </DropdownItem>
+              {connected && walletDropdownOpen && (
+                <WalletDropdown $colorScheme={currentColorScheme}>
+                  <DropdownItem $colorScheme={currentColorScheme} onClick={handleCopyAddress}>
+                    <FaCopy />
+                    Copy Address
+                    <small>{formatAddress(publicKey?.toString() || '')}</small>
+                  </DropdownItem>
 
-                <DropdownItem $colorScheme={currentColorScheme} onClick={handleProfileClick}>
-                  <FaUser />
-                  Profile
-                </DropdownItem>
+                  <DropdownItem $colorScheme={currentColorScheme} onClick={handleProfileClick}>
+                    <FaUser />
+                    Profile
+                  </DropdownItem>
 
-                <DropdownDivider $colorScheme={currentColorScheme} />
+                  <DropdownDivider $colorScheme={currentColorScheme} />
 
-                <DropdownItem $colorScheme={currentColorScheme} onClick={handleDisconnect} $danger>
-                  <FaSignOutAlt />
-                  Disconnect
-                </DropdownItem>
-              </WalletDropdown>
-            )}
-          </WalletDropdownContainer>
+                  <DropdownItem $colorScheme={currentColorScheme} onClick={handleDisconnect} $danger>
+                    <FaSignOutAlt />
+                    Disconnect
+                  </DropdownItem>
+                </WalletDropdown>
+              )}
+            </WalletDropdownContainer>
+          )}
 
           <MenuButton
             $colorScheme={currentColorScheme}
