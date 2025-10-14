@@ -81,6 +81,61 @@ const Card = styled.div`
   }
 `;
 
+const ActionRow = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+`;
+
+const IconButton = styled.button`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.12s ease;
+
+    &:hover {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.18);
+        transform: translateY(-2px);
+    }
+
+    &:active { transform: translateY(0); }
+
+    @media (min-width: 768px) {
+        width: auto;
+        height: auto;
+        min-width: 0;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.8);
+    }
+`;
+
+const AddressMono = styled.span`
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 10ch; /* small on mobile; will expand naturally in desktop */
+
+    @media (min-width: 768px) {
+        max-width: 28ch;
+    }
+`;
+
 export default function LeaderboardPage() {
     const navigate = useNavigate();
     const { data: leaderboardData, loading, error } = useLeaderboardData('alltime', PLATFORM_CREATOR_ADDRESS.toBase58());
@@ -138,51 +193,25 @@ export default function LeaderboardPage() {
                                 <div className="player">
                                     <div className="name">{player.name}</div>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
-                                        <button
-                                            onClick={() => window.open(`https://solscan.io/account/${player.address}`, '_blank')}
-                                            style={{
-                                                background: 'none',
-                                                border: '1px solid rgba(255, 255, 255, 0.3)',
-                                                color: 'rgba(255, 255, 255, 0.6)',
-                                                fontSize: '0.75rem',
-                                                padding: '2px 6px',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                fontFamily: 'monospace'
-                                            }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)')}
-                                            title="View on Solscan"
-                                        >
-                                            🔍
-                                        </button>
-                                        <button
-                                            onClick={() => navigate(`/explorer/player/${player.address}`)}
-                                            style={{
-                                                background: 'none',
-                                                border: '1px solid rgba(255, 255, 255, 0.3)',
-                                                color: 'rgba(255, 255, 255, 0.6)',
-                                                fontSize: '0.75rem',
-                                                padding: '2px 6px',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                fontFamily: 'monospace'
-                                            }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)')}
-                                            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)')}
-                                            title="View Player Profile"
-                                        >
-                                            👤
-                                        </button>
-                                        <span
-                                            style={{
-                                                fontSize: '0.875rem',
-                                                color: 'rgba(255, 255, 255, 0.6)',
-                                                fontFamily: 'monospace'
-                                            }}
-                                        >
+                                        <ActionRow>
+                                            <IconButton
+                                                title="View on Solscan"
+                                                onClick={() => window.open(`https://solscan.io/account/${player.address}`, '_blank')}
+                                            >
+                                                🔍
+                                            </IconButton>
+
+                                            <IconButton
+                                                title="View Player Profile"
+                                                onClick={() => navigate(`/explorer/player/${player.address}`)}
+                                            >
+                                                👤
+                                            </IconButton>
+                                        </ActionRow>
+
+                                        <AddressMono>
                                             {player.address.slice(0, 8)}...{player.address.slice(-8)}
-                                        </span>
+                                        </AddressMono>
                                     </div>
                                     <div className="amount">{player.amount}</div>
                                 </div>

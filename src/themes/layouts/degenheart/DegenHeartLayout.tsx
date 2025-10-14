@@ -42,6 +42,7 @@ const DegenHeaderModalContext = createContext<{
   openConnectionStatus: () => void;
   openShareModal: (game: any) => void;
   openTrollBoxModal: () => void;
+  closeAllOverlays: () => void;
 }>({
   openBonusModal: () => { },
   openJackpotModal: () => { },
@@ -50,7 +51,8 @@ const DegenHeaderModalContext = createContext<{
   openTokenSelect: () => { },
   openConnectionStatus: () => { },
   openShareModal: () => { },
-  openTrollBoxModal: () => { }
+  openTrollBoxModal: () => { },
+  closeAllOverlays: () => { }
 });
 
 export const useDegenGamesModal = () => useContext(DegenGamesModalContext);
@@ -110,17 +112,22 @@ const LayoutContainer = styled.div<{ $colorScheme: any; }>`
 
 const GridHeader = styled.header`
   grid-area: header;
+  /* Reference shared header height variables so both header component and layout align */
+  --dh-header-height: 100px;
+  --dh-header-height-tablet: 80px;
+
   /* Mobile-first: Relative positioning to avoid viewport issues */
   position: relative;
-  height: 80px;
+  height: var(--dh-header-height-tablet);
   z-index: 1100;
-  
+
   /* Tablet and up: Fixed positioning for better UX */
   ${media.tablet} {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    height: var(--dh-header-height);
   }
 `;
 
@@ -446,6 +453,21 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   // Share modal state
   const [shareModalGame, setShareModalGame] = useState<any>(undefined);
 
+  // helper to close all overlay modals/sidebars
+  const closeAllOverlays = () => {
+    setShowBonusModal(false);
+    setShowJackpotModal(false);
+    setShowLeaderboardModal(false);
+    setShowThemeSelector(false);
+    setShowTokenSelect(false);
+    setShowConnectionStatus(false);
+    setShowTrollBoxModal(false);
+    setShowGamesModal(false);
+    setShareModalGame(undefined);
+    setLeftSidebarOpen(false);
+    setRightSidebarOpen(false);
+  };
+
   const toggleLeftSidebar = () => {
     setLeftSidebarOpen(!leftSidebarOpen);
     setRightSidebarOpen(false); // Close right sidebar when left opens
@@ -556,20 +578,23 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
       closeSidebars
     }}>
       <DegenHeaderModalContext.Provider value={{
-        openBonusModal: () => setShowBonusModal(true),
-        openJackpotModal: () => setShowJackpotModal(true),
-        openLeaderboardModal: () => setShowLeaderboardModal(true),
-        openThemeSelector: () => setShowThemeSelector(true),
-        openTokenSelect: () => setShowTokenSelect(true),
-        openConnectionStatus: () => setShowConnectionStatus(true),
+        openBonusModal: () => { closeAllOverlays(); setShowBonusModal(true); },
+        openJackpotModal: () => { closeAllOverlays(); setShowJackpotModal(true); },
+        openLeaderboardModal: () => { closeAllOverlays(); setShowLeaderboardModal(true); },
+        openThemeSelector: () => { closeAllOverlays(); setShowThemeSelector(true); },
+        openTokenSelect: () => { closeAllOverlays(); setShowTokenSelect(true); },
+        openConnectionStatus: () => { closeAllOverlays(); setShowConnectionStatus(true); },
         openShareModal: (game: any) => {
+          closeAllOverlays();
           console.log('ShareModal triggered with game:', game);
           setShareModalGame(game);
         },
         openTrollBoxModal: () => {
+          closeAllOverlays();
           resetUnread();
           toggleRightSidebar();
-        }
+        },
+        closeAllOverlays: () => closeAllOverlays()
       }}>
         <LayoutContainer
           $colorScheme={currentColorScheme}

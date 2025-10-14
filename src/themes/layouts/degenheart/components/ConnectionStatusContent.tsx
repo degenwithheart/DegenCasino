@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import { useColorScheme } from '../../../ColorSchemeContext';
 import { useNetwork } from '../../../../contexts/NetworkContext';
 import { media } from '../breakpoints';
+import { useDegenHeaderModal } from '../DegenHeartLayout';
 
 // Animations
 const ping = keyframes`
@@ -178,6 +179,7 @@ export const ConnectionStatusContent: React.FC = () => {
   const SYNDICA_RPC = networkConfig.rpcEndpoint;
 
   const dnsStatus = useDnsStatus(true); // Always check when modal is open
+  const { closeAllOverlays } = useDegenHeaderModal();
 
   const THROTTLE_MS = 10000;
 

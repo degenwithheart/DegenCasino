@@ -23,19 +23,23 @@ import { PLATFORM_CREATOR_ADDRESS } from '../../../constants';
 import TrollBoxPage from './pages/TrollBoxPage';
 import { media, gridBreakpoints, spacing, components } from './breakpoints';
 
-// Mobile-specific context for bottom navigation and modals
+// Mobile-specific context for bottom navigation, menu and modals
 const DegenMobileContext = createContext<{
   openGamesModal: () => void;
   activeBottomTab: string;
   setActiveBottomTab: (tab: string) => void;
   showBottomNav: boolean;
   setShowBottomNav: (show: boolean) => void;
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
 }>({
   openGamesModal: () => { },
   activeBottomTab: 'home',
   setActiveBottomTab: () => { },
   showBottomNav: true,
-  setShowBottomNav: () => { }
+  setShowBottomNav: () => { },
+  menuOpen: false,
+  setMenuOpen: () => { }
 });
 
 // Context for mobile modal system (slide-up modals)
@@ -49,6 +53,8 @@ const DegenMobileModalContext = createContext<{
   openShareModal: (game: any) => void;
   openMoreModal: () => void;
   openTrollBoxModal: () => void;
+  // helper to allow consumers to explicitly close all overlays
+  closeAllOverlays: () => void;
 }>({
   openBonusModal: () => { },
   openJackpotModal: () => { },
@@ -58,7 +64,8 @@ const DegenMobileModalContext = createContext<{
   openConnectionStatus: () => { },
   openShareModal: () => { },
   openMoreModal: () => { },
-  openTrollBoxModal: () => { }
+  openTrollBoxModal: () => { },
+  closeAllOverlays: () => { }
 });
 
 export const useDegenMobile = () => useContext(DegenMobileContext);
@@ -183,6 +190,8 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   // Mobile-specific state
   const [activeBottomTab, setActiveBottomTab] = useState('home');
   const [showBottomNav, setShowBottomNav] = useState(true);
+  // Menu (burger) state lifted here so layout can control overlays
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Modal state
   const [bonusModalOpen, setBonusModalOpen] = useState(false);
@@ -213,31 +222,47 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
     setActiveBottomTab(tabs[prevIndex]);
   };
 
+  // helper to close everything (menus and modals)
+  function closeAllOverlays() {
+    setBonusModalOpen(false);
+    setJackpotModalOpen(false);
+    setLeaderboardModalOpen(false);
+    setThemeSelectorOpen(false);
+    setTokenSelectOpen(false);
+    setConnectionStatusOpen(false);
+    setShareModalOpen(false);
+    setShareGame(null);
+    setGamesModalOpen(false);
+    setMoreModalOpen(false);
+    setTrollBoxModalOpen(false);
+    setMenuOpen(false);
+  }
+
   // Mobile context values
   const mobileContextValue = {
-    openGamesModal: () => setGamesModalOpen(true),
+    openGamesModal: () => {
+      closeAllOverlays();
+      setGamesModalOpen(true);
+    },
     activeBottomTab,
     setActiveBottomTab,
     showBottomNav,
-    setShowBottomNav
+    setShowBottomNav,
+    menuOpen,
+    setMenuOpen
   };
 
   const modalContextValue = {
-    openBonusModal: () => setBonusModalOpen(true),
-    openJackpotModal: () => setJackpotModalOpen(true),
-    openLeaderboardModal: () => setLeaderboardModalOpen(true),
-    openThemeSelector: () => setThemeSelectorOpen(true),
-    openTokenSelect: () => setTokenSelectOpen(true),
-    openConnectionStatus: () => setConnectionStatusOpen(true),
-    openShareModal: (game: any) => {
-      setShareGame(game);
-      setShareModalOpen(true);
-    },
-    openMoreModal: () => setMoreModalOpen(true),
-    openTrollBoxModal: () => {
-      resetUnread();
-      setTrollBoxModalOpen(true);
-    }
+    openBonusModal: () => { closeAllOverlays(); setBonusModalOpen(true); },
+    openJackpotModal: () => { closeAllOverlays(); setJackpotModalOpen(true); },
+    openLeaderboardModal: () => { closeAllOverlays(); setLeaderboardModalOpen(true); },
+    openThemeSelector: () => { closeAllOverlays(); setThemeSelectorOpen(true); },
+    openTokenSelect: () => { closeAllOverlays(); setTokenSelectOpen(true); },
+    openConnectionStatus: () => { closeAllOverlays(); setConnectionStatusOpen(true); },
+    openShareModal: (game: any) => { closeAllOverlays(); setShareGame(game); setShareModalOpen(true); },
+    openMoreModal: () => { closeAllOverlays(); setMoreModalOpen(true); },
+    openTrollBoxModal: () => { closeAllOverlays(); resetUnread(); setTrollBoxModalOpen(true); },
+    closeAllOverlays: () => closeAllOverlays()
   };
 
   return (

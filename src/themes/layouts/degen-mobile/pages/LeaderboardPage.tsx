@@ -100,7 +100,7 @@ export default function LeaderboardPage() {
 
     return leaderboardData.slice(0, 10).map((player, index) => ({
       rank: index + 1,
-      name: `${generateUsernameFromWallet(player.user)} — ${player.user.slice(-4)}`,
+      name: `${generateUsernameFromWallet(player.user)}`,
       address: player.user,
       amount: `${player.sol_volume.toFixed(4)} SOL`
     }));
@@ -124,7 +124,7 @@ export default function LeaderboardPage() {
             <PageContent $variant="leaderboard">
               <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                 <ChampionshipBadge>
-                  🏆 Championship Season 2024
+                  🏆 Championship Season 2025
                 </ChampionshipBadge>
                 <p style={{ color: 'rgba(255, 255, 255, 0.8)', marginBottom: '8px' }}>
                   Top players by wagered amount (SOL)
@@ -148,7 +148,7 @@ export default function LeaderboardPage() {
                         <div className="rank">#{player.rank}</div>
                         <div className="player">
                           <div className="name">{player.name}</div>
-                          <div className="address">{player.address}</div>
+                          <div className="address">{player.address.slice(0, 8)}...{player.address.slice(-8)}</div>
                         </div>
                         <div className="amount">{player.amount}</div>
                       </LeaderboardEntry>

@@ -9,13 +9,17 @@ import { useChatNotifications } from '../../../contexts/ChatNotificationContext'
 import { spacing, components, typography, media, animations } from './breakpoints';
 
 const HeaderContainer = styled.header<{ $colorScheme: any; }>`
+  /* Shared header sizing vars to keep mobile and desktop headers aligned */
+  --dh-header-height: 100px;
+  --dh-header-height-tablet: 80px;
+
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: ${components.header.zIndex};
-  
-  height: 70px;
+
+  height: var(--dh-header-height-tablet);
   padding: ${spacing.sm} ${spacing.base};
   
   display: flex;
@@ -29,7 +33,7 @@ const HeaderContainer = styled.header<{ $colorScheme: any; }>`
   
   ${media.safeArea} {
     padding-top: calc(${spacing.sm} + ${spacing.safeArea.top});
-    height: calc(70px + ${spacing.safeArea.top});
+    height: calc(var(--dh-header-height-tablet) + ${spacing.safeArea.top});
   }
 `;
 
@@ -289,17 +293,23 @@ const Header: React.FC<HeaderProps> = () => {
   const location = useLocation();
   const { connected } = useWallet();
   const { currentColorScheme } = useColorScheme();
-  const { openConnectionStatus, openTrollBoxModal } = useDegenMobileModal();
+  const { openConnectionStatus, openTrollBoxModal, closeAllOverlays } = useDegenMobileModal();
   const { unreadCount, hasNewMessages } = useChatNotifications();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { menuOpen, setMenuOpen } = useDegenMobile();
 
   const handleLogoClick = () => {
     navigate('/');
   };
 
   const handleMenuToggle = () => {
-    setMenuOpen(!menuOpen);
+    // If opening menu, ensure other overlays closed first
+    if (!menuOpen) {
+      closeAllOverlays();
+      setMenuOpen(true);
+    } else {
+      setMenuOpen(false);
+    }
   };
 
   const handleConnectionClick = () => {
@@ -307,6 +317,8 @@ const Header: React.FC<HeaderProps> = () => {
   };
 
   const handleNavigation = (route: string) => {
+    // close any open overlays/menus when navigating from header/menu
+    closeAllOverlays();
     navigate(`/${route}`);
   };
 
@@ -317,9 +329,9 @@ const Header: React.FC<HeaderProps> = () => {
           <HeaderButton
             $colorScheme={currentColorScheme}
             onClick={handleMenuToggle}
-            aria-label="Open menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           >
-            <FaBars />
+            {menuOpen ? <FaTimes /> : <FaBars />}
           </HeaderButton>
 
           <Logo $colorScheme={currentColorScheme} onClick={handleLogoClick}>
@@ -331,7 +343,7 @@ const Header: React.FC<HeaderProps> = () => {
         <CenterSection>
           <HeaderQuickButton
             $colorScheme={currentColorScheme}
-            onClick={() => handleNavigation('bonus')}
+            onClick={() => { closeAllOverlays(); navigate('/bonus'); }}
             title="Bonus"
           >
             <FaGift />
@@ -339,7 +351,7 @@ const Header: React.FC<HeaderProps> = () => {
 
           <HeaderQuickButton
             $colorScheme={currentColorScheme}
-            onClick={() => handleNavigation('jackpot')}
+            onClick={() => { closeAllOverlays(); navigate('/jackpot'); }}
             title="Jackpot"
           >
             <FaGem />
@@ -347,7 +359,7 @@ const Header: React.FC<HeaderProps> = () => {
 
           <HeaderQuickButton
             $colorScheme={currentColorScheme}
-            onClick={() => handleNavigation('leaderboard')}
+            onClick={() => { closeAllOverlays(); navigate('/leaderboard'); }}
             title="Leaderboard"
           >
             <FaTrophy />
@@ -356,7 +368,7 @@ const Header: React.FC<HeaderProps> = () => {
           <div style={{ position: 'relative' }}>
             <HeaderQuickButton
               $colorScheme={currentColorScheme}
-              onClick={() => (connected ? openTrollBoxModal() : navigate('/'))}
+              onClick={() => (connected ? (closeAllOverlays(), openTrollBoxModal()) : (closeAllOverlays(), navigate('/')))}
               title="Chat"
             >
               <FaComments />
@@ -397,16 +409,16 @@ const Header: React.FC<HeaderProps> = () => {
         </MenuHeader>
 
         <MenuItems>
-          <MenuItem $colorScheme={currentColorScheme} onClick={() => { navigate('/'); setMenuOpen(false); }}>
+          <MenuItem $colorScheme={currentColorScheme} onClick={() => { closeAllOverlays(); navigate('/'); }}>
             🏠 Home
           </MenuItem>
-          <MenuItem $colorScheme={currentColorScheme} onClick={() => { navigate('/profile'); setMenuOpen(false); }}>
+          <MenuItem $colorScheme={currentColorScheme} onClick={() => { closeAllOverlays(); navigate('/profile'); }}>
             👤 Profile
           </MenuItem>
-          <MenuItem $colorScheme={currentColorScheme} onClick={() => { navigate('/explorer'); setMenuOpen(false); }}>
+          <MenuItem $colorScheme={currentColorScheme} onClick={() => { closeAllOverlays(); navigate('/explorer'); }}>
             🔍 Explorer
           </MenuItem>
-          <MenuItem $colorScheme={currentColorScheme} onClick={() => { navigate('/token'); setMenuOpen(false); }}>
+          <MenuItem $colorScheme={currentColorScheme} onClick={() => { closeAllOverlays(); navigate('/token'); }}>
             💰 $DGHRT
           </MenuItem>
         </MenuItems>

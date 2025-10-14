@@ -6,7 +6,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useCurrentPool, useGambaPlatformContext, useUserBalance } from 'gamba-react-ui-v2';
 import { useColorScheme } from '../../ColorSchemeContext';
 import { useHandleWalletConnect } from '../../../sections/walletConnect';
-import { FaGem, FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy, FaComments } from 'react-icons/fa';
+import { FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy, FaComments } from 'react-icons/fa';
 import { SIDEBAR_LINKS, PLATFORM_CREATOR_ADDRESS, ENABLE_LEADERBOARD, ENABLE_TROLLBOX } from '../../../constants';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useIsCompact } from '../../../hooks/ui/useIsCompact';
@@ -45,8 +45,12 @@ const float = keyframes`
 
 const HeaderContainer = styled.header<{ $colorScheme: any; }>`
   width: 100%;
+  /* Shared header sizing vars to keep all headers consistent */
+  --dh-header-height: 100px;
+  --dh-header-height-tablet: 80px;
+
   /* Mobile-first: Optimized height for touch devices */
-  height: 75px;
+  height: var(--dh-header-height-tablet);
   background: linear-gradient(135deg, 
     ${props => props.$colorScheme.colors.surface}98,
     ${props => props.$colorScheme.colors.background}90
@@ -92,7 +96,7 @@ const HeaderContainer = styled.header<{ $colorScheme: any; }>`
   
   /* Tablet and up: Standard desktop height and padding */
   ${media.tablet} {
-    height: 80px;
+    height: var(--dh-header-height);
     padding: 0 1.5rem;
   }
   
@@ -135,26 +139,37 @@ const LogoSection = styled.div`
   }
 `;
 
-const LogoIcon = styled(FaGem) <{ $colorScheme: any; }>`
-  font-size: 2.2rem;
+const LogoIcon = styled.img<{ $colorScheme: any; }>`
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
   color: ${props => props.$colorScheme.colors.accent};
   ${css`animation: ${heartGlow} 3s ease-in-out infinite, ${float} 4s ease-in-out infinite;`}
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
   position: relative;
   z-index: 1;
-  
+
+  /* gentle inset glow behind image */
   &::before {
     content: '';
     position: absolute;
-    inset: -10%;
+    inset: -12%;
     background: radial-gradient(circle, ${props => props.$colorScheme.colors.accent}20 0%, transparent 70%);
-    border-radius: 50%;
+    border-radius: 12px;
     z-index: -1;
+  }
+
+  /* Slightly larger logo on larger screens */
+  ${media.tablet} {
+    width: 48px;
+    height: 48px;
   }
 `;
 
 const LogoText = styled.h1<{ $colorScheme: any; }>`
-  /* Mobile-first: Smaller, more compact text */
+  /* Mobile-first: hide on small screens, show on tablet+ */
+  display: none;
   font-size: 1.25rem;
   font-weight: 800;
   color: ${props => props.$colorScheme.colors.accent};
@@ -192,8 +207,9 @@ const LogoText = styled.h1<{ $colorScheme: any; }>`
     z-index: -1;
   }
   
-  /* Tablet and up: Larger, more prominent text */
+  /* Tablet and up: show and scale the title */
   ${media.tablet} {
+    display: block;
     font-size: 1.5rem;
     letter-spacing: 0.08em;
   }
@@ -212,7 +228,7 @@ const Navigation = styled.nav<{ $colorScheme: any; $isOpen: boolean; }>`
   ${media.maxTablet} {
     display: ${props => props.$isOpen ? 'flex' : 'none'};
     position: fixed;
-    top: 75px; /* Match mobile header height */
+    top: var(--dh-header-height-tablet); /* Match mobile header height */
     left: 0;
     right: 0;
     background: ${props => props.$colorScheme.colors.surface}F0;
@@ -224,7 +240,7 @@ const Navigation = styled.nav<{ $colorScheme: any; $isOpen: boolean; }>`
     transform: translateY(${props => props.$isOpen ? '0' : '-100%'});
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 999;
-    max-height: calc(100vh - 75px);
+  max-height: calc(100vh - var(--dh-header-height-tablet));
     overflow-y: auto;
     
     .mobile-wallet-options {
@@ -339,23 +355,22 @@ const WalletSection = styled.div`
 `;
 
 const ThemeButton = styled.button<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}85,
-    ${props => props.$colorScheme.colors.background}70
-  );
+  /* Mobile-first: compact circular icon button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
   border: 2px solid ${props => props.$colorScheme.colors.accent}50;
   color: ${props => props.$colorScheme.colors.accent};
-  /* Mobile-first: Hide on mobile to save space */
-  display: none;
-  padding: 0.8rem 1.2rem;
-  border-radius: 16px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(15px);
-  align-items: center;
-  gap: 0.6rem;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 
@@ -370,45 +385,39 @@ const ThemeButton = styled.button<{ $colorScheme: any; }>`
 
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
-    background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}25,
-      ${props => props.$colorScheme.colors.accent}15
-    );
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
-    
-    &::before {
-      opacity: 1;
-    }
+    transform: translateY(-2px);
+    &::before { opacity: 1; }
   }
 
-  &:active {
-    transform: translateY(-1px) scale(0.98);
-  }
-
-  /* Tablet and up: Show theme button */
+  /* Tablet and up: expanded full button with text */
   ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
     display: flex;
+    gap: 0.6rem;
   }
 `;
 
 const TokenButton = styled.button<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}85,
-    ${props => props.$colorScheme.colors.background}70
-  );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
-  color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.8rem 1.2rem;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(15px);
+  /* Mobile-first: compact circular icon button */
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 
@@ -423,40 +432,41 @@ const TokenButton = styled.button<{ $colorScheme: any; }>`
 
   &:hover {
     border-color: ${props => props.$colorScheme.colors.accent};
-    background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}25,
-      ${props => props.$colorScheme.colors.accent}15
-    );
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
-    
-    &::before {
-      opacity: 1;
-    }
+    transform: translateY(-2px);
+    &::before { opacity: 1; }
   }
 
-  &:active {
-    transform: translateY(-1px) scale(0.98);
+  /* Tablet and up: expanded full button with text */
+  ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
   }
+
+  &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
 const BonusButton = styled.button<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}85,
-    ${props => props.$colorScheme.colors.background}70
-  );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
-  color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.8rem 1.2rem;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(15px);
+  /* Mobile-first: compact circular icon button */
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 
@@ -469,47 +479,39 @@ const BonusButton = styled.button<{ $colorScheme: any; }>`
     transition: opacity 0.3s ease;
   }
 
-  &:hover {
-    border-color: ${props => props.$colorScheme.colors.accent};
-    background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}25,
-      ${props => props.$colorScheme.colors.accent}15
-    );
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
-    
-    &::before {
-      opacity: 1;
-    }
+  &:hover { border-color: ${props => props.$colorScheme.colors.accent}; transform: translateY(-2px); &::before { opacity: 1; } }
+
+  /* Tablet and up: expanded full button with text */
+  ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
   }
 
-  &:active {
-    transform: translateY(-1px) scale(0.98);
-  }
-
-  /* Hide on mobile for space optimization */
-  ${media.maxMobileLg} {
-    display: none;
-  }
+  &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
 const JackpotButton = styled.button<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}85,
-    ${props => props.$colorScheme.colors.background}70
-  );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
-  color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.8rem 1.2rem;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(15px);
+  /* Mobile-first: compact circular icon button */
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 
@@ -522,47 +524,39 @@ const JackpotButton = styled.button<{ $colorScheme: any; }>`
     transition: opacity 0.3s ease;
   }
 
-  &:hover {
-    border-color: ${props => props.$colorScheme.colors.accent};
-    background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}25,
-      ${props => props.$colorScheme.colors.accent}15
-    );
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
-    
-    &::before {
-      opacity: 1;
-    }
+  &:hover { border-color: ${props => props.$colorScheme.colors.accent}; transform: translateY(-2px); &::before { opacity: 1; } }
+
+  /* Tablet and up: expanded full button with text */
+  ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
   }
 
-  &:active {
-    transform: translateY(-1px) scale(0.98);
-  }
-
-  /* Hide on mobile for space optimization */
-  ${media.maxMobileLg} {
-    display: none;
-  }
+  &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
 const LeaderboardButton = styled.button<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.surface}85,
-    ${props => props.$colorScheme.colors.background}70
-  );
-  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
-  color: ${props => props.$colorScheme.colors.accent};
-  padding: 0.8rem 1.2rem;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(15px);
+  /* Mobile-first: compact circular icon button */
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 
@@ -575,28 +569,20 @@ const LeaderboardButton = styled.button<{ $colorScheme: any; }>`
     transition: opacity 0.3s ease;
   }
 
-  &:hover {
-    border-color: ${props => props.$colorScheme.colors.accent};
-    background: linear-gradient(135deg, 
-      ${props => props.$colorScheme.colors.accent}25,
-      ${props => props.$colorScheme.colors.accent}15
-    );
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px ${props => props.$colorScheme.colors.accent}40;
-    
-    &::before {
-      opacity: 1;
-    }
+  &:hover { border-color: ${props => props.$colorScheme.colors.accent}; transform: translateY(-2px); &::before { opacity: 1; } }
+
+  /* Tablet and up: expanded full button with text */
+  ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
   }
 
-  &:active {
-    transform: translateY(-1px) scale(0.98);
-  }
-
-  /* Hide on mobile for space optimization */
-  ${media.maxMobileLg} {
-    display: none;
-  }
+  &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
 const NotificationBadge = styled.div<{ $colorScheme: any; }>`
@@ -793,7 +779,20 @@ const Header: React.FC = () => {
   const context = useGambaPlatformContext();
   const balance = useUserBalance();
   const { compact: isCompact, mobile } = useIsCompact();
-  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect, openTrollBoxModal } = useDegenHeaderModal();
+  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect, openTrollBoxModal, closeAllOverlays } = useDegenHeaderModal();
+  // Debug: log whether the theme-level modal handlers are available (helps diagnose core vs theme modal usage)
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line no-console
+      console.debug('DegenHeartHeader modal handlers', {
+        openBonusModal: typeof openBonusModal,
+        openJackpotModal: typeof openJackpotModal,
+        openLeaderboardModal: typeof openLeaderboardModal
+      });
+    } catch (e) {
+      /* ignore */
+    }
+  }, [openBonusModal, openJackpotModal, openLeaderboardModal]);
   const { unreadCount, hasNewMessages } = useChatNotifications();
   const walletModal = useWalletModal();
   const handleWalletConnect = useHandleWalletConnect();
@@ -825,6 +824,8 @@ const Header: React.FC = () => {
     if (connected) {
       setWalletDropdownOpen(!walletDropdownOpen);
     } else {
+      // close any overlays first then attempt connect (or open wallet modal)
+      try { closeAllOverlays(); } catch (e) { /* ignore if not available */ }
       handleWalletConnect();
     }
   };
@@ -842,6 +843,8 @@ const Header: React.FC = () => {
 
   const handleDisconnect = () => {
     disconnect();
+    // close overlays after disconnect
+    try { closeAllOverlays(); } catch (e) { /* ignore */ }
     setWalletDropdownOpen(false);
     toast({
       title: 'Disconnected',
@@ -862,7 +865,7 @@ const Header: React.FC = () => {
     <>
       <HeaderContainer $colorScheme={currentColorScheme}>
         <LogoSection onClick={handleLogoClick}>
-          <LogoIcon $colorScheme={currentColorScheme} />
+          <LogoIcon src="/png/images/logo.png" alt="DegenHeart logo" $colorScheme={currentColorScheme} />
           <LogoText $colorScheme={currentColorScheme}>
             DegenHeart
           </LogoText>
@@ -931,7 +934,9 @@ const Header: React.FC = () => {
           {connected && pool.jackpotBalance > 0 && (
             <JackpotButton
               $colorScheme={currentColorScheme}
-              onClick={() => (mobile ? navigate('/jackpot') : openJackpotModal())}
+              onClick={() => (
+                typeof openJackpotModal === 'function' ? openJackpotModal() : navigate('/jackpot')
+              )}
               aria-label="Jackpot info"
             >
               💰
@@ -942,7 +947,9 @@ const Header: React.FC = () => {
           {connected && (
             <BonusButton
               $colorScheme={currentColorScheme}
-              onClick={() => (mobile ? navigate('/bonus') : openBonusModal())}
+              onClick={() => (
+                typeof openBonusModal === 'function' ? openBonusModal() : navigate('/bonus')
+              )}
               aria-label="Bonus info"
             >
               ✨
@@ -953,7 +960,9 @@ const Header: React.FC = () => {
           {connected && ENABLE_LEADERBOARD && (
             <LeaderboardButton
               $colorScheme={currentColorScheme}
-              onClick={() => (mobile ? navigate('/leaderboard') : openLeaderboardModal())}
+              onClick={() => (
+                typeof openLeaderboardModal === 'function' ? openLeaderboardModal() : navigate('/leaderboard')
+              )}
               aria-label="Show Leaderboard"
             >
               <FaTrophy />
