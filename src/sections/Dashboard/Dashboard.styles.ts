@@ -1,7 +1,7 @@
 import styled, { keyframes, css } from "styled-components";
 
 // Romantic Serenade Keyframe animations
-export const romanticPulse = keyframes<{ $colorScheme?: any }>`
+export const romanticPulse = keyframes<{ $colorScheme?: any; }>`
   0% { 
     box-shadow: 
       0 0 30px rgba(212, 165, 116, 0.4), 
@@ -54,7 +54,7 @@ export const dreamlikeFloat = keyframes`
 `;
 
 // Romantic animated accent bar
-export const AccentBar = styled.div<{ $colorScheme?: any }>`
+export const AccentBar = styled.div<{ $colorScheme?: any; }>`
   height: 4px;
   width: 100%;
   border-radius: 8px;
@@ -190,7 +190,7 @@ export type CompactProps = {
   $compact?: boolean;
 };
 
-export const GameSliderWrapper = styled.div<{ $colorScheme?: any }>`
+export const GameSliderWrapper = styled.div<{ $colorScheme?: any; }>`
   width: 100%;
   display: flex;
   gap: 1.5rem;
@@ -261,7 +261,7 @@ export const GameSliderWrapper = styled.div<{ $colorScheme?: any }>`
 `;
 
 // Glassy wrapper for game cards in slider with neon effects
-export const GameCardWrapper = styled.div<CompactProps & { $colorScheme?: any }>`
+export const GameCardWrapper = styled.div<CompactProps & { $colorScheme?: any; }>`
   width: ${({ $compact }) => ($compact ? '180px' : '200px')};
   height: ${({ $compact }) => ($compact ? '162px' : '180px')};
   max-width: 220px;
@@ -403,7 +403,7 @@ export const SectionWrapper = styled.div<CompactDivProps>`
   }
 `;
 
-export const ConnectButton = styled.button<CompactDivProps & { $colorScheme?: any }>`
+export const ConnectButton = styled.button<CompactDivProps & { $colorScheme?: any; }>`
   margin: 2rem auto 0;
   display: block;
   padding: ${({ $compact }) => ($compact ? '0.7rem 1.2rem' : '1rem 2.5rem')};
@@ -440,15 +440,15 @@ export const ConnectButton = styled.button<CompactDivProps & { $colorScheme?: an
   }
 `;
 
-export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $colorScheme?: any }>`
+export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean; $colorScheme?: any; }>`
   /* Romantic glassmorphism toggle button */
-  background: ${({ $active }) => $active 
-    ? 'rgba(212, 165, 116, 0.15)' 
+  background: ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 0.15)'
     : 'rgba(139, 90, 158, 0.08)'
   };
   backdrop-filter: blur(8px);
-  border: 1px solid ${({ $active }) => $active 
-    ? 'rgba(212, 165, 116, 0.4)' 
+  border: 1px solid ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 0.4)'
     : 'rgba(139, 90, 158, 0.2)'
   };
   border-radius: ${({ $compact }) => ($compact ? '10px' : '12px')};
@@ -457,8 +457,8 @@ export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean
   font-family: 'DM Sans', sans-serif;
   font-size: ${({ $compact }) => ($compact ? '0.9rem' : '1rem')};
   font-weight: 600;
-  color: ${({ $active }) => $active 
-    ? 'rgba(212, 165, 116, 1)' 
+  color: ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 1)'
     : 'rgba(244, 233, 225, 0.7)'
   };
   text-shadow: ${({ $active }) => $active
@@ -489,25 +489,25 @@ export const ToggleButton = styled.button<{ $active: boolean; $compact?: boolean
   }
 
   &:hover {
-    background: ${({ $active }) => $active 
-      ? 'rgba(212, 165, 116, 0.25)' 
-      : 'rgba(139, 90, 158, 0.15)'
-    };
-    border-color: ${({ $active }) => $active 
-      ? 'rgba(212, 165, 116, 0.6)' 
-      : 'rgba(139, 90, 158, 0.4)'
-    };
-    color: ${({ $active }) => $active 
-      ? 'rgba(212, 165, 116, 1)' 
-      : 'rgba(244, 233, 225, 0.9)'
-    };
+    background: ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 0.25)'
+    : 'rgba(139, 90, 158, 0.15)'
+  };
+    border-color: ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 0.6)'
+    : 'rgba(139, 90, 158, 0.4)'
+  };
+    color: ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 1)'
+    : 'rgba(244, 233, 225, 0.9)'
+  };
     transform: translateY(-2px);
     box-shadow: 
       0 8px 24px rgba(139, 90, 158, 0.15),
-      0 0 30px ${({ $active }) => $active 
-        ? 'rgba(212, 165, 116, 0.3)' 
-        : 'rgba(139, 90, 158, 0.2)'
-      };
+      0 0 30px ${({ $active }) => $active
+    ? 'rgba(212, 165, 116, 0.3)'
+    : 'rgba(139, 90, 158, 0.2)'
+  };
   }
 
   &:hover::before {

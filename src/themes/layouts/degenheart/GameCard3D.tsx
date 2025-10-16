@@ -1,5 +1,5 @@
 import type { GameBundle } from '../../../games/types';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,65 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
     const { publicKey } = useWallet();
     const [isHovered, setIsHovered] = useState(false);
     const [gameInfoOpen, setGameInfoOpen] = useState(false);
+    const cardRef = useRef<HTMLDivElement | null>(null);
+    const rafRef = useRef<number | null>(null);
+    const mousePos = useRef({ x: 0, y: 0 });
+    const rotation = useRef({ rx: 0, ry: 0 });
+    const isPointerDown = useRef(false);
+
+    // Tunable configuration for 3D effect. Adjust these to change intensity.
+    // You can later expose these as props or CSS variables if desired.
+    const CONFIG_DEFAULT = {
+        baseMaxRotate: 8,      // degrees when hovering normally
+        pressedMaxRotate: 14,  // degrees when pointer is down / pressed
+        depthZMultiplier: 22,  // px multiplied by data-depth to push forward
+        depthXYMultiplier: 10, // px multiplier for X/Y parallax movement
+    } as const;
+
+    // Some presets for quick visual comparisons
+    const PRESETS = {
+        subtle: {
+            baseMaxRotate: 4,
+            pressedMaxRotate: 7,
+            depthZMultiplier: 12,
+            depthXYMultiplier: 6,
+        },
+        moderate: {
+            baseMaxRotate: 8,
+            pressedMaxRotate: 14,
+            depthZMultiplier: 22,
+            depthXYMultiplier: 10,
+        },
+        exaggerated: {
+            baseMaxRotate: 14,
+            pressedMaxRotate: 22,
+            depthZMultiplier: 40,
+            depthXYMultiplier: 18,
+        }
+    } as const;
+
+    const presetKeys = Object.keys(PRESETS) as Array<keyof typeof PRESETS>;
+    const presetIndex = useRef(1); // default to moderate
+    const CONFIG = useRef({ ...CONFIG_DEFAULT, ...PRESETS[presetKeys[presetIndex.current]] }).current;
+
+    // Dev helper: press 'd' to cycle presets (subtle -> moderate -> exaggerated)
+    useEffect(() => {
+        const onKey = (ev: KeyboardEvent) => {
+            if (ev.key.toLowerCase() !== 'd') return;
+            presetIndex.current = (presetIndex.current + 1) % presetKeys.length;
+            const key = presetKeys[presetIndex.current];
+            // mutate CONFIG ref object fields (CONFIG is const object but we can reassign values)
+            (CONFIG as any).baseMaxRotate = PRESETS[key].baseMaxRotate;
+            (CONFIG as any).pressedMaxRotate = PRESETS[key].pressedMaxRotate;
+            (CONFIG as any).depthZMultiplier = PRESETS[key].depthZMultiplier;
+            (CONFIG as any).depthXYMultiplier = PRESETS[key].depthXYMultiplier;
+            // flash a small visual indicator by toggling hovered state quickly
+            setIsHovered(false);
+            setTimeout(() => setIsHovered(true), 30);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
 
     const isFeatured = FEATURED_GAMES.some((fg: any) => fg.id === game.id);
     const gameWithStatus = game as any;
@@ -27,6 +86,96 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
         navigate(`/game/${wallet}/${game.id}`);
         if (onClick) onClick();
     };
+
+    // 3D interaction handlers
+    const getBounds = () => cardRef.current?.getBoundingClientRect();
+
+    const updateTransform = () => {
+        const el = cardRef.current;
+        if (!el) return;
+        // smoothing
+        const { rx, ry } = rotation.current;
+        el.style.transform = `perspective(1200px) translateZ(0) rotateX(${rx}deg) rotateY(${ry}deg)`;
+
+        // update child layers with data-depth attribute
+        const layers = el.querySelectorAll<HTMLElement>('[data-depth]');
+        layers.forEach((layer) => {
+            const depth = Number(layer.dataset.depth) || 0;
+            // move layers opposite for parallax feel
+            const tz = depth * CONFIG.depthZMultiplier; // px forward
+            const tx = -mousePos.current.x * depth * CONFIG.depthXYMultiplier;
+            const ty = -mousePos.current.y * depth * CONFIG.depthXYMultiplier;
+            layer.style.transform = `translate3d(${tx}px, ${ty}px, ${tz}px)`;
+        });
+        rafRef.current = requestAnimationFrame(updateTransform);
+    };
+
+    const handlePointerMove = (clientX: number, clientY: number) => {
+        const bounds = getBounds();
+        if (!bounds) return;
+        const px = (clientX - bounds.left) / bounds.width; // 0 - 1
+        const py = (clientY - bounds.top) / bounds.height; // 0 - 1
+        // normalized -0.5 -> 0.5
+        const nx = px - 0.5;
+        const ny = py - 0.5;
+        mousePos.current.x = nx;
+        mousePos.current.y = ny;
+
+        const maxRotate = isPointerDown.current ? CONFIG.pressedMaxRotate : CONFIG.baseMaxRotate;
+        rotation.current.rx = (-ny) * maxRotate;
+        rotation.current.ry = (nx) * maxRotate;
+    };
+
+    const onPointerMove = (e: React.PointerEvent) => {
+        if (!cardRef.current) return;
+        (e.target as Element).setPointerCapture?.(e.pointerId);
+        handlePointerMove(e.clientX, e.clientY);
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        const t = e.touches[0];
+        if (!t) return;
+        handlePointerMove(t.clientX, t.clientY);
+    };
+
+    const onPointerEnter = (e: React.PointerEvent) => {
+        setIsHovered(true);
+        // start RAF loop
+        if (rafRef.current == null) rafRef.current = requestAnimationFrame(updateTransform);
+    };
+
+    const onPointerLeave = () => {
+        setIsHovered(false);
+        mousePos.current = { x: 0, y: 0 };
+        rotation.current = { rx: 0, ry: 0 };
+        // reset transforms smoothly
+        const el = cardRef.current;
+        if (el) {
+            el.style.transition = 'transform 500ms cubic-bezier(0.2,0.8,0.2,1)';
+            el.style.transform = `perspective(1200px) translateZ(0) rotateX(0deg) rotateY(0deg)`;
+            const layers = el.querySelectorAll<HTMLElement>('[data-depth]');
+            layers.forEach((layer) => {
+                layer.style.transition = 'transform 500ms cubic-bezier(0.2,0.8,0.2,1)';
+                layer.style.transform = '';
+            });
+            // clear transitions after they finish
+            setTimeout(() => {
+                if (!el) return;
+                el.style.transition = '';
+                layers.forEach((layer) => (layer.style.transition = ''));
+            }, 520);
+        }
+        if (rafRef.current) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+    }, []);
 
     const handleOpenInfo = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -59,9 +208,12 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                     stiffness: 260,
                     damping: 20
                 }}
+                ref={cardRef}
                 onClick={handleClick}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                onPointerMove={onPointerMove}
+                onPointerEnter={onPointerEnter}
+                onPointerLeave={onPointerLeave}
+                onTouchMove={onTouchMove}
                 style={{
                     position: 'relative',
                     width: '100%',
@@ -91,7 +243,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                     }}
                 >
                     {/* Background Image */}
-                    <div
+                    <div data-depth="0.9"
                         style={{
                             position: 'absolute',
                             inset: 0,
@@ -105,7 +257,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                     />
 
                     {/* Gradient Overlay */}
-                    <div
+                    <div data-depth="0.6"
                         style={{
                             position: 'absolute',
                             inset: 0,
@@ -115,7 +267,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                     />
 
                     {/* Glass Layer */}
-                    <div
+                    <div data-depth="0.4"
                         style={{
                             position: 'absolute',
                             inset: 0,
@@ -139,10 +291,10 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                         }}
                     >
                         {/* Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                        <div data-depth="0.2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
                             {/* Game Icon & Name */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-                                <motion.div
+                                <motion.div data-depth="0.8"
                                     animate={isHovered ? {
                                         rotate: [0, 360],
                                         scale: [1, 1.15, 1]
@@ -190,7 +342,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                         </div>
 
                         {/* Info button (top-right) */}
-                        <div style={{ position: 'absolute', right: 16, top: 16, zIndex: 5 }}>
+                        <div data-depth="0.3" style={{ position: 'absolute', right: 16, top: 16, zIndex: 5 }}>
                             <button
                                 onClick={handleOpenInfo}
                                 className="p-2 rounded-lg bg-white/10 hover:bg-white/20"
@@ -201,7 +353,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                         </div>
 
                         {/* Real Game Stats */}
-                        <div style={{
+                        <div data-depth="0.25" style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(3, 1fr)',
                             gap: '12px',
@@ -242,7 +394,7 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                         </div>
 
                         {/* Play Button */}
-                        <motion.button
+                        <motion.button data-depth="0.15"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             disabled={!publicKey || isComingSoon}

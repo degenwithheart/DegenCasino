@@ -13,6 +13,9 @@ node_modules
 # Ignore all scripts except compress-build.mjs
 scripts/*
 !scripts/compress-build.mjs
+!scripts/gzipper.mjs
+!scripts/gzipper-pool.mjs
+!scripts/gzipper-worker.mjs
 !scripts/monitor-rpc.mjs
 !scripts/post-build-mobile-sync.mjs
 !scripts/vite-with-fallback.mjs
