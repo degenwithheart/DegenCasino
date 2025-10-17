@@ -181,7 +181,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'blackjack',
-    live: 'coming-soon',
+    live: 'online',
     mobileAvailable: 'yes',
     meta: {
       name: 'BlackJack',

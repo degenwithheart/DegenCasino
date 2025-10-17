@@ -371,24 +371,6 @@ export default function Dice2D() {
                     background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 25%, #4a5568 50%, #2d3748 75%, #1a202c 100%)',
                     perspective: '100px'
                 }}>
-                    {/* DEBUG: Desktop version indicator - remove this later */}
-                    {!isMobile && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '10px',
-                            right: '10px',
-                            background: 'linear-gradient(90deg, #4299e1, #3182ce)',
-                            padding: '6px 12px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            color: 'white',
-                            zIndex: 1000,
-                            boxShadow: '0 2px 8px rgba(66, 153, 225, 0.3)'
-                        }}>
-                            🖥️ 2D VERSION
-                        </div>
-                    )}
 
                     {/* Main Game Area - Mobile-First */}
                     <div style={{

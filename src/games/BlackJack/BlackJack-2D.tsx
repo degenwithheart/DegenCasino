@@ -1,8 +1,17 @@
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2';
 import { useGamba } from 'gamba-react-v2';
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components';
 import { CARD_VALUES, RANKS, RANK_SYMBOLS, SUIT_COLORS, SUIT_SYMBOLS, SUITS, SOUND_CARD, SOUND_LOSE, SOUND_PLAY, SOUND_WIN, SOUND_JACKPOT } from './constants';
-import { Card, CardContainer, CardsContainer, Container, Profit, CardArea } from './styles';
+import { Card, CardContainer, CardsContainer, Container, CardArea, Table, TableInner } from './styles';
+import { useIsCompact } from '../../hooks/ui/useIsCompact';
+import { useGameStats } from '../../hooks/game/useGameStats';
+import { GameStatsHeader } from '../../components/Game/GameStatsHeader';
+import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame';
+import { useGraphics } from '../../components/Game/GameScreenFrame';
+import { useGameMeta } from '../useGameMeta';
+import styled, { css } from 'styled-components';
 
 const randomRank = () => Math.floor(Math.random() * RANKS);
 const randomSuit = () => Math.floor(Math.random() * SUITS);
@@ -27,11 +36,17 @@ export default function BlackJack2D(props: BlackjackConfig) {
     const game = GambaUi.useGame();
     const gamba = useGamba();
     const pool = useCurrentPool();
-    const [playerCards, setPlayerCards] = React.useState<GameCard[]>([]);
-    const [dealerCards, setDealerCards] = React.useState<GameCard[]>([]);
-    const [initialWager, setInitialWager] = useWagerInput();
+    const [wager, setWager] = useWagerInput();
+    const [playerHand, setPlayerHand] = React.useState<Array<{ card: GameCard | null, revealed: boolean; }>>([{ card: null, revealed: false }, { card: null, revealed: false }]);
+    const [dealerHand, setDealerHand] = React.useState<Array<{ card: GameCard | null, revealed: boolean; }>>([{ card: null, revealed: false }, { card: null, revealed: false }]);
     const [profit, setProfit] = React.useState<number | null>(null);
     const [claiming, setClaiming] = React.useState(false);
+
+    const { mobile: isMobile } = useIsCompact();
+    const gameStats = useGameStats('blackjack');
+    const { settings } = useGraphics();
+    const enableEffects = settings.enableEffects;
+    const effectsRef = useRef<GameplayEffectsRef>(null);
 
     const sounds = useSound({
         win: SOUND_WIN,
@@ -43,8 +58,8 @@ export default function BlackJack2D(props: BlackjackConfig) {
 
     const resetGame = () => {
         setProfit(null);
-        setPlayerCards([]);
-        setDealerCards([]);
+        setPlayerHand([{ card: null, revealed: false }, { card: null, revealed: false }]);
+        setDealerHand([{ card: null, revealed: false }, { card: null, revealed: false }]);
     };
 
     const play = async () => {
@@ -56,11 +71,11 @@ export default function BlackJack2D(props: BlackjackConfig) {
 
         await game.play({
             bet: betArray,
-            wager: initialWager,
+            wager: wager,
         });
 
         const result = await game.result();
-        const payoutMultiplier = result.payout / initialWager;
+        const payoutMultiplier = result.payout / wager;
 
         let newPlayerCards: GameCard[] = [];
         let newDealerCards: GameCard[] = [];
@@ -79,25 +94,30 @@ export default function BlackJack2D(props: BlackjackConfig) {
             newDealerCards = generateWinningHandOver(newPlayerCards);
         }
 
+        setPlayerHand([
+            { card: newPlayerCards[0], revealed: false },
+            { card: newPlayerCards[1], revealed: false }
+        ]);
+        setDealerHand([
+            { card: newDealerCards[0], revealed: false },
+            { card: newDealerCards[1], revealed: false }
+        ]);
+
         // Function to deal cards one by one
         const dealCards = async () => {
             for (let i = 0; i < 2; i++) {
                 // Deal to player
-                if (i < newPlayerCards.length) {
-                    setPlayerCards(prev => [...prev, newPlayerCards[i]]);
-                    sounds.play('card');
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-                }
+                setPlayerHand(prev => prev.map((slot, idx) => idx === i ? { ...slot, revealed: true } : slot));
+                sounds.play('card');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
                 // After dealing player's second card, check for blackjack and play sound
                 if (i === 1 && payoutMultiplier === 2.5) {
                     sounds.play('jackpot'); // Play jackpot sound for blackjack immediately
                 }
                 // Deal to dealer
-                if (i < newDealerCards.length) {
-                    setDealerCards(prev => [...prev, newDealerCards[i]]);
-                    sounds.play('card');
-                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
-                }
+                setDealerHand(prev => prev.map((slot, idx) => idx === i ? { ...slot, revealed: true } : slot));
+                sounds.play('card');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms
             }
         };
 
@@ -185,56 +205,114 @@ export default function BlackJack2D(props: BlackjackConfig) {
 
     return (
         <>
+            {/* Recent Plays Portal - positioned above stats */}
+            <GambaUi.Portal target="recentplays">
+                <GameRecentPlaysHorizontal gameId="blackjack" />
+            </GambaUi.Portal>
+
+            {/* Stats Portal - positioned above game screen */}
+            <GambaUi.Portal target="stats">
+                <GameStatsHeader
+                    gameName="BlackJack"
+                    gameMode="2D"
+                    stats={gameStats.stats}
+                    onReset={gameStats.resetStats}
+                    isMobile={isMobile}
+                />
+            </GambaUi.Portal>
+
             <GambaUi.Portal target="screen">
                 <GambaUi.Responsive>
                     <Container $disabled={claiming || gamba.isPlaying}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <h2>Dealer's Hand</h2>
-                            <CardArea>
-                                <CardsContainer>
-                                    {dealerCards.map((card) => (
-                                        <CardContainer key={card.key}>
-                                            <Card color={SUIT_COLORS[card.suit]}>
-                                                <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                                                <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                                            </Card>
-                                        </CardContainer>
-                                    ))}
-                                </CardsContainer>
-                            </CardArea>
-                            <h2>Player's Hand</h2>
-                            <CardArea>
-                                <CardsContainer>
-                                    {playerCards.map((card) => (
-                                        <CardContainer key={card.key}>
-                                            <Card color={SUIT_COLORS[card.suit]}>
-                                                <div className="rank">{RANK_SYMBOLS[card.rank]}</div>
-                                                <div className="suit">{SUIT_SYMBOLS[card.suit]}</div>
-                                            </Card>
-                                        </CardContainer>
-                                    ))}
-                                </CardsContainer>
-                            </CardArea>
-                            {profit !== null && (
-                                <Profit key={profit}>
-                                    {profit > 0 ? (
-                                        <>
-                                            <TokenValue amount={profit} /> +{Math.round((profit / initialWager) * 100 - 100)}%
-                                        </>
-                                    ) : (
-                                        <>You Lost</>
-                                    )}
-                                </Profit>
-                            )}
-                        </div>
+                        <Table $logo={props.logo || '/png/images/logo.png'}>
+                            <TableInner>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    {(() => {
+                                        const dealerValue = dealerHand.reduce((sum, s) => (s.revealed && s.card) ? sum + CARD_VALUES[s.card.rank] : sum, 0);
+                                        const playerValue = playerHand.reduce((sum, s) => (s.revealed && s.card) ? sum + CARD_VALUES[s.card.rank] : sum, 0);
+                                        return (
+                                            <>
+                                                <h2>{`Dealer's Hand (${dealerValue})`}</h2>
+                                                <CardArea>
+                                                    <CardsContainer>
+                                                        {dealerHand.map((slot, idx) => (
+                                                            <CardContainer key={idx}>
+                                                                <Card color={slot.revealed && slot.card ? SUIT_COLORS[slot.card.suit] : '#333'} faceDown={!slot.revealed}>
+                                                                    {slot.revealed && slot.card ? (
+                                                                        <>
+                                                                            <div className="suit top-left">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                            <div className="suit top-right">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                            <div className="rank center">{RANK_SYMBOLS[slot.card.rank]}</div>
+                                                                            <div className="suit bottom-left">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                            <div className="suit bottom-right">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                        </>
+                                                                    ) : null}
+                                                                </Card>
+                                                            </CardContainer>
+                                                        ))}
+                                                    </CardsContainer>
+                                                </CardArea>
+                                                <h2>{`Player's Hand (${playerValue})`}</h2>
+                                            </>
+                                        );
+                                    })()}
+                                    <CardArea>
+                                        <CardsContainer>
+                                            {playerHand.map((slot, idx) => (
+                                                <CardContainer key={idx}>
+                                                    <Card color={slot.revealed && slot.card ? SUIT_COLORS[slot.card.suit] : '#333'} faceDown={!slot.revealed}>
+                                                        {slot.revealed && slot.card ? (
+                                                            <>
+                                                                <div className="suit top-left">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                <div className="suit top-right">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                <div className="rank center">{RANK_SYMBOLS[slot.card.rank]}</div>
+                                                                <div className="suit bottom-left">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                                <div className="suit bottom-right">{SUIT_SYMBOLS[slot.card.suit]}</div>
+                                                            </>
+                                                        ) : null}
+                                                    </Card>
+                                                </CardContainer>
+                                            ))}
+                                        </CardsContainer>
+                                    </CardArea>
+                                </div>
+                            </TableInner>
+                        </Table>
                     </Container>
                 </GambaUi.Responsive>
+
+                <GameplayFrame
+                    ref={effectsRef}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        pointerEvents: 'none',
+                        zIndex: 1000
+                    }}
+                    {...(useGameMeta('blackjack') && {
+                        title: useGameMeta('blackjack')!.name,
+                        description: useGameMeta('blackjack')!.description
+                    })}
+                />
             </GambaUi.Portal>
             <GambaUi.Portal target="controls">
-                <>
-                    <GambaUi.WagerInput value={initialWager} onChange={setInitialWager} />
-                    <GambaUi.PlayButton onClick={play}>Deal Cards</GambaUi.PlayButton>
-                </>
+                <MobileControls
+                    wager={wager}
+                    setWager={setWager}
+                    onPlay={play}
+                    playDisabled={gamba.isPlaying || claiming}
+                    playText="Deal Cards"
+                />
+                <DesktopControls
+                    onPlay={play}
+                    playDisabled={gamba.isPlaying || claiming}
+                    playText="Deal Cards"
+                >
+                    <EnhancedWagerInput value={wager} onChange={setWager} />
+                </DesktopControls>
             </GambaUi.Portal>
         </>
     );
