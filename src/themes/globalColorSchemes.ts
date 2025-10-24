@@ -993,7 +993,6 @@ export const carnivalColorScheme: GlobalColorScheme = {
 
 // All available themes
 export const globalColorSchemes = {
-  default: defaultColorScheme,
   romanticDegen: romanticDegenColorScheme,
   cyberpunk: cyberpunkColorScheme,
   casinoFloor: casinoFloorColorScheme,

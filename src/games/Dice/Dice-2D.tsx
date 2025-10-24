@@ -8,6 +8,7 @@ import { Container, Result, RollUnder, Stats } from './styles';
 import { EnhancedWagerInput, MobileControls, DesktopControls, GameControlsSection, GameRecentPlaysHorizontal } from '../../components';
 import { useIsCompact } from '../../hooks/ui/useIsCompact';
 import { useGameStats } from '../../hooks/game/useGameStats';
+import { useUserStore } from '../../hooks/data/useUserStore';
 import { GameStatsHeader } from '../../components/Game/GameStatsHeader';
 import GameplayFrame, { GameplayEffectsRef } from '../../components/Game/GameplayFrame';
 import { useGraphics } from '../../components/Game/GameScreenFrame';
@@ -74,13 +75,29 @@ export default function Dice2D() {
     const enableEffects = settings.enableEffects;
     const effectsRef = useRef<GameplayEffectsRef>(null);
 
-    // Sound system
-    const sounds = useSound({
+    // Sound system with deferral
+    const deferAudio = useUserStore(s => !!s.deferAudio);
+    const [audioLoaded, setAudioLoaded] = useState(!deferAudio);
+
+    const sounds = useSound(audioLoaded ? {
         win: SOUND_WIN,
         play: SOUND_PLAY,
         lose: SOUND_LOSE,
         tick: SOUND_TICK,
-    });
+    } : {});
+
+    // Load audio on first interaction if deferred
+    useEffect(() => {
+        if (deferAudio && !audioLoaded) {
+            const loadAudio = () => setAudioLoaded(true);
+            window.addEventListener('click', loadAudio, { once: true });
+            window.addEventListener('keydown', loadAudio, { once: true });
+            return () => {
+                window.removeEventListener('click', loadAudio);
+                window.removeEventListener('keydown', loadAudio);
+            };
+        }
+    }, [deferAudio, audioLoaded]);
 
     // SYNC: keep original isRollUnder and rollUnderIndex in sync with mode/values so other code that references them won't break.
     useEffect(() => {

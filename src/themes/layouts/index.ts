@@ -59,13 +59,6 @@ export interface LayoutTheme {
  * Registry of all layout themes available in the system
  */
 export const AVAILABLE_LAYOUT_THEMES = {
-  'default': {
-    id: 'default',
-    name: 'Default',
-    description: 'The default DegenHeart Casino layout',
-    // No component overrides - uses existing src/components/ and src/sections/
-  },
-
   'degenheart': degenHeartTheme,
   'degen-mobile': degenMobileTheme,
 } as const;
@@ -89,7 +82,7 @@ export { DEFAULT_LAYOUT_THEME };
  * Get Layout Theme by Key with automatic mobile detection
  */
 export const getLayoutTheme = (key: LayoutThemeKey): LayoutTheme => {
-  return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.default;
+  return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.degenheart;
 };
 
 /**
@@ -119,13 +112,13 @@ export const getLayoutThemeWithMobileDetection = (key: LayoutThemeKey): LayoutTh
       // If mobile theme is disabled, fallback to the requested theme (or default)
       console.log('📱 Mobile device detected but degen-mobile theme is disabled via FEATURE_FLAGS - using fallback theme:', key);
       const fallbackKey: LayoutThemeKey = (key === 'degen-mobile' ? DEFAULT_LAYOUT_THEME : key) as LayoutThemeKey;
-      return AVAILABLE_LAYOUT_THEMES[fallbackKey] || AVAILABLE_LAYOUT_THEMES.default;
+      return AVAILABLE_LAYOUT_THEMES[fallbackKey] || AVAILABLE_LAYOUT_THEMES.degenheart;
     }
   }
 
   // Use selected theme on desktop
   console.log('🖥️ Desktop device in layout resolver - Using theme:', key);
-  return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.default;
+  return AVAILABLE_LAYOUT_THEMES[key] || AVAILABLE_LAYOUT_THEMES.degenheart;
 };
 
 /**

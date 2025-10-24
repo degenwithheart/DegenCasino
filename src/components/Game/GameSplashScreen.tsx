@@ -1,25 +1,25 @@
-import React from 'react'
-import styled, { keyframes } from 'styled-components'
-import { GambaUi } from 'gamba-react-ui-v2'
-import { useColorScheme } from '../../themes/ColorSchemeContext'
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
+import { GambaUi } from 'gamba-react-ui-v2';
+import { useColorScheme } from '../../themes/ColorSchemeContext';
 
 interface GameSplashScreenProps {
-  gameName: string
-  gameImage: string
-  onStart: () => void
-  visible: boolean
+  gameName: string;
+  gameImage: string;
+  onStart: () => void;
+  visible: boolean;
 }
 
 // Animations
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
-`
+`;
 
 const fadeOut = keyframes`
   from { opacity: 1; }
   to { opacity: 0; }
-`
+`;
 
 const scaleIn = keyframes`
   from { 
@@ -30,7 +30,7 @@ const scaleIn = keyframes`
     transform: scale(1) translateY(0); 
     opacity: 1;
   }
-`
+`;
 
 const scaleOut = keyframes`
   from { 
@@ -41,27 +41,27 @@ const scaleOut = keyframes`
     transform: scale(1.1) translateY(-20px); 
     opacity: 0;
   }
-`
+`;
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
-`
+`;
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-`
+`;
 
 // Styled Components
-const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $colorScheme?: any }>`
+const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $colorScheme?: any; }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   max-width: 400px;
   padding: 2rem;
-  animation: ${props => 
+  animation: ${props =>
     props.$exiting ? scaleOut : (props.$visible ? scaleIn : 'none')
   } 0.4s ease-in-out;
   
@@ -69,9 +69,9 @@ const SplashContent = styled.div<{ $visible: boolean; $exiting: boolean; $colorS
     max-width: 90vw;
     padding: 1.5rem;
   }
-`
+`;
 
-const GameIconContainer = styled.div<{ $colorScheme?: any }>`
+const GameIconContainer = styled.div<{ $colorScheme?: any; }>`
   position: relative;
   width: 120px;
   height: 120px;
@@ -108,9 +108,9 @@ const GameIconContainer = styled.div<{ $colorScheme?: any }>`
     height: 100px;
     margin-bottom: 1.5rem;
   }
-`
+`;
 
-const GameIcon = styled.div<{ $colorScheme?: any }>`
+const GameIcon = styled.div<{ $colorScheme?: any; }>`
   width: 100%;
   height: 100%;
   border-radius: 18px;
@@ -132,9 +132,9 @@ const GameIcon = styled.div<{ $colorScheme?: any }>`
   &:hover img {
     transform: scale(1.05);
   }
-`
+`;
 
-const GameTitle = styled.h1<{ $colorScheme?: any }>`
+const GameTitle = styled.h1<{ $colorScheme?: any; }>`
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 1rem 0;
@@ -149,9 +149,9 @@ const GameTitle = styled.h1<{ $colorScheme?: any }>`
   @media (max-width: 600px) {
     font-size: 2rem;
   }
-`
+`;
 
-const StartButton = styled.button<{ $colorScheme?: any }>`
+const StartButton = styled.button<{ $colorScheme?: any; }>`
   padding: 16px 48px;
   font-size: 1.2rem;
   font-weight: 700;
@@ -202,9 +202,9 @@ const StartButton = styled.button<{ $colorScheme?: any }>`
     padding: 14px 36px;
     font-size: 1.1rem;
   }
-`
+`;
 
-const WelcomeText = styled.p<{ $colorScheme?: any }>`
+const WelcomeText = styled.p<{ $colorScheme?: any; }>`
   font-size: 1.1rem;
   color: ${({ $colorScheme }) => $colorScheme?.colors?.textSecondary || 'rgba(255,255,255,0.8)'};
   margin: 0 0 2rem 0;
@@ -215,24 +215,24 @@ const WelcomeText = styled.p<{ $colorScheme?: any }>`
     font-size: 1rem;
     margin-bottom: 1.5rem;
   }
-`
+`;
 
 export function GameSplashScreen({ gameName, gameImage, onStart, visible }: GameSplashScreenProps) {
-  const { currentColorScheme } = useColorScheme()
-  const [isExiting, setIsExiting] = React.useState(false)
+  const { currentColorScheme } = useColorScheme();
+  const [isExiting, setIsExiting] = React.useState(false);
 
   const handleStart = () => {
-    setIsExiting(true)
+    setIsExiting(true);
     // Delay the actual start to allow exit animation
     setTimeout(() => {
-      onStart()
-    }, 400)
-  }
+      onStart();
+    }, 400);
+  };
 
   // Debug logging
-  console.log('GameSplashScreen render:', { visible, isExiting, gameName })
+  console.log('GameSplashScreen render:', { visible, isExiting, gameName });
 
-  if (!visible && !isExiting) return null
+  if (!visible && !isExiting) return null;
 
   return (
     <div style={{
@@ -265,8 +265,8 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
           justifyContent: 'center',
           overflow: 'hidden',
         }}>
-          <img 
-            src={gameImage} 
+          <img
+            src={gameImage}
             alt={gameName}
             style={{
               width: '100%',
@@ -275,9 +275,9 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
             }}
             onError={(e) => {
               // Fallback if image fails to load
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-              const container = target.parentElement
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const container = target.parentElement;
               if (container) {
                 container.innerHTML = `
                   <div style="
@@ -289,12 +289,12 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
                     font-size: 3rem; 
                     color: #ffd700;
                   ">🎮</div>
-                `
+                `;
               }
             }}
           />
         </div>
-        
+
         <h1 style={{
           fontSize: '2rem',
           margin: '0 0 1rem 0',
@@ -302,15 +302,15 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
         }}>
           {gameName}
         </h1>
-        
+
         <p style={{
           margin: '0 0 2rem 0',
           color: '#ccc',
         }}>
           Ready to play? Click start when you're ready!
         </p>
-        
-        <button 
+
+        <button
           onClick={handleStart}
           style={{
             padding: '12px 24px',
@@ -327,5 +327,5 @@ export function GameSplashScreen({ gameName, gameImage, onStart, visible }: Game
         </button>
       </div>
     </div>
-  )
+  );
 }

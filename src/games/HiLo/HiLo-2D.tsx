@@ -1,10 +1,9 @@
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2';
 import { useGamba } from 'gamba-react-v2';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
 import React from 'react';
 import { MAX_CARD_SHOWN, RANKS, RANK_SYMBOLS, SOUND_CARD, SOUND_FINISH, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants';
 import { Card, CardContainer, CardPreview, CardsContainer, Container, Option, Options, Profit } from './styles';
-
-const BPS_PER_WHOLE = 10000;
 
 const randomRank = () => 1 + Math.floor(Math.random() * (RANKS - 1));
 

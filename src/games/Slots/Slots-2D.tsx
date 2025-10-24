@@ -33,7 +33,6 @@ import {
 } from './constants';
 import { generateBetArray, getSlotCombination, getWinningPaylines } from './utils';
 import { SLOTS_CONFIG } from './config';
-import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
 export default function Slots() {
   const game = GambaUi.useGame();

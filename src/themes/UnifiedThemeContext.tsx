@@ -43,26 +43,6 @@ interface UnifiedThemeContextType {
 }
 
 /**
- * Default component registry - populated with actual default components
- */
-const defaultComponentRegistry = {
-  components: {
-    Header: React.lazy(() => import('../sections/Header')),
-    Footer: React.lazy(() => import('../sections/Footer')),
-  },
-  sections: {
-    Game: React.lazy(() => import('../sections/Game/Game')),
-    Header: React.lazy(() => import('../sections/Header')),
-    Footer: React.lazy(() => import('../sections/Footer')),
-    Dashboard: React.lazy(() => import('../sections/Dashboard/Dashboard')),
-  },
-  pages: {
-    JackpotPage: React.lazy(() => import('../pages/features/JackpotPage')),
-    BonusPage: React.lazy(() => import('../pages/features/BonusPage')),
-    LeaderboardPage: React.lazy(() => import('../pages/features/LeaderboardPage')),
-    SelectTokenPage: React.lazy(() => import('../pages/features/SelectTokenPage')),
-  },
-};/**
  * Theme Context
  */
 const UnifiedThemeContext = createContext<UnifiedThemeContextType | null>(null);
@@ -102,11 +82,6 @@ const setStoredLayoutTheme = (themeKey: LayoutThemeKey): void => {
  */
 interface UnifiedThemeProviderProps {
   children: ReactNode;
-  defaultComponentRegistry?: {
-    components: Record<string, React.ComponentType<any>>;
-    sections: Record<string, React.ComponentType<any>>;
-    pages: Record<string, React.ComponentType<any>>;
-  };
 }
 
 /**
@@ -114,8 +89,7 @@ interface UnifiedThemeProviderProps {
  * Manages both layout themes and color schemes
  */
 export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
-  children,
-  defaultComponentRegistry: providedRegistry = defaultComponentRegistry
+  children
 }) => {
   // Layout Theme State
   const [layoutThemeKey, setLayoutThemeKey] = useState<LayoutThemeKey>(getInitialLayoutTheme);
@@ -130,7 +104,7 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
 
   // Theme Resolver
   const [themeResolver, setThemeResolver] = useState<ThemeResolver>(
-    createThemeResolver(providedRegistry, currentLayoutTheme)
+    createThemeResolver({ components: {}, sections: {}, pages: {} }, currentLayoutTheme)
   );
 
   // Scroll Configuration Functions

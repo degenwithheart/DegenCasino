@@ -585,6 +585,51 @@ const LeaderboardButton = styled.button<{ $colorScheme: any; }>`
   &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
+const SettingsButton = styled.button<{ $colorScheme: any; }>`
+  /* Mobile-first: compact circular icon button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${props => props.$colorScheme.colors.surface}85, ${props => props.$colorScheme.colors.background}70);
+  border: 2px solid ${props => props.$colorScheme.colors.accent}50;
+  color: ${props => props.$colorScheme.colors.accent};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, ${props => props.$colorScheme.colors.accent}15, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover { border-color: ${props => props.$colorScheme.colors.accent}; transform: translateY(-2px); &::before { opacity: 1; } }
+
+  /* Tablet and up: expanded full button with text */
+  ${media.tablet} {
+    width: auto;
+    height: auto;
+    padding: 0.8rem 1.2rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  &:active { transform: translateY(-1px) scale(0.98); }
+`;
+
 const NotificationBadge = styled.div<{ $colorScheme: any; }>`
   position: absolute;
   top: -8px;
@@ -779,7 +824,7 @@ const Header: React.FC = () => {
   const context = useGambaPlatformContext();
   const balance = useUserBalance();
   const { compact: isCompact, mobile } = useIsCompact();
-  const { openBonusModal, openJackpotModal, openLeaderboardModal, openThemeSelector, openTokenSelect, openTrollBoxModal, closeAllOverlays } = useDegenHeaderModal();
+  const { openBonusModal, openJackpotModal, openLeaderboardModal, openSettingsModal, openThemeSelector, openTokenSelect, openTrollBoxModal, closeAllOverlays } = useDegenHeaderModal();
   // Debug: log whether the theme-level modal handlers are available (helps diagnose core vs theme modal usage)
   useEffect(() => {
     try {
@@ -968,6 +1013,19 @@ const Header: React.FC = () => {
               <FaTrophy />
               {!isCompact && 'Leaderboard'}
             </LeaderboardButton>
+          )}
+
+          {connected && (
+            <SettingsButton
+              $colorScheme={currentColorScheme}
+              onClick={() => (
+                typeof openSettingsModal === 'function' ? openSettingsModal() : navigate('/settings')
+              )}
+              aria-label="Open Settings"
+            >
+              ⚙️
+              {!isCompact && 'Settings'}
+            </SettingsButton>
           )}
 
           {connected && (

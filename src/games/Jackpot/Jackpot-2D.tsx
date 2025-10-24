@@ -18,7 +18,7 @@ import { MyStats } from './MyStats';
 import { DESIRED_CREATOR, DESIRED_MAX_PLAYERS, DESIRED_WINNERS_TARGET, DESIRED_MINT } from './config';
 import {
     PLATFORM_CREATOR_ADDRESS,
-    MULTIPLAYER_FEE,
+    MULTIPLAYER_FEE_BPS,
     PLATFORM_REFERRAL_FEE,            // referral %
     FEATURE_FLAGS,
 } from '../../constants';
@@ -209,7 +209,7 @@ export default function Jackpot2D() {
                         pubkey={topGame.publicKey}
                         account={liveGame!}
                         creatorAddress={PLATFORM_CREATOR_ADDRESS}
-                        creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+                        creatorFeeBps={MULTIPLAYER_FEE_BPS}
                         referralFee={PLATFORM_REFERRAL_FEE}
                         onTx={refreshGames}
                     />
@@ -219,7 +219,7 @@ export default function Jackpot2D() {
                         pubkey={topGame.publicKey}
                         account={liveGame!}
                         creatorAddress={PLATFORM_CREATOR_ADDRESS}
-                        creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+                        creatorFeeBps={MULTIPLAYER_FEE_BPS}
                         onComplete={refreshGames}
                     />
                 )}

@@ -21,14 +21,17 @@ export const useThemedComponent = <T extends Record<string, unknown> = Record<st
  */
 export const withThemedComponent = <P extends Record<string, unknown>>(
   category: ComponentCategory,
-  componentName: ComponentName,
-  fallbackComponent: React.ComponentType<P>
+  componentName: ComponentName
 ) => {
   return React.forwardRef<any, P>((props, ref) => {
     const ThemedComponent = useThemedComponent<P>(category, componentName);
-    const Component = ThemedComponent || fallbackComponent;
 
-    return <Component {...(props as P)} ref={ref} />;
+    if (!ThemedComponent) {
+      console.error(`No themed component found for ${category}/${componentName} - project is theme-reliant`);
+      return null;
+    }
+
+    return <ThemedComponent {...(props as P)} ref={ref} />;
   });
 };/**
  * Themed Component Wrapper
@@ -37,25 +40,18 @@ export const withThemedComponent = <P extends Record<string, unknown>>(
 interface ThemedComponentProps {
   category: ComponentCategory;
   name: ComponentName;
-  fallback?: React.ComponentType<Record<string, unknown>>;
   props?: Record<string, unknown>;
 }
 
 export const ThemedComponent: React.FC<ThemedComponentProps> = ({
   category,
   name,
-  fallback,
   props = {}
 }) => {
   const Component = useThemedComponent(category, name);
 
   if (!Component) {
-    if (fallback) {
-      const FallbackComponent = fallback;
-      return <FallbackComponent {...props} />;
-    }
-
-    console.warn(`No component found for ${category}/${name} and no fallback provided`);
+    console.error(`No themed component found for ${category}/${name} - project is theme-reliant`);
     return null;
   }
 
@@ -68,14 +64,17 @@ export const ThemedComponent: React.FC<ThemedComponentProps> = ({
  */
 export const createThemedComponent = <P extends Record<string, unknown>>(
   category: ComponentCategory,
-  componentName: ComponentName,
-  defaultComponent: React.ComponentType<P>
+  componentName: ComponentName
 ) => {
   const ThemedWrapper = React.forwardRef<any, P>((props, ref) => {
     const ThemedComponent = useThemedComponent<P>(category, componentName);
-    const Component = ThemedComponent || defaultComponent;
 
-    return <Component {...(props as P)} ref={ref} />;
+    if (!ThemedComponent) {
+      console.error(`No themed component found for ${category}/${componentName} - project is theme-reliant`);
+      return null;
+    }
+
+    return <ThemedComponent {...(props as P)} ref={ref} />;
   });
 
   ThemedWrapper.displayName = `Themed${componentName}`;

@@ -1,4 +1,3 @@
-import { BPS_PER_WHOLE } from 'gamba-core-v2';
 import { GambaUi, TokenValue, useCurrentPool, useSound, useWagerInput } from 'gamba-react-ui-v2';
 import { useGamba } from 'gamba-react-v2';
 import React, { useRef, useState, useEffect } from 'react';

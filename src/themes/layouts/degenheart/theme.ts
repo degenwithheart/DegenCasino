@@ -9,7 +9,7 @@ const MobileAppPage = React.lazy(() => import('./pages/MobileAppPage'));
 
 export const degenHeartTheme: LayoutTheme = {
   id: 'degenheart',
-  name: 'DegenHeart New',
+  name: 'Degen Heart',
   description: '3-Column layout',
 
   // The main layout wrapper component

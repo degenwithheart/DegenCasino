@@ -9,6 +9,7 @@ import { useGameStats } from '../../hooks/game/useGameStats';
 import { useIsCompact } from '../../hooks/ui/useIsCompact';
 import { StyledPlinkoBackground } from './PlinkoBackground.enhanced.styles';
 import { BucketScoreboard } from './BucketScoreboard';
+import { useUserStore } from '../../hooks/data/useUserStore';
 import BUMP from './bump.mp3';
 import FALL from './fall.mp3';
 import WIN from './win.mp3';
@@ -37,11 +38,29 @@ export default function Plinko() {
   const [wager, setWager] = useWagerInput();
   const debug = false;
   const [degen, setDegen] = React.useState(false);
-  const sounds = useSound({
+  const deferAudio = useUserStore(s => !!s.deferAudio);
+  const [audioLoaded, setAudioLoaded] = React.useState(!deferAudio);
+
+  const sounds = useSound(audioLoaded ? {
     bump: BUMP,
     win: WIN,
     fall: FALL,
-  });
+  } : {});
+
+  // Load audio on first interaction if deferred
+  useEffect(() => {
+    if (deferAudio && !audioLoaded) {
+      const loadAudio = () => {
+        setAudioLoaded(true);
+      };
+      window.addEventListener('click', loadAudio, { once: true });
+      window.addEventListener('keydown', loadAudio, { once: true });
+      return () => {
+        window.removeEventListener('click', loadAudio);
+        window.removeEventListener('keydown', loadAudio);
+      };
+    }
+  }, [deferAudio, audioLoaded]);
 
   const pegAnimations = React.useRef<Record<number, number>>({});
   const bucketAnimations = React.useRef<Record<number, number>>({});

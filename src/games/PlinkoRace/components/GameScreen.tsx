@@ -6,7 +6,7 @@ import { useGame } from 'gamba-react-v2';
 import { GambaUi, Multiplayer } from 'gamba-react-ui-v2';
 import {
   PLATFORM_CREATOR_ADDRESS,
-  MULTIPLAYER_FEE,
+  MULTIPLAYER_FEE_BPS,
   PLATFORM_REFERRAL_FEE, // ← add this
 } from '../../../constants';
 import { BPS_PER_WHOLE } from 'gamba-core-v2';
@@ -179,7 +179,7 @@ export default function GameScreen({
               pubkey={pk}
               account={chainGame}
               creatorAddress={PLATFORM_CREATOR_ADDRESS}
-              creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+              creatorFeeBps={MULTIPLAYER_FEE_BPS}
               referralFee={PLATFORM_REFERRAL_FEE}     // ← pass platform referral %
               enableMetadata
               onTx={() => { }}
@@ -189,7 +189,7 @@ export default function GameScreen({
               pubkey={pk}
               account={chainGame}
               creatorAddress={PLATFORM_CREATOR_ADDRESS}
-              creatorFeeBps={Math.round(MULTIPLAYER_FEE * BPS_PER_WHOLE)}
+              creatorFeeBps={MULTIPLAYER_FEE_BPS}
               onComplete={() => { }}
             />
           )

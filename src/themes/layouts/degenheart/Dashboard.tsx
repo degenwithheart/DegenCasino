@@ -6,12 +6,14 @@ import { EnhancedTickerTape } from "../../../components";
 import { FEATURED_GAMES } from "../../../games/featuredGames";
 import { GAMES } from "../../../games";
 import { GameCard3D } from "./GameCard3D";
+import PlayAgainRow from './components/PlayAgainRow';
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useHandleWalletConnect } from '../../../sections/walletConnect';
 import { useIsCompact } from "../../../hooks/ui/useIsCompact";
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
 import { useColorScheme } from "../../../themes/ColorSchemeContext";
 import type { GameBundle } from "../../../games/types";
+import { useUserStore } from '../../../hooks/data/useUserStore';
 
 export function Dashboard() {
     const seoHelmet = usePageSEO(
@@ -31,6 +33,13 @@ export function Dashboard() {
     const singleplayerGames = allGamesList.filter((g: GameBundle) => g.meta?.tag?.toLowerCase() === 'singleplayer' && g.live !== 'coming-soon');
     const multiplayerGames = allGamesList.filter((g: GameBundle) => g.meta?.tag?.toLowerCase() === 'multiplayer' && g.live !== 'coming-soon');
     const comingSoonGames = allGamesList.filter((g: GameBundle) => g.live === 'coming-soon' || g.creating);
+
+    // Played games for "Play Again" stories
+    const { gamesPlayed } = useUserStore();
+    const playedGames = gamesPlayed
+        .map((gameId: string) => allGamesList.find(g => g.id === gameId))
+        .filter(Boolean)
+        .slice(0, 8) as GameBundle[];
 
     const heroCards = [
         {
@@ -195,6 +204,7 @@ export function Dashboard() {
                             gap: '3rem',
                             marginTop: '3rem'
                         }}>
+                            <PlayAgainRow />
                             {/* Featured Games Row */}
                             {featuredGames.length > 0 && (
                                 <div>

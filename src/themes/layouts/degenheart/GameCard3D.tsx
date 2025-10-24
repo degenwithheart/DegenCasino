@@ -1,4 +1,5 @@
 import type { GameBundle } from '../../../games/types';
+import type { GameStats } from '../../../hooks/game/useGameStats';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -9,9 +10,12 @@ import { FEATURED_GAMES } from '../../../games/featuredGames';
 interface GameCard3DProps {
     game: GameBundle;
     onClick?: () => void;
+    /** When provided as 'played', the card will show played/wins/losses instead of Mode/Graphics/Status */
+    statsVariant?: 'default' | 'played';
+    playedStats?: { gamesPlayed: number; wins: number; losses: number; };
 }
 
-export function GameCard3D({ game, onClick }: GameCard3DProps) {
+export function GameCard3D({ game, onClick, statsVariant = 'default', playedStats }: GameCard3DProps) {
     const navigate = useNavigate();
     const { publicKey } = useWallet();
     const [isHovered, setIsHovered] = useState(false);
@@ -363,34 +367,53 @@ export function GameCard3D({ game, onClick }: GameCard3DProps) {
                             background: 'rgba(0, 0, 0, 0.3)',
                             backdropFilter: 'blur(10px)',
                         }}>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                                    {(game as any).meta?.tag || 'Solo'}
-                                </div>
-                                <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Mode
-                                </div>
-                            </div>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                                    {(game as any).capabilities?.supports2D && (game as any).capabilities?.supports3D
-                                        ? '2D/3D'
-                                        : (game as any).capabilities?.supports3D
-                                            ? '3D'
-                                            : '2D'}
-                                </div>
-                                <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Graphics
-                                </div>
-                            </div>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                                    {gameWithStatus.live === 'online' ? '🟢' : gameWithStatus.live === 'coming-soon' ? '🟡' : '🔴'}
-                                </div>
-                                <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Status
-                                </div>
-                            </div>
+                            {statsVariant === 'played' && playedStats ? (
+                                <>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>{playedStats.gamesPlayed}</div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>PLAYED</div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>{playedStats.wins}</div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>WINS</div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>{playedStats.losses}</div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>LOSSES</div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                                            {(game as any).meta?.tag || 'Solo'}
+                                        </div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            Mode
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                                            {(game as any).capabilities?.supports2D && (game as any).capabilities?.supports3D
+                                                ? '2D/3D'
+                                                : (game as any).capabilities?.supports3D
+                                                    ? '3D'
+                                                    : '2D'}
+                                        </div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            Graphics
+                                        </div>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                                            {gameWithStatus.live === 'online' ? '🟢' : gameWithStatus.live === 'coming-soon' ? '🟡' : '🔴'}
+                                        </div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            Status
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Play Button */}

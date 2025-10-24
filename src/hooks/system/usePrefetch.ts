@@ -26,9 +26,9 @@ function evaluateNetworkConditions() {
   }
 }
 
-function idle(cb: () => void) {
+function idle(cb: () => void, timeout = 2000) {
   if (typeof (window as any).requestIdleCallback === 'function') {
-    ; (window as any).requestIdleCallback(cb, { timeout: 2000 });
+    ; (window as any).requestIdleCallback(cb, { timeout });
   } else {
     setTimeout(cb, 120);
   }
@@ -37,7 +37,7 @@ function idle(cb: () => void) {
 // Lightweight dynamic access to user store (lazy require to avoid cycle)
 function getUserSettings() {
   try {
-     
+
     const { useUserStore } = require('../data/useUserStore');
     return useUserStore.getState();
   } catch { return {} as any; }
@@ -60,7 +60,7 @@ export function prefetch(id: string, task: PrefetchTask) {
     try { task().catch(() => { }); } catch (_) {
       // Ignore task execution errors
     }
-  });
+  }, level === 'aggressive' ? 50 : 2000);
 }
 
 export function cancelPrefetch(id: string) {

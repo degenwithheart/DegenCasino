@@ -1,13 +1,13 @@
 import React from 'react';
 // Allow injected build-time constant from Vite define
- 
+
 declare const __APP_VERSION__: string | undefined;
 import { Modal } from '../Modal/Modal';
 import { useUserStore } from '../../hooks/data/useUserStore';
 import { setPrefetchUserOverride } from '../../hooks/system/usePrefetch';
 const ThemeSelectorLazy = React.lazy(() => import('../Theme/ColorSchemeSelector').then(m => ({ default: m.ColorSchemeSelector })));
 import { useColorScheme } from '../../themes/ColorSchemeContext';
-import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS } from '../../constants';
+import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS, DEFAULT_COLOR_SCHEME } from '../../constants';
 import * as S from './Settings.styles';
 
 interface SettingsModalProps { onClose: () => void; }
@@ -75,8 +75,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     set({ dataSaver: false, particlesEnabled: true, prefetchLevel: 'conservative', reduceMotion: false, lessGlow: false, tickerInterval: 15000, imageQuality: 'balanced', deferAudio: true, progressiveImages: true, backgroundThrottle: true, cacheWarmup: true, fontSlim: true, autoAdapt: true });
     setPrefetchUserOverride(null as any);
     try {
-      // Reset colorScheme to a known default (assuming 'default' key exists) else first key
-      if (setColorScheme) setColorScheme('default');
+      // Reset colorScheme to the configured default key
+      if (setColorScheme) setColorScheme(DEFAULT_COLOR_SCHEME as any);
     } catch (_) {
       // Ignore errors when resetting color scheme
     }

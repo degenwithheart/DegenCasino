@@ -61,6 +61,8 @@ export interface UserStore {
   getGameRenderMode: (gameId: string) => '2D' | '3D';
 
   markGameAsPlayed: (gameId: string, played: boolean) => void;
+  /** Clear entire played-games history */
+  clearHistory: () => void;
   set: (partial: Partial<UserStore> | ((state: UserStore) => Partial<UserStore>), replace?: boolean) => void;
 }
 
@@ -143,6 +145,10 @@ export const useUserStore = create(
           gamesPlayed.delete(gameId);
         }
         set({ gamesPlayed: Array.from(gamesPlayed) });
+      },
+      // Clear the entire played games history
+      clearHistory: () => {
+        set({ gamesPlayed: [] });
       },
       set,
     }),

@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components';
 
 export const Wrapper = styled.div`
   max-width: 500px;
@@ -8,7 +8,7 @@ export const Wrapper = styled.div`
   gap: 1rem;
   font-family: 'Inter', system-ui, sans-serif;
   color: #e8f3ff;
-`
+`;
 
 export const Title = styled.h2`
   margin: 0 0 .25rem;
@@ -17,7 +17,7 @@ export const Title = styled.h2`
   background: linear-gradient(90deg,#ffd700,#a259ff);
   -webkit-background-clip: text;
   color: transparent;
-`
+`;
 
 export const Section = styled.div`
   background: rgba(255,255,255,0.045);
@@ -26,9 +26,9 @@ export const Section = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-`
+`;
 
-export const SectionHeader = styled.button<{ $open: boolean }>`
+export const SectionHeader = styled.button<{ $open: boolean; }>`
   all: unset;
   cursor: pointer;
   display: flex;
@@ -52,21 +52,21 @@ export const SectionHeader = styled.button<{ $open: boolean }>`
     transition: transform .25s;
     margin-left: .65rem;
   }
-`
+`;
 
-export const SectionBody = styled.div<{ $open: boolean }>`
+export const SectionBody = styled.div<{ $open: boolean; }>`
   display: grid;
   grid-template-rows: ${p => p.$open ? '1fr' : '0fr'};
   transition: grid-template-rows .32s cubic-bezier(.4,0,.2,1);
   > div { overflow: hidden; }
-`
+`;
 
 export const SectionContentPad = styled.div`
   padding: .35rem .75rem .75rem;
   display: flex;
   flex-direction: column;
   gap: .55rem;
-`
+`;
 
 export const StaticHeader = styled.div`
   display: flex;
@@ -78,14 +78,14 @@ export const StaticHeader = styled.div`
   color: #fff;
   user-select: none;
   background: linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0));
-`
+`;
 
 export const InfoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
   gap: .4rem .65rem;
   margin: .35rem 0 .55rem;
-`
+`;
 
 export const MetaChip = styled.span`
   display: inline-flex;
@@ -100,7 +100,7 @@ export const MetaChip = styled.span`
   font-weight: 600;
   color: #d9e6f5;
   white-space: nowrap;
-`
+`;
 
 export const HorizontalScroll = styled.div`
   display: flex;
@@ -113,7 +113,7 @@ export const HorizontalScroll = styled.div`
   &::-webkit-scrollbar { height: 6px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-`
+`;
 
 export const Row = styled.label`
   display: flex;
@@ -126,7 +126,7 @@ export const Row = styled.label`
   padding: 2px 0;
   input { transform: scale(1.05); cursor: pointer; }
   span.badge { margin-left: auto; font-size: .55rem; background:#222; padding:2px 5px; border:1px solid #333; border-radius:5px; letter-spacing:.5px; }
-`
+`;
 
 export const LabelText = styled.span`
   flex: 1;
@@ -136,9 +136,9 @@ export const LabelText = styled.span`
   color: #f5f7fa;
   font-size: .68rem;
   letter-spacing: .3px;
-`
+`;
 
-export const ToggleShell = styled.button<{ $on: boolean }>`
+export const ToggleShell = styled.button<{ $on: boolean; }>`
   position: relative;
   width: 34px;
   height: 18px;
@@ -163,7 +163,7 @@ export const ToggleShell = styled.button<{ $on: boolean }>`
     box-shadow: 0 2px 4px rgba(0,0,0,0.4);
     transition: left .25s ease;
   }
-`
+`;
 
 export const Segmented = styled.div`
   display: inline-flex;
@@ -171,9 +171,9 @@ export const Segmented = styled.div`
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px;
   overflow: hidden;
-`
+`;
 
-export const SegmentBtn = styled.button<{ $active?: boolean }>`
+export const SegmentBtn = styled.button<{ $active?: boolean; }>`
   font-size: .58rem;
   padding: .35rem .55rem;
   background: ${p => p.$active ? 'linear-gradient(90deg,#6366f1,#8b5cf6)' : 'transparent'};
@@ -190,7 +190,7 @@ export const SegmentBtn = styled.button<{ $active?: boolean }>`
   &:hover { background: ${p => p.$active ? 'linear-gradient(90deg,#6366f1,#8b5cf6)' : 'rgba(255,255,255,0.08)'}; }
   &:focus-visible { outline: 2px solid #6366f1aa; outline-offset: -2px; }
   & + & { border-left: 1px solid rgba(255,255,255,0.12); }
-`
+`;
 
 export const Select = styled.select`
   background: rgba(0,0,0,0.35);
@@ -202,13 +202,13 @@ export const Select = styled.select`
   cursor: pointer;
   outline: none;
   &:focus-visible { box-shadow: 0 0 0 2px #6366f180; }
-`
+`;
 
 export const Note = styled.p`
   margin: .25rem 0 0;
   font-size: .7rem;
   opacity: .7;
-`
+`;
 
 export const ResetButton = styled.button`
   margin-top: .25rem;
@@ -225,4 +225,4 @@ export const ResetButton = styled.button`
   box-shadow: 0 0 10px #ff00cc55;
   transition: opacity .2s, transform .2s;
   &:hover { opacity:.85; transform: translateY(-2px); }
-`
+`;

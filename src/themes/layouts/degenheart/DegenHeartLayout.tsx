@@ -13,6 +13,7 @@ import AllGamesContentModal from './components/AllGamesContentModal';
 import { ConnectionStatusContent } from './components/ConnectionStatusContent';
 import { BonusPage, JackpotPage, LeaderboardPage, SelectTokenPage, TrollBoxPage } from './pages';
 import { ColorSchemeSelector } from '../../../components';
+import { SettingsModal } from '../../../components/Settings/SettingsModal';
 import { media, gridBreakpoints } from './breakpoints';
 
 // Create a local games modal context for degen theme
@@ -42,6 +43,7 @@ const DegenHeaderModalContext = createContext<{
   openConnectionStatus: () => void;
   openShareModal: (game: any) => void;
   openTrollBoxModal: () => void;
+  openSettingsModal: () => void;
   closeAllOverlays: () => void;
 }>({
   openBonusModal: () => { },
@@ -52,6 +54,7 @@ const DegenHeaderModalContext = createContext<{
   openConnectionStatus: () => { },
   openShareModal: () => { },
   openTrollBoxModal: () => { },
+  openSettingsModal: () => { },
   closeAllOverlays: () => { }
 });
 
@@ -369,7 +372,14 @@ const DragZoneRight = styled.div<{ $visible: boolean; }>`
 const GridFooter = styled.footer`
   grid-area: footer;
   height: 65px; /* Slightly taller for touch targets */
-  z-index: 9999; /* Ensure footer container is above sidebars */
+  /*
+    Keep footer above normal content but below global overlays/modals.
+    Many modal/backdrop components use z-index >= 2000 (e.g. ModalBackdrop z-index: 2000)
+    and some special overlays use even higher values. Setting the footer to 100
+    ensures fullscreen layouts and modals render above the footer while the
+    footer still sits above ordinary page content.
+  */
+  z-index: 100;
   /* Mobile-first: Relative positioning */
   position: relative;
   
@@ -448,6 +458,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showTokenSelect, setShowTokenSelect] = useState(false);
   const [showConnectionStatus, setShowConnectionStatus] = useState(false);
   const [showTrollBoxModal, setShowTrollBoxModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [trollBoxStatus, setTrollBoxStatus] = useState('Connecting…');
 
   // Share modal state
@@ -462,6 +473,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
     setShowTokenSelect(false);
     setShowConnectionStatus(false);
     setShowTrollBoxModal(false);
+    setShowSettingsModal(false);
     setShowGamesModal(false);
     setShareModalGame(undefined);
     setLeftSidebarOpen(false);
@@ -594,6 +606,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           resetUnread();
           toggleRightSidebar();
         },
+        openSettingsModal: () => { closeAllOverlays(); setShowSettingsModal(true); },
         closeAllOverlays: () => closeAllOverlays()
       }}>
         <LayoutContainer
@@ -716,6 +729,15 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
             maxHeight="75vh"
           >
             <ConnectionStatusContent />
+          </Modal>
+
+          <Modal
+            isOpen={showSettingsModal}
+            onClose={() => setShowSettingsModal(false)}
+            title="⚙️ Settings"
+            maxHeight="85vh"
+          >
+            <SettingsModal onClose={() => setShowSettingsModal(false)} />
           </Modal>
         </LayoutContainer>
       </DegenHeaderModalContext.Provider>

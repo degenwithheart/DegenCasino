@@ -4,21 +4,15 @@ import { useColorScheme } from '../../themes/ColorSchemeContext';
 import { ColorSchemeKey, globalColorSchemes, GlobalColorScheme } from '../../themes/globalColorSchemes';
 import { LayoutThemeKey, AVAILABLE_LAYOUT_THEMES } from '../../themes/layouts';
 import { useTheme } from '../../themes/UnifiedThemeContext';
-import { 
-  ENABLE_THEME_SELECTOR, 
-  ENABLE_COLOR_SCHEME_SELECTOR, 
-  ENABLE_EXPERIMENTAL_THEMES 
+import {
+  ENABLE_THEME_SELECTOR,
+  ENABLE_COLOR_SCHEME_SELECTOR,
+  ENABLE_EXPERIMENTAL_THEMES
 } from '../../constants';
 
-const ColorSchemeSelectorContainer = styled.div<{ currentColorScheme: any }>`
+const ColorSchemeSelectorContainer = styled.div<{ currentColorScheme: any; }>`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: ${props => props.currentColorScheme.colors.surface};
-  border: 1px solid ${props => props.currentColorScheme.colors.border};
-  border-radius: 16px;
-  box-shadow: ${props => props.currentColorScheme.effects.shadow};
   max-width: 90vw;
 `;
 
@@ -28,7 +22,7 @@ const SectionContainer = styled.div`
   gap: 1rem;
 `;
 
-const SectionTitle = styled.h4<{ currentColorScheme: any }>`
+const SectionTitle = styled.h4<{ currentColorScheme: any; }>`
   color: ${props => props.currentColorScheme.colors.text};
   font-size: 1rem;
   font-weight: 600;
@@ -36,7 +30,7 @@ const SectionTitle = styled.h4<{ currentColorScheme: any }>`
   text-align: left;
 `;
 
-const SectionDescription = styled.p<{ currentColorScheme: any }>`
+const SectionDescription = styled.p<{ currentColorScheme: any; }>`
   color: ${props => props.currentColorScheme.colors.textSecondary};
   font-size: 0.875rem;
   margin: 0;
@@ -75,7 +69,7 @@ const ScrollContainer = styled.div`
   }
 `;
 
-const LayoutThemeOption = styled.div<{ currentColorScheme: any; isActive: boolean }>`
+const LayoutThemeOption = styled.div<{ currentColorScheme: any; isActive: boolean; }>`
   position: relative;
   width: 140px;
   height: 100px;
@@ -116,7 +110,7 @@ const LayoutThemeOption = styled.div<{ currentColorScheme: any; isActive: boolea
   `}
 `;
 
-const LayoutThemeName = styled.div<{ currentColorScheme: any }>`
+const LayoutThemeName = styled.div<{ currentColorScheme: any; }>`
   position: absolute;
   bottom: 8px;
   left: 8px;
@@ -129,7 +123,7 @@ const LayoutThemeName = styled.div<{ currentColorScheme: any }>`
   text-align: center;
 `;
 
-const LayoutThemeIcon = styled.div<{ currentColorScheme: any }>`
+const LayoutThemeIcon = styled.div<{ currentColorScheme: any; }>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -138,7 +132,7 @@ const LayoutThemeIcon = styled.div<{ currentColorScheme: any }>`
   z-index: 1;
 `;
 
-const LayoutThemeDescription = styled.div<{ currentColorScheme: any }>`
+const LayoutThemeDescription = styled.div<{ currentColorScheme: any; }>`
   position: absolute;
   top: 8px;
   left: 8px;
@@ -150,7 +144,7 @@ const LayoutThemeDescription = styled.div<{ currentColorScheme: any }>`
   opacity: 0.8;
 `;
 
-const ColorSchemeOption = styled.div<{ currentColorScheme: any; isActive: boolean; colorSchemeColors: any }>`
+const ColorSchemeOption = styled.div<{ currentColorScheme: any; isActive: boolean; colorSchemeColors: any; }>`
   position: relative;
   width: 120px;
   height: 80px;
@@ -197,7 +191,7 @@ const ColorSchemeOption = styled.div<{ currentColorScheme: any; isActive: boolea
   `}
 `;
 
-const ColorSchemeName = styled.div<{ currentColorScheme: any }>`
+const ColorSchemeName = styled.div<{ currentColorScheme: any; }>`
   position: absolute;
   bottom: 8px;
   left: 8px;
@@ -209,7 +203,7 @@ const ColorSchemeName = styled.div<{ currentColorScheme: any }>`
   z-index: 1;
 `;
 
-const ColorSchemePreview = styled.div<{ colorSchemeColors: any }>`
+const ColorSchemePreview = styled.div<{ colorSchemeColors: any; }>`
   position: absolute;
   top: 8px;
   right: 8px;
@@ -221,7 +215,7 @@ const ColorSchemePreview = styled.div<{ colorSchemeColors: any }>`
   z-index: 1;
 `;
 
-const Title = styled.h3<{ currentColorScheme: any }>`
+const Title = styled.h3<{ currentColorScheme: any; }>`
   width: 100%;
   margin: 0 0 1.5rem 0;
   color: ${props => props.currentColorScheme.colors.text};
@@ -245,15 +239,15 @@ interface ThemeSelectorProps {
 
 export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className }) => {
   // Get unified theme context for layout theme functionality
-  const { 
-    layoutThemeKey, 
-    setLayoutTheme, 
+  const {
+    layoutThemeKey,
+    setLayoutTheme,
     availableLayoutThemes,
-    currentLayoutTheme 
+    currentLayoutTheme
   } = useTheme();
-  
+
   const { colorSchemeKey, setColorScheme, currentColorScheme } = useColorScheme();
-  
+
   const handleColorSchemeChange = (newColorSchemeKey: ColorSchemeKey) => {
     setColorScheme(newColorSchemeKey);
   };
@@ -263,7 +257,7 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
 
   const handleLayoutThemeChange = (newLayoutThemeKey: string) => {
     console.log('Layout theme change requested:', newLayoutThemeKey);
-    
+
     // Check if it's a valid layout theme key
     if (newLayoutThemeKey in AVAILABLE_LAYOUT_THEMES) {
       try {
@@ -281,7 +275,6 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
 
   // Color schemes for the bottom row
   const colorSchemes = {
-    default: globalColorSchemes.default,
     romanticDegen: globalColorSchemes.romanticDegen,
     cyberpunk: globalColorSchemes.cyberpunk,
     casinoFloor: globalColorSchemes.casinoFloor,
@@ -294,69 +287,69 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
   return (
     <ColorSchemeSelectorContainer className={className} currentColorScheme={currentColorScheme}>
       <Title currentColorScheme={currentColorScheme}>
-        {ENABLE_THEME_SELECTOR && ENABLE_COLOR_SCHEME_SELECTOR ? 'Theme & Style Customization' : 
-         ENABLE_THEME_SELECTOR ? 'Theme Selection' : 
-         'Color Scheme Selection'}
+        {ENABLE_THEME_SELECTOR && ENABLE_COLOR_SCHEME_SELECTOR ? 'Theme & Style Customization' :
+          ENABLE_THEME_SELECTOR ? 'Theme Selection' :
+            'Color Scheme Selection'}
       </Title>
-      
+
       {/* Layout Themes Section - Only show if enabled and experimental themes are on */}
       {ENABLE_THEME_SELECTOR && ENABLE_EXPERIMENTAL_THEMES && (
         <SectionContainer>
           <SectionHeader>
             <SectionTitle currentColorScheme={currentColorScheme}>🏗️ Layout Themes</SectionTitle>
             <SectionDescription currentColorScheme={currentColorScheme}>
-              Choose the overall layout and structural design of your casino. Mobile theme is auto-applied on mobile devices.
+              Choose the layout of the casino.
             </SectionDescription>
           </SectionHeader>
           <ScrollContainer>
             {Object.entries(layoutThemes)
               .filter(([key]) => key !== 'degen-mobile') // Hide mobile theme from selector
               .map(([key, layoutTheme]) => (
-              <LayoutThemeOption
-                key={key}
-                currentColorScheme={currentColorScheme}
-                isActive={layoutThemeKey === key}
-                onClick={() => handleLayoutThemeChange(key)}
-              >
-                <LayoutThemeDescription currentColorScheme={currentColorScheme}>
-                  {layoutTheme.description}
-                </LayoutThemeDescription>
-                <LayoutThemeIcon currentColorScheme={currentColorScheme}>
-                  {key === 'degenheart' ? '🏛️' : '🏠'}
-                </LayoutThemeIcon>
-                <LayoutThemeName currentColorScheme={currentColorScheme}>
-                  {layoutTheme.name}
-                </LayoutThemeName>
-              </LayoutThemeOption>
-            ))}
+                <LayoutThemeOption
+                  key={key}
+                  currentColorScheme={currentColorScheme}
+                  isActive={layoutThemeKey === key}
+                  onClick={() => handleLayoutThemeChange(key)}
+                >
+                  <LayoutThemeDescription currentColorScheme={currentColorScheme}>
+                    {layoutTheme.description}
+                  </LayoutThemeDescription>
+                  <LayoutThemeIcon currentColorScheme={currentColorScheme}>
+                    {key === 'degenheart' ? '🏛️' : '🏠'}
+                  </LayoutThemeIcon>
+                  <LayoutThemeName currentColorScheme={currentColorScheme}>
+                    {layoutTheme.name}
+                  </LayoutThemeName>
+                </LayoutThemeOption>
+              ))}
           </ScrollContainer>
         </SectionContainer>
       )}
 
       {/* Color Schemes Section - Only show if enabled */}
       {ENABLE_COLOR_SCHEME_SELECTOR && (
-      <SectionContainer>
-        <SectionHeader>
-          <SectionTitle currentColorScheme={currentColorScheme}>🌈 Color Schemes</SectionTitle>
-          <SectionDescription currentColorScheme={currentColorScheme}>
-            Select your preferred color palette and visual mood
-          </SectionDescription>
-        </SectionHeader>
-        <ScrollContainer>
-          {Object.entries(colorSchemes).map(([key, colorScheme]) => (
-            <ColorSchemeOption
-              key={key}
-              currentColorScheme={currentColorScheme}
-              isActive={colorSchemeKey === key}
-              colorSchemeColors={colorScheme.colors}
-              onClick={() => handleColorSchemeChange(key as ColorSchemeKey)}
-            >
-              <ColorSchemePreview colorSchemeColors={colorScheme.colors} />
-              <ColorSchemeName currentColorScheme={currentColorScheme}>{colorScheme.name}</ColorSchemeName>
-            </ColorSchemeOption>
-          ))}
-        </ScrollContainer>
-      </SectionContainer>
+        <SectionContainer>
+          <SectionHeader>
+            <SectionTitle currentColorScheme={currentColorScheme}>🌈 Color Schemes</SectionTitle>
+            <SectionDescription currentColorScheme={currentColorScheme}>
+              Select your preferred color palette and visual mood
+            </SectionDescription>
+          </SectionHeader>
+          <ScrollContainer>
+            {Object.entries(colorSchemes).map(([key, colorScheme]) => (
+              <ColorSchemeOption
+                key={key}
+                currentColorScheme={currentColorScheme}
+                isActive={colorSchemeKey === key}
+                colorSchemeColors={colorScheme.colors}
+                onClick={() => handleColorSchemeChange(key as ColorSchemeKey)}
+              >
+                <ColorSchemePreview colorSchemeColors={colorScheme.colors} />
+                <ColorSchemeName currentColorScheme={currentColorScheme}>{colorScheme.name}</ColorSchemeName>
+              </ColorSchemeOption>
+            ))}
+          </ScrollContainer>
+        </SectionContainer>
       )}
     </ColorSchemeSelectorContainer>
   );

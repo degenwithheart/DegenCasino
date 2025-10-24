@@ -1,72 +1,73 @@
-import React, { useMemo, useEffect, useState, createContext, useContext } from 'react'
-import { motion } from 'framer-motion'
-import styled from 'styled-components'
+import React, { useMemo, useEffect, useState, createContext, useContext } from 'react';
+import { motion } from 'framer-motion';
+import styled from 'styled-components';
+import { useUserStore } from '../../hooks/data/useUserStore';
 
 /**
  * GRAPHICS QUALITY SYSTEM
  * Provides 4 quality levels that automatically scale visual effects based on device performance
  */
-export type GraphicsQuality = 'low' | 'medium' | 'high' | 'ultra'
+export type GraphicsQuality = 'low' | 'medium' | 'high' | 'ultra';
 
 /**
  * CUSTOM THEME SYSTEM
  * Allows dynamic color theming for different visual experiences
  */
 export interface CustomTheme {
-  name: string
-  
+  name: string;
+
   // Core Colors
-  primary: string
-  secondary: string
-  tertiary: string
-  accent: string
-  background: string
-  
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  accent: string;
+  background: string;
+
   // Extended Color Palette
-  success: string        // Win states, positive feedback
-  warning: string        // Caution, medium risk
-  danger: string         // Loss states, errors, high risk
-  info: string          // Information, neutral states
-  
+  success: string;        // Win states, positive feedback
+  warning: string;        // Caution, medium risk
+  danger: string;         // Loss states, errors, high risk
+  info: string;          // Information, neutral states
+
   // UI Element Colors
-  border: string         // Border colors for frames
-  borderHover: string    // Border hover states
-  text: string          // Primary text color
-  textSecondary: string  // Secondary text color
-  textMuted: string     // Muted/disabled text
-  
+  border: string;         // Border colors for frames
+  borderHover: string;    // Border hover states
+  text: string;          // Primary text color
+  textSecondary: string;  // Secondary text color
+  textMuted: string;     // Muted/disabled text
+
   // Surface Colors
-  surface: string        // Card/panel backgrounds
-  surfaceHover: string   // Hover states for surfaces
-  overlay: string        // Modal/overlay backgrounds
-  
+  surface: string;        // Card/panel backgrounds
+  surfaceHover: string;   // Hover states for surfaces
+  overlay: string;        // Modal/overlay backgrounds
+
   // Interactive Colors
-  button: string         // Button backgrounds
-  buttonHover: string    // Button hover states
-  buttonText: string     // Button text color
-  input: string         // Input field backgrounds
-  inputBorder: string   // Input field borders
-  
+  button: string;         // Button backgrounds
+  buttonHover: string;    // Button hover states
+  buttonText: string;     // Button text color
+  input: string;         // Input field backgrounds
+  inputBorder: string;   // Input field borders
+
   // Game-Specific Colors
-  winGlow: string       // Win effect glow color
-  loseGlow: string      // Lose effect glow color
-  particleWin: string   // Win particle color
-  particleLose: string  // Lose particle color
-  
+  winGlow: string;       // Win effect glow color
+  loseGlow: string;      // Lose effect glow color
+  particleWin: string;   // Win particle color
+  particleLose: string;  // Lose particle color
+
   // Gradient Definitions
-  gradientPrimary: string    // Primary gradient (CSS gradient string)
-  gradientSecondary: string  // Secondary gradient
-  gradientAccent: string     // Accent gradient
-  
+  gradientPrimary: string;    // Primary gradient (CSS gradient string)
+  gradientSecondary: string;  // Secondary gradient
+  gradientAccent: string;     // Accent gradient
+
   // Shadow & Effects
-  shadowColor: string        // Drop shadow color
-  glowColor: string         // General glow effect color
-  
+  shadowColor: string;        // Drop shadow color
+  glowColor: string;         // General glow effect color
+
   // Optional Theme Metadata
-  description?: string       // Theme description
-  category?: 'dark' | 'classic' | 'frost' | 'fire' | 'nature' | 'cosmic'
-  isHighContrast?: boolean   // Accessibility flag
-  isDarkMode?: boolean       // Dark/light mode flag
+  description?: string;       // Theme description
+  category?: 'dark' | 'classic' | 'frost' | 'fire' | 'nature' | 'cosmic';
+  isHighContrast?: boolean;   // Accessibility flag
+  isDarkMode?: boolean;       // Dark/light mode flag
 }
 
 /**
@@ -74,11 +75,11 @@ export interface CustomTheme {
  * Central configuration for all visual effects and performance options
  */
 interface GraphicsSettings {
-  quality: GraphicsQuality
-  enableEffects: boolean      // Accessibility: Enhanced visual feedback (screen shake, win flashes, particles)
-  enableMotion: boolean       // Animations and transitions
-  customTheme?: CustomTheme   // Override default colors
-  performanceMode: boolean    // Auto-detected low-end device mode
+  quality: GraphicsQuality;
+  enableEffects: boolean;      // Accessibility: Enhanced visual feedback (screen shake, win flashes, particles)
+  enableMotion: boolean;       // Animations and transitions
+  customTheme?: CustomTheme;   // Override default colors
+  performanceMode: boolean;    // Auto-detected low-end device mode
 }
 
 /**
@@ -86,8 +87,8 @@ interface GraphicsSettings {
  * Accessible by any component in the app without prop drilling
  */
 const GraphicsContext = createContext<{
-  settings: GraphicsSettings
-  updateSettings: (updates: Partial<GraphicsSettings>) => void
+  settings: GraphicsSettings;
+  updateSettings: (updates: Partial<GraphicsSettings>) => void;
 }>({
   settings: {
     quality: 'high',
@@ -95,17 +96,17 @@ const GraphicsContext = createContext<{
     enableMotion: true,
     performanceMode: false
   },
-  updateSettings: () => {}
-})
+  updateSettings: () => { }
+});
 
 /**
  * CUSTOM HOOK: Access graphics settings from any component
  */
 export const useGraphics = () => {
-  const context = useContext(GraphicsContext)
-  console.log('[DEBUG-GRAPHICS] useGraphics called:', context)
-  return context
-}
+  const context = useContext(GraphicsContext);
+  console.log('[DEBUG-GRAPHICS] useGraphics called:', context);
+  return context;
+};
 
 /**
  * PREDEFINED THEMES
@@ -334,7 +335,7 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
     category: 'cosmic',
     isDarkMode: true
   }
-}
+};
 
 /**
  * PERFORMANCE DETECTION
@@ -343,30 +344,30 @@ export const PREDEFINED_THEMES: Record<string, CustomTheme> = {
 function detectPerformanceCapability(): boolean {
   try {
     // Check for indicators of low-end devices
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl') as WebGLRenderingContext | null
-    
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') as WebGLRenderingContext | null;
+
     // GPU detection
-    const renderer = gl?.getParameter(gl.RENDERER as GLenum) || ''
-    const lowEndGPUs = ['Mali', 'Adreno 3', 'PowerVR', 'Intel HD Graphics']
-    const hasLowEndGPU = lowEndGPUs.some(gpu => renderer.includes(gpu))
-    
+    const renderer = gl?.getParameter(gl.RENDERER as GLenum) || '';
+    const lowEndGPUs = ['Mali', 'Adreno 3', 'PowerVR', 'Intel HD Graphics'];
+    const hasLowEndGPU = lowEndGPUs.some(gpu => renderer.includes(gpu));
+
     // Memory detection
-    const memory = (navigator as any).deviceMemory || 4
-    const hasLowMemory = memory < 4
-    
+    const memory = (navigator as any).deviceMemory || 4;
+    const hasLowMemory = memory < 4;
+
     // Connection speed detection
-    const connection = (navigator as any).connection
-    const hasSlowConnection = connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g'
-    
+    const connection = (navigator as any).connection;
+    const hasSlowConnection = connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g';
+
     // Hardware concurrency detection
-    const cores = navigator.hardwareConcurrency || 4
-    const hasLowCores = cores < 4
-    
-    return hasLowEndGPU || hasLowMemory || hasSlowConnection || hasLowCores
+    const cores = navigator.hardwareConcurrency || 4;
+    const hasLowCores = cores < 4;
+
+    return hasLowEndGPU || hasLowMemory || hasSlowConnection || hasLowCores;
   } catch {
     // If detection fails, assume medium performance
-    return false
+    return false;
   }
 }
 
@@ -374,89 +375,164 @@ function detectPerformanceCapability(): boolean {
  * GRAPHICS PROVIDER COMPONENT
  * Wraps the app and provides graphics settings context
  */
-export function GraphicsProvider({ children }: { children: React.ReactNode }) {
+export function GraphicsProvider({ children }: { children: React.ReactNode; }) {
+  // Get user settings
+  const reduceMotion = useUserStore((s: any) => !!s.reduceMotion);
+  const particlesEnabled = useUserStore((s: any) => s.particlesEnabled !== false);
+  const adaptiveRaf = useUserStore((s: any) => !!s.adaptiveRaf);
+
+  // Adaptive RAF implementation
+  const [rafThrottle, setRafThrottle] = useState(1); // 1 = normal, 2 = every other frame, etc.
+
+  useEffect(() => {
+    if (!adaptiveRaf) {
+      setRafThrottle(1);
+      return;
+    }
+
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let longFrameCount = 0;
+
+    const checkPerformance = () => {
+      const now = performance.now();
+      const delta = now - lastTime;
+      lastTime = now;
+      frameCount++;
+
+      if (delta > 16.67 * 1.5) { // Frame took longer than 1.5x normal
+        longFrameCount++;
+      }
+
+      if (frameCount >= 60) { // Check every ~1 second
+        if (longFrameCount > 10) { // More than 10 long frames
+          setRafThrottle(prev => Math.min(prev + 1, 4)); // Increase throttle
+        } else if (longFrameCount < 5 && rafThrottle > 1) {
+          setRafThrottle(prev => Math.max(prev - 1, 1)); // Decrease throttle
+        }
+        frameCount = 0;
+        longFrameCount = 0;
+      }
+
+      requestAnimationFrame(checkPerformance);
+    };
+
+    const rafId = requestAnimationFrame(checkPerformance);
+    return () => cancelAnimationFrame(rafId);
+  }, [adaptiveRaf]);
+
+  // Override global RAF if adaptive
+  useEffect(() => {
+    if (!adaptiveRaf || rafThrottle === 1) return;
+
+    const originalRaf = window.requestAnimationFrame;
+    let frameSkip = 0;
+
+    window.requestAnimationFrame = (callback) => {
+      frameSkip = (frameSkip + 1) % rafThrottle;
+      if (frameSkip === 0) {
+        return originalRaf(callback);
+      } else {
+        return originalRaf(() => setTimeout(callback, 16.67 * frameSkip));
+      }
+    };
+
+    return () => {
+      window.requestAnimationFrame = originalRaf;
+    };
+  }, [adaptiveRaf, rafThrottle]);
+
   const [settings, setSettings] = useState<GraphicsSettings>(() => {
     // Load global settings from sessionStorage
-    const saved = sessionStorage.getItem('degenCasinoGraphicsSettings')
-    const performanceMode = detectPerformanceCapability()
-    
+    const saved = sessionStorage.getItem('degenCasinoGraphicsSettings');
+    const performanceMode = detectPerformanceCapability();
+
     if (saved) {
       try {
-        const parsed = JSON.parse(saved)
-        console.log('📱 Loading saved graphics settings from session:', parsed)
-        
+        const parsed = JSON.parse(saved);
+        console.log('📱 Loading saved graphics settings from session:', parsed);
+
         // Always preserve user's explicit choices
-        const loadedSettings: GraphicsSettings = { 
+        const loadedSettings: GraphicsSettings = {
           quality: parsed.quality || (performanceMode ? 'low' : 'high'),
-          enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : false,
-          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : true,
+          enableEffects: parsed.enableEffects !== undefined ? parsed.enableEffects : particlesEnabled,
+          enableMotion: parsed.enableMotion !== undefined ? parsed.enableMotion : !reduceMotion,
           performanceMode
-        }
-        
+        };
+
         // Only include customTheme if it actually exists and has a value
         if (parsed.customTheme) {
-          loadedSettings.customTheme = parsed.customTheme
+          loadedSettings.customTheme = parsed.customTheme;
         }
-        
-        return loadedSettings
+
+        return loadedSettings;
       } catch (e) {
-        console.warn('Failed to parse saved graphics settings from session, using defaults')
+        console.warn('Failed to parse saved graphics settings from session, using defaults');
       }
     }
-    
-    console.log('📱 Using default graphics settings (new session)')
+
+    console.log('📱 Using default graphics settings (new session)');
     return {
       quality: performanceMode ? 'low' : 'high',
-      enableEffects: false,  // Default to OFF - accessibility feature for enhanced visual feedback
-      enableMotion: true,    // Default to ON - Static Mode OFF by default
+      enableEffects: particlesEnabled,  // Default to OFF - accessibility feature for enhanced visual feedback
+      enableMotion: !reduceMotion,    // Default to ON - Static Mode OFF by default
       performanceMode
-    }
-  })
-  
+    };
+  });
+
+  // Update graphics settings based on user settings changes
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      enableEffects: particlesEnabled,
+      enableMotion: !reduceMotion
+    }));
+  }, [particlesEnabled, reduceMotion]);
+
   const updateSettings = (updates: Partial<GraphicsSettings>) => {
     // If updates doesn't have customTheme property, but current settings does,
     // we need to explicitly remove it
-    let newSettings: GraphicsSettings
-    
+    let newSettings: GraphicsSettings;
+
     if (!('customTheme' in updates) && 'customTheme' in settings) {
       // Remove customTheme completely
-      const { customTheme, ...settingsWithoutTheme } = settings
-      newSettings = { ...settingsWithoutTheme, ...updates } as GraphicsSettings
-      console.log('🗑️ Removing customTheme from settings')
+      const { customTheme, ...settingsWithoutTheme } = settings;
+      newSettings = { ...settingsWithoutTheme, ...updates } as GraphicsSettings;
+      console.log('🗑️ Removing customTheme from settings');
     } else {
       // Normal merge
-      newSettings = { ...settings, ...updates }
+      newSettings = { ...settings, ...updates };
     }
-    
-    console.log('🔧 Graphics Settings Update:', { 
-      previous: settings, 
-      updates, 
-      final: newSettings 
-    })
-    setSettings(newSettings)
-    
+
+    console.log('🔧 Graphics Settings Update:', {
+      previous: settings,
+      updates,
+      final: newSettings
+    });
+    setSettings(newSettings);
+
     // Save globally with a consistent key to sessionStorage
-    sessionStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newSettings))
-    console.log('💾 Saved to sessionStorage:', JSON.stringify(newSettings))
-    
+    sessionStorage.setItem('degenCasinoGraphicsSettings', JSON.stringify(newSettings));
+    console.log('💾 Saved to sessionStorage:', JSON.stringify(newSettings));
+
     // Also trigger a custom event so other components can listen
-    window.dispatchEvent(new CustomEvent('graphicsSettingsChanged', { 
-      detail: newSettings 
-    }))
-  }
-  
+    window.dispatchEvent(new CustomEvent('graphicsSettingsChanged', {
+      detail: newSettings
+    }));
+  };
+
   // Performance warning effect
   useEffect(() => {
     if (settings.performanceMode && settings.quality !== 'low') {
-      console.warn('🚨 Low-end device detected. Consider switching to Low graphics quality for better performance.')
+      console.warn('🚨 Low-end device detected. Consider switching to Low graphics quality for better performance.');
     }
-  }, [settings.performanceMode, settings.quality])
-  
+  }, [settings.performanceMode, settings.quality]);
+
   return (
     <GraphicsContext.Provider value={{ settings, updateSettings }}>
       {children}
     </GraphicsContext.Provider>
-  )
+  );
 }
 
 /**
@@ -464,21 +540,21 @@ export function GraphicsProvider({ children }: { children: React.ReactNode }) {
  */
 interface GameScreenFrameProps {
   /** Game title for theming and identification */
-  title?: string
+  title?: string;
   /** Game description for enhanced theming */
-  description?: string
+  description?: string;
   /** Custom colors to override colorScheme [primary, secondary, tertiary] */
-  colors?: [string, string, string?]
+  colors?: [string, string, string?];
   /** Game state for visual feedback */
-  gameState?: 'loading' | 'playing' | 'finished' | 'error'
+  gameState?: 'loading' | 'playing' | 'finished' | 'error';
   /** Local override for effects (overrides global setting) */
-  enableEffects?: boolean
+  enableEffects?: boolean;
   /** Local override for motion (overrides global setting) */
-  enableMotion?: boolean
+  enableMotion?: boolean;
   /** Disable container transforms to prevent conflicts with game's own 3D perspective */
-  disableContainerTransforms?: boolean
+  disableContainerTransforms?: boolean;
   /** Children components to render inside the frame */
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 /**
@@ -486,50 +562,50 @@ interface GameScreenFrameProps {
  * Deterministic color generation for consistent theming
  */
 function hashHue(input: string): number {
-  let hash = 0
+  let hash = 0;
   for (let i = 0; i < input.length; i++) {
-    hash = ((hash << 5) - hash + input.charCodeAt(i)) & 0xffffffff
+    hash = ((hash << 5) - hash + input.charCodeAt(i)) & 0xffffffff;
   }
-  return Math.abs(hash) % 360
+  return Math.abs(hash) % 360;
 }
 
 function generateThemeColors(
-  seed: string, 
+  seed: string,
   customColors?: [string, string, string?],
   colorScheme?: CustomTheme
 ): [string, string, string] {
   // Use custom colors if provided
   if (customColors) {
-    console.log('🎨 Using custom colors:', customColors)
-    return [customColors[0], customColors[1], customColors[2] || customColors[0]]
+    console.log('🎨 Using custom colors:', customColors);
+    return [customColors[0], customColors[1], customColors[2] || customColors[0]];
   }
-  
+
   // Use colorScheme colors if available
   if (colorScheme) {
-    console.log('🎨 Using colorScheme colors:', colorScheme.name, [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary])
-    return [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary]
+    console.log('🎨 Using colorScheme colors:', colorScheme.name, [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary]);
+    return [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary];
   }
-  
+
   // Generate deterministic colors from seed
-  const hue = hashHue(seed)
-  const hue2 = (hue + 120) % 360
-  const hue3 = (hue + 240) % 360
-  
+  const hue = hashHue(seed);
+  const hue2 = (hue + 120) % 360;
+  const hue3 = (hue + 240) % 360;
+
   const colors = [
     `hsl(${hue}, 70%, 55%)`,
     `hsl(${hue2}, 75%, 60%)`,
     `hsl(${hue3}, 65%, 50%)`
-  ]
-  
-  console.log('🎨 Using generated colors for seed:', seed, colors)
-  return colors as [string, string, string]
+  ];
+
+  console.log('🎨 Using generated colors for seed:', seed, colors);
+  return colors as [string, string, string];
 }
 
 /**
  * STYLED COMPONENTS FOR EFFECTS
  */
-const EffectsContainer = styled(motion.div)<{
-  'data-enable-motion'?: string
+const EffectsContainer = styled(motion.div) <{
+  'data-enable-motion'?: string;
 }>`
   position: relative;
   width: 100%;
@@ -570,7 +646,7 @@ const EffectsContainer = styled(motion.div)<{
   &.flashing::before {
     opacity: var(--flash-intensity, 0.3);
   }
-`
+`;
 
 /**
  * MAIN GAME SCREEN FRAME COMPONENT
@@ -586,13 +662,13 @@ export default function GameScreenFrame({
   disableContainerTransforms = false,
   children
 }: GameScreenFrameProps) {
-  const { settings } = useGraphics()
-  
+  const { settings } = useGraphics();
+
   // Determine effective settings (local overrides global)
-  const shouldShowEffects = localEffects !== undefined ? localEffects : settings.enableEffects
-  const shouldAnimate = localMotion !== undefined ? localMotion : settings.enableMotion
-  const colorScheme = settings.customTheme
-  
+  const shouldShowEffects = localEffects !== undefined ? localEffects : settings.enableEffects;
+  const shouldAnimate = localMotion !== undefined ? localMotion : settings.enableMotion;
+  const colorScheme = settings.customTheme;
+
   console.log('🎮 GameScreenFrame Settings:', {
     quality: settings.quality,
     enableEffects: settings.enableEffects,
@@ -600,27 +676,27 @@ export default function GameScreenFrame({
     customTheme: settings.customTheme,
     themeExists: !!colorScheme,
     themeName: colorScheme?.name
-  })
-  
+  });
+
   // Generate colorScheme colors only if a custom colorScheme is selected
-  const seed = title || description || 'game'
+  const seed = title || description || 'game';
   const colorSchemeColors = useMemo(() => {
-    console.log('🎨 GameScreenFrame - Generating colorSchemeColors:', { 
-      colorScheme: colorScheme?.name || 'none', 
-      hasTheme: !!colorScheme, 
+    console.log('🎨 GameScreenFrame - Generating colorSchemeColors:', {
+      colorScheme: colorScheme?.name || 'none',
+      hasTheme: !!colorScheme,
       hasColors: !!colors,
       shouldReturnNull: (!colorScheme && !colors)
-    })
+    });
     // For default colorScheme (no custom colorScheme), return null to use original CSS
     if (!colorScheme && !colors) {
-      console.log('🎨 GameScreenFrame - Returning null (default colorScheme)')
-      return null
+      console.log('🎨 GameScreenFrame - Returning null (default colorScheme)');
+      return null;
     }
-    const generated = generateThemeColors(seed, colors, colorScheme)
-    console.log('🎨 GameScreenFrame - Generated colors:', generated)
-    return generated
-  }, [seed, colors, colorScheme])
-  
+    const generated = generateThemeColors(seed, colors, colorScheme);
+    console.log('🎨 GameScreenFrame - Generated colors:', generated);
+    return generated;
+  }, [seed, colors, colorScheme]);
+
   // Quality-based rendering decisions combined with effects/motion settings
   const qualitySettings = useMemo(() => {
     const baseSettings = (() => {
@@ -632,7 +708,7 @@ export default function GameScreenFrame({
             showScanline: false,
             showParticles: false,
             borderWidth: 0
-          }
+          };
         case 'medium':
           return {
             showBorder: true,
@@ -640,7 +716,7 @@ export default function GameScreenFrame({
             showScanline: false,
             showParticles: false,
             borderWidth: 2
-          }
+          };
         case 'high':
           return {
             showBorder: true,
@@ -648,7 +724,7 @@ export default function GameScreenFrame({
             showScanline: false,
             showParticles: true,
             borderWidth: 3
-          }
+          };
         case 'ultra':
           return {
             showBorder: true,
@@ -656,47 +732,47 @@ export default function GameScreenFrame({
             showScanline: true,
             showParticles: true,
             borderWidth: 4
-          }
+          };
       }
-    })()
-    
+    })();
+
     // Override with effects settings
     // IMPORTANT: Also disable all effects when container transforms are disabled (like for Slots)
-    const effectsEnabled = shouldShowEffects && !disableContainerTransforms
+    const effectsEnabled = shouldShowEffects && !disableContainerTransforms;
     return {
       ...baseSettings,
       showBorder: baseSettings.showBorder && effectsEnabled,
       showGlow: baseSettings.showGlow && effectsEnabled,
       showScanline: baseSettings.showScanline && effectsEnabled,
       showParticles: baseSettings.showParticles && effectsEnabled
-    }
-  }, [settings.quality, shouldShowEffects, disableContainerTransforms])
-  
+    };
+  }, [settings.quality, shouldShowEffects, disableContainerTransforms]);
+
   // State-based styling for visual feedback
   const stateStyles = useMemo(() => {
-    if (settings.quality === 'low') return {}
-    
+    if (settings.quality === 'low') return {};
+
     switch (gameState) {
       case 'loading':
-        return { 
+        return {
           opacity: 0.8,
           filter: shouldShowEffects ? 'brightness(0.9)' : undefined
-        }
+        };
       case 'error':
-        return { 
+        return {
           borderColor: colorScheme?.danger || '#ff4444',
           boxShadow: shouldShowEffects ? `0 0 20px ${colorScheme?.danger || '#ff4444'}50` : undefined
-        }
+        };
       case 'finished':
-        return { 
+        return {
           borderColor: colorScheme?.success || '#44ff44',
           boxShadow: shouldShowEffects ? `0 0 20px ${colorScheme?.success || '#44ff44'}50` : undefined
-        }
+        };
       default:
-        return {}
+        return {};
     }
-  }, [gameState, settings.quality, shouldShowEffects, colorScheme])
-  
+  }, [gameState, settings.quality, shouldShowEffects, colorScheme]);
+
   // LOW QUALITY MODE: Minimal rendering for performance
   if (settings.quality === 'low') {
     // For default colorScheme, don't apply any custom styling
@@ -712,21 +788,21 @@ export default function GameScreenFrame({
             {children}
           </div>
         </div>
-      )
+      );
     }
-    
+
     // For custom themes, apply colorScheme styling
-    const backgroundColor = colorScheme.background || '#0a0a0f'
-    const lowQualityGradient = colorScheme.gradientPrimary || 
-      `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}15, ${backgroundColor})`
-    
+    const backgroundColor = colorScheme.background || '#0a0a0f';
+    const lowQualityGradient = colorScheme.gradientPrimary ||
+      `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}15, ${backgroundColor})`;
+
     return (
-      <div 
+      <div
         className="w-full h-full relative"
-        style={{ 
+        style={{
           backgroundColor,
           background: lowQualityGradient,
-          ...stateStyles 
+          ...stateStyles
         }}
         data-game-state={gameState}
         data-quality="low"
@@ -741,27 +817,27 @@ export default function GameScreenFrame({
           {children}
         </div>
       </div>
-    )
+    );
   }
-  
+
   // MEDIUM+ QUALITY MODE: Full visual effects based on settings
-  
+
   // For default colorScheme, don't apply any custom styling
   if (!colorScheme) {
     return (
       <div className="relative w-full h-full group">
         {children}
       </div>
-    )
+    );
   }
-  
+
   // For custom themes, apply colorScheme styling
-  const backgroundColor = colorScheme.background
-  const backgroundGradient = colorScheme.gradientPrimary || 
-    `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}20, ${colorScheme.secondary}15, ${backgroundColor})`
+  const backgroundColor = colorScheme.background;
+  const backgroundGradient = colorScheme.gradientPrimary ||
+    `linear-gradient(135deg, ${backgroundColor}, ${colorScheme.primary}20, ${colorScheme.secondary}15, ${backgroundColor})`;
 
   // Use regular div when transforms are disabled to avoid layout conflicts
-  const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer
+  const ContainerComponent = disableContainerTransforms ? 'div' : EffectsContainer;
 
   const containerProps = disableContainerTransforms ? {
     className: "relative w-full h-full group",
@@ -804,7 +880,7 @@ export default function GameScreenFrame({
         ease: "linear"
       }
     } : { duration: 0 }
-  }
+  };
 
   return (
     <ContainerComponent {...containerProps}>
@@ -814,7 +890,7 @@ export default function GameScreenFrame({
           Consider Low Quality
         </div>
       )}
-      
+
       {/* ANIMATED BORDER SYSTEM with enhanced motion visibility */}
       {qualitySettings.showBorder && shouldAnimate && shouldShowEffects && colorSchemeColors ? (
         <motion.div
@@ -823,7 +899,7 @@ export default function GameScreenFrame({
             padding: `${qualitySettings.borderWidth}px`,
             background: `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`
           }}
-          animate={{ 
+          animate={{
             background: [
               `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`,
               `linear-gradient(180deg, ${colorSchemeColors[1]}, ${colorSchemeColors[2]}, ${colorSchemeColors[0]})`,
@@ -835,14 +911,14 @@ export default function GameScreenFrame({
             scale: [1, 1.02, 1, 0.98, 1],
             rotate: [0, 1, 0, -1, 0]
           }}
-          transition={{ 
-            duration: 6, 
-            repeat: Infinity, 
+          transition={{
+            duration: 6,
+            repeat: Infinity,
             ease: 'easeInOut'
           }}
         >
-          <div 
-            className="w-full h-full rounded-lg" 
+          <div
+            className="w-full h-full rounded-lg"
             style={{ backgroundColor: 'transparent' }}
           />
         </motion.div>
@@ -855,19 +931,19 @@ export default function GameScreenFrame({
             background: `linear-gradient(135deg, ${colorSchemeColors[0]}, ${colorSchemeColors[1]}, ${colorSchemeColors[2]})`
           }}
         >
-          <div 
-            className="w-full h-full rounded-lg" 
+          <div
+            className="w-full h-full rounded-lg"
             style={{ backgroundColor: 'transparent' }}
           />
         </div>
       ) : null}
-      
+
       {/* CORNER GLOW EFFECTS (High/Ultra quality) */}
       {qualitySettings.showGlow && shouldShowEffects && colorSchemeColors && (
         <>
           {[0, 1, 2, 3].map(corner => {
             // Use colorScheme glow color if available, otherwise use generated colorScheme colors
-            const glowColor = colorScheme?.glowColor || colorSchemeColors[corner % 3]
+            const glowColor = colorScheme?.glowColor || colorSchemeColors[corner % 3];
             return shouldAnimate ? (
               <motion.div
                 key={corner}
@@ -904,11 +980,11 @@ export default function GameScreenFrame({
                   right: corner % 2 === 1 ? -30 : 'auto'
                 }}
               />
-            )
+            );
           })}
         </>
       )}
-      
+
       {/* SCANLINE EFFECT (Ultra quality only) */}
       {qualitySettings.showScanline && shouldShowEffects && colorSchemeColors && (
         <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
@@ -938,7 +1014,7 @@ export default function GameScreenFrame({
           )}
         </div>
       )}
-      
+
       {/* ENHANCED PARTICLE EFFECTS (High/Ultra quality) - Much more visible */}
       {qualitySettings.showParticles && shouldShowEffects && colorSchemeColors && (
         <>
@@ -986,7 +1062,7 @@ export default function GameScreenFrame({
           ))}
         </>
       )}
-      
+
       {/* CONTENT CONTAINER */}
       <div className="relative z-10 w-full h-full p-3 sm:p-4">
         <div className="w-full h-full relative rounded-lg overflow-hidden">
@@ -994,5 +1070,5 @@ export default function GameScreenFrame({
         </div>
       </div>
     </ContainerComponent>
-  )
+  );
 }

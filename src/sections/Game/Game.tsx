@@ -92,6 +92,7 @@ import { GAMES } from '../../games';
 import { useUserStore } from '../../hooks/data/useUserStore';
 import { FEATURE_FLAGS } from '../../constants';
 import { Container, Controls, IconButton, MetaControls, Screen, Spinner, Splash } from './Game.styles';
+import { useIsCompact } from '../../hooks/ui/useIsCompact';
 import { LoadingBar } from './LoadingBar';
 import { ProvablyFairModal } from './ProvablyFairModal';
 import { TransactionModal } from './TransactionModal';
@@ -768,9 +769,15 @@ function CustomRenderer() {
             <IconButton onClick={() => setGraphicsSettings(true)} disabled={showSplash}>
               <GraphicsSettingsIcon />
             </IconButton>
-            <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
-              <Icon.Fullscreen />
-            </IconButton>
+            {/* Hide fullscreen control on mobile as mobile has separate fullscreen UX */}
+            {(() => {
+              const { mobile: isMobile } = useIsCompact();
+              return !isMobile ? (
+                <IconButton onClick={() => setFullscreen(true)} disabled={showSplash}>
+                  <Icon.Fullscreen />
+                </IconButton>
+              ) : null;
+            })()}
             <IconButton
               onClick={() => soundStore.set(soundStore.volume ? 0 : 0.5)}
               disabled={showSplash}
