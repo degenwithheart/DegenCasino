@@ -45,37 +45,47 @@ export function Dashboard() {
         {
             id: 'ownership',
             title: 'True Ownership',
-            left: ['✅ Non-Custodial — funds stay in your wallet.'],
-            right: ['🚫 Custodial — they hold player funds.'],
-            footer: "If it’s your wallet, it’s your money."
+            leftLabel: 'DegenHeart Way',
+            left: ['Non-Custodial, funds stay in your wallet, always.'],
+            rightLabel: 'Web2 Way',
+            right: ['Custodial, they hold your funds hostage.'],
+            footer: "Your wallet = your money. No middlemen, no excuses."
         },
         {
             id: 'transparency',
             title: 'On-Chain Transparency',
-            left: ['✅ 100% On-Chain Logic — verifiable bets & RNG.'],
-            right: ['🚫 Private Backend RNG — logic you can’t audit.'],
-            footer: 'Blockchain removes blind trust — verifiability matters.'
+            leftLabel: 'DegenHeart Way',
+            left: ['100% On-Chain Logic, verifiable bets & RNG via Solana + Gamba.'],
+            rightLabel: 'Casino Way',
+            right: ['Private Backend RNG, hidden logic you can\'t audit.'],
+            footer: 'Blockchain cuts out the smoke and mirrors, verify everything yourself.'
         },
         {
             id: 'accountless',
             title: 'Accountless Access',
-            left: ['✅ No Accounts, No KYC — connect and play.'],
-            right: ['🚫 Email signups & surprise KYC when you win.'],
-            footer: 'If winnings require your papers, it isn’t freedom.'
+            leftLabel: 'DegenHeart Way',
+            left: ['No Accounts, No KYC Ever, connect wallet and play.'],
+            rightLabel: 'Traditional Way',
+            right: ['Email signups & surprise KYC when you win big.'],
+            footer: 'Freedom means no papers, no profiles, no prying eyes.'
         },
         {
             id: 'instant',
             title: 'Instant Withdrawals',
-            left: ['✅ Smart Contracts — automatic payouts to your wallet.'],
-            right: ['🚫 Manual Withdrawals — delays and approvals.'],
-            footer: "Smart contracts don’t lie, delay, or discriminate."
+            leftLabel: 'DegenHeart Way',
+            left: ['Smart Contracts, instant payouts to your wallet on Solana.'],
+            rightLabel: 'Web2 Way',
+            right: ['Manual Withdrawals, days of delays and arbitrary holds.'],
+            footer: "Smart contracts pay out faster than you can blink."
         },
         {
             id: 'ethos',
             title: 'Blockchain Ethos',
-            left: ['✅ Built on decentralization — transparency & control.'],
-            right: ['🚫 Blockchain as marketing — Web2 control under the hood.'],
-            footer: "If it walks like a bank, it’s not Web3."
+            leftLabel: 'DegenHeart Way',
+            left: ['Pure Web3, decentralization, no accounts, no custodians.'],
+            rightLabel: 'Casino Way',
+            right: ['Web2.5 Hybrids, blockchain marketing with centralized control.'],
+            footer: "Real Web3 isn't a gimmick—it's total user sovereignty."
         }
     ];
 
@@ -149,50 +159,53 @@ export function Dashboard() {
 
                 <div style={{ position: 'relative', maxWidth: '90rem', margin: '0 auto', zIndex: 10 }}>
                     {/* Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{ textAlign: 'center', marginBottom: '3rem' }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                            <motion.div
-                                animate={{ rotate: [0, 360] }}
-                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                style={{ marginRight: '1rem', fontSize: '4rem' }}
-                            >
-                                ✨
-                            </motion.div>
-                            <h1 style={{
-                                fontSize: compact ? '3rem' : '4.5rem',
-                                fontWeight: 900,
-                                background: 'linear-gradient(to right, var(--accent), var(--secondary), var(--gold))',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text'
+                    {connected && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{ textAlign: 'center', marginBottom: '3rem' }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                                <motion.div
+                                    animate={{ rotate: [0, 360] }}
+                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                    style={{ marginRight: '1rem', fontSize: '4rem' }}
+                                >
+                                    ✨
+                                </motion.div>
+                                <h1 style={{
+                                    fontSize: compact ? '3rem' : '4.5rem',
+                                    fontWeight: 900,
+                                    background: 'linear-gradient(to right, var(--accent), var(--secondary), var(--gold))',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    backgroundClip: 'text'
+                                }}>
+                                    GAME UNIVERSE
+                                </h1>
+                                <motion.div
+                                    animate={{ rotate: [360, 0] }}
+                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                    style={{ marginLeft: '1rem', fontSize: '4rem' }}
+                                >
+                                    👑
+                                </motion.div>
+                            </div>
+
+                            <p style={{
+                                fontSize: compact ? '1rem' : '1.5rem',
+                                color: 'var(--text-secondary)',
+                                maxWidth: '64rem',
+                                margin: '0 auto 2rem'
                             }}>
-                                GAME UNIVERSE
-                            </h1>
-                            <motion.div
-                                animate={{ rotate: [360, 0] }}
-                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                style={{ marginLeft: '1rem', fontSize: '4rem' }}
-                            >
-                                👑
-                            </motion.div>
-                        </div>
+                                Enter a world of next-generation gaming with stunning 3D graphics,
+                                provably fair mechanics, and life-changing jackpots
+                            </p>
 
-                        <p style={{
-                            fontSize: compact ? '1rem' : '1.5rem',
-                            color: 'var(--text-secondary)',
-                            maxWidth: '64rem',
-                            margin: '0 auto 2rem'
-                        }}>
-                            Enter a world of next-generation gaming with stunning 3D graphics,
-                            provably fair mechanics, and life-changing jackpots
-                        </p>
+                            {connected && <EnhancedTickerTape />}
+                        </motion.div>
 
-                        {connected && <EnhancedTickerTape />}
-                    </motion.div>
+                    )}
 
                     {/* Horizontal Scrollable Game Rows (show only when wallet connected) */}
                     {connected && (
@@ -426,14 +439,14 @@ export function Dashboard() {
                                                 {/* Top: Your Casino bullets */}
                                                 <div className="hero-top">
                                                     {card.left.map((t, i) => (
-                                                        <div key={i} className="hero-bullet"><span className="icon">✅</span><span className="text">{t.replace(/^✅\s*/, '')}</span></div>
+                                                        <div key={i} className="hero-bullet"><span className="icon">{card.leftLabel}</span><span className="text">{t}</span></div>
                                                     ))}
                                                 </div>
 
                                                 {/* Middle: Traditional contrast */}
                                                 <div className="hero-middle">
                                                     {card.right.map((t, i) => (
-                                                        <div key={i} className="hero-contrast"><span className="icon">🚫</span><span className="text">{t.replace(/^🚫\s*/, '')}</span></div>
+                                                        <div key={i} className="hero-contrast"><span className="icon">{card.rightLabel}</span><span className="text">{t}</span></div>
                                                     ))}
                                                 </div>
 
@@ -488,13 +501,33 @@ export function Dashboard() {
         }
                 /* Hero card scroller styles */
                 .hero-scroller {
-                    margin-top: 1.5rem;
+                    margin-top: 2rem;
                     display: flex;
-                    gap: 1.25rem;
+                    gap: 2rem;
                     overflow-x: auto;
-                    padding: 1.25rem 0.75rem;
+                    padding: 1.5rem 1rem;
                     scroll-snap-type: x mandatory;
                     -webkit-overflow-scrolling: touch;
+                    scrollbar-width: thin;
+                    scrollbar-color: var(--accent) transparent;
+                }
+
+                .hero-scroller::-webkit-scrollbar {
+                    height: 6px;
+                }
+
+                .hero-scroller::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
+                }
+
+                .hero-scroller::-webkit-scrollbar-thumb {
+                    background: linear-gradient(to right, var(--accent), var(--secondary));
+                    border-radius: 10px;
+                }
+
+                .hero-scroller::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(to right, var(--secondary), var(--accent));
                 }
 
                 .hero-scroller:focus {
@@ -504,44 +537,163 @@ export function Dashboard() {
                 .hero-card {
                     scroll-snap-align: start;
                     flex: 0 0 auto;
-                    min-width: 300px;
-                    max-width: 380px;
-                    background: linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
-                    border-radius: 16px;
-                    padding: 1.25rem;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-                    transform: perspective(1000px) rotateY(-6deg) translateZ(0);
-                    transition: transform 240ms cubic-bezier(.2,.9,.2,1), box-shadow 240ms;
-                    border: 1px solid rgba(255,255,255,0.05);
-                    cursor: pointer;
+                    min-width: 340px;
+                    max-width: 420px;
+                    background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+                    border-radius: 24px;
+                    padding: 1.75rem;
+                    box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+                    transform: perspective(1200px) rotateY(-8deg) translateZ(0);
+                    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
+                    border: 2px solid transparent;
+                    background-clip: padding-box;
+                    position: relative;
+                }
+
+                .hero-card::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    padding: 2px;
+                    background: linear-gradient(135deg, var(--gold), var(--accent), var(--secondary));
+                    border-radius: inherit;
+                    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                    mask-composite: exclude;
+                    -webkit-mask-composite: xor;
                 }
 
                 .hero-card:focus,
                 .hero-card:hover {
-                    transform: perspective(1000px) rotateY(0deg) translateY(-10px) translateZ(28px) scale(1.02);
-                    box-shadow: 0 28px 64px rgba(0,0,0,0.42);
+                    transform: perspective(1200px) rotateY(0deg) translateY(-12px) translateZ(30px) scale(1.05);
+                    box-shadow: 0 24px 56px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
                 }
 
-                .hero-card-inner { display: flex; flex-direction: column; gap: 1rem; }
-                .hero-card-header { font-size: 1.125rem; font-weight: 900; letter-spacing: -0.02em; }
+                .hero-card-inner { 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 1.5rem; 
+                    position: relative;
+                    z-index: 1;
+                }
+                .hero-card-header { 
+                    font-size: 1.4rem; 
+                    font-weight: 900; 
+                    letter-spacing: -0.03em;
+                    color: var(--text);
+                    text-align: center;
+                    margin-bottom: 0.5rem;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                }
 
                 /* stacked sections */
-                .hero-top, .hero-middle { display: flex; flex-direction: column; gap: 0.5rem; }
-                .hero-bullet, .hero-contrast { display: flex; align-items: center; gap: 0.5rem; }
-                .hero-bullet .icon, .hero-contrast .icon { font-size: 1rem; }
-                .hero-bullet .text { font-weight: 800; color: #b9ffcf; }
-                .hero-contrast .text { font-weight: 700; color: #ffb9b9; }
+                .hero-top, .hero-middle { 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 1rem; 
+                }
+                .hero-bullet, .hero-contrast { 
+                    display: flex; 
+                    align-items: flex-start; 
+                    gap: 1rem; 
+                    padding: 0.75rem;
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.05);
+                }
+                .hero-bullet { 
+                    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.05));
+                    border-left: 4px solid #4ade80;
+                }
+                .hero-contrast { 
+                    background: linear-gradient(135deg, rgba(248, 113, 113, 0.1), rgba(239, 68, 68, 0.05));
+                    border-left: 4px solid #f87171;
+                }
+                .hero-bullet .icon { 
+                    font-size: 0.95rem; 
+                    font-weight: 700;
+                    color: #4ade80;
+                    min-width: 120px;
+                    text-align: right;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                }
+                .hero-contrast .icon { 
+                    font-size: 0.95rem; 
+                    font-weight: 700;
+                    color: #f87171;
+                    min-width: 120px;
+                    text-align: right;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                }
+                .hero-bullet .text { 
+                    font-weight: 600; 
+                    color: var(--text); 
+                    flex: 1;
+                    line-height: 1.4;
+                }
+                .hero-contrast .text { 
+                    font-weight: 600; 
+                    color: var(--text); 
+                    flex: 1;
+                    line-height: 1.4;
+                }
 
-                .hero-card-footer { margin-top: 0.75rem; font-size: 0.95rem; color: var(--text-secondary); opacity: 0.9; }
+                .hero-card-footer { 
+                    margin-top: 1.25rem; 
+                    font-size: 0.95rem; 
+                    color: var(--text-secondary); 
+                    opacity: 0.9;
+                    text-align: center;
+                    font-style: italic;
+                    padding: 0.5rem;
+                    background: rgba(255,255,255,0.02);
+                    border-radius: 8px;
+                    border: 1px solid rgba(255,255,255,0.03);
+                }
+
+                @media (max-width: 768px) {
+                    .hero-scroller {
+                        gap: 1.5rem;
+                        padding: 1rem 0.5rem;
+                    }
+                    .hero-card { 
+                        min-width: 300px; 
+                        max-width: 380px; 
+                        padding: 1.5rem;
+                        transform: perspective(1000px) rotateY(-4deg) translateZ(0);
+                    }
+                    .hero-card:focus,
+                    .hero-card:hover {
+                        transform: perspective(1000px) rotateY(0deg) translateY(-8px) translateZ(20px) scale(1.03);
+                    }
+                    .hero-card-header { font-size: 1.2rem; }
+                    .hero-bullet .icon, .hero-contrast .icon { min-width: 100px; font-size: 0.85rem; }
+                }
 
                 @media (max-width: 480px) {
-                    .hero-card { min-width: 240px; max-width: 300px; }
-                    .hero-card-body { flex-direction: column; gap: 0.6rem; }
-                    .hero-right { text-align: left; }
+                    .hero-scroller {
+                        flex-direction: column;
+                        gap: 1rem;
+                        overflow-x: visible;
+                        padding: 1rem;
+                    }
+                    .hero-card { 
+                        min-width: auto; 
+                        max-width: none;
+                        width: 100%;
+                        transform: none;
+                        margin-bottom: 1rem;
+                    }
+                    .hero-card:focus,
+                    .hero-card:hover {
+                        transform: translateY(-6px) scale(1.02);
+                    }
                 }
 
                 @media (prefers-reduced-motion: reduce) {
-                    .hero-card, .hero-card:focus, .hero-card:hover { transition: none; transform: none; }
+                    .hero-card, .hero-card:focus, .hero-card:hover { 
+                        transition: none; 
+                        transform: none; 
+                    }
                 }
       `}</style>
         </>

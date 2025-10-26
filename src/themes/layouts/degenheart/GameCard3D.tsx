@@ -25,6 +25,8 @@ export function GameCard3D({ game, onClick, statsVariant = 'default', playedStat
     const mousePos = useRef({ x: 0, y: 0 });
     const rotation = useRef({ rx: 0, ry: 0 });
     const isPointerDown = useRef(false);
+    const hoverTimeout = useRef<number | null>(null);
+    const [hoverActive, setHoverActive] = useState(false);
 
     // Tunable configuration for 3D effect. Adjust these to change intensity.
     // You can later expose these as props or CSS variables if desired.
@@ -144,12 +146,20 @@ export function GameCard3D({ game, onClick, statsVariant = 'default', playedStat
 
     const onPointerEnter = (e: React.PointerEvent) => {
         setIsHovered(true);
+        // Debounce hover start for animation
+        if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+        hoverTimeout.current = window.setTimeout(() => setHoverActive(true), 120);
         // start RAF loop
         if (rafRef.current == null) rafRef.current = requestAnimationFrame(updateTransform);
     };
 
     const onPointerLeave = () => {
         setIsHovered(false);
+        setHoverActive(false);
+        if (hoverTimeout.current) {
+            clearTimeout(hoverTimeout.current);
+            hoverTimeout.current = null;
+        }
         mousePos.current = { x: 0, y: 0 };
         rotation.current = { rx: 0, ry: 0 };
         // reset transforms smoothly
@@ -298,35 +308,54 @@ export function GameCard3D({ game, onClick, statsVariant = 'default', playedStat
                         <div data-depth="0.2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
                             {/* Game Icon & Name */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-                                <motion.div data-depth="0.8"
-                                    animate={isHovered ? {
-                                        rotate: [0, 360],
-                                        scale: [1, 1.15, 1]
-                                    } : {}}
-                                    transition={{ duration: 0.8 }}
-                                    style={{
-                                        width: '64px',
-                                        height: '64px',
-                                        borderRadius: '16px',
-                                        background: 'rgba(255, 255, 255, 0.15)',
-                                        backdropFilter: 'blur(10px)',
-                                        overflow: 'hidden',
-                                        flexShrink: 0,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    <img
-                                        src={game.meta.image}
-                                        alt={game.meta.name}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
+                                {/* Parallax wrapper — controlled by the RAF parallax system */}
+                                <div data-depth="0.8" style={{ perspective: "600px" }}>
+                                    {/* Inner wrapper — Framer Motion controls this only */}
+                                    <motion.div
+                                        key={hoverActive ? "spin" : "still"} // restart animation when hover begins
+                                        animate={
+                                            hoverActive
+                                                ? { rotate: 360, scale: [1, 1.1, 1] }
+                                                : { rotate: 0, scale: 1 }
+                                        }
+                                        transition={{
+                                            rotate: {
+                                                duration: 1.1,
+                                                ease: [0.45, 0, 0.55, 1],
+                                            },
+                                            scale: {
+                                                duration: 0.6,
+                                                ease: "easeOut",
+                                            },
                                         }}
-                                    />
-                                </motion.div>
+                                        style={{
+                                            width: "64px",
+                                            height: "64px",
+                                            borderRadius: "16px",
+                                            background: "rgba(255,255,255,0.15)",
+                                            backdropFilter: "blur(10px)",
+                                            overflow: "hidden",
+                                            flexShrink: 0,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            transformOrigin: "center center",
+                                            willChange: "transform",
+                                        }}
+                                    >
+                                        <img
+                                            src={game.meta.image}
+                                            alt={game.meta.name}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",
+                                                pointerEvents: "none",
+                                            }}
+                                        />
+                                    </motion.div>
+                                </div>
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <h3 style={{

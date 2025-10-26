@@ -72,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const toggleAutoAdapt = () => set({ autoAdapt: !autoAdapt });
   const toggleAdaptiveRaf = () => set({ adaptiveRaf: !adaptiveRaf });
   const resetDefaults = () => {
-    set({ dataSaver: false, particlesEnabled: true, prefetchLevel: 'conservative', reduceMotion: false, lessGlow: false, tickerInterval: 15000, imageQuality: 'balanced', deferAudio: true, progressiveImages: true, backgroundThrottle: true, cacheWarmup: true, fontSlim: true, autoAdapt: true });
+    set({ dataSaver: false, particlesEnabled: false, prefetchLevel: 'conservative', reduceMotion: false, lessGlow: false, tickerInterval: 15000, imageQuality: 'balanced', deferAudio: true, progressiveImages: true, backgroundThrottle: true, cacheWarmup: true, fontSlim: true, autoAdapt: true });
     setPrefetchUserOverride(null as any);
     try {
       // Reset colorScheme to the configured default key
