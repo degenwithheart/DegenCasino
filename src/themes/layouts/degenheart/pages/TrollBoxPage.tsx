@@ -105,10 +105,9 @@ const Timestamp = styled.span`
 
 const InputRow = styled.div`
   display: flex;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-direction: column;
   background: rgba(0,0,0,0.1);
   flex-shrink: 0;
-  position: relative;
 `;
 
 const TextInput = styled.input`
@@ -158,19 +157,26 @@ const SendBtn = styled.button`
   }
 `;
 
-const CharCounter = styled.span<{ $isNearLimit: boolean; $isAtLimit: boolean; }>`
-  position: absolute;
-  bottom: 2px;
-  right: 80px;
-  font-size: 0.75rem;
-  color: ${({ $isNearLimit, $isAtLimit }) =>
-    $isAtLimit ? '#ff6b6b' : $isNearLimit ? '#ffa500' : 'rgba(255, 255, 255, 0.6)'};
-  background: rgba(0, 0, 0, 0.7);
-  padding: 2px 6px;
-  border-radius: 4px;
-  pointer-events: none;
-  font-weight: 500;
-  z-index: 1;
+const SendIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+  </svg>
+);
+
+const CharCounter = styled.div<{ $progress: number; $isNearLimit: boolean; $isAtLimit: boolean; }>`
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    display: block;
+    height: 100%;
+    width: ${props => `${props.$progress * 100}%`};
+    background: ${props => props.$isAtLimit ? '#ff6b6b' : props.$isNearLimit ? '#ffa500' : '#00ff00'};
+    transition: width 0.2s ease;
+  }
 `;
 
 const LoadingText = styled.div`
@@ -315,6 +321,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   const remainingChars = MAX_CHARS - text.length;
   const isNearLimit = remainingChars <= 20;
   const isAtLimit = remainingChars <= 0;
+  const progress = text.length / MAX_CHARS;
 
   const fmtTime = (ts: number) => {
     const date = new Date(ts);
@@ -323,55 +330,57 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
 
   return (
     <>
-      <ContentContainer>
-        <Log>
-          {data?.error && <LoadingText>Error loading chat.</LoadingText>}
-          {messages.map((m, i) => (
-            <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <Username userColor={userColors[m.user]}>{m.user}</Username>
-                <Timestamp>{fmtTime(m.ts)}</Timestamp>
-              </div>
-              <div style={{ color: '#fff', fontSize: '0.95rem', wordBreak: 'break-word' }}>
-                {m.text}
-              </div>
-            </MessageItem>
-          ))}
-        </Log>
+      {connected && (
+        <ContentContainer>
+          <Log>
+            {data?.error && <LoadingText>Error loading chat.</LoadingText>}
+            {messages.map((m, i) => (
+              <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Username userColor={userColors[m.user]}>{m.user}</Username>
+                  <Timestamp>{fmtTime(m.ts)}</Timestamp>
+                </div>
+                <div style={{ color: '#fff', fontSize: '0.95rem', wordBreak: 'break-word' }}>
+                  {m.text}
+                </div>
+              </MessageItem>
+            ))}
+          </Log>
 
-        <InputRow>
-          <TextInput
-            ref={inputRef}
-            value={text}
-            placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
-            onChange={handleInputChange}
-            onClick={() => !connected && walletModal.setVisible(true)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            disabled={isSending || !swrKey}
-            maxLength={MAX_CHARS}
-          />
-          <CharCounter $isNearLimit={isNearLimit} $isAtLimit={isAtLimit}>
-            {remainingChars}
-          </CharCounter>
-          <SendBtn
-            onClick={send}
-            disabled={
-              !connected ||
-              isSending ||
-              cooldown > 0 ||
-              !text.trim() ||
-              !swrKey
-            }
-          >
-            {isSending ? '…' : cooldown > 0 ? `Wait ${cooldown}s` : 'Send'}
-          </SendBtn>
-        </InputRow>
-      </ContentContainer>
+          <InputRow>
+            <div style={{ display: 'flex' }}>
+              <TextInput
+                ref={inputRef}
+                value={text}
+                placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
+                onChange={handleInputChange}
+                onClick={() => !connected && walletModal.setVisible(true)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    send();
+                  }
+                }}
+                disabled={isSending || !swrKey}
+                maxLength={MAX_CHARS}
+              />
+              <SendBtn
+                onClick={send}
+                disabled={
+                  !connected ||
+                  isSending ||
+                  cooldown > 0 ||
+                  !text.trim() ||
+                  !swrKey
+                }
+              >
+                {isSending ? '…' : cooldown > 0 ? `Wait ${cooldown}s` : <SendIcon />}
+              </SendBtn>
+            </div>
+            <CharCounter $progress={progress} $isNearLimit={isNearLimit} $isAtLimit={isAtLimit} />
+          </InputRow>
+        </ContentContainer>
+      )}
     </>
   );
 };
