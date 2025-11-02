@@ -225,8 +225,8 @@ async function postDailyQuote(): Promise<void> {
 }
 
 export default withUsageTracking(async (req: Request) => {
-  // Only allow POST requests (from cron)
-  if (req.method !== 'POST') {
+  // Allow GET for testing, POST for cron
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return new Response('Method Not Allowed', { status: 405 });
   }
 

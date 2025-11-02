@@ -12,9 +12,11 @@ async function removeDailyQuote(): Promise<void> {
 
   const { kv } = await import('@vercel/kv');
 
-  // Get today's date for the key
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-  const dailyQuoteKey = `daily_quote_${today}`;
+  // Get yesterday's date for the key (to remove the previous day's quote)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const dailyQuoteKey = `daily_quote_${yesterdayStr}`;
 
   // Get the stored daily quote
   const storedQuote = await kv.get(dailyQuoteKey) as any;
@@ -45,8 +47,8 @@ async function removeDailyQuote(): Promise<void> {
 }
 
 export default withUsageTracking(async (req: Request) => {
-  // Only allow POST requests (from cron)
-  if (req.method !== 'POST') {
+  // Allow GET for testing, POST for cron
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return new Response('Method Not Allowed', { status: 405 });
   }
 
