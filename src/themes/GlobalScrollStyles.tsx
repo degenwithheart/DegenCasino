@@ -1,7 +1,8 @@
 import React from 'react';
 import { createGlobalStyle } from 'styled-components';
 
-export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
+// Use a transient prop ($colorScheme) to avoid prop forwarding to the DOM
+export const GlobalScrollStyles = createGlobalStyle<{ $colorScheme: any; }>`
   /* Global scroll behavior and gesture support */
   * {
     scroll-behavior: smooth;
@@ -17,46 +18,46 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
   }
 
   ::-webkit-scrollbar-track {
-    background: ${({ colorScheme }) => colorScheme.colors.background}15;
+    background: ${({ $colorScheme }) => $colorScheme.colors.background}15;
     border-radius: 4px;
     margin: 2px;
   }
 
   ::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, 
-      ${({ colorScheme }) => colorScheme.colors.primary}60, 
-      ${({ colorScheme }) => colorScheme.colors.secondary}40
+      ${({ $colorScheme }) => $colorScheme.colors.primary}60, 
+      ${({ $colorScheme }) => $colorScheme.colors.secondary}40
     );
     border-radius: 4px;
     transition: all 0.3s ease;
-    border: 1px solid ${({ colorScheme }) => colorScheme.colors.border}30;
-    box-shadow: ${({ colorScheme }) => colorScheme.effects.shadow};
+    border: 1px solid ${({ $colorScheme }) => $colorScheme.colors.border}30;
+    box-shadow: ${({ $colorScheme }) => $colorScheme.effects.shadow};
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, 
-      ${({ colorScheme }) => colorScheme.colors.primary}80, 
-      ${({ colorScheme }) => colorScheme.colors.accent}60
+      ${({ $colorScheme }) => $colorScheme.colors.primary}80, 
+      ${({ $colorScheme }) => $colorScheme.colors.accent}60
     );
-    box-shadow: ${({ colorScheme }) => colorScheme.effects.glow};
+    box-shadow: ${({ $colorScheme }) => $colorScheme.effects.glow};
     transform: scale(1.1);
   }
 
   ::-webkit-scrollbar-thumb:active {
     background: linear-gradient(135deg, 
-      ${({ colorScheme }) => colorScheme.colors.accent}, 
-      ${({ colorScheme }) => colorScheme.colors.primary}
+      ${({ $colorScheme }) => $colorScheme.colors.accent}, 
+      ${({ $colorScheme }) => $colorScheme.colors.primary}
     );
   }
 
   ::-webkit-scrollbar-corner {
-    background: ${({ colorScheme }) => colorScheme.colors.background}15;
+    background: ${({ $colorScheme }) => $colorScheme.colors.background}15;
   }
 
   /* Firefox scrollbar styling */
   html {
     scrollbar-width: thin;
-    scrollbar-color: ${({ colorScheme }) => colorScheme.colors.primary}60 ${({ colorScheme }) => colorScheme.colors.background}15;
+    scrollbar-color: ${({ $colorScheme }) => $colorScheme.colors.primary}60 ${({ $colorScheme }) => $colorScheme.colors.background}15;
   }
 
   /* Casino-specific scroll containers */
@@ -74,20 +75,20 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
     user-select: none;
 
     /* Custom scrollbar for game containers */
-    &::-webkit-scrollbar-thumb {
+      &::-webkit-scrollbar-thumb {
       background: linear-gradient(135deg, 
-        ${({ colorScheme }) => colorScheme.colors.accent}70, 
-        ${({ colorScheme }) => colorScheme.colors.primary}50
+        ${({ $colorScheme }) => $colorScheme.colors.accent}70, 
+        ${({ $colorScheme }) => $colorScheme.colors.primary}50
       );
       border-radius: 6px;
     }
 
-    &::-webkit-scrollbar-thumb:hover {
+      &::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(135deg, 
-        ${({ colorScheme }) => colorScheme.colors.accent}, 
-        ${({ colorScheme }) => colorScheme.colors.primary}80
+        ${({ $colorScheme }) => $colorScheme.colors.accent}, 
+        ${({ $colorScheme }) => $colorScheme.colors.primary}80
       );
-      box-shadow: 0 0 12px ${({ colorScheme }) => colorScheme.colors.accent}40;
+      box-shadow: 0 0 12px ${({ $colorScheme }) => $colorScheme.colors.accent}40;
     }
   }
 
@@ -123,8 +124,8 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
       width: 6px;
     }
 
-    &::-webkit-scrollbar-thumb {
-      background: ${({ colorScheme }) => colorScheme.colors.primary}80;
+      &::-webkit-scrollbar-thumb {
+      background: ${({ $colorScheme }) => $colorScheme.colors.primary}80;
       border-radius: 3px;
     }
   }
@@ -155,53 +156,53 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
   }
 
   /* Enhanced theming for different color schemes */
-  ${({ colorScheme }) => {
+  ${({ $colorScheme }) => {
     // Special handling for neon/cyberpunk themes
-    if (colorScheme.colors.primary.includes('#a259ff') || colorScheme.colors.primary.includes('#00ff')) {
+    if ($colorScheme.colors.primary.includes('#a259ff') || $colorScheme.colors.primary.includes('#00ff')) {
       return `
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(135deg, 
-            ${colorScheme.colors.primary}80, 
-            ${colorScheme.colors.accent}60
+            ${$colorScheme.colors.primary}80, 
+            ${$colorScheme.colors.accent}60
           );
-          border: 1px solid ${colorScheme.colors.primary}40;
-          box-shadow: inset 0 0 6px ${colorScheme.colors.accent}30;
+          border: 1px solid ${$colorScheme.colors.primary}40;
+          box-shadow: inset 0 0 6px ${$colorScheme.colors.accent}30;
         }
 
         ::-webkit-scrollbar-thumb:hover {
           box-shadow: 
-            inset 0 0 6px ${colorScheme.colors.accent}50,
-            0 0 12px ${colorScheme.colors.primary}60;
-          border-color: ${colorScheme.colors.accent}60;
+            inset 0 0 6px ${$colorScheme.colors.accent}50,
+            0 0 12px ${$colorScheme.colors.primary}60;
+          border-color: ${$colorScheme.colors.accent}60;
         }
 
         .game-container::-webkit-scrollbar-thumb {
-          animation: ${colorScheme.effects.glow ? 'pulse 2s infinite' : 'none'};
+          animation: ${$colorScheme.effects.glow ? 'pulse 2s infinite' : 'none'};
         }
       `;
     }
-    
+
     // Special handling for gold/luxury themes
-    if (colorScheme.colors.accent.includes('#ffd700') || colorScheme.colors.accent.includes('#gold')) {
+    if ($colorScheme.colors.accent.includes('#ffd700') || $colorScheme.colors.accent.includes('#gold')) {
       return `
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(135deg, 
-            ${colorScheme.colors.accent}90, 
-            ${colorScheme.colors.primary}70
+            ${$colorScheme.colors.accent}90, 
+            ${$colorScheme.colors.primary}70
           );
-          border: 1px solid ${colorScheme.colors.accent}50;
+          border: 1px solid ${$colorScheme.colors.accent}50;
         }
 
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(135deg, 
-            ${colorScheme.colors.accent}, 
-            ${colorScheme.colors.primary}90
+            ${$colorScheme.colors.accent}, 
+            ${$colorScheme.colors.primary}90
           );
-          box-shadow: 0 0 16px ${colorScheme.colors.accent}40;
+          box-shadow: 0 0 16px ${$colorScheme.colors.accent}40;
         }
       `;
     }
-    
+
     return '';
   }}
 
@@ -230,13 +231,13 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
   /* High contrast mode adjustments */
   @media (prefers-contrast: high) {
     ::-webkit-scrollbar-thumb {
-      background: ${({ colorScheme }) => colorScheme.colors.text}80;
-      border: 2px solid ${({ colorScheme }) => colorScheme.colors.background};
+      background: ${({ $colorScheme }) => $colorScheme.colors.text}80;
+      border: 2px solid ${({ $colorScheme }) => $colorScheme.colors.background};
     }
 
     ::-webkit-scrollbar-track {
-      background: ${({ colorScheme }) => colorScheme.colors.background};
-      border: 1px solid ${({ colorScheme }) => colorScheme.colors.text}30;
+      background: ${({ $colorScheme }) => $colorScheme.colors.background};
+      border: 1px solid ${({ $colorScheme }) => $colorScheme.colors.text}30;
     }
   }
 `;
@@ -245,10 +246,10 @@ export const GlobalScrollStyles = createGlobalStyle<{ colorScheme: any }>`
 export const GlobalScrollStylesProvider: React.FC = () => {
   // This component will be updated to work with the unified theme system
   // For now, we'll use a placeholder that can be integrated later
-  return <GlobalScrollStyles colorScheme={{ 
+  return <GlobalScrollStyles $colorScheme={{
     colors: {
       primary: '#a259ff',
-      secondary: '#7e22ce', 
+      secondary: '#7e22ce',
       accent: '#ffd700',
       background: '#1a1a2e',
       surface: '#16213e',

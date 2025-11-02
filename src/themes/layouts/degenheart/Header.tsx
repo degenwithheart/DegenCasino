@@ -825,6 +825,9 @@ const Header: React.FC = () => {
   const balance = useUserBalance();
   const { compact: isCompact, mobile } = useIsCompact();
   const { openBonusModal, openJackpotModal, openLeaderboardModal, openSettingsModal, openThemeSelector, openTokenSelect, openTrollBoxModal, closeAllOverlays } = useDegenHeaderModal();
+
+  // Check if connected wallet is the creator
+  const isCreator = connected && publicKey && publicKey.equals(PLATFORM_CREATOR_ADDRESS);
   // Debug: log whether the theme-level modal handlers are available (helps diagnose core vs theme modal usage)
   useEffect(() => {
     try {
@@ -1015,7 +1018,7 @@ const Header: React.FC = () => {
             </LeaderboardButton>
           )}
 
-          {connected && (
+          {connected && isCreator && (
             <SettingsButton
               $colorScheme={currentColorScheme}
               onClick={() => (

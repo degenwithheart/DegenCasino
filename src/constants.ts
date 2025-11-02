@@ -78,6 +78,7 @@ import makeHeliusTokenFetcher from 'gamba-react-ui-v2';
  * Example: 7% = 0.07 * 10000 = 700 BPS
  */
 import { BPS_PER_WHOLE } from 'gamba-core-v2';
+import rpcCachedFetch from './utils/rpcThrottle';
 
 // ===================================
 // MOBILE & PLATFORM CONFIGURATION
@@ -638,7 +639,7 @@ export async function updateTokenPrices() {
   const coingeckoUrl = `/api/services/coingecko?ids=${ids}&vs_currencies=usd`;
 
   // Promise for CoinGecko fetch via proxy - updates TOKEN_METADATA with latest prices
-  const coingeckoPromise = fetch(coingeckoUrl)
+  const coingeckoPromise = rpcCachedFetch(coingeckoUrl)
     .then(res => res.json())
     .then(data => {
       TOKEN_METADATA.forEach(token => {

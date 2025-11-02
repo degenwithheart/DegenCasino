@@ -2,10 +2,31 @@
 // Tracks and displays loading performance metrics
 
 import React, { useState, useEffect } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import RpcMonitor from './RpcMonitor';
+import AnalyzeMonitor from './AnalyzeMonitor';
 import styled from 'styled-components';
 import { useProgressiveLoading } from '../../hooks/system/useProgressiveLoading';
+import { PLATFORM_CREATOR_ADDRESS } from '../../constants';
 
-const MonitorPanel = styled.div<{ isVisible: boolean }>`
+const MonitorsWrapper = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 340px;
+  z-index: 10000;
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 900px) {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+`;
+
+const MonitorPanel = styled.div<{ $isVisible: boolean; }>`
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -19,7 +40,7 @@ const MonitorPanel = styled.div<{ isVisible: boolean }>`
   z-index: 10000;
   max-width: 300px;
   transition: all 0.3s ease;
-  transform: ${props => props.isVisible ? 'translateX(0)' : 'translateX(100%)'};
+  transform: ${props => props.$isVisible ? 'translateX(0)' : 'translateX(100%)'};
   
   @media (max-width: 768px) {
     display: none; // Hide on mobile
@@ -89,9 +110,18 @@ const SectionTitle = styled.div`
 `;
 
 export function ProgressiveLoadingMonitor() {
+  const { publicKey, connected } = useWallet();
   const [isVisible, setIsVisible] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>({});
   const { getPerformanceStats, isProgressiveLoadingActive } = useProgressiveLoading();
+
+  // Check if connected wallet is the creator
+  const isCreator = connected && publicKey?.equals(PLATFORM_CREATOR_ADDRESS);
+
+  // Only show PerfMon for creator wallet
+  if (!isCreator) {
+    return null;
+  }
 
   useEffect(() => {
     // Only show in development or when debug flag is set
@@ -114,7 +144,7 @@ export function ProgressiveLoadingMonitor() {
     return null;
   }
 
-  const getStatusClass = (value: number, thresholds: { good: number; warning: number }) => {
+  const getStatusClass = (value: number, thresholds: { good: number; warning: number; }) => {
     if (value <= thresholds.good) return 'good';
     if (value <= thresholds.warning) return 'warning';
     return 'critical';
@@ -134,10 +164,10 @@ export function ProgressiveLoadingMonitor() {
 
   return (
     <>
-      <MonitorPanel isVisible={isVisible}>
+      <MonitorPanel $isVisible={isVisible}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <span style={{ color: '#6ffaff', fontWeight: 'bold' }}>Progressive Loading Monitor</span>
-          <button 
+          <button
             onClick={() => setIsVisible(false)}
             style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}
           >
@@ -181,7 +211,7 @@ export function ProgressiveLoadingMonitor() {
         <MetricRow>
           <span className="label">Connection:</span>
           <span className="value">
-            {performanceData.networkInfo?.effectiveType || 'unknown'} 
+            {performanceData.networkInfo?.effectiveType || 'unknown'}
             {performanceData.networkInfo?.effectiveType === '4g' && ' (WiFi/Fast)'}
           </span>
         </MetricRow>
@@ -223,6 +253,13 @@ export function ProgressiveLoadingMonitor() {
           </>
         )}
       </MonitorPanel>
+      {/* Render RPC monitor alongside PerfMon in dev/debug mode */}
+      {isVisible && (import.meta.env.DEV || localStorage.getItem('debug-progressive-loading') === 'true') && (
+        <MonitorsWrapper>
+          <RpcMonitor />
+          <AnalyzeMonitor />
+        </MonitorsWrapper>
+      )}
     </>
   );
 }

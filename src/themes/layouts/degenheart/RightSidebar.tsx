@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useColorScheme } from '../../ColorSchemeContext';
+import { useWallet } from '@solana/wallet-adapter-react';
 import TrollBoxPage from './pages/TrollBoxPage';
 
 const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
@@ -41,12 +42,15 @@ const Status = styled.div<{ $colorScheme: any; }>`
 
 export const RightSidebar: React.FC<{ onChatStatusChange?: (status: string) => void; chatStatus?: string; }> = ({ onChatStatusChange, chatStatus }) => {
   const { currentColorScheme } = useColorScheme();
+  const { connected } = useWallet();
+
+  const displayStatus = connected ? (chatStatus || 'Connecting…') : 'Offline (Not Connected)';
 
   return (
     <SidebarContainer $colorScheme={currentColorScheme}>
       <HeaderBar $colorScheme={currentColorScheme}>
         <Title>TrollBox</Title>
-        <Status $colorScheme={currentColorScheme}>{chatStatus || 'Connecting…'}</Status>
+        <Status $colorScheme={currentColorScheme}>{displayStatus}</Status>
       </HeaderBar>
 
       <TrollBoxPage onStatusChange={onChatStatusChange} />

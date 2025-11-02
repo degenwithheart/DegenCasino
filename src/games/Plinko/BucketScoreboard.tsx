@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import styled from 'styled-components'
-import { BPS_PER_WHOLE } from 'gamba-core-v2'
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
+import { BPS_PER_WHOLE } from 'gamba-core-v2';
 
 // Helper: determine color palette for a bucket multiplier
 function getBucketColor(multiplier: number) {
@@ -9,25 +9,25 @@ function getBucketColor(multiplier: number) {
       primary: 'rgba(239, 68, 68, 0.9)',
       secondary: 'rgba(220, 38, 38, 0.85)',
       tertiary: 'rgba(185, 28, 28, 0.9)'
-    }
+    };
   } else if (multiplier >= 1.0 && multiplier <= 3.99) {
     return {
       primary: 'rgba(245, 158, 11, 0.9)',
       secondary: 'rgba(217, 119, 6, 0.85)',
       tertiary: 'rgba(180, 83, 9, 0.9)'
-    }
+    };
   } else if (multiplier >= 4.0 && multiplier <= 6.99) {
     return {
       primary: 'rgba(34, 197, 94, 0.9)',
       secondary: 'rgba(22, 163, 74, 0.85)',
       tertiary: 'rgba(21, 128, 61, 0.9)'
-    }
+    };
   } else {
     return {
       primary: 'rgba(59, 130, 246, 0.9)',
       secondary: 'rgba(37, 99, 235, 0.85)',
       tertiary: 'rgba(29, 78, 216, 0.9)'
-    }
+    };
   }
 }
 
@@ -65,7 +65,7 @@ const ScoreboardContainer = styled.div`
   @media (max-width: 480px) {
     display: none;
   }
-`
+`;
 
 const TileGrid = styled.div`
   display: flex;
@@ -78,9 +78,9 @@ const TileGrid = styled.div`
   @media (max-width: 768px) {
     gap: 6px;
   }
-`
+`;
 
-const TileSlot = styled.div<{ isTransitioning?: boolean }>`
+const TileSlot = styled.div<{ $isTransitioning?: boolean; }>`
   position: relative;
   width: 100%;
   display: flex;
@@ -90,15 +90,15 @@ const TileSlot = styled.div<{ isTransitioning?: boolean }>`
   transform: translateY(0);
   opacity: 1;
 
-  ${({ isTransitioning }) => isTransitioning && `
+  ${({ $isTransitioning }) => $isTransitioning && `
     z-index: 10;
     transform: translateY(-4px);
   `}
-`
+`;
 
-const BucketItem = styled.div<{ 
+const BucketItem = styled.div<{
   multiplier: number;
-  isActive?: boolean;
+  $isActive?: boolean;
   index: number;
   isPlaceholder?: boolean;
 }>`
@@ -178,7 +178,7 @@ const BucketItem = styled.div<{
     transition: opacity 0.3s ease;
   }
   
-  ${({ isActive }) => isActive && `
+  ${({ $isActive }) => $isActive && `
     &::before {
       opacity: 1;
     }
@@ -216,7 +216,7 @@ const BucketItem = styled.div<{
       }
     }
   }
-`
+`;
 
 const BucketIndex = styled.div`
   position: absolute;
@@ -254,7 +254,7 @@ const BucketIndex = styled.div`
     top: -6px;
     left: -6px;
   }
-`
+`;
 
 const ScoreboardTitle = styled.div`
   text-align: center;
@@ -283,7 +283,7 @@ const ScoreboardTitle = styled.div`
   box-shadow: 
     0 2px 4px rgba(5, 5, 15, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-`
+`;
 
 interface BucketScoreboardProps {
   multipliers: number[];
@@ -304,69 +304,69 @@ export const BucketScoreboard: React.FC<BucketScoreboardProps> = ({
   bucketHits = new Map(),
   recentHits = []
 }) => {
-  const [isMobile, setIsMobile] = React.useState(false)
-  const [tiles, setTiles] = React.useState<TileData[]>([])
-  const [transitioning, setTransitioning] = React.useState(false)
-  
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [tiles, setTiles] = React.useState<TileData[]>([]);
+  const [transitioning, setTransitioning] = React.useState(false);
+
   // Detect mobile screen size
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  
-  const maxTiles = isMobile ? 4 : 6
-  
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const maxTiles = isMobile ? 4 : 6;
+
   // Initialize with placeholder tiles
   useEffect(() => {
     const initialTiles: TileData[] = Array.from({ length: maxTiles }, (_, i) => ({
       bucketIndex: -1,
       isPlaceholder: true,
       id: `placeholder-${i}-${maxTiles}` // Include maxTiles in ID to force re-render on resize
-    }))
-    setTiles(initialTiles)
-  }, [maxTiles])
-  
+    }));
+    setTiles(initialTiles);
+  }, [maxTiles]);
+
   // Handle new bucket hits
   useEffect(() => {
-    if (recentHits.length === 0) return
-    
-    const latestHit = recentHits[recentHits.length - 1]
-    
+    if (recentHits.length === 0) return;
+
+    const latestHit = recentHits[recentHits.length - 1];
+
     // Always add new hits, even if they're duplicates (remove the duplicate check)
-    setTransitioning(true)
-    
+    setTransitioning(true);
+
     // Create new tile for the bottom position
     const newTile: TileData = {
       bucketIndex: latestHit,
       isPlaceholder: false,
       id: `bucket-${latestHit}-${Date.now()}`
-    }
-    
+    };
+
     // Shift all tiles up and add new one at bottom
     setTiles(prevTiles => {
-      const newTiles = [...prevTiles.slice(1), newTile]
-      return newTiles
-    })
-    
+      const newTiles = [...prevTiles.slice(1), newTile];
+      return newTiles;
+    });
+
     // Clear transitioning state after animation
-    setTimeout(() => setTransitioning(false), 500)
-    
-  }, [recentHits])
+    setTimeout(() => setTransitioning(false), 500);
+
+  }, [recentHits]);
 
   return (
     <ScoreboardContainer>
       <ScoreboardTitle>RECENT HITS</ScoreboardTitle>
       <TileGrid>
         {tiles.map((tile, index) => (
-          <TileSlot 
+          <TileSlot
             key={tile.id}
-            isTransitioning={transitioning}
+            $isTransitioning={transitioning}
           >
             <BucketItem
               multiplier={tile.isPlaceholder ? 0 : (multipliers[tile.bucketIndex] || 0)}
-              isActive={!tile.isPlaceholder && activeBuckets.has(tile.bucketIndex)}
+              $isActive={!tile.isPlaceholder && activeBuckets.has(tile.bucketIndex)}
               index={tile.bucketIndex}
               isPlaceholder={tile.isPlaceholder}
             >
@@ -376,8 +376,8 @@ export const BucketScoreboard: React.FC<BucketScoreboardProps> = ({
                 </>
               )}
               {tile.isPlaceholder && (
-                <div style={{ 
-                  opacity: 0.4, 
+                <div style={{
+                  opacity: 0.4,
                   fontSize: '12px',
                   color: 'rgba(255, 255, 255, 0.5)'
                 }}>
@@ -389,5 +389,5 @@ export const BucketScoreboard: React.FC<BucketScoreboardProps> = ({
         ))}
       </TileGrid>
     </ScoreboardContainer>
-  )
-}
+  );
+};

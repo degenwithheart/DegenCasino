@@ -3,6 +3,7 @@
 .DS_Store
 **/.DS_Store
 .venv
+package-backup.json
 # Ignore build and dependency directories
 .github
 .vercel

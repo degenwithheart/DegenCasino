@@ -5,10 +5,12 @@ declare const __APP_VERSION__: string | undefined;
 import { Modal } from '../Modal/Modal';
 import { useUserStore } from '../../hooks/data/useUserStore';
 import { setPrefetchUserOverride } from '../../hooks/system/usePrefetch';
+import { setDataSaverEnabled } from '../../utils/rpcThrottle';
 const ThemeSelectorLazy = React.lazy(() => import('../Theme/ColorSchemeSelector').then(m => ({ default: m.ColorSchemeSelector })));
 import { useColorScheme } from '../../themes/ColorSchemeContext';
 import { PLATFORM_CREATOR_ADDRESS, FOOTER_LINKS, DEFAULT_COLOR_SCHEME } from '../../constants';
 import * as S from './Settings.styles';
+import useAnalyzeMonitor from '../../hooks/useAnalyzeMonitor';
 
 interface SettingsModalProps { onClose: () => void; }
 
@@ -27,6 +29,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     return () => window.removeEventListener('resize', check);
   }, []);
   const dataSaver = useUserStore(s => s.dataSaver);
+  const dataSaverTTL = useUserStore(s => s.dataSaverTTL ?? 60 * 60 * 1000);
   const particlesEnabled = useUserStore(s => s.particlesEnabled !== false);
   const prefetchLevel = useUserStore(s => s.prefetchLevel || 'conservative');
   const reduceMotion = useUserStore(s => !!s.reduceMotion);
@@ -43,6 +46,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const autoReduced = useUserStore(s => s.autoAdapt && (s.reduceMotion || s.lessGlow));
   const { setColorScheme } = useColorScheme();
   const set = useUserStore(s => s.set);
+  // Ensure the analyze monitor runtime is initialized so calls like
+  // window.__analyzeMonitor?.record(...) in this modal actually record entries.
+  useAnalyzeMonitor();
 
   // Derived constants for external links & addresses (sourced from main constants file)
   const creatorAddress = React.useMemo(() => {
@@ -58,27 +64,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   }, []);
 
   const toggleDataSaver = () => {
-    set({ dataSaver: !dataSaver });
-    setPrefetchUserOverride(!dataSaver ? false : null as any);
-  };
-  const toggleParticles = () => set({ particlesEnabled: !particlesEnabled });
-  const toggleReduceMotion = () => set({ reduceMotion: !reduceMotion });
-  const toggleLessGlow = () => set({ lessGlow: !lessGlow });
-  const toggleDeferAudio = () => set({ deferAudio: !deferAudio });
-  const toggleProgressiveImages = () => set({ progressiveImages: !progressiveImages });
-  const toggleBackgroundThrottle = () => set({ backgroundThrottle: !backgroundThrottle });
-  const toggleCacheWarmup = () => set({ cacheWarmup: !cacheWarmup });
-  const toggleFontSlim = () => set({ fontSlim: !fontSlim });
-  const toggleAutoAdapt = () => set({ autoAdapt: !autoAdapt });
-  const toggleAdaptiveRaf = () => set({ adaptiveRaf: !adaptiveRaf });
-  const resetDefaults = () => {
-    set({ dataSaver: false, particlesEnabled: false, prefetchLevel: 'conservative', reduceMotion: false, lessGlow: false, tickerInterval: 15000, imageQuality: 'balanced', deferAudio: true, progressiveImages: true, backgroundThrottle: true, cacheWarmup: true, fontSlim: true, autoAdapt: true });
-    setPrefetchUserOverride(null as any);
     try {
-      // Reset colorScheme to the configured default key
-      if (setColorScheme) setColorScheme(DEFAULT_COLOR_SCHEME as any);
-    } catch (_) {
-      // Ignore errors when resetting color scheme
+      window.__analyzeMonitor?.record?.('toggleDataSaver', 'start');
+      set({ dataSaver: !dataSaver });
+      setPrefetchUserOverride(!dataSaver ? false : null as any);
+      try { setDataSaverEnabled(!dataSaver); } catch { }
+      window.__analyzeMonitor?.record?.('toggleDataSaver', 'success');
+    } catch (e: any) {
+      window.__analyzeMonitor?.record?.('toggleDataSaver', 'error', { message: String(e?.message || e) });
+      throw e;
+    }
+  };
+  const toggleParticles = () => { try { window.__analyzeMonitor?.record?.('toggleParticles', 'start'); set({ particlesEnabled: !particlesEnabled }); window.__analyzeMonitor?.record?.('toggleParticles', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleParticles', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleReduceMotion = () => { try { window.__analyzeMonitor?.record?.('toggleReduceMotion', 'start'); set({ reduceMotion: !reduceMotion }); window.__analyzeMonitor?.record?.('toggleReduceMotion', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleReduceMotion', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleLessGlow = () => { try { window.__analyzeMonitor?.record?.('toggleLessGlow', 'start'); set({ lessGlow: !lessGlow }); window.__analyzeMonitor?.record?.('toggleLessGlow', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleLessGlow', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleDeferAudio = () => { try { window.__analyzeMonitor?.record?.('toggleDeferAudio', 'start'); set({ deferAudio: !deferAudio }); window.__analyzeMonitor?.record?.('toggleDeferAudio', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleDeferAudio', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleProgressiveImages = () => { try { window.__analyzeMonitor?.record?.('toggleProgressiveImages', 'start'); set({ progressiveImages: !progressiveImages }); window.__analyzeMonitor?.record?.('toggleProgressiveImages', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleProgressiveImages', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleBackgroundThrottle = () => { try { window.__analyzeMonitor?.record?.('toggleBackgroundThrottle', 'start'); set({ backgroundThrottle: !backgroundThrottle }); window.__analyzeMonitor?.record?.('toggleBackgroundThrottle', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleBackgroundThrottle', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleCacheWarmup = () => { try { window.__analyzeMonitor?.record?.('toggleCacheWarmup', 'start'); set({ cacheWarmup: !cacheWarmup }); window.__analyzeMonitor?.record?.('toggleCacheWarmup', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleCacheWarmup', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleFontSlim = () => { try { window.__analyzeMonitor?.record?.('toggleFontSlim', 'start'); set({ fontSlim: !fontSlim }); window.__analyzeMonitor?.record?.('toggleFontSlim', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleFontSlim', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleAutoAdapt = () => { try { window.__analyzeMonitor?.record?.('toggleAutoAdapt', 'start'); set({ autoAdapt: !autoAdapt }); window.__analyzeMonitor?.record?.('toggleAutoAdapt', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleAutoAdapt', 'error', { message: String(e?.message || e) }); throw e; } };
+  const toggleAdaptiveRaf = () => { try { window.__analyzeMonitor?.record?.('toggleAdaptiveRaf', 'start'); set({ adaptiveRaf: !adaptiveRaf }); window.__analyzeMonitor?.record?.('toggleAdaptiveRaf', 'success'); } catch (e: any) { window.__analyzeMonitor?.record?.('toggleAdaptiveRaf', 'error', { message: String(e?.message || e) }); throw e; } };
+  const resetDefaults = () => {
+    try {
+      window.__analyzeMonitor?.record?.('resetDefaults', 'start');
+      set({ dataSaver: false, particlesEnabled: false, prefetchLevel: 'conservative', reduceMotion: false, lessGlow: false, tickerInterval: 15000, imageQuality: 'balanced', deferAudio: true, progressiveImages: true, backgroundThrottle: true, cacheWarmup: true, fontSlim: true, autoAdapt: true });
+      setPrefetchUserOverride(null as any);
+      try {
+        // Reset colorScheme to the configured default key
+        if (setColorScheme) setColorScheme(DEFAULT_COLOR_SCHEME as any);
+      } catch (_) {
+        // Ignore errors when resetting color scheme
+      }
+      window.__analyzeMonitor?.record?.('resetDefaults', 'success');
+    } catch (e: any) {
+      window.__analyzeMonitor?.record?.('resetDefaults', 'error', { message: String(e?.message || e) });
+      throw e;
     }
   };
 
@@ -97,9 +118,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           <S.SectionBody $open={openSections.quick}>
             <S.SectionContentPad id="settings-sec-quick">
               <S.Row title="Save bandwidth on slow or mobile connections">
-                <S.LabelText>Save Data <span className="badge">BETA</span></S.LabelText>
+                <S.LabelText>
+                  Save Data <span className="badge">BETA</span>
+                  <span title="When enabled, non-critical JSON/text responses (prices, token metadata, prefetches) are cached per-session for the chosen TTL to reduce network usage." style={{ marginLeft: 8, cursor: 'help', fontSize: '.9rem', opacity: .85 }} aria-hidden>ℹ️</span>
+                </S.LabelText>
                 <S.ToggleShell $on={!!dataSaver} onClick={toggleDataSaver} aria-pressed={!!dataSaver} aria-label="Toggle data saver" />
               </S.Row>
+              <S.Row title="How long to cache non-critical requests when Data Saver is enabled">
+                <S.LabelText>Data Saver TTL <span title="Choose how long non-critical responses stay cached in this browser tab. 'Off' disables caching while Data Saver may still reduce other prefetches." style={{ marginLeft: 8, cursor: 'help', fontSize: '.85rem', opacity: .8 }}>?</span></S.LabelText>
+                <S.Segmented>
+                  {([
+                    { key: 5 * 60 * 1000, label: '5m' },
+                    { key: 15 * 60 * 1000, label: '15m' },
+                    { key: 60 * 60 * 1000, label: '1h' },
+                    { key: 6 * 60 * 60 * 1000, label: '6h' },
+                    { key: 24 * 60 * 60 * 1000, label: '24h' },
+                    { key: 0, label: 'Off' }
+                  ] as const).map(opt => (
+                    <S.SegmentBtn key={String(opt.key)} $active={dataSaverTTL === opt.key} onClick={() => {
+                      const ms = opt.key as number;
+                      set({ dataSaverTTL: ms });
+                      try { sessionStorage.setItem('dataSaver:ttl', String(ms)); } catch { }
+                    }}>{opt.label}</S.SegmentBtn>
+                  ))}
+                </S.Segmented>
+              </S.Row>
+              <S.Note>
+                Data Saver caches some non-critical JSON/text responses (prices, token metadata, periodic price polls, and other passive prefetches) in session storage for the TTL you choose. It reduces outbound RPC/API calls but may show slightly stale data until the TTL expires. Data Saver does NOT cache transactions, blockhashes, sendTransaction calls, or other sensitive/write operations. TTL is per‑session and editable above.
+              </S.Note>
               <S.Row title="Toggle particles & background effects">
                 <S.LabelText>Visual Effects</S.LabelText>
                 <S.ToggleShell $on={particlesEnabled} onClick={toggleParticles} aria-pressed={particlesEnabled} aria-label="Toggle visual effects" />

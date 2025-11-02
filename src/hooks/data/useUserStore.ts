@@ -18,6 +18,8 @@ export interface UserStore {
   lastSelectedPool: { token: string, authority?: string; } | null;
   /** Data saver mode for reduced bandwidth usage */
   dataSaver?: boolean;
+  /** Data saver TTL for cached responses (milliseconds). 0 = disabled caching */
+  dataSaverTTL?: number;
   /** Particles and visual effects enabled */
   particlesEnabled?: boolean;
   /** Prefetch level for loading optimization */
@@ -78,6 +80,7 @@ export const useUserStore = create(
       lastSelectedPool: null,
       gamesPlayed: [],
       dataSaver: false,
+      dataSaverTTL: 60 * 60 * 1000,
       particlesEnabled: true,
       prefetchLevel: 'conservative',
       reduceMotion: false,

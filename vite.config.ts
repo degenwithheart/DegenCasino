@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { defineConfig } from 'vite';
 import compression from 'vite-plugin-compression2';
 
@@ -121,12 +122,17 @@ export default defineConfig(() => ({
       }
     },
     {
-      name: 'ignore-api-routes',
+      name: 'dev-api-proxy',
       configureServer(server) {
-        server.middlewares.use('/api', (req, res, next) => {
-          res.statusCode = 404;
-          res.end('API routes not available in development');
+        // Proxy /api/* to a local API dev server running on port 4003
+        // If the local API server is not running, the proxy will return a 502/ECONNREFUSED from the proxy middleware.
+        const proxy = createProxyMiddleware({
+          target: 'http://localhost:4003',
+          changeOrigin: true
         });
+
+        // Mount the proxy on the /api path
+        server.middlewares.use('/api', proxy as any);
       }
     }
   ],

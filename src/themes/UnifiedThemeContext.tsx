@@ -210,7 +210,7 @@ export const UnifiedThemeProvider: React.FC<UnifiedThemeProviderProps> = ({
 
   return (
     <UnifiedThemeContext.Provider value={value}>
-      <GlobalScrollStyles colorScheme={currentColorScheme} />
+      <GlobalScrollStyles $colorScheme={currentColorScheme} />
       <ColorSchemeProvider>
         {children}
       </ColorSchemeProvider>

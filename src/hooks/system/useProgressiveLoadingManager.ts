@@ -236,6 +236,8 @@ export function useProgressiveLoadingManager() {
         try {
           await preloadComponentByKey(component);
           preloadedComponents.current.add(component);
+          // Mark that critical components have been loaded at least once
+          loadingState.current.criticalGamesLoaded = true;
         } catch (error) {
           console.warn(`Failed to preload component ${component}:`, error);
         }
@@ -261,6 +263,10 @@ export function useProgressiveLoadingManager() {
           );
         }
       });
+      // After scheduling high-priority preloads, mark high priority loading as started/done
+      if (highPriorityComponents.length > 0) {
+        loadingState.current.highPriorityGamesLoaded = true;
+      }
     }, 100);
   }, [preloadGame, isGamePreloaded]);
 
