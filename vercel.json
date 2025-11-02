@@ -65,6 +65,16 @@
       ]
     }
   ],
+  "crons": [
+    {
+      "path": "/api/chat/daily-quote",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/chat/remove-quote",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
