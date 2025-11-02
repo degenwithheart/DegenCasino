@@ -2,11 +2,8 @@ import React, { useMemo, useContext } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
-import { usePlatformStats } from '../../../hooks/data/usePlatformStats';
 import { useColorScheme } from '../../ColorSchemeContext';
 import { SIDEBAR_LINKS } from '../../../constants';
-import { ALL_GAMES } from '../../../games/allGames';
 import { useDegenGamesModal } from './DegenHeartLayout';
 import { media } from './breakpoints';
 
@@ -26,6 +23,8 @@ const SidebarContainer = styled.aside<{ $colorScheme: any; }>`
   gap: 1.5rem;
   position: relative;
   box-sizing: border-box;
+  height: 100%;
+  max-height: 100vh;
   
   ${media.desktop} {
     padding: 2rem 1.25rem;
@@ -315,88 +314,11 @@ const LinkDescription = styled.span<{ $colorScheme: any; }>`
   display: block;
 `;
 
-const QuickStats = styled.div<{ $colorScheme: any; }>`
-  background: linear-gradient(135deg, 
-    ${props => props.$colorScheme.colors.accent}15,
-    ${props => props.$colorScheme.colors.surface}40
-  );
-  border-radius: 16px;
-  padding: 2rem;
-  margin-top: auto;
-  border: 2px solid ${props => props.$colorScheme.colors.accent}30;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 0%, ${props => props.$colorScheme.colors.accent}10 0%, transparent 70%);
-    pointer-events: none;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, 
-      transparent,
-      ${props => props.$colorScheme.colors.accent}80,
-      transparent
-    );
-  }
-`;
-
-const StatItem = styled.div<{ $colorScheme: any; }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const StatLabel = styled.span<{ $colorScheme: any; }>`
-  font-size: 0.8rem;
-  color: ${props => props.$colorScheme.colors.text}70;
-`;
-
-const StatValue = styled.span<{ $colorScheme: any; }>`
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: ${props => props.$colorScheme.colors.accent};
-`;
-
 const LeftSidebar: React.FC = () => {
   const { currentColorScheme } = useColorScheme();
   const location = useLocation();
   const { connected, publicKey } = useWallet();
-  const pool = useCurrentPool();
   const { openGamesModal } = useDegenGamesModal();
-  // Platform stats for Total Bets
-  const { stats: platformStats, loading: platformLoading } = usePlatformStats();
-
-  // Calculate real statistics from available data
-  const realStats = useMemo(() => {
-    const liveGames = ALL_GAMES.filter(game => game.live === 'online').length;
-    const totalGames = ALL_GAMES.length;
-    const downGames = ALL_GAMES.filter(game => game.live === 'offline').length;
-
-    return {
-      gamesOnline: liveGames,
-      totalGames,
-      maintenanceGames: downGames,
-      // Pool stats - only show if connected and pool available
-      poolBalance: connected && pool ? pool.maxPayout : null,
-      jackpotBalance: connected && pool ? pool.jackpotBalance : null
-    };
-  }, [connected, pool]);
 
   // Filter links based on showWhen conditions
   const visibleLinks = SIDEBAR_LINKS.filter(link => {
@@ -532,70 +454,6 @@ const LeftSidebar: React.FC = () => {
         </div>
       ))}
 
-      <QuickStats $colorScheme={currentColorScheme}>
-        <SectionTitle $colorScheme={currentColorScheme}>
-          Quick Stats
-        </SectionTitle>
-
-        <StatItem $colorScheme={currentColorScheme}>
-          <StatLabel $colorScheme={currentColorScheme}>Games Online</StatLabel>
-          <StatValue $colorScheme={currentColorScheme}>{realStats.gamesOnline}</StatValue>
-        </StatItem>
-
-        <StatItem $colorScheme={currentColorScheme}>
-          <StatLabel $colorScheme={currentColorScheme}>Total Games</StatLabel>
-          <StatValue $colorScheme={currentColorScheme}>{realStats.totalGames}</StatValue>
-        </StatItem>
-
-        {connected && realStats.jackpotBalance ? (
-          <StatItem $colorScheme={currentColorScheme}>
-            <StatLabel $colorScheme={currentColorScheme}>Jackpot Pool</StatLabel>
-            <StatValue $colorScheme={currentColorScheme}>
-              <TokenValue amount={realStats.jackpotBalance} />
-            </StatValue>
-          </StatItem>
-        ) : (
-          <StatItem $colorScheme={currentColorScheme}>
-            <StatLabel $colorScheme={currentColorScheme}>Jackpot Pool</StatLabel>
-            <StatValue $colorScheme={currentColorScheme}>Connect Wallet</StatValue>
-          </StatItem>
-        )}
-
-        {connected && realStats.poolBalance ? (
-          <StatItem $colorScheme={currentColorScheme}>
-            <StatLabel $colorScheme={currentColorScheme}>Max Payout</StatLabel>
-            <StatValue $colorScheme={currentColorScheme}>
-              <TokenValue amount={realStats.poolBalance} />
-            </StatValue>
-          </StatItem>
-        ) : (
-          <StatItem $colorScheme={currentColorScheme}>
-            <StatLabel $colorScheme={currentColorScheme}>Max Payout</StatLabel>
-            <StatValue $colorScheme={currentColorScheme}>Connect Wallet</StatValue>
-          </StatItem>
-        )}
-
-        {/* Platform-level totals: Total Bets and Games Played */}
-        {(() => {
-          const solVolume = platformStats?.sol_volume || platformStats?.volume || 0;
-          const formattedSol = platformLoading ? 'Loading' : `${solVolume.toLocaleString(undefined, { maximumFractionDigits: 4 })} SOL`;
-          const playsCount = platformStats?.plays || platformStats?.total_games || 0;
-
-          return (
-            <>
-              <StatItem $colorScheme={currentColorScheme}>
-                <StatLabel $colorScheme={currentColorScheme}>Total Bets</StatLabel>
-                <StatValue $colorScheme={currentColorScheme}>{formattedSol}</StatValue>
-              </StatItem>
-
-              <StatItem $colorScheme={currentColorScheme}>
-                <StatLabel $colorScheme={currentColorScheme}>Games Played</StatLabel>
-                <StatValue $colorScheme={currentColorScheme}>{playsCount}</StatValue>
-              </StatItem>
-            </>
-          );
-        })()}
-      </QuickStats>
     </SidebarContainer>
   );
 };
