@@ -208,7 +208,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     revalidateOnFocus: true,
   });
 
-  const messages: Msg[] = data?.messages || [];
+  const messages: Msg[] = data || [];
   const userColors = useMemo(() => {
     const colors: { [key: string]: string; } = {};
     messages.forEach(msg => {

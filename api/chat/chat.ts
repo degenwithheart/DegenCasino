@@ -108,11 +108,15 @@ async function verifyEd25519Signature(message: string, signatureB64: string, pub
 }
 
 async function getMessages(): Promise<Msg[]> {
-  if (isVercel()) {
+  if (process.env.KV_URL) {
     // @ts-ignore
-    const { kv } = await import('@vercel/kv');
+    const { Redis } = await import('@upstash/redis');
+    const redis = new Redis({
+      url: process.env.KV_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
   // Cache trollbox messages for 2s
-  return await cacheOnTheFly('chat:trollbox', async () => (await kv.lrange(KEY, 0, 19)) ?? [], { ttl: 2000 });
+  return await cacheOnTheFly('chat:trollbox', async () => (await redis.lrange(KEY, 0, 19)) ?? [], { ttl: 2000 });
   } else {
     const msgs = await getLocalMessages();
     return msgs.slice(-20).reverse();
@@ -120,11 +124,15 @@ async function getMessages(): Promise<Msg[]> {
 }
 
 async function addMessage(msg: Msg): Promise<void> {
-  if (isVercel()) {
+  if (process.env.KV_URL) {
     // @ts-ignore
-    const { kv } = await import('@vercel/kv');
-    await kv.lpush(KEY, msg);
-    await kv.ltrim(KEY, 0, 19);
+    const { Redis } = await import('@upstash/redis');
+    const redis = new Redis({
+      url: process.env.KV_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
+    await redis.lpush(KEY, msg);
+    await redis.ltrim(KEY, 0, 19);
   } else {
     const msgs = await getLocalMessages();
     const newMsgs = [...msgs, msg].slice(-20);
@@ -176,10 +184,14 @@ async function chatHandler(req: Request): Promise<Response> {
         return new Response('Invalid signature', { status: 401, headers: corsHeaders });
       }
       
-      if (isVercel()) {
+      if (process.env.KV_URL) {
         // @ts-ignore
-        const { kv } = await import('@vercel/kv');
-        await kv.del(KEY);
+        const { Redis } = await import('@upstash/redis');
+        const redis = new Redis({
+          url: process.env.KV_URL,
+          token: process.env.KV_REST_API_TOKEN,
+        });
+        await redis.del(KEY);
       } else {
         await setLocalMessages([]);
       }

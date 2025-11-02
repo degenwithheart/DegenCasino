@@ -3,7 +3,6 @@ import styled, { css, keyframes } from 'styled-components';
 import useSWR from 'swr';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { useColorScheme } from '../../../ColorSchemeContext';
 import { PLATFORM_CREATOR_ADDRESS } from '../../../../constants';
 import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUtils';
 import { useChatNotifications } from '../../../../contexts/ChatNotificationContext';
@@ -183,13 +182,13 @@ const LoadingText = styled.div`
 
 const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
   background: linear-gradient(135deg, 
-    ${props => props.$colorScheme?.colors?.accent ? `${props.$colorScheme.colors.accent}15` : '#ffd70015'},
-    ${props => props.$colorScheme?.colors?.surface ? `${props.$colorScheme.colors.surface}40` : '#1a1a1a40'}
+    ${props => props.$colorScheme.colors.accent}15,
+    ${props => props.$colorScheme.colors.surface}40
   );
   border-radius: 16px;
   padding: 2rem;
   margin: auto 0;
-  border: 2px solid ${props => props.$colorScheme?.colors?.accent ? `${props.$colorScheme.colors.accent}30` : '#ffd70030'};
+  border: 2px solid ${props => props.$colorScheme.colors.accent}30;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -199,7 +198,7 @@ const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 0%, ${props => props.$colorScheme?.colors?.accent ? `${props.$colorScheme.colors.accent}10` : '#ffd70010'} 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 0%, ${props => props.$colorScheme.colors.accent}10 0%, transparent 70%);
     pointer-events: none;
   }
   
@@ -212,7 +211,7 @@ const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
     height: 2px;
     background: linear-gradient(90deg, 
       transparent,
-      ${props => props.$colorScheme?.colors?.accent ? `${props.$colorScheme.colors.accent}80` : '#ffd70080'},
+      ${props => props.$colorScheme.colors.accent}80,
       transparent
     );
   }
@@ -221,17 +220,17 @@ const ConnectPrompt = styled.div<{ $colorScheme: any; }>`
 const ConnectTitle = styled.h3<{ $colorScheme: any; }>`
   font-size: 0.9rem;
   font-weight: 700;
-  color: ${props => props.$colorScheme?.colors?.text ? `${props.$colorScheme.colors.text}60` : '#ffffff60'};
+  color: ${props => props.$colorScheme.colors.text}60;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0 0 1rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid ${props => props.$colorScheme?.colors?.border ? `${props.$colorScheme.colors.border}30` : '#33333330'};
+  border-bottom: 1px solid ${props => props.$colorScheme.colors.border}30;
 `;
 
 const ConnectMessage = styled.p<{ $colorScheme: any; }>`
   font-size: 0.9rem;
-  color: ${props => props.$colorScheme?.colors?.text ? `${props.$colorScheme.colors.text}80` : '#ffffff80'};
+  color: ${props => props.$colorScheme.colors.text}80;
   margin: 0;
   line-height: 1.4;
 `;
@@ -240,7 +239,6 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   const { publicKey, connected } = useWallet();
   const walletModal = useWalletModal();
   const { setTotalMessages } = useChatNotifications();
-  const { currentColorScheme } = useColorScheme();
 
   const [text, setText] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -265,7 +263,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     revalidateOnFocus: true,
   });
 
-  const messages: Msg[] = data?.messages || [];
+  const messages: Msg[] = data || [];
   const userColors = useMemo(() => {
     const colors: { [key: string]: string; } = {};
     messages.forEach(msg => {
@@ -326,66 +324,53 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   return (
     <>
       <ContentContainer>
-        {connected ? (
-          <>
-            <Log>
-              {data?.error && <LoadingText>Error loading chat.</LoadingText>}
-              {messages.map((m, i) => (
-                <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <Username userColor={userColors[m.user]}>{m.user}</Username>
-                    <Timestamp>{fmtTime(m.ts)}</Timestamp>
-                  </div>
-                  <div style={{ color: '#fff', fontSize: '0.95rem', wordBreak: 'break-word' }}>
-                    {m.text}
-                  </div>
-                </MessageItem>
-              ))}
-            </Log>
+        <Log>
+          {data?.error && <LoadingText>Error loading chat.</LoadingText>}
+          {messages.map((m, i) => (
+            <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <Username userColor={userColors[m.user]}>{m.user}</Username>
+                <Timestamp>{fmtTime(m.ts)}</Timestamp>
+              </div>
+              <div style={{ color: '#fff', fontSize: '0.95rem', wordBreak: 'break-word' }}>
+                {m.text}
+              </div>
+            </MessageItem>
+          ))}
+        </Log>
 
-            <InputRow>
-              <TextInput
-                ref={inputRef}
-                value={text}
-                placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
-                onChange={handleInputChange}
-                onClick={() => !connected && walletModal.setVisible(true)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                disabled={isSending || !swrKey}
-                maxLength={MAX_CHARS}
-              />
-              <CharCounter $isNearLimit={isNearLimit} $isAtLimit={isAtLimit}>
-                {remainingChars}
-              </CharCounter>
-              <SendBtn
-                onClick={send}
-                disabled={
-                  !connected ||
-                  isSending ||
-                  cooldown > 0 ||
-                  !text.trim() ||
-                  !swrKey
-                }
-              >
-                {isSending ? '…' : cooldown > 0 ? `Wait ${cooldown}s` : 'Send'}
-              </SendBtn>
-            </InputRow>
-          </>
-        ) : (
-          <ConnectPrompt $colorScheme={currentColorScheme}>
-            <ConnectTitle $colorScheme={currentColorScheme}>
-              Connect Wallet
-            </ConnectTitle>
-            <ConnectMessage $colorScheme={currentColorScheme}>
-              Connect your wallet to start chatting with other players in the TrollBox.
-            </ConnectMessage>
-          </ConnectPrompt>
-        )}
+        <InputRow>
+          <TextInput
+            ref={inputRef}
+            value={text}
+            placeholder={connected ? 'Say something…' : 'Connect wallet to chat'}
+            onChange={handleInputChange}
+            onClick={() => !connected && walletModal.setVisible(true)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            disabled={isSending || !swrKey}
+            maxLength={MAX_CHARS}
+          />
+          <CharCounter $isNearLimit={isNearLimit} $isAtLimit={isAtLimit}>
+            {remainingChars}
+          </CharCounter>
+          <SendBtn
+            onClick={send}
+            disabled={
+              !connected ||
+              isSending ||
+              cooldown > 0 ||
+              !text.trim() ||
+              !swrKey
+            }
+          >
+            {isSending ? '…' : cooldown > 0 ? `Wait ${cooldown}s` : 'Send'}
+          </SendBtn>
+        </InputRow>
       </ContentContainer>
     </>
   );
