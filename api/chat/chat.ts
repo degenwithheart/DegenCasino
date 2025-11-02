@@ -115,8 +115,8 @@ async function getMessages(): Promise<Msg[]> {
       url: process.env.KV_URL,
       token: process.env.KV_REST_API_TOKEN,
     });
-  // Cache trollbox messages for 2s
-  return await cacheOnTheFly('chat:trollbox', async () => (await redis.lrange(KEY, 0, 19)) ?? [], { ttl: 2000 });
+    // Cache trollbox messages for 2s
+    return await cacheOnTheFly('chat:trollbox', async () => (await redis.lrange(KEY, 0, 19)) ?? [], { ttl: 2000 });
   } else {
     const msgs = await getLocalMessages();
     return msgs.slice(-20).reverse();
