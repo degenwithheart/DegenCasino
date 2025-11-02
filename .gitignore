@@ -1,4 +1,5 @@
 # Ignore environment file
+.env
 .DS_Store
 **/.DS_Store
 .venv
