@@ -7,7 +7,8 @@ import { useTheme } from '../../themes/UnifiedThemeContext';
 import {
   ENABLE_THEME_SELECTOR,
   ENABLE_COLOR_SCHEME_SELECTOR,
-  ENABLE_EXPERIMENTAL_THEMES
+  ENABLE_EXPERIMENTAL_THEMES,
+  setStoredLiveGameEcosystemsPreference
 } from '../../constants';
 
 const ColorSchemeSelectorContainer = styled.div<{ $currentColorScheme: any; }>`
@@ -215,6 +216,63 @@ const ColorSchemePreview = styled.div<{ $colorSchemeColors: any; }>`
   z-index: 1;
 `;
 
+const FeatureToggleContainer = styled.div<{ $currentColorScheme: any; }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: ${props => props.$currentColorScheme.colors.surface};
+  border-radius: 12px;
+  border: 1px solid ${props => props.$currentColorScheme.colors.border};
+  margin-bottom: 0.5rem;
+`;
+
+const FeatureToggleLabel = styled.div<{ $currentColorScheme: any; }>`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const FeatureToggleTitle = styled.div<{ $currentColorScheme: any; }>`
+  color: ${props => props.$currentColorScheme.colors.text};
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const FeatureToggleDescription = styled.div<{ $currentColorScheme: any; }>`
+  color: ${props => props.$currentColorScheme.colors.textSecondary};
+  font-size: 0.75rem;
+  opacity: 0.8;
+`;
+
+const ToggleSwitch = styled.div<{ $isActive: boolean; $currentColorScheme: any; }>`
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: ${props => props.$isActive ? props.$currentColorScheme.colors.accent : props.$currentColorScheme.colors.surfaceSecondary};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid ${props => props.$isActive ? props.$currentColorScheme.colors.accent : props.$currentColorScheme.colors.border};
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: ${props => props.$isActive ? '22px' : '2px'};
+    width: 16px;
+    height: 16px;
+    background: ${props => props.$currentColorScheme.colors.background};
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
 const Title = styled.h3<{ $currentColorScheme: any; }>`
   width: 100%;
   margin: 0 0 1.5rem 0;
@@ -248,8 +306,22 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
 
   const { colorSchemeKey, setColorScheme, currentColorScheme } = useColorScheme();
 
-  const handleColorSchemeChange = (newColorSchemeKey: ColorSchemeKey) => {
-    setColorScheme(newColorSchemeKey);
+  // Feature toggle state
+  const [liveGameEcosystemsEnabled, setLiveGameEcosystemsEnabled] = React.useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const stored = localStorage.getItem('enableLiveGameEcosystems');
+      return stored !== null ? stored === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const handleLiveGameEcosystemsToggle = (enabled: boolean) => {
+    setLiveGameEcosystemsEnabled(enabled);
+    setStoredLiveGameEcosystemsPreference(enabled);
+    // Force a page reload to apply the change immediately
+    window.location.reload();
   };
 
   // Use the real layout themes from the registry
@@ -284,13 +356,12 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
     carnival: globalColorSchemes.carnival,
   };
 
+  function handleColorSchemeChange(arg0: string): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <ColorSchemeSelectorContainer className={className} $currentColorScheme={currentColorScheme}>
-      <Title $currentColorScheme={currentColorScheme}>
-        {ENABLE_THEME_SELECTOR && ENABLE_COLOR_SCHEME_SELECTOR ? 'Theme & Style Customization' :
-          ENABLE_THEME_SELECTOR ? 'Theme Selection' :
-            'Color Scheme Selection'}
-      </Title>
 
       {/* Layout Themes Section - Only show if enabled and experimental themes are on */}
       {ENABLE_THEME_SELECTOR && ENABLE_EXPERIMENTAL_THEMES && (
@@ -351,6 +422,32 @@ export const ColorSchemeSelector: React.FC<ThemeSelectorProps> = ({ className })
           </ScrollContainer>
         </SectionContainer>
       )}
+
+      {/* Feature Toggles Section */}
+      <SectionContainer>
+        <SectionHeader>
+          <SectionTitle $currentColorScheme={currentColorScheme}>⚙️ Feature Toggles</SectionTitle>
+          <SectionDescription $currentColorScheme={currentColorScheme}>
+            Customize your casino experience with experimental features
+          </SectionDescription>
+        </SectionHeader>
+        
+        <FeatureToggleContainer $currentColorScheme={currentColorScheme}>
+          <FeatureToggleLabel $currentColorScheme={currentColorScheme}>
+            <FeatureToggleTitle $currentColorScheme={currentColorScheme}>
+              🎮 Live Game Ecosystems
+            </FeatureToggleTitle>
+            <FeatureToggleDescription $currentColorScheme={currentColorScheme}>
+              Show animated game previews on cards instead of static images
+            </FeatureToggleDescription>
+          </FeatureToggleLabel>
+          <ToggleSwitch
+            $isActive={liveGameEcosystemsEnabled}
+            $currentColorScheme={currentColorScheme}
+            onClick={() => handleLiveGameEcosystemsToggle(!liveGameEcosystemsEnabled)}
+          />
+        </FeatureToggleContainer>
+      </SectionContainer>
     </ColorSchemeSelectorContainer>
   );
 };

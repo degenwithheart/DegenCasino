@@ -7,8 +7,42 @@
  */
 
 // ===================================
-// EXTERNAL DEPENDENCIES & ICONS
+// FEATURE PREFERENCES & STORAGE
 // ===================================
+
+/**
+ * Storage key for live game ecosystems preference
+ */
+const LIVE_GAME_ECOSYSTEMS_STORAGE_KEY = 'enableLiveGameEcosystems';
+
+/**
+ * Get stored live game ecosystems preference from localStorage
+ * Defaults to true for new users
+ */
+const getStoredLiveGameEcosystemsPreference = (): boolean => {
+  if (typeof window === 'undefined') return true; // Default to true on server
+  try {
+    const stored = localStorage.getItem(LIVE_GAME_ECOSYSTEMS_STORAGE_KEY);
+    if (stored !== null) {
+      return stored === 'true';
+    }
+    return true; // Default to true for new users
+  } catch {
+    return true; // Default to true if localStorage fails
+  }
+};
+
+/**
+ * Set stored live game ecosystems preference in localStorage
+ */
+export const setStoredLiveGameEcosystemsPreference = (enabled: boolean): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LIVE_GAME_ECOSYSTEMS_STORAGE_KEY, enabled.toString());
+  } catch {
+    // Ignore localStorage errors (e.g., in private browsing)
+  }
+};
 
 /**
  * React Icons imports for UI components throughout the application.
@@ -287,6 +321,21 @@ export const FEATURE_FLAGS = {
    * This flag can be used to quickly enable/disable the override behavior without changing env vars.
    */
   ACCESS_OVERRIDE: false,
+
+  // Experimental Card Layouts
+  /**
+   * Enable the new Interactive Philosophy Journey hero cards.
+   * When true: Hero cards become interactive story experiences with decision points
+   * When false: Use traditional static hero cards
+   */
+  ENABLE_INTERACTIVE_HERO_CARDS: true,
+
+  /**
+   * Enable the new Live Game Ecosystems game cards.
+   * When true: Game cards show miniature living game worlds with real-time gameplay
+   * When false: Use traditional static game cards
+   */
+  ENABLE_LIVE_GAME_ECOSYSTEMS: getStoredLiveGameEcosystemsPreference(),
 } as const;
 
 // ===================================

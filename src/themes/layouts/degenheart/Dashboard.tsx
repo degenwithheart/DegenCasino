@@ -12,8 +12,10 @@ import { useHandleWalletConnect } from '../../../sections/walletConnect';
 import { useIsCompact } from "../../../hooks/ui/useIsCompact";
 import { useCurrentPool, TokenValue } from 'gamba-react-ui-v2';
 import { useColorScheme } from "../../../themes/ColorSchemeContext";
-import type { GameBundle } from "../../../games/types";
+import { FEATURE_FLAGS } from '../../../constants';
+import { InteractiveHeroCard } from './components/InteractiveHeroCard';
 import { useUserStore } from '../../../hooks/data/useUserStore';
+import type { GameBundle } from '../../../games/types';
 
 export function Dashboard() {
     const seoHelmet = usePageSEO(
@@ -245,9 +247,9 @@ export function Dashboard() {
                                     }}>
                                         {featuredGames.map((game: GameBundle) => (
                                             <div key={game.id} style={{
-                                                minWidth: compact ? '280px' : '320px',
-                                                maxWidth: compact ? '280px' : '320px',
-                                                width: compact ? '280px' : '320px',
+                                                minWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                maxWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                width: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
                                                 flexShrink: 0,
                                                 scrollSnapAlign: 'start'
                                             }}>
@@ -285,9 +287,9 @@ export function Dashboard() {
                                     }}>
                                         {singleplayerGames.map((game: GameBundle) => (
                                             <div key={game.id} style={{
-                                                minWidth: compact ? '280px' : '320px',
-                                                maxWidth: compact ? '280px' : '320px',
-                                                width: compact ? '280px' : '320px',
+                                                minWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                maxWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                width: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
                                                 flexShrink: 0,
                                                 scrollSnapAlign: 'start'
                                             }}>
@@ -325,9 +327,9 @@ export function Dashboard() {
                                     }}>
                                         {multiplayerGames.map((game: GameBundle) => (
                                             <div key={game.id} style={{
-                                                minWidth: compact ? '280px' : '320px',
-                                                maxWidth: compact ? '280px' : '320px',
-                                                width: compact ? '280px' : '320px',
+                                                minWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                maxWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                width: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
                                                 flexShrink: 0,
                                                 scrollSnapAlign: 'start'
                                             }}>
@@ -365,9 +367,9 @@ export function Dashboard() {
                                     }}>
                                         {comingSoonGames.map((game: GameBundle) => (
                                             <div key={game.id} style={{
-                                                minWidth: compact ? '280px' : '320px',
-                                                maxWidth: compact ? '280px' : '320px',
-                                                width: compact ? '280px' : '320px',
+                                                minWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                maxWidth: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
+                                                width: FEATURE_FLAGS.ENABLE_LIVE_GAME_ECOSYSTEMS ? '150px' : (compact ? '280px' : '320px'),
                                                 flexShrink: 0,
                                                 scrollSnapAlign: 'start'
                                             }}>
@@ -427,33 +429,44 @@ export function Dashboard() {
                                     </div>
                                 </div>
 
-                                {/* Hero card scroller - 3D style horizontal cards */}
+                                {/* Hero card scroller - Interactive or Traditional */}
                                 <div className="hero-scroller" role="list" aria-label="Why DegenHeart">
                                     {heroCards.map(card => (
-                                        <article key={card.id} className="hero-card" role="listitem" tabIndex={0}>
-                                            <div className="hero-card-inner">
-                                                <div className="hero-card-header">
-                                                    <strong>{card.title}</strong>
-                                                </div>
+                                        <div key={card.id} role="listitem">
+                                            {FEATURE_FLAGS.ENABLE_INTERACTIVE_HERO_CARDS ? (
+                                                <InteractiveHeroCard
+                                                    card={card}
+                                                    onComplete={(choice) => {
+                                                        console.log(`User chose ${choice} path for ${card.title}`);
+                                                    }}
+                                                />
+                                            ) : (
+                                                <article className="hero-card" tabIndex={0}>
+                                                    <div className="hero-card-inner">
+                                                        <div className="hero-card-header">
+                                                            <strong>{card.title}</strong>
+                                                        </div>
 
-                                                {/* Top: Your Casino bullets */}
-                                                <div className="hero-top">
-                                                    {card.left.map((t, i) => (
-                                                        <div key={i} className="hero-bullet"><span className="icon">{card.leftLabel}</span><span className="text">{t}</span></div>
-                                                    ))}
-                                                </div>
+                                                        {/* Top: Your Casino bullets */}
+                                                        <div className="hero-top">
+                                                            {card.left.map((t, i) => (
+                                                                <div key={i} className="hero-bullet"><span className="icon">{card.leftLabel}</span><span className="text">{t}</span></div>
+                                                            ))}
+                                                        </div>
 
-                                                {/* Middle: Traditional contrast */}
-                                                <div className="hero-middle">
-                                                    {card.right.map((t, i) => (
-                                                        <div key={i} className="hero-contrast"><span className="icon">{card.rightLabel}</span><span className="text">{t}</span></div>
-                                                    ))}
-                                                </div>
+                                                        {/* Middle: Traditional contrast */}
+                                                        <div className="hero-middle">
+                                                            {card.right.map((t, i) => (
+                                                                <div key={i} className="hero-contrast"><span className="icon">{card.rightLabel}</span><span className="text">{t}</span></div>
+                                                            ))}
+                                                        </div>
 
-                                                {/* Bottom: why it matters */}
-                                                <div className="hero-card-footer">{card.footer}</div>
-                                            </div>
-                                        </article>
+                                                        {/* Bottom: why it matters */}
+                                                        <div className="hero-card-footer">{card.footer}</div>
+                                                    </div>
+                                                </article>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -503,9 +516,9 @@ export function Dashboard() {
                 .hero-scroller {
                     margin-top: 2rem;
                     display: flex;
-                    gap: 2rem;
+                    gap: 1.5rem;
                     overflow-x: auto;
-                    padding: 1.5rem 1rem;
+                    padding: 1rem;
                     scroll-snap-type: x mandatory;
                     -webkit-overflow-scrolling: touch;
                     scrollbar-width: thin;
@@ -532,6 +545,15 @@ export function Dashboard() {
 
                 .hero-scroller:focus {
                     outline: none;
+                }
+
+                /* Interactive hero card styles */
+                .interactive-hero-card {
+                    scroll-snap-align: start;
+                    flex: 0 0 auto;
+                    width: 250px;
+                    height: 250px;
+                    flex-shrink: 0;
                 }
 
                 .hero-card {
@@ -652,8 +674,12 @@ export function Dashboard() {
 
                 @media (max-width: 768px) {
                     .hero-scroller {
-                        gap: 1.5rem;
-                        padding: 1rem 0.5rem;
+                        gap: 1rem;
+                        padding: 0.75rem 0.5rem;
+                    }
+                    .interactive-hero-card {
+                        width: 220px;
+                        height: 220px;
                     }
                     .hero-card { 
                         min-width: 300px; 
@@ -675,6 +701,11 @@ export function Dashboard() {
                         gap: 1rem;
                         overflow-x: visible;
                         padding: 1rem;
+                    }
+                    .interactive-hero-card {
+                        width: 100%;
+                        height: 200px;
+                        margin-bottom: 1rem;
                     }
                     .hero-card { 
                         min-width: auto; 
