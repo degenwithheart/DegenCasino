@@ -10,7 +10,7 @@
     "dev:edge": "vercel dev",
     "dev:api": "node vite.proxy.mjs",
     "dev:prod": "npm run build:compress && vercel dev --prod",
-    "build": "vite build",
+    "build": "vite build && node scripts/post-build-mobile-sync.mjs --force && node scripts/post-build-mobile-sync.mjs",
     "build:compress": "vite build && node scripts/compress-build.mjs --force",
     "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",

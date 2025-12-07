@@ -127,7 +127,7 @@ import rpcCachedFetch from './utils/rpcThrottle';
  * 
  * Note: This works in conjunction with FEATURE_FLAGS for granular mobile control.
  */
-export const ENABLE_MOBILE_APP = false;
+export const ENABLE_MOBILE_APP = true;
 
 // ===================================
 // NETWORK & RPC CONFIGURATION
