@@ -180,10 +180,10 @@ export const ModalContent = styled.div`
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   
-  max-height: calc(85vh - 120px);
+  max-height: calc(85vh - 200px);
   
   ${media.tablet} {
-    max-height: calc(80vh - 120px);
+    max-height: calc(80vh - 200px);
   }
 `;
 
