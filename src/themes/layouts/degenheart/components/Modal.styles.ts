@@ -101,7 +101,7 @@ export const ModalContainer = styled.div<{ $isOpen: boolean; $colorScheme: any; 
   }
 
   ${media.tablet} {
-    max-width: 480px;
+    max-width: 50%;
     border-radius: 20px;
     align-self: center;
 
