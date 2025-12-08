@@ -1,8 +1,5 @@
 User-agent: *
 Allow: /
-
-# Disallow sensitive/non-SEO paths
-User-agent: *
 Disallow: /admin/
 Disallow: /back-soon/
 Disallow: /api/
