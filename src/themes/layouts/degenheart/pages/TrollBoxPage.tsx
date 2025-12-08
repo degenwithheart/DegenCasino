@@ -92,7 +92,7 @@ const Username = styled.strong<{ userColor: string; }>`
   font-weight: 700;
   color: #ffd700;
   margin-right: 0.7em;
-  font-size: 1.08em;
+  font-size: 0.8em;
   letter-spacing: 0.01em;
   text-shadow: 0 1px 6px rgba(255, 215, 0, 0.3);
 `;
@@ -251,6 +251,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   const [cooldown, setCooldown] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // The generated username (used for own display and local storage caching)
   const userName = getProfileUsername(publicKey?.toString());
   const MAX_CHARS = 280;
 
@@ -270,9 +271,12 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   });
 
   const messages: Msg[] = data || [];
+  
+  // User colors based on the canonical identifier (the wallet address)
   const userColors = useMemo(() => {
     const colors: { [key: string]: string; } = {};
     messages.forEach(msg => {
+      // msg.user should be the wallet address (canonical ID)
       if (!colors[msg.user]) {
         colors[msg.user] = stringToHslColor(msg.user, 70, 50);
       }
@@ -289,14 +293,18 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   }, [messages.length, onStatusChange, setTotalMessages]);
 
   const send = async () => {
-    if (!connected || !text.trim() || isSending || cooldown > 0 || !swrKey) return;
+    const userWalletAddress = publicKey?.toBase58();
+    
+    // Use the canonical identifier (wallet address) for checks
+    if (!connected || !text.trim() || isSending || cooldown > 0 || !swrKey || !userWalletAddress) return;
 
     setIsSending(true);
     try {
       const response = await fetch(swrKey, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: userName, text: text.trim() }),
+        // ✅ FIX 1: Send the canonical identifier (wallet address) to the server
+        body: JSON.stringify({ user: userWalletAddress, text: text.trim() }),
       });
 
       if (response.ok) {
@@ -334,17 +342,24 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
         <ContentContainer>
           <Log>
             {data?.error && <LoadingText>Error loading chat.</LoadingText>}
-            {messages.map((m, i) => (
-              <MessageItem key={m.ts || i} $isOwn={m.user === userName}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <Username userColor={userColors[m.user]}>{m.user}</Username>
-                  <Timestamp>{fmtTime(m.ts)}</Timestamp>
-                </div>
-                <div style={{ color: '#fff', fontSize: '0.95rem', wordBreak: 'break-word' }}>
-                  {m.text}
-                </div>
-              </MessageItem>
-            ))}
+            {messages.map((m, i) => {
+              // ✅ FIX 2: Translate the incoming user identifier (wallet address) to the username for display
+              const displayUsername = getProfileUsername(m.user);
+              const isOwnMessage = m.user === publicKey?.toBase58();
+              
+              return (
+                <MessageItem key={m.ts || i} $isOwn={isOwnMessage}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    {/* Display the translated username */}
+                    <Username userColor={userColors[m.user]}>{displayUsername}</Username>
+                    <Timestamp>{fmtTime(m.ts)}</Timestamp>
+                  </div>
+                  <div style={{ color: '#fff', fontSize: '0.7rem', wordBreak: 'break-word' }}>
+                    {m.text}
+                  </div>
+                </MessageItem>
+              );
+            })}
           </Log>
 
           <InputRow>
