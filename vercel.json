@@ -99,6 +99,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/(.*)-[a-zA-Z0-9]{8,}\\.(js|css|webp|png|jpg|svg|glb)$", 
+      "destination": "/$1"
+    },
+    {
       "source": "/games/(.*)",
       "destination": "/games/$1"
     },
