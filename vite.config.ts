@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { defineConfig } from 'vite';
 import compression from 'vite-plugin-compression2';
-import sitemap from 'vite-plugin-sitemap'; 
+import sitemap from 'vite-sitemap'; 
 
 // Remove PURE annotations from final build
 function stripPureAnnotations() {
