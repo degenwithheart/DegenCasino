@@ -6,6 +6,9 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PLATFORM_CREATOR_ADDRESS } from '../../../../constants';
 import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUtils';
 import { useChatNotifications } from '../../../../contexts/ChatNotificationContext';
+import { PublicKey } from '@solana/web3.js';
+
+// --- Utility Functions (Keep the same) ---
 
 function getProfileUsername(publicKey: string | undefined): string {
   if (!publicKey) return 'anon';
@@ -38,6 +41,8 @@ const stringToHslColor = (str: string, s: number, l: number): string => {
   }
   return `hsl(${hash % 360}, ${s}%, ${l}%)`;
 };
+
+// --- Styled Components (Updated with Delete Button style) ---
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(5px) scale(0.95) }
@@ -101,6 +106,26 @@ const Timestamp = styled.span`
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.6);
   margin-left: 0.5em;
+`;
+
+// NEW: Style for the admin delete button
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 1;
+    color: #ff3b3b;
+  }
 `;
 
 const InputRow = styled.div`
@@ -251,8 +276,17 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   const [cooldown, setCooldown] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // The generated username (used for own display and local storage caching)
-  const userName = getProfileUsername(publicKey?.toString());
+  // Determine if the connected user is the Admin
+  const isAdmin = useMemo(() => {
+    if (!publicKey) return false;
+    try {
+        return publicKey.equals(new PublicKey(PLATFORM_CREATOR_ADDRESS));
+    } catch {
+        return false;
+    }
+  }, [publicKey]);
+
+  const userName = getProfileUsername(publicKey?.toString()); // This is only used for local storage/caching, not for ID
   const MAX_CHARS = 280;
 
   // Cooldown timer
@@ -263,7 +297,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     }
   }, [cooldown]);
 
-  // SWR for chat messages - use the same local API endpoint as the core TrollBox component
+  // SWR for chat messages
   const swrKey = '/api/chat/chat';
   const { data, mutate } = useSWR(swrKey, fetcher, {
     refreshInterval: 2000,
@@ -288,14 +322,12 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
   useEffect(() => {
     const status = messages.length ? `${messages.length} msgs` : 'Connecting…';
     onStatusChange?.(status);
-    // Update notification context with total message count
     setTotalMessages(messages.length);
   }, [messages.length, onStatusChange, setTotalMessages]);
 
   const send = async () => {
     const userWalletAddress = publicKey?.toBase58();
     
-    // Use the canonical identifier (wallet address) for checks
     if (!connected || !text.trim() || isSending || cooldown > 0 || !swrKey || !userWalletAddress) return;
 
     setIsSending(true);
@@ -303,7 +335,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
       const response = await fetch(swrKey, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // ✅ FIX 1: Send the canonical identifier (wallet address) to the server
+        // Send the canonical identifier (wallet address) to the server
         body: JSON.stringify({ user: userWalletAddress, text: text.trim() }),
       });
 
@@ -316,6 +348,33 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
       console.error('Failed to send message:', error);
     } finally {
       setIsSending(false);
+    }
+  };
+  
+  // NEW: Admin Delete Function
+  const deleteMessage = async (ts: number, user: string) => {
+    if (!isAdmin) return;
+    
+    // Confirmation is a good idea for admin actions
+    if (!window.confirm(`Are you sure you want to delete this message from ${getProfileUsername(user)}?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(swrKey, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            // Send the message timestamp (TS) and user identifier to the server for deletion
+            body: JSON.stringify({ ts, user }),
+        });
+
+        if (response.ok) {
+            mutate(); // Re-fetch messages to update the list
+        } else {
+            console.error('Failed to delete message:', await response.text());
+        }
+    } catch (error) {
+        console.error('Error deleting message:', error);
     }
   };
 
@@ -343,14 +402,19 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
           <Log>
             {data?.error && <LoadingText>Error loading chat.</LoadingText>}
             {messages.map((m, i) => {
-              // ✅ FIX 2: Translate the incoming user identifier (wallet address) to the username for display
               const displayUsername = getProfileUsername(m.user);
               const isOwnMessage = m.user === publicKey?.toBase58();
               
               return (
                 <MessageItem key={m.ts || i} $isOwn={isOwnMessage}>
+                  {/* NEW: Admin Delete Button */}
+                  {isAdmin && (
+                    <DeleteButton onClick={() => deleteMessage(m.ts, m.user)}>
+                        ✖️
+                    </DeleteButton>
+                  )}
+                  
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    {/* Display the translated username */}
                     <Username userColor={userColors[m.user]}>{displayUsername}</Username>
                     <Timestamp>{fmtTime(m.ts)}</Timestamp>
                   </div>
