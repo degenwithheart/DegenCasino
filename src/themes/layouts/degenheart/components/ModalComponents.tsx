@@ -70,7 +70,7 @@ export const ModalContainer = styled.div<ModalContainerProps>`
   box-shadow: 0 -4px 30px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
   @media (min-width: 768px) {
     border-radius: 24px;
-    max-width: 480px;
+    max-width: 50%;
     max-height: 80vh;
     width: 90vw;
     box-shadow: 0 20px 60px rgba(99,102,241,0.25), inset 0 1px 0 rgba(255,255,255,0.1);

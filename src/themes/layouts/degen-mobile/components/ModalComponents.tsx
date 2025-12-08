@@ -144,7 +144,7 @@ export const ModalContainer = styled.div<ModalContainerProps>`
   /* Desktop enhancement - wider screens */
   @media (min-width: 768px) {
     border-radius: 24px;
-    max-width: 480px;
+    max-width: 50%;
     max-height: 80vh;
     width: 90vw;
     box-shadow: 
