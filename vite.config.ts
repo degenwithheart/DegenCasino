@@ -123,14 +123,6 @@ export default defineConfig(() => ({
         '/propagation',
         '/explorer', 
       ],
-      robotsTxt: {
-        policy: [
-            { userAgent: '*', allow: '/' },
-            { userAgent: '*', disallow: ['/admin/', '/back-soon/', '/api/', '/dist/', '/node_modules/'] } 
-        ],
-        // The sitemap URL will now correctly use the hostname:
-        sitemap: 'https://degenheart.casino/sitemap.xml',
-      },
       outDir: 'dist',
     }),
 
