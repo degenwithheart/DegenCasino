@@ -99,7 +99,11 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(?!.*\\.(js|css|json|map|png|jpg|jpeg|gif|svg|webp|ico|xml|txt|webmanifest|woff|woff2|ttf|eot|glb)$).*",
+      "source": "/games/(.*)",
+      "destination": "/games/$1"
+    },
+    {
+      "source": "/(.*)", 
       "destination": "/index.html"
     }
   ]
