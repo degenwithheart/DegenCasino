@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive/non-SEO paths
+User-agent: *
+Disallow: /admin/
+Disallow: /back-soon/
+Disallow: /api/
+Disallow: /dist/
+Disallow: /node_modules/
+
+# SITEMAP PATH
+Sitemap: https://degenheart.casino/sitemap.xml
