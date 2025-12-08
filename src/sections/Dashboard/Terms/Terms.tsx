@@ -10,6 +10,7 @@ import {
   UnifiedContent
 } from '../../../components/UI/UnifiedDesign'
 import { Selector, Flag } from './Terms.styles'
+import { Helmet } from 'react-helmet-async' // ⚠️ Ensure this is imported for the Schema to work
 
 type ContinentKey = 'AU' | 'EU' | 'AMERICAS' | 'ASIA'
 
@@ -55,7 +56,7 @@ const continents: Record<
 }
 
 const Terms: React.FC = () => {
-  // SEO for Terms page
+  // SEO for Terms page - This is what provides the <title> and <meta name="description"> tags
   const seoHelmet = usePageSEO(
     "Terms of Service", 
     "Read our Terms of Service and legal agreements for using DegenHeart Casino. Age requirements and dispute resolution by region."
@@ -73,7 +74,27 @@ const Terms: React.FC = () => {
 
   return (
     <>
+      {/* Renders the standard <title> and <meta description> tags */}
       {seoHelmet}
+      
+      {/* ✅ WEBPAGE SCHEMA MARKUP (JSON-LD) - Placed next to the helmet output */}
+      <script type="application/ld+json">
+        {`{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Terms and Conditions of Service | DegenHeart Casino",
+          "url": "https://degenheart.casino/terms",
+          "description": "The official terms and conditions for DegenHeart Casino. Details on user responsibilities, use of the Gamba Protocol, and dispute resolution.",
+          "lastReviewed": "${new Date().toISOString().slice(0, 10)}", 
+          "keywords": "crypto casino terms, solana gambling rules, degenheart conditions, provably fair terms of service",
+          "mainEntityOfPage": {
+            "@type": "WebSite",
+            "name": "DegenHeart Casino",
+            "url": "https://degenheart.casino/"
+          }
+        }`}
+      </script>
+
       <UnifiedPageContainer $colorScheme={currentColorScheme}>
         <UnifiedPageTitle $colorScheme={currentColorScheme}>⚖️ Terms of the Heart ⚖️</UnifiedPageTitle>
         <UnifiedSubtitle $colorScheme={currentColorScheme}>

@@ -10,14 +10,15 @@ import {
   UnifiedContent
 } from '../../../components/UI/UnifiedDesign';
 import { Tabs } from './Whitepaper.styles';
+import { Helmet } from 'react-helmet-async'; // ⚠️ Ensure Helmet is imported if usePageSEO doesn't handle it
 
 const tabs = ['Overview', 'Market Differentiation', 'Token', 'Fairness', 'Roadmap'];
 
 const WhitepaperTabs: React.FC = () => {
   // SEO for Whitepaper page
   const seoHelmet = usePageSEO(
-    "Whitepaper",
-    "Read our complete whitepaper with tokenomics, fairness algorithms, and roadmap for DegenHeart Casino"
+    "Whitepaper | DegenHeart Casino Tokenomics & Fairness on Solana",
+    "Read our complete whitepaper with tokenomics, fairness algorithms, and roadmap for DegenHeart Casino, the truly decentralized casino built on the Gamba Protocol."
   );
 
   const [activeTab, setActiveTab] = useState('Overview');
@@ -28,9 +29,81 @@ const WhitepaperTabs: React.FC = () => {
     setVisible(true);
   }, []);
 
+  // ⚠️ Important: Define the Author for E-E-A-T
+  const authorName = "Stuart / DegenWithHeart";
+  const organizationName = "DegenHeart Foundation";
+  const publishDate = "2025-12-08"; // Use the date you deploy this version
+
   return (
     <>
       {seoHelmet}
+      
+      {/* ✅ ARTICLE + FAQ SCHEMA MARKUP (JSON-LD) */}
+      <script type="application/ld+json">
+        {`{
+          "@context": "https://schema.org",
+          "@graph": [
+            // --- 1. Technical Article Schema ---
+            {
+              "@type": "TechArticle",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://degenheart.casino/whitepaper"
+              },
+              "headline": "The Sacred Scrolls of Degen Casino: Whitepaper on Tokenomics and Provably Fair Protocol",
+              "image": "https://degenheart.casino/png/images/casino.png",
+              "datePublished": "${publishDate}",
+              "dateModified": "${new Date().toISOString().slice(0, 10)}",
+              "author": {
+                "@type": "Person",
+                "name": "${authorName}",
+                "url": "https://x.com/DegenWithHeart"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "${organizationName}",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://degenheart.casino/png/images/logo.png"
+                }
+              },
+              "description": "Comprehensive technical whitepaper for DegenHeart Casino, detailing the 100% on-chain architecture, Gamba Protocol integration, DGHRT tokenomics, and commitment to provable fairness.",
+              "articleSection": ["Overview", "Tokenomics", "Provable Fairness", "Roadmap"]
+            },
+            // --- 2. FAQ Page Schema (For Rich Snippets) ---
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "What are the gas fees for playing DegenHeart Casino?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Gas fees are low as DegenHeart is built on Solana, which offers high performance and minimal transaction costs compared to other blockchains like Ethereum."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How do I secure my wallet while gambling?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "For security, we recommend using hardware wallets (like Ledger or Trezor) for storing large amounts of cryptocurrency while engaging in any decentralized application (DApp)."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is DegenHeart Casino scalable?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, DegenHeart Casino is built on Solana, a blockchain capable of handling over 50,000 transactions per second (TPS), ensuring high scalability and fast transaction finality."
+                  }
+                }
+              ]
+            }
+          ]
+        }`}
+      </script>
+
       <UnifiedPageContainer $colorScheme={currentColorScheme}>
         <UnifiedPageTitle $colorScheme={currentColorScheme}>🕯️ The Sacred Scrolls of Degen Casino 🕯️</UnifiedPageTitle>
         <UnifiedSubtitle $colorScheme={currentColorScheme}>
