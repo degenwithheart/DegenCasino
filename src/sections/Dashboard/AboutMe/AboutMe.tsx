@@ -14,10 +14,10 @@ import {
 import { ProfileImage, TextInfo, HeartDecoration, CandlestickDecoration, MarketLoversOverlay } from './AboutMe.styles'
 
 const AboutMe: React.FC = () => {
-  // SEO for About Me page
+  // ✅ SEO Update: More authoritative title and description, including the Foundation
   const seoHelmet = usePageSEO(
-    "About Degen Serenade", 
-    "Meet the creator of DegenHeart Casino - A romantic builder weaving love letters in Solana's blockchain realm"
+    "Stuart (Degen Serenade) | DegenHeart Foundation Creator & Builder", 
+    "Meet Stuart, the full-stack developer and romantic builder weaving love letters in Solana's blockchain realm. Learn about the mission of the DegenHeart Foundation for fair, decentralized gaming."
   )
 
   const [visible, setVisible] = useState(false)
@@ -30,10 +30,58 @@ const AboutMe: React.FC = () => {
   const githubLink = FOOTER_LINKS.find((link) =>
     link.title?.toLowerCase().includes('github')
   )
+  
+  // ⚠️ UPDATE THESE WITH REAL LINKS FOR SCHEMA
+  const twitterHandle = "@DegenWithHeart"; 
+  const githubHandle = "degenwithheart";
+  const organizationLogoUrl = "https://degenheart.casino/png/images/logo.png";
+  const orgWebsite = "https://degenheart.casino";
+
 
   return (
     <>
       {seoHelmet}
+      
+      {/* 👑 PERSON & ORGANIZATION SCHEMA (JSON-LD) */}
+      <script type="application/ld+json">
+        {`{
+          "@context": "https://schema.org",
+          "@graph": [
+            // --- 1. Person Schema: Defining Stuart ---
+            {
+              "@type": "Person",
+              "name": "Stuart / Degen Serenade",
+              "jobTitle": "Full-Stack Web3 Builder & DeFi Protocol Creator",
+              "url": "https://degenheart.casino/aboutme",
+              "image": "https://degenheart.casino/webp/images/pfp.webp",
+              "sameAs": [
+                "https://x.com/${twitterHandle.replace('@', '')}", 
+                "https://github.com/${githubHandle}",
+                "${orgWebsite}/whitepaper"
+              ],
+              "description": "Creator of DegenHeart Casino, a self-funded Web3 builder focused on decentralized, provably fair gaming and DeFi symphonies on the Solana blockchain."
+            },
+            // --- 2. Organization Schema: Defining the Foundation ---
+            {
+              "@type": "Organization",
+              "name": "DegenHeart Foundation",
+              "url": "${orgWebsite}",
+              "logo": "${organizationLogoUrl}",
+              "founder": {
+                "@type": "Person",
+                "name": "Stuart / Degen Serenade"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "email": "support@degenheart.casino"
+              },
+              "description": "The foundation supporting DegenHeart Casino, committed to open-source provable fairness, community-centric development, and advancing the Gamba Protocol."
+            }
+          ]
+        }`}
+      </script>
+      
       <UnifiedPageContainer $colorScheme={currentColorScheme}>
         <MarketLoversOverlay />
         <HeartDecoration>💖</HeartDecoration>
@@ -56,10 +104,11 @@ const AboutMe: React.FC = () => {
 
         <UnifiedSection $colorScheme={currentColorScheme}>
           <UnifiedContent $colorScheme={currentColorScheme}>
-            <UnifiedSectionTitle $colorScheme={currentColorScheme}>Who is Degen Serenade?</UnifiedSectionTitle>
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>Who is Stuart?</UnifiedSectionTitle>
             <p>
               I'm <strong>Stuart</strong> — a romantic builder weaving love letters in Solana's blockchain realm, 
-              where every smart contract whispers sweet promises of decentralization.
+              where every smart contract whispers sweet promises of decentralization. My expertise covers the full stack, 
+              from core smart contract development to enterprise-grade DevOps.
             </p>
             <p>
               My passion burns bright for <strong>DeFi symphonies</strong>, on-chain poetry, and crafting protocols 
@@ -75,6 +124,20 @@ const AboutMe: React.FC = () => {
             <p>
               I craft systems that are <em>verifiably fair</em>, <em>non-custodial as moonlight</em>, 
               and <em>community-centric as a love song</em> — where every transaction tells a story of trust.
+            </p>
+            
+            <UnifiedSectionTitle $colorScheme={currentColorScheme}>🏛️ The DegenHeart Foundation 🏛️</UnifiedSectionTitle>
+            <p>
+              The <strong>DegenHeart Foundation</strong> is the non-profit entity dedicated to maintaining the platform's 
+              integrity and driving the decentralization roadmap. Its core principles are:
+            </p>
+            <ul>
+              <li>**Transparency:** Upholding the open-source nature of the casino and token.</li>
+              <li>**Fairness:** Championing provably fair standards through the Gamba Protocol.</li>
+              <li>**Community:** Steering development based on the needs and desires of the degen community.</li>
+            </ul>
+            <p>
+              The Foundation ensures that development remains **self-funded, independent**, and free from VC or institutional influence, ensuring pure alignment with the Web3 ethos.
             </p>
 
             <UnifiedSectionTitle $colorScheme={currentColorScheme}>Life On & Off the Chain</UnifiedSectionTitle>
