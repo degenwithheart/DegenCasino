@@ -8,7 +8,7 @@ import { generateUsernameFromWallet } from '../../../../utils/user/userProfileUt
 import { useChatNotifications } from '../../../../contexts/ChatNotificationContext';
 import { PublicKey } from '@solana/web3.js';
 
-// --- Utility Functions (Keep the same) ---
+// --- Utility Functions ---
 
 function getProfileUsername(publicKey: string | undefined): string {
   if (!publicKey) return 'anon';
@@ -42,7 +42,7 @@ const stringToHslColor = (str: string, s: number, l: number): string => {
   return `hsl(${hash % 360}, ${s}%, ${l}%)`;
 };
 
-// --- Styled Components (Updated with Delete Button style) ---
+// --- Styled Components ---
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(5px) scale(0.95) }
@@ -108,7 +108,6 @@ const Timestamp = styled.span`
   margin-left: 0.5em;
 `;
 
-// NEW: Style for the admin delete button
 const DeleteButton = styled.button`
   position: absolute;
   top: 4px;
@@ -286,7 +285,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     }
   }, [publicKey]);
 
-  const userName = getProfileUsername(publicKey?.toString()); // This is only used for local storage/caching, not for ID
+  const userName = getProfileUsername(publicKey?.toString());
   const MAX_CHARS = 280;
 
   // Cooldown timer
@@ -335,7 +334,7 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
       const response = await fetch(swrKey, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Send the canonical identifier (wallet address) to the server
+        // FIX: Send the canonical identifier (wallet address) to the server
         body: JSON.stringify({ user: userWalletAddress, text: text.trim() }),
       });
 
@@ -351,11 +350,12 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     }
   };
   
-  // NEW: Admin Delete Function
+  // Admin Delete Function
   const deleteMessage = async (ts: number, user: string) => {
     if (!isAdmin) return;
-    
-    // Confirmation is a good idea for admin actions
+    const adminAddress = publicKey?.toBase58();
+    if (!adminAddress) return;
+
     if (!window.confirm(`Are you sure you want to delete this message from ${getProfileUsername(user)}?`)) {
         return;
     }
@@ -363,7 +363,11 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
     try {
         const response = await fetch(swrKey, {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            // FIX: Add the required Admin Header for server-side authorization check
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Admin-Address': adminAddress, 
+            },
             // Send the message timestamp (TS) and user identifier to the server for deletion
             body: JSON.stringify({ ts, user }),
         });
@@ -371,10 +375,13 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
         if (response.ok) {
             mutate(); // Re-fetch messages to update the list
         } else {
-            console.error('Failed to delete message:', await response.text());
+            const errorText = await response.text();
+            console.error(`Failed to delete message. Status: ${response.status}. Response: ${errorText}`);
+            alert(`Deletion Failed (${response.status}): ${errorText.slice(0, 100)}`);
         }
     } catch (error) {
         console.error('Error deleting message:', error);
+        alert('Error deleting message. Check console.');
     }
   };
 
@@ -402,12 +409,12 @@ const TrollBoxPage: React.FC<{ onStatusChange?: (status: string) => void; }> = (
           <Log>
             {data?.error && <LoadingText>Error loading chat.</LoadingText>}
             {messages.map((m, i) => {
+              // FIX: Translate the incoming user identifier (wallet address) to the username for display
               const displayUsername = getProfileUsername(m.user);
               const isOwnMessage = m.user === publicKey?.toBase58();
               
               return (
                 <MessageItem key={m.ts || i} $isOwn={isOwnMessage}>
-                  {/* NEW: Admin Delete Button */}
                   {isAdmin && (
                     <DeleteButton onClick={() => deleteMessage(m.ts, m.user)}>
                         ✖️
