@@ -2,13 +2,12 @@ import react from '@vitejs/plugin-react';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { defineConfig } from 'vite';
 import compression from 'vite-plugin-compression2';
-import sitemap from 'vite-sitemap'; 
 
 // Remove PURE annotations from final build
 function stripPureAnnotations() {
   return {
     name: 'strip-pure-annotations',
-    renderChunk(code) {
+    renderChunk(code: string) {
       return code.replace(/\/\*#__PURE__\*\//g, '');
     }
   };
@@ -19,7 +18,7 @@ function silentWarnings() {
   return {
     name: 'silent-warnings',
     buildStart() { },
-    renderChunk(code, chunk, options) {
+    renderChunk(code: string, chunk: any, options: any) {
       // nothing here; used only for Rollup onwarn override
     }
   };
@@ -47,6 +46,7 @@ export default defineConfig(() => ({
   },
   resolve: {
     alias: {
+      // use the ESM entry so Vite bundles the polyfill instead of externalizing
       buffer: 'buffer/',
       stream: 'stream-browserify',
       crypto: 'crypto-browserify'
@@ -70,6 +70,7 @@ export default defineConfig(() => ({
     cssMinify: 'esbuild',
     rollupOptions: {
       onwarn(warning, warn) {
+        // SILENT: ignore all yellow/info warnings and PURE comments
         if (
           warning.code === 'SOURCEMAP_ERROR' ||
           warning.code === 'PLUGIN_WARNING' ||
@@ -80,6 +81,8 @@ export default defineConfig(() => ({
           warning.message?.includes('Module "path" has been externalized') ||
           warning.message?.includes('Module "os" has been externalized')
         ) return;
+
+        // only pass through red/critical errors
         warn(warning);
       },
       output: {
@@ -100,32 +103,6 @@ export default defineConfig(() => ({
   },
   plugins: [
     react({ jsxRuntime: 'automatic', babel: { plugins: [] } }),
-    
-    // 💡 SITEMAP/ROBOTS.TXT GENERATION - FINAL FIX
-    sitemap({
-      // ✅ FIX: Use 'hostname' to definitively force the production URL
-      hostname: 'https://degenheart.casino', 
-      
-      urls: [
-        '/',
-        '/jackpot',
-        '/bonus',
-        '/leaderboard',
-        '/mobile', 
-        '/select-token',
-        '/terms',
-        '/whitepaper',
-        '/credits',
-        '/token',
-        '/presale',
-        '/aboutme',
-        '/changelog',
-        '/propagation',
-        '/explorer', 
-      ],
-      outDir: 'dist',
-    }),
-
     compression({
       include: /\.(js|css|html|json|svg|txt|xml|woff|woff2|ttf|eot)$/,
       threshold: 1024,
@@ -147,11 +124,15 @@ export default defineConfig(() => ({
     {
       name: 'dev-api-proxy',
       configureServer(server) {
+        // Proxy /api/* to a local API dev server running on port 4003
+        // If the local API server is not running, the proxy will return a 502/ECONNREFUSED from the proxy middleware.
         const proxy = createProxyMiddleware({
           target: 'http://localhost:4003',
           changeOrigin: true
         });
-        server.middlewares.use('/api', proxy);
+
+        // Mount the proxy on the /api path
+        server.middlewares.use('/api', proxy as any);
       }
     }
   ],

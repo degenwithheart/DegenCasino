@@ -54,7 +54,6 @@
     "three": "^0.159.0",
     "tone": "^15.1.22",
     "uuid": "^10.0.0",
-    "vite-sitemap": "1.17.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
