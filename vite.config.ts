@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 import compression from 'vite-plugin-compression2';
 import sitemap from 'vite-plugin-sitemap'; 
 
-// [Your utility functions: stripPureAnnotations, silentWarnings, etc.] 
+// Remove PURE annotations from final build
 function stripPureAnnotations() {
   return {
     name: 'strip-pure-annotations',
@@ -14,6 +14,7 @@ function stripPureAnnotations() {
   };
 }
 
+// Suppress all minor warnings
 function silentWarnings() {
   return {
     name: 'silent-warnings',
@@ -25,9 +26,6 @@ function silentWarnings() {
 }
 
 const ENV_PREFIX = ['VITE_'];
-
-// ⚠️ Note: For the actual live implementation, ensure all 'any' types 
-// are correctly cast or typed based on your TypeScript setup.
 
 export default defineConfig(() => ({
   envPrefix: ENV_PREFIX,
@@ -103,15 +101,17 @@ export default defineConfig(() => ({
   plugins: [
     react({ jsxRuntime: 'automatic', babel: { plugins: [] } }),
     
-    // 💡 SITEMAP/ROBOTS.TXT GENERATION - WITH PRECISE ROUTES
+    // 💡 SITEMAP/ROBOTS.TXT GENERATION - FINAL FIX
     sitemap({
-      base: 'https://degenheart.casino/', 
+      // ✅ FIX: Use 'hostname' to definitively force the production URL
+      hostname: 'https://degenheart.casino', 
+      
       urls: [
         '/',
         '/jackpot',
         '/bonus',
         '/leaderboard',
-        '/mobile', // Assuming ENABLE_MOBILE_APP is true in production
+        '/mobile', 
         '/select-token',
         '/terms',
         '/whitepaper',
@@ -121,20 +121,17 @@ export default defineConfig(() => ({
         '/aboutme',
         '/changelog',
         '/propagation',
-        // Note: Admin and maintenance pages are generally excluded from sitemaps
-        // '/admin', 
-        // '/admin/override', 
-        // '/back-soon', 
         '/explorer', 
       ],
       robotsTxt: {
         policy: [
             { userAgent: '*', allow: '/' },
-            // Explicitly disallow internal, admin, and maintenance paths
             { userAgent: '*', disallow: ['/admin/', '/back-soon/', '/api/', '/dist/', '/node_modules/'] } 
         ],
+        // The sitemap URL will now correctly use the hostname:
         sitemap: 'https://degenheart.casino/sitemap.xml',
       },
+      outDir: 'dist',
     }),
 
     compression({
