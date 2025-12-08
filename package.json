@@ -92,6 +92,7 @@
     "lodash.isequal": "npm:lodash@^4.17.21",
     "uuidv4": "npm:uuid@^10.0.0",
     "three-mesh-bvh": "^0.8.0",
-    "@toruslabs/solana-embed": "^3.0.1"
+    "@toruslabs/solana-embed": "^3.0.1",
+    "tone": "^15.1.22"
   }
 }

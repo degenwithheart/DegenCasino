@@ -56,6 +56,18 @@ function NetworkAwareConnectionProvider({ children }: { children: React.ReactNod
   );
 }
 
+// --- PersistSelectedToken: Save selected token to localStorage on change ---
+function PersistSelectedToken() {
+  // This hook must be used inside GambaPlatformProvider
+  const { selectedPool } = useGambaPlatformContext();
+  React.useEffect(() => {
+    if (selectedPool?.token) {
+      localStorage.setItem('selectedTokenMint', selectedPool.token.toBase58());
+    }
+  }, [selectedPool]);
+  return null;
+}
+
 function Root() {
   // Ensure analyze monitor is initialized early so runtime calls to
   // window.__analyzeMonitor.record(...) are available app-wide.
@@ -67,18 +79,6 @@ function Root() {
     ],
     [],
   );
-
-  // --- PersistSelectedToken: Save selected token to localStorage on change ---
-  function PersistSelectedToken() {
-    // This hook must be used inside GambaPlatformProvider
-    const { selectedPool } = useGambaPlatformContext();
-    React.useEffect(() => {
-      if (selectedPool?.token) {
-        localStorage.setItem('selectedTokenMint', selectedPool.token.toBase58());
-      }
-    }, [selectedPool]);
-    return null;
-  }
 
   // Store the initial pool in state so it doesn't change on re-render
   const [initialPool] = React.useState(getInitialPool);

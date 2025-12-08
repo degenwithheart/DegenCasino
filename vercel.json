@@ -87,10 +87,6 @@
     {
       "path": "/api/chat/daily-quote",
       "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/chat/remove-quote",
-      "schedule": "0 11 * * *"
     }
   ],
   "rewrites": [

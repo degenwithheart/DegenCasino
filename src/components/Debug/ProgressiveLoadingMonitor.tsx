@@ -115,14 +115,7 @@ export function ProgressiveLoadingMonitor() {
   const [performanceData, setPerformanceData] = useState<any>({});
   const { getPerformanceStats, isProgressiveLoadingActive } = useProgressiveLoading();
 
-  // Check if connected wallet is the creator
-  const isCreator = connected && publicKey?.equals(PLATFORM_CREATOR_ADDRESS);
-
-  // Only show PerfMon for creator wallet
-  if (!isCreator) {
-    return null;
-  }
-
+  // All hooks must be called before any conditional returns
   useEffect(() => {
     // Only show in development or when debug flag is set
     const shouldShow = import.meta.env.DEV || localStorage.getItem('debug-progressive-loading') === 'true';
@@ -138,6 +131,14 @@ export function ProgressiveLoadingMonitor() {
 
     return () => clearInterval(interval);
   }, [getPerformanceStats]);
+
+  // Check if connected wallet is the creator
+  const isCreator = connected && publicKey?.equals(PLATFORM_CREATOR_ADDRESS);
+
+  // Only show PerfMon for creator wallet
+  if (!isCreator) {
+    return null;
+  }
 
   // Don't render in production unless debug flag is set
   if (import.meta.env.PROD && localStorage.getItem('debug-progressive-loading') !== 'true') {
