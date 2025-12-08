@@ -100,7 +100,7 @@
     },
     {
       "source": "/games/(.*)",
-      "destination": "/games/$1"
+      "destination": "/games/$1.js"
     },
     {
       "source": "/(.*)", 
