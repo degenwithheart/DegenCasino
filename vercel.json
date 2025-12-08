@@ -99,7 +99,7 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/(?!.*\\.(js|css|json|map|png|jpg|jpeg|gif|svg|webp|ico|xml|txt|webmanifest|woff|woff2|ttf|eot|glb)$).*",
       "destination": "/index.html"
     }
   ]
