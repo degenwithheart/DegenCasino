@@ -1,11 +1,13 @@
 import { withUsageTracking } from '../cache/usage-tracker'
 
 // api/chat/daily-quote.ts
-// Cron job endpoint to post daily quote at midnight
+// Cron job endpoint to remove old quote and post a new daily quote at midnight
 
 export const config = { runtime: 'edge' }
 
 const CREATOR_ADDRESS = '6o1iE4cKQcjW4UFd4vn35r43qD9LjNDhPGNUMBuS8ocZ';
+const TROLLBOX_KEY = 'trollbox';
+const DAILY_QUOTE_TS_KEY = 'daily_quote_last_ts'; // Key to track the timestamp of the last posted quote
 
 // Import quotes from QuotesVault
 const QUOTES = [
@@ -69,6 +71,7 @@ const QUOTES = [
   "Risk is a shadow that dances just ahead of your tilt.",
   "Without KYC, the night is anonymous, every heart, a secret wallet.",
   "Chase gamble, but never chase losses, let the thrill be your muse, not your master.",
+  "If you can't spot the whale, perhaps you are the ocean's secret.",
   "If you can't beat the wallet, become its poet.",
   "Chase crypto, but never chase losses, let the longing be your alpha.",
   "Without KYC, the chain is a masquerade, every mask, a story.",
@@ -191,41 +194,59 @@ const QUOTES = [
   "If you can't outsing payouts, write your own refrain."
 ];
 
+async function removePreviousQuote(kv: any): Promise<void> {
+  // 1. Get the timestamp of the last posted quote
+  const lastTs = await kv.get(DAILY_QUOTE_TS_KEY) as number | null;
+  if (!lastTs) return; 
+
+  // 2. Retrieve all messages
+  const allMessages = await kv.lrange(TROLLBOX_KEY, 0, -1) as any[];
+
+  // 3. Filter out the message that matches the CREATOR_ADDRESS and the stored timestamp
+  const filteredMessages = allMessages.filter((msg: any) =>
+    !(msg.dailyQuote && msg.ts === lastTs && msg.user === CREATOR_ADDRESS)
+  );
+
+  // 4. If the message was removed, rewrite the list
+  if (filteredMessages.length < allMessages.length) {
+    await kv.del(TROLLBOX_KEY);
+    if (filteredMessages.length > 0) {
+      // Add messages back in reverse order (lpush adds newest first)
+      await kv.lpush(TROLLBOX_KEY, ...filteredMessages.reverse());
+    }
+    await kv.ltrim(TROLLBOX_KEY, 0, 19);
+  }
+}
+
 async function postDailyQuote(): Promise<void> {
   if (!process.env.KV_URL) return;
 
   const { kv } = await import('@vercel/kv');
-
-  // Get today's date for the key
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-  const dailyQuoteKey = `daily_quote_${today}`;
-
-  // Check if we've already posted today's quote
-  const existingQuote = await kv.get(dailyQuoteKey);
-  if (existingQuote) return; // Already posted
+  
+  // CRITICAL STEP: Run the removal before posting the new one
+  await removePreviousQuote(kv);
 
   // Select a random quote
   const randomQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
   // Create the daily quote message
+  const newTs = Date.now();
   const dailyQuoteMessage = {
     user: CREATOR_ADDRESS,
     text: `💭 ${randomQuote}`,
-    ts: Date.now(),
+    ts: newTs,
     dailyQuote: true // Special flag to identify daily quotes
   };
 
-  // Store the quote in Redis with the daily key for tracking
-  await kv.set(dailyQuoteKey, dailyQuoteMessage, { ex: 12 * 60 * 60 }); // Expire in 12 hours
+  // 1. Update the timestamp key for the next cron job's removal process
+  await kv.set(DAILY_QUOTE_TS_KEY, newTs);
 
-  // Add to the trollbox messages
-  const KEY = 'trollbox';
-  await kv.lpush(KEY, dailyQuoteMessage);
-  await kv.ltrim(KEY, 0, 19); // Keep only last 20 messages
+  // 2. Add to the trollbox messages
+  await kv.lpush(TROLLBOX_KEY, dailyQuoteMessage);
+  await kv.ltrim(TROLLBOX_KEY, 0, 19); // Keep only last 20 messages
 }
 
 export default withUsageTracking(async (req: Request) => {
-  // Allow GET for testing, POST for cron
   if (req.method !== 'POST' && req.method !== 'GET') {
     return new Response('Method Not Allowed', { status: 405 });
   }
