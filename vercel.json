@@ -100,7 +100,7 @@
     },
     {
       "source": "/games/(.*)",
-      "destination": "/assets/game_chunks/$1.js"
+      "destination": "/games/$1"
     },
     {
       "source": "/(.*)", 
