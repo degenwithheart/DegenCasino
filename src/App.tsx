@@ -216,6 +216,14 @@ const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const MobileAppPage = lazy(() => import('./pages/features/MobileAppPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
+
+/**
+ * Layout components with lazy loading.
+ * These are loaded dynamically to avoid circular dependencies and improve initial load performance.
+ */
+const DegenHeartLayout = lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
+const DegenMobileLayout = lazy(() => import('./themes/layouts/degen-mobile/DegenMobileLayout'));
+
 import { useTheme } from './themes/UnifiedThemeContext';
 import PWAInstallBanner from './components/PWA/PWAInstallBanner';
 
@@ -417,9 +425,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
    * This theme has a unique navigation and component architecture.
    */
   if (isDegenHeartTheme) {
-    // Import the DegenHeart layout dynamically
-    const DegenHeartLayout = React.lazy(() => import('./themes/layouts/degenheart/DegenHeartLayout'));
-
     return (
       <RouterErrorBoundary key={`degenheart-${location.pathname}`}>
         <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
@@ -482,9 +487,6 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
    * Uses the same route structure as DegenHeart but with mobile-specific components.
    */
   if (isDegenMobileTheme) {
-    // Import the DegenMobile layout dynamically
-    const DegenMobileLayout = React.lazy(() => import('./themes/layouts/degen-mobile/DegenMobileLayout'));
-
     return (
       <RouterErrorBoundary key={`degen-mobile-${location.pathname}`}>
         <RouteTransitionWrapper fallback={<RouteLoadingSpinner />}>
