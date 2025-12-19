@@ -1036,17 +1036,6 @@ const Header: React.FC = () => {
           )}
 
           {connected && (
-            <SessionButton
-              $colorScheme={currentColorScheme}
-              onClick={() => (typeof openSessionWidgetModal === 'function' ? openSessionWidgetModal() : null)}
-              aria-label="Open Session Tracker"
-            >
-                  <FaDice />
-              {!isCompact && 'Session'}
-            </SessionButton>
-          )}
-
-          {connected && (
             <>
               {!mobile && (
                 <TokenButton
@@ -1088,10 +1077,9 @@ const Header: React.FC = () => {
 
               {connected && walletDropdownOpen && (
                 <WalletDropdown $colorScheme={currentColorScheme}>
-                  <DropdownItem $colorScheme={currentColorScheme} onClick={handleCopyAddress}>
-                    <FaCopy />
-                    Copy Address
-                    <small>{formatAddress(publicKey?.toString() || '')}</small>
+                  <DropdownItem $colorScheme={currentColorScheme} onClick={() => (typeof openSessionWidgetModal === 'function' ? openSessionWidgetModal() : null)}>
+                    <FaDice />
+                    Session
                   </DropdownItem>
 
                   <DropdownItem $colorScheme={currentColorScheme} onClick={handleProfileClick}>
