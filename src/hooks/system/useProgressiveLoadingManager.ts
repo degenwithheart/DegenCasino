@@ -100,7 +100,7 @@ export function useProgressiveLoadingManager() {
       'JackpotPage': () => import('../../pages/features/JackpotPage'),
       'LeaderboardPage': () => import('../../pages/features/LeaderboardPage'),
       'BonusPage': () => import('../../pages/features/BonusPage'),
-      'AboutMe': () => import('../../sections/Dashboard/AboutMe/AboutMe'),
+      'AboutUs': () => import('../../sections/Dashboard/AboutUs/AboutUs'),
       'Terms': () => import('../../sections/Dashboard/Terms/Terms'),
 
       // Game components (these will be lazy loaded within pages)

@@ -15,8 +15,8 @@ const PageWrapper = styled.div`
   }
 `;
 
-export default function AboutMePage() {
-  const seoHelmet = usePageSEO("About Me", "Learn about the creator and team behind DegenCasino.")
+export default function AboutUsPage() {
+  const seoHelmet = usePageSEO("About Us", "Learn about the creator and team behind DegenCasino.")
   const { currentColorScheme } = useColorScheme()
 
   return (
@@ -24,7 +24,7 @@ export default function AboutMePage() {
       {seoHelmet}
       <UnifiedPageContainer $colorScheme={currentColorScheme}>
         <UnifiedPageTitle $colorScheme={currentColorScheme}>
-          👤 About Me
+          👤 About Us
         </UnifiedPageTitle>
         <UnifiedText $variant="lead" $colorScheme={currentColorScheme}>
           Hi, I'm the creator of DegenCasino! 👋

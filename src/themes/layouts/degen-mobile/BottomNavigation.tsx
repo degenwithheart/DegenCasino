@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useColorScheme } from '../../../themes/ColorSchemeContext'
-import { FaHome, FaGamepad, FaSearch, FaUser, FaCog, FaTrophy, FaGift, FaEllipsisH, FaCoins } from 'react-icons/fa'
+import { FaHome, FaGamepad, FaSearch, FaUser, FaCog, FaDice, FaGift, FaEllipsisH, FaCoins } from 'react-icons/fa'
 import { useDegenMobile, useDegenMobileModal } from './DegenMobileLayout'
 import GestureHandler from './components/GestureHandler'
 import { spacing, components, typography, media, animations } from './breakpoints'
@@ -198,6 +198,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
   const { 
     openBonusModal, 
     openJackpotModal,
+    openSessionWidgetModal,
     openLeaderboardModal,
     openMoreModal 
   } = useDegenMobileModal()
@@ -217,13 +218,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
       }
     },
     {
-      id: 'jackpot',
-      icon: FaCoins,
-      label: 'Jackpot',
-      active: currentPath === '/jackpot',
+      id: 'session',
+      icon: FaDice,
+      label: 'Session',
+      active: activeBottomTab === 'session',
       action: () => {
-        navigate('/jackpot')
-        setActiveBottomTab('jackpot')
+        // open theme-specific session modal
+        if (openSessionWidgetModal) openSessionWidgetModal()
+        setActiveBottomTab('session')
       }
     },
     {
@@ -263,14 +265,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = () => {
   
   return (
     <GestureHandler
-      onSwipeLeft={() => {
-        const tabs = ['home', 'jackpot', 'games', 'profile', 'more']
+        onSwipeLeft={() => {
+        const tabs = ['home', 'session', 'games', 'profile', 'more']
         const currentIndex = tabs.indexOf(activeBottomTab)
         const nextIndex = (currentIndex + 1) % tabs.length
         setActiveBottomTab(tabs[nextIndex])
       }}
       onSwipeRight={() => {
-        const tabs = ['home', 'jackpot', 'games', 'profile', 'more']
+        const tabs = ['home', 'session', 'games', 'profile', 'more']
         const currentIndex = tabs.indexOf(activeBottomTab)
         const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
         setActiveBottomTab(tabs[prevIndex])

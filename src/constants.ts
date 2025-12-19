@@ -827,8 +827,8 @@ export const SIDEBAR_LINKS = [
  */
 export const FOOTER_LINKS = [
   {
-    href: '/aboutme',
-    title: 'About Me',
+    href: '/aboutus',
+    title: 'About Us',
   },
   {
     href: '/credits',
@@ -839,28 +839,12 @@ export const FOOTER_LINKS = [
     title: 'Terms',
   },
   {
+    href: '/gamble-awareness',
+    title: 'GambleAwareness',
+  },
+  {
     href: '/whitepaper',
     title: 'Whitepaper',
-  },
-  // Conditionally show token or presale link based on PRESALE_ACTIVE toggle
-  ...(PRESALE_ACTIVE ? [
-    {
-      href: '/presale',
-      title: 'Presale',
-    }
-  ] : [
-    {
-      href: '/token',
-      title: '$DGHRT Token',
-    }
-  ]),
-  {
-    href: 'https://github.com/degenwithheart',
-    title: 'GitHub',
-  },
-  {
-    href: 'https://x.com/DegenWithHeart',
-    title: 'X',
   },
 ];
 
@@ -894,6 +878,10 @@ export const MOBILE_FOOTER_LINKS_CONNECTED = [
     href: '/explorer',
     title: 'Explorer',
   },
+  {
+    href: '/gamble-awareness',
+    title: 'GambleAwareness',
+  },
 ];
 
 /**
@@ -910,8 +898,12 @@ export const MOBILE_FOOTER_LINKS_DISCONNECTED = [
     title: 'Welcome',
   },
   {
-    href: '/aboutme',
-    title: 'About Me',
+    href: '/aboutus',
+    title: 'About Us',
+  },
+  {
+    href: '/gamble-awareness',
+    title: 'GambleAwareness',
   },
   {
     href: 'https://github.com/degenwithheart',

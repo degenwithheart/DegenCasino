@@ -11,9 +11,9 @@ import {
   UnifiedContent,
   UnifiedGrid
 } from '../../../components/UI/UnifiedDesign'
-import { ProfileImage, TextInfo, HeartDecoration, CandlestickDecoration, MarketLoversOverlay } from './AboutMe.styles'
+import { ProfileImage, TextInfo, HeartDecoration, CandlestickDecoration, MarketLoversOverlay } from './AboutUs.styles'
 
-const AboutMe: React.FC = () => {
+const AboutUs: React.FC = () => {
   // ✅ SEO Update: More authoritative title and description, including the Foundation
   const seoHelmet = usePageSEO(
     "Stuart (Degen Serenade) | DegenHeart Foundation Creator & Builder", 
@@ -52,7 +52,7 @@ const AboutMe: React.FC = () => {
               "@type": "Person",
               "name": "Stuart / Degen Serenade",
               "jobTitle": "Full-Stack Web3 Builder & DeFi Protocol Creator",
-              "url": "https://degenheart.casino/aboutme",
+              "url": "https://degenheart.casino/aboutus",
               "image": "https://degenheart.casino/webp/images/pfp.webp",
               "sameAs": [
                 "https://x.com/${twitterHandle.replace('@', '')}", 
@@ -189,4 +189,4 @@ const AboutMe: React.FC = () => {
   )
 }
 
-export default AboutMe
+export default AboutUs

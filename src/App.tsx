@@ -177,7 +177,7 @@ import { ChatNotificationProvider } from './contexts/ChatNotificationContext';
  * Lazy-loaded dashboard pages for better initial bundle size.
  * These pages are not immediately needed on app load.
  */
-const AboutMe = lazy(() => import('./sections/Dashboard/AboutMe/AboutMe'));
+const AboutUs = lazy(() => import('./sections/Dashboard/AboutUs/AboutUs'));
 const TermsPage = lazy(() => import('./sections/Dashboard/Terms/Terms'));
 const Whitepaper = lazy(() => import('./sections/Dashboard/Whitepaper/Whitepaper'));
 const Credits = lazy(() => import('./sections/Dashboard/Credits/Credits'));
@@ -216,6 +216,7 @@ const SelectTokenPage = lazy(() => import('./pages/features/SelectTokenPage'));
 const BonusPage = lazy(() => import('./pages/features/BonusPage'));
 const MobileAppPage = lazy(() => import('./pages/features/MobileAppPage'));
 const AdminPage = lazy(() => import('./pages/system/AdminPage'));
+const GambleAwarenessPage = lazy(() => import('./pages/GambleAwareness/GambleAwarenessPage'));
 
 /**
  * Layout components with lazy loading.
@@ -445,13 +446,14 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
                 <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
                 <Route path="/credits" element={<SafeSuspense level="route" componentName="Credits Page"><Credits /></SafeSuspense>} />
+                <Route path="/gamble-awareness" element={<SafeSuspense level="route" componentName="Gamble Awareness Page"><GambleAwarenessPage /></SafeSuspense>} />
 
                 {/* Token ecosystem pages */}
                 <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
                 <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
 
                 {/* User and system pages */}
-                <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
+                <Route path="/aboutus" element={<SafeSuspense level="route" componentName="About Us Page"><AboutUs /></SafeSuspense>} />
                 <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
                 <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
 
@@ -507,13 +509,14 @@ function AppContent({ autoConnectAttempted }: { autoConnectAttempted: boolean; }
                 <Route path="/terms" element={<SafeSuspense level="route" componentName="Terms Page"><TermsPage /></SafeSuspense>} />
                 <Route path="/whitepaper" element={<SafeSuspense level="route" componentName="Whitepaper Page"><Whitepaper /></SafeSuspense>} />
                 <Route path="/credits" element={<SafeSuspense level="route" componentName="Credits Page"><Credits /></SafeSuspense>} />
+                <Route path="/gamble-awareness" element={<SafeSuspense level="route" componentName="Gamble Awareness Page"><GambleAwarenessPage /></SafeSuspense>} />
 
                 {/* Token ecosystem pages */}
                 <Route path="/token" element={<SafeSuspense level="route" componentName="DGHRT Token Page"><DGHRTToken /></SafeSuspense>} />
                 <Route path="/presale" element={<SafeSuspense level="route" componentName="DGHRT Presale Page"><DGHRTPresale /></SafeSuspense>} />
 
                 {/* User and system pages */}
-                <Route path="/aboutme" element={<SafeSuspense level="route" componentName="About Me Page"><AboutMe /></SafeSuspense>} />
+                <Route path="/aboutus" element={<SafeSuspense level="route" componentName="About Us Page"><AboutUs /></SafeSuspense>} />
                 <Route path="/changelog" element={<SafeSuspense level="route" componentName="Changelog Page"><ChangelogPage /></SafeSuspense>} />
                 <Route path="/propagation" element={<SafeSuspense level="route" componentName="Propagation Page"><Propagation /></SafeSuspense>} />
 
@@ -840,7 +843,7 @@ export default function App() {
 
   // ===================================
   // PROGRESSIVE LOADING SYSTEM
-  // ===================================
+// ===================================
 
   /**
    * Initialize performance optimization systems.

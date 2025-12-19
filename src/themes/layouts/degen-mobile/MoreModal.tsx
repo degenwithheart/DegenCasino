@@ -30,6 +30,7 @@ import {
   CloseButton, 
   Content
 } from './components/ModalComponents'
+import { useDegenMobileModal } from './DegenMobileLayout'
 
 const MoreContainer = styled.div`
   /* Content styling is now handled by unified Content component */
@@ -122,6 +123,7 @@ const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
   const { connected, publicKey } = useWallet()
   const { currentColorScheme } = useColorScheme()
+  const { openSessionWidgetModal } = useDegenMobileModal()
   
   // Check if current wallet is the platform creator
   const isCreator = connected && publicKey && publicKey.equals(PLATFORM_CREATOR_ADDRESS)
@@ -222,7 +224,7 @@ const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
     {
       icon: FaInfoCircle,
       label: 'About',
-      path: '/aboutme',
+      path: '/aboutus',
       disabled: false
     },
     {
@@ -282,6 +284,19 @@ const MoreModal: React.FC<MoreModalProps> = ({ isOpen, onClose }) => {
                       </MenuItem>
                     )
                   })}
+                </MenuGrid>
+
+                {/* Session quick access */}
+                <MenuGrid>
+                  <MenuItem
+                    key="session"
+                    $colorScheme={currentColorScheme}
+                    $disabled={false}
+                    onClick={() => { openSessionWidgetModal(); onClose(); }}
+                  >
+                    <MenuIcon $colorScheme={currentColorScheme}>🎲</MenuIcon>
+                    <MenuLabel>Session</MenuLabel>
+                  </MenuItem>
                 </MenuGrid>
               </Section>
               

@@ -85,7 +85,7 @@ export const ROUTE_DEPENDENCIES: Record<string, RouteDependencies> = {
 
     // Static pages - minimal dependencies
     '/about': {
-        components: ['AboutMe'],
+        components: ['AboutUs'],
         priority: 'medium'
     },
     '/terms': {

@@ -48,6 +48,12 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>https://degenheart.casino/gamble-awareness</loc>
+        <lastmod>2025-12-18T00:00:00.000Z</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>https://degenheart.casino/whitepaper</loc>
         <lastmod>2025-12-08T10:04:06.385Z</lastmod>
         <changefreq>monthly</changefreq>
@@ -72,7 +78,7 @@
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://degenheart.casino/aboutme</loc>
+        <loc>https://degenheart.casino/aboutus</loc>
         <lastmod>2025-12-08T10:04:06.385Z</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>

@@ -5,4 +5,6 @@ export { default as MainContent } from './MainContent';
 export { default as BottomNavigation } from './BottomNavigation';
 export { default as Dashboard } from './Dashboard';
 export { default as TOSModal } from './components/TOSModal';
+export { default as SessionWidget } from './components/SessionWidget';
+export { default as SessionWidgetModal } from './components/SessionWidgetModal';
 export { degenMobileTheme } from './theme';

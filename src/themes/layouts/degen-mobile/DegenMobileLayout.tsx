@@ -18,6 +18,7 @@ import JackpotModal from './components/JackpotModal';
 import TokenSelect from './components/TokenSelect';
 import UserProfile from './components/UserProfile';
 import MoreModal from './MoreModal';
+import SessionWidgetModal from './components/SessionWidgetModal';
 import GestureHandler from './components/GestureHandler';
 import { PLATFORM_CREATOR_ADDRESS } from '../../../constants';
 import TrollBoxPage from './pages/TrollBoxPage';
@@ -53,6 +54,7 @@ const DegenMobileModalContext = createContext<{
   openShareModal: (game: any) => void;
   openMoreModal: () => void;
   openTrollBoxModal: () => void;
+  openSessionWidgetModal: () => void;
   // helper to allow consumers to explicitly close all overlays
   closeAllOverlays: () => void;
 }>({
@@ -65,6 +67,7 @@ const DegenMobileModalContext = createContext<{
   openShareModal: () => { },
   openMoreModal: () => { },
   openTrollBoxModal: () => { },
+  openSessionWidgetModal: () => { },
   closeAllOverlays: () => { }
 });
 
@@ -206,6 +209,7 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
   const [moreModalOpen, setMoreModalOpen] = useState(false);
   const [trollBoxModalOpen, setTrollBoxModalOpen] = useState(false);
   const [trollBoxStatus, setTrollBoxStatus] = useState('Connecting…');
+  const [sessionWidgetOpen, setSessionWidgetOpen] = useState(false);
 
   // Gesture handling for navigation
   const handleSwipeLeft = () => {
@@ -262,6 +266,7 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
     openShareModal: (game: any) => { closeAllOverlays(); setShareGame(game); setShareModalOpen(true); },
     openMoreModal: () => { closeAllOverlays(); setMoreModalOpen(true); },
     openTrollBoxModal: () => { closeAllOverlays(); resetUnread(); setTrollBoxModalOpen(true); },
+    openSessionWidgetModal: () => { closeAllOverlays(); setSessionWidgetOpen(true); },
     closeAllOverlays: () => closeAllOverlays()
   };
 
@@ -356,6 +361,11 @@ const DegenMobileLayout: React.FC<DegenMobileLayoutProps> = ({ children }) => {
           isOpen={moreModalOpen}
           onClose={() => setMoreModalOpen(false)}
         />
+
+        {/* Mobile Session Widget Modal (theme-specific) */}
+        {sessionWidgetOpen && (
+          <SessionWidgetModal onClose={() => setSessionWidgetOpen(false)} />
+        )}
 
         <Modal
           isOpen={trollBoxModalOpen}

@@ -41,7 +41,7 @@ export function useComponentPreloader() {
 
       // Phase 3: Medium priority components
       const mediumPriorityComponents = [
-        { fn: () => import('../../sections/Dashboard/AboutMe/AboutMe'), key: 'about-me', delay: 1000 },
+        { fn: () => import('../../sections/Dashboard/AboutUs/AboutUs'), key: 'about-me', delay: 1000 },
         { fn: () => import('../../sections/Dashboard/Terms/Terms'), key: 'terms', delay: 1100 },
         { fn: () => import('../../pages/features/SelectTokenPage'), key: 'select-token', delay: 1200 },
         { fn: () => import('../../pages/features/BonusPage'), key: 'bonus', delay: 1300 },

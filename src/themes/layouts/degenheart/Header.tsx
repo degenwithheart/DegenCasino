@@ -6,7 +6,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useCurrentPool, useGambaPlatformContext, useUserBalance } from 'gamba-react-ui-v2';
 import { useColorScheme } from '../../ColorSchemeContext';
 import { useHandleWalletConnect } from '../../../sections/walletConnect';
-import { FaBars, FaTimes, FaCopy, FaUser, FaCog, FaSignOutAlt, FaPalette, FaCoins, FaTrophy, FaComments } from 'react-icons/fa';
+import { FaBars, FaTimes, FaCopy, FaUser, FaCog, FaDice, FaSignOutAlt, FaPalette, FaCoins, FaTrophy, FaComments } from 'react-icons/fa';
 import { SIDEBAR_LINKS, PLATFORM_CREATOR_ADDRESS, ENABLE_LEADERBOARD, ENABLE_TROLLBOX } from '../../../constants';
 import { useToast } from '../../../hooks/ui/useToast';
 import { useIsCompact } from '../../../hooks/ui/useIsCompact';
@@ -630,6 +630,10 @@ const SettingsButton = styled.button<{ $colorScheme: any; }>`
   &:active { transform: translateY(-1px) scale(0.98); }
 `;
 
+  const SessionButton = styled(SettingsButton)`
+    /* can add overrides if needed */
+  `;
+
 const NotificationBadge = styled.div<{ $colorScheme: any; }>`
   position: absolute;
   top: -8px;
@@ -824,7 +828,7 @@ const Header: React.FC = () => {
   const context = useGambaPlatformContext();
   const balance = useUserBalance();
   const { compact: isCompact, mobile } = useIsCompact();
-  const { openBonusModal, openJackpotModal, openLeaderboardModal, openSettingsModal, openThemeSelector, openTokenSelect, openTrollBoxModal, closeAllOverlays } = useDegenHeaderModal();
+  const { openBonusModal, openJackpotModal, openLeaderboardModal, openSettingsModal, openThemeSelector, openTokenSelect, openTrollBoxModal, openSessionWidgetModal, closeAllOverlays } = useDegenHeaderModal();
 
   // Check if connected wallet is the creator
   const isCreator = connected && publicKey && publicKey.equals(PLATFORM_CREATOR_ADDRESS);
@@ -1029,6 +1033,17 @@ const Header: React.FC = () => {
               ⚙️
               {!isCompact && 'Settings'}
             </SettingsButton>
+          )}
+
+          {connected && (
+            <SessionButton
+              $colorScheme={currentColorScheme}
+              onClick={() => (typeof openSessionWidgetModal === 'function' ? openSessionWidgetModal() : null)}
+              aria-label="Open Session Tracker"
+            >
+                  <FaDice />
+              {!isCompact && 'Session'}
+            </SessionButton>
           )}
 
           {connected && (

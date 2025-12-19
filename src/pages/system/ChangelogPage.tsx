@@ -328,7 +328,7 @@ const changelogData: ChangelogEntry[] = [
   {
     version: "v3.3.6",
     date: "2025-09-08",
-    description: "Enhanced colorScheme consistency across dashboard components with refined visual elements, improved emoji rendering, and polished user interface styling for Terms, AboutMe, and Whitepaper sections."
+    description: "Enhanced colorScheme consistency across dashboard components with refined visual elements, improved emoji rendering, and polished user interface styling for Terms, AboutUs, and Whitepaper sections."
   },
   {
     version: "v3.3.5",

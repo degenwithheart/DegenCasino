@@ -6,6 +6,7 @@ import Header from './Header';
 import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
+import SessionWidgetModal from './components/SessionWidgetModal';
 import MainContent from './MainContent';
 import { Modal } from './components/Modal';
 import { ShareModal } from './components/ShareModal';
@@ -44,6 +45,7 @@ const DegenHeaderModalContext = createContext<{
   openShareModal: (game: any) => void;
   openTrollBoxModal: () => void;
   openSettingsModal: () => void;
+  openSessionWidgetModal: () => void;
   closeAllOverlays: () => void;
 }>({
   openBonusModal: () => { },
@@ -55,6 +57,7 @@ const DegenHeaderModalContext = createContext<{
   openShareModal: () => { },
   openTrollBoxModal: () => { },
   openSettingsModal: () => { },
+  openSessionWidgetModal: () => { },
   closeAllOverlays: () => { }
 });
 
@@ -459,6 +462,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
   const [showConnectionStatus, setShowConnectionStatus] = useState(false);
   const [showTrollBoxModal, setShowTrollBoxModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSessionWidgetModal, setShowSessionWidgetModal] = useState(false);
   const [trollBoxStatus, setTrollBoxStatus] = useState('Connecting…');
 
   // Share modal state
@@ -607,6 +611,7 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           toggleRightSidebar();
         },
         openSettingsModal: () => { closeAllOverlays(); setShowSettingsModal(true); },
+        openSessionWidgetModal: () => { closeAllOverlays(); setShowSessionWidgetModal(true); },
         closeAllOverlays: () => closeAllOverlays()
       }}>
         <LayoutContainer
@@ -739,6 +744,15 @@ const DegenHeartLayout: React.FC<DegenHeartLayoutProps> = ({ children }) => {
           >
             <SettingsModal onClose={() => setShowSettingsModal(false)} />
           </Modal>
+
+          {/* Theme-specific Session Widget Modal */}
+          {showSessionWidgetModal && (
+            <>
+              {/* Render the themed modal component directly so it uses theme styles */}
+              {/** Import is static at top of file */}
+              <SessionWidgetModal onClose={() => setShowSessionWidgetModal(false)} />
+            </>
+          )}
         </LayoutContainer>
       </DegenHeaderModalContext.Provider>
     </DegenGamesModalContext.Provider>

@@ -10,7 +10,7 @@ export { default as Whitepaper } from './WhitepaperPage';
 export { default as Credits } from './CreditsPage';
 export { default as DGHRTToken } from './DGHRTTokenPage';
 export { default as DGHRTPresale } from './DGHRTPresalePage';
-export { default as AboutMe } from './AboutMePage';
+export { default as AboutUs } from './AboutUsPage';
 export { default as ChangelogPage } from './ChangelogPage';
 export { default as Propagation } from './PropagationPage';
 export { default as AdminPage } from './AdminPage';
