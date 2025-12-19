@@ -1,21 +1,18 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { getCriticalGames, getHighPriorityGames, LoadingPriority } from '../../games/gameLoadingPriority';
 
-// Game ID to folder path mapping based on allGames.ts structure
-const getGameFolderPath = (gameId: string): string => {
-  const gamePathMap: { [key: string]: string; } = {
-    'dice': 'Dice',
-    'magic8ball': 'Magic8Ball',
-    'slots': 'Slots',
-    'plinkorace': 'PlinkoRace',
-    'flip': 'Flip',
-    'hilo': 'HiLo',
-    'mines': 'Mines',
-    'plinko': 'Plinko',
-    'crash': 'CrashGame',
-    'blackjack': 'BlackJack'
-  };
-  return gamePathMap[gameId] || gameId;
+// Static game import map - required for Vite to properly bundle chunks
+const GAME_IMPORT_MAP: Record<string, () => Promise<any>> = {
+  'dice': () => import('../../games/Dice'),
+  'magic8ball': () => import('../../games/Magic8Ball'),
+  'slots': () => import('../../games/Slots'),
+  'plinkorace': () => import('../../games/PlinkoRace'),
+  'flip': () => import('../../games/Flip'),
+  'hilo': () => import('../../games/HiLo'),
+  'mines': () => import('../../games/Mines'),
+  'plinko': () => import('../../games/Plinko'),
+  'crash': () => import('../../games/CrashGame'),
+  'blackjack': () => import('../../games/BlackJack')
 };
 
 // Enhanced preloader for lazy-loaded React components with game priority awareness
@@ -74,11 +71,13 @@ export function useComponentPreloader() {
       criticalGames.forEach((game, index) => {
         setTimeout(async () => {
           try {
-            // Import the game component using correct folder path
-            const folderPath = getGameFolderPath(game.id);
-            const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
-            preloadedGames.current.add(game.id);
-            console.log(`🎮 Preloaded critical game: ${game.id}`);
+            // Use static import map to ensure Vite properly bundles game chunks
+            const importFn = GAME_IMPORT_MAP[game.id];
+            if (importFn) {
+              await importFn();
+              preloadedGames.current.add(game.id);
+              console.log(`🎮 Preloaded critical game: ${game.id}`);
+            }
 
             // Notify service worker to cache game assets
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -103,10 +102,12 @@ export function useComponentPreloader() {
           try {
             // Only preload if not already loaded
             if (!preloadedGames.current.has(game.id)) {
-              const folderPath = getGameFolderPath(game.id);
-              const gameModule = await import(/* @vite-ignore */ `../../games/${folderPath}`);
-              preloadedGames.current.add(game.id);
-              console.log(`🎮 Preloaded high priority game: ${game.id}`);
+              const importFn = GAME_IMPORT_MAP[game.id];
+              if (importFn) {
+                await importFn();
+                preloadedGames.current.add(game.id);
+                console.log(`🎮 Preloaded high priority game: ${game.id}`);
+              }
             }
           } catch (error) {
             console.warn(`Failed to preload game ${game.id}:`, error);
@@ -147,21 +148,8 @@ export function useComponentPreloader() {
     }
 
     try {
-      // Dynamic import mapping for games (matches game path map)
-      const gameImportMap: Record<string, () => Promise<any>> = {
-        'dice': () => import('../../games/Dice'),
-        'magic8ball': () => import('../../games/Magic8Ball'),
-        'slots': () => import('../../games/Slots'),
-        'plinkorace': () => import('../../games/PlinkoRace'),
-        'flip': () => import('../../games/Flip'),
-        'hilo': () => import('../../games/HiLo'),
-        'mines': () => import('../../games/Mines'),
-        'plinko': () => import('../../games/Plinko'),
-        'crash': () => import('../../games/CrashGame'),
-        'blackjack': () => import('../../games/BlackJack')
-      };
-
-      const importFn = gameImportMap[gameId];
+      // Use static import map
+      const importFn = GAME_IMPORT_MAP[gameId];
       if (importFn) {
         await importFn();
         preloadedGames.current.add(gameId);
