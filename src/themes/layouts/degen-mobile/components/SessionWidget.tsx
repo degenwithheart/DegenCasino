@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useWalletAddress } from 'gamba-react-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { TokenValue } from 'gamba-react-ui-v2'
+import { useUserPlaysApi } from '../../../../sections/RecentPlays/useUserPlaysApi'
 import { useRecentPlays } from '../../../../sections/RecentPlays/useRecentPlays'
 import { useColorScheme } from '../../../ColorSchemeContext'
 
@@ -143,21 +144,76 @@ export const SessionWidget = () => {
   const { currentColorScheme } = useColorScheme()
   const wallet = useWalletAddress()
   const [sessionStart, setSessionStart] = React.useState<number | null>(null)
-  const plays = useRecentPlays({ limit: 50 })
+
+  const { plays: apiPlays } = useUserPlaysApi({ limit: 100 })
+  const recentEvents = useRecentPlays({ limit: 100 })
+
+  const normalizeEvent = React.useCallback((evt: any) => {
+    try {
+      const d = evt.data as any
+      const wager = d.wager?.toNumber ? d.wager.toNumber() : Number(d.wager) || 0
+      let payout = 0
+      try {
+        const betArr = d.bet || []
+        const idx = d.resultIndex?.toNumber ? d.resultIndex.toNumber() : Number(d.resultIndex ?? -1)
+        const multiplier = betArr && typeof betArr[idx] !== 'undefined' ? (Number(betArr[idx]) / BPS_PER_WHOLE) : 0
+        payout = wager * multiplier
+      } catch {
+        payout = Number(d.payout) || 0
+      }
+
+      return {
+        signature: evt.signature,
+        user: d.user || d.user?.toBase58?.() || null,
+        creator: d.creator?.toBase58 ? d.creator.toBase58() : d.creator,
+        token: d.token || (d._raw && d._raw.token) || null,
+        wager,
+        payout,
+        time: Number(d.time) || Date.now(),
+        _raw: evt,
+      }
+    } catch (e) {
+      return null
+    }
+  }, [])
+
+  const mergedPlays = React.useMemo(() => {
+    const normalizedRecent = (recentEvents || []).map((e: any) => normalizeEvent(e)).filter(Boolean)
+    const api = (apiPlays || []) as any[]
+    const map = new Map<string, any>()
+    ;[...normalizedRecent, ...api].forEach((p: any) => {
+      if (!p || !p.signature) return
+      if (!map.has(p.signature)) map.set(p.signature, p)
+    })
+    const arr = Array.from(map.values()).sort((a, b) => (b.time || 0) - (a.time || 0))
+    if (wallet) {
+      const addr = wallet.toBase58()
+      return arr.filter((p: any) => {
+        try {
+          return (p.user && (p.user === addr || p.user?.toBase58?.() === addr))
+        } catch {
+          return false
+        }
+      })
+    }
+
+    return arr
+  }, [apiPlays, recentEvents, normalizeEvent])
 
   const data = React.useMemo(() => {
     if (!sessionStart) return { spent: 0, won: 0, history: [] }
-    const sessionPlays = plays.filter(p => p.time >= sessionStart)
-    return sessionPlays.reduce((acc, play) => {
-      const wager = play.data.wager.toNumber()
-      const multiplier = play.data.bet[play.data.resultIndex.toNumber()] / BPS_PER_WHOLE
-      const payout = wager * multiplier
+    const sessionPlays = mergedPlays.filter((p: any) => p.time >= sessionStart)
+    return sessionPlays.reduce((acc: any, play: any) => {
+      const wager = Number(play.wager) || 0
+      const payout = Number(play.payout) || 0
       acc.spent += wager
       acc.won += payout
-      acc.history.push({ wager, win: payout > 0 })
+      acc.history.push({ wager, win: payout > wager })
       return acc
     }, { spent: 0, won: 0, history: [] as any[] })
-  }, [plays, sessionStart])
+  }, [mergedPlays, sessionStart])
+
+  // Token balances removed; session totals are computed from merged plays only
 
   return (
     <Container>
@@ -167,6 +223,13 @@ export const SessionWidget = () => {
           {wallet ? `${wallet.toBase58().slice(0,5)}...${wallet.toBase58().slice(-5)}` : 'Disconnected'}
         </span>
       </SessionHeader>
+
+      {/* Token balances (live) */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        {tokens.map((m: any, i: number) => (
+          <TokenBalanceItem key={i} mint={m} />
+        ))}
+      </div>
 
       <StatsGrid>
         <StatCard>

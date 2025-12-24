@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useWalletAddress } from 'gamba-react-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { TokenValue } from 'gamba-react-ui-v2'
+import { useUserPlaysApi } from '../../../../sections/RecentPlays/useUserPlaysApi'
 import { useRecentPlays } from '../../../../sections/RecentPlays/useRecentPlays'
 import { useColorScheme } from '../../../ColorSchemeContext'
 
@@ -136,21 +137,78 @@ export function SessionWidget() {
   const userAddress = useWalletAddress();
   const [sessionStart, setSessionStart] = React.useState<number | null>(null);
 
-  const plays = useRecentPlays({ limit: 50 });
+  // Combine historical API plays with live on-chain events for a live-updating view
+  const { plays: apiPlays } = useUserPlaysApi({ limit: 100 });
+  const recentEvents = useRecentPlays({ limit: 100 });
+
+  const normalizeEvent = React.useCallback((evt: any) => {
+    try {
+      const d = evt.data as any;
+      const wager = d.wager?.toNumber ? d.wager.toNumber() : Number(d.wager) || 0;
+      let payout = 0;
+      try {
+        const betArr = d.bet || [];
+        const idx = d.resultIndex?.toNumber ? d.resultIndex.toNumber() : Number(d.resultIndex ?? -1);
+        const multiplier = betArr && typeof betArr[idx] !== 'undefined' ? (Number(betArr[idx]) / BPS_PER_WHOLE) : 0;
+        payout = wager * multiplier;
+      } catch {
+        payout = Number(d.payout) || 0;
+      }
+
+      return {
+        signature: evt.signature,
+        user: d.user || d.user?.toBase58?.() || null,
+        creator: d.creator?.toBase58 ? d.creator.toBase58() : d.creator,
+        token: d.token || (d._raw && d._raw.token) || null,
+        wager,
+        payout,
+        time: Number(d.time) || Date.now(),
+        _raw: evt,
+      };
+    } catch (e) {
+      return null;
+    }
+  }, []);
+
+  const mergedPlays = React.useMemo(() => {
+    const normalizedRecent = (recentEvents || []).map((e: any) => normalizeEvent(e)).filter(Boolean);
+    const api = (apiPlays || []) as any[];
+    const map = new Map<string, any>();
+    // prefer recent events first so they appear as freshest
+    [...normalizedRecent, ...api].forEach((p: any) => {
+      if (!p || !p.signature) return;
+      if (!map.has(p.signature)) map.set(p.signature, p);
+    });
+    const arr = Array.from(map.values()).sort((a, b) => (b.time || 0) - (a.time || 0));
+    // If a wallet is connected, filter to only that user's plays so session shows live personal updates
+    if (userAddress) {
+      const addr = userAddress.toBase58();
+      return arr.filter((p: any) => {
+        try {
+          return (p.user && (p.user === addr || p.user?.toBase58?.() === addr));
+        } catch {
+          return false;
+        }
+      });
+    }
+
+    return arr;
+  }, [apiPlays, recentEvents, normalizeEvent]);
 
   const sessionData = React.useMemo(() => {
     if (!sessionStart) return { spent: 0, won: 0, history: [] };
-    const sessionPlays = plays.filter(p => p.time >= sessionStart);
-    return sessionPlays.reduce((acc, play) => {
-      const wager = play.data.wager.toNumber();
-      const multiplier = play.data.bet[play.data.resultIndex.toNumber()] / BPS_PER_WHOLE;
-      const payout = wager * multiplier;
+    const sessionPlays = mergedPlays.filter((p: any) => p.time >= sessionStart);
+    return sessionPlays.reduce((acc: any, play: any) => {
+      const wager = Number(play.wager) || 0;
+      const payout = Number(play.payout) || 0;
       acc.spent += wager;
       acc.won += payout;
-      acc.history.push({ net: payout - wager, win: payout > 0, wager });
+      acc.history.push({ net: payout - wager, win: payout > wager, wager });
       return acc;
     }, { spent: 0, won: 0, history: [] as any[] });
-  }, [plays, sessionStart]);
+  }, [mergedPlays, sessionStart]);
+
+    // Session uses merged plays (API + live) — token balances removed per request
 
   const resetSession = () => setSessionStart(Date.now());
 
@@ -162,6 +220,11 @@ export function SessionWidget() {
           {userAddress ? `${userAddress.toBase58().slice(0, 6)}...${userAddress.toBase58().slice(-6)}` : 'Disconnected'}
         </span>
       </WalletSection>
+
+      {/* Token balances (live) */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+          {/* Token balances removed as per request */}
+      </div>
 
       <StatsGrid>
         <StatCard>
