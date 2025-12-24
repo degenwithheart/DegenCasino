@@ -1,6 +1,5 @@
 import { cacheOnTheFly, CacheTTL } from '../cache/xcacheOnTheFly'
 import { withUsageTracking } from '../cache/usage-tracker'
-import { base58Decode, verifyEd25519Signature } from './signature-utils'; // Assuming these are imported or defined elsewhere
 
 // api/chat/chat.ts
 
