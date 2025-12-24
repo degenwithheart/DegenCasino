@@ -79,7 +79,7 @@ export default function Dice2D() {
     const deferAudio = useUserStore(s => !!s.deferAudio);
     const [audioLoaded, setAudioLoaded] = useState(!deferAudio);
 
-    const sounds = useSound(audioLoaded ? {
+    const { play, sounds } = useSound(audioLoaded ? {
         win: SOUND_WIN,
         play: SOUND_PLAY,
         lose: SOUND_LOSE,
@@ -219,7 +219,7 @@ export default function Dice2D() {
 
     const play = async () => {
         try {
-            sounds.play('play');
+            if (typeof play === 'function') play('play');
 
             await game.play({
                 wager,
@@ -331,13 +331,13 @@ export default function Dice2D() {
             gameStats.updateStats(profit);
 
             if (win) {
-                sounds.play('win');
+                if (typeof play === 'function') play('win');
                 if (enableEffects) {
                     effectsRef.current?.winFlash('#00ff00', 1.5);
                     effectsRef.current?.screenShake(1, 600);
                 }
             } else {
-                sounds.play('lose');
+                if (typeof play === 'function') play('lose');
                 if (enableEffects) {
                     effectsRef.current?.loseFlash('#ff4444', 0.8);
                     effectsRef.current?.screenShake(0.5, 400);
