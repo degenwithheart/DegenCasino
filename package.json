@@ -12,7 +12,6 @@
     "dev:prod": "npm run build:compress && vercel dev --prod",
     "build": "vite build && node scripts/post-build-mobile-sync.mjs --force && node scripts/post-build-mobile-sync.mjs",
     "build:compress": "vite build && node scripts/compress-build.mjs --force",
-    "build:analyze": "ANALYZE=true vite build",
     "compress": "node scripts/compress-build.mjs",
     "preview": "vite preview",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",

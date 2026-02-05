@@ -79,7 +79,7 @@ export default function Dice2D() {
     const deferAudio = useUserStore(s => !!s.deferAudio);
     const [audioLoaded, setAudioLoaded] = useState(!deferAudio);
 
-    const { play, sounds } = useSound(audioLoaded ? {
+    const sounds = useSound(audioLoaded ? {
         win: SOUND_WIN,
         play: SOUND_PLAY,
         lose: SOUND_LOSE,
@@ -217,17 +217,9 @@ export default function Dice2D() {
         setLastGameResult(null);
     };
 
-    const playGame = async () => {
+    const play = async () => {
         try {
-            if (typeof play === 'function') {
-                try {
-                    play('play');
-                } catch (e) {
-                    console.error('🎲 PLAY CALL ERROR (play):', e, { play, sounds, audioLoaded });
-                }
-            } else {
-                console.debug('🎲 play controller missing before play()', { play, sounds, audioLoaded });
-            }
+            sounds.play('play');
 
             await game.play({
                 wager,
@@ -339,21 +331,13 @@ export default function Dice2D() {
             gameStats.updateStats(profit);
 
             if (win) {
-                if (typeof play === 'function') {
-                    try { play('win'); } catch (e) { console.error('🎲 PLAY CALL ERROR (win):', e, { play, sounds, audioLoaded }); }
-                } else {
-                    console.debug('🎲 play controller missing before win()', { play, sounds, audioLoaded });
-                }
+                sounds.play('win');
                 if (enableEffects) {
                     effectsRef.current?.winFlash('#00ff00', 1.5);
                     effectsRef.current?.screenShake(1, 600);
                 }
             } else {
-                if (typeof play === 'function') {
-                    try { play('lose'); } catch (e) { console.error('🎲 PLAY CALL ERROR (lose):', e, { play, sounds, audioLoaded }); }
-                } else {
-                    console.debug('🎲 play controller missing before lose()', { play, sounds, audioLoaded });
-                }
+                sounds.play('lose');
                 if (enableEffects) {
                     effectsRef.current?.loseFlash('#ff4444', 0.8);
                     effectsRef.current?.screenShake(0.5, 400);
@@ -591,10 +575,10 @@ export default function Dice2D() {
             </GambaUi.Portal>
 
             <GambaUi.Portal target="controls">
-                    <MobileControls
+                <MobileControls
                     wager={wager}
                     setWager={setWager}
-                    onPlay={hasPlayed ? resetGame : playGame}
+                    onPlay={hasPlayed ? resetGame : play}
                     playDisabled={gamba.isPlaying || (!hasPlayed && poolExceeded)}
                     playText={hasPlayed ? "Roll Again" : "Roll Dice"}
                 >
@@ -625,7 +609,7 @@ export default function Dice2D() {
                 </MobileControls>
 
                 <DesktopControls
-                    onPlay={hasPlayed ? resetGame : playGame}
+                    onPlay={hasPlayed ? resetGame : play}
                     playDisabled={gamba.isPlaying || (!hasPlayed && poolExceeded)}
                     playText={hasPlayed ? "Roll Again" : "Roll Dice"}
                 >

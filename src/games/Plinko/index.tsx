@@ -41,53 +41,11 @@ export default function Plinko() {
   const deferAudio = useUserStore(s => !!s.deferAudio);
   const [audioLoaded, setAudioLoaded] = React.useState(!deferAudio);
 
-  // Use GambaUi.useSound to mirror PlinkoRace pattern
-  const { play, sounds } = GambaUi.useSound(audioLoaded ? {
+  const sounds = useSound(audioLoaded ? {
     bump: BUMP,
     win: WIN,
     fall: FALL,
   } : {});
-
-  // Keep a ref to the latest play and sounds for callbacks
-  const soundsRef = React.useRef({ play, sounds });
-  React.useEffect(() => {
-    soundsRef.current = { play, sounds };
-  }, [play, sounds]);
-
-  // Helper to safely play sounds (checks ready state before playing)
-  const safeSoundPlay = React.useCallback((name: 'bump' | 'win' | 'fall', opts?: any) => {
-    try {
-      const cur = soundsRef.current;
-      const s = cur.sounds?.[name];
-      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-        console.debug(`Plinko: attempt play -> ${name}`, { hasSounds: !!cur.sounds, soundReady: !!s?.ready, hasPlayFn: typeof cur.play === 'function' });
-      }
-      if (!cur.sounds) {
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') console.debug('Plinko: sounds object missing, aborting play');
-        return;
-      }
-      if (!s?.ready) {
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') console.debug(`Plinko: sound not ready -> ${name}`);
-        return;
-      }
-      if (typeof cur.play === 'function') {
-        cur.play(name, opts);
-      } else {
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') console.debug('Plinko: play function missing on sounds controller');
-      }
-    } catch (e) {
-      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-        console.debug('Plinko: Audio play error:', e);
-      }
-    }
-  }, []);
-
-  // Log audioLoaded transitions for debugging
-  useEffect(() => {
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.debug('Plinko: audioLoaded ->', audioLoaded, 'deferAudio ->', deferAudio);
-    }
-  }, [audioLoaded, deferAudio]);
 
   // Load audio on first interaction if deferred
   useEffect(() => {
@@ -104,39 +62,13 @@ export default function Plinko() {
     }
   }, [deferAudio, audioLoaded]);
 
-  // Debug: log sound readiness in development to help diagnose silent audio
-  useEffect(() => {
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-      try {
-        if (!sounds) {
-          console.debug('Plinko: sounds not initialized yet');
-          return;
-        }
-        Object.keys(sounds).forEach((k) => {
-          const s = (sounds as any)[k];
-          if (s?.ready) console.debug(`Plinko: sound ready -> ${k}`);
-          else {
-            const wait = () => {
-              if ((s as any)?.ready) console.debug(`Plinko: sound now ready -> ${k}`);
-              else setTimeout(wait, 150);
-            };
-            wait();
-          }
-        });
-      } catch (e) {
-        console.debug('Plinko: sound debug error', e);
-      }
-    }
-  }, [sounds]);
-
   const pegAnimations = React.useRef<Record<number, number>>({});
   const bucketAnimations = React.useRef<Record<number, number>>({});
 
   const bet = degen ? DEGEN_BET : BET;
   const rows = degen ? 12 : 14;
 
-  const betKey = React.useMemo(() => JSON.stringify(bet), [bet]);
-  const baseMultipliers = React.useMemo(() => Array.from(new Set(bet)), [betKey]);
+  const baseMultipliers = React.useMemo(() => Array.from(new Set(bet)), [bet]);
 
   // Graphics & UI state
   const { settings } = useGraphics();
@@ -216,15 +148,15 @@ export default function Plinko() {
     onContact(contact) {
       if (contact.peg && contact.plinko) {
         pegAnimations.current[contact.peg.plugin.pegIndex] = 1;
-        safeSoundPlay('bump', { playbackRate: 1 + Math.random() * .05 });
+        sounds.play('bump', { playbackRate: 1 + Math.random() * .05 });
       }
       if (contact.barrier && contact.plinko) {
-        safeSoundPlay('bump', { playbackRate: .5 + Math.random() * .05 });
+        sounds.play('bump', { playbackRate: .5 + Math.random() * .05 });
       }
       if (contact.bucket && contact.plinko) {
         const idx = contact.bucket.plugin.bucketIndex;
         bucketAnimations.current[idx] = 1;
-        safeSoundPlay(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall');
+        sounds.play(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall');
         // Record recent hits and mark active
         setRecentHits(prev => {
           const next = [...prev.slice(-19), idx];
@@ -273,7 +205,7 @@ export default function Plinko() {
   // request a server result (multiplier), then create a dedicated Plinko
   // instance that will replay that result independently. This allows many
   // replays to animate at once without changing the engine internals.
-  const playGame = async () => {
+  const play = async () => {
     if (!boardPlinko) return;
     if (multiPlaying) return;
 
@@ -301,15 +233,15 @@ export default function Plinko() {
       onContact(contact) {
         if (contact.peg && contact.plinko) {
           pegAnimations.current[contact.peg.plugin.pegIndex] = 1;
-          safeSoundPlay('bump', { playbackRate: 1 + Math.random() * .05 });
+          sounds.play('bump', { playbackRate: 1 + Math.random() * .05 });
         }
         if (contact.barrier && contact.plinko) {
-          safeSoundPlay('bump', { playbackRate: .5 + Math.random() * .05 });
+          sounds.play('bump', { playbackRate: .5 + Math.random() * .05 });
         }
         if (contact.bucket && contact.plinko) {
           const idx = contact.bucket.plugin.bucketIndex;
           bucketAnimations.current[idx] = 1;
-          safeSoundPlay(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall');
+          sounds.play(contact.bucket.plugin.bucketMultiplier >= 1 ? 'win' : 'fall');
           setRecentHits(prev => {
             const next = [...prev.slice(-19), idx];
             return next;
@@ -391,7 +323,7 @@ export default function Plinko() {
     });
 
     // All done
-        setBallPlinkos([]);
+    setBallPlinkos([]);
     setMultiPlaying(false);
     setCompletedBalls(0);
   };
@@ -747,10 +679,10 @@ export default function Plinko() {
       </GambaUi.Portal>
 
       <GambaUi.Portal target="controls">
-          <MobileControls
+        <MobileControls
           wager={wager}
           setWager={setWager}
-          onPlay={() => playGame()}
+          onPlay={() => play()}
           playDisabled={gamba.isPlaying || poolExceeded}
           playText="Play"
         >
@@ -830,7 +762,7 @@ export default function Plinko() {
         </MobileControls>
 
         <DesktopControls
-          onPlay={() => playGame()}
+          onPlay={() => play()}
           playDisabled={gamba.isPlaying || poolExceeded}
           playText="Play"
         >
