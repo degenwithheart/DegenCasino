@@ -30,6 +30,14 @@ export const GAME_LOADING_CONFIGS: GameLoadingConfig[] = [
     conversionRate: 0.8
   },
   {
+    id: 'dicedual',
+    priority: LoadingPriority.CRITICAL,
+    preloadAssets: ['/webp/games/dicedual.webp'],
+    popularity: 9,
+    averageSessionTime: 5,
+    conversionRate: 0.8
+  },
+  {
     id: 'slots',
     priority: LoadingPriority.CRITICAL,
     preloadAssets: ['/webp/games/slots.webp'],

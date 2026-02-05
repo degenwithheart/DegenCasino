@@ -73,7 +73,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'plinkorace',
-    live: 'offline',
+    live: 'coming-soon',
     mobileAvailable: 'yes',
     meta: {
       name: 'PlinkoRace',
@@ -109,7 +109,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'hilo',
-    live: 'coming-soon',
+    live: 'offline',
     mobileAvailable: 'yes',
     meta: {
       name: 'HiLo',
@@ -163,7 +163,7 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
   },
   {
     id: 'crash',
-    live: 'coming-soon',
+    live: 'offline',
     mobileAvailable: 'yes',
     meta: {
       name: 'Crash',
@@ -191,6 +191,26 @@ export const ALL_GAMES: ExtendedGameBundle[] = [
       tag: 'Singleplayer',
     },
     app: React.lazy(() => import('./BlackJack')),
+    capabilities: {
+      supports2D: true,
+      supports3D: true,
+      default: '2D'
+    },
+  },
+  {
+    id: 'dicedual',
+    live: 'coming-soon',
+    mobileAvailable: 'yes',
+    meta: {
+      name: 'Dice Dual',
+      background: '#000000CC',
+      image: '/webp/games/dicedual.webp',
+      description: `
+        Challenge an opponent to a 1v1 dice duel! Choose your dice count, make your prediction (over/under/exact a target number), and compete for the pot. Winner takes all in this fast-paced multiplayer dice game.
+      `,
+      tag: 'Multiplayer',
+    },
+    app: React.lazy(() => import('./DiceDual')),
     capabilities: {
       supports2D: true,
       supports3D: true,
